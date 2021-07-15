@@ -440,7 +440,10 @@ class Room extends Component {
             parentResource={course ? course._id : null}
             courseMembers={course ? course.members : null}
             notifications={
-              notifications.filter((ntf) => ntf.resourceId === room._id) || []
+              course
+                ? notifications.filter((ntf) => ntf.resourceId === course._id)
+                : notifications.filter((ntf) => ntf.resourceId === room._id) ||
+                  []
             }
           />
         );

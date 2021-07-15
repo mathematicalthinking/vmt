@@ -192,7 +192,8 @@ class Course extends Component {
       (ntf) =>
         ntf.parentResource === course._id &&
         (ntf.notificationType === 'assignedNewRoom' ||
-          ntf.notificationType === 'invitation')
+          ntf.notificationType === 'invitation' ||
+          ntf.notificationType === 'newMember')
     );
     updatedTabs[1].notifications =
       newRoomNtfs.length > 0 ? newRoomNtfs.length : '';

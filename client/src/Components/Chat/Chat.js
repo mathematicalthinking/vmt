@@ -106,12 +106,14 @@ class Chat extends Component {
     }
 
     // if we have a new pending user and are near bottom, scroll to bottom to not cover messages
-    if (
-      Object.keys(prevProps.pendingUsers).length <
-      Object.keys(pendingUsers).length
-    ) {
-      if (this.nearBottom()) {
-        this.scrollToBottom();
+    if (!replayer) {
+      if (
+        Object.keys(prevProps.pendingUsers).length <
+        Object.keys(pendingUsers).length
+      ) {
+        if (this.nearBottom()) {
+          this.scrollToBottom();
+        }
       }
     }
   }

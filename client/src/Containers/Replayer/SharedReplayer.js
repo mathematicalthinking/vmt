@@ -407,6 +407,9 @@ class SharedReplayer extends Component {
     if (evnt.messageType === 'TOOK_CONTROL') {
       // console.log('Setting member: ', evnt.user && evnt.user._id);
       this.setState({ activeMember: evnt.user && evnt.user._id });
+      // if there is a mathspace event, noted by a description, the user who did it was in control
+    } else if (evnt.description) {
+      this.setState({ activeMember: evnt.user && evnt.user._id });
     } else if (
       // if the active user leaves or released control, reset the activeMember
       (evnt.messageType === 'RELEASED_CONTROL' ||
