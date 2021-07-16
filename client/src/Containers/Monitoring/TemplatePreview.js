@@ -6,6 +6,7 @@
 
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select';
 import { NavItem, ToggleGroup, SimpleChat } from 'Components';
 import { usePopulatedRoom } from 'utils';
 import Chart from 'Containers/Stats/Chart';
@@ -46,6 +47,7 @@ function TemplatePreview({ activity }) {
 
   const [viewType, setViewType] = React.useState(constants.CHAT);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
+  const [tabSelection, setTabSelection] = React.useState();
 
   // Because "useQuery" is the equivalent of useState, do this
   // initialization of queryStates (an object containing the states
@@ -115,6 +117,7 @@ function TemplatePreview({ activity }) {
             populatedRoom={
               queryStates[id].isSuccess ? queryStates[id].data : {}
             }
+            initialTabIndex={tabSelection ? tabSelection.value : undefined}
           />
         );
       }
@@ -154,46 +157,59 @@ function TemplatePreview({ activity }) {
           )}
         </Fragment>
       </div>
+      {viewType === constants.THUMBNAIL && (
+        <Select
+          options={activity.tabs.map((tab, index) => {
+            return { value: index, label: tab.name };
+          })}
+          value={tabSelection}
+          onChange={(selectedOption) => {
+            setTabSelection(selectedOption);
+          }}
+          placeholder="Select a Tab..."
+        />
+      )}
+      <div className={classes.TileGroup}>
+        {activity.rooms.map((roomId) => {
+          // for each of the rooms
+          // display its title bar (title and menu) and
+          // then the particular view type.
+          return (
+            <div key={roomId} className={classes.Tile}>
+              <div className={classes.TileContainer}>
+                <div
+                  className={classes.Title}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                    marginBottom: '5px',
+                  }}
+                >
+                  <DropdownMenu
+                    list={_makeMenu(roomId)}
+                    name={<i className="fas fa-bars" />}
+                  />
+                  {queryStates[roomId].isSuccess ? (
+                    <Fragment>
+                      {queryStates[roomId].data.name}
+                      <span className={classes.Timestamp}>
+                        updated:{' '}
+                        {_roomDateStamp(queryStates[roomId].data.updatedAt)}
+                      </span>
+                    </Fragment>
+                  ) : (
+                    'Loading...'
+                  )}
+                </div>
 
-      {activity.rooms.map((roomId) => {
-        // for each of the rooms
-        // display its title bar (title and menu) and
-        // then the particular view type.
-        return (
-          <div key={roomId} className={classes.Tile}>
-            <div className={classes.TileContainer}>
-              <div
-                className={classes.Title}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'flex-start',
-                  alignItems: 'center',
-                  marginBottom: '5px',
-                }}
-              >
-                <DropdownMenu
-                  list={_makeMenu(roomId)}
-                  name={<i className="fas fa-bars" />}
-                />
-                {queryStates[roomId].isSuccess ? (
-                  <Fragment>
-                    {queryStates[roomId].data.name}
-                    <span className={classes.Timestamp}>
-                      updated:{' '}
-                      {_roomDateStamp(queryStates[roomId].data.updatedAt)}
-                    </span>
-                  </Fragment>
-                ) : (
-                  'Loading...'
-                )}
+                {queryStates[roomId].isSuccess && _displayViewType(roomId)}
               </div>
-
-              {queryStates[roomId].isSuccess && _displayViewType(roomId)}
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
