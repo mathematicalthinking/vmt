@@ -32,14 +32,13 @@ export default function Thumbnails({
   // Allow for the parent to set the initial selection. Do nothing if we receive the default values
   React.useEffect(() => {
     if (
-      initialTabIndex &&
+      initialTabIndex !== -1 &&
       populatedRoom.tabs &&
       populatedRoom.tabs.length > initialTabIndex
     ) {
-      const initialTabId = populatedRoom.tabs[initialTabIndex]._id;
-      setTabSelection(initialTabId);
+      setTabSelection(_tabOptions(populatedRoom.tabs)[initialTabIndex]);
     }
-    if (initialScreen) setScreenSelection(initialScreen);
+    if (initialScreen !== -1) setScreenSelection(initialScreen);
   }, [initialTabIndex, initialScreen]);
 
   // Update the thumbnail either when the selection changes or when new data come in (potentially a new snapshot)
@@ -93,11 +92,15 @@ export default function Thumbnails({
    * FUNCTION USED TO SIMPLIFY THE RENDER LOGIC. Creates the Select components, if needed, for tabs and screens.
    *
    */
-  const _tabsAndScreens = () => {
-    const tabs = populatedRoom.tabs || [];
-    const tabOptions = tabs.map((tab) => {
+
+  const _tabOptions = (tabs) => {
+    return tabs.map((tab) => {
       return { value: tab._id, label: tab.name };
     });
+  };
+  const _tabsAndScreens = () => {
+    const tabs = populatedRoom.tabs || [];
+    const tabOptions = _tabOptions(tabs);
 
     let screens = [];
     if (tabOptions.length === 1) {
@@ -174,6 +177,6 @@ Thumbnails.propTypes = {
 
 Thumbnails.defaultProps = {
   defaultLabel: '',
-  initialTabIndex: null,
-  initialScreen: null,
+  initialTabIndex: -1,
+  initialScreen: -1,
 };
