@@ -171,10 +171,10 @@ export function useSnapshots(callback, initialObject = {}) {
 }
 
 /**
- * @function usePopulatedRoom A custom hook that uses react-query to pull room data from the DB
- * @param roomID @type string The ID of the room
- * @param shouldBuildLog @type boolean @default false Whether we should build a log from the full set of room events
- * @param options @type object @default {} See the docs for react-query's UseQuery for these options.
+ * A custom hook that uses react-query to pull room data from the DB
+ * @param {string} roomID - The ID of the room
+ * @param {boolean} [shouldBuildLog=false] - Whether we should build a log from the full set of room events
+ * @param {object} [options={}] - See the docs for react-query's UseQuery for these options.
  */
 export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
   return useQuery(
