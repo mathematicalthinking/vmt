@@ -63,7 +63,7 @@ describe('test admin privileges', function() {
   });
 
   it('Q accesses an activity he does not belong to', function() {
-    cy.contains('Activities').click();
+    cy.contains('Templates').click();
     cy.getTestElement('content-box-ACTIVITY 2').click();
     cy.url().should(
       'include',
@@ -72,16 +72,16 @@ describe('test admin privileges', function() {
   });
 
   it('Q can edit and delete this activity', function() {
-    cy.getTestElement('edit-activity').click();
+    cy.getTestElement('edit-template').click();
     cy.getTestElement('edit-description').type('new description');
-    cy.getTestElement('save-activity').click();
+    cy.getTestElement('save-template').click();
     cy.contains('new description').should('exist');
-    cy.getTestElement('edit-activity').click();
-    cy.getTestElement('trash-activity').click();
+    cy.getTestElement('edit-template').click();
+    cy.getTestElement('trash-template').click();
     cy.getTestElement('confirm-trash').click();
-    cy.url().should('include', 'myVMT/activities');
+    cy.url().should('include', 'myVMT/templates');
     cy.contains('Community').click();
-    cy.contains('Activities').click();
+    cy.contains('Templates').click();
     cy.getTestElement('content-box-ACTIVITY 2').should('not.exist');
   });
 

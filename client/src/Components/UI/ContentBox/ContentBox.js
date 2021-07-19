@@ -43,7 +43,7 @@ class ContentBox extends PureComponent {
           style={{ height: expanded ? 150 : 50 }}
         >
           <div
-            data-testid={`content-box-${title.substr(0, 10)}`}
+            data-testid={`content-box-${title}`}
             className={classes.SubContainer}
           >
             <div className={classes.TopBanner}>

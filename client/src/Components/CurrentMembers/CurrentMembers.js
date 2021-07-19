@@ -55,20 +55,23 @@ function CurrentMembers({
         data-testid="current-members"
       >
         {presentMembers.map((presMember) => {
-          const shortName = usernameGen(presMember.user.username);
-          return (
-            <div
-              className={[
-                classes.Avatar,
-                activeMember && presMember.user._id === activeMember
-                  ? classes.Active
-                  : classes.Passive,
-              ].join(' ')}
-              key={presMember._id}
-            >
-              <Avatar username={shortName} color={presMember.color} />
-            </div>
-          );
+          if (presMember) {
+            const shortName = usernameGen(presMember.user.username);
+            return (
+              <div
+                className={[
+                  classes.Avatar,
+                  activeMember && presMember.user._id === activeMember
+                    ? classes.Active
+                    : classes.Passive,
+                ].join(' ')}
+                key={presMember._id}
+              >
+                <Avatar username={shortName} color={presMember.color} />
+              </div>
+            );
+          }
+          return null;
         })}
       </div>
     </div>
