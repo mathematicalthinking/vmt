@@ -220,19 +220,9 @@ class NewResourceContainer extends Component {
   setPrivacy = (privacySetting) => {
     this.setState({ privacySetting });
   };
-  nextStep = (direction) => {
-    const _isCopy = (step) => {
-      if (step === 0) {
-        if (direction === 'copy') {
-          return true;
-        }
-      }
-      // TODO CHECK THIS REFACTOR
-      return false;
-    };
+  nextStep = () => {
     this.setState((previousState) => ({
       step: previousState.step + 1,
-      copying: _isCopy(previousState.step),
     }));
   };
 
@@ -356,7 +346,10 @@ class NewResourceContainer extends Component {
               <Button
                 disabled={name.length === 0}
                 click={() => {
-                  this.nextStep('new');
+                  this.nextStep();
+                  this.setState({
+                    copying: false,
+                  });
                 }}
                 tabIndex={0}
                 m={5}
@@ -368,7 +361,10 @@ class NewResourceContainer extends Component {
               <Button
                 disabled={name.length === 0}
                 click={() => {
-                  this.nextStep('copy');
+                  this.nextStep();
+                  this.setState({
+                    copying: true,
+                  });
                 }}
                 m={5}
                 tabIndex={0}
@@ -388,7 +384,14 @@ class NewResourceContainer extends Component {
         </div>
       );
     } else {
-      buttons = <Button click={this.nextStep}>next</Button>;
+      buttons = (
+        <Button
+          disabled={copying && activities.length < 1}
+          click={this.nextStep}
+        >
+          next
+        </Button>
+      );
     }
 
     return (

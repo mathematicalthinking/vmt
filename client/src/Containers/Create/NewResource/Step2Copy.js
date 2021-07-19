@@ -14,7 +14,6 @@ class Step2Copy extends Component {
       activties.sort(function(a, b) {
         return new Date(b.updatedAt) - new Date(a.updatedAt);
       });
-      console.log('Activities: ', activties);
       this.setState({ activityList: activties });
     });
   }
