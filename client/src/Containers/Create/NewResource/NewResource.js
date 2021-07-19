@@ -373,7 +373,7 @@ class NewResourceContainer extends Component {
                 m={5}
                 tabIndex={0}
               >
-                copy existing template
+                use existing template
               </Button>
             </div>
           </Aux>
@@ -408,7 +408,12 @@ class NewResourceContainer extends Component {
               <h2 className={classes.ModalTitle}>
                 Create {resource === 'activities' ? 'a' : 'a'} {displayResource}
               </h2>
-              <div className={classes.MainModalContent}>{steps[step]}</div>
+              <div
+                className={classes.MainModalContent}
+                style={step === 1 && copying ? { overflow: 'scroll' } : {}}
+              >
+                {steps[step]}
+              </div>
               <div className={classes.Row}>{buttons}</div>
             </div>
             <div className={classes.StepDisplayContainer}>{stepDisplays}</div>
