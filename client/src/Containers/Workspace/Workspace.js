@@ -325,6 +325,7 @@ class Workspace extends Component {
             // eslint-disable-next-line no-console
             console.log(err); // HOW SHOULD WE HANDLE THIS
           }
+          console.log('Current members: ', room.currentMembers);
           this.setState({
             currentMembers: room.currentMembers,
           });

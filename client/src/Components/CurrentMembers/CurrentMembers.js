@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import classes from './currentMembers.css';
 import Avatar from '../UI/Avatar/Avatar';
+import COLOR_MAP from '../../utils/colorMap';
 
 function CurrentMembers({
   currentMembers,
@@ -17,9 +18,20 @@ function CurrentMembers({
     const currmembers = currentMembers.filter((m) => m && m._id);
     // Creatings new array of members in the room so that we have all of the member metadata (inc color)
     // note that the members array and the currentMembers array have objects of different structure.
-    const result = currmembers.map((member) =>
-      members.find((m) => m.user._id === member._id)
-    );
+    const result = currmembers.map((member) => {
+      let mem = members.find((m) => m.user._id === member._id);
+      if (!mem) {
+        mem = {
+          user: {
+            username: member.username,
+            _id: member._id,
+          },
+          color: COLOR_MAP[members.length || 0],
+        };
+      }
+      return mem;
+    });
+    console.log('CurMem result: ', result);
     setPresentMembers(result);
   }, [currentMembers]);
 
@@ -65,7 +77,7 @@ function CurrentMembers({
                     ? classes.Active
                     : classes.Passive,
                 ].join(' ')}
-                key={presMember._id}
+                key={presMember.user._id}
               >
                 <Avatar username={shortName} color={presMember.color} />
               </div>

@@ -168,7 +168,7 @@ class NewResourceContainer extends Component {
           if (roomType === 'geogebra') {
             newResource.appName = appName;
           }
-          console.log(`New room created: ${newResource}`);
+          // console.log(`New room created: ${newResource}`);
           connectCreateRoom(newResource);
           break;
         default:
