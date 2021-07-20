@@ -134,7 +134,10 @@ class Members extends PureComponent {
     if (text.length > 0) {
       API.search('user', text, classList.map((member) => member.user._id))
         .then((res) => {
-          const searchResults = res.data.results;
+          const searchResults = res.data.results.filter(
+            (user) => user.accountType !== 'temp'
+          );
+          console.log(searchResults);
           this.setState({ searchResults, searchText: text });
         })
         .catch((err) => {

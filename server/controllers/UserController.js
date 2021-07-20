@@ -24,7 +24,7 @@ module.exports = {
         _id: { $nin: idsToExclude },
       })
         .limit(5)
-        .select('username email')
+        .select('username email accountType')
         .then((users) => {
           resolve(users);
         })
