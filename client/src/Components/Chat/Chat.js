@@ -475,40 +475,44 @@ class Chat extends Component {
             id="scrollable"
           >
             {displayMessages}
+            <div className={classes.Timestamp}>End of message log</div>
           </div>
           {hasNewMessages && (
             <Button click={this.scrollToBottom} theme="xs">
               New Messages
             </Button>
           )}
-          <Pending pendingUsers={pendingUsers} />
           {!replayer ? (
-            <div className={classes.ChatInput}>
-              <input
-                ref={this.chatInput}
-                className={classes.Input}
-                type="text"
-                onChange={change}
-                value={value}
-                onFocus={() => {
-                  if (!referencing) {
-                    startNewReference();
-                  }
-                }}
-                disabled={user.inAdminMode}
-              />
-              {!user.inAdminMode ? (
-                <div
-                  className={classes.Send}
-                  onClick={submit}
-                  onKeyPress={submit}
-                  tabIndex="-2"
-                  role="button"
-                >
-                  <i className="fab fa-telegram-plane" />
-                </div>
-              ) : null}
-            </div>
+            <Fragment>
+              <div className={classes.ChatInput}>
+                <Pending pendingUsers={pendingUsers} />
+
+                <input
+                  ref={this.chatInput}
+                  className={classes.Input}
+                  type="text"
+                  onChange={change}
+                  value={value}
+                  onFocus={() => {
+                    if (!referencing) {
+                      startNewReference();
+                    }
+                  }}
+                  disabled={user.inAdminMode}
+                />
+                {!user.inAdminMode ? (
+                  <div
+                    className={classes.Send}
+                    onClick={submit}
+                    onKeyPress={submit}
+                    tabIndex="-2"
+                    role="button"
+                  >
+                    <i className="fab fa-telegram-plane" />
+                  </div>
+                ) : null}
+              </div>
+            </Fragment>
           ) : null}
         </div>
         {/* {settings ? (
