@@ -114,8 +114,12 @@ class MakeRooms extends Component {
     const _updateParticipantList = (selectedParticipants) => {
       const newParticipant = userId;
       let updatedSelectedParticipants = [...selectedParticipants];
-      // if user is already selected, remove them from the selected lis
-      if (selectedParticipants.includes(newParticipant)) {
+      // if user is already selected, remove them from the selected list
+      if (
+        selectedParticipants.some((mem) => {
+          return mem.user._id === newParticipant.user._id;
+        })
+      ) {
         updatedSelectedParticipants = selectedParticipants.filter(
           (participant) => participant !== newParticipant
         );
