@@ -23,6 +23,7 @@ class Chat extends Component {
       highlightedMessage: null,
       // settings: false,
       hasNewMessages: false,
+      lastTimestamp: '',
     };
     this.chatContainer = React.createRef();
     this.chatInput = chatInput || React.createRef();
@@ -66,7 +67,9 @@ class Chat extends Component {
     if (prevProps.log.length !== log.length) {
       // create a ref for the new element
       if (log.length) {
+        const ts = new Date(log[log.length - 1].timestamp);
         this[`message-${log[log.length - 1]._id}`] = React.createRef();
+        this.setState({ lastTimestamp: ts.toTimeString().split(' ')[0] });
       }
       if (this.nearBottom()) this.scrollToBottom();
       else this.setState({ hasNewMessages: true });
@@ -318,7 +321,7 @@ class Chat extends Component {
       pendingUsers,
       connectionStatus,
     } = this.props;
-    const { highlightedMessage, hasNewMessages } = this.state;
+    const { highlightedMessage, hasNewMessages, lastTimestamp } = this.state;
     const DropdownMenu = () => {
       return (
         // eslint-disable-next-line
@@ -475,7 +478,11 @@ class Chat extends Component {
             id="scrollable"
           >
             {displayMessages}
-            <div className={classes.Timestamp}>End of message log</div>
+            <div className={classes.Timestamp}>
+              {isSimplified
+                ? `End of log - last event ${lastTimestamp}`
+                : 'End of log'}
+            </div>
           </div>
           {hasNewMessages && (
             <Button click={this.scrollToBottom} theme="xs">
