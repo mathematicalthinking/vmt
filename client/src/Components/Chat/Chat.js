@@ -62,7 +62,6 @@ class Chat extends Component {
       showingReference,
       isSimplified,
       replayer,
-      pendingUsers,
     } = this.props;
     if (prevProps.log.length !== log.length) {
       // create a ref for the new element
@@ -106,16 +105,16 @@ class Chat extends Component {
     }
 
     // if we have a new pending user and are near bottom, scroll to bottom to not cover messages
-    if (!replayer) {
-      if (
-        Object.keys(prevProps.pendingUsers).length <
-        Object.keys(pendingUsers).length
-      ) {
-        if (this.nearBottom()) {
-          this.scrollToBottom();
-        }
-      }
-    }
+    // if (!replayer) {
+    //   if (
+    //     Object.keys(prevProps.pendingUsers).length <
+    //     Object.keys(pendingUsers).length
+    //   ) {
+    //     if (this.nearBottom()) {
+    //       this.scrollToBottom();
+    //     }
+    //   }
+    // }
   }
 
   componentWillUnmount() {
