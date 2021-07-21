@@ -18,6 +18,8 @@ function CurrentMembers({
     const currmembers = currentMembers.filter((m) => m && m._id);
     // Creatings new array of members in the room so that we have all of the member metadata (inc color)
     // note that the members array and the currentMembers array have objects of different structure.
+    // there is some additional logic if new room members are added mid-session, simply to assign them a color in the room roster
+    let newMemCount = 0;
     const result = currmembers.map((member) => {
       let mem = members.find((m) => m.user._id === member._id);
       if (!mem) {
@@ -26,12 +28,12 @@ function CurrentMembers({
             username: member.username,
             _id: member._id,
           },
-          color: COLOR_MAP[members.length || 0],
+          color: COLOR_MAP[members.length + newMemCount || 0],
         };
+        newMemCount += 1;
       }
       return mem;
     });
-    console.log('CurMem result: ', result);
     setPresentMembers(result);
   }, [currentMembers]);
 
