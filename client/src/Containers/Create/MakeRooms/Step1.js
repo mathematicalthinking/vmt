@@ -53,7 +53,9 @@ class Step1 extends Component {
         [userId].concat(selectedParticipants.map((p) => p.user._id)) // Exclude myself and already selected members from th search
       )
         .then((res) => {
-          const searchResults = res.data.results;
+          const searchResults = res.data.results.filter(
+            (user) => user.accountType !== 'temp'
+          );
           this.setState({ searchResults });
         })
         .catch((err) => {
