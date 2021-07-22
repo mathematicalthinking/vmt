@@ -5,7 +5,12 @@ import Select from 'react-select';
 import { useSnapshots } from 'utils/utilityHooks';
 import classes from './monitoringView.css';
 
-export default function Thumbnails({ populatedRoom, defaultLabel }) {
+export default function Thumbnails({
+  populatedRoom,
+  defaultLabel,
+  initialTabIndex,
+  initialScreen,
+}) {
   const [tabSelection, setTabSelection] = React.useState();
   const [screenSelection, setScreenSelection] = React.useState();
   const [thumbnail, setThumbnail] = React.useState();
@@ -24,6 +29,18 @@ export default function Thumbnails({ populatedRoom, defaultLabel }) {
       : {}
   );
 
+  // Allow for the parent to set the initial selection. Do nothing if we receive the default values
+  React.useEffect(() => {
+    if (
+      initialTabIndex !== -1 &&
+      populatedRoom.tabs &&
+      populatedRoom.tabs.length > initialTabIndex
+    ) {
+      setTabSelection(_tabOptions(populatedRoom.tabs)[initialTabIndex]);
+    }
+    if (initialScreen !== -1) setScreenSelection(initialScreen);
+  }, [initialTabIndex, initialScreen]);
+
   // Update the thumbnail either when the selection changes or when new data come in (potentially a new snapshot)
   React.useEffect(() => {
     let snapshot;
@@ -41,11 +58,6 @@ export default function Thumbnails({ populatedRoom, defaultLabel }) {
 
     setThumbnail(snapshot);
   }, [tabSelection, screenSelection, populatedRoom]);
-
-  // reset the screen selection when a tab is selected
-  React.useEffect(() => {
-    setScreenSelection(0);
-  }, [tabSelection]);
 
   /**
    *
@@ -80,11 +92,15 @@ export default function Thumbnails({ populatedRoom, defaultLabel }) {
    * FUNCTION USED TO SIMPLIFY THE RENDER LOGIC. Creates the Select components, if needed, for tabs and screens.
    *
    */
-  const _tabsAndScreens = () => {
-    const tabs = populatedRoom.tabs || [];
-    const tabOptions = tabs.map((tab) => {
+
+  const _tabOptions = (tabs) => {
+    return tabs.map((tab) => {
       return { value: tab._id, label: tab.name };
     });
+  };
+  const _tabsAndScreens = () => {
+    const tabs = populatedRoom.tabs || [];
+    const tabOptions = _tabOptions(tabs);
 
     let screens = [];
     if (tabOptions.length === 1) {
@@ -116,7 +132,11 @@ export default function Thumbnails({ populatedRoom, defaultLabel }) {
             className={classes.Select}
             options={tabOptions}
             value={tabSelection}
-            onChange={(selectedOption) => setTabSelection(selectedOption)}
+            onChange={(selectedOption) => {
+              setTabSelection(selectedOption);
+              // reset the screen selection when a tab is selected
+              setScreenSelection(0);
+            }}
             placeholder="Select a Tab..."
           />
         )}
@@ -151,8 +171,12 @@ export default function Thumbnails({ populatedRoom, defaultLabel }) {
 Thumbnails.propTypes = {
   populatedRoom: PropTypes.shape({}).isRequired,
   defaultLabel: PropTypes.string,
+  initialTabIndex: PropTypes.number,
+  initialScreen: PropTypes.number,
 };
 
 Thumbnails.defaultProps = {
   defaultLabel: '',
+  initialTabIndex: -1,
+  initialScreen: -1,
 };

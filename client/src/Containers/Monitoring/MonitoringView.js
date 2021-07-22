@@ -276,11 +276,10 @@ function MonitoringView({
 
       {viewOrSelect === constants.SELECT ? (
         <SelectionTable
-          data={Object.keys(queryStates)
-            .filter((id) => queryStates[id].isSuccess)
-            .map((_id) => {
-              return { _id, ...queryStates[_id].data };
-            })}
+          // So that we quickly display the table: use the data in userResources until we have more recent live data
+          data={userResources.map((room) =>
+            queryStates[room._id].isSuccess ? queryStates[room._id].data : room
+          )}
           selections={selections}
           onChange={(newSelections) => {
             setSelections((prev) => {
