@@ -485,8 +485,8 @@ class Chat extends Component {
             </div>
           </div>
           {hasNewMessages && (
-            <Button click={this.scrollToBottom} theme="xs">
-              New Messages
+            <Button click={this.scrollToBottom} theme="ntf" m="0 0 0 auto">
+              New <i className="fas fa-arrow-down" />
             </Button>
           )}
           {!replayer ? (

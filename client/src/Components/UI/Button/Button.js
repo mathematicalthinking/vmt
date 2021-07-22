@@ -31,7 +31,7 @@ Button.propTypes = {
   'data-testid': PropTypes.string,
   theme: PropTypes.string,
   disabled: PropTypes.bool,
-  m: PropTypes.number,
+  m: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   click: PropTypes.func.isRequired,
   tabIndex: PropTypes.number,
   id: PropTypes.string,

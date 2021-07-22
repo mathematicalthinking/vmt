@@ -24,8 +24,8 @@
   border: 1px solid#ddd;
   background: #eff3f6;
   border-radius: 4px;
-  width: 90%;
-  padding: 2px;
+  /* width: 90%; */
+  padding: 2px 5px;
   max-height: 45px;
   height: auto;
   margin: 5px 7px;
