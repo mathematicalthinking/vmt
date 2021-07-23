@@ -70,7 +70,9 @@ class TempWorkspace extends Component {
 
   joinRoom = (graphType) => {
     const { loggedIn, username, userId, populatedRoom } = this.props;
-    const { tempUsername, firstEntry } = this.state;
+    const { tempUsername, firstEntry, saved } = this.state;
+    // disable save for DesmosActivities
+    this.setState({ saved: true });
     // Set username
     let roomUsername;
     if (loggedIn) {
