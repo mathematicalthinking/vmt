@@ -80,7 +80,7 @@ class Home extends PureComponent {
         >
           {'Welcome to Virtual Math Teams! '}
           <br />
-          {'This Math experience is best viewed on a computer screen'}
+          {'This Math experience is best viewed on a larger computer screen'}
         </Modal>
         <div
           className={classes.Container}

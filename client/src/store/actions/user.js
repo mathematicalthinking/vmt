@@ -213,6 +213,7 @@ export const getUser = (id) => {
             rooms: rooms ? rooms.allIds : [],
             activities: activities ? activities.allIds : [],
           };
+          console.log('User data retrieved: ', user);
           dispatch(gotUser(user));
         } else {
           // no user is logged in
@@ -224,11 +225,16 @@ export const getUser = (id) => {
         return dispatch(loading.success());
       })
       .catch((err) => {
+        console.log('ERROR getting user- ', err);
         // if the session has expired logout
-        if (err.response.data.errorMessage === 'Not Authorized') {
-          dispatch(logout());
+        if (err.response) {
+          if (err.response.data.errorMessage === 'Not Authorized') {
+            dispatch(logout());
+          }
+          dispatch(loading.fail(err.response.data.errorMessage));
+        } else {
+          dispatch(loading.fail(`Error getting user - ${err}`));
         }
-        dispatch(loading.fail(err.response.data.errorMessage));
       });
   };
 };

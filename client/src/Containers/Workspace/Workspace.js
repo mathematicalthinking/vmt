@@ -998,6 +998,7 @@ class Workspace extends Component {
       if (tab.tabType === 'desmosActivity') {
         return (
           <DesmosActivity
+            temp={temp}
             key={tab._id}
             room={populatedRoom}
             user={user}
