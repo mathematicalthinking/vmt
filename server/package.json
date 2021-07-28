@@ -30,7 +30,7 @@
     "test-all": "concurrently \"npm:seed-enc\" \"npm:test\"  \"npm:seed-sso\"",
     "restore-sso": "cd ../../../mt-sso && npm run seed",
     "restore-enc": "cd ..",
-    "dev-sso": "cd ../../mt-sso && npm start",
+    "dev-sso": "cd ../../mt-sso && npm run dev",
     "dev-enc": "cd ../../encompass && npm run start",
     "dev-all": "concurrently \"npm:dev\" \"npm:dev-sso\" \"npm:dev-enc\"",
     "dev-vmt": "concurrently \"npm:dev\" \"npm:dev-sso\"",

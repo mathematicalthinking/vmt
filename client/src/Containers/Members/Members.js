@@ -3,6 +3,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import COLOR_MAP from 'utils/colorMap';
 import API from '../../utils/apiRequests';
 import {
   grantAccess,
@@ -32,6 +33,19 @@ class Members extends PureComponent {
     };
   }
 
+  // componentDidUpdate(prevProps) {
+  //   const { classList } = this.props;
+  //   // fill in colors for members not yet pulled from store
+  //   if (prevProps.classList.length !== classList.length) {
+  //     console.log('Updating classlist: ', classList);
+  //     classList.forEach((mem) => {
+  //       if (!mem.color) {
+  //         mem.color = COLOR_MAP[classList.length || 0];
+  //       }
+  //     });
+  //   }
+  // }
+
   componentWillUnmount() {
     const { notifications, connectClearNotification } = this.props;
     if (notifications.length > 0) {
@@ -51,7 +65,9 @@ class Members extends PureComponent {
       courseMembers,
       connectInviteToCourse,
       connectInviteToRoom,
+      classList,
     } = this.props;
+    const color = COLOR_MAP[classList.length];
     if (resourceType === 'course') {
       connectInviteToCourse(resourceId, id, username);
     } else if (courseMembers) {
@@ -61,10 +77,10 @@ class Members extends PureComponent {
       if (!inCourse) {
         confirmingInvitation = true;
       } else {
-        connectInviteToRoom(resourceId, id, username, {});
+        connectInviteToRoom(resourceId, id, username, color, {});
       }
     } else {
-      connectInviteToRoom(resourceId, id, username);
+      connectInviteToRoom(resourceId, id, username, color);
     }
     this.setState((prevState) => ({
       confirmingInvitation,
@@ -81,12 +97,14 @@ class Members extends PureComponent {
       resourceId,
       connectInviteToCourse,
       connectInviteToRoom,
+      classList,
     } = this.props;
+    const color = COLOR_MAP[classList.length];
     const { userId, username } = this.state;
     connectInviteToCourse(parentResource, userId, username, {
       guest: true,
     });
-    connectInviteToRoom(resourceId, userId, username, {});
+    connectInviteToRoom(resourceId, userId, username, color, {});
     this.setState({
       confirmingInvitation: false,
       username: null,
@@ -195,7 +213,6 @@ class Members extends PureComponent {
     const guestList = [];
     // console.log("Class list: ", classList);
     classList.forEach((member) => {
-      // console.log(member);
       if (member.role === 'guest') {
         guestList.push(member);
       } else {
