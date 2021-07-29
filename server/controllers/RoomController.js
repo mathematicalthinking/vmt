@@ -345,6 +345,7 @@ module.exports = {
         // .populate({ path: "members.user", select: "username" })
         .then((res) => {
           room = res;
+          // TODO refactor with room member states to change color assignment to state
           const color = colorMap[room.members.length];
           room.members.push({ user, role, color });
           return room.save();
@@ -909,8 +910,7 @@ module.exports = {
         ],
       },
     });
-
-    const [results] = await Room.aggregate(pipeline);
+    const [results] = await Room.aggregate(pipeline).allowDiskUse(true);
 
     const { paginatedResults: rooms, totalCount } = results;
 

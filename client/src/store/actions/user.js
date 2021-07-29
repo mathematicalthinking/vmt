@@ -213,7 +213,6 @@ export const getUser = (id) => {
             rooms: rooms ? rooms.allIds : [],
             activities: activities ? activities.allIds : [],
           };
-          console.log('User data retrieved: ', user);
           dispatch(gotUser(user));
         } else {
           // no user is logged in
