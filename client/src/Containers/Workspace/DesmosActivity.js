@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-console */
 import React, { useState, useRef, useEffect, Fragment } from 'react';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classes from './graph.css';
 import { Button } from '../../Components';
@@ -8,11 +9,12 @@ import { Player } from '../../external/js/api.full.es';
 import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
-import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
+// import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
+import Modal from '../../Components/UI/Modal/Modal';
 import API from '../../utils/apiRequests';
 
 const DesmosActivity = (props) => {
-  const [screenPage, setScreenPage] = useState(1);
+  // const [screenPage, setScreenPage] = useState(1);
   // every persistent event since session started (component loaded)
   const [activityHistory, setActivityHistory] = useState({});
   // single latest persistent event
@@ -20,18 +22,21 @@ const DesmosActivity = (props) => {
   // single latest transient event
   const [transientUpdates, setTransientUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
+  const [showConfigError, setShowConfigError] = useState('');
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
   let receivingData = false;
   let initializing = false;
+  // trigger variable for any Desmos server response other than 200
+  let configResponse;
 
-  const backBtn = calculatorInst.current
-    ? calculatorInst.current.getActiveScreenIndex() > 0
-    : false;
+  const { history } = props;
+  const handleOnErrorClick = () => history.goBack();
+
+  const backBtn = calculatorInst.current ? getCurrentScreen() > 0 : false;
   const fwdBtn = calculatorInst.current
-    ? calculatorInst.current.getActiveScreenIndex() <
-      calculatorInst.current.getScreenCount() - 1
+    ? getCurrentScreen() < calculatorInst.current.getScreenCount() - 1
     : true;
 
   // function updateSavedData(updates) {
@@ -39,7 +44,7 @@ const DesmosActivity = (props) => {
   // }
 
   const putState = () => {
-    const { tab } = props;
+    const { tab, temp, updateRoomTab, room } = props;
     const { _id } = tab;
     let responseData = {};
     if (tab.currentStateBase64) {
@@ -56,12 +61,15 @@ const DesmosActivity = (props) => {
       currentStateBase64: JSON.stringify(responseData),
     };
     if (calculatorInst.current) {
-      updateObject.currentScreen = calculatorInst.current.getActiveScreenIndex();
+      updateObject.currentScreen = getCurrentScreen();
     }
-    API.put('tabs', _id, updateObject).catch((err) => {
-      // eslint-disable-next-line no-console
-      console.log(err);
-    });
+    // console.log('Update object: ', updateObject, 'Temp: ', temp);
+    API.put('tabs', _id, updateObject)
+      .then(() => (temp ? {} : updateRoomTab(room._id, _id, updateObject)))
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.log(err);
+      });
   };
 
   // eslint-disable-next-line no-unused-vars
@@ -76,22 +84,32 @@ const DesmosActivity = (props) => {
     return `${username} interacted with the Activity`;
   };
 
-  // listener and persistent state handler
+  // listener and event state handlers
+  // Persistent Events
   useEffect(() => {
-    // console.log('~~~~~~activityUpdate listener~~~~~~~~~');
-    // console.log("Updates...: ", activityUpdates);
+    const type = 'persistent';
     if (props.inControl === 'ME') {
-      handleResponseData(activityUpdates);
+      handleResponseData(activityUpdates, type);
     }
-  }, [activityUpdates, screenPage]);
+  }, [activityUpdates]);
+  // Transient Events including page changes
+  useEffect(() => {
+    const type = 'transient';
+    if (props.inControl === 'ME') {
+      handleResponseData(transientUpdates, type);
+    }
+  }, [transientUpdates]);
+
   // Event listener callback on the persistent Activity instance
-  const handleResponseData = (updates) => {
-    const transient = !!updates.type;
+  const handleResponseData = (updates, type) => {
+    // console.log('Screenpage(state): ', screenPage, ' Tab data: ', tab);
+    const transient = type === 'transient';
     if (initializing) return;
+    // console.log('Receiving data: ', receivingData);
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
       desmosState: updates,
-      screen: screenPage - 1,
+      screen: getCurrentScreen(),
       transient,
     };
     if (!receivingData) {
@@ -100,6 +118,7 @@ const DesmosActivity = (props) => {
         updates
         // stateDifference
       );
+      console.log('Sent ', type, ' state');
 
       const currentStateString = JSON.stringify(currentState);
       // console.log(this.calculator.getState());
@@ -125,16 +144,9 @@ const DesmosActivity = (props) => {
     receivingData = false;
   };
 
-  // listener on the transient state
-  useEffect(() => {
-    if (props.inControl === 'ME') {
-      handleResponseData(transientUpdates);
-    }
-  }, [transientUpdates]);
-
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
-    const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
+    const { tab, updatedRoom, addNtfToTabs, addToLog, temp } = props;
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
@@ -149,10 +161,21 @@ const DesmosActivity = (props) => {
           }
           return tab;
         });
-        updatedRoom(room._id, { tabs: updatedTabs });
+        if (!temp) updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
         const updatesState = JSON.parse(data.currentState);
-        // console.log('Received data: ', updatesState);
+        console.log(
+          'Received ',
+          updatesState.transient ? 'transient' : 'persistent',
+          ' state '
+        );
+        // let transient event handle page change
+        // if (
+        //   updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
+        // ) {
+        //   setScreenPage(updatesState.screen + 1);
+        //   setShowControlWarning(false);
+        // }
         // set persistent state
         if (updatesState.desmosState && !updatesState.transient) {
           calculatorInst.current.dangerouslySetResponses(
@@ -160,13 +183,6 @@ const DesmosActivity = (props) => {
           );
         } else if (updatesState.desmosState && updatesState.transient) {
           calculatorInst.current.handleSyncEvent(updatesState.desmosState);
-        }
-        if (
-          updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
-        ) {
-          calculatorInst.current.setActiveScreenIndex(updatesState.screen);
-          setScreenPage(updatesState.screen + 1);
-          setShowControlWarning(false);
         }
       } else {
         addNtfToTabs(data.tab);
@@ -186,15 +202,28 @@ const DesmosActivity = (props) => {
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
     console.log('adapted activity url: ', URL);
     // calling Desmos to get activity config
-    const result = await fetch(URL, {
-      headers: { Accept: 'application/json' },
-    });
-    const data = await result.json();
-    return data;
+    try {
+      const result = await fetch(URL, {
+        headers: { Accept: 'application/json' },
+      });
+      console.log('Result: ', result);
+      // TODO handle this error message
+      const status = await result.status;
+      if (status !== 200) {
+        // any denied respose sets the trigger
+        configResponse = status;
+        return null;
+      }
+      const data = await result.json();
+      return data;
+    } catch (err) {
+      console.log('Initalization fetch error: ', err);
+      return null;
+    }
   };
 
   const initPlayer = async () => {
-    const { tab } = props;
+    const { tab, setFirstTabLoaded } = props;
     const playerOptions = {
       activityConfig: await fetchData(),
       targetElement: calculatorRef.current,
@@ -205,7 +234,10 @@ const DesmosActivity = (props) => {
       },
       // callback to handle persistent state
       onResponseDataUpdated: (responses) => {
-        setActivityUpdates(responses);
+        // milisecond timeout to ensure transient events are sent prior to persistent
+        setTimeout(() => {
+          setActivityUpdates(responses);
+        }, 1);
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
@@ -217,7 +249,29 @@ const DesmosActivity = (props) => {
       playerOptions.responseData = savedData;
     }
 
-    calculatorInst.current = new Player(playerOptions);
+    try {
+      calculatorInst.current = new Player(playerOptions);
+    } catch (err) {
+      console.log('Player initialization error: ', err);
+      initializing = false;
+      setFirstTabLoaded();
+      if (!showConfigError) {
+        if (playerOptions.activityConfig) {
+          setShowConfigError(
+            'This activity configuration has unsupported components and cannot be loaded into VMT.'
+          );
+        } else if (configResponse) {
+          setShowConfigError(
+            'This activity could not be accessed from Teacher.Desmos. Make sure the activity is publicly accessible.'
+          );
+        } else {
+          setShowConfigError(
+            'This activity could not be accessed from Teacher.Desmos. Please check the configuration code or url.'
+          );
+        }
+      }
+      return null;
+    }
 
     // callback method to handle transient state
     // eslint-disable-next-line no-unused-vars
@@ -237,9 +291,8 @@ const DesmosActivity = (props) => {
     // Go to screen last used
     if (tab.currentScreen) {
       const { currentScreen } = tab;
-      // console.log('Prior screen index loaded: ', currentScreen);
+      console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
-      setScreenPage(currentScreen + 1);
     }
     return unsubToken;
   };
@@ -254,16 +307,32 @@ const DesmosActivity = (props) => {
     return () => {
       if (calculatorInst.current) {
         if (unsub) calculatorInst.current.unsubscribeFromSync(unsub);
-        calculatorInst.current.destroy();
+        if (!calculatorInst.current.isDestroyed())
+          calculatorInst.current.destroy();
       }
-      // sessionStorage.clear();  @TODO Is this leftover from somewhere?
     };
   }, []);
 
   function navigateBy(increment) {
-    const page = calculatorInst.current.getActiveScreenIndex() + increment;
+    const { onScreenChange } = props;
+    const page = getCurrentScreen() + increment;
     calculatorInst.current.setActiveScreenIndex(page);
-    setScreenPage(page + 1);
+    putState();
+    onScreenChange(page);
+  }
+
+  function getCurrentScreen() {
+    if (calculatorInst.current) {
+      return calculatorInst.current.getActiveScreenIndex();
+    }
+    return 0;
+  }
+
+  function getScreenCount() {
+    if (calculatorInst.current) {
+      return calculatorInst.current.getScreenCount();
+    }
+    return 0;
   }
 
   function _hasControl() {
@@ -284,14 +353,19 @@ const DesmosActivity = (props) => {
   const {
     inControl,
     user,
-    showRefWarning,
-    refWarningMsg,
-    closeRefWarning,
-    doPreventFutureRefWarnings,
-    togglePreventRefWarning,
+    // @TODO **NONE OF THESE PROPS ARE RECEIVED RIGHT NOW **
+    // showRefWarning,
+    // refWarningMsg,
+    // closeRefWarning,
+    // doPreventFutureRefWarnings,
+    // togglePreventRefWarning,
   } = props;
   return (
     <Fragment>
+      <Modal show={!!showConfigError} closeModal={handleOnErrorClick}>
+        {' '}
+        {showConfigError}
+      </Modal>
       <ControlWarningModal
         showControlWarning={showControlWarning}
         toggleControlWarning={() => {
@@ -307,6 +381,7 @@ const DesmosActivity = (props) => {
         }}
         inAdminMode={user ? user.inAdminMode : false}
       />
+      {/* @TODO None of the needed props are received right now
       <CheckboxModal
         show={showRefWarning}
         infoMessage={refWarningMsg}
@@ -314,7 +389,7 @@ const DesmosActivity = (props) => {
         isChecked={doPreventFutureRefWarnings}
         checkboxDataId="ref-warning"
         onSelect={togglePreventRefWarning}
-      />
+      /> */}
       <div
         id="activityNavigation"
         className={classes.ActivityNav}
@@ -323,15 +398,22 @@ const DesmosActivity = (props) => {
           pointerEvents: !_hasControl() ? 'none' : 'auto',
         }}
       >
-        {backBtn && (
+        {_hasControl() && backBtn && (
           <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
             Prev
           </Button>
         )}
-        <span id="show-screen" className={classes.Title}>
-          Screen {screenPage}
+        <span
+          title="Navigation buttons only seen when in control"
+          id="show-screen"
+          className={classes.Title}
+        >
+          <div>Screen {getCurrentScreen() + 1}</div>
+          <div id="screen-count" className={classes.Screens}>
+            of {getScreenCount()}
+          </div>
         </span>
-        {fwdBtn && (
+        {_hasControl() && fwdBtn && (
           <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
             Next
           </Button>
@@ -373,6 +455,13 @@ DesmosActivity.propTypes = {
   // referencing: PropTypes.bool.isRequired,
   // updateUserSettings: PropTypes.func,
   addToLog: PropTypes.func.isRequired,
+  onScreenChange: PropTypes.func,
+  temp: PropTypes.bool,
 };
 
-export default DesmosActivity;
+DesmosActivity.defaultProps = {
+  onScreenChange: () => {},
+  temp: false,
+};
+
+export default withRouter(DesmosActivity);

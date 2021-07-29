@@ -54,7 +54,11 @@ PublicAccess.propTypes = {
   user: PropTypes.shape({
     isAdmin: PropTypes.bool,
   }).isRequired,
-  setAdmin: PropTypes.func.isRequired,
+  setAdmin: PropTypes.func, // follows pattern on PrivateAccess
+};
+
+PublicAccess.defaultProps = {
+  setAdmin: null,
 };
 
 export default PublicAccess;

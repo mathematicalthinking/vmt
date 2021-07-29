@@ -224,11 +224,16 @@ export const getUser = (id) => {
         return dispatch(loading.success());
       })
       .catch((err) => {
+        console.log('ERROR getting user- ', err);
         // if the session has expired logout
-        if (err.response.data.errorMessage === 'Not Authorized') {
-          dispatch(logout());
+        if (err.response) {
+          if (err.response.data.errorMessage === 'Not Authorized') {
+            dispatch(logout());
+          }
+          dispatch(loading.fail(err.response.data.errorMessage));
+        } else {
+          dispatch(loading.fail(`Error getting user - ${err}`));
         }
-        dispatch(loading.fail(err.response.data.errorMessage));
       });
   };
 };

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classes from './DesActivityReplayer.css';
 import { Player } from '../../external/js/api.full.es';
@@ -60,7 +60,7 @@ const DesActivityReplayer = (props) => {
   function updatePlayer() {
     const { log } = props;
     // Take updated player data with new Player state to update
-    let newData = log[index].currentState;
+    let newData = log[index] ? log[index].currentState : null;
     if (newData) {
       newData = JSON.parse(newData);
       // eslint-disable-next-line no-console
@@ -77,13 +77,26 @@ const DesActivityReplayer = (props) => {
     }
   }
 
+  function getCurrentScreen() {
+    if (calculatorInst.current) {
+      return calculatorInst.current.getActiveScreenIndex();
+    }
+    return 0;
+  }
+
+  function getScreenCount() {
+    if (calculatorInst.current) {
+      return calculatorInst.current.getScreenCount();
+    }
+    return 0;
+  }
+
   useEffect(() => {
     fetchData().then((data) => {
       initCalc(data);
       const { tab } = props;
       props.setTabLoaded(tab._id);
     });
-
     return function() {
       if (calculatorInst.current) {
         calculatorInst.current.destroy();
@@ -93,9 +106,30 @@ const DesActivityReplayer = (props) => {
   }, []);
 
   return (
-    <div className={classes.Activity} id="calculatorParent">
-      <div className={classes.Graph} id="calculator" ref={calculatorRef} />
-    </div>
+    <Fragment>
+      <div
+        id="activityNavigation"
+        className={classes.ActivityNav}
+        // onClickCapture={_checkForControl}
+        // style={{
+        //   pointerEvents: !_hasControl() ? 'none' : 'auto',
+        // }}
+      >
+        <span
+          title="Navigation buttons only seen when in control in an Activity"
+          id="show-screen"
+          className={classes.Title}
+        >
+          <div>Screen {getCurrentScreen() + 1}</div>
+          <div id="screen-count" className={classes.Screens}>
+            of {getScreenCount()}
+          </div>
+        </span>
+      </div>
+      <div className={classes.Activity} id="calculatorParent">
+        <div className={classes.Graph} id="calculator" ref={calculatorRef} />
+      </div>
+    </Fragment>
   );
 };
 

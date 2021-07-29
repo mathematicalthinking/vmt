@@ -201,6 +201,10 @@ module.exports = function() {
         });
     });
 
+    socket.on('PENDING_MESSAGE', (data) => {
+      socket.broadcast.to(data.room).emit('PENDING_MESSAGE', { ...data });
+    });
+
     socket.on('TAKE_CONTROL', async (data, callback) => {
       // console.log('TAKE_CONTROL', data);
       // console.log('user with data: ', data.user);
@@ -331,7 +335,16 @@ module.exports = function() {
           }
         })
         .catch((err) => {
-          console.log('ERROR LEAVING ROOM ', room, ' user: ', socket.user._id);
+          if (socket.user) {
+            console.log(
+              'ERROR LEAVING ROOM ',
+              room,
+              ' user: ',
+              socket.user._id
+            );
+          } else {
+            console.log('ERROR LEAVING ROOM ', room, ' user not found!');
+          }
           console.log('socketid: ', socket.id);
           if (cb) cb(null, err);
         });

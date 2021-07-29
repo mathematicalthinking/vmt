@@ -18,6 +18,7 @@
 .Container {
   display: flex;
   flex-flow: column;
+  /* position: relative; */
   background-color: white;
   height: 100%;
   width: 100%;
@@ -52,12 +53,32 @@
   /*  ^ // HACKY! */
 }
 
-.Connected {
+.Good {
   color: #34a505;
 }
 
-.Disconnected {
+.Error {
   color: red;
+  opacity: 1;
+  animation: fade 1.5s infinite;
+}
+
+@keyframes fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.Bad {
+  color: orange;
+}
+
+.None {
+  color: darkgray;
 }
 
 .Settings {
@@ -85,6 +106,7 @@
   overflow-x: hidden;
   /* max-height: 100%; */
   flex: 0 1 100%;
+  /* padding-bottom: 34px; */
 }
 
 .Collapsed {
@@ -109,6 +131,7 @@
 }
 
 .ChatInput {
+  position: relative;
   height: 40px;
   display: flex;
   flex-shrink: 0;
@@ -226,4 +249,117 @@
 
 .MoreMenuOption {
   margin: 10px;
+}
+
+.DropdownContainer {
+  float: left;
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+  margin-right: 3px;
+  padding: 3px 3px;
+  position: relative;
+  height: 100%;
+  cursor: pointer;
+}
+
+.DropdownContent {
+  display: none;
+  position: absolute;
+  padding: 15px 15px;
+  top: 12px;
+  left: auto;
+  right: 0;
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: white;
+  color: white;
+  border: 1px solid #ddd;
+  min-width: 150px;
+  width: max-content;
+  flex-flow: column;
+  transition: 0.2s;
+}
+
+.DropdownItem {
+  margin: 8px 0;
+}
+
+.DropdownContainer:hover .DropdownContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
+.TooltipContent {
+  display: none;
+  position: absolute;
+  padding: 5px 5px;
+  top: 12px;
+  left: auto;
+  right: 0;
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: white;
+  color: blue;
+  border: 1px solid #ddd;
+  min-width: 150px;
+  width: max-content;
+  transition: 0.2s;
+}
+
+.Status:hover .TooltipContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
+@keyframes showDropdown {
+  /* style rules */
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.Button {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 10;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-basis: 100px;
+  list-style-type: none;
+  transition: 0.2;
+  position: relative;
+  max-width: 125px;
+  /* border: 1px solid white; */
+  margin: 2px 10px;
+  font-weight: 300;
+}
+
+.Button:after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  width: 0;
+  height: 2px;
+  display: block;
+  border-radius: 4px;
+  /* margin-top: 10px; */
+  right: 0;
+  background: white;
+  transition: width 0.2s ease-in;
+  /* -webkit-transition: width .2s; */
+}
+
+.Button:hover:after {
+  width: 100%;
 }

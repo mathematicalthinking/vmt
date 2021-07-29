@@ -1,4 +1,4 @@
-:import("../../colors.css") {
+:import('../../colors.css') {
   yellow: yellow;
   orange: orange;
   darkOrange: darkOrange;
@@ -109,11 +109,21 @@
 } */
 
 .DateContainer {
-  height: 300px;
+  height: 150px;
   width: 100%;
   display: flex;
   flex-flow: column;
   align-items: center;
+}
+
+.DatePicker {
+  margin-top: 5px;
+  width: 65%;
+}
+
+.LabelText {
+  font-size: 26px;
+  margin-bottom: 15px;
 }
 
 .Buttons {

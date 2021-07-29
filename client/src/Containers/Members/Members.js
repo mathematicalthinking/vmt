@@ -3,6 +3,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import COLOR_MAP from 'utils/colorMap';
 import API from '../../utils/apiRequests';
 import {
   grantAccess,
@@ -32,6 +33,19 @@ class Members extends PureComponent {
     };
   }
 
+  // componentDidUpdate(prevProps) {
+  //   const { classList } = this.props;
+  //   // fill in colors for members not yet pulled from store
+  //   if (prevProps.classList.length !== classList.length) {
+  //     console.log('Updating classlist: ', classList);
+  //     classList.forEach((mem) => {
+  //       if (!mem.color) {
+  //         mem.color = COLOR_MAP[classList.length || 0];
+  //       }
+  //     });
+  //   }
+  // }
+
   componentWillUnmount() {
     const { notifications, connectClearNotification } = this.props;
     if (notifications.length > 0) {
@@ -51,8 +65,9 @@ class Members extends PureComponent {
       courseMembers,
       connectInviteToCourse,
       connectInviteToRoom,
+      classList,
     } = this.props;
-    const { searchResults } = this.state;
+    const color = COLOR_MAP[classList.length];
     if (resourceType === 'course') {
       connectInviteToCourse(resourceId, id, username);
     } else if (courseMembers) {
@@ -62,19 +77,18 @@ class Members extends PureComponent {
       if (!inCourse) {
         confirmingInvitation = true;
       } else {
-        connectInviteToRoom(resourceId, id, username, {});
+        connectInviteToRoom(resourceId, id, username, color, {});
       }
     } else {
-      connectInviteToRoom(resourceId, id, username);
+      connectInviteToRoom(resourceId, id, username, color);
     }
-    // Remove the invited member from the search results
-    const updatedResults = searchResults.filter((user) => user._id !== id);
-    this.setState({
+    this.setState((prevState) => ({
       confirmingInvitation,
-      searchResults: updatedResults,
+      // Remove the invited member from the search results
+      searchResults: prevState.searchResults.filter((user) => user._id !== id),
       username: confirmingInvitation ? username : null,
       userId: confirmingInvitation ? id : null,
-    });
+    }));
   };
 
   confirmInvitation = () => {
@@ -83,12 +97,14 @@ class Members extends PureComponent {
       resourceId,
       connectInviteToCourse,
       connectInviteToRoom,
+      classList,
     } = this.props;
+    const color = COLOR_MAP[classList.length];
     const { userId, username } = this.state;
     connectInviteToCourse(parentResource, userId, username, {
       guest: true,
     });
-    connectInviteToRoom(resourceId, userId, username, {});
+    connectInviteToRoom(resourceId, userId, username, color, {});
     this.setState({
       confirmingInvitation: false,
       username: null,
@@ -136,7 +152,9 @@ class Members extends PureComponent {
     if (text.length > 0) {
       API.search('user', text, classList.map((member) => member.user._id))
         .then((res) => {
-          const searchResults = res.data.results;
+          const searchResults = res.data.results.filter(
+            (user) => user.accountType !== 'temp'
+          );
           this.setState({ searchResults, searchText: text });
         })
         .catch((err) => {
@@ -195,7 +213,6 @@ class Members extends PureComponent {
     const guestList = [];
     // console.log("Class list: ", classList);
     classList.forEach((member) => {
-      // console.log(member);
       if (member.role === 'guest') {
         guestList.push(member);
       } else {

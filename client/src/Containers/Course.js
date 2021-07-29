@@ -192,7 +192,8 @@ class Course extends Component {
       (ntf) =>
         ntf.parentResource === course._id &&
         (ntf.notificationType === 'assignedNewRoom' ||
-          ntf.notificationType === 'invitation')
+          ntf.notificationType === 'invitation' ||
+          ntf.notificationType === 'newMember')
     );
     updatedTabs[1].notifications =
       newRoomNtfs.length > 0 ? newRoomNtfs.length : '';
@@ -367,7 +368,7 @@ class Course extends Component {
         facilitators: course.members.filter(
           (member) => member.role === 'facilitator'
         ).length,
-        acitivities: course.activities.length,
+        activities: course.activities.length,
         rooms: course.rooms.length,
         privacy: (
           <Error
@@ -506,35 +507,35 @@ class Course extends Component {
           />
           <Modal show={firstView} closeModal={this.clearFirstViewNtf}>
             <p>
-              Welcome to {course.name}. If this is your first time joining a
-              course, we recommend you take a tour. Otherwise you can start
-              exploring this course&#39;s features.
+              Welcome to {course.name}, {user.firstName}! Here you can connect
+              with your Virtual Math Team.
             </p>
+            <br />
             <Button theme="Small" click={this.clearFirstViewNtf}>
-              Explore
+              Let&#39;s Go!
             </Button>
           </Modal>
           <Modal show={invited} closeModal={this.clearFirstViewNtf}>
             <p>
-              You have been invited to {course.name}. If you think you&#39;ve
-              been added to this course in error you can click &#34;leave&#34;
-              and you will be removed.
+              Hey {user.firstName}- You have been invited to {course.name}. Here
+              you can connect with your Virtual Math Team.
             </p>
+            <br />
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
               <Button
                 data-testid="join"
                 theme="Small"
                 click={this.clearFirstViewNtf}
               >
-                Join
+                Join the Team
               </Button>
-              <Button
+              {/* <Button
                 data-testid="leave"
                 theme="Small"
                 click={this.removeMeFromCourse}
               >
                 Leave
-              </Button>
+              </Button> */}
             </div>
           </Modal>
           {trashing ? (

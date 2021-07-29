@@ -37,6 +37,7 @@ const initialState = {
   dueDate: null,
   activities: [],
   privacySetting: 'public',
+  roomType: 'geogebra',
 };
 
 class NewResourceContainer extends Component {
@@ -46,6 +47,16 @@ class NewResourceContainer extends Component {
 
   changeHandler = (event) => {
     this.setState({
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  graphLinkMod = (event) => {
+    const codeLength = 10;
+    const link = event.target.value.split('/');
+    const code = link[link.length - 1].slice(0, codeLength);
+    this.setState({
+      desmosLink: `https://www.desmos.com/calculator/${code}`,
       [event.target.name]: event.target.value,
     });
   };
@@ -143,6 +154,7 @@ class NewResourceContainer extends Component {
           connectCreateCourse(newResource);
           break;
         case 'activities':
+          console.log(`New template created: ${newResource}`);
           connectCreateActivity(newResource);
           break;
         case 'rooms':
@@ -156,6 +168,7 @@ class NewResourceContainer extends Component {
           if (roomType === 'geogebra') {
             newResource.appName = appName;
           }
+          // console.log(`New room created: ${newResource}`);
           connectCreateRoom(newResource);
           break;
         default:
@@ -175,14 +188,16 @@ class NewResourceContainer extends Component {
   };
 
   addActivity = (event, id) => {
-    const { activities } = this.state;
-    let updatedActivities;
-    if (activities.indexOf(id) >= 0) {
-      updatedActivities = activities.filter((acId) => acId !== id);
-    } else {
-      updatedActivities = [...activities, id]; // becaue we're filtering above we probably don't need to spread activities here we could just push the id
-    }
-    this.setState({ activities: updatedActivities });
+    const _updatedActivities = (activities) => {
+      if (activities.indexOf(id) >= 0) {
+        return activities.filter((acId) => acId !== id);
+      }
+      return [...activities, id]; // becaue we're filtering above we probably don't need to spread activities here we could just push the id
+    };
+    // TODO CHECK THIS REFACTOR
+    this.setState((previousState) => ({
+      activities: _updatedActivities(previousState.activities),
+    }));
   };
 
   setRoomType = (event) => {
@@ -205,26 +220,18 @@ class NewResourceContainer extends Component {
   setPrivacy = (privacySetting) => {
     this.setState({ privacySetting });
   };
-  nextStep = (direction) => {
-    let { copying } = this.state;
-    const { step } = this.state;
-    if (step === 0) {
-      if (direction === 'copy') {
-        copying = true;
-      }
-    }
-    this.setState({
-      step: step + 1,
-      copying,
-    });
+  nextStep = () => {
+    this.setState((previousState) => ({
+      step: previousState.step + 1,
+    }));
   };
 
   prevStep = () => {
-    const { step, copying } = this.state;
-    this.setState({
-      copying: step === 1 ? false : copying,
-      step: step - 1 || 0,
-    });
+    // TODO CHECK THIS REFACTOR
+    this.setState((previousState) => ({
+      copying: previousState.step === 1 ? false : previousState.copying,
+      step: previousState.step - 1 || 0,
+    }));
   };
 
   closeModal = () => {
@@ -253,7 +260,7 @@ class NewResourceContainer extends Component {
     } = this.state;
     let displayResource;
     if (resource === 'activities') {
-      displayResource = 'activity';
+      displayResource = 'template';
     } else {
       displayResource = resource.slice(0, resource.length - 1);
     }
@@ -307,7 +314,7 @@ class NewResourceContainer extends Component {
           setGgbApp={this.setGgbApp}
           desmosLink={desmosLink}
           setDesmosLink={this.linkMod}
-          setDesmosCalcLink={this.changeHandler}
+          setDesmosCalcLink={this.graphLinkMod}
           appName={appName}
         />
       );
@@ -339,7 +346,10 @@ class NewResourceContainer extends Component {
               <Button
                 disabled={name.length === 0}
                 click={() => {
-                  this.nextStep('new');
+                  this.nextStep();
+                  this.setState({
+                    copying: false,
+                  });
                 }}
                 tabIndex={0}
                 m={5}
@@ -351,12 +361,15 @@ class NewResourceContainer extends Component {
               <Button
                 disabled={name.length === 0}
                 click={() => {
-                  this.nextStep('copy');
+                  this.nextStep();
+                  this.setState({
+                    copying: true,
+                  });
                 }}
                 m={5}
                 tabIndex={0}
               >
-                copy existing activities
+                use existing template
               </Button>
             </div>
           </Aux>
@@ -371,7 +384,14 @@ class NewResourceContainer extends Component {
         </div>
       );
     } else {
-      buttons = <Button click={this.nextStep}>next</Button>;
+      buttons = (
+        <Button
+          disabled={copying && activities.length < 1}
+          click={this.nextStep}
+        >
+          next
+        </Button>
+      );
     }
 
     return (
@@ -389,10 +409,14 @@ class NewResourceContainer extends Component {
             ) : null}
             <div className={classes.Container}>
               <h2 className={classes.ModalTitle}>
-                Create {resource === 'activities' ? 'an' : 'a'}{' '}
-                {displayResource}
+                Create {resource === 'activities' ? 'a' : 'a'} {displayResource}
               </h2>
-              <div className={classes.MainModalContent}>{steps[step]}</div>
+              <div
+                className={classes.MainModalContent}
+                style={step === 1 && copying ? { overflow: 'scroll' } : {}}
+              >
+                {steps[step]}
+              </div>
               <div className={classes.Row}>{buttons}</div>
             </div>
             <div className={classes.StepDisplayContainer}>{stepDisplays}</div>

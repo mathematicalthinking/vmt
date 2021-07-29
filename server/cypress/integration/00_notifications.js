@@ -1,3 +1,11 @@
+/// <reference types="cypress" />
+
+// Above line needed for Intellisense.
+
+// @TODO There needs to be more organization here. Maybe break
+// into more describes. Right now, you have to look really carefully
+// to see whether a group of tests are related vs. independent, for example.
+
 const user1 = require('../fixtures/user');
 const user2 = require('../fixtures/user2');
 const user3 = require('../fixtures/user3');
@@ -11,7 +19,7 @@ describe('test notifications and access to resources', function() {
   });
 
   after(function() {
-    cy.logout();
+    // cy.logout(); //Unsure why this is needed; each test has a logout.
   });
 
   // COURSE
@@ -45,7 +53,6 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('tab')
       .contains('Courses')
       .click({ force: true });
-    //cy.wait(1111);
     cy.getTestElement('tab-ntf')
       .get('span:nth-child(2)')
       .contains('2')
@@ -70,14 +77,17 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('join-requests')
       .children()
       .should('have.length', 1);
-    cy.getTestElement('grant-access-data').click({ force: true });
-    cy.getTestElement('members')
-      .children()
-      .should('have.length', 3);
-    cy.getTestElement('join-requests')
-      .children()
-      .contains('There are no new requests to join')
-      .should('exist');
+    cy.getTestElement('grant-access-data')
+      .click({ force: true })
+      .then(() => {
+        cy.getTestElement('members')
+          .children()
+          .should('have.length', 3);
+        cy.getTestElement('join-requests')
+          // .children()
+          .contains('There are no new requests to join')
+          .should('exist');
+      });
     cy.logout();
 
     // MAKE SURE THE NOTIFICATION IS VISUALLY RESOLVED
@@ -91,8 +101,8 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('tab-ntf').contains('1');
     cy.getTestElement('content-box-ntf').contains('1');
     cy.getTestElement('content-box-course 1').click({ force: true });
-    cy.get('p').contains('Welcome to course 1.');
-    cy.contains('Explore').click({ force: true });
+    cy.get('p').contains('Welcome to course 1');
+    cy.contains("Let's Go!").click({ force: true });
     cy.contains('My VMT').click({ force: true });
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.getTestElement('content-box-ntf').should('not.exist');
@@ -100,7 +110,10 @@ describe('test notifications and access to resources', function() {
     // NAVIGATE BACK AND MAKE SURE NOTIFICATIONS HAVE BEEN RESOLVED
   });
 
-  it('user1 assigns user3 to a course room', function() {
+  // Edited to use the new assignment matrix functionality.
+  // Note that the testid for the created room uses just the first 10 characters of the name (full name depends on date)
+  // See ContentBox.js, line 46.
+  it('user1 (Picard) assigns user3 (Data) to a course room', function() {
     cy.login(user1);
     cy.getTestElement('tab')
       .contains('Courses')
@@ -109,20 +122,16 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('content-box-ACTIVITY 2').click({ force: true });
     cy.getTestElement('assign').click({ force: true });
     cy.getTestElement('next-step-assign').click({ force: true });
-    cy.getTestElement('assign-manually').click({ force: true });
-    cy.contains('data').click({ force: true });
-    // cy.contains('worf').click({force: true})
-    // cy.contains('g_laforge').click({force: true})
+    cy.getTestElement('checkbox3-1').click({ force: true });
     cy.getTestElement('assign-rooms').click({ force: true });
-    cy.getTestElement('close-modal').click({ force: true });
     cy.getTestElement('tab')
       .contains('Rooms')
       .click({ force: true });
-    cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist');
+    cy.getTestElement('content-box-ACTIVITY 2').should('exist');
     cy.logout();
   });
 
-  it('User3 gets a notification they have been assigned to a new course room', function() {
+  it('User3 (Data) gets a notification they have been assigned to a new course room', function() {
     cy.login(user3);
     cy.getTestElement('tab-ntf')
       .contains('1')
@@ -143,65 +152,66 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('tab-ntf')
       .contains('1')
       .click({ force: true });
-    cy.getTestElement('content-box-ACTIVITY 2 (room 1)').should('exist');
+    cy.getTestElement('content-box-ACTIVITY 2').should('exist');
     cy.getTestElement('content-box-ntf')
       .contains('1')
       .should('exist');
-    cy.getTestElement('content-box-ACTIVITY 2 (room 1)').click({ force: true });
+    cy.getTestElement('content-box-ACTIVITY 2').click({ force: true });
     cy.getTestElement('explore-room').click({ force: true });
     cy.getTestElement('crumb').contains('My VMT');
     cy.getTestElement('tab-ntf').should('not.exist');
     cy.logout();
   });
 
-  it('user2 assigns user 5 to a stand alone room', function() {
-    cy.login(user1);
-    cy.getTestElement('tab')
-      .contains('Activities')
-      .click({ force: true });
-    cy.getTestElement('content-box-stand-alone-activity').click({
-      force: true,
-    });
-    cy.getTestElement('assign').click({ force: true });
-    cy.getTestElement('next-step-assign').click({ force: true });
-    cy.getTestElement('member-search')
-      .click({ force: true })
-      .type('D', { force: true });
-    cy.contains('d_troi').click({ force: true });
-    cy.getTestElement('assign-rooms').click({ force: true });
-    cy.getTestElement('tab')
-      .contains('Rooms')
-      .click({ force: true });
-    cy.getTestElement('content-box-stand-alone-activity (room 1)').should(
-      'exist'
-    );
-    cy.logout();
-  });
+  //@TODO Do "stand alone activities" exist any more? I don't see anything new occuring in these next two tests in any event.
+  // it('user2 assigns user 5 to a stand alone room', function() {
+  //   cy.login(user1);
+  //   cy.getTestElement('tab')
+  //     .contains('Activities')
+  //     .click({ force: true });
+  //   cy.getTestElement('content-box-stand-alone-activity').click({
+  //     force: true,
+  //   });
+  //   cy.getTestElement('assign').click({ force: true });
+  //   cy.getTestElement('next-step-assign').click({ force: true });
+  //   cy.getTestElement('member-search')
+  //     .click({ force: true })
+  //     .type('D', { force: true });
+  //   cy.contains('d_troi').click({ force: true });
+  //   cy.getTestElement('assign-rooms').click({ force: true });
+  //   cy.getTestElement('tab')
+  //     .contains('Rooms')
+  //     .click({ force: true });
+  //   cy.getTestElement('content-box-stand-alone-activity (room 1)').should(
+  //     'exist'
+  //   );
+  //   cy.logout();
+  // });
 
-  it('d_troi should have a new room notification', function() {
-    cy.login(user5);
-    cy.getTestElement('tab-ntf')
-      .contains('1')
-      .should('exist');
-    cy.getTestElement('tab')
-      .contains('Rooms')
-      .click({ force: true });
-    cy.getTestElement('content-box-stand-alone-activity (room 1)').should(
-      'exist'
-    );
-    cy.getTestElement('content-box-ntf')
-      .contains('1')
-      .should('exist');
-    cy.getTestElement('content-box-stand-alone-activity (room 1)').click({
-      force: true,
-    });
-    cy.getTestElement('explore-room').click({ force: true });
-    cy.getTestElement('crumb')
-      .contains('My VMT')
-      .click({ force: true });
-    cy.getTestElement('tab-ntf').should('not.exist');
-    cy.logout();
-  });
+  // it('d_troi should have a new room notification', function() {
+  //   cy.login(user5);
+  //   cy.getTestElement('tab-ntf')
+  //     .contains('1')
+  //     .should('exist');
+  //   cy.getTestElement('tab')
+  //     .contains('Rooms')
+  //     .click({ force: true });
+  //   cy.getTestElement('content-box-stand-alone-activity (room 1)').should(
+  //     'exist'
+  //   );
+  //   cy.getTestElement('content-box-ntf')
+  //     .contains('1')
+  //     .should('exist');
+  //   cy.getTestElement('content-box-stand-alone-activity (room 1)').click({
+  //     force: true,
+  //   });
+  //   cy.getTestElement('explore-room').click({ force: true });
+  //   cy.getTestElement('crumb')
+  //     .contains('My VMT')
+  //     .click({ force: true });
+  //   cy.getTestElement('tab-ntf').should('not.exist');
+  //   cy.logout();
+  // });
 
   it('user2 enters course with entry-code', function() {
     cy.login(user2);
@@ -246,7 +256,7 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('member-ntf').should('exist');
   });
 
-  it('should resolve notificaiton after user1 seees', function() {
+  it('should resolve notificaiton after user1 sees', function() {
     cy.getTestElement('crumb')
       .contains('My VMT')
       .click({ force: true });
@@ -301,7 +311,7 @@ describe('test notifications and access to resources', function() {
       .contains('1')
       .should('exist');
     cy.getTestElement('content-box-request access').click({ force: true });
-    cy.contains('Explore').click({ force: true });
+    cy.contains("I'm ready!").click({ force: true }); // it's a pain that the button text appears uppercase but might actually be some other case.
     cy.getTestElement('tab')
       .contains('Members')
       .click({ force: true });
@@ -353,9 +363,11 @@ describe('test notifications and access to resources', function() {
       .contains('Details')
       .click({ force: true });
     cy.getTestElement('tab-ntf').should('not.exist');
+    cy.logout();
   });
 
   it('Picard invites Beverly to join a course', function() {
+    cy.login(user1);
     cy.getTestElement('crumb')
       .contains('My VMT')
       .click({ force: true });
@@ -415,7 +427,7 @@ describe('test notifications and access to resources', function() {
       .click({ force: true });
     cy.getTestElement('content-box-ntf').contains('1');
     cy.getTestElement('content-box-room 1').click({ force: true });
-    cy.getTestElement('leave').click({ force: true });
+    cy.getTestElement('join').click({ force: true });
     cy.getTestElement('content-box-room 1').should('not.exist');
     cy.logout();
   });

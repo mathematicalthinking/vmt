@@ -26,6 +26,7 @@ import {
 } from '../store/actions';
 import { populateResource } from '../store/reducers';
 import Access from './Access';
+import TemplatePreview from './Monitoring/TemplatePreview';
 
 class Activity extends Component {
   constructor(props) {
@@ -33,7 +34,12 @@ class Activity extends Component {
     const { activity } = this.props;
     this.state = {
       owner: false,
-      tabs: [{ name: 'Details' }, { name: 'Rooms' }, { name: 'Settings' }],
+      tabs: [
+        { name: 'Details' },
+        { name: 'Rooms' },
+        { name: 'Preview' },
+        { name: 'Settings' },
+      ],
       editing: false,
       name: activity ? activity.name : null,
       description: activity ? activity.description : null,
@@ -232,6 +238,8 @@ class Activity extends Component {
             activityOwner={owner || user.isAdmin}
           />
         );
+      } else if (resource === 'preview') {
+        mainContent = <TemplatePreview activity={activity} />;
       }
 
       return (
@@ -280,12 +288,12 @@ class Activity extends Component {
                         style={{
                           display: editing ? 'none' : 'block',
                         }}
-                        data-testid="edit-activity"
+                        data-testid="edit-template"
                         onClick={this.toggleEdit}
                         onKeyPress={this.toggleEdit}
                         tabIndex="-1"
                       >
-                        Edit Activity <i className="fas fa-edit" />
+                        Edit Template <i className="fas fa-edit" />
                       </div>
                       {editing ? (
                         // @TODO this should be a resuable component
@@ -297,14 +305,14 @@ class Activity extends Component {
                         >
                           <Button
                             click={this.updateActivity}
-                            data-testid="save-activity"
+                            data-testid="save-template"
                             theme="Small"
                           >
                             Save
                           </Button>
                           <Button
                             click={this.trashActivity}
-                            data-testid="trash-activity"
+                            data-testid="trash-template"
                             theme="Danger"
                           >
                             <i className="fas fa-trash-alt" />

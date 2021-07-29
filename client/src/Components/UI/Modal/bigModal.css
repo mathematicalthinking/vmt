@@ -1,0 +1,100 @@
+:import('../../../colors.css') {
+  red: red;
+  blue: blue;
+  lightblue: lightblue;
+}
+
+:root {
+  --modal-width: 500px;
+}
+
+.Modal {
+  position: absolute;
+  float: left;
+  top: 50%;
+  left: 20%;
+  transform: translate(-50%, -50%);
+  flex-flow: column;
+  justify-content: center;
+  width: var(--modal-width);
+  min-height: 370px;
+  max-height: 900px;
+  min-width: 50%;
+  width: auto;
+  max-width: 1000px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14),
+    0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  padding: 16px;
+  z-index: 1500;
+  overflow: scroll;
+  transition: all 0.5s ease-out;
+  transition: max-width 2.5s ease-in;
+  transition-delay: 1s;
+}
+
+.Close {
+  position: absolute;
+  right: 6px;
+  top: 10px;
+  font-size: 20px;
+  color: #666;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.Close:hover {
+  color: black;
+}
+
+.Description {
+  margin-top: 23px;
+}
+
+.Modal::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.09em;
+}
+
+.Modal::-webkit-scrollbar-thumb {
+  background-color: lightblue;
+  border-radius: 3px;
+}
+
+.Message {
+  color: blue;
+  font-size: 22px;
+}
+
+.Error {
+  color: red;
+  position: abssolute;
+  height: 24px;
+}
+
+.Row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.Or {
+  margin: 10px;
+}
+
+@media (max-width: 600px) {
+  .Modal {
+    width: 400px;
+    left: calc(50% - 200px);
+  }
+}
+
+@media (max-width: 400px) {
+  .Modal {
+    width: 380px;
+    left: calc(50% - 160px);
+  }
+}

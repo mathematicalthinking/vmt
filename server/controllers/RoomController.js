@@ -6,7 +6,7 @@ const db = require('../models');
 const { Tab } = db;
 const { Room } = db;
 
-const colorMap = require('../constants/colorMap.js');
+const colorMap = require('../constants/colorMap');
 
 module.exports = {
   get: (params) => {
@@ -257,9 +257,19 @@ module.exports = {
           _id: { $in: body.selectedTabIds },
         });
       }
+
+      if (body.mathState) {
+        existingTabs.forEach((tab, i, array) => {
+          if (body.mathState[tab._id] && tab.tabType === 'geogebra') {
+            array[i].currentStateBase64 = body.mathState[tab._id];
+          } else if (body.mathState[tab._id] && tab.tabType === 'desmos') {
+            array[i].currentState = body.mathState[tab._id];
+          }
+        });
+      }
       let tabModels;
       delete body.tabs;
-      // delete body.roomType;
+      delete body.mathState;
       let ggbFiles;
 
       if (Array.isArray(body.ggbFiles)) {
@@ -273,7 +283,7 @@ module.exports = {
             name: tab.name,
             room: room._id,
             ggbFile: tab.ggbFile,
-            desmosLink: body.desmosLink,
+            desmosLink: tab.desmosLink,
             currentState: tab.currentState,
             startingPoint: tab.currentState,
             startingPointBase64: tab.currentStateBase64,
@@ -335,6 +345,7 @@ module.exports = {
         // .populate({ path: "members.user", select: "username" })
         .then((res) => {
           room = res;
+          // TODO refactor with room member states to change color assignment to state
           const color = colorMap[room.members.length];
           room.members.push({ user, role, color });
           return room.save();
@@ -899,8 +910,7 @@ module.exports = {
         ],
       },
     });
-
-    const [results] = await Room.aggregate(pipeline);
+    const [results] = await Room.aggregate(pipeline).allowDiskUse(true);
 
     const { paginatedResults: rooms, totalCount } = results;
 

@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import each from 'lodash/each';
 import find from 'lodash/find';
-import { hri } from 'human-readable-ids';
 import {
   updateRoom,
   updatedRoom,
@@ -14,8 +13,6 @@ import {
   setRoomStartingPoint,
   updateUser,
   updateUserSettings,
-  createActivity,
-  createRoom,
 } from '../../store/actions';
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
@@ -28,27 +25,16 @@ import {
   Tools,
   RoomInfo,
 } from '.';
-import {
-  Modal,
-  CurrentMembers,
-  Loading,
-  Button,
-  SelectionList,
-  TextInput,
-  RadioBtn,
-} from '../../Components';
+import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
-import { socket } from '../../utils';
-import API from '../../utils/apiRequests';
-import modalClasses from '../../Components/UI/Modal/modal.css';
-import createClasses from '../Create/create.css';
-import formatImageUrl from '../Create/tinyGraphs.utils';
+import CreationModal from './Tools/CreationModal';
+import { socket, useSnapshots, API } from '../../utils';
 
 class Workspace extends Component {
   constructor(props) {
     super(props);
-    const { user, populatedRoom, tempCurrentMembers } = this.props;
-    let myColor = null;
+    const { user, populatedRoom, tempCurrentMembers, temp } = this.props;
+    let myColor = '#f26247'; // default in the case of Temp rooms. @TODO The temp user from the server should be fully formed, with a color and inAdminMode property
     if (populatedRoom.members) {
       try {
         myColor = populatedRoom.members.filter(
@@ -60,15 +46,23 @@ class Workspace extends Component {
         }
       }
     }
+
     this.state = {
+      takeSnapshot: () => {},
+      cancelSnapshots: () => {},
+      getSnapshot: () => {
+        return undefined;
+      },
+      snapshotRef: React.createRef(),
       tabs: populatedRoom.tabs || [],
       log: populatedRoom.log || [],
       myColor,
       controlledBy: populatedRoom.controlledBy,
       activeMember: '',
-      currentMembers: tempCurrentMembers || populatedRoom.currentMembers,
+      currentMembers: temp ? tempCurrentMembers : populatedRoom.currentMembers,
       referencing: false,
       showingReference: false,
+      isSimplified: true,
       referToEl: null,
       referToCoords: null,
       referFromEl: null,
@@ -82,13 +76,17 @@ class Workspace extends Component {
       instructionsExpanded: true,
       toolsExpanded: true,
       isFirstTabLoaded: false,
-      showAdminWarning: user ? user.inAdminMode : false,
+      showAdminWarning: user ? !!user.inAdminMode : false, // in a temp room, user.inAdminMode is undefined @TODO: fix on server side
       graphCoords: null,
       eventsWithRefs: [],
       showInstructionsModal: false,
-      instructionsModalMsg: null,
+      instructionsModalMsg: '',
       isCreatingActivity: false,
-      newResourceType: 'activity',
+      connectionStatus: 'None',
+      // currentScreen, only important now for DesmosActivities, is used by the snapshot facililty.
+      // Even on DesmosActivities, this won't be set if the person doesn't navigate before a snapshot is taken. THus, it's
+      // important that the default is 0 (indicating the first screen)
+      currentScreen: 0,
     };
   }
 
@@ -124,9 +122,57 @@ class Workspace extends Component {
     this.initializeListeners();
     window.addEventListener('resize', this.resizeHandler);
     window.addEventListener('keydown', this.keyListener);
+
+    // Set up snapshots
+
+    // const roomId = populatedRoom._id;
+    // if (roomId && roomId !== '' && !temp) {
+    //   const {
+    //     elementRef,
+    //     takeSnapshot,
+    //     cancelSnaphots,
+    //     getSnapshot,
+    //   } = useSnapshots((newSnapshot) => {
+    //     const { connectUpdateRoom } = this.props;
+    //     console.log('Creating snap for ', roomId);
+    //     console.log(newSnapshot);
+    //     connectUpdateRoom(roomId, {
+    //       snapshot: newSnapshot,
+    //     });
+    //     populatedRoom.snapshot = newSnapshot; // not sure why connectUpdateRoom doesn't do this...
+    //   }, populatedRoom.snapshot || {});
+
+    if (!temp) {
+      const {
+        elementRef,
+        takeSnapshot,
+        cancelSnaphots,
+        getSnapshot,
+      } = useSnapshots((newSnapshot) => {
+        const { currentTabId } = this.state;
+        const updateBody = { snapshot: newSnapshot };
+        API.put('tabs', currentTabId, updateBody).then(() => {
+          this.updateTab(currentTabId, updateBody);
+        });
+      });
+
+      this.setState(
+        {
+          takeSnapshot,
+          snapshotRef: elementRef,
+          cancelSnaphots,
+          getSnapshot,
+        },
+        () => this._takeSnapshotIfNeeded()
+      );
+    }
+
+    this.setHeartbeatTimer();
   }
 
   componentDidUpdate(prevProps) {
+    // @TODO populatedRoom.controlledBy is ALWAYS null! Should use
+    // controlledBy in the state instead.
     const { populatedRoom, user, temp, lastMessage } = this.props;
     if (
       prevProps.populatedRoom.controlledBy === null &&
@@ -153,6 +199,11 @@ class Workspace extends Component {
     if (prevProps.user.inAdminMode !== user.inAdminMode) {
       this.goBack();
     }
+
+    // this._takeSnapshotIfNeeded(); // likely too CPU intensive and noticible by user.
+
+    // const { takeSnapshot } = this.state;
+    // if (prevProps.controlledBy === user._id) takeSnapshot();
   }
 
   componentWillUnmount() {
@@ -164,7 +215,58 @@ class Workspace extends Component {
     if (this.controlTimer) {
       clearTimeout(this.controlTimer);
     }
+
+    socket.off('pong');
+    const { cancelSnapshots } = this.state;
+    cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
+    this.clearHeartbeatTimer();
   }
+
+  /** ********************
+   *
+   * FUNCTIONS NEEDED FOR SNAPSHOTS (spring/summer 2021)
+   *
+   * Snapshots are a recent addition to VMT. They are used in the MonitoringView and RoomPreview as thumbnail images, for
+   * example. They are created and accessed via the useSnapshot utility hook. All the snapshots for a room are stored in
+   * the 'snapshot' property of the room, keyed by the tab and screen the snapshot was taken of.  As of this writing,
+   * taking a snapshot might be noticible on a slow machine, so care is taken not to take too many snapshots. A snapshot
+   * is taken when the user takes and then releases control (if the computer slows then, the person might not notice) or
+   * when the room first loads if there's not already a snapshot for this room's current tab and (if a DesmosActivity) screen.
+   *
+   * If snapshots have no chance of being too resource intensive, we could increase the frequency, which would give monitoring
+   * and previews a more real-time sense.
+   */
+  _snapshotKey = () => {
+    const { currentTabId, currentScreen } = this.state;
+    return { currentTabId, currentScreen };
+  };
+
+  _currentSnapshot = () => {
+    const { currentTabId, tabs } = this.state;
+    const currentTab = tabs.find((tab) => tab._id === currentTabId);
+    const result = currentTab ? currentTab.snapshot : null;
+    return result;
+  };
+
+  _takeSnapshotIfNeeded = () => {
+    const { takeSnapshot, getSnapshot, cancelSnapshots } = this.state;
+    const key = this._snapshotKey();
+    const currentSnapshot = this._currentSnapshot();
+    if (!getSnapshot(key, currentSnapshot)) {
+      cancelSnapshots(); // keeps prior snap from being sent via callback dur quick subsequent snaps
+      takeSnapshot(key, currentSnapshot);
+    }
+  };
+
+  handleScreenChange = (screenNum) => {
+    // set screen in state
+    this.setState({ currentScreen: screenNum }, () => {
+      // takeSnap if needed
+      this._takeSnapshotIfNeeded();
+    });
+  };
+
+  /** ******************** */
 
   addToLog = (entry) => {
     const { log } = this.state;
@@ -278,6 +380,32 @@ class Workspace extends Component {
     socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
       this.setState({ eventsWithRefs: data });
     });
+
+    // helper to determine latency
+    // 0-3 local, <50 good, <100 ok, >100 potential issues
+    // Set Threshold const to max acceptable latency in ms
+    // bad connection latency threshold
+    const THRESHOLD = 100;
+
+    socket.on('pong', (latency) => {
+      this.setHeartbeatTimer();
+      if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
+      else this.setState({ connectionStatus: 'Good' });
+      console.log('Heartbeat<3 latency: ', latency);
+    });
+  };
+
+  setHeartbeatTimer = () => {
+    // no heartbeat threshold
+    const TIMEOUT = 150001;
+    this.clearHeartbeatTimer();
+    this.timer = setTimeout(() => {
+      this.setState({ connectionStatus: 'Error' });
+    }, TIMEOUT);
+  };
+
+  clearHeartbeatTimer = () => {
+    if (this.timer) clearTimeout(this.timer);
   };
 
   createNewTab = () => {
@@ -293,6 +421,12 @@ class Workspace extends Component {
 
   closeModal = () => {
     this.setState({ creatingNewTab: false });
+  };
+
+  closeCreate = () => {
+    this.setState({
+      isCreatingActivity: false,
+    });
   };
 
   changeTab = (id) => {
@@ -346,6 +480,9 @@ class Workspace extends Component {
     // );
 
     if (controlledBy === user._id) {
+      const { takeSnapshot } = this.state;
+      takeSnapshot(this._snapshotKey(), this._currentSnapshot());
+
       // Releasing control
       const message = {
         _id: mongoIdGenerator(),
@@ -439,6 +576,12 @@ class Workspace extends Component {
       referToEl: null,
       referToCoords: null,
     });
+  };
+
+  toggleSimpleChat = () => {
+    this.setState((prevState) => ({
+      isSimplified: !prevState.isSimplified,
+    }));
   };
 
   showReference = (
@@ -708,71 +851,6 @@ class Workspace extends Component {
       });
   };
 
-  createNewActivityOrRoom = () => {
-    const { populatedRoom } = this.props;
-    const copy = { ...populatedRoom };
-    const {
-      user,
-      connectCreateActivity,
-      history,
-      connectCreateRoom,
-    } = this.props;
-    const { newName, selectedTabIdsToCopy, newResourceType } = this.state;
-
-    if (!selectedTabIdsToCopy.length > 0) {
-      this.setState({
-        createActivityError: 'Please select at least one tab to include',
-      });
-      return;
-    }
-
-    if (!newName) {
-      this.setState({
-        createActivityError: `Please provide a name for your new ${newResourceType}`,
-      });
-      return;
-    }
-
-    const { description, privacySetting, instructions } = copy;
-    const pluralResource =
-      newResourceType === 'activity' ? 'activities' : 'rooms';
-    const resourceBody = {
-      creator: user._id,
-      name: newName,
-      selectedTabIds: selectedTabIdsToCopy,
-      description,
-      privacySetting,
-      instructions,
-      sourceRooms: [populatedRoom._id],
-      image: formatImageUrl(newName, pluralResource),
-    };
-
-    if (privacySetting === 'private') {
-      resourceBody.entryCode = hri.random();
-    }
-    let updateFn;
-    let myVMTEndPt;
-
-    if (newResourceType === 'activity') {
-      updateFn = connectCreateActivity;
-      myVMTEndPt = 'activities';
-    } else {
-      updateFn = connectCreateRoom;
-      myVMTEndPt = 'rooms';
-
-      resourceBody.members = [
-        {
-          user: { username: user.username, _id: user._id },
-          role: 'facilitator',
-        },
-      ];
-    }
-
-    updateFn(resourceBody);
-    this.setState({ isCreatingActivity: false, selectedTabIdsToCopy: [] });
-    history.push(`/myVMT/${myVMTEndPt}`);
-  };
-
   addTabIdToCopy = (event, id) => {
     const { selectedTabIdsToCopy } = this.state;
     if (selectedTabIdsToCopy.indexOf(id) === -1) {
@@ -794,10 +872,6 @@ class Workspace extends Component {
       selectedTabIdsToCopy: tabs.map((t) => t._id),
       settings: false,
     });
-  };
-
-  setNewResourceType = (newResourceType) => {
-    this.setState({ newResourceType });
   };
 
   render() {
@@ -826,6 +900,7 @@ class Workspace extends Component {
       role,
       myColor,
       referencing,
+      isSimplified,
       referToEl,
       referToCoords,
       referFromCoords,
@@ -839,19 +914,18 @@ class Workspace extends Component {
       eventsWithRefs,
       showInstructionsModal,
       instructionsModalMsg,
-      newName,
-      selectedTabIdsToCopy,
+      snapshotRef,
       isCreatingActivity,
-      createActivityError,
-      newResourceType,
+      connectionStatus,
     } = this.state;
     let inControl = 'OTHER';
     if (controlledBy === user._id) inControl = 'ME';
     else if (!controlledBy) inControl = 'NONE';
+
     const currentMembers = (
       <CurrentMembers
-        members={tempMembers || populatedRoom.members}
-        currentMembers={tempCurrentMembers || activeMembers}
+        members={temp ? tempMembers : populatedRoom.members}
+        currentMembers={temp ? tempCurrentMembers : activeMembers}
         activeMember={controlledBy}
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
@@ -876,6 +950,7 @@ class Workspace extends Component {
         myColor={myColor}
         user={user}
         referencing={referencing}
+        isSimplified={isSimplified}
         referToEl={referToEl}
         referToCoords={referToCoords}
         referFromEl={referFromEl}
@@ -893,6 +968,7 @@ class Workspace extends Component {
         eventsWithRefs={eventsWithRefs}
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
+        connectionStatus={connectionStatus}
       />
     );
     const graphs = currentTabs.map((tab) => {
@@ -922,6 +998,7 @@ class Workspace extends Component {
       if (tab.tabType === 'desmosActivity') {
         return (
           <DesmosActivity
+            temp={temp}
             key={tab._id}
             room={populatedRoom}
             user={user}
@@ -939,6 +1016,7 @@ class Workspace extends Component {
             referencing={referencing}
             updateUserSettings={connectUpdateUserSettings}
             addToLog={this.addToLog}
+            onScreenChange={this.handleScreenChange}
           />
         );
       }
@@ -987,6 +1065,7 @@ class Workspace extends Component {
           <Loading message="Preparing your room..." />
         ) : null}
         <WorkspaceLayout
+          snapshotRef={snapshotRef}
           graphs={graphs}
           roomName={populatedRoom.name}
           user={user}
@@ -1000,6 +1079,8 @@ class Workspace extends Component {
               toggleControl={this.toggleControl}
               lastEvent={log[log.length - 1]}
               save={save}
+              isSimplified={isSimplified}
+              toggleSimpleChat={this.toggleSimpleChat}
               referencing={referencing}
               startNewReference={this.startNewReference}
               clearReference={this.clearReference}
@@ -1060,68 +1141,16 @@ class Workspace extends Component {
         >
           {instructionsModalMsg}
         </Modal>
-        {/* @todo refactor brings this outside of this file */}
-        <Modal
-          show={isCreatingActivity}
-          closeModal={() =>
-            this.setState({
-              isCreatingActivity: false,
-              createActivityError: null,
-              newResourceType: 'activity',
-            })
-          }
-        >
-          <p style={{ marginBottom: 10 }}>
-            Create a new Room or Activity based on this room
-          </p>
-          <div className={createClasses.RadioButtons}>
-            <RadioBtn
-              name="activity"
-              checked={newResourceType === 'activity'}
-              check={() => this.setNewResourceType('activity')}
-            >
-              Activity
-            </RadioBtn>
-            <RadioBtn
-              name="room"
-              checked={newResourceType === 'room'}
-              check={() => this.setNewResourceType('room')}
-            >
-              Room
-            </RadioBtn>
-          </div>
-          <TextInput
-            show={isCreatingActivity}
-            light
-            focus={isCreatingActivity}
-            name="new name"
-            value={newName}
-            change={(event) => {
-              this.setState({ newName: event.target.value });
-            }}
-            label={`New ${newResourceType} Name`}
+        {isCreatingActivity && (
+          <CreationModal
+            closeModal={this.closeCreate}
+            isCreatingActivity
+            populatedRoom={populatedRoom}
+            currentTabs={currentTabs}
+            user={user}
+            currentTabId={currentTabId}
           />
-          {currentTabs && currentTabs.length > 1 ? (
-            <div>
-              <p>Choose at least one tab to include</p>
-              <SelectionList
-                listToSelectFrom={currentTabs}
-                selectItem={this.addTabIdToCopy}
-                selected={selectedTabIdsToCopy}
-              />
-            </div>
-          ) : null}
-          {createActivityError ? (
-            <div className={modalClasses.Error}>{createActivityError}</div>
-          ) : null}
-
-          <Button
-            data-testid={`create-new-${newResourceType}`}
-            click={this.createNewActivityOrRoom}
-          >
-            Create {newResourceType}
-          </Button>
-        </Modal>
+        )}
       </Fragment>
     );
   }
@@ -1141,8 +1170,6 @@ Workspace.propTypes = {
   connectUpdateRoomTab: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectUpdateUserSettings: PropTypes.func.isRequired,
-  connectCreateActivity: PropTypes.func.isRequired,
-  connectCreateRoom: PropTypes.func.isRequired,
 };
 
 Workspace.defaultProps = {
@@ -1169,7 +1196,5 @@ export default connect(
     connectUpdateRoomTab: updateRoomTab,
     connectSetRoomStartingPoint: setRoomStartingPoint,
     connectUpdateUserSettings: updateUserSettings,
-    connectCreateActivity: createActivity,
-    connectCreateRoom: createRoom,
   }
 )(Workspace);

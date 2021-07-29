@@ -70,7 +70,9 @@ class TempWorkspace extends Component {
 
   joinRoom = (graphType) => {
     const { loggedIn, username, userId, populatedRoom } = this.props;
-    const { tempUsername, firstEntry } = this.state;
+    const { tempUsername, firstEntry, saved } = this.state;
+    // disable save for DesmosActivities
+    this.setState({ saved: true });
     // Set username
     let roomUsername;
     if (loggedIn) {
@@ -176,7 +178,7 @@ class TempWorkspace extends Component {
         {!loggedIn ? (
           <Aux>
             <div>Enter a temporary username</div>
-            <TextInput light change={this.setName} />
+            <TextInput light change={this.setName} name="tempName" />
             <div>{errorMessage}</div>
           </Aux>
         ) : null}

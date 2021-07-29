@@ -322,12 +322,13 @@ export const populateRoom = (id, opts) => {
   };
 };
 
-export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
+export const inviteToRoom = (roomId, toUserId, toUserUsername, color) => {
   return (dispatch) => {
     dispatch(
       addRoomMember(roomId, {
         user: { _id: toUserId, username: toUserUsername },
         role: 'participant',
+        color,
       })
     );
     API.grantAccess(toUserId, 'room', roomId, 'invitation')
@@ -376,5 +377,14 @@ export const removeRoom = (roomId) => {
 export const createdRoomConfirmed = () => {
   return {
     type: actionTypes.CREATE_ROOM_CONFIRMED,
+  };
+};
+
+export const updateMonitorSelections = (selections) => {
+  return (dispatch) => {
+    dispatch({
+      type: actionTypes.UPDATE_MONITOR_SELECTIONS,
+      monitorSelections: selections,
+    });
   };
 };

@@ -1,0 +1,57 @@
+/* Styling based on example #27 from https://onaircode.com/html-css-radio-button-styles-examples/ */
+
+:import('../../../colors.css') {
+  lightBorder: lightBorder;
+  coldGray: coldGray;
+}
+
+.ToggleGroup {
+  display: flex;
+  flex-direction: row;
+  width: 220px;
+  border: 3px solid lightBorder;
+  font-size: inherit;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  margin-right: 5px;
+}
+
+/* button plus label */
+.ToggleElement {
+  display: flex;
+  flex-grow: 1;
+  align-content: center;
+}
+
+.ToggleElement:first-child > label {
+  border-radius: 5px 0 0 5px;
+}
+
+.ToggleElement:not(:first-child):not(:last-child) > label {
+  border-left: 3px solid lightBorder;
+}
+
+.ToggleElement:last-child > label {
+  border-left: 3px solid lightBorder;
+  border-radius: 0 5px 5px 0;
+}
+
+.ToggleElement > label {
+  width: 100%;
+  cursor: pointer;
+  font-style: italic;
+  text-align: center;
+}
+
+.ToggleButton {
+  appearance: none;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.ToggleButton:checked ~ label {
+  background-color: darkgray;
+  font-weight: bold;
+  color: black;
+}

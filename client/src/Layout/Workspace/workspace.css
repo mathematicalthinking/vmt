@@ -146,7 +146,7 @@
   min-width: 175px;
   flex-direction: column;
   flex-wrap: nowrap;
-  height: 96%;
+  height: 85%;
   justify-content: flex-start;
 }
 
@@ -210,7 +210,7 @@
   order: 3;
   flex: 1 0 20%;
   /* Will overflow flex container without height set */
-  height: 30px;
+  height: 40px;
   margin-bottom: 20px;
   /* min-height: 100px; */
 }
