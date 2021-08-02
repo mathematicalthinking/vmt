@@ -508,15 +508,26 @@ class Chat extends Component {
                   disabled={user.inAdminMode}
                 />
                 {!user.inAdminMode ? (
-                  <div
-                    className={classes.Send}
-                    onClick={submit}
-                    onKeyPress={submit}
-                    tabIndex="-2"
-                    role="button"
-                  >
-                    <i className="fab fa-telegram-plane" />
-                  </div>
+                  <Fragment>
+                    <div
+                      className={classes.QuickMenu}
+                      onClick={submit}
+                      onKeyPress={submit}
+                      tabIndex="-2"
+                      role="button"
+                    >
+                      <i className="fas fa-ellipsis-v" />
+                    </div>
+                    <div
+                      className={classes.Send}
+                      onClick={submit}
+                      onKeyPress={submit}
+                      tabIndex="-2"
+                      role="button"
+                    >
+                      <i className="fab fa-telegram-plane" />
+                    </div>
+                  </Fragment>
                 ) : null}
               </div>
             </Fragment>

@@ -177,6 +177,18 @@
   background: blueHover;
 }
 
+.QuickMenu {
+  composes: Send;
+  width: 22px;
+  background-color: white;
+  color: blue;
+}
+
+.QuickMenu:hover {
+  background: blueHover;
+  color: white;
+}
+
 .Entry {
   display: flex;
   flex-flow: column;
