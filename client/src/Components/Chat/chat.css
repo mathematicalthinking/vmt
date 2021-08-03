@@ -324,6 +324,22 @@
   animation: showDropdown 0.2s;
 }
 
+.ChatPicker {
+  height: 56px;
+  border: 2px solid transparent;
+  padding: 3px;
+}
+
+.ChatPickerTooltip {
+  composes: TooltipContent;
+  top: -28px;
+}
+
+.QuickMenu:hover .ChatPickerTooltip {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
 @keyframes showDropdown {
   /* style rules */
   0% {

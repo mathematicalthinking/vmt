@@ -24,6 +24,7 @@ class Chat extends Component {
       // settings: false,
       hasNewMessages: false,
       lastTimestamp: '',
+      isChatPicker: false,
     };
     this.chatContainer = React.createRef();
     this.chatInput = chatInput || React.createRef();
@@ -303,6 +304,12 @@ class Chat extends Component {
     goToReplayer();
   };
 
+  toggleChatPicker = () => {
+    this.setState((prevState) => ({
+      isChatPicker: !prevState.isChatPicker,
+    }));
+  };
+
   render() {
     const {
       log,
@@ -321,7 +328,12 @@ class Chat extends Component {
       pendingUsers,
       connectionStatus,
     } = this.props;
-    const { highlightedMessage, hasNewMessages, lastTimestamp } = this.state;
+    const {
+      highlightedMessage,
+      hasNewMessages,
+      lastTimestamp,
+      isChatPicker,
+    } = this.state;
     const DropdownMenu = () => {
       return (
         // eslint-disable-next-line
@@ -511,12 +523,15 @@ class Chat extends Component {
                   <Fragment>
                     <div
                       className={classes.QuickMenu}
-                      onClick={submit}
-                      onKeyPress={submit}
+                      onClick={this.toggleChatPicker}
+                      onKeyPress={this.toggleChatPicker}
                       tabIndex="-2"
                       role="button"
                     >
                       <i className="fas fa-ellipsis-v" />
+                      <div className={classes.ChatPickerTooltip}>
+                        {`Quick Reactions`}
+                      </div>
                     </div>
                     <div
                       className={classes.Send}
@@ -530,39 +545,16 @@ class Chat extends Component {
                   </Fragment>
                 ) : null}
               </div>
+              {isChatPicker ? (
+                <div className={classes.ChatPicker}>
+                  <span role="img" aria-label="rainbow emoji">
+                    🌈
+                  </span>
+                </div>
+              ) : null}
             </Fragment>
           ) : null}
         </div>
-        {/* {settings ? (
-          <Modal
-            show={settings}
-            closeModal={() => this.setState({ settings: false })}
-          >
-            More Options
-            <div className={classes.MoreMenu}>
-              {goToReplayer ? (
-                <div className={classes.MoreMenuOption}>
-                  <Button click={this.openReplayer} data-testid="open-replayer">
-                    Open Replayer
-                    <span className={classes.ExternalLink}>
-                      <i className="fas fa-external-link-alt" />
-                    </span>
-                  </Button>
-                </div>
-              ) : null}
-              {createActivity ? (
-                <div className={classes.MoreMenuOption}>
-                  <Button
-                    click={this.createActivity}
-                    data-testid="create-workspace"
-                  >
-                    Create Activity or Room
-                  </Button>
-                </div>
-              ) : null}
-            </div>
-          </Modal>
-        ) : null} */}
       </Fragment>
     );
   }
