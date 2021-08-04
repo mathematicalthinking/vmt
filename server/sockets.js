@@ -23,6 +23,10 @@ module.exports = function() {
   io.sockets.on('connection', (socket) => {
     console.log('socket connected: ', socket.id);
 
+    socket.on('ping', (cb) => {
+      if (typeof cb === 'function') cb();
+    });
+
     // console.log(socket.getEventNames())
     // if the socket has a jwt cookie find the user and update their socket
     // should we try to detect if the socket is already associated with a user...if so we need to update users on socket disconnect and remove their socket id
