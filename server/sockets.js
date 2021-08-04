@@ -33,7 +33,8 @@ module.exports = function() {
 
     socket.on('JOIN_TEMP', async (data, callback) => {
       // now synchronous?
-      socket.join(data.roomId, async () => {
+      socket.join(data.roomId);
+      const joinUser = async () => {
         let user;
         const promises = [];
         // If the user is NOT logged in, create a temp user
@@ -97,7 +98,8 @@ module.exports = function() {
         } catch (err) {
           console.log(err);
         }
-      });
+      };
+      joinUser();
     });
 
     socket.on('JOIN', async (data, cb) => {
@@ -110,9 +112,11 @@ module.exports = function() {
       const promises = [];
       const user = { _id: data.userId, username: data.username };
 
-      // now synchronous?
-      socket.join(data.roomId, async () => {
-        // update current users of this room
+      socket.join(data.roomId);
+      // console.log('user joined: ', data);
+
+      // update current users of this room
+      const joinUserMembers = async () => {
         const message = {
           _id: data._id,
           user: { _id: data.userId, username: 'VMTbot' },
@@ -146,7 +150,8 @@ module.exports = function() {
           console.log('ERROR JOINING ROOM for user: ', data.userId);
           return cb(null, err);
         }
-      });
+      };
+      joinUserMembers();
     });
 
     socket.on('LEAVE_ROOM', (roomId, color, cb) => {
