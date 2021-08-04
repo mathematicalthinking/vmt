@@ -1,3 +1,11 @@
+const { getMtSsoUrl, getEncUrl } = require('./config/app-urls');
+
+const allowedOrigins = [getMtSsoUrl(), getEncUrl()];
+
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+  allowedOrigins.push('http://localhost:3000');
+}
+
 const sockets = {};
 const options = {
   serveClient: !(
@@ -9,12 +17,7 @@ const options = {
   // This defines how many bytes a single message can be, before closing the socket.
   maxHttpBufferSize: 1e8,
   cors: {
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:3002',
-      'http://localhost:8080',
-    ],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     // allowedHeaders: ['my-custom-header'],
     credentials: true,
