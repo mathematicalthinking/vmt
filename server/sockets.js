@@ -28,6 +28,7 @@ module.exports = function() {
     // should we try to detect if the socket is already associated with a user...if so we need to update users on socket disconnect and remove their socket id
 
     socket.on('JOIN_TEMP', async (data, callback) => {
+      // now synchronous?
       socket.join(data.roomId, async () => {
         let user;
         const promises = [];
@@ -105,6 +106,7 @@ module.exports = function() {
       const promises = [];
       const user = { _id: data.userId, username: data.username };
 
+      // now synchronous?
       socket.join(data.roomId, async () => {
         // update current users of this room
         const message = {
