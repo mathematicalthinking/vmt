@@ -5,6 +5,7 @@ const db = require('../models');
 
 const { Tab } = db;
 const { Room } = db;
+const { Event } = db;
 
 const colorMap = require('../constants/colorMap');
 
@@ -630,6 +631,7 @@ module.exports = {
       since = Number(momentObj.startOf('day').format('x'));
     }
     const initialFilter = { updatedAt: { $gte: new Date(since) } };
+    // eslint-disable-next-line no-unused-vars
     let eventsFilter = { $gte: ['$$e.timestamp', since] };
 
     if (to && since && to > since) {
@@ -661,206 +663,7 @@ module.exports = {
           members: 1,
           tempRoom: 1,
           chat: 1,
-        },
-      },
-      {
-        $lookup: {
-          from: 'tabs',
-          localField: 'tabs',
-          foreignField: '_id',
-          as: 'tabObject',
-        },
-      },
-
-      {
-        $unwind: {
-          path: '$tabObject',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: 'events',
-          localField: 'tabObject.events',
-          foreignField: '_id',
-          as: 'eventObject',
-        },
-      },
-      { $unwind: { path: '$eventObject', preserveNullAndEmptyArrays: true } },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tabs: { $first: '$tabs' },
-          events: { $push: '$eventObject' },
-          tempRoom: { $first: '$tempRoom' },
-          chat: { $first: '$chat' },
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          instructions: 1,
-          description: 1,
-          image: 1,
-          tabs: 1,
-          privacySetting: 1,
-          updatedAt: 1,
-          members: 1,
-          tempRoom: 1,
-          chat: 1,
-
-          events: {
-            $filter: {
-              input: '$events',
-              as: 'e',
-              cond: eventsFilter,
-            },
-          },
-        },
-      },
-      {
-        $lookup: {
-          from: 'messages',
-          localField: 'chat',
-          foreignField: '_id',
-          as: 'messageObject',
-        },
-      },
-      {
-        $unwind: {
-          path: '$messageObject',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tabs: { $first: '$tabs' },
-          events: { $first: '$events' },
-          tempRoom: { $first: '$tempRoom' },
-          messages: { $push: '$messageObject' },
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          instructions: 1,
-          description: 1,
-          image: 1,
-          tabs: 1,
-          privacySetting: 1,
-          updatedAt: 1,
-          members: 1,
-          tempRoom: 1,
-          events: 1,
-
-          messages: {
-            $filter: {
-              input: '$messages',
-              as: 'e',
-              cond: eventsFilter,
-            },
-          },
-        },
-      },
-
-      { $unwind: { path: '$events', preserveNullAndEmptyArrays: true } },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tabs: { $first: '$tabs' },
-          events: { $push: '$events' },
-          messages: { $first: '$messages' },
-          activeMembers: { $addToSet: '$events.user' },
-          tempRoom: { $first: '$tempRoom' },
-        },
-      },
-      { $unwind: { path: '$messages', preserveNullAndEmptyArrays: true } },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tabs: { $first: '$tabs' },
-          events: { $first: '$events' },
-          messages: { $push: '$messages' },
-          activeMembers: { $first: '$activeMembers' },
-          activeMembersMessages: { $addToSet: '$messages.user' },
-          tempRoom: { $first: '$tempRoom' },
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          instructions: 1,
-          description: 1,
-          image: 1,
-          tabs: 1,
-          privacySetting: 1,
-          updatedAt: 1,
-          members: 1,
-          activeMembers: {
-            $concatArrays: ['$activeMembers', '$activeMembersMessages'],
-          },
-          eventsCount: { $size: '$events' },
-          messagesCount: { $size: '$messages' },
-          tempRoom: 1,
-        },
-      },
-
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'activeMembers',
-          foreignField: '_id',
-          as: 'activeMembers',
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          instructions: 1,
-          description: 1,
-          image: 1,
-          tabs: 1,
-          privacySetting: 1,
-          updatedAt: 1,
-          members: 1,
-          'activeMembers.username': 1,
-          'activeMembers._id': 1,
-          eventsCount: 1,
-          messagesCount: 1,
-          tempRoom: 1,
+          messagesCount: { $size: '$chat' },
         },
       },
     ];
@@ -872,7 +675,7 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { 'activeMembers.username': criteria },
+            { members: criteria },
           ],
         },
       });
@@ -881,7 +684,7 @@ module.exports = {
     pipeline.push({
       $facet: {
         paginatedResults: [
-          { $sort: { updatedAt: -1, eventsCount: -1 } },
+          { $sort: { updatedAt: -1 } },
           { $skip: skip ? parseInt(skip, 10) : 0 },
           { $limit: 20 },
           {
@@ -895,8 +698,6 @@ module.exports = {
               privacySetting: 1,
               updatedAt: 1,
               members: 1,
-              'activeMembers.username': 1,
-              'activeMembers._id': 1,
               eventsCount: 1,
               tempRoom: 1,
               messagesCount: 1,
@@ -910,12 +711,63 @@ module.exports = {
         ],
       },
     });
-    const [results] = await Room.aggregate(pipeline).allowDiskUse(true);
+
+    const [results] = await Room.aggregate(pipeline);
 
     const { paginatedResults: rooms, totalCount } = results;
 
+    const roomIds = rooms.map((room) => room._id);
+    const eventsPipeline = [
+      { $match: { room: { $in: roomIds } } },
+      {
+        $project: {
+          _id: 1,
+          room: 1,
+          user: 1,
+        },
+      },
+      {
+        $group: {
+          _id: '$room',
+          eventsCount: { $sum: 1 },
+          activeMembers: { $addToSet: '$user' },
+        },
+      },
+      {
+        $facet: {
+          paginatedResults: [
+            { $skip: skip ? parseInt(skip, 10) : 0 },
+            { $limit: 20 },
+            {
+              $project: {
+                _id: 1,
+                eventsCount: 1,
+                activeMembers: 1,
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    const [eventResults] = await Event.aggregate(eventsPipeline);
+
+    const { paginatedResults: roomEvents } = eventResults;
+
+    const updatedRooms = rooms.map((room) => {
+      const roomEvent = roomEvents.find(
+        (r) => String(r._id) === String(room._id)
+      );
+      return {
+        ...room,
+        eventsCount: roomEvent ? roomEvent.eventsCount : 0,
+        'activeMembers.username': [],
+        'activeMembers._id': roomEvent ? roomEvent.activeMembers : [],
+      };
+    });
+
     return [
-      rooms,
+      updatedRooms,
       { totalCount: totalCount && totalCount[0] ? totalCount[0].count : 0 },
     ];
   },
