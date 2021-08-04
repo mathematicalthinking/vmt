@@ -20,7 +20,7 @@ const app = express();
 console.log('NODE_ENV=', process.env.NODE_ENV);
 // SETUP DATABASE & SESSION
 let mongoURI;
-if (process.env.NODE_ENV === 'dev') {
+if (process.env.NODE_ENV === 'development') {
   mongoURI = process.env.MONGO_DEV_URI;
 } else if (process.env.TRAVIS) {
   mongoURI = process.env.MONGO_TEST_URI;
