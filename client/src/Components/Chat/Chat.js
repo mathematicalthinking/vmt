@@ -26,6 +26,7 @@ class Chat extends Component {
       hasNewMessages: false,
       lastTimestamp: '',
       isChatPicker: false,
+      isListening: false,
     };
     this.chatContainer = React.createRef();
     this.chatInput = chatInput || React.createRef();
@@ -37,6 +38,20 @@ class Chat extends Component {
     });
 
     this.debouncedUpdateCoords = debounce(this.updateCoords, 200);
+    // new speech recognition object
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    this.recognition = new SpeechRecognition();
+
+    // This runs when the speech recognition service starts
+    this.recognition.onstart = () => {
+      console.log('We are listening. Try speaking into the microphone.');
+    };
+
+    this.recognition.onspeechend = () => {
+      // when user is done speaking
+      this.recognition.stop();
+    };
   }
 
   componentDidMount() {
@@ -311,6 +326,47 @@ class Chat extends Component {
     }));
   };
 
+  speechToText = () => {
+    const { quickChat } = this.props;
+    const { isListening } = this.state;
+    if (isListening) {
+      // start recognition
+      this.recognition.start();
+      // recognition.onend = () => {
+      //   console.log('...continue listening...');
+      //   recognition.start();
+      // };
+    } else {
+      this.recognition.stop();
+      this.recognition.onend = () => {
+        console.log('Stopped listening per click');
+      };
+    }
+
+    // This runs when the speech recognition service returns result
+    this.recognition.onresult = (event) => {
+      const { transcript, confidence } = event.results[0][0];
+      console.log(
+        'Speech- Transcript: ',
+        transcript,
+        ', Confidence: ',
+        confidence
+      );
+      if (isListening) this.toggleListen();
+      quickChat(`🎙 ${transcript}`);
+    };
+  };
+
+  toggleListen() {
+    const { isListening } = this.state;
+    this.setState(
+      {
+        isListening: !isListening,
+      },
+      this.speechToText
+    );
+  }
+
   render() {
     const {
       log,
@@ -335,6 +391,7 @@ class Chat extends Component {
       hasNewMessages,
       lastTimestamp,
       isChatPicker,
+      isListening,
     } = this.state;
     const DropdownMenu = () => {
       return (
@@ -556,10 +613,18 @@ class Chat extends Component {
                     key="qucikChat-ST"
                     tabIndex={-3}
                     role="button"
-                    onClick={() => {}}
-                    onKeyPress={() => {}}
+                    onClick={() => {
+                      this.toggleListen();
+                    }}
+                    onKeyPress={() => {
+                      this.toggleListen();
+                    }}
                   >
-                    <i className="fas fa-microphone fa-2x" />
+                    <i
+                      className={`fas fa-microphone fa-2x ${
+                        isListening ? classes.Listening : ''
+                      }`}
+                    />
                   </div>
                   {quickChats.map((chat, i) => {
                     return (

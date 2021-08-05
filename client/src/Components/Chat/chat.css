@@ -349,6 +349,10 @@
   padding: 3px;
 }
 
+.Listening {
+  animation: pulse 1s infinite;
+}
+
 @keyframes showDropdown {
   /* style rules */
   0% {
@@ -358,6 +362,15 @@
   100% {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    color: darkgray;
+  }
+  100% {
+    color: red;
   }
 }
 
