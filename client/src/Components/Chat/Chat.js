@@ -531,9 +531,11 @@ class Chat extends Component {
                       role="button"
                     >
                       <i className="fas fa-ellipsis-v" />
-                      <div className={classes.ChatPickerTooltip}>
-                        {`Quick Reactions`}
-                      </div>
+                      {!isChatPicker ? (
+                        <div className={classes.ChatPickerTooltip}>
+                          {`Quick Reactions`}
+                        </div>
+                      ) : null}
                     </div>
                     <div
                       className={classes.Send}
@@ -549,12 +551,22 @@ class Chat extends Component {
               </div>
               {isChatPicker ? (
                 <div className={classes.ChatPicker}>
+                  <div
+                    className={classes.QuickChatItem}
+                    key="qucikChat-ST"
+                    tabIndex={-3}
+                    role="button"
+                    onClick={() => {}}
+                    onKeyPress={() => {}}
+                  >
+                    <i className="fas fa-microphone fa-2x" />
+                  </div>
                   {quickChats.map((chat, i) => {
                     return (
                       <div
                         className={classes.QuickChatItem}
                         key={`qucikChat-${chat.display}`}
-                        tabIndex={-3 - i}
+                        tabIndex={-4 - i}
                         role="button"
                         onClick={() => quickChat(chat.message)}
                         onKeyPress={() => quickChat(chat.message)}
