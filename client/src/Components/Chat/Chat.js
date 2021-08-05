@@ -8,6 +8,7 @@ import Message from './Message';
 import Event from './Event';
 import Pending from './Pending';
 import classes from './chat.css';
+import quickChats from './QuickChatList';
 import DropdownMenuClasses from '../../Layout/Dashboard/MainContent/dropdownmenu.css';
 import Button from '../UI/Button/Button';
 
@@ -316,6 +317,7 @@ class Chat extends Component {
       replayer,
       change,
       submit,
+      quickChat,
       value,
       expanded,
       referToEl,
@@ -547,9 +549,22 @@ class Chat extends Component {
               </div>
               {isChatPicker ? (
                 <div className={classes.ChatPicker}>
-                  <span role="img" aria-label="rainbow emoji">
-                    🌈
-                  </span>
+                  {quickChats.map((chat, i) => {
+                    return (
+                      <div
+                        className={classes.QuickChatItem}
+                        key={`qucikChat-${chat.display}`}
+                        tabIndex={-3 - i}
+                        role="button"
+                        onClick={() => quickChat(chat.message)}
+                        onKeyPress={() => quickChat(chat.message)}
+                      >
+                        <span role="img" aria-label="rainbow emoji">
+                          {chat.display}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : null}
             </Fragment>
@@ -585,6 +600,7 @@ Chat.propTypes = {
   startNewReference: PropTypes.func,
   replayer: PropTypes.bool,
   submit: PropTypes.func,
+  quickChat: PropTypes.func,
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   expanded: PropTypes.bool.isRequired,
   chatInput: PropTypes.shape({ current: PropTypes.any }),
@@ -606,6 +622,7 @@ Chat.defaultProps = {
   replayer: false,
   change: null,
   submit: null,
+  quickChat: null,
   referencing: false,
   isSimplified: true,
   setFromElAndCoords: null,

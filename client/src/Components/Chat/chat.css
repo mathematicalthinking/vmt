@@ -325,9 +325,14 @@
 }
 
 .ChatPicker {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
   height: 56px;
   border: 2px solid transparent;
   padding: 3px;
+  overflow-y: scroll;
 }
 
 .ChatPickerTooltip {
@@ -338,6 +343,10 @@
 .QuickMenu:hover .ChatPickerTooltip {
   display: flex;
   animation: showDropdown 0.2s;
+}
+
+.QuickChatItem {
+  padding: 3px;
 }
 
 @keyframes showDropdown {

@@ -105,6 +105,23 @@ class Chat extends Component {
     });
   };
 
+  quickChatHandler = (value) => {
+    const { timeOut: timeID, newMessage } = this.state;
+    clearTimeout(timeID);
+    this.sendPending(true);
+    const timeOut = setTimeout(() => this.sendPending(false), 5000);
+    this.setState({ timeOut });
+    if (newMessage === value) {
+      this.setState({
+        newMessage: '',
+      });
+    } else {
+      this.setState({
+        newMessage: value,
+      });
+    }
+  };
+
   submitMessage = () => {
     const {
       referToEl,
@@ -206,6 +223,7 @@ class Chat extends Component {
         pendingUsers={pendingUsers}
         change={this.changeHandler}
         submit={this.submitMessage}
+        quickChat={this.quickChatHandler}
         value={newMessage}
         chatInput={this.chatInput}
         {...this.props}
