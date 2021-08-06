@@ -353,7 +353,7 @@ class Chat extends Component {
         confidence
       );
       if (isListening) this.toggleListen();
-      quickChat(`🎙 ${transcript}`);
+      quickChat(transcript, 'STT');
     };
   };
 

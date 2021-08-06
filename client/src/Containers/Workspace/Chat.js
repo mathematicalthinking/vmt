@@ -14,6 +14,7 @@ class Chat extends Component {
     newMessage: '',
     pendingUsers: {},
     timeOut: null,
+    isDictated: false,
   };
 
   chatInput = React.createRef();
@@ -95,6 +96,7 @@ class Chat extends Component {
     clearTimeout(timeID);
     if (event.target.value === '') {
       this.sendPending(false);
+      this.setState({ isDictated: false });
     } else {
       this.sendPending(true);
       const timeOut = setTimeout(() => this.sendPending(false), 5000);
@@ -105,15 +107,21 @@ class Chat extends Component {
     });
   };
 
-  quickChatHandler = (value) => {
+  quickChatHandler = (value, type) => {
     const { timeOut: timeID, newMessage } = this.state;
     clearTimeout(timeID);
     this.sendPending(true);
     const timeOut = setTimeout(() => this.sendPending(false), 5000);
     this.setState({ timeOut });
+    // quick clear message if same message is repeated
     if (newMessage === value) {
       this.setState({
         newMessage: '',
+      });
+    } else if (type === 'STT') {
+      this.setState({ isDictated: true });
+      this.setState({
+        newMessage: `${newMessage} ${value}`,
       });
     } else {
       this.setState({
@@ -134,7 +142,7 @@ class Chat extends Component {
       myColor,
       log,
     } = this.props;
-    const { newMessage } = this.state;
+    const { newMessage, isDictated } = this.state;
     this.sendPending(false);
     if (!user.connected) {
       // eslint-disable-next-line no-alert
@@ -143,9 +151,11 @@ class Chat extends Component {
       );
     }
     if (newMessage.length === 0) return;
+    let messageText = newMessage;
+    if (isDictated) messageText = `🎙 ${newMessage}`;
     const messageData = {
       _id: mongoIdGenerator(),
-      text: newMessage,
+      text: messageText,
       user: { _id: user._id, username: user.username },
       room: roomId,
       color: myColor,
@@ -207,6 +217,7 @@ class Chat extends Component {
     this.setState(
       {
         newMessage: '',
+        isDictated: false,
       },
       () => {
         if (this.chatInput.current) {
