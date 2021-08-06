@@ -21,7 +21,11 @@ class Awareness extends Component {
     const { lastEvent } = this.props;
     if (lastEvent) {
       return (
-        <div className={classes.AwarenessDesc} data-testid="awareness-desc">
+        <div
+          className={classes.AwarenessDesc}
+          data-testid="awareness-desc"
+          title="Last event"
+        >
           {lastEvent.description || lastEvent.text || lastEvent.message}
           <div className={classes.AwarenessIcon}>
             {lastEvent.action === 'mode' ? (

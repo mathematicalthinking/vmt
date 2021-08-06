@@ -56,7 +56,7 @@ all share. we are repeating styles in each of those copmnents  */
 .ReferenceWindow {
   /* height: 100%; */
   margin: 3px 0;
-  padding: 2px;
+  /* padding: 2px; */
   display: flex;
   justify-content: space-between;
   box-shadow: lightShadow;
@@ -100,7 +100,7 @@ all share. we are repeating styles in each of those copmnents  */
 
 .Controls {
   display: flex;
-  margin-top: 10px;
+  margin: 5px 0;
 }
 
 .MousePointer {
