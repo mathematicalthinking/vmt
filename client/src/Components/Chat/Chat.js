@@ -565,7 +565,7 @@ class Chat extends Component {
               <div className={classes.ChatInput}>
                 <Pending pendingUsers={pendingUsers} />
 
-                <input
+                <textarea
                   ref={this.chatInput}
                   className={classes.Input}
                   type="text"
