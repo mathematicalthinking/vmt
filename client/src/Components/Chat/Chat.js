@@ -27,6 +27,7 @@ class Chat extends Component {
       lastTimestamp: '',
       isChatPicker: false,
       isListening: false,
+      seenChatInstructions: false,
     };
     this.chatContainer = React.createRef();
     this.chatInput = chatInput || React.createRef();
@@ -392,6 +393,7 @@ class Chat extends Component {
       lastTimestamp,
       isChatPicker,
       isListening,
+      seenChatInstructions,
     } = this.state;
     const DropdownMenu = () => {
       return (
@@ -569,12 +571,20 @@ class Chat extends Component {
                   ref={this.chatInput}
                   className={classes.Input}
                   type="text"
+                  placeholder={
+                    seenChatInstructions
+                      ? ''
+                      : 'Type in here, hit the microphone and dictate, or clicks the dots for quick chats'
+                  }
                   onChange={change}
                   value={value}
                   onFocus={() => {
                     if (!referencing) {
                       startNewReference();
                     }
+                    this.setState({
+                      seenChatInstructions: true,
+                    });
                   }}
                   disabled={user.inAdminMode}
                 />
