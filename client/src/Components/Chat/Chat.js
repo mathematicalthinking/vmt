@@ -579,7 +579,37 @@ class Chat extends Component {
                   disabled={user.inAdminMode}
                 />
                 {!user.inAdminMode ? (
-                  <Fragment>
+                  <div className={classes.ChatOptions}>
+                    <div className={classes.ChatButtons}>
+                      <div
+                        className={classes.Mic}
+                        key="qucikChat-ST"
+                        tabIndex={-3}
+                        role="button"
+                        onClick={() => {
+                          this.toggleListen();
+                        }}
+                        onKeyPress={() => {
+                          this.toggleListen();
+                        }}
+                      >
+                        <i
+                          className={`fas fa-microphone fa ${
+                            isListening ? classes.Listening : ''
+                          }`}
+                        />
+                      </div>
+                      <div
+                        className={classes.Send}
+                        onClick={submit}
+                        onKeyPress={submit}
+                        tabIndex="-2"
+                        role="button"
+                      >
+                        <i className="fab fa-telegram-plane" />
+                      </div>
+                    </div>
+
                     <div
                       className={classes.QuickMenu}
                       onClick={this.toggleChatPicker}
@@ -587,45 +617,19 @@ class Chat extends Component {
                       tabIndex="-2"
                       role="button"
                     >
-                      <i className="fas fa-ellipsis-v" />
-                      {!isChatPicker ? (
+                      <i className="fas fa-ellipsis-h" />
+                      {/* Optional tooltip for additional chat QuickMenu */}
+                      {/* {!isChatPicker ? (
                         <div className={classes.ChatPickerTooltip}>
                           {`Quick Reactions`}
                         </div>
-                      ) : null}
+                      ) : null} */}
                     </div>
-                    <div
-                      className={classes.Send}
-                      onClick={submit}
-                      onKeyPress={submit}
-                      tabIndex="-2"
-                      role="button"
-                    >
-                      <i className="fab fa-telegram-plane" />
-                    </div>
-                  </Fragment>
+                  </div>
                 ) : null}
               </div>
               {isChatPicker ? (
                 <div className={classes.ChatPicker}>
-                  <div
-                    className={classes.QuickChatItem}
-                    key="qucikChat-ST"
-                    tabIndex={-3}
-                    role="button"
-                    onClick={() => {
-                      this.toggleListen();
-                    }}
-                    onKeyPress={() => {
-                      this.toggleListen();
-                    }}
-                  >
-                    <i
-                      className={`fas fa-microphone fa-2x ${
-                        isListening ? classes.Listening : ''
-                      }`}
-                    />
-                  </div>
                   {quickChats.map((chat, i) => {
                     return (
                       <div
