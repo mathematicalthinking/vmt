@@ -3,6 +3,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Member, Search, Modal, Button, InfoBox } from 'Components';
 import COLOR_MAP from 'utils/colorMap';
 import API from '../../utils/apiRequests';
 import {
@@ -16,7 +17,6 @@ import {
   removeRoomMember,
 } from '../../store/actions';
 import { getAllUsersInStore } from '../../store/reducers';
-import { Member, Search, Modal, Button, InfoBox } from '../../Components';
 import SearchResults from './SearchResults';
 import classes from './members.css';
 
@@ -30,6 +30,15 @@ class Members extends PureComponent {
       confirmingInvitation: false,
       userId: null,
       username: null,
+    };
+  }
+
+  componentDidMount() {
+    this.fileSelector = document.createElement('input');
+    this.fileSelector.setAttribute('type', 'file');
+    // eslint-disable-next-line func-names
+    this.fileSelector.onchange = (e) => {
+      console.log('files', e.target.files[0].name);
     };
   }
 
@@ -56,6 +65,11 @@ class Members extends PureComponent {
       });
     }
   }
+
+  _handleChange = (e) => {
+    console.log('here');
+    console.log(e.target);
+  };
 
   inviteMember = (id, username) => {
     let confirmingInvitation = false;
@@ -164,6 +178,11 @@ class Members extends PureComponent {
     } else {
       this.setState({ searchResults: [], searchText: text });
     }
+  };
+
+  _handleImport = (e) => {
+    e.preventDefault();
+    this.fileSelector.click();
   };
 
   render() {
@@ -312,6 +331,7 @@ class Members extends PureComponent {
             <InfoBox
               title="Add New Participants"
               icon={<i className="fas fa-user-plus" />}
+              rightIcons={<Button click={this._handleImport}>Import</Button>}
             >
               <Fragment>
                 <Search
