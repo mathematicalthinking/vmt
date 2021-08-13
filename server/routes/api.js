@@ -13,7 +13,7 @@ const { getUser, getResource } = require('../middleware/utils/request');
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
 
-router.get('/:resource', (req, res) => {
+router.get('/:resource', middleware.validateUser, (req, res) => {
   const { resource } = req.params;
   const controller = controllers[resource];
   req.query.isTrashed = false;
@@ -42,6 +42,7 @@ router.get('/search/:resource', (req, res) => {
 
   text = text.replace(/\s+/g, '');
   const regex = new RegExp(text, 'i');
+  console.log('Search: ', req.params.resource, ' for ', regex);
   controller
     .search(regex, req.query.exclude)
     .then((results) => {

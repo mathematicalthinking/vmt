@@ -103,12 +103,12 @@ export const clearNotification = (ntfId) => {
   };
 };
 
-export const signup = (body, room) => {
+export const signup = (body) => {
   // room is optional -- if we're siging up someone in a temp room
   return (dispatch) => {
-    if (room) {
-      // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
-    }
+    // if (room) {
+    //   // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
+    // }
     dispatch(loading.start());
     AUTH.signup(body)
       .then((res) => {

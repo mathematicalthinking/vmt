@@ -9,6 +9,8 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { isNil, isEqual } = require('lodash');
+const controllers = require('../controllers');
+// const Course = require('../models/Course');
 const User = require('../models/User');
 const errors = require('../middleware/errors');
 const {
@@ -133,6 +135,32 @@ router.post('/signup', async (req, res) => {
     console.log('err signup', err);
     return errors.sendError.InternalError(null, res);
   }
+});
+
+router.post('/:resource/code', (req, res) => {
+  const { resource } = req.params;
+  const { code } = req.body;
+  if (resource !== 'courses') {
+    return errors.sendError.InternalError(
+      'Resource not supported via class code entry!',
+      res
+    );
+  }
+  const controller = controllers[resource];
+
+  controller
+    .getByCode(code)
+    .then((result) => res.json({ result }))
+    .catch((err) => {
+      console.error(`Error: invalid course code`);
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+
+      return errors.sendError.InternalError(msg, res);
+    });
 });
 
 router.post('/logout/:userId', (req, res) => {

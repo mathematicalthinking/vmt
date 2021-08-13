@@ -3,10 +3,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { TextInput, Button, RadioBtn, Background, Aux } from '../../Components';
-import classes from './signup.css';
+import classes from './classcode.css';
 import GoogleLogin from '../../Components/Form/Google/LoginButton';
 
-class Signup extends Component {
+class ClassCode extends Component {
   // @TODO Redo Login containers state to match this. cleaner
   // @TODO dispatch an action to clear error message when user starts typing again
   state = {
@@ -101,7 +101,7 @@ class Signup extends Component {
       // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
       // the answer will determine where/if we redirect to
       loggedIn && !temp ? (
-        <Redirect to="/myVMT/rooms" />
+        <Redirect to="/myVMT/courses" />
       ) : (
         <Aux>
           {!temp ? <Background bottomSpace={-40} fixed /> : null}
@@ -202,7 +202,7 @@ class Signup extends Component {
   }
 }
 
-Signup.propTypes = {
+ClassCode.propTypes = {
   temp: PropTypes.bool,
   room: PropTypes.string,
   signup: PropTypes.func.isRequired,
@@ -220,7 +220,7 @@ Signup.propTypes = {
   },
 };
 
-Signup.defaultProps = {
+ClassCode.defaultProps = {
   room: null,
   user: null,
   errorMessage: null,
@@ -229,4 +229,4 @@ Signup.defaultProps = {
   closeModal: null,
 };
 
-export default Signup;
+export default ClassCode;

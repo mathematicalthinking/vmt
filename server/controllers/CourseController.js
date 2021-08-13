@@ -28,6 +28,21 @@ module.exports = {
     });
   },
 
+  getByCode: (code) => {
+    return new Promise((resolve, reject) => {
+      const query = {};
+      query.entryCode = code;
+      db.Course.find(query)
+        .sort('-createdAt')
+        // .populate('creator')
+        // .populate('rooms', 'name ')
+        .populate('members.user', 'username')
+        // .populate('notifications.user')
+        .then((courses) => resolve(courses))
+        .catch((err) => reject(err));
+    });
+  },
+
   searchPaginated: async (criteria, skip, filters) => {
     const initialFilter = { isTrashed: false };
     const allowedPrivacySettings = ['private', 'public'];
