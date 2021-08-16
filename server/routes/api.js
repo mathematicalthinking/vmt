@@ -31,6 +31,32 @@ router.get('/:resource', middleware.validateUser, (req, res) => {
     });
 });
 
+router.post('/:resource/code', (req, res) => {
+  const { resource } = req.params;
+  const { code } = req.body;
+  if (resource !== 'courses') {
+    return errors.sendError.InternalError(
+      'Resource not supported via class code entry!',
+      res
+    );
+  }
+  const controller = controllers[resource];
+
+  controller
+    .getByCode(code)
+    .then((result) => res.json({ result }))
+    .catch((err) => {
+      console.error(`Error: invalid course code`);
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+
+      return errors.sendError.InternalError(msg, res);
+    });
+});
+
 router.get('/search/:resource', (req, res) => {
   const resource = getResource(req);
   // currently only /search/user uses this endpt

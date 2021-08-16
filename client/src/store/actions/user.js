@@ -251,6 +251,19 @@ export const googleLogin = (username, password) => {
   };
 };
 
+export const codeLogin = (resource, code) => {
+  return (dispatch) => {
+    dispatch(loading.start());
+    API.getWithCode(resource, code)
+      .then((res) => {
+        dispatch(loading.success(res));
+      })
+      .catch((err) => {
+        dispatch(loading.fail(err));
+      });
+  };
+};
+
 export const clearError = () => {
   return { type: actionTypes.CLEAR_ERROR };
 };

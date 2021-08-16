@@ -36,7 +36,7 @@ module.exports = {
         .sort('-createdAt')
         // .populate('creator')
         // .populate('rooms', 'name ')
-        .populate('members.user', 'username')
+        .populate('members.user')
         // .populate('notifications.user')
         .then((courses) => resolve(courses))
         .catch((err) => reject(err));

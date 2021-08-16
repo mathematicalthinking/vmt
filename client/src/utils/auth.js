@@ -9,9 +9,6 @@ export default {
   login: (username, password) => {
     return axios.post('/auth/login', { username, password });
   },
-  classCode: (resource, code) => {
-    return axios.post(`/auth/${resource}/code`, { code });
-  },
   googleLogin: (username, password) => {
     return axios.get('/auth/googleAuth', { username, password });
   },

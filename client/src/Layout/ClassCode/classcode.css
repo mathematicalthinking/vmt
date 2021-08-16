@@ -1,10 +1,9 @@
-:import('../../colors.css'){
+:import('../../colors.css') {
   gray: backgroundGray;
   blue: blue;
   red: red;
   lightShadow: lightShadow;
 }
-
 
 .Container {
   width: 100%;
@@ -13,8 +12,25 @@
   justify-content: center;
 }
 
-.ModalContainer{
+.ParticipantList {
+  margin: 20px 0 10px 0;
+  /* display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  overflow-y: scroll;
+  background: #f8f8f8; */
+  border: 1px solid #ddd;
+  padding: 5px;
+  width: 60%;
+  /* min-height: 200px; */
+}
 
+.Participant {
+  /* color: black;
+  padding: 7px;
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid #ddd; */
 }
 
 .SignupContainer {
@@ -40,12 +56,11 @@
 
 .Title {
   /* color: blue; */
-  letter-spacing: .07em;
+  letter-spacing: 0.07em;
   margin-bottom: 40px;
   font-weight: 300;
   font-size: 32px;
 }
-
 
 .AccountTypeContainer {
   display: flex;
@@ -56,15 +71,19 @@
   margin: 15px;
 }
 
+.Modal {
+  color: blue;
+}
+
 .AccountTypeLabel {
   order: 1;
-  flex: .4 0 auto;
+  flex: 0.4 0 auto;
   font-size: 20px;
 }
 
 .RadioOption {
   order: 2;
-  flex: .3 0 auto;
+  flex: 0.3 0 auto;
 }
 
 .AccountMessage {

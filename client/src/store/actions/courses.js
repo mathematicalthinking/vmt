@@ -78,6 +78,18 @@ export const removeCourseMember = (courseId, userId) => {
   };
 };
 
+// export const getWithCode = (code) => {
+//   return (dispatch) => {
+//     dispatch(loading.start());
+//     API.getWithCode('courses', code)
+//       .then((res) => {
+//         dispatch(updatedCourse(courseId, { members: res.data }));
+//         dispatch(loading.success());
+//       })
+//       .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
+//   };
+// };
+
 export const updateCourseMembers = (courseId, updatedMembers) => {
   return (dispatch) => {
     dispatch(loading.start());

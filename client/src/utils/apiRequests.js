@@ -55,6 +55,9 @@ export default {
     // Generic 'GET /api/user/{ID}' call
     return api.get(`/api/${resource}/${id}`);
   },
+  getWithCode: (resource, code) => {
+    return api.post(`/api/${resource}/code`, { code });
+  },
 
   getPopulatedById: (resource, id, temp, events, encompass) => {
     if (temp) {
