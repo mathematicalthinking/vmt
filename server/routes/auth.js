@@ -106,8 +106,8 @@ router.post('/signup', async (req, res) => {
     if (wasFromTempUser) {
       // update the room
       const tempRoom = await Room.findById(user.rooms[0]);
-
-      if (tempRoom) {
+      // verify the found room exists and is temp (not a pending user)
+      if (tempRoom && tempRoom.tempRoom) {
         tempRoom.tempRoom = false;
 
         let foundUser = false;

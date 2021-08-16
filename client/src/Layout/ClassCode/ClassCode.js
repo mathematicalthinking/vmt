@@ -22,7 +22,7 @@ class ClassCode extends Component {
       resource: {},
       members: [],
       isResourceConf: false,
-      memberToConf: '',
+      memberToConf: null,
     };
 
     this.reset = this.reset.bind(this);
@@ -132,14 +132,39 @@ class ClassCode extends Component {
   }
 
   join(member) {
-    this.setState({ memberToConf: member.username });
+    const { members } = this.state;
+    const user = members.find((mem) => mem.user.username === member.username)
+      .user;
+    console.log('Selected user: ', user);
+    this.setState({ memberToConf: user });
     window.scrollTo(0, 0);
   }
 
   handleLogin() {
-    const { members, memberToConf } = this.state;
-    const user = members.find((mem) => mem.user.username === memberToConf).user;
-    console.log('Logging in user: ', user);
+    const { signup, login, history } = this.props;
+    const { memberToConf } = this.state;
+
+    if (memberToConf.accountType === 'pending') {
+      const userToConvert = {
+        accountType: 'participant',
+        email: '',
+        firstName: memberToConf.firstName,
+        lastName: memberToConf.lastName,
+        password: process.env.REACT_APP_VMT_LOGIN_DEFAULT,
+        rooms: memberToConf.rooms,
+        courses: memberToConf.courses,
+        username: memberToConf.username,
+        _id: memberToConf._id,
+      };
+
+      // userToConvert.isEmailConfirmed = true;
+      console.log('signing up user: ', userToConvert);
+      signup(userToConvert);
+    } else if (!memberToConf.email) {
+      login(memberToConf.username, process.env.REACT_APP_VMT_LOGIN_DEFAULT);
+    } else {
+      history.push('/login');
+    }
   }
 
   render() {
@@ -263,31 +288,31 @@ class ClassCode extends Component {
               <Modal
                 show={memberToConf}
                 closeModal={() => {
-                  this.setState({ memberToConf: '' });
+                  this.setState({ memberToConf: null });
                 }}
               >
                 <div className={classes.Modal}> Confirmation </div>
 
                 <Fragment>
-                  <div
-                    className={classes.Modal}
-                  >{`Username: ${memberToConf}`}</div>
+                  <div className={classes.Modal}>
+                    {memberToConf ? `Username: ${memberToConf.username}` : ''}
+                  </div>
                   <div>
                     <Button
                       m={10}
                       click={() => {
-                        this.setState({ memberToConf: '' });
+                        this.setState({ memberToConf: null });
                       }}
                     >
                       No, this isn't me
                     </Button>
+                    {}
                     <Button m={10} click={this.handleLogin}>
                       Yes, let's go
                     </Button>
                   </div>
                 </Fragment>
               </Modal>
-              <GoogleLogin />
             </div>
           </div>
         </Aux>
@@ -300,11 +325,13 @@ ClassCode.propTypes = {
   temp: PropTypes.bool,
   room: PropTypes.string,
   signup: PropTypes.func.isRequired,
+  login: PropTypes.func.isRequired,
   codeLogin: PropTypes.func.isRequired,
   user: PropTypes.shape({}),
   errorMessage: PropTypes.string,
   clearError: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
+  history: PropTypes.shape({}).isRequired,
   // closeModal: (props, propName) => {
   //   if (props.temp && !props[propName]) {
   //     throw new Error(

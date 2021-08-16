@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { ClassCode } from '../Layout';
-import { signup, clearError, codeLogin } from '../store/actions';
+import { signup, clearError, codeLogin, login } from '../store/actions';
 
 const mapStateToProps = (store) => {
   return {
@@ -12,5 +12,5 @@ const mapStateToProps = (store) => {
 
 export default connect(
   mapStateToProps,
-  { signup, clearError, codeLogin }
+  { signup, clearError, codeLogin, login }
 )(ClassCode);

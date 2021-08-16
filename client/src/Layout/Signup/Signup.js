@@ -79,6 +79,7 @@ class Signup extends Component {
       newUser._id = user._id;
       newUser.rooms = [room];
     }
+    console.log('Signing up user: ', newUser);
     signup(newUser);
   };
 
