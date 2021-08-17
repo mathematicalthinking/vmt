@@ -124,6 +124,35 @@ export const signup = (body) => {
   };
 };
 
+// When we are signing up several people at once. Need to use this so that we can aggregate any errors.
+export const signupMultiple = (bodies) => {
+  return (dispatch) => {
+    const messages = [];
+    let success = true;
+    dispatch(loading.start());
+    bodies.foreach((body) => {
+      AUTH.signup(body)
+        .then((res) => {
+          if (res.data.errorMessage) {
+            messages.push({ body, fail: res.data.errorMessage });
+            success = false;
+          } else {
+            messages.push({ body, success: true });
+          }
+        })
+        .catch((err) => {
+          messages.push({ body, fail: err.response.data.errorMessage });
+          success = false;
+        });
+    });
+    if (success) {
+      dispatch(loading.success());
+    } else {
+      dispatch(loading.multiFail(messages));
+    }
+  };
+};
+
 export const login = (username, password) => {
   return (dispatch) => {
     dispatch(loading.start());
