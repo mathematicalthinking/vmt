@@ -18,7 +18,10 @@ const User = new mongoose.Schema(
     lastName: { type: String },
     username: { type: String, required: true },
     email: { type: String },
-    accountType: { type: String, enum: ['participant', 'facilitator', 'temp'] },
+    accountType: {
+      type: String,
+      enum: ['participant', 'facilitator', 'temp', 'pending'],
+    },
     bothRoles: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },
     seenTour: { type: Boolean, default: false },
