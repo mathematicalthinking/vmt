@@ -23,7 +23,6 @@ class ClassCode extends Component {
       members: [],
       isResourceConf: false,
       memberToConf: null,
-      isGoogleUser: false,
     };
 
     this.reset = this.reset.bind(this);
@@ -42,14 +41,6 @@ class ClassCode extends Component {
   componentDidUpdate(prevProps) {
     const { code, memberToConf } = this.state;
     if (prevProps.code && code === '') this.reset();
-
-    if (
-      memberToConf &&
-      memberToConf.accountType === 'pending' &&
-      memberToConf.isGmail
-    ) {
-      this.setState({ isGoogleUser: true });
-    }
   }
 
   componentWillUnmount() {
@@ -185,8 +176,8 @@ class ClassCode extends Component {
       isResourceConf,
       members,
       memberToConf,
-      isGoogleUser,
     } = this.state;
+    const isGoogleUser = memberToConf ? memberToConf.isGmail : false;
     const participantList = [];
     members.forEach((member) => {
       if (member.role === 'participant' || member.role === 'guest') {

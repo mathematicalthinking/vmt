@@ -21,6 +21,7 @@ export default function ImportModal(props) {
         return { ...acc, [columnNames[index]]: col.value };
       }, {})
     );
+
     onSubmit(returnedData);
   };
 
@@ -89,7 +90,7 @@ export default function ImportModal(props) {
             </table>
           )}
           valueRenderer={(cell) => {
-            return cell.value.toString();
+            return cell.value ? cell.value.toString() : '';
           }}
           cellRenderer={_cellRenderer}
           onCellsChanged={_handleCellsChanged}

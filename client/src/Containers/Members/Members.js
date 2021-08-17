@@ -182,7 +182,7 @@ class Members extends PureComponent {
   validateData = async (data) => {
     const validatedData = await Promise.all(
       data.map(async (d) => {
-        d.isGmail = false;
+        if (!d.isGmail) d.isGmail = false;
         const username =
           d.username ||
           (d.firstName || d.email || 'X') + (d.lastName || 'X').charAt(0);
