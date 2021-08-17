@@ -43,7 +43,11 @@ class ClassCode extends Component {
     const { code, memberToConf } = this.state;
     if (prevProps.code && code === '') this.reset();
 
-    if (memberToConf.accountType === 'pending' && memberToConf.gmail) {
+    if (
+      memberToConf &&
+      memberToConf.accountType === 'pending' &&
+      memberToConf.isGmail
+    ) {
       this.setState({ isGoogleUser: true });
     }
   }
@@ -152,7 +156,7 @@ class ClassCode extends Component {
     if (memberToConf.accountType === 'pending') {
       const userToConvert = {
         accountType: 'participant',
-        email: '',
+        email: memberToConf.email || '',
         firstName: memberToConf.firstName,
         lastName: memberToConf.lastName,
         password: process.env.REACT_APP_VMT_LOGIN_DEFAULT,
@@ -181,6 +185,7 @@ class ClassCode extends Component {
       isResourceConf,
       members,
       memberToConf,
+      isGoogleUser,
     } = this.state;
     const participantList = [];
     members.forEach((member) => {
