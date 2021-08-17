@@ -3,9 +3,11 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { CSVReader } from 'react-papaparse';
 import { Member, Search, Modal, Button, InfoBox } from 'Components';
 import COLOR_MAP from 'utils/colorMap';
-import API from '../../utils/apiRequests';
+import API from 'utils/apiRequests';
+import { suggestUniqueUsername } from 'utils/validators';
 import {
   grantAccess,
   updateCourseMembers,
@@ -15,9 +17,10 @@ import {
   clearNotification,
   removeCourseMember,
   removeRoomMember,
-} from '../../store/actions';
-import { getAllUsersInStore } from '../../store/reducers';
+} from 'store/actions';
+import { getAllUsersInStore } from 'store/reducers';
 import SearchResults from './SearchResults';
+import ImportModal from './ImportModal';
 import classes from './members.css';
 
 class Members extends PureComponent {
@@ -30,16 +33,10 @@ class Members extends PureComponent {
       confirmingInvitation: false,
       userId: null,
       username: null,
+      showImportModal: false,
+      importedData: [],
     };
-  }
-
-  componentDidMount() {
-    this.fileSelector = document.createElement('input');
-    this.fileSelector.setAttribute('type', 'file');
-    // eslint-disable-next-line func-names
-    this.fileSelector.onchange = (e) => {
-      console.log('files', e.target.files[0].name);
-    };
+    this.buttonRef = React.createRef();
   }
 
   // componentDidUpdate(prevProps) {
@@ -65,11 +62,6 @@ class Members extends PureComponent {
       });
     }
   }
-
-  _handleChange = (e) => {
-    console.log('here');
-    console.log(e.target);
-  };
 
   inviteMember = (id, username) => {
     let confirmingInvitation = false;
@@ -180,9 +172,62 @@ class Members extends PureComponent {
     }
   };
 
-  _handleImport = (e) => {
-    e.preventDefault();
-    this.fileSelector.click();
+  handleOpenDialog = (e) => {
+    // Note that the ref is set async, so it might be null at some point
+    if (this.buttonRef.current) {
+      this.buttonRef.current.open(e);
+    }
+  };
+
+  validateData = async (data) => {
+    const validatedData = await Promise.all(
+      data.map(async (d) => {
+        d.gmail = false;
+        const username =
+          d.username ||
+          (d.firstName || d.email || 'X') + (d.lastName || 'X').charAt(0);
+        const newUsername = await suggestUniqueUsername(username);
+        if (newUsername !== d.username) {
+          d.comment = 'New username suggested';
+          d.username = newUsername;
+        } else d.comment = '';
+        return d;
+      })
+    );
+    return validatedData;
+  };
+
+  handleOnFileLoad = async (data) => {
+    const extractedData = data.map((d) => d.data);
+    const importedData = await this.validateData(extractedData);
+    this.setState({ showImportModal: true, importedData });
+  };
+
+  handleOnError = (err) => {
+    console.log(err);
+  };
+
+  handleOnSubmit = async (data) => {
+    const newData = await this.validateData(data);
+    const hasChanges = newData.filter((d) => d.comment !== '').length > 0;
+
+    if (hasChanges) this.setState({ importedData: newData });
+    else {
+      this.setState({ showImportModal: false, importedData: newData });
+      this.createAndAddMembers();
+    }
+  };
+
+  createAndAddMembers = async () => {
+    const { importedData } = this.state;
+    const newUsers = await Promise.all(
+      importedData.map(async (user) =>
+        API.post('user', { ...user, accountType: 'temp' })
+      )
+    );
+    newUsers.forEach(({ data: { result: user } }) =>
+      this.inviteMember(user._id, user.username)
+    );
   };
 
   render() {
@@ -201,7 +246,22 @@ class Members extends PureComponent {
       username,
       searchResults,
       searchText,
+      showImportModal,
+      importedData,
     } = this.state;
+    const csvItem = (
+      <CSVReader
+        ref={this.buttonRef}
+        onFileLoad={this.handleOnFileLoad}
+        onError={this.handleOnError}
+        config={{ header: true, skipEmptyLines: true }}
+        noProgressBar
+        noDrag
+      >
+        {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
+        {() => <Button click={this.handleOpenDialog}>Import</Button>}
+      </CSVReader>
+    );
     let joinRequests = <p>There are no new requests to join</p>;
     if (owner && notifications.length >= 1) {
       joinRequests = notifications
@@ -283,31 +343,50 @@ class Members extends PureComponent {
     });
     return (
       <div className={classes.Container}>
-        {
-          <Modal
-            show={confirmingInvitation}
-            closeModal={() => this.setState({ confirmingInvitation: false })}
-          >
-            <div>
-              {username} is not in this course...you can still add them to this
-              room and they will be added to the course as a guest
-            </div>
-            <div>
-              <Button m={5} click={this.confirmInvitation}>
-                Add To Room
-              </Button>
-              <Button
-                theme="Cancel"
-                m={5}
-                click={() => {
-                  this.setState({ confirmingInvitation: false });
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </Modal>
-        }
+        <ImportModal
+          show={showImportModal}
+          data={importedData}
+          columnNames={[
+            'username',
+            'email',
+            'gmail',
+            'firstName',
+            'lastName',
+            'comment',
+          ]}
+          headers={[
+            'Username',
+            'Email',
+            'Gmail Account',
+            'First Name',
+            'Last Name or Other Identifier',
+            'Comments',
+          ]}
+          onSubmit={(data) => this.handleOnSubmit(data)}
+        />
+        <Modal
+          show={confirmingInvitation}
+          closeModal={() => this.setState({ confirmingInvitation: false })}
+        >
+          <div>
+            {username} is not in this course...you can still add them to this
+            room and they will be added to the course as a guest
+          </div>
+          <div>
+            <Button m={5} click={this.confirmInvitation}>
+              Add To Room
+            </Button>
+            <Button
+              theme="Cancel"
+              m={5}
+              click={() => {
+                this.setState({ confirmingInvitation: false });
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </Modal>
         <div>
           {owner ? (
             <InfoBox
@@ -331,7 +410,7 @@ class Members extends PureComponent {
             <InfoBox
               title="Add New Participants"
               icon={<i className="fas fa-user-plus" />}
-              rightIcons={<Button click={this._handleImport}>Import</Button>}
+              rightIcons={csvItem}
             >
               <Fragment>
                 <Search
