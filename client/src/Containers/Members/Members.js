@@ -182,7 +182,7 @@ class Members extends PureComponent {
   validateData = async (data) => {
     const validatedData = await Promise.all(
       data.map(async (d) => {
-        d.gmail = false;
+        d.isGmail = false;
         const username =
           d.username ||
           (d.firstName || d.email || 'X') + (d.lastName || 'X').charAt(0);
@@ -349,7 +349,7 @@ class Members extends PureComponent {
           columnNames={[
             'username',
             'email',
-            'gmail',
+            'isGmail',
             'firstName',
             'lastName',
             'comment',

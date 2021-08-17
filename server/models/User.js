@@ -29,6 +29,9 @@ const User = new mongoose.Schema(
     token: { type: String }, // For Authentication Encompass users,
     tokenExpiryDate: { type: Date }, // // For Authentication Encompass users
     isTrashed: { type: Boolean, default: false },
+    isGmail: { type: Boolean, default: false },
+    sponsor: { type: ObjectId, ref: 'User' },
+    organization: { type: String },
     ssoId: { type: ObjectId },
     ipAddresses: [{ type: String }],
     latestIpAddress: { type: String },
