@@ -222,7 +222,7 @@ class Members extends PureComponent {
     const { importedData } = this.state;
     const newUsers = await Promise.all(
       importedData.map(async (user) =>
-        API.post('user', { ...user, accountType: 'temp' })
+        API.post('user', { ...user, accountType: 'pending' })
       )
     );
     newUsers.forEach(({ data: { result: user } }) =>
