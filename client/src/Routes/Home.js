@@ -6,6 +6,7 @@ import {
   Homepage,
   Login,
   Signup,
+  ClassCode,
   Community,
   Logout,
   Profile,
@@ -95,6 +96,7 @@ class Home extends PureComponent {
             <Route exact path="/logout" component={Logout} />
             <Route path="/login" component={Login} />
             <Route path="/signup" component={Signup} />
+            <Route path="/classcode" component={ClassCode} />
 
             <Route path="/confirmation" component={Confirmation} />
             <Route path="/profile" component={Profile} />

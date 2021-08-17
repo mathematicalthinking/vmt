@@ -79,7 +79,8 @@ class Signup extends Component {
       newUser._id = user._id;
       newUser.rooms = [room];
     }
-    signup(newUser, room); // this.props.room will only exist when creating user from tempUser
+    console.log('Signing up user: ', newUser);
+    signup(newUser);
   };
 
   render() {

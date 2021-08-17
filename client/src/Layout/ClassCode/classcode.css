@@ -1,0 +1,110 @@
+:import('../../colors.css') {
+  gray: backgroundGray;
+  blue: blue;
+  red: red;
+  lightShadow: lightShadow;
+}
+
+.Container {
+  width: 100%;
+  /* height: 100%; */
+  display: flex;
+  justify-content: center;
+}
+
+.ParticipantList {
+  margin: 20px 0 10px 0;
+  /* display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  overflow-y: scroll;
+  background: #f8f8f8; */
+  border: 1px solid #ddd;
+  padding: 5px;
+  width: 60%;
+  /* min-height: 200px; */
+}
+
+.Participant {
+  /* color: black;
+  padding: 7px;
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid #ddd; */
+}
+
+.SignupContainer {
+  /* background: gray; */
+  margin-top: 20px;
+  padding: 25px;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-flow: column;
+  /* box-shadow: lightShadow; */
+  justify-content: center;
+  align-items: center;
+  z-index: 300;
+  color: white;
+}
+
+.Form {
+  display: flex;
+  align-items: center;
+  flex-flow: column;
+}
+
+.Title {
+  /* color: blue; */
+  letter-spacing: 0.07em;
+  margin-bottom: 40px;
+  font-weight: 300;
+  font-size: 32px;
+}
+
+.AccountTypeContainer {
+  display: flex;
+  flex-flow: row;
+  align-content: center;
+  align-self: center;
+  width: 100%;
+  margin: 15px;
+}
+
+.Modal {
+  color: blue;
+}
+
+.AccountTypeLabel {
+  order: 1;
+  flex: 0.4 0 auto;
+  font-size: 20px;
+}
+
+.RadioOption {
+  order: 2;
+  flex: 0.3 0 auto;
+}
+
+.AccountMessage {
+  font-weight: 300;
+}
+
+.ErrorMsg {
+  position: relative;
+  color: red;
+  height: 30px;
+  padding: 10px;
+  width: 100%;
+  height: 20px;
+}
+
+.Error {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+}
+
+.Submit {
+  margin: 20px 0;
+}

@@ -103,12 +103,12 @@ export const clearNotification = (ntfId) => {
   };
 };
 
-export const signup = (body, room) => {
+export const signup = (body) => {
   // room is optional -- if we're siging up someone in a temp room
   return (dispatch) => {
-    if (room) {
-      // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
-    }
+    // if (room) {
+    //   // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
+    // }
     dispatch(loading.start());
     AUTH.signup(body)
       .then((res) => {
@@ -271,6 +271,19 @@ export const googleLogin = (username, password) => {
   return (dispatch) => {
     dispatch(loading.start());
     AUTH.googleLogin(username, password)
+      .then((res) => {
+        dispatch(loading.success(res));
+      })
+      .catch((err) => {
+        dispatch(loading.fail(err));
+      });
+  };
+};
+
+export const codeLogin = (resource, code) => {
+  return (dispatch) => {
+    dispatch(loading.start());
+    API.getWithCode(resource, code)
       .then((res) => {
         dispatch(loading.success(res));
       })
