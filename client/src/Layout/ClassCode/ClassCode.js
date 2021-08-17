@@ -156,7 +156,7 @@ class ClassCode extends Component {
     if (memberToConf.accountType === 'pending') {
       const userToConvert = {
         accountType: 'participant',
-        email: '',
+        email: memberToConf.email || '',
         firstName: memberToConf.firstName,
         lastName: memberToConf.lastName,
         password: process.env.REACT_APP_VMT_LOGIN_DEFAULT,
