@@ -23,6 +23,7 @@ class ClassCode extends Component {
       members: [],
       isResourceConf: false,
       memberToConf: null,
+      isGoogleUser: false,
     };
 
     this.reset = this.reset.bind(this);
@@ -39,8 +40,12 @@ class ClassCode extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { code } = this.state;
+    const { code, memberToConf } = this.state;
     if (prevProps.code && code === '') this.reset();
+
+    if (memberToConf.accountType === 'pending' && memberToConf.gmail) {
+      this.setState({ isGoogleUser: true });
+    }
   }
 
   componentWillUnmount() {
@@ -307,9 +312,15 @@ class ClassCode extends Component {
                       No, this isn't me
                     </Button>
                     {}
-                    <Button m={10} click={this.handleLogin}>
-                      Yes, let's go
-                    </Button>
+                    {isGoogleUser ? (
+                      <Fragment>
+                        Yes, log in with Google <GoogleLogin />{' '}
+                      </Fragment>
+                    ) : (
+                      <Button m={10} click={this.handleLogin}>
+                        Yes, let's go
+                      </Button>
+                    )}
                   </div>
                 </Fragment>
               </Modal>

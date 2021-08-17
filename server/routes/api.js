@@ -46,7 +46,7 @@ router.post('/:resource/code', (req, res) => {
     .getByCode(code)
     .then((result) => res.json({ result }))
     .catch((err) => {
-      console.error(`Error: invalid course code`);
+      console.error(`Error: unable to retrieve resource via code`);
       let msg = null;
 
       if (typeof err === 'string') {
