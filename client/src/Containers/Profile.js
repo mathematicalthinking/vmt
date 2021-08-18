@@ -9,7 +9,7 @@ import BreadCrumbs from '../Components/Navigation/BreadCrumbs/BreadCrumbs';
 import SearchResults from './Members/SearchResults';
 import { Search, Member, EditText, ToolTip, Error } from '../Components';
 import API from '../utils/apiRequests';
-import { updateUser } from '../store/actions';
+import { updateUser, updateUserSettings } from '../store/actions';
 // import MainContent from '../Layout/Dashboard/MainContent/';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 
@@ -18,7 +18,7 @@ class Profile extends Component {
     super(props);
     const { user } = this.props;
     this.state = {
-      // username: user.username || null,
+      username: user.username || null,
       name: user.name || null,
       // email: user.email || null,
       editing: false,
@@ -42,9 +42,14 @@ class Profile extends Component {
   }
 
   toggleEdit = () => {
+    const { user } = this.props;
+    const { username } = this.state;
     this.setState((prevState) => ({
       editing: !prevState.editing,
     }));
+    if (user.username !== username) {
+      this.setState({ username: user.username });
+    }
   };
 
   search = (text) => {
@@ -67,6 +72,20 @@ class Profile extends Component {
     }
   };
 
+  updateUserInfo = (event, option) => {
+    const { value, name } = event.target;
+    this.setState({ [name]: option || value });
+  };
+
+  updateUser = () => {
+    const { connectUpdateUserInfo, user } = this.props;
+    const { username } = this.state;
+    connectUpdateUserInfo(user._id, { username });
+    this.setState({
+      editing: false,
+    });
+  };
+
   makeAdmin = (userId) => {
     const { admins } = this.state;
     API.put('user', userId, { isAdmin: true })
@@ -87,7 +106,7 @@ class Profile extends Component {
       searchResults,
       searchText,
       editing,
-      // username,
+      username,
       name,
       // email,
     } = this.state;
@@ -120,6 +139,18 @@ class Profile extends Component {
     );
 
     const additionalDetails = {
+      username: (
+        <Error error={updateFail && updateKeys.indexOf('username') > -1}>
+          <EditText
+            change={this.updateUserInfo}
+            inputType="text"
+            name="username"
+            editing={editing}
+          >
+            {username}
+          </EditText>
+        </Error>
+      ),
       email: user.email,
     };
 
@@ -169,7 +200,7 @@ class Profile extends Component {
                   style={{
                     display: editing ? 'none' : 'block',
                   }}
-                  data-testid="edit-course"
+                  data-testid="edit-user"
                   onClick={this.toggleEdit}
                   onKeyPress={this.toggleEdit}
                   tabIndex="-1"
@@ -180,23 +211,29 @@ class Profile extends Component {
                 </div>
                 {editing ? (
                   // @TODO this should be a resuable component
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-around',
-                    }}
-                  >
-                    <Button
-                      click={this.updateUser}
-                      data-testid="save-course"
-                      theme="Small"
+                  <Fragment>
+                    <p>
+                      This username is for display within VMT only and does not
+                      affect login credentials
+                    </p>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                      }}
                     >
-                      Save
-                    </Button>
-                    <Button click={this.toggleEdit} theme="Cancel">
-                      Cancel
-                    </Button>
-                  </div>
+                      <Button
+                        click={this.updateUser}
+                        data-testid="save-user"
+                        theme="Small"
+                      >
+                        Save
+                      </Button>
+                      <Button click={this.toggleEdit} theme="Cancel">
+                        Cancel
+                      </Button>
+                    </div>
+                  </Fragment>
                 ) : null}
               </Fragment>
             }
@@ -211,6 +248,7 @@ Profile.propTypes = {
   user: PropTypes.shape({}).isRequired,
   loading: PropTypes.shape({}).isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
+  connectUpdateUserInfo: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (store) => ({
@@ -220,5 +258,5 @@ const mapStateToProps = (store) => ({
 
 export default connect(
   mapStateToProps,
-  { connectUpdateUser: updateUser }
+  { connectUpdateUser: updateUser, connectUpdateUserInfo: updateUserSettings }
 )(Profile);
