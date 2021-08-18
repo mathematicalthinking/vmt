@@ -356,6 +356,7 @@ class Members extends PureComponent {
       <div className={classes.Container}>
         <ImportModal
           show={showImportModal}
+          closeModal={() => this.setState({ showImportModal: false })}
           data={importedData}
           columnNames={[
             'username',

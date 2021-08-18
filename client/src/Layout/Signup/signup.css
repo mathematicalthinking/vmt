@@ -1,10 +1,9 @@
-:import('../../colors.css'){
+:import('../../colors.css') {
   gray: backgroundGray;
   blue: blue;
   red: red;
   lightShadow: lightShadow;
 }
-
 
 .Container {
   width: 100%;
@@ -13,8 +12,7 @@
   justify-content: center;
 }
 
-.ModalContainer{
-
+.ModalContainer {
 }
 
 .SignupContainer {
@@ -40,12 +38,11 @@
 
 .Title {
   /* color: blue; */
-  letter-spacing: .07em;
+  letter-spacing: 0.07em;
   margin-bottom: 40px;
   font-weight: 300;
   font-size: 32px;
 }
-
 
 .AccountTypeContainer {
   display: flex;
@@ -58,13 +55,13 @@
 
 .AccountTypeLabel {
   order: 1;
-  flex: .4 0 auto;
+  flex: 0.4 0 auto;
   font-size: 20px;
 }
 
 .RadioOption {
   order: 2;
-  flex: .3 0 auto;
+  flex: 0.3 0 auto;
 }
 
 .AccountMessage {
@@ -88,4 +85,12 @@
 
 .Submit {
   margin: 20px 0;
+}
+
+.Link {
+  text-decoration: underline;
+  transition: 0.2s;
+  font-size: 120%;
+  padding-top: 6px;
+  padding-bottom: 4px;
 }

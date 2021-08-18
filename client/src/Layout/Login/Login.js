@@ -125,6 +125,7 @@ class LoginLayout extends PureComponent {
         <Background bottomSpace={-60} fixed />
         <div className={classes.LoginContainer}>
           <h2 className={classes.Title}>Login</h2>
+
           <GoogleLogin />
           <div>or</div>
           <form onSubmit={this.loginHandler} className={classes.Form}>
@@ -135,6 +136,13 @@ class LoginLayout extends PureComponent {
               </div>
             </div>
           </form>
+          <Link
+            data-testid="login-link-code"
+            className={classes.Link}
+            to="/classcode"
+          >
+            Access VMT via Class Code
+          </Link>
           <div className={classes.Submit}>
             {loading ? (
               <SmallLoading />
