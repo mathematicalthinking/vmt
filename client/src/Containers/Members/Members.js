@@ -183,14 +183,17 @@ class Members extends PureComponent {
     const validatedData = await Promise.all(
       data.map(async (d) => {
         if (!d.isGmail) d.isGmail = false; // initialize if needed
-        const username =
-          d.username ||
-          (d.firstName || d.email || 'X') + (d.lastName || 'X').charAt(0);
-        const newUsername = await suggestUniqueUsername(username);
-        if (newUsername !== d.username) {
-          d.comment = 'New username suggested';
-          d.username = newUsername;
-        } else d.comment = '';
+        d.comment = '';
+        if (!d.firstName || !d.lastName) {
+          d.comment = 'First and last names (or identifier) are required.';
+        } else {
+          const username = d.username || d.firstName + d.lastName.charAt(0);
+          const newUsername = await suggestUniqueUsername(username);
+          if (newUsername !== d.username) {
+            d.comment = 'New username suggested';
+            d.username = newUsername;
+          }
+        }
         return d;
       })
     );
@@ -209,9 +212,11 @@ class Members extends PureComponent {
 
   handleOnSubmit = async (data) => {
     const newData = await this.validateData(data);
-    const hasChanges = newData.filter((d) => d.comment !== '').length > 0;
 
-    if (hasChanges) this.setState({ importedData: newData });
+    // If there is a comment on a line, that means something is not ready to be submitted.
+    const hasIssues = newData.filter((d) => d.comment !== '').length > 0;
+
+    if (hasIssues) this.setState({ importedData: newData });
     else {
       this.setState({ showImportModal: false, importedData: newData });
       this.createAndAddMembers();
