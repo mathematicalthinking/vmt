@@ -182,7 +182,7 @@ class Members extends PureComponent {
   validateData = async (data) => {
     const validatedData = await Promise.all(
       data.map(async (d) => {
-        if (!d.isGmail) d.isGmail = false; // initialize if needed
+        if (!d.isGmail) d.isGmail = false;
         const username =
           d.username ||
           (d.firstName || d.email || 'X') + (d.lastName || 'X').charAt(0);
@@ -351,6 +351,7 @@ class Members extends PureComponent {
       <div className={classes.Container}>
         <ImportModal
           show={showImportModal}
+          closeModal={() => this.setState({ showImportModal: false })}
           data={importedData}
           columnNames={[
             'username',

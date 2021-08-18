@@ -23,7 +23,6 @@ class ClassCode extends Component {
       members: [],
       isResourceConf: false,
       memberToConf: null,
-      isGoogleUser: false,
     };
 
     this.reset = this.reset.bind(this);
@@ -40,16 +39,8 @@ class ClassCode extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { code, memberToConf } = this.state;
+    const { code } = this.state;
     if (prevProps.code && code === '') this.reset();
-
-    if (
-      memberToConf &&
-      memberToConf.accountType === 'pending' &&
-      memberToConf.isGmail
-    ) {
-      this.setState({ isGoogleUser: true });
-    }
   }
 
   componentWillUnmount() {
@@ -68,37 +59,38 @@ class ClassCode extends Component {
   };
 
   onKeyPress = (event) => {
-    const { errorMessage, clearError } = this.props;
+    // const { errorMessage, clearError } = this.props;
     if (event.key === 'Enter') {
-      this.signUp();
+      this.courseSearch();
     }
-    if (errorMessage) {
-      clearError();
-      this.setState({ errorMessage: '' });
-    }
+    // if (errorMessage) {
+    //   clearError();
+    //   this.setState({ errorMessage: '' });
+    // }
   };
 
-  courseSearch = () => {
-    const { codeLogin } = this.props;
-    console.log('stupid linter: ', codeLogin);
+  courseSearch = (e) => {
+    if (e) e.preventDefault();
     const { code } = this.state;
-    API.getWithCode('courses', code)
-      .then((res) => {
-        console.log('API res: ', res.data.result);
-        if (res.data.result.length < 1) {
-          this.setState({ errorMessage: 'Invalid Course Code' });
-        } else {
-          this.setState({ resource: res.data.result[0] });
-          this.setState({ members: res.data.result[0].members });
-          this.setState({ errorMessage: '' });
-        }
-      })
-      .catch((err) => {
-        this.setState({ errorMessage: err.response.data.errorMessage });
-        console.log('API err: ', err);
-      });
-
-    // codeLogin('courses', username);
+    if (!code) {
+      this.setState({ errorMessage: 'Please enter a class code' });
+    } else {
+      API.getWithCode('courses', code)
+        .then((res) => {
+          console.log('API res: ', res.data.result);
+          if (res.data.result.length < 1) {
+            this.setState({ errorMessage: 'Invalid Course Code' });
+          } else {
+            this.setState({ resource: res.data.result[0] });
+            this.setState({ members: res.data.result[0].members });
+            this.setState({ errorMessage: '' });
+          }
+        })
+        .catch((err) => {
+          this.setState({ errorMessage: err.response.data.errorMessage });
+          console.log('API err: ', err);
+        });
+    }
   };
 
   signUp = () => {
@@ -137,6 +129,8 @@ class ClassCode extends Component {
       code: '',
       resource: {},
       members: [],
+      errorMessage: '',
+      memberToConf: null,
     });
   }
 
@@ -185,8 +179,8 @@ class ClassCode extends Component {
       isResourceConf,
       members,
       memberToConf,
-      isGoogleUser,
     } = this.state;
+    const isGoogleUser = memberToConf ? memberToConf.isGmail : false;
     const participantList = [];
     members.forEach((member) => {
       if (member.role === 'participant' || member.role === 'guest') {
@@ -206,11 +200,11 @@ class ClassCode extends Component {
               <h2 className={classes.Title}>Enter with Code</h2>
               {members.length > 0 && isResourceConf ? (
                 <Fragment>
-                  <div>Member List</div>
+                  <div className={classes.THead}>Member List</div>
                   <table className={classes.ParticipantList}>
                     <thead>
                       <tr>
-                        <th>Username</th>
+                        <th className={classes.THead}>Username</th>
                         {/* <th>Name</th> */}
                       </tr>
                     </thead>
@@ -246,7 +240,7 @@ class ClassCode extends Component {
                 </Fragment>
               ) : (
                 <Fragment>
-                  <form className={classes.Form}>
+                  <form className={classes.Form} onSubmit={this.courseSearch}>
                     <TextInput
                       light={temp}
                       change={this.changeHandler}
@@ -254,6 +248,7 @@ class ClassCode extends Component {
                       label="Code"
                       value={code}
                       name="code"
+                      autoComplete="off"
                     />
                     <div className={classes.ErrorMsg}>
                       <div className={classes.Error}>{errorMessage}</div>
@@ -342,7 +337,6 @@ ClassCode.propTypes = {
   room: PropTypes.string,
   signup: PropTypes.func.isRequired,
   login: PropTypes.func.isRequired,
-  codeLogin: PropTypes.func.isRequired,
   user: PropTypes.shape({}),
   errorMessage: PropTypes.string,
   clearError: PropTypes.func.isRequired,
