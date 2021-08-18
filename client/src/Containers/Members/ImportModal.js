@@ -6,7 +6,7 @@ import { Modal, Button } from 'Components';
 // import 'react-datasheet/lib/react-datasheet.css';
 
 export default function ImportModal(props) {
-  const { show, data, columnNames, headers, onSubmit } = props;
+  const { show, data, columnNames, headers, onSubmit, closeModal } = props;
   const [tableData, setTableData] = React.useState([]);
 
   React.useEffect(() => {
@@ -64,7 +64,7 @@ export default function ImportModal(props) {
   };
 
   return (
-    <Modal width={900} show={show} closeModal={() => {}}>
+    <Modal width={900} show={show} closeModal={closeModal}>
       <div
         style={{
           display: 'flex',
@@ -103,6 +103,7 @@ export default function ImportModal(props) {
 
 ImportModal.propTypes = {
   show: PropTypes.bool.isRequired,
+  closeModal: PropTypes.func.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   columnNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   headers: PropTypes.arrayOf(PropTypes.string).isRequired,
