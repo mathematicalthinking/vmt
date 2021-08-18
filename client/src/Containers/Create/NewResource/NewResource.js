@@ -36,7 +36,7 @@ const initialState = {
   appName: 'classic',
   dueDate: null,
   activities: [],
-  privacySetting: 'public',
+  privacySetting: 'private',
   roomType: 'geogebra',
 };
 
