@@ -182,7 +182,7 @@ class Members extends PureComponent {
   validateData = async (data) => {
     const validatedData = await Promise.all(
       data.map(async (d) => {
-        d.isGmail = false;
+        if (!d.isGmail) d.isGmail = false; // initialize if needed
         const username =
           d.username ||
           (d.firstName || d.email || 'X') + (d.lastName || 'X').charAt(0);
@@ -220,9 +220,14 @@ class Members extends PureComponent {
 
   createAndAddMembers = async () => {
     const { importedData } = this.state;
+    const { user: sponsor } = this.props;
     const newUsers = await Promise.all(
       importedData.map(async (user) =>
-        API.post('user', { ...user, accountType: 'pending' })
+        API.post('user', {
+          ...user,
+          sponsor: sponsor._id,
+          accountType: 'pending',
+        })
       )
     );
     newUsers.forEach(({ data: { result: user } }) =>
@@ -308,6 +313,7 @@ class Members extends PureComponent {
         }
         return false;
       });
+
       return owner ? (
         <Member
           changeRole={this.changeRole}
@@ -352,14 +358,16 @@ class Members extends PureComponent {
             'isGmail',
             'firstName',
             'lastName',
+            'organization',
             'comment',
           ]}
           headers={[
             'Username',
             'Email',
-            'Gmail Account',
+            'Email is Google Account',
             'First Name',
             'Last Name or Other Identifier',
+            'Affiliation',
             'Comments',
           ]}
           onSubmit={(data) => this.handleOnSubmit(data)}
@@ -390,24 +398,6 @@ class Members extends PureComponent {
         <div>
           {owner ? (
             <InfoBox
-              title="New Requests to Join"
-              icon={<i className="fas fa-bell" />}
-            >
-              <div data-testid="join-requests">{joinRequests}</div>
-            </InfoBox>
-          ) : null}
-          <InfoBox title="Class List" icon={<i className="fas fa-users" />}>
-            <div data-testid="members">{classListComponents}</div>
-          </InfoBox>
-          <InfoBox title="Guest List" icon={<i className="fas fa-id-badge" />}>
-            <div data-testid="members">
-              {guestListComponents.length > 0
-                ? guestListComponents
-                : `There are no guests in this ${resourceType}`}
-            </div>
-          </InfoBox>
-          {owner ? (
-            <InfoBox
               title="Add New Participants"
               icon={<i className="fas fa-user-plus" />}
               rightIcons={csvItem}
@@ -431,6 +421,24 @@ class Members extends PureComponent {
               </Fragment>
             </InfoBox>
           ) : null}
+          {owner ? (
+            <InfoBox
+              title="New Requests to Join"
+              icon={<i className="fas fa-bell" />}
+            >
+              <div data-testid="join-requests">{joinRequests}</div>
+            </InfoBox>
+          ) : null}
+          <InfoBox title="Class List" icon={<i className="fas fa-users" />}>
+            <div data-testid="members">{classListComponents}</div>
+          </InfoBox>
+          <InfoBox title="Guest List" icon={<i className="fas fa-id-badge" />}>
+            <div data-testid="members">
+              {guestListComponents.length > 0
+                ? guestListComponents
+                : `There are no guests in this ${resourceType}`}
+            </div>
+          </InfoBox>
         </div>
       </div>
     );
@@ -439,6 +447,7 @@ class Members extends PureComponent {
 
 Members.propTypes = {
   searchedUsers: PropTypes.arrayOf(PropTypes.shape({})),
+  user: PropTypes.shape({}).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
@@ -474,6 +483,7 @@ const mapStateToProps = (state, ownProps) => {
       _id: id,
       username: usernames[i],
     })),
+    user: state.user,
   };
 };
 

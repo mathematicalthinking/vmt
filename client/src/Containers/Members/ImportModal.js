@@ -8,6 +8,7 @@ import { Modal, Button } from 'Components';
 export default function ImportModal(props) {
   const { show, data, columnNames, headers, onSubmit } = props;
   const [tableData, setTableData] = React.useState([]);
+  const [allChecked, setAllChecked] = React.useState({});
 
   React.useEffect(() => {
     setTableData(
@@ -31,6 +32,61 @@ export default function ImportModal(props) {
     });
     setTableData(grid);
   };
+
+  const _handleAllChecked = (col) => {
+    const value = !_isAllChecked(col);
+    const changes = tableData.map((row, index) => ({ row: index, col, value }));
+    for (let row = 0; row++; row < tableData.length) {
+      changes.push({ row, col, value });
+    }
+    setAllChecked((prevState) => ({ ...prevState, [col]: !prevState[col] }));
+    _handleCellsChanged(changes);
+  };
+
+  const _isAllChecked = (col) => {
+    if (typeof allChecked[col] !== 'boolean')
+      setAllChecked((prevState) => ({ ...prevState, [col]: false }));
+    return !!allChecked[col]; // use !! in case the above setAllChecked hasn't completed
+  };
+
+  const _isBoolean = (col) => {
+    return (
+      tableData[0] &&
+      tableData[0][col] &&
+      typeof tableData[0][col].value === 'boolean'
+    );
+  };
+
+  const _sheetRenderer = (givenProps) => (
+    <table style={{ marginBottom: '10px', marginTop: '20px' }}>
+      <thead>
+        <tr>
+          {headers.map((col, index) => (
+            <th key={col} style={{ textAlign: 'center' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}
+              >
+                {col}
+                {_isBoolean(index) && (
+                  <input
+                    style={{ margin: '5px auto' }}
+                    type="checkbox"
+                    checked={_isAllChecked(index)}
+                    onChange={() => _handleAllChecked(index)}
+                  />
+                )}
+              </div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>{givenProps.children}</tbody>
+    </table>
+  );
 
   const _cellRenderer = (ps) => {
     const {
@@ -74,22 +130,9 @@ export default function ImportModal(props) {
       >
         <ReactDataSheet
           data={tableData}
-          sheetRenderer={(givenProps) => (
-            <table style={{ marginBottom: '10px', marginTop: '20px' }}>
-              <thead>
-                <tr>
-                  {headers.map((col) => (
-                    <th key={col} style={{ textAlign: 'center' }}>
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>{givenProps.children}</tbody>
-            </table>
-          )}
+          sheetRenderer={_sheetRenderer}
           valueRenderer={(cell) => {
-            return cell.value.toString();
+            return cell.value;
           }}
           cellRenderer={_cellRenderer}
           onCellsChanged={_handleCellsChanged}
