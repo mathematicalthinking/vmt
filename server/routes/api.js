@@ -286,6 +286,7 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res) => {
           res
         );
       }
+
       const prunedBody = middleware.prunePutBody(user, id, req.body, details);
       return controller.add(id, prunedBody);
     })
@@ -306,6 +307,7 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res) => {
 router.put('/:resource/:id/remove', middleware.validateUser, (req, res) => {
   const { resource, id } = req.params;
   const controller = controllers[resource];
+  const user = getUser(req);
   req.params.remove = true; // Add remove to the params so we can allow users to modify their own status in  a resource (not just the resource owners) i.e. I should be able to remove myself from a course even if I'm not an owner of that course // THIS SHOULD BE DONE DIFFERENTLY CHECK req.USER and compare to member being removed
   return middleware
     .canModifyResource(req)
@@ -321,17 +323,13 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res) => {
           res
         );
       }
-      const prunedBody = middleware.prunePutBody(
-        req.user,
-        id,
-        req.body,
-        details
-      );
+
+      const prunedBody = middleware.prunePutBody(user, id, req.body, details);
       return controller.remove(id, prunedBody);
     })
     .then((result) => res.json(result))
     .catch((err) => {
-      console.error(`Error put/remove ${resource}/${id}: ${err}`);
+      console.error(`Error put/remove/${resource}/${id}: ${err}`);
 
       let msg = null;
 
