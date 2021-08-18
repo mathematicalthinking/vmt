@@ -33,6 +33,10 @@
   border-bottom: 1px solid #ddd; */
 }
 
+.Participant:hover {
+  color: blue;
+}
+
 .SignupContainer {
   /* background: gray; */
   margin-top: 20px;
@@ -60,6 +64,12 @@
   margin-bottom: 40px;
   font-weight: 300;
   font-size: 32px;
+}
+
+.THead {
+  border-bottom: 2px solid white;
+  padding: 5px;
+  font-size: 130%;
 }
 
 .AccountTypeContainer {
