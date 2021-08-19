@@ -114,19 +114,33 @@ class Chat extends Component {
     const timeOut = setTimeout(() => this.sendPending(false), 5000);
     this.setState({ timeOut });
     // quick clear message if same message is repeated
-    if (newMessage === value) {
-      this.setState({
-        newMessage: '',
-      });
-    } else if (type === 'STT') {
-      this.setState({ isDictated: true });
-      this.setState({
-        newMessage: `${newMessage} ${value}`,
-      });
-    } else {
-      this.setState({
-        newMessage: value,
-      });
+    switch (type) {
+      case 'STT':
+        this.setState({ isDictated: true });
+        this.setState({
+          newMessage: `${newMessage} ${value}`,
+        });
+        break;
+      case 'EMOJI':
+        if (newMessage === value.message) {
+          this.setState({
+            newMessage: value.display,
+          });
+        } else if (newMessage === value.display) {
+          this.setState({
+            newMessage: '',
+          });
+        } else {
+          this.setState({
+            newMessage: value.message,
+          });
+        }
+        break;
+      default:
+        this.setState({
+          newMessage: value,
+        });
+        break;
     }
   };
 

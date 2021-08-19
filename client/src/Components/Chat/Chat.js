@@ -644,11 +644,11 @@ class Chat extends Component {
                     return (
                       <div
                         className={classes.QuickChatItem}
-                        key={`qucikChat-${chat.display}`}
+                        key={`quickChat-${chat.display}`}
                         tabIndex={-4 - i}
                         role="button"
-                        onClick={() => quickChat(chat.message)}
-                        onKeyPress={() => quickChat(chat.message)}
+                        onClick={() => quickChat(chat, 'EMOJI')}
+                        onKeyPress={() => quickChat(chat, 'EMOJI')}
                       >
                         <span role="img" aria-label="rainbow emoji">
                           {chat.display}
