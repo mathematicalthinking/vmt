@@ -1,34 +1,42 @@
 module.exports = [
   {
-    display: '🌈',
-    message: '🌈 You all are AWESOME!',
+    display: '👍',
+    message: 'Looks good to me 👍',
   },
   {
-    display: '😀',
-    message: '😀 This is fun!',
+    display: '❓',
+    message: '❓ Does everyone agree?',
+  },
+  {
+    display: '⏸',
+    message: '⏸ I need a minute to catch up, please!',
+  },
+  {
+    display: '💭',
+    message: 'Could you please explain your thoughts? 💭',
+  },
+  {
+    display: '🤔',
+    message: "🤔 Hmm, I'm not sure I agree",
+  },
+  {
+    display: '💡',
+    message: '💡 ...I have an idea!',
+  },
+  {
+    display: '➡️',
+    message: 'Ready to move on? ➡️',
+  },
+  {
+    display: '🚌',
+    message: '🚌 Who wants to drive?',
   },
   {
     display: '🎯',
     message: '🎯 Nailed it!',
   },
   {
-    display: '⏸',
-    message: '⏸ I need a minute to catch up',
-  },
-  {
-    display: '🤔',
-    message: "🤔 I'm not sure I agree",
-  },
-  {
-    display: '👍',
-    message: 'Looks good to me 👍',
-  },
-  {
-    display: '👁',
-    message: '👁 see what you did there',
-  },
-  {
-    display: '🍪',
-    message: 'Have a cookie ...🍪',
+    display: '👏',
+    message: '👏 Great work, Team! 👏',
   },
 ];
