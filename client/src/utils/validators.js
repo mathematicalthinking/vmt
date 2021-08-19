@@ -84,10 +84,18 @@ export const validateBasicToken = (token) => {
   return validateSchema(basicTokenSchema, { token });
 };
 
+// returns false if no existing username; returns the user id if it does exist
 export const validateIsExistingUsername = async (username) => {
   return api
     .get('user', { username })
-    .then((res) => res.data && res.data.results && res.data.results.length > 0)
+    .then((res) => {
+      return (
+        res.data &&
+        res.data.results &&
+        res.data.results.length > 0 &&
+        res.data.results[0]._id
+      );
+    })
     .catch((err) => console.error(err));
 };
 
