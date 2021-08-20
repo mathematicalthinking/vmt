@@ -174,7 +174,10 @@ export default function ImportModal(props) {
     // @TODO need to implement highlighting. Just add 'highlight' onto
     // className (and define in the css) if _isHighlighted(row, col) is true
     return (
-      <td {...rest}>
+      <td
+        {...rest}
+        style={_isHighlighted(row, col) ? { border: '2px solid red' } : {}}
+      >
         {_isBoolean(col) ? (
           <input
             type="checkbox"
