@@ -38,7 +38,8 @@ class Members extends PureComponent {
       username: null,
       showImportModal: false,
       importedData: [],
-      sponsor: {},
+      validationErrors: [],
+      sponsors: {},
     };
     this.buttonRef = React.createRef();
   }
@@ -188,18 +189,24 @@ class Members extends PureComponent {
   };
 
   validateData = async (data) => {
+    const validationErrors = [];
     const validatedData = await Promise.all(
-      data.map(async (d) => {
+      data.map(async (d, rowIndex) => {
         if (!d.isGmail) d.isGmail = false; // initialize if needed
         d.comment = '';
         if (!d.firstName || !d.lastName) {
           d.comment = 'First and last names (or identifier) are required. ';
+          if (!d.firstName)
+            validationErrors.push({ rowIndex, property: 'firstName' });
+          if (!d.lastName)
+            validationErrors.push({ rowIndex, property: 'lastName' });
         } else {
           const username = d.username || d.firstName + d.lastName.charAt(0);
           const newUsername = await suggestUniqueUsername(username);
           if (newUsername !== d.username) {
             d.comment = 'New username suggested. ';
             d.username = newUsername;
+            validationErrors.push({ rowIndex, property: 'username' });
           }
         }
 
@@ -207,13 +214,17 @@ class Members extends PureComponent {
           const sponsor_id = await validateIsExistingUsername(d.sponsor);
           if (sponsor_id)
             this.setState((prevState) => ({
-              sponsor: { ...prevState.sponsor, [d.username]: sponsor_id },
+              sponsors: { ...prevState.sponsors, [d.username]: sponsor_id },
             }));
-          else d.comment += 'No such sponsor username. ';
+          else {
+            d.comment += 'No such sponsor username. ';
+            validationErrors.push({ rowIndex, property: 'sponsor' });
+          }
         }
         return d;
       })
     );
+    this.setState({ validationErrors });
     return validatedData;
   };
 
@@ -229,27 +240,26 @@ class Members extends PureComponent {
     console.log(err);
   };
 
-  handleOnSubmit = async (data) => {
-    const newData = await this.validateData(data);
-
-    // If there is a comment on a line, that means something is not ready to be submitted.
-    const hasIssues = newData.filter((d) => d.comment !== '').length > 0;
-
-    if (hasIssues) this.setState({ importedData: newData });
-    else {
-      this.setState({ showImportModal: false, importedData: newData });
-      this.createAndInviteMembers();
-    }
+  handleOnSubmit = (data) => {
+    this.validateData(data).then((newData) => {
+      const { validationErrors } = this.state;
+      const hasIssues = validationErrors.length > 0;
+      if (hasIssues) this.setState({ importedData: newData });
+      else {
+        this.setState({ showImportModal: false, importedData: newData });
+        this.createAndInviteMembers();
+      }
+    });
   };
 
   createAndInviteMembers = async () => {
-    const { importedData, sponsor } = this.state;
+    const { importedData, sponsors } = this.state;
     const { user: creator } = this.props;
     const newUsers = await Promise.all(
       importedData.map(async (user) =>
         API.post('user', {
           ...user,
-          sponsor: sponsor[user.username] || creator._id,
+          sponsor: sponsors[user.username] || creator._id,
           accountType: 'pending',
         })
       )
@@ -275,32 +285,22 @@ class Members extends PureComponent {
   );
 
   importModal = () => {
-    const { showImportModal, importedData } = this.state;
+    const { showImportModal, importedData, validationErrors } = this.state;
     return (
       <ImportModal
         show={showImportModal}
-        closeModal={() => this.setState({ showImportModal: false })}
         data={importedData}
-        columnNames={[
-          'username',
-          'email',
-          'isGmail',
-          'firstName',
-          'lastName',
-          'organization',
-          'sponsor',
-          'comment',
+        columnConfig={[
+          { property: 'username', header: 'Username' },
+          { property: 'email', header: 'Email' },
+          { property: 'isGmail', header: 'Email is Google Account' },
+          { property: 'firstName', header: 'First Name' },
+          { property: 'lastName', header: 'Last Name or Other Identifier' },
+          { property: 'organization', header: 'Affiliation' },
+          { property: 'sponsor', header: 'Sponsor Username' },
+          { property: 'comment', header: 'Comments' },
         ]}
-        headers={[
-          'Username',
-          'Email',
-          'Email is Google Account',
-          'First Name',
-          'Last Name or Other Identifier',
-          'Affiliation',
-          'Sponsor Username',
-          'Comments',
-        ]}
+        highlights={validationErrors}
         onSubmit={(data) => this.handleOnSubmit(data)}
       />
     );
