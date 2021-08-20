@@ -81,6 +81,7 @@ class ClassCode extends Component {
           if (res.data.result.length < 1) {
             this.setState({ errorMessage: 'Invalid Course Code' });
           } else {
+            console.log('Members: ', res.data.result[0].members);
             this.setState({ resource: res.data.result[0] });
             this.setState({ members: res.data.result[0].members });
             this.setState({ errorMessage: '' });
@@ -93,31 +94,31 @@ class ClassCode extends Component {
     }
   };
 
-  signUp = () => {
-    const { temp, room, signup, user } = this.props;
-    const {
-      participantAccount,
-      firstName,
-      lastName,
-      username,
-      email,
-      password,
-    } = this.state;
-    const accountType = participantAccount ? 'participant' : 'facilitator';
-    const newUser = {
-      firstName,
-      lastName,
-      username,
-      email,
-      password,
-      accountType,
-    };
-    if (temp) {
-      newUser._id = user._id;
-      newUser.rooms = [room];
-    }
-    signup(newUser);
-  };
+  // signUp = () => {
+  //   const { temp, room, signup, user } = this.props;
+  //   const {
+  //     participantAccount,
+  //     firstName,
+  //     lastName,
+  //     username,
+  //     email,
+  //     password,
+  //   } = this.state;
+  //   const accountType = participantAccount ? 'participant' : 'facilitator';
+  //   const newUser = {
+  //     firstName,
+  //     lastName,
+  //     username,
+  //     email,
+  //     password,
+  //     accountType,
+  //   };
+  //   if (temp) {
+  //     newUser._id = user._id;
+  //     newUser.rooms = [room];
+  //   }
+  //   signup(newUser);
+  // };
 
   confirmResource() {
     this.setState({ isResourceConf: true });
@@ -160,8 +161,7 @@ class ClassCode extends Component {
         _id: memberToConf._id,
       };
 
-      // userToConvert.isEmailConfirmed = true;
-      console.log('signing up user: ', userToConvert);
+      // console.log('signing up user: ', userToConvert);
       signup(userToConvert);
     } else if (!memberToConf.email) {
       login(memberToConf.username, process.env.REACT_APP_VMT_LOGIN_DEFAULT);
