@@ -7,7 +7,10 @@ import { CSVReader } from 'react-papaparse';
 import { Member, Search, Modal, Button, InfoBox } from 'Components';
 import COLOR_MAP from 'utils/colorMap';
 import API from 'utils/apiRequests';
-import { suggestUniqueUsername } from 'utils/validators';
+import {
+  suggestUniqueUsername,
+  validateIsExistingUsername,
+} from 'utils/validators';
 import {
   grantAccess,
   updateCourseMembers,
@@ -35,6 +38,7 @@ class Members extends PureComponent {
       username: null,
       showImportModal: false,
       importedData: [],
+      sponsor: {},
     };
     this.buttonRef = React.createRef();
   }
@@ -131,7 +135,7 @@ class Members extends PureComponent {
   };
   /**
    * @method changeRole
-   * @param  {Object} info - member obj { color, _id, role, {_id: username}}
+   * @param  {Object} info - member obj { color, _id, role, {_id, username}}
    */
 
   changeRole = (info) => {
@@ -172,6 +176,10 @@ class Members extends PureComponent {
     }
   };
 
+  /**
+   * FUNCTIONS IMPLEMENTING IMPORT
+   */
+
   handleOpenDialog = (e) => {
     // Note that the ref is set async, so it might be null at some point
     if (this.buttonRef.current) {
@@ -185,14 +193,23 @@ class Members extends PureComponent {
         if (!d.isGmail) d.isGmail = false; // initialize if needed
         d.comment = '';
         if (!d.firstName || !d.lastName) {
-          d.comment = 'First and last names (or identifier) are required.';
+          d.comment = 'First and last names (or identifier) are required. ';
         } else {
           const username = d.username || d.firstName + d.lastName.charAt(0);
           const newUsername = await suggestUniqueUsername(username);
           if (newUsername !== d.username) {
-            d.comment = 'New username suggested';
+            d.comment = 'New username suggested. ';
             d.username = newUsername;
           }
+        }
+
+        if (d.sponsor) {
+          const sponsor_id = await validateIsExistingUsername(d.sponsor);
+          if (sponsor_id)
+            this.setState((prevState) => ({
+              sponsor: { ...prevState.sponsor, [d.username]: sponsor_id },
+            }));
+          else d.comment += 'No such sponsor username. ';
         }
         return d;
       })
@@ -201,7 +218,9 @@ class Members extends PureComponent {
   };
 
   handleOnFileLoad = async (data) => {
-    const extractedData = data.map((d) => d.data);
+    const extractedData = data
+      .map((d) => d.data)
+      .filter((d) => Object.values(d).some((val) => val !== ''));
     const importedData = await this.validateData(extractedData);
     this.setState({ showImportModal: true, importedData });
   };
@@ -219,18 +238,18 @@ class Members extends PureComponent {
     if (hasIssues) this.setState({ importedData: newData });
     else {
       this.setState({ showImportModal: false, importedData: newData });
-      this.createAndAddMembers();
+      this.createAndInviteMembers();
     }
   };
 
-  createAndAddMembers = async () => {
-    const { importedData } = this.state;
-    const { user: sponsor } = this.props;
+  createAndInviteMembers = async () => {
+    const { importedData, sponsor } = this.state;
+    const { user: creator } = this.props;
     const newUsers = await Promise.all(
       importedData.map(async (user) =>
         API.post('user', {
           ...user,
-          sponsor: sponsor._id,
+          sponsor: sponsor[user.username] || creator._id,
           accountType: 'pending',
         })
       )
@@ -239,6 +258,55 @@ class Members extends PureComponent {
       this.inviteMember(user._id, user.username)
     );
   };
+
+  // These next two are functions to defeat the linter...
+  csvItem = () => (
+    <CSVReader
+      ref={this.buttonRef}
+      onFileLoad={this.handleOnFileLoad}
+      onError={this.handleOnError}
+      config={{ header: true, skipEmptyLines: true }}
+      noProgressBar
+      noDrag
+    >
+      {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
+      {() => <Button click={this.handleOpenDialog}>Import</Button>}
+    </CSVReader>
+  );
+
+  importModal = () => {
+    const { showImportModal, importedData } = this.state;
+    return (
+      <ImportModal
+        show={showImportModal}
+        closeModal={() => this.setState({ showImportModal: false })}
+        data={importedData}
+        columnNames={[
+          'username',
+          'email',
+          'isGmail',
+          'firstName',
+          'lastName',
+          'organization',
+          'sponsor',
+          'comment',
+        ]}
+        headers={[
+          'Username',
+          'Email',
+          'Email is Google Account',
+          'First Name',
+          'Last Name or Other Identifier',
+          'Affiliation',
+          'Sponsor Username',
+          'Comments',
+        ]}
+        onSubmit={(data) => this.handleOnSubmit(data)}
+      />
+    );
+  };
+
+  /* ***********************************  */
 
   render() {
     const {
@@ -256,22 +324,8 @@ class Members extends PureComponent {
       username,
       searchResults,
       searchText,
-      showImportModal,
-      importedData,
     } = this.state;
-    const csvItem = (
-      <CSVReader
-        ref={this.buttonRef}
-        onFileLoad={this.handleOnFileLoad}
-        onError={this.handleOnError}
-        config={{ header: true, skipEmptyLines: true }}
-        noProgressBar
-        noDrag
-      >
-        {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
-        {() => <Button click={this.handleOpenDialog}>Import</Button>}
-      </CSVReader>
-    );
+
     let joinRequests = <p>There are no new requests to join</p>;
     if (owner && notifications.length >= 1) {
       joinRequests = notifications
@@ -354,30 +408,7 @@ class Members extends PureComponent {
     });
     return (
       <div className={classes.Container}>
-        <ImportModal
-          show={showImportModal}
-          closeModal={() => this.setState({ showImportModal: false })}
-          data={importedData}
-          columnNames={[
-            'username',
-            'email',
-            'isGmail',
-            'firstName',
-            'lastName',
-            'organization',
-            'comment',
-          ]}
-          headers={[
-            'Username',
-            'Email',
-            'Email is Google Account',
-            'First Name',
-            'Last Name or Other Identifier',
-            'Affiliation',
-            'Comments',
-          ]}
-          onSubmit={(data) => this.handleOnSubmit(data)}
-        />
+        {this.importModal()}
         <Modal
           show={confirmingInvitation}
           closeModal={() => this.setState({ confirmingInvitation: false })}
@@ -406,7 +437,7 @@ class Members extends PureComponent {
             <InfoBox
               title="Add New Participants"
               icon={<i className="fas fa-user-plus" />}
-              rightIcons={csvItem}
+              rightIcons={this.csvItem()}
             >
               <Fragment>
                 <Search
