@@ -165,8 +165,6 @@ class MakeRooms extends Component {
   };
 
   updateParticipants = (selectionMatrix) => {
-    // const { roomNum } = this.state;
-    // console.log('Passed matrix: ', selectionMatrix, ' Room num: ', roomNum);
     this.setState({ roomDrafts: selectionMatrix });
   };
 
@@ -214,16 +212,18 @@ class MakeRooms extends Component {
       for (let i = 0; i < roomDrafts.length; i++) {
         // const currentRoom = { ...roomDrafts[i] };
         const currentRoom = { ...newRoom };
-        const members = roomDrafts[i].members.map((id, index) => ({
-          user: id,
-          role: 'participant',
-          color: COLOR_MAP[index + 1],
+        const members = roomDrafts[i].members.map((mem, index) => ({
+          user: course ? mem._id : mem,
+          role: mem.role,
+          color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
         }));
-        members.push({
-          user: userId,
-          role: 'facilitator',
-          color: COLOR_MAP[0],
-        });
+        if (!course) {
+          members.unshift({
+            user: userId,
+            role: 'facilitator',
+            color: COLOR_MAP[0],
+          });
+        }
         currentRoom.members = members;
         currentRoom.name = roomDrafts[i].name;
         currentRoom.activity = roomDrafts[i].activity;
@@ -316,6 +316,7 @@ class MakeRooms extends Component {
         activity={activity}
         course={course}
         dueDate={dueDate}
+        userId={userId}
       />
     );
 
