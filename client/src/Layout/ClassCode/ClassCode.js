@@ -77,11 +77,9 @@ class ClassCode extends Component {
     } else {
       API.getWithCode('courses', code)
         .then((res) => {
-          console.log('API res: ', res.data.result);
           if (res.data.result.length < 1) {
             this.setState({ errorMessage: 'Invalid Course Code' });
           } else {
-            console.log('Members: ', res.data.result[0].members);
             this.setState({ resource: res.data.result[0] });
             this.setState({ members: res.data.result[0].members });
             this.setState({ errorMessage: '' });
@@ -93,32 +91,6 @@ class ClassCode extends Component {
         });
     }
   };
-
-  // signUp = () => {
-  //   const { temp, room, signup, user } = this.props;
-  //   const {
-  //     participantAccount,
-  //     firstName,
-  //     lastName,
-  //     username,
-  //     email,
-  //     password,
-  //   } = this.state;
-  //   const accountType = participantAccount ? 'participant' : 'facilitator';
-  //   const newUser = {
-  //     firstName,
-  //     lastName,
-  //     username,
-  //     email,
-  //     password,
-  //     accountType,
-  //   };
-  //   if (temp) {
-  //     newUser._id = user._id;
-  //     newUser.rooms = [room];
-  //   }
-  //   signup(newUser);
-  // };
 
   confirmResource() {
     this.setState({ isResourceConf: true });
@@ -139,7 +111,6 @@ class ClassCode extends Component {
     const { members } = this.state;
     const user = members.find((mem) => mem.user.username === member.username)
       .user;
-    console.log('Selected user: ', user);
     this.setState({ memberToConf: user });
     window.scrollTo(0, 0);
   }
@@ -163,7 +134,7 @@ class ClassCode extends Component {
 
       // console.log('signing up user: ', userToConvert);
       signup(userToConvert);
-    } else if (!memberToConf.email) {
+    } else if (!memberToConf.isGmail) {
       login(memberToConf.username, process.env.REACT_APP_VMT_LOGIN_DEFAULT);
     } else {
       history.push('/login');
@@ -342,13 +313,6 @@ ClassCode.propTypes = {
   clearError: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   history: PropTypes.shape({}).isRequired,
-  // closeModal: (props, propName) => {
-  //   if (props.temp && !props[propName]) {
-  //     throw new Error(
-  //       'please provide a function to close the signup modal when props.temp is true'
-  //     );
-  //   }
-  // },
 };
 
 ClassCode.defaultProps = {
