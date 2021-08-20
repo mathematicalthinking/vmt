@@ -289,7 +289,7 @@ class Members extends PureComponent {
           { property: 'organization', header: 'Affiliation' },
           { property: 'sponsor', header: 'Sponsor Username' },
           { property: 'comment', header: 'Comments' },
-          ]}
+        ]}
         onSubmit={(data) => this.handleOnSubmit(data)}
       />
     );
