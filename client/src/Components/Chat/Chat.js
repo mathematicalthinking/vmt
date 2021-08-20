@@ -574,7 +574,7 @@ class Chat extends Component {
                   placeholder={
                     seenChatInstructions
                       ? ''
-                      : 'Type in here, hit the microphone and dictate, or clicks the dots for quick chats'
+                      : 'Type in here, hit the microphone and dictate, or click the dots for quick chats'
                   }
                   onChange={change}
                   value={value}
