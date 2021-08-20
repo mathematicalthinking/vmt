@@ -49,14 +49,16 @@ export default function ImportModal(props) {
   // is needed for displaying the table. This separation of concerns -- not
   // revealing the implementation of a component to its clients -- IS VERY
   // IMPORTANT for comprehensibity and reusability of code, and simplifies future
-  // enhancements/refactoring (i.e., we can change the way that ImportModal does 
+  // enhancements/refactoring (i.e., we can change the way that ImportModal does
   // its job without having to change the code in any of its clients).
   React.useEffect(() => {
     setTableData(
-      data.map((row) => columnConfig.map((col) => ({ value: row[col.property] })))
+      data.map((row) =>
+        columnConfig.map((col) => ({ value: row[col.property] }))
+      )
     );
   }, [data]);
-  
+
   // converts data back from the ReactDataSheet format to the format of the
   // data prop
   const _handleOk = () => {
@@ -110,18 +112,21 @@ export default function ImportModal(props) {
   };
 
   const _isBoolean = (col) => {
-    return columnConfig[col].type === 'boolean'
-    };
-    
-  const _getHeaders = () => {
-    return columnConfig.map(row => row.header);
+    return columnConfig[col].type === 'boolean';
   };
 
-  const _isHighlighted(row, col) => {
-    return highlights.find(elt => elt.rowIndex === row && elt.property === columnConfig[col].property;
+  const _getHeaders = () => {
+    return columnConfig.map((row) => row.header);
   };
-  
-  
+
+  // eslint-disable-next-line no-unused-vars
+  const _isHighlighted = (row, col) => {
+    return highlights.find(
+      (elt) =>
+        elt.rowIndex === row && elt.property === columnConfig[col].property
+    );
+  };
+
   const _sheetRenderer = (givenProps) => (
     <table style={{ marginBottom: '10px', marginTop: '20px' }}>
       <thead>
@@ -186,7 +191,7 @@ export default function ImportModal(props) {
   };
 
   return (
-    <Modal width={900} show={show} closeModal={() => {}>
+    <Modal width={900} show={show} closeModal={() => {}}>
       <div
         style={{
           display: 'flex',
@@ -213,7 +218,7 @@ export default function ImportModal(props) {
 ImportModal.propTypes = {
   show: PropTypes.bool.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  columnConfig: PropTypes.arrayOf(PropTypes.shape{})).isRequired,
+  columnConfig: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   onSubmit: PropTypes.func.isRequired,
   highlights: PropTypes.arrayOf(PropTypes.shape({})),
 };
