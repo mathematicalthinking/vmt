@@ -81,7 +81,7 @@ class Homepage extends PureComponent {
   render() {
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
-    const dateStamp = <p>Last updated: 07.29.2021</p>;
+    const dateStamp = <p>Last updated: 08.20.2021, v.1.3.1-alpha</p>;
 
     return (
       <Aux>
