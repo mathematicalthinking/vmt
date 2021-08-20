@@ -279,28 +279,17 @@ class Members extends PureComponent {
     return (
       <ImportModal
         show={showImportModal}
-        closeModal={() => this.setState({ showImportModal: false })}
         data={importedData}
-        columnNames={[
-          'username',
-          'email',
-          'isGmail',
-          'firstName',
-          'lastName',
-          'organization',
-          'sponsor',
-          'comment',
-        ]}
-        headers={[
-          'Username',
-          'Email',
-          'Email is Google Account',
-          'First Name',
-          'Last Name or Other Identifier',
-          'Affiliation',
-          'Sponsor Username',
-          'Comments',
-        ]}
+        columnConfig={[
+          { property: 'username', header: 'Username' },
+          { property: 'email', header: 'Email' },
+          { property: 'isGmail', header: 'Email is Google Account' },
+          { property: 'firstName', header: 'First Name' },
+          { property: 'lastName', header: 'Last Name or Other Identifier' },
+          { property: 'organization', header: 'Affiliation' },
+          { property: 'sponsor', header: 'Sponsor Username' },
+          { property: 'comment', header: 'Comments' },
+          ]}
         onSubmit={(data) => this.handleOnSubmit(data)}
       />
     );
