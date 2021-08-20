@@ -612,9 +612,7 @@ module.exports = {
   },
   getRecentActivity: async (criteria, skip, filters) => {
     let { since, to } = filters;
-
     const allowedSincePresets = ['day', 'week', 'month', 'year'];
-
     if (allowedSincePresets.includes(since)) {
       since = Number(
         moment()
@@ -633,21 +631,17 @@ module.exports = {
     const initialFilter = { updatedAt: { $gte: new Date(since) } };
     // eslint-disable-next-line no-unused-vars
     let eventsFilter = { $gte: ['$$e.timestamp', since] };
-
     if (to && since && to > since) {
       let toMomentObj = moment(to, 'x', true);
       if (!toMomentObj.isValid()) {
         toMomentObj = moment();
       }
-
       to = Number(toMomentObj.endOf('day').format('x'));
       initialFilter.updatedAt.$lte = new Date(to);
-
       eventsFilter = {
         $and: [eventsFilter, { $lte: ['$$e.timestamp', to] }],
       };
     }
-
     const pipeline = [
       { $match: initialFilter },
       {
@@ -667,7 +661,6 @@ module.exports = {
         },
       },
     ];
-
     if (criteria) {
       pipeline.push({
         $match: {
@@ -680,7 +673,6 @@ module.exports = {
         },
       });
     }
-
     pipeline.push({
       $facet: {
         paginatedResults: [

@@ -28,17 +28,17 @@ const pages = [
   {
     path: '/courses/:course_id/:resource',
     component: Course,
-    redirectPath: '/signup',
+    redirectPath: '/classcode',
   },
   {
     path: '/courses/:course_id/activities/:activity_id/:resource',
     component: Activity,
-    redirectPath: '/signup',
+    redirectPath: '/classcode',
   },
   {
     path: '/courses/:course_id/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/signup',
+    redirectPath: '/classcode',
   },
   {
     path: '/rooms/:room_id/:resource',

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-for */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { TextInput, Button, RadioBtn, Background, Aux } from '../../Components';
 import classes from './signup.css';
 import GoogleLogin from '../../Components/Form/Google/LoginButton';
@@ -79,7 +79,8 @@ class Signup extends Component {
       newUser._id = user._id;
       newUser.rooms = [room];
     }
-    signup(newUser, room); // this.props.room will only exist when creating user from tempUser
+    console.log('Signing up user: ', newUser);
+    signup(newUser);
   };
 
   render() {
@@ -180,6 +181,14 @@ class Signup extends Component {
                   still be a participant in some scenarios and a facilitator in
                   others without making separate accounts.
                 </p>
+                <Link
+                  data-testid="login-link-code"
+                  className={classes.Link}
+                  to="/classcode"
+                >
+                  Have a Class Code?{' '}
+                </Link>
+
                 <div className={classes.ErrorMsg}>
                   <div className={classes.Error}>{errorMessage}</div>
                 </div>

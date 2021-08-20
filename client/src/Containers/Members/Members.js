@@ -3,8 +3,14 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { CSVReader } from 'react-papaparse';
+import { Member, Search, Modal, Button, InfoBox } from 'Components';
 import COLOR_MAP from 'utils/colorMap';
-import API from '../../utils/apiRequests';
+import API from 'utils/apiRequests';
+import {
+  suggestUniqueUsername,
+  validateIsExistingUsername,
+} from 'utils/validators';
 import {
   grantAccess,
   updateCourseMembers,
@@ -14,10 +20,10 @@ import {
   clearNotification,
   removeCourseMember,
   removeRoomMember,
-} from '../../store/actions';
-import { getAllUsersInStore } from '../../store/reducers';
-import { Member, Search, Modal, Button, InfoBox } from '../../Components';
+} from 'store/actions';
+import { getAllUsersInStore } from 'store/reducers';
 import SearchResults from './SearchResults';
+import ImportModal from './ImportModal';
 import classes from './members.css';
 
 class Members extends PureComponent {
@@ -30,7 +36,12 @@ class Members extends PureComponent {
       confirmingInvitation: false,
       userId: null,
       username: null,
+      showImportModal: false,
+      importedData: [],
+      validationErrors: [],
+      sponsors: {},
     };
+    this.buttonRef = React.createRef();
   }
 
   // componentDidUpdate(prevProps) {
@@ -125,7 +136,7 @@ class Members extends PureComponent {
   };
   /**
    * @method changeRole
-   * @param  {Object} info - member obj { color, _id, role, {_id: username}}
+   * @param  {Object} info - member obj { color, _id, role, {_id, username}}
    */
 
   changeRole = (info) => {
@@ -166,6 +177,137 @@ class Members extends PureComponent {
     }
   };
 
+  /**
+   * FUNCTIONS IMPLEMENTING IMPORT
+   */
+
+  handleOpenDialog = (e) => {
+    // Note that the ref is set async, so it might be null at some point
+    if (this.buttonRef.current) {
+      this.buttonRef.current.open(e);
+    }
+  };
+
+  validateData = async (data) => {
+    const validationErrors = [];
+    const validatedData = await Promise.all(
+      data.map(async (d, rowIndex) => {
+        if (!d.isGmail) d.isGmail = false; // initialize if needed
+        d.comment = '';
+        if (!d.firstName || !d.lastName) {
+          d.comment = 'First and last names (or identifier) are required. ';
+          if (!d.firstName)
+            validationErrors.push({ rowIndex, property: 'firstName' });
+          if (!d.lastName)
+            validationErrors.push({ rowIndex, property: 'lastName' });
+        } else {
+          const username = d.username || d.firstName + d.lastName.charAt(0);
+          const newUsername = await suggestUniqueUsername(username);
+          if (newUsername !== d.username) {
+            d.comment = 'New username suggested. ';
+            d.username = newUsername;
+            validationErrors.push({ rowIndex, property: 'username' });
+          }
+        }
+
+        if (d.sponsor) {
+          const sponsor_id = await validateIsExistingUsername(d.sponsor);
+          if (sponsor_id)
+            this.setState((prevState) => ({
+              sponsors: { ...prevState.sponsors, [d.username]: sponsor_id },
+            }));
+          else {
+            d.comment += 'No such sponsor username. ';
+            validationErrors.push({ rowIndex, property: 'sponsor' });
+          }
+        }
+        return d;
+      })
+    );
+    this.setState({ validationErrors });
+    return validatedData;
+  };
+
+  handleOnFileLoad = async (data) => {
+    const extractedData = data
+      .map((d) => d.data)
+      .filter((d) => Object.values(d).some((val) => val !== ''));
+    const importedData = await this.validateData(extractedData);
+    this.setState({ showImportModal: true, importedData });
+  };
+
+  handleOnError = (err) => {
+    console.log(err);
+  };
+
+  handleOnSubmit = (data) => {
+    this.validateData(data).then((newData) => {
+      const { validationErrors } = this.state;
+      const hasIssues = validationErrors.length > 0;
+      if (hasIssues) this.setState({ importedData: newData });
+      else {
+        this.setState({ showImportModal: false, importedData: newData });
+        this.createAndInviteMembers();
+      }
+    });
+  };
+
+  createAndInviteMembers = async () => {
+    const { importedData, sponsors } = this.state;
+    const { user: creator } = this.props;
+    const newUsers = await Promise.all(
+      importedData.map(async (user) =>
+        API.post('user', {
+          ...user,
+          sponsor: sponsors[user.username] || creator._id,
+          accountType: 'pending',
+        })
+      )
+    );
+    newUsers.forEach(({ data: { result: user } }) =>
+      this.inviteMember(user._id, user.username)
+    );
+  };
+
+  // These next two are functions to defeat the linter...
+  csvItem = () => (
+    <CSVReader
+      ref={this.buttonRef}
+      onFileLoad={this.handleOnFileLoad}
+      onError={this.handleOnError}
+      config={{ header: true, skipEmptyLines: true }}
+      noProgressBar
+      noDrag
+    >
+      {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
+      {() => <Button click={this.handleOpenDialog}>Import</Button>}
+    </CSVReader>
+  );
+
+  importModal = () => {
+    const { showImportModal, importedData, validationErrors } = this.state;
+    return (
+      <ImportModal
+        show={showImportModal}
+        data={importedData}
+        columnConfig={[
+          { property: 'username', header: 'Username' },
+          { property: 'email', header: 'Email' },
+          { property: 'isGmail', header: 'Email is Google Account' },
+          { property: 'firstName', header: 'First Name' },
+          { property: 'lastName', header: 'Last Name or Other Identifier' },
+          { property: 'organization', header: 'Affiliation' },
+          { property: 'sponsor', header: 'Sponsor Username' },
+          { property: 'comment', header: 'Comments' },
+        ]}
+        highlights={validationErrors}
+        onSubmit={(data) => this.handleOnSubmit(data)}
+      />
+    );
+  };
+
+  /* ***********************************  */
+
   render() {
     const {
       classList,
@@ -183,6 +325,7 @@ class Members extends PureComponent {
       searchResults,
       searchText,
     } = this.state;
+
     let joinRequests = <p>There are no new requests to join</p>;
     if (owner && notifications.length >= 1) {
       joinRequests = notifications
@@ -229,6 +372,7 @@ class Members extends PureComponent {
         }
         return false;
       });
+
       return owner ? (
         <Member
           changeRole={this.changeRole}
@@ -264,54 +408,36 @@ class Members extends PureComponent {
     });
     return (
       <div className={classes.Container}>
-        {
-          <Modal
-            show={confirmingInvitation}
-            closeModal={() => this.setState({ confirmingInvitation: false })}
-          >
-            <div>
-              {username} is not in this course...you can still add them to this
-              room and they will be added to the course as a guest
-            </div>
-            <div>
-              <Button m={5} click={this.confirmInvitation}>
-                Add To Room
-              </Button>
-              <Button
-                theme="Cancel"
-                m={5}
-                click={() => {
-                  this.setState({ confirmingInvitation: false });
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </Modal>
-        }
-        <div>
-          {owner ? (
-            <InfoBox
-              title="New Requests to Join"
-              icon={<i className="fas fa-bell" />}
+        {this.importModal()}
+        <Modal
+          show={confirmingInvitation}
+          closeModal={() => this.setState({ confirmingInvitation: false })}
+        >
+          <div>
+            {username} is not in this course...you can still add them to this
+            room and they will be added to the course as a guest
+          </div>
+          <div>
+            <Button m={5} click={this.confirmInvitation}>
+              Add To Room
+            </Button>
+            <Button
+              theme="Cancel"
+              m={5}
+              click={() => {
+                this.setState({ confirmingInvitation: false });
+              }}
             >
-              <div data-testid="join-requests">{joinRequests}</div>
-            </InfoBox>
-          ) : null}
-          <InfoBox title="Class List" icon={<i className="fas fa-users" />}>
-            <div data-testid="members">{classListComponents}</div>
-          </InfoBox>
-          <InfoBox title="Guest List" icon={<i className="fas fa-id-badge" />}>
-            <div data-testid="members">
-              {guestListComponents.length > 0
-                ? guestListComponents
-                : `There are no guests in this ${resourceType}`}
-            </div>
-          </InfoBox>
+              Cancel
+            </Button>
+          </div>
+        </Modal>
+        <div>
           {owner ? (
             <InfoBox
               title="Add New Participants"
               icon={<i className="fas fa-user-plus" />}
+              rightIcons={this.csvItem()}
             >
               <Fragment>
                 <Search
@@ -332,6 +458,24 @@ class Members extends PureComponent {
               </Fragment>
             </InfoBox>
           ) : null}
+          {owner ? (
+            <InfoBox
+              title="New Requests to Join"
+              icon={<i className="fas fa-bell" />}
+            >
+              <div data-testid="join-requests">{joinRequests}</div>
+            </InfoBox>
+          ) : null}
+          <InfoBox title="Class List" icon={<i className="fas fa-users" />}>
+            <div data-testid="members">{classListComponents}</div>
+          </InfoBox>
+          <InfoBox title="Guest List" icon={<i className="fas fa-id-badge" />}>
+            <div data-testid="members">
+              {guestListComponents.length > 0
+                ? guestListComponents
+                : `There are no guests in this ${resourceType}`}
+            </div>
+          </InfoBox>
         </div>
       </div>
     );
@@ -340,6 +484,7 @@ class Members extends PureComponent {
 
 Members.propTypes = {
   searchedUsers: PropTypes.arrayOf(PropTypes.shape({})),
+  user: PropTypes.shape({}).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
@@ -375,6 +520,7 @@ const mapStateToProps = (state, ownProps) => {
       _id: id,
       username: usernames[i],
     })),
+    user: state.user,
   };
 };
 

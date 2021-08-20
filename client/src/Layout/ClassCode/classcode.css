@@ -12,7 +12,29 @@
   justify-content: center;
 }
 
-.ModalContainer {
+.ParticipantList {
+  margin: 20px 0 10px 0;
+  /* display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  overflow-y: scroll;
+  background: #f8f8f8; */
+  border: 1px solid #ddd;
+  padding: 5px;
+  width: 60%;
+  /* min-height: 200px; */
+}
+
+.Participant {
+  /* color: black;
+  padding: 7px;
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid #ddd; */
+}
+
+.Participant:hover {
+  color: blue;
 }
 
 .SignupContainer {
@@ -44,6 +66,12 @@
   font-size: 32px;
 }
 
+.THead {
+  border-bottom: 2px solid white;
+  padding: 5px;
+  font-size: 130%;
+}
+
 .AccountTypeContainer {
   display: flex;
   flex-flow: row;
@@ -51,6 +79,10 @@
   align-self: center;
   width: 100%;
   margin: 15px;
+}
+
+.Modal {
+  color: blue;
 }
 
 .AccountTypeLabel {
@@ -85,12 +117,4 @@
 
 .Submit {
   margin: 20px 0;
-}
-
-.Link {
-  text-decoration: underline;
-  transition: 0.2s;
-  font-size: 120%;
-  padding-top: 6px;
-  padding-bottom: 4px;
 }
