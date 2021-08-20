@@ -17,12 +17,31 @@ class Awareness extends Component {
     }
     return true;
   }
+
+  editLastEvent = (msg) => {
+    const message = msg.split(' ');
+    let user = message.shift();
+    const maxLen = 12;
+    // currently always using abbreviated naming for both detailed and simple chat
+    // if (!isSimplified) return shortName;
+    if (user.includes('@')) user = user.substring(0, user.lastIndexOf('@'));
+    if (user.length > maxLen) user = user.substring(0, maxLen);
+    message.unshift(user);
+    return message.join(' ');
+  };
+
   render() {
     const { lastEvent } = this.props;
     if (lastEvent) {
       return (
-        <div className={classes.AwarenessDesc} data-testid="awareness-desc">
-          {lastEvent.description || lastEvent.text || lastEvent.message}
+        <div
+          className={classes.AwarenessDesc}
+          data-testid="awareness-desc"
+          title="Last event"
+        >
+          {this.editLastEvent(
+            lastEvent.description || lastEvent.text || lastEvent.message
+          )}
           <div className={classes.AwarenessIcon}>
             {lastEvent.action === 'mode' ? (
               <img

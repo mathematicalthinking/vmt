@@ -6,12 +6,12 @@ module.exports = {
   1: '#105BB2',
   // moss
   2: '#197B7B',
-  // salmon
-  3: '#BD0023',
   // lilac
-  4: '#BF00E0',
+  3: '#BF00E0',
   // gold
-  5: '#9E6400',
+  4: '#9E6400',
+  // salmon
+  5: '#BD0023',
   // purple
   6: '#2929FF',
   // peach
