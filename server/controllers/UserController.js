@@ -65,7 +65,7 @@ module.exports = {
     return db.User.findOne({ _id: id }, { select: resources })
       .populate({
         path: 'activities',
-        select: 'name members intructions image rooms',
+        select: 'name members instructions image rooms', // do activities have members?
         populate: {
           path: 'rooms',
           populate: {

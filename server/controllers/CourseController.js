@@ -27,6 +27,19 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
+  
+  // @TODO consider what params might be and how to handle them.
+  getPopulatedById: (id, params) => {
+    return new Promise((resolve, reject) => {
+      db.Course.findById(id)
+        .populate('creator')
+        .populate('rooms', 'name')
+        .populate('members.user', 'username')
+        .populate('activities', 'name')
+        .then((course) => resolve(course))
+        .catch((err) => reject(err));
+    });
+  },
 
   getByCode: (code) => {
     return new Promise((resolve, reject) => {
