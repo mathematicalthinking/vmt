@@ -119,7 +119,6 @@ export default function ImportModal(props) {
     return columnConfig.map((row) => row.header);
   };
 
-  // eslint-disable-next-line no-unused-vars
   const _isHighlighted = (row, col) => {
     return highlights.find(
       (elt) =>
