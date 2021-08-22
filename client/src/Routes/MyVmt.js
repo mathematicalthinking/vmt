@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import withPopulatedCourse from 'utils/withPopulatedCourse';
 import Navbar from '../Components/Navigation/Navbar';
 import {
   MyVMT,
@@ -27,7 +28,7 @@ const pages = [
   { path: '/:resource', component: MyVMT },
   {
     path: '/courses/:course_id/:resource',
-    component: Course,
+    component: withPopulatedCourse(Course), // provide the course from the DB to allow facilitators to see all resources
     redirectPath: '/classcode',
   },
   {
