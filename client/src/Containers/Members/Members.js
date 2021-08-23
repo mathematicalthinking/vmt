@@ -293,7 +293,11 @@ class Members extends PureComponent {
         columnConfig={[
           { property: 'username', header: 'Username' },
           { property: 'email', header: 'Email' },
-          { property: 'isGmail', header: 'Email is Google Account' },
+          {
+            property: 'isGmail',
+            header: 'Email is Google Account',
+            type: 'boolean',
+          },
           { property: 'firstName', header: 'First Name' },
           { property: 'lastName', header: 'Last Name or Other Identifier' },
           { property: 'organization', header: 'Affiliation' },

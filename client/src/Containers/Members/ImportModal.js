@@ -106,7 +106,7 @@ export default function ImportModal(props) {
   // via the return values from useState, but sometimes this pattern is helpful
   // (i.e., the state representation is somewhat complex and might be refactored).
   const _isAllChecked = (col) => {
-    if (_isBoolean(col))
+    if (typeof allChecked[col] !== 'boolean')
       setAllChecked((prevState) => ({ ...prevState, [col]: false }));
     return !!allChecked[col]; // use !! in case the above setAllChecked hasn't completed
   };
