@@ -95,7 +95,7 @@ class Homepage extends PureComponent {
             </p>
             <div className={classes.WorkspaceButton}>
               <Button theme="Big" click={this.createRoom} m={35}>
-                Trial a Workspace
+                Try out a Workspace
               </Button>
             </div>
             <div className={classes.WorkspaceButton}>
@@ -106,7 +106,7 @@ class Homepage extends PureComponent {
                 }}
                 m={35}
               >
-                Login to VMT
+                Login with Username
               </Button>
             </div>
             <div className={classes.WorkspaceButton}>
@@ -117,7 +117,7 @@ class Homepage extends PureComponent {
                 }}
                 m={35}
               >
-                Use a Class Code
+                Login with a Class Code
               </Button>
             </div>
           </section>

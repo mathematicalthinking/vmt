@@ -280,7 +280,9 @@ class Members extends PureComponent {
       noDrag
     >
       {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
-      {() => <Button click={this.handleOpenDialog}>Import</Button>}
+      {() => (
+        <Button click={this.handleOpenDialog}>Import to Create Users</Button>
+      )}
     </CSVReader>
   );
 
@@ -456,8 +458,9 @@ class Members extends PureComponent {
                     inviteMember={this.inviteMember}
                   />
                 ) : null}
+                <div>Add current VMT users</div>
                 {resourceType === 'room' && courseMembers ? (
-                  <div>Add participants from this course</div>
+                  <div>(participants from this course or guests)</div>
                 ) : null}
               </Fragment>
             </InfoBox>

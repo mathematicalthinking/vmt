@@ -109,8 +109,9 @@ class ClassCode extends Component {
 
   join(member) {
     const { members } = this.state;
-    const user = members.find((mem) => mem.user.username === member.username)
-      .user;
+    const user = members.find(
+      (mem) => mem.user.username.toLowerCase() === member.username.toLowerCase()
+    ).user;
     this.setState({ memberToConf: user });
     window.scrollTo(0, 0);
   }
@@ -187,9 +188,8 @@ class ClassCode extends Component {
                             key={member.user._id}
                             id={member.user._id}
                           >
-                            <td>{`${i + 1}. Username: ${
-                              member.user.username
-                            }`}</td>
+                            <td>{`${i +
+                              1}. Username: ${member.user.username.toLowerCase()}`}</td>
                             <td>
                               {' '}
                               <Button
