@@ -10,6 +10,7 @@ import SearchResults from './Members/SearchResults';
 import { Search, Member, EditText, ToolTip, Error } from '../Components';
 import API from '../utils/apiRequests';
 import { updateUser, updateUserSettings } from '../store/actions';
+import { suggestUniqueUsername } from '../utils/validators';
 // import MainContent from '../Layout/Dashboard/MainContent/';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 
@@ -25,6 +26,7 @@ class Profile extends Component {
       searchText: '',
       searchResults: [],
       admins: [],
+      editError: '',
     };
   }
 
@@ -43,13 +45,16 @@ class Profile extends Component {
 
   toggleEdit = () => {
     const { user } = this.props;
-    const { username } = this.state;
+    const { editing } = this.state;
+    if (editing) {
+      this.setState(() => ({
+        username: user.username,
+        editError: '',
+      }));
+    }
     this.setState((prevState) => ({
       editing: !prevState.editing,
     }));
-    if (user.username !== username) {
-      this.setState({ username: user.username });
-    }
   };
 
   search = (text) => {
@@ -77,13 +82,28 @@ class Profile extends Component {
     this.setState({ [name]: option || value });
   };
 
-  updateUser = () => {
+  updateUser = async () => {
     const { connectUpdateUserInfo, user } = this.props;
     const { username } = this.state;
-    connectUpdateUserInfo(user._id, { username });
-    this.setState({
-      editing: false,
-    });
+    if (user.username !== username && user.email === user.username) {
+      const emailRegex = /\S+@\S+\.\S+/;
+      if (emailRegex.test(username)) {
+        this.setState({ editError: 'New username cannot be an email' });
+      } else {
+        const newUsername = await suggestUniqueUsername(username);
+        if (newUsername !== username) {
+          this.setState({
+            editError: `Username not available, available suggestion: ${newUsername}`,
+          });
+        } else {
+          connectUpdateUserInfo(user._id, { username });
+          this.setState({
+            editing: false,
+            editError: '',
+          });
+        }
+      }
+    }
   };
 
   makeAdmin = (userId) => {
@@ -108,6 +128,7 @@ class Profile extends Component {
       editing,
       username,
       name,
+      editError,
       // email,
     } = this.state;
     const mainContent = (
@@ -145,7 +166,7 @@ class Profile extends Component {
             change={this.updateUserInfo}
             inputType="text"
             name="username"
-            editing={editing}
+            editing={user.email === user.username && editing}
           >
             {username}
           </EditText>
@@ -212,10 +233,7 @@ class Profile extends Component {
                 {editing ? (
                   // @TODO this should be a resuable component
                   <Fragment>
-                    <p>
-                      This username is for display within VMT only and does not
-                      affect login credentials
-                    </p>
+                    {editError && <p>{editError}</p>}
                     <div
                       style={{
                         display: 'flex',
