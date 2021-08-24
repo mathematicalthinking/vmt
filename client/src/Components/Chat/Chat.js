@@ -594,6 +594,7 @@ class Chat extends Component {
                       <div
                         className={classes.Mic}
                         key="qucikChat-ST"
+                        title="Speech to text"
                         tabIndex={-3}
                         role="button"
                         onClick={() => {
@@ -612,28 +613,24 @@ class Chat extends Component {
                       <div
                         className={classes.Send}
                         onClick={submit}
+                        title="Submit message"
                         onKeyPress={submit}
                         tabIndex="-2"
                         role="button"
                       >
-                        <i className="fab fa-telegram-plane" />
+                        <i className="fas fa-level-up-alt" />
                       </div>
                     </div>
 
                     <div
                       className={classes.QuickMenu}
+                      title="Toggle quick-chat drawer"
                       onClick={this.toggleChatPicker}
                       onKeyPress={this.toggleChatPicker}
                       tabIndex="-2"
                       role="button"
                     >
                       <i className="fas fa-ellipsis-h" />
-                      {/* Optional tooltip for additional chat QuickMenu */}
-                      {/* {!isChatPicker ? (
-                        <div className={classes.ChatPickerTooltip}>
-                          {`Quick Reactions`}
-                        </div>
-                      ) : null} */}
                     </div>
                   </div>
                 ) : null}
@@ -645,6 +642,7 @@ class Chat extends Component {
                       <div
                         className={classes.QuickChatItem}
                         key={`quickChat-${chat.display}`}
+                        title={chat.message}
                         tabIndex={-4 - i}
                         role="button"
                         onClick={() => quickChat(chat, 'EMOJI')}

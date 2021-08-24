@@ -25,7 +25,8 @@ class Chat extends Component {
     document.addEventListener('keydown', (event) => {
       const { newMessage } = this.state;
 
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
         // handle differenct contexts of Enter clicks
         const isChatInputInFocus =
           this.chatInput.current === document.activeElement;
