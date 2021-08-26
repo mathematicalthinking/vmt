@@ -278,6 +278,7 @@ module.exports = {
         delete body.ggbFiles;
       }
       const room = new Room(body);
+      // console.log('Creating new room: ', body);
       if (existingTabs) {
         tabModels = existingTabs.map((tab) => {
           const newTab = new Tab({
