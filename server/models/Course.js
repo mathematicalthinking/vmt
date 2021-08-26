@@ -22,6 +22,7 @@ const Course = new mongoose.Schema(
         _id: false,
       },
     ],
+    metadata: { type: Object },
     image: { type: String }, // URL
     isTrashed: { type: Boolean, default: false },
   },

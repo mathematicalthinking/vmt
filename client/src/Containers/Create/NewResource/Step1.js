@@ -5,7 +5,16 @@ import classes from '../create.css';
 
 // @TODO CHANGE TO CLASS COMPONENTS SO WE CAN USE AREF TO SET THE FOCUS
 const Step1 = React.memo((props) => {
-  const { displayResource, changeHandler, description, resource, name } = props;
+  const {
+    displayResource,
+    changeHandler,
+    description,
+    resource,
+    name,
+    organization,
+    school,
+    district,
+  } = props;
   return (
     <div className={classes.FormSection}>
       <TextInput
@@ -25,6 +34,40 @@ const Step1 = React.memo((props) => {
         width="100%"
         data-testid={`${resource}-description`}
       />
+      {resource === 'courses' ? (
+        <div className={classes.FormSection}>
+          <div>
+            <div>Optional Class Data</div>
+            <TextInput
+              light
+              name="organization"
+              label="Organization"
+              value={organization}
+              change={changeHandler}
+              width="100%"
+              data-testid={`${resource}-organization`}
+            />
+            <TextInput
+              light
+              name="district"
+              label="District"
+              value={district}
+              change={changeHandler}
+              width="100%"
+              data-testid={`${resource}-district`}
+            />
+            <TextInput
+              light
+              name="school"
+              label="School"
+              value={school}
+              change={changeHandler}
+              width="100%"
+              data-testid={`${resource}-school`}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 });
@@ -35,6 +78,15 @@ Step1.propTypes = {
   description: PropTypes.string.isRequired,
   resource: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  district: PropTypes.string,
+  school: PropTypes.string,
+  organization: PropTypes.string,
+};
+
+Step1.defaultProps = {
+  district: '',
+  school: '',
+  organization: '',
 };
 
 export default Step1;

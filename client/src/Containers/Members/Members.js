@@ -269,7 +269,7 @@ class Members extends PureComponent {
   createAndInviteMembers = async () => {
     const { importedData, sponsors } = this.state;
     const { user: creator } = this.props;
-    const userObjects = await importedData.map((user) => {
+    const userObjects = importedData.map((user) => {
       const { organization, identifier, ...rest } = user;
       return { metadata: { organization, identifier }, ...rest };
     });
@@ -282,7 +282,6 @@ class Members extends PureComponent {
         })
       )
     );
-    console.log('Members: ', newUsers);
     newUsers.forEach(({ data: { result: user } }) =>
       this.inviteMember(user._id, user.username)
     );
