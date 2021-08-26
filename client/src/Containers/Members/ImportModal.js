@@ -2,8 +2,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDataSheet from 'react-datasheet';
-import { Modal, Button } from 'Components';
-// import 'react-datasheet/lib/react-datasheet.css';
+import { BigModal as Modal, Button } from 'Components';
+import 'react-datasheet/lib/react-datasheet.css';
+import './importModal.css';
 
 /* 
 
@@ -37,7 +38,15 @@ highlights is an array of objects, where each object represents a specific cell
 */
 
 export default function ImportModal(props) {
-  const { show, data, columnConfig, highlights, onSubmit } = props;
+  const {
+    show,
+    data,
+    columnConfig,
+    highlights,
+    onSubmit,
+    onChanged,
+    onCancel,
+  } = props;
   const [tableData, setTableData] = React.useState([]);
   const [allChecked, setAllChecked] = React.useState({});
 
@@ -54,21 +63,31 @@ export default function ImportModal(props) {
   React.useEffect(() => {
     setTableData(
       data.map((row) =>
-        columnConfig.map((col) => ({ value: row[col.property] }))
+        columnConfig.map((col) => {
+          const { property, ...rest } = col;
+          return { value: row[property], ...rest };
+        })
       )
     );
   }, [data]);
 
   // converts data back from the ReactDataSheet format to the format of the
   // data prop
-  const _handleOk = () => {
-    const returnedData = tableData.map((row) =>
+  const _convertTableToData = (grid) => {
+    return grid.map((row) =>
       row.reduce((acc, col, index) => {
         return { ...acc, [columnConfig[index].property]: col.value };
       }, {})
     );
+  };
 
+  const _handleOk = () => {
+    const returnedData = _convertTableToData(tableData);
     onSubmit(returnedData);
+  };
+
+  const _handleCancel = () => {
+    onCancel();
   };
 
   const _handleCellsChanged = (changes) => {
@@ -77,6 +96,7 @@ export default function ImportModal(props) {
       grid[row][col] = { ...grid[row][col], value };
     });
     setTableData(grid);
+    onChanged(_convertTableToData(grid));
   };
 
   // when the user clicks on a 'select/deselect all' checkbox in column col,
@@ -132,7 +152,7 @@ export default function ImportModal(props) {
       <thead>
         <tr>
           {_getHeaders().map((col, index) => (
-            <th key={col} style={{ textAlign: 'center' }}>
+            <th key={col} style={{ padding: '10px', textAlign: 'center' }}>
               <div
                 style={{
                   display: 'flex',
@@ -171,12 +191,14 @@ export default function ImportModal(props) {
       updated,
       ...rest
     } = ps;
-    // @TODO need to implement highlighting. Just add 'highlight' onto
-    // className (and define in the css) if _isHighlighted(row, col) is true
     return (
       <td
         {...rest}
-        style={_isHighlighted(row, col) ? { border: '2px solid red' } : {}}
+        style={
+          _isHighlighted(row, col)
+            ? { ...cell.style, border: '2px solid red' }
+            : { ...cell.style }
+        }
       >
         {_isBoolean(col) ? (
           <input
@@ -194,7 +216,7 @@ export default function ImportModal(props) {
   };
 
   return (
-    <Modal width={900} show={show} closeModal={() => {}}>
+    <Modal show={show} closeModal={() => {}}>
       <div
         style={{
           display: 'flex',
@@ -212,7 +234,18 @@ export default function ImportModal(props) {
           cellRenderer={_cellRenderer}
           onCellsChanged={_handleCellsChanged}
         />
-        <Button click={_handleOk}>Submit</Button>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            width: '40%',
+            marginTop: '10px',
+          }}
+        >
+          <Button click={_handleOk}>Submit</Button>
+          <Button click={_handleCancel}>Cancel</Button>
+        </div>
       </div>
     </Modal>
   );
@@ -224,8 +257,12 @@ ImportModal.propTypes = {
   columnConfig: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   onSubmit: PropTypes.func.isRequired,
   highlights: PropTypes.arrayOf(PropTypes.shape({})),
+  onChanged: PropTypes.func,
+  onCancel: PropTypes.func,
 };
 
 ImportModal.defaultProps = {
   highlights: [],
+  onChanged: () => {},
+  onCancel: () => {},
 };

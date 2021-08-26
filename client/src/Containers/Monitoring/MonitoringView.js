@@ -65,6 +65,7 @@ function MonitoringView({
   };
 
   // Monitoring is allowed only on the rooms that the user manages.
+  // @TODO When we switch to a centralized 'hasAccess' facility, we can do our filtering based on that
   const userResources = React.useMemo(
     () => allResources.filter((res) => res.myRole === 'facilitator'),
     [allResources]
@@ -96,6 +97,18 @@ function MonitoringView({
         result[room._id] = storedSelections[room._id];
       }
     });
+
+    // if there's nothing to display, show the (up to) 5 most recently updated rooms
+
+    if (!Object.values(result).reduce((acc, val) => acc || val)) {
+      // if all the values are false
+      const roomsResult = [...rooms].sort((a, b) => b.updatedAt - a.updatedAt);
+      if (roomsResult.length !== 0)
+        roomsResult
+          .slice(0, Math.min(5, roomsResult.length))
+          // eslint-disable-next-line no-return-assign
+          .forEach((room) => (result[room._id] = true));
+    }
     return result;
   };
 
