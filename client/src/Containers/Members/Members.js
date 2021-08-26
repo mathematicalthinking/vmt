@@ -210,7 +210,7 @@ class Members extends PureComponent {
           }
         }
 
-        if (d.sponsor) {
+        if (d.sponsor && d.sponsor !== '') {
           const sponsor_id = await validateIsExistingUsername(d.sponsor);
           if (sponsor_id)
             this.setState((prevState) => ({
@@ -224,29 +224,43 @@ class Members extends PureComponent {
         return d;
       })
     );
-    this.setState({ validationErrors });
-    return validatedData;
+    // this.setState({ validationErrors });
+    return [validatedData, validationErrors];
   };
 
   handleOnFileLoad = async (data) => {
     const extractedData = data
       .map((d) => d.data)
       .filter((d) => Object.values(d).some((val) => val !== ''));
-    const importedData = await this.validateData(extractedData);
-    this.setState({ showImportModal: true, importedData });
+    const [importedData, validationErrors] = await this.validateData(
+      extractedData
+    );
+    this.setState({ showImportModal: true, importedData, validationErrors });
   };
 
   handleOnError = (err) => {
     console.log(err);
   };
 
-  handleOnSubmit = (data) => {
-    this.validateData(data).then((newData) => {
-      const { validationErrors } = this.state;
+  handleOnChanged = (data) => {
+    this.validateData(data).then(([newData, validationErrors]) => {
       const hasIssues = validationErrors.length > 0;
-      if (hasIssues) this.setState({ importedData: newData });
+      if (hasIssues) this.setState({ importedData: newData, validationErrors });
+    });
+  };
+
+  handleOnCancel = () => this.setState({ showImportModal: false });
+
+  handleOnSubmit = (data) => {
+    this.validateData(data).then(([newData, validationErrors]) => {
+      const hasIssues = validationErrors.length > 0;
+      if (hasIssues) this.setState({ importedData: newData, validationErrors });
       else {
-        this.setState({ showImportModal: false, importedData: newData });
+        this.setState({
+          showImportModal: false,
+          importedData: newData,
+          validationErrors,
+        });
         this.createAndInviteMembers();
       }
     });
@@ -270,19 +284,22 @@ class Members extends PureComponent {
   };
 
   // These next two are functions to defeat the linter...
-  csvItem = () => (
-    <CSVReader
-      ref={this.buttonRef}
-      onFileLoad={this.handleOnFileLoad}
-      onError={this.handleOnError}
-      config={{ header: true, skipEmptyLines: true }}
-      noProgressBar
-      noDrag
-    >
-      {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
-      {() => <Button click={this.handleOpenDialog}>Import</Button>}
-    </CSVReader>
-  );
+  csvItem = () => {
+    const { resourceType } = this.props;
+    return resourceType === 'course' ? (
+      <CSVReader
+        ref={this.buttonRef}
+        onFileLoad={this.handleOnFileLoad}
+        onError={this.handleOnError}
+        config={{ header: true, skipEmptyLines: true }}
+        noProgressBar
+        noDrag
+      >
+        {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
+        {() => <Button click={this.handleOpenDialog}>Import New Users</Button>}
+      </CSVReader>
+    ) : null;
+  };
 
   importModal = () => {
     const { showImportModal, importedData, validationErrors } = this.state;
@@ -302,10 +319,17 @@ class Members extends PureComponent {
           { property: 'lastName', header: 'Last Name or Other Identifier' },
           { property: 'organization', header: 'Affiliation' },
           { property: 'sponsor', header: 'Sponsor Username' },
-          { property: 'comment', header: 'Comments' },
+          {
+            property: 'comment',
+            header: 'Comments',
+            style: { color: 'red' },
+            readOnly: true,
+          },
         ]}
         highlights={validationErrors}
+        // onChanged={(data) => this.handleOnChanged(data)}
         onSubmit={(data) => this.handleOnSubmit(data)}
+        onCancel={this.handleOnCancel}
       />
     );
   };
@@ -439,7 +463,7 @@ class Members extends PureComponent {
         <div>
           {owner ? (
             <InfoBox
-              title="Add New Participants"
+              title="Add Participants"
               icon={<i className="fas fa-user-plus" />}
               rightIcons={this.csvItem()}
             >
