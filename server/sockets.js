@@ -18,13 +18,17 @@ module.exports = function() {
   };
 
   const recordData = (type, data) => {
-    if (
-      timestamps[type][data.user._id] &&
-      timestamps[type][data.user._id] > data.timestamp
-    ) {
-      data.type = type;
-      recordEventProblem(data);
-    } else timestamps[type][data.user._id] = data.timestamp;
+    try {
+      if (
+        timestamps[type][data.user._id] &&
+        timestamps[type][data.user._id] > data.timestamp
+      ) {
+        data.type = type;
+        recordEventProblem(data);
+      } else timestamps[type][data.user._id] = data.timestamp;
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   io.use((socket, next) => {
