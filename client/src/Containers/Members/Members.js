@@ -269,8 +269,12 @@ class Members extends PureComponent {
   createAndInviteMembers = async () => {
     const { importedData, sponsors } = this.state;
     const { user: creator } = this.props;
+    const userObjects = await importedData.map((user) => {
+      const { organization, identifier, ...rest } = user;
+      return { metadata: { organization, identifier }, ...rest };
+    });
     const newUsers = await Promise.all(
-      importedData.map(async (user) =>
+      userObjects.map(async (user) =>
         API.post('user', {
           ...user,
           sponsor: sponsors[user.username] || creator._id,
@@ -278,6 +282,7 @@ class Members extends PureComponent {
         })
       )
     );
+    console.log('Members: ', newUsers);
     newUsers.forEach(({ data: { result: user } }) =>
       this.inviteMember(user._id, user.username)
     );
@@ -316,8 +321,9 @@ class Members extends PureComponent {
             type: 'boolean',
           },
           { property: 'firstName', header: 'First Name' },
-          { property: 'lastName', header: 'Last Name or Other Identifier' },
+          { property: 'lastName', header: 'Last Name' },
           { property: 'organization', header: 'Affiliation' },
+          { property: 'identifier', header: 'Student ID or Unique Value' },
           { property: 'sponsor', header: 'Sponsor Username' },
           {
             property: 'comment',

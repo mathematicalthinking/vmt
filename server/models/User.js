@@ -31,7 +31,7 @@ const User = new mongoose.Schema(
     isTrashed: { type: Boolean, default: false },
     isGmail: { type: Boolean, default: false },
     sponsor: { type: ObjectId, ref: 'User' },
-    organization: { type: String },
+    metadata: { type: Object },
     ssoId: { type: ObjectId },
     ipAddresses: [{ type: String }],
     latestIpAddress: { type: String },
