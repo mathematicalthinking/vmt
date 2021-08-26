@@ -7,6 +7,9 @@ const socketInit = require('./socketInit');
 const controllers = require('./controllers');
 const Message = require('./models/Message');
 
+const url =
+  process.env.BAD_DATA_URL || 'https://dweet.io/dweet/for/VMT-BAD-DATA';
+
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
 module.exports = function() {
   const { io } = socketInit;
@@ -14,7 +17,7 @@ module.exports = function() {
   const timestamps = { [constants.EVENT]: {}, [constants.MESSAGE]: {} };
 
   const recordEventProblem = (data) => {
-    axios.post('https://dweet.io/dweet/for/VMT-BAD-DATA', data);
+    axios.post(url, data);
   };
 
   const recordData = (type, data) => {
