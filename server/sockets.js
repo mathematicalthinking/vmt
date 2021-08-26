@@ -2,6 +2,7 @@
 // const { parseString } = require('xml2js');
 const { ObjectId } = require('mongoose').Types;
 // const cookie = require('cookie');
+const axios = require('axios');
 const socketInit = require('./socketInit');
 const controllers = require('./controllers');
 const Message = require('./models/Message');
@@ -9,6 +10,22 @@ const Message = require('./models/Message');
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
 module.exports = function() {
   const { io } = socketInit;
+  const constants = { EVENT: 'event', MESSAGE: 'message' };
+  const timestamps = { [constants.EVENT]: {}, [constants.MESSAGE]: {} };
+
+  const recordEventProblem = (data) => {
+    axios.post('https://dweet.io/dweet/for/VMT-BAD-DATA', data);
+  };
+
+  const recordData = (type, data) => {
+    if (
+      timestamps[type][data.user._id] &&
+      timestamps[type][data.user._id] > data.timestamp
+    ) {
+      data.type = type;
+      recordEventProblem(data);
+    } else timestamps[type][data.user._id] = data.timestamp;
+  };
 
   io.use((socket, next) => {
     // const cookief = socket.handshake.headers.cookie;
@@ -182,10 +199,7 @@ module.exports = function() {
     });
 
     socket.on('SEND_MESSAGE', (data, callback) => {
-      // console.log('message received: ', data.messageType);
-      // console.log('user with data: ', data.user);
-      // console.log('from user: ', socket.user_id);
-      // console.log(new Date());
+      recordData(constants.MESSAGE, data);
       const postData = { ...data };
       postData.user = postData.user._id;
       controllers.messages
@@ -242,18 +256,10 @@ module.exports = function() {
     });
 
     socket.on('SEND_EVENT', async (data) => {
-      // console.log('event received');
-      // console.log('from user: ', socket.user_id);
-      // console.log({ data });
-      // console.log(new Date());
-      // const xmlObj = '';
-      // if (data.xml && data.eventType !== 'CHANGE_PERSPECTIVE') {
-      //   xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
-      // }
+      recordData(constants.EVENT, data);
       try {
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
         await controllers.events.post(data);
-        // data.currentState = currentState;
       } catch (err) {
         console.log('ERROR SENDING EVENT: ', err);
       }
