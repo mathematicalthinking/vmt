@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import find from 'lodash/find';
+import CourseMonitor from './Monitoring/CourseMonitor';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
 import getUserNotifications from '../utils/notifications';
@@ -33,6 +34,7 @@ class Course extends Component {
     { name: 'Activities' },
     { name: 'Rooms' },
     { name: 'Members' },
+    { name: 'Course Monitor' },
   ];
 
   constructor(props) {
@@ -40,7 +42,12 @@ class Course extends Component {
     const { course } = this.props;
     this.state = {
       guestMode: true,
-      tabs: [{ name: 'Activities' }, { name: 'Rooms' }, { name: 'Members' }],
+      tabs: [
+        { name: 'Activities' },
+        { name: 'Rooms' },
+        { name: 'Members' },
+        { name: 'Course Monitor' },
+      ],
       firstView: false,
       editing: false,
       invited: false,
@@ -360,7 +367,8 @@ class Course extends Component {
             }
           />
         );
-      }
+      } else if (resource === 'course monitor')
+        mainContent = <CourseMonitor course={course} />;
       // Updatekeys = the keys that we failed to update
       const { updateFail, updateKeys } = loading;
 
