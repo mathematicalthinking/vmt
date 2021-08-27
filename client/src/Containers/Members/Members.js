@@ -291,17 +291,34 @@ class Members extends PureComponent {
   csvItem = () => {
     const { resourceType } = this.props;
     return resourceType === 'course' ? (
-      <CSVReader
-        ref={this.buttonRef}
-        onFileLoad={this.handleOnFileLoad}
-        onError={this.handleOnError}
-        config={{ header: true, skipEmptyLines: true }}
-        noProgressBar
-        noDrag
-      >
-        {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
-        {() => <Button click={this.handleOpenDialog}>Import New Users</Button>}
-      </CSVReader>
+      <Fragment>
+        <div className={classes.Instructions}>
+          <i className="far fa-question-circle fa-2x" />
+          <div className={classes.TooltipContent}>
+            <p>
+              The search bar allows for the searching and addition of existing
+              VMT Users. By using the Import feature, new users can be created
+              for your course. <br /> Please arrange your new members in a csv
+              file with the headers: username, email, firstName, lastName,
+              organization, identifier, sponsor
+            </p>
+          </div>
+        </div>
+
+        <CSVReader
+          ref={this.buttonRef}
+          onFileLoad={this.handleOnFileLoad}
+          onError={this.handleOnError}
+          config={{ header: true, skipEmptyLines: true }}
+          noProgressBar
+          noDrag
+        >
+          {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
+          {() => (
+            <Button click={this.handleOpenDialog}>Import New Users</Button>
+          )}
+        </CSVReader>
+      </Fragment>
     ) : null;
   };
 
