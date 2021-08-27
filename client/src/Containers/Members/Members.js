@@ -269,8 +269,12 @@ class Members extends PureComponent {
   createAndInviteMembers = async () => {
     const { importedData, sponsors } = this.state;
     const { user: creator } = this.props;
+    const userObjects = importedData.map((user) => {
+      const { organization, identifier, ...rest } = user;
+      return { metadata: { organization, identifier }, ...rest };
+    });
     const newUsers = await Promise.all(
-      importedData.map(async (user) =>
+      userObjects.map(async (user) =>
         API.post('user', {
           ...user,
           sponsor: sponsors[user.username] || creator._id,
@@ -287,17 +291,34 @@ class Members extends PureComponent {
   csvItem = () => {
     const { resourceType } = this.props;
     return resourceType === 'course' ? (
-      <CSVReader
-        ref={this.buttonRef}
-        onFileLoad={this.handleOnFileLoad}
-        onError={this.handleOnError}
-        config={{ header: true, skipEmptyLines: true }}
-        noProgressBar
-        noDrag
-      >
-        {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
-        {() => <Button click={this.handleOpenDialog}>Import New Users</Button>}
-      </CSVReader>
+      <Fragment>
+        <div className={classes.Instructions}>
+          <i className="far fa-question-circle fa-2x" />
+          <div className={classes.TooltipContent}>
+            <p>
+              The search bar allows for the searching and addition of existing
+              VMT Users. By using the Import feature, new users can be created
+              for your course. <br /> Please arrange your new members in a csv
+              file with the headers: username, email, firstName, lastName,
+              organization, identifier, sponsor
+            </p>
+          </div>
+        </div>
+
+        <CSVReader
+          ref={this.buttonRef}
+          onFileLoad={this.handleOnFileLoad}
+          onError={this.handleOnError}
+          config={{ header: true, skipEmptyLines: true }}
+          noProgressBar
+          noDrag
+        >
+          {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
+          {() => (
+            <Button click={this.handleOpenDialog}>Import New Users</Button>
+          )}
+        </CSVReader>
+      </Fragment>
     ) : null;
   };
 
@@ -316,8 +337,9 @@ class Members extends PureComponent {
             type: 'boolean',
           },
           { property: 'firstName', header: 'First Name' },
-          { property: 'lastName', header: 'Last Name or Other Identifier' },
+          { property: 'lastName', header: 'Last Name' },
           { property: 'organization', header: 'Affiliation' },
+          { property: 'identifier', header: 'Student ID or Unique Value' },
           { property: 'sponsor', header: 'Sponsor Username' },
           {
             property: 'comment',
@@ -480,8 +502,9 @@ class Members extends PureComponent {
                     inviteMember={this.inviteMember}
                   />
                 ) : null}
+                <div>Add current VMT users</div>
                 {resourceType === 'room' && courseMembers ? (
-                  <div>Add participants from this course</div>
+                  <div>(participants from this course or guests)</div>
                 ) : null}
               </Fragment>
             </InfoBox>

@@ -38,6 +38,9 @@ const initialState = {
   activities: [],
   privacySetting: 'private',
   roomType: 'geogebra',
+  organization: '',
+  school: '',
+  district: '',
 };
 
 class NewResourceContainer extends Component {
@@ -106,6 +109,9 @@ class NewResourceContainer extends Component {
       roomType,
       dueDate,
       appName,
+      organization,
+      school,
+      district,
     } = this.state;
     const {
       resource,
@@ -151,10 +157,10 @@ class NewResourceContainer extends Component {
               role: 'facilitator',
             },
           ];
+          newResource.metadata = { organization, district, school };
           connectCreateCourse(newResource);
           break;
         case 'activities':
-          console.log(`New template created: ${newResource}`);
           connectCreateActivity(newResource);
           break;
         case 'rooms':
@@ -257,6 +263,9 @@ class NewResourceContainer extends Component {
       dueDate,
       step,
       creating,
+      organization,
+      school,
+      district,
     } = this.state;
     let displayResource;
     if (resource === 'activities') {
@@ -271,6 +280,9 @@ class NewResourceContainer extends Component {
         displayResource={displayResource}
         name={name}
         description={description}
+        organization={organization}
+        district={district}
+        school={school}
         resource={resource}
         changeHandler={this.changeHandler}
       />,
@@ -413,7 +425,12 @@ class NewResourceContainer extends Component {
               </h2>
               <div
                 className={classes.MainModalContent}
-                style={step === 1 && copying ? { overflow: 'scroll' } : {}}
+                style={
+                  (step === 1 && copying) ||
+                  (step === 0 && resource === 'courses')
+                    ? { overflow: 'scroll' }
+                    : {}
+                }
               >
                 {steps[step]}
               </div>

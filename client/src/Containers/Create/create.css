@@ -192,3 +192,9 @@
   font-size: 50px;
   color: lightBlue;
 }
+
+.OptionalHeader {
+  font-style: italic;
+  padding-left: 50px;
+  margin-top: 10px;
+}

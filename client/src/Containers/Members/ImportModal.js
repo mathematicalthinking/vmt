@@ -216,7 +216,7 @@ export default function ImportModal(props) {
   };
 
   return (
-    <Modal show={show} closeModal={() => {}}>
+    <Modal show={show}>
       <div
         style={{
           display: 'flex',

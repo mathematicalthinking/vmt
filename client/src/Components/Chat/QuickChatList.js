@@ -5,7 +5,7 @@ module.exports = [
   },
   {
     display: '❓',
-    message: '❓ Does everyone agree?',
+    message: 'Does everyone agree❓',
   },
   {
     display: '⏸',
@@ -16,12 +16,16 @@ module.exports = [
     message: 'Could you please explain your thoughts? 💭',
   },
   {
-    display: '🤔',
-    message: "🤔 Hmm, I'm not sure I agree",
-  },
-  {
     display: '💡',
     message: '💡 ...I have an idea!',
+  },
+  {
+    display: '🛑',
+    message: '🛑 No, not quite',
+  },
+  {
+    display: '🤔',
+    message: "🤔 Hmm, I'm not sure I agree",
   },
   {
     display: '➡️',
