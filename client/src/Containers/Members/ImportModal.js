@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ReactDataSheet from 'react-datasheet';
 import { BigModal as Modal, Button } from 'Components';
@@ -99,6 +99,12 @@ export default function ImportModal(props) {
     onChanged(_convertTableToData(grid));
   };
 
+  const _handleDelete = (row) => {
+    const newData = [...tableData];
+    newData.splice(row, 1);
+    setTableData(newData);
+  };
+
   // when the user clicks on a 'select/deselect all' checkbox in column col,
   // first get the new value, then create a changes object in the form needed
   // by '_handleCellsChanged' whereby we specify every row for the given column
@@ -172,11 +178,23 @@ export default function ImportModal(props) {
               </div>
             </th>
           ))}
+          <th style={{ padding: '10px', textAlign: 'center' }}>Actions</th>
         </tr>
       </thead>
       <tbody>{givenProps.children}</tbody>
     </table>
   );
+
+  const _rowRenderer = (ps) => {
+    return (
+      <tr>
+        {ps.children}
+        <td className="action-cell">
+          <DeleteButton onClick={() => _handleDelete(ps.row)} />
+        </td>
+      </tr>
+    );
+  };
 
   const _cellRenderer = (ps) => {
     const {
@@ -231,6 +249,7 @@ export default function ImportModal(props) {
           valueRenderer={(cell) => {
             return cell.value;
           }}
+          rowRenderer={_rowRenderer}
           cellRenderer={_cellRenderer}
           onCellsChanged={_handleCellsChanged}
         />
@@ -251,6 +270,69 @@ export default function ImportModal(props) {
   );
 }
 
+const DeleteButton = (props) => {
+  const { onClick } = props;
+  const [isConfirm, setIsConfirm] = React.useState(false);
+
+  const _handleConfirm = () => {
+    onClick();
+    setIsConfirm(false);
+  };
+
+  const _handleCancel = () => {
+    setIsConfirm(false);
+  };
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        width: '100%',
+      }}
+    >
+      {isConfirm ? (
+        <Fragment>
+          Delete?
+          <div
+            role="button"
+            onKeyPress={_handleCancel}
+            onClick={_handleCancel}
+            tabIndex="-2" // @TODO What's a more appropriate value?
+          >
+            <i
+              className="fa fa-times-circle"
+              style={{ color: 'red', margin: '0 5px' }}
+            />
+          </div>
+          <div
+            role="button"
+            onKeyPress={_handleConfirm}
+            onClick={_handleConfirm}
+            tabIndex="-2" // @TODO What's a more appropriate value?
+          >
+            <i
+              className="fa fa-check-circle"
+              style={{ color: 'green', margin: '0 5px' }}
+            />
+          </div>
+        </Fragment>
+      ) : (
+        <div
+          role="button"
+          onKeyPress={() => setIsConfirm(true)}
+          onClick={() => setIsConfirm(true)}
+          tabIndex="-2" // @TODO What's a more appropriate value?
+        >
+          <i className="fa fa-times-circle" />
+        </div>
+      )}
+    </div>
+  );
+};
+
 ImportModal.propTypes = {
   show: PropTypes.bool.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
@@ -265,4 +347,12 @@ ImportModal.defaultProps = {
   highlights: [],
   onChanged: () => {},
   onCancel: () => {},
+};
+
+DeleteButton.propTypes = {
+  onClick: PropTypes.func,
+};
+
+DeleteButton.defaultProps = {
+  onClick: () => {},
 };
