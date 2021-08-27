@@ -425,7 +425,12 @@ class NewResourceContainer extends Component {
               </h2>
               <div
                 className={classes.MainModalContent}
-                style={step === 1 && copying ? { overflow: 'scroll' } : {}}
+                style={
+                  (step === 1 && copying) ||
+                  (step === 0 && resource === 'courses')
+                    ? { overflow: 'scroll' }
+                    : {}
+                }
               >
                 {steps[step]}
               </div>

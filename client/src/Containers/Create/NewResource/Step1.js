@@ -36,36 +36,34 @@ const Step1 = React.memo((props) => {
       />
       {resource === 'courses' ? (
         <div className={classes.FormSection}>
-          <div>
-            <div>Optional Class Data</div>
-            <TextInput
-              light
-              name="organization"
-              label="Organization"
-              value={organization}
-              change={changeHandler}
-              width="100%"
-              data-testid={`${resource}-organization`}
-            />
-            <TextInput
-              light
-              name="district"
-              label="District"
-              value={district}
-              change={changeHandler}
-              width="100%"
-              data-testid={`${resource}-district`}
-            />
-            <TextInput
-              light
-              name="school"
-              label="School"
-              value={school}
-              change={changeHandler}
-              width="100%"
-              data-testid={`${resource}-school`}
-            />
-          </div>
+          <div className={classes.OptionalHeader}>Optional Class Data</div>
+          <TextInput
+            light
+            name="organization"
+            label="Organization"
+            value={organization}
+            change={changeHandler}
+            width="100%"
+            data-testid={`${resource}-organization`}
+          />
+          <TextInput
+            light
+            name="district"
+            label="District"
+            value={district}
+            change={changeHandler}
+            width="100%"
+            data-testid={`${resource}-district`}
+          />
+          <TextInput
+            light
+            name="school"
+            label="School"
+            value={school}
+            change={changeHandler}
+            width="100%"
+            data-testid={`${resource}-school`}
+          />
         </div>
       ) : null}
     </div>
