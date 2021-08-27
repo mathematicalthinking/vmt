@@ -301,6 +301,7 @@ const DeleteButton = (props) => {
             onKeyPress={_handleCancel}
             onClick={_handleCancel}
             tabIndex="-2" // @TODO What's a more appropriate value?
+            title="Cancel delete"
           >
             <i
               className="fa fa-times-circle"
@@ -312,6 +313,7 @@ const DeleteButton = (props) => {
             onKeyPress={_handleConfirm}
             onClick={_handleConfirm}
             tabIndex="-2" // @TODO What's a more appropriate value?
+            title="Confirm delete"
           >
             <i
               className="fa fa-check-circle"
@@ -325,6 +327,7 @@ const DeleteButton = (props) => {
           onKeyPress={() => setIsConfirm(true)}
           onClick={() => setIsConfirm(true)}
           tabIndex="-2" // @TODO What's a more appropriate value?
+          title="Delete row"
         >
           <i className="fa fa-times-circle" />
         </div>
