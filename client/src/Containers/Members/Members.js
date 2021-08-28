@@ -9,7 +9,7 @@ import COLOR_MAP from 'utils/colorMap';
 import API from 'utils/apiRequests';
 import {
   suggestUniqueUsername,
-  validateIsExistingUsername,
+  validateExistingUsername,
 } from 'utils/validators';
 import {
   grantAccess,
@@ -88,7 +88,7 @@ class Members extends PureComponent {
       if (!inCourse) {
         confirmingInvitation = true;
       } else {
-        connectInviteToRoom(resourceId, id, username, color, {});
+        connectInviteToRoom(resourceId, id, username, color, {}); // @TODO **WHY** do we invite a user if they are already in the course?!?
       }
     } else {
       connectInviteToRoom(resourceId, id, username, color);
@@ -177,8 +177,9 @@ class Members extends PureComponent {
     }
   };
 
-  /**
+  /** *************************************************************
    * FUNCTIONS IMPLEMENTING IMPORT
+   * **************************************************************
    */
 
   handleOpenDialog = (e) => {
@@ -194,24 +195,30 @@ class Members extends PureComponent {
       data.map(async (d, rowIndex) => {
         if (!d.isGmail) d.isGmail = false; // initialize if needed
         d.comment = '';
-        if (!d.firstName || !d.lastName) {
-          d.comment = 'First and last names (or identifier) are required. ';
+
+        const username = d.username || d.firstName + d.lastName.charAt(0);
+        const userInfo = await validateExistingUsername(username);
+        if (userInfo) {
+          const newUsername = await suggestUniqueUsername(username);
+          if (userInfo.email !== d.email) {
+            d.comment = `User ${username} already exists in the system with email 
+            ${
+              userInfo.email
+            }. Change the email to add the existing user; change the username 
+            (e.g., ${newUsername}) to create a new user.`;
+            validationErrors.push({ rowIndex, property: 'username' });
+            validationErrors.push({ rowIndex, property: 'email' });
+          }
+        } else if (!d.firstName || !d.lastName) {
+          d.comment = 'First and last names are required. ';
           if (!d.firstName)
             validationErrors.push({ rowIndex, property: 'firstName' });
           if (!d.lastName)
             validationErrors.push({ rowIndex, property: 'lastName' });
-        } else {
-          const username = d.username || d.firstName + d.lastName.charAt(0);
-          const newUsername = await suggestUniqueUsername(username);
-          if (newUsername !== d.username) {
-            d.comment = 'New username suggested. ';
-            d.username = newUsername;
-            validationErrors.push({ rowIndex, property: 'username' });
-          }
         }
 
         if (d.sponsor && d.sponsor !== '') {
-          const sponsor_id = await validateIsExistingUsername(d.sponsor);
+          const { _id: sponsor_id } = await validateExistingUsername(d.sponsor);
           if (sponsor_id)
             this.setState((prevState) => ({
               sponsors: { ...prevState.sponsors, [d.username]: sponsor_id },
@@ -224,7 +231,6 @@ class Members extends PureComponent {
         return d;
       })
     );
-    // this.setState({ validationErrors });
     return [validatedData, validationErrors];
   };
 
