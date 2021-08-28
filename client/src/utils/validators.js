@@ -84,8 +84,8 @@ export const validateBasicToken = (token) => {
   return validateSchema(basicTokenSchema, { token });
 };
 
-// returns false if no existing username; returns the user id if it does exist
-export const validateIsExistingUsername = async (username) => {
+// returns false if no existing username; returns the user object if it does exist
+export const validateExistingUsername = async (username) => {
   return api
     .get('user', { username })
     .then((res) => {
@@ -93,14 +93,14 @@ export const validateIsExistingUsername = async (username) => {
         res.data &&
         res.data.results &&
         res.data.results.length > 0 &&
-        res.data.results[0]._id
+        res.data.results[0]
       );
     })
     .catch((err) => console.error(err));
 };
 
 export const suggestUniqueUsername = (username) => {
-  const uniqueName = validateIsExistingUsername(username)
+  const uniqueName = validateExistingUsername(username)
     .then((isExisting) => {
       return !isExisting
         ? username
