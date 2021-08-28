@@ -371,7 +371,7 @@ class Members extends PureComponent {
       owner,
       resourceType,
       resourceId,
-      courseMembers,
+      // courseMembers,
       connectGrantAccess,
       connectClearNotification,
     } = this.props;
@@ -499,7 +499,7 @@ class Members extends PureComponent {
                 <Search
                   data-testid="member-search"
                   _search={this.search}
-                  placeholder="search by username or email address"
+                  placeholder="search existing VMT users by username or email address"
                 />
                 {searchResults.length > 0 ? (
                   <SearchResults
@@ -508,10 +508,10 @@ class Members extends PureComponent {
                     inviteMember={this.inviteMember}
                   />
                 ) : null}
-                <div>Add current VMT users</div>
+                {/* <div>Add current VMT users</div>
                 {resourceType === 'room' && courseMembers ? (
                   <div>(participants from this course or guests)</div>
-                ) : null}
+                ) : null} */}
               </Fragment>
             </InfoBox>
           ) : null}
