@@ -34,7 +34,7 @@ class Course extends Component {
     { name: 'Activities' },
     { name: 'Rooms' },
     { name: 'Members' },
-    { name: 'Course Monitor' },
+    { name: 'Preview' },
   ];
 
   constructor(props) {
@@ -46,7 +46,7 @@ class Course extends Component {
         { name: 'Activities' },
         { name: 'Rooms' },
         { name: 'Members' },
-        { name: 'Course Monitor' },
+        { name: 'Preview' },
       ],
       firstView: false,
       editing: false,
@@ -367,7 +367,7 @@ class Course extends Component {
             }
           />
         );
-      } else if (resource === 'course monitor')
+      } else if (resource === 'preview')
         mainContent = <CourseMonitor course={course} />;
       // Updatekeys = the keys that we failed to update
       const { updateFail, updateKeys } = loading;

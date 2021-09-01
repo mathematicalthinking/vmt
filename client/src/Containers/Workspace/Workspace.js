@@ -259,11 +259,17 @@ class Workspace extends Component {
   };
 
   handleScreenChange = (screenNum) => {
-    // set screen in state
-    this.setState({ currentScreen: screenNum }, () => {
-      // takeSnap if needed
-      this._takeSnapshotIfNeeded();
-    });
+    // Only do something if the currentTab is a DesmosActivity
+    const { currentTabId, tabs } = this.state;
+    const currentTab = tabs.find((tab) => tab._id === currentTabId);
+
+    if (currentTab && currentTab.tabType !== 'desmosActivity') {
+      // set screen in state
+      this.setState({ currentScreen: screenNum }, () => {
+        // takeSnap if needed
+        this._takeSnapshotIfNeeded();
+      });
+    }
   };
 
   /** ******************** */
