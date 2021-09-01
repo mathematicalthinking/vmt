@@ -13,9 +13,9 @@ import { usePopulatedRoom } from 'utils';
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
 import Thumbnails from './Thumbnails';
-import SelectionTable from './SelectionTable';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
+import ResourceTables from './ResourceTables';
 
 /**
  * The MonitoringView provides three views into a set of rooms: activity graph, thumbnail, and chat. Users can
@@ -48,7 +48,7 @@ import DropdownMenuClasses from './dropdownmenu.css';
  */
 
 function MonitoringView({
-  userResources: allResources,
+  userResources,
   storedSelections,
   user,
   connectUpdateMonitorSelections,
@@ -66,10 +66,10 @@ function MonitoringView({
 
   // Monitoring is allowed only on the rooms that the user manages.
   // @TODO When we switch to a centralized 'hasAccess' facility, we can do our filtering based on that
-  const userResources = React.useMemo(
-    () => allResources.filter((res) => res.myRole === 'facilitator'),
-    [allResources]
-  );
+  // const userResources = React.useMemo(
+  //   () => allResources.filter((res) => res.myRole === 'facilitator'),
+  //   [allResources]
+  // );
 
   const _wasRecentlyUpdated = (room) => {
     // integrated logic to determine default rooms to view
@@ -100,7 +100,7 @@ function MonitoringView({
 
     // if there's nothing to display, show the (up to) 5 most recently updated rooms
 
-    if (!Object.values(result).reduce((acc, val) => acc || val)) {
+    if (!Object.values(result).reduce((acc, val) => acc || val, false)) {
       // if all the values are false
       const roomsResult = [...rooms].sort((a, b) => b.updatedAt - a.updatedAt);
       if (roomsResult.length !== 0)
@@ -120,24 +120,43 @@ function MonitoringView({
   const [chatType, setChatType] = React.useState(constants.DETAILED);
   const savedState = React.useRef(selections);
 
+  // UserResources have the myRole property defined because that gets set when
+  // the room is pulled into the redux store from the DB. However, we are polling
+  // the DB directly (via usePopulatedRoom), so have to assign the myRole property.
+  const assignMyRole = (roomQuery) => {
+    let myRole = 'participant';
+    if (roomQuery.isSuccess) {
+      const myMembership =
+        roomQuery.data.members &&
+        roomQuery.data.members.find((mem) => mem.user._id === user._id);
+      if (myMembership && myMembership.role === 'facilitator')
+        myRole = 'facilitator';
+    }
+
+    return roomQuery.isSuccess
+      ? { ...roomQuery, data: { ...roomQuery.data, myRole } }
+      : roomQuery;
+  };
   // Because "useQuery" is the equivalent of useState, do this
   // initialization of queryStates (an object containing the states
   // for the API-retrieved data) at the top level rather than inside
   // of a useEffect.
   const queryStates = {};
   userResources.forEach((room) => {
-    queryStates[room._id] = usePopulatedRoom(
-      room._id,
-      true,
-      // Check for updates every 10 sec. If we are viewing rooms (i.e., Chat, Thumbnail, or Graph), then we need
-      // to update only the currently selected rooms. If we are selecting rooms via the selection table, then we
-      // should try to update all rooms so that the "current in room" column remains correct.
-      {
-        refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
-        enabled:
-          (savedState.current && savedState.current[room._id]) ||
-          viewOrSelect === constants.SELECT,
-      }
+    queryStates[room._id] = assignMyRole(
+      usePopulatedRoom(
+        room._id,
+        true,
+        // Check for updates every 10 sec. If we are viewing rooms (i.e., Chat, Thumbnail, or Graph), then we need
+        // to update only the currently selected rooms. If we are selecting rooms via the selection table, then we
+        // should try to update all rooms so that the "current in room" column remains correct.
+        {
+          refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+          enabled:
+            (savedState.current && savedState.current[room._id]) ||
+            viewOrSelect === constants.SELECT,
+        }
+      )
     );
   });
 
@@ -288,11 +307,12 @@ function MonitoringView({
       </div>
 
       {viewOrSelect === constants.SELECT ? (
-        <SelectionTable
+        <ResourceTables
           // So that we quickly display the table: use the data in userResources until we have more recent live data
           data={userResources.map((room) =>
             queryStates[room._id].isSuccess ? queryStates[room._id].data : room
           )}
+          resource="rooms"
           selections={selections}
           onChange={(newSelections) => {
             setSelections((prev) => {

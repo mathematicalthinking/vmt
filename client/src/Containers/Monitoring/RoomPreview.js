@@ -5,7 +5,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { usePopulatedRoom } from 'utils/utilityHooks';
-import { SimpleChat } from 'Components';
+import { SimpleChat, ToggleGroup } from 'Components';
 import classes from './monitoringView.css';
 import Thumbnails from './Thumbnails';
 
@@ -28,8 +28,12 @@ import Thumbnails from './Thumbnails';
  */
 
 function RoomPreview({ roomId }) {
-  //   const [chatType, setChatType] = React.useState(constants.DETAILED);
+  const constants = {
+    SIMPLE: 'Simple Chat',
+    DETAILED: 'Detailed Chat',
+  };
 
+  const [chatType, setChatType] = React.useState(constants.DETAILED);
   const { isSuccess, data } = usePopulatedRoom(roomId, false, {
     refetchInterval: 10000, // check for new info every 10 seconds
   });
@@ -46,6 +50,11 @@ function RoomPreview({ roomId }) {
           }
         </div>
         <div className={classes.Tile}>
+          <ToggleGroup
+            buttons={[constants.DETAILED, constants.SIMPLE]}
+            value={chatType}
+            onChange={setChatType}
+          />
           <div className={classes.TileContainer}>
             <div
               className={classes.Title}
@@ -59,7 +68,10 @@ function RoomPreview({ roomId }) {
             >
               {isSuccess ? 'Chat' : 'Loading...'}
             </div>
-            <SimpleChat isSimplified={false} log={isSuccess ? data.chat : []} />
+            <SimpleChat
+              isSimplified={chatType === constants.SIMPLE}
+              log={isSuccess ? data.chat : []}
+            />
           </div>
         </div>
       </div>
