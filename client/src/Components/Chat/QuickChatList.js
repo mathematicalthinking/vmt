@@ -9,7 +9,7 @@ module.exports = [
   },
   {
     display: '⏸',
-    message: '⏸ I need a minute to catch up, please!',
+    message: 'I need a minute to catch up, please! ⏸ ',
   },
   {
     display: '💭',
@@ -17,15 +17,15 @@ module.exports = [
   },
   {
     display: '💡',
-    message: '💡 ...I have an idea!',
+    message: '...I have an idea! 💡 ',
   },
   {
     display: '🛑',
-    message: '🛑 No, not quite',
+    message: 'No 🛑 ',
   },
   {
     display: '🤔',
-    message: "🤔 Hmm, I'm not sure I agree",
+    message: "Hmm, I'm not sure I agree 🤔 ",
   },
   {
     display: '➡️',
@@ -33,14 +33,14 @@ module.exports = [
   },
   {
     display: '🚌',
-    message: '🚌 Who wants to drive?',
+    message: 'Who wants to drive? 🚌 ',
   },
   {
     display: '🎯',
-    message: '🎯 Nailed it!',
+    message: 'Nailed it! 🎯 ',
   },
   {
     display: '👏',
-    message: '👏 Great work, Team! 👏',
+    message: 'Great work, Team! 👏 👏',
   },
 ];

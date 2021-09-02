@@ -176,7 +176,7 @@
   /* display: flex; */
   /* justify-content: center;
   align-items: center; */
-  width: 36px;
+  width: 60px;
   height: 36px;
   display: flex;
   justify-content: center;
@@ -196,12 +196,16 @@
 
 .Mic {
   composes: Send;
-  width: 24px;
+  width: 30px;
+  height: 18px;
   margin-right: 1px;
+  background-color: white;
+  color: blue;
 }
 
 .Mic:hover {
   background: blueHover;
+  color: white;
 }
 
 .QuickMenu {
@@ -211,11 +215,9 @@
   background: inherit;
   cursor: pointer;
   transition: 0.2s;
-  background-color: blue;
-  color: white;
   font-size: 18px;
   border-radius: 0 0 2px 0;
-  width: 60px;
+  width: 30px;
   height: 18px;
   margin-top: 1px;
   background-color: white;

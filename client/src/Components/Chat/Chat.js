@@ -574,7 +574,7 @@ class Chat extends Component {
                   placeholder={
                     seenChatInstructions
                       ? ''
-                      : 'Type in here, hit the microphone and dictate, or click the dots for quick chats'
+                      : 'You can type in here or hit the microphone and dictate. Also, click the dots for quick chats!'
                   }
                   onChange={change}
                   value={value}
@@ -590,6 +590,16 @@ class Chat extends Component {
                 />
                 {!user.inAdminMode ? (
                   <div className={classes.ChatOptions}>
+                    <div
+                      className={classes.Send}
+                      onClick={submit}
+                      title="Submit message"
+                      onKeyPress={submit}
+                      tabIndex="-2"
+                      role="button"
+                    >
+                      <i className="fas fa-level-up-alt" />
+                    </div>
                     <div className={classes.ChatButtons}>
                       <div
                         className={classes.Mic}
@@ -611,26 +621,15 @@ class Chat extends Component {
                         />
                       </div>
                       <div
-                        className={classes.Send}
-                        onClick={submit}
-                        title="Submit message"
-                        onKeyPress={submit}
+                        className={classes.QuickMenu}
+                        title="Toggle quick-chat drawer"
+                        onClick={this.toggleChatPicker}
+                        onKeyPress={this.toggleChatPicker}
                         tabIndex="-2"
                         role="button"
                       >
-                        <i className="fas fa-level-up-alt" />
+                        <i className="fas fa-ellipsis-h" />
                       </div>
-                    </div>
-
-                    <div
-                      className={classes.QuickMenu}
-                      title="Toggle quick-chat drawer"
-                      onClick={this.toggleChatPicker}
-                      onKeyPress={this.toggleChatPicker}
-                      tabIndex="-2"
-                      role="button"
-                    >
-                      <i className="fas fa-ellipsis-h" />
                     </div>
                   </div>
                 ) : null}
