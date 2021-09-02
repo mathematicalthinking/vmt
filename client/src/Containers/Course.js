@@ -31,9 +31,9 @@ import Access from './Access';
 
 class Course extends Component {
   initialTabs = [
-    { name: 'Activities' },
     { name: 'Rooms' },
     { name: 'Members' },
+    { name: 'Activities' },
     { name: 'Preview' },
   ];
 
@@ -43,9 +43,9 @@ class Course extends Component {
     this.state = {
       guestMode: true,
       tabs: [
-        { name: 'Activities' },
         { name: 'Rooms' },
         { name: 'Members' },
+        { name: 'Activities' },
         { name: 'Preview' },
       ],
       firstView: false,
@@ -420,7 +420,7 @@ class Course extends Component {
                   { title: 'My VMT', link: '/myVMT/courses' },
                   {
                     title: course.name,
-                    link: `/myVMT/courses/${course._id}/activities/`,
+                    link: `/myVMT/courses/${course._id}/rooms`,
                   },
                 ]}
                 notifications={user.notifications}

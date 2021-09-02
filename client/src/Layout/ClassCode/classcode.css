@@ -26,6 +26,7 @@
 }
 
 .Participant {
+  height: 40px;
   /* color: black;
   padding: 7px;
   width: 100%;
@@ -35,6 +36,7 @@
 
 .Participant:hover {
   color: blue;
+  cursor: pointer;
 }
 
 .SignupContainer {

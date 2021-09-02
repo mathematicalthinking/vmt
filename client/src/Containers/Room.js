@@ -409,7 +409,7 @@ class Room extends Component {
       if (course) {
         crumbs.splice(1, 0, {
           title: course.name,
-          link: `/myVMT/courses/${course._id}/activities`,
+          link: `/myVMT/courses/${course._id}/rooms`,
         });
       }
       let mainContent;

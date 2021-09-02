@@ -163,7 +163,7 @@ class ClassCode extends Component {
       // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
       // the answer will determine where/if we redirect to
       loggedIn && !temp ? (
-        <Redirect to="/myVMT/courses" />
+        <Redirect to={`/myVMT/courses/${resource._id}/rooms`} />
       ) : (
         <Aux>
           <Background bottomSpace={-40} fixed />
@@ -187,10 +187,11 @@ class ClassCode extends Component {
                             className={classes.Participant}
                             key={member.user._id}
                             id={member.user._id}
+                            onClick={() => this.join(member.user)}
                           >
                             <td>{`${i +
                               1}. Username: ${member.user.username.toLowerCase()}`}</td>
-                            <td>
+                            {/* <td>
                               {' '}
                               <Button
                                 m={0}
@@ -199,7 +200,7 @@ class ClassCode extends Component {
                               >
                                 Join{' '}
                               </Button>
-                            </td>
+                            </td> */}
                           </tr>
                         );
                       })}
@@ -242,15 +243,15 @@ class ClassCode extends Component {
                 closeModal={this.reset}
               >
                 <div className={classes.Modal}>
-                  {' '}
-                  Do you want to join this resource?
+                  {`Do you want to join ${resource.name}?`}
                 </div>
 
                 <Fragment>
-                  <div className={classes.Modal}>{`Name: ${
-                    resource.name
-                  }`}</div>
-                  <p className={classes.Modal}>{resource.description}</p>
+                  {resource.description && (
+                    <p className={classes.Modal}>{`Description: ${
+                      resource.description
+                    }`}</p>
+                  )}
                   <div>
                     <Button m={10} click={this.reset}>
                       No, take me back
@@ -267,11 +268,9 @@ class ClassCode extends Component {
                   this.setState({ memberToConf: null });
                 }}
               >
-                <div className={classes.Modal}> Confirmation </div>
-
                 <Fragment>
                   <div className={classes.Modal}>
-                    {memberToConf ? `Username: ${memberToConf.username}` : ''}
+                    {memberToConf ? `Are you ${memberToConf.username}?` : ''}
                   </div>
                   <div>
                     <Button
