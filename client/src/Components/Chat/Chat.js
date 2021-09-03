@@ -46,7 +46,7 @@ class Chat extends Component {
 
     // This runs when the speech recognition service starts
     this.recognition.onstart = () => {
-      console.log('We are listening. Try speaking into the microphone.');
+      // console.log('We are listening. Try speaking into the microphone.');
     };
 
     this.recognition.onspeechend = () => {
@@ -340,19 +340,19 @@ class Chat extends Component {
     } else {
       this.recognition.stop();
       this.recognition.onend = () => {
-        console.log('Stopped listening per click');
+        // console.log('Stopped listening per click');
       };
     }
 
     // This runs when the speech recognition service returns result
     this.recognition.onresult = (event) => {
-      const { transcript, confidence } = event.results[0][0];
-      console.log(
-        'Speech- Transcript: ',
-        transcript,
-        ', Confidence: ',
-        confidence
-      );
+      const { transcript } = event.results[0][0];
+      // console.log(
+      //   'Speech- Transcript: ',
+      //   transcript,
+      //   ', Confidence: ',
+      //   confidence
+      // );
       if (isListening) this.toggleListen();
       quickChat(transcript, 'STT');
     };
