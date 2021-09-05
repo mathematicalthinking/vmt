@@ -84,10 +84,11 @@ export const validateBasicToken = (token) => {
   return validateSchema(basicTokenSchema, { token });
 };
 
-// returns false if no existing username; returns the user object if it does exist
-export const validateExistingUsername = async (username) => {
+// returns false if no existing value for the field; returns the user object if it does exist
+
+export const validateExistingField = async (field, value) => {
   return api
-    .get('user', { username })
+    .get('user', { [field]: value })
     .then((res) => {
       return (
         res.data &&
@@ -100,7 +101,7 @@ export const validateExistingUsername = async (username) => {
 };
 
 export const suggestUniqueUsername = (username) => {
-  const uniqueName = validateExistingUsername(username)
+  const uniqueName = validateExistingField('username', username)
     .then((isExisting) => {
       return !isExisting
         ? username
