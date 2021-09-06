@@ -7,10 +7,7 @@ import { CSVReader } from 'react-papaparse';
 import { Member, Search, Modal, Button, InfoBox } from 'Components';
 import COLOR_MAP from 'utils/colorMap';
 import API from 'utils/apiRequests';
-import {
-  suggestUniqueUsername,
-  validateExistingUsername,
-} from 'utils/validators';
+import { suggestUniqueUsername, validateExistingField } from 'utils/validators';
 import {
   grantAccess,
   updateCourseMembers,
@@ -40,6 +37,8 @@ class Members extends PureComponent {
       importedData: [],
       validationErrors: [],
       sponsors: {},
+      rowConfig: [],
+      resolveSelections: {},
     };
     this.buttonRef = React.createRef();
   }
@@ -80,7 +79,10 @@ class Members extends PureComponent {
     } = this.props;
     const color = COLOR_MAP[classList.length];
     if (resourceType === 'course') {
-      connectInviteToCourse(resourceId, id, username);
+      // Don't invite someone if they are already in the course
+      const alreadyInCourse =
+        courseMembers && courseMembers.find((mem) => mem.user._id === id);
+      if (!alreadyInCourse) connectInviteToCourse(resourceId, id, username);
     } else if (courseMembers) {
       const inCourse = courseMembers.filter(
         (member) => member.user._id === id
@@ -189,55 +191,170 @@ class Members extends PureComponent {
     }
   };
 
-  validateData = async (data) => {
+  /**
+   * Checks the data in a row of a table. Returns an array with two elements:
+   * 1. the row of data (with any changes, such as comments)
+   * 2. an array of errors.
+   *
+   * The types of errors looked for:
+   * 1. Username/email: A mis-match between an existing username and email. In this case, we want to cue the resolution by
+   * the importer. The person can chose: (a) go by username (only if username exists), in which case the email for that username gets filled in. (b) go
+   * by email (only if the emailalready exists), in which case the username for that email is filled in, (c) create a new user.
+   * In case (c), if the username exists a new one is suggested. If the email exists, we clear it out (new user will have no
+   * email).
+   * 2. If a new user, first and last names must be there.
+   * 3. If a sponsor is given, it must be an existing user.
+   */
+  validateDataRow = async (dataRow, rowIndex) => {
+    // initialization, including default username if needed
     const validationErrors = [];
-    const validatedData = await Promise.all(
-      data.map(async (d, rowIndex) => {
-        if (!d.isGmail) d.isGmail = false; // initialize if needed
-        d.comment = '';
+    const d = { ...dataRow };
+    if (!d.isGmail) d.isGmail = false; // initialize if needed
+    d.comment = '';
+    const username = d.username || d.firstName + d.lastName.charAt(0);
+    this.setState(({ resolveSelections }) => {
+      resolveSelections[rowIndex] = null;
+      return { resolveSelections };
+    });
 
-        const username = d.username || d.firstName + d.lastName.charAt(0);
-        const userInfo = await validateExistingUsername(username);
-        if (userInfo) {
-          const newUsername = await suggestUniqueUsername(username);
-          if (userInfo.email !== d.email) {
-            d.comment = `User ${username} already exists in the system with email 
-            ${
-              userInfo.email
-            }. Change the email to add the existing user; change the username 
-            (e.g., ${newUsername}) to create a new user.`;
-            validationErrors.push({ rowIndex, property: 'username' });
-            validationErrors.push({ rowIndex, property: 'email' });
-          }
-        } else if (!d.firstName || !d.lastName) {
-          d.comment = 'First and last names are required. ';
-          if (!d.firstName)
-            validationErrors.push({ rowIndex, property: 'firstName' });
-          if (!d.lastName)
-            validationErrors.push({ rowIndex, property: 'lastName' });
-        }
+    // handle validating whether username/email exists, whether they are consistent, and the resolution thereof
+    const userFromUsername = await validateExistingField('username', username);
+    const userFromEmail = await validateExistingField('email', d.email);
+    const isMatch =
+      userFromUsername &&
+      userFromEmail &&
+      userFromUsername._id === userFromEmail._id;
+    const isNewUser = !userFromEmail && !userFromUsername;
 
-        if (d.sponsor && d.sponsor !== '') {
-          const { _id: sponsor_id } = await validateExistingUsername(d.sponsor);
-          if (sponsor_id)
-            this.setState((prevState) => ({
-              sponsors: { ...prevState.sponsors, [d.username]: sponsor_id },
-            }));
-          else {
-            d.comment += 'No such sponsor username. ';
-            validationErrors.push({ rowIndex, property: 'sponsor' });
-          }
-        }
-        return d;
-      })
+    if (!isMatch && !isNewUser) {
+      d.comment += 'Username-email mismatch. ';
+      suggestUniqueUsername(username).then((name) => {
+        const newUser = {
+          username: name,
+          email: userFromEmail ? '<enter an email>' : d.email,
+        };
+        const choices = {
+          newUser,
+          userFromUsername,
+          userFromEmail,
+          original: { ...d },
+        };
+        this.setupChoices(choices, rowIndex);
+        validationErrors.push(
+          { rowIndex, property: 'username' },
+          { rowIndex, property: 'email' }
+        );
+      });
+    }
+
+    // handle validating that new users must have first and last names specified
+    if (isNewUser && (!d.firstName || !d.lastName)) {
+      d.comment += 'First and last names are required. ';
+      if (!d.firstName)
+        validationErrors.push({ rowIndex, property: 'firstName' });
+      if (!d.lastName)
+        validationErrors.push({ rowIndex, property: 'lastName' });
+    }
+
+    // handle validating that any specified sponsors must be existing users
+    if (d.sponsor && d.sponsor !== '') {
+      const { _id: sponsor_id } = await validateExistingField(
+        'username',
+        d.sponsor
+      );
+      if (sponsor_id)
+        this.setState((prevState) => ({
+          sponsors: { ...prevState.sponsors, [d.username]: sponsor_id },
+        }));
+      else {
+        d.comment += 'No such sponsor username. ';
+        validationErrors.push({ rowIndex, property: 'sponsor' });
+      }
+    }
+
+    return [d, validationErrors];
+  };
+
+  // Checks each row of the data for validation issues, returning an array of two elements:
+  // 1. the data with any changes (e.g., comments about what's wrong)
+  // 2. an array of pointers to the data that were problematic. Each element of the array is of the
+  //    form {rowIndex, property}, where rowIndex is the row of the line that contains the error and
+  //    property is the name of the data property that had the error.
+  //
+  // The rows argument is optional. If not given, goes through all data
+  validateData = async (data, rows) => {
+    // first check for validation issues on all requested rows of the provided data, in parallel.
+    const validatedInfo = await Promise.all(
+      rows === undefined
+        ? data.map(async (d, index) => this.validateDataRow(d, index))
+        : rows.map(async (row) => this.validateDataRow(data[row], row))
+    );
+
+    // next, reconfigure the results of the above call so that we accumulate the data rows and errors
+    // gathered above. validatedData will be an array of each row. For validationsErrors, because there can be
+    // more than one error on each row, we have to use a spread operator in accumulation so that we
+    // end up wth a simple array of errors.
+    const [validatedData, validationErrors] = await validatedInfo.reduce(
+      ([accData, accErrors], [dataRow, rowErrors]) => [
+        [...accData, dataRow],
+        [...accErrors, ...rowErrors],
+      ],
+      [[], []]
     );
     return [validatedData, validationErrors];
+  };
+
+  /**
+   * The user needs to resolve a mismatch between username and email. Update rowConfig to place a ResolutionButton at that
+   * row, containing the buttons needed (some combination of username, email, new user). As each selection is made, update
+   * the data so that appropriate usernames and emails are shown.  NOTE: only change username and email; don't change any
+   * other data in the row.
+   *
+   * Note: We have to keep the resolution state here because the package used by ImportModal unmounts and remounts elements
+   * on each refresh. @TODO: Switch to another package for rendering an editable table.
+   */
+
+  setupChoices = (choices, rowIndex) => {
+    const action = () => (
+      <ResolutionButton
+        usernameChoice={choices.userFromUsername || null}
+        emailChoice={choices.userFromEmail || null}
+        newUserChoice={choices.newUser || null}
+        selection={() => {
+          const { resolveSelections } = this.state;
+          return resolveSelections[rowIndex] || null;
+        }}
+        onSelect={(choice) => {
+          if (!choice) {
+            choice = {
+              username: choices.original.username,
+              email: choices.original.email,
+            };
+          }
+          this.setState((prevState) => {
+            const newData = [...prevState.importedData];
+            newData[rowIndex].username = choice.username;
+            newData[rowIndex].email = choice.email;
+            return {
+              importedData: newData,
+              resolveSelections: {
+                ...prevState.resolveSelections,
+                [rowIndex]: choice,
+              },
+            };
+          });
+        }}
+      />
+    );
+    this.setState((prevState) => ({
+      rowConfig: [...prevState.rowConfig, { rowIndex, action }],
+    }));
   };
 
   handleOnFileLoad = async (data) => {
     const extractedData = data
       .map((d) => d.data)
-      .filter((d) => Object.values(d).some((val) => val !== ''));
+      .filter((d) => Object.values(d).some((val) => val !== '')); // ignore any blank lines
     const [importedData, validationErrors] = await this.validateData(
       extractedData
     );
@@ -248,15 +365,49 @@ class Members extends PureComponent {
     console.log(err);
   };
 
-  handleOnChanged = (data) => {
-    this.validateData(data).then(([newData, validationErrors]) => {
-      const hasIssues = validationErrors.length > 0;
-      if (hasIssues) this.setState({ importedData: newData, validationErrors });
+  handleOnDeleteRow = (row) => {
+    const { importedData } = this.state;
+    const newData = [...importedData];
+    newData.splice(row, 1);
+    this.setState({ importedData: newData });
+  };
+
+  // 'changes' is an array of objects of the form {rowIndex, property: value}. For each unique row, we want to run
+  // the validator on the data in that row.
+  handleOnChanged = (changes) => {
+    const { importedData, validationErrors } = this.state;
+    const rowsToCheck = Array.from(new Set(changes.map((c) => c.rowIndex)));
+
+    // Make copies of the existing state -- data and errors. Clear out any errors among the rows we are revalidating (as
+    // specified within 'changes'). Make whatever changes to the data needed as per the 'changes' parameter
+    const newData = [...importedData];
+    const newValidationErrors = validationErrors.filter(
+      (err) => !rowsToCheck.includes(err.rowIndex)
+    );
+    changes.forEach(
+      // eslint-disable-next-line no-return-assign
+      ({ rowIndex, ...rest }) =>
+        (newData[rowIndex] = { ...newData[rowIndex], ...rest })
+    );
+
+    // revalidate the rows that had changes. Place each validated row into the correct place in the newData and merge
+    // any new errors
+    this.validateData(newData, rowsToCheck).then(([validatedData, errors]) => {
+      rowsToCheck.forEach(
+        // eslint-disable-next-line no-return-assign
+        (row, index) => (newData[row] = validatedData[index])
+      );
+      this.setState({
+        importedData: newData,
+        validationErrors: [...newValidationErrors, ...errors],
+      });
     });
   };
 
   handleOnCancel = () => this.setState({ showImportModal: false });
 
+  // Called when the user clicks on 'Submit' in the modal. Revalidate all the data. If there are any issues, update the data
+  // and highligt any relevant cells. If no issues, update the data, create any new users, and invite them to the course.
   handleOnSubmit = (data) => {
     this.validateData(data).then(([newData, validationErrors]) => {
       const hasIssues = validationErrors.length > 0;
@@ -283,8 +434,8 @@ class Members extends PureComponent {
       userObjects.map(async (user) =>
         API.post('user', {
           ...user,
-          sponsor: sponsors[user.username] || creator._id,
-          accountType: 'pending',
+          sponsor: sponsors[user.username] || creator._id, // if the user exists, we are adding a sponsor and metadata
+          accountType: user.accountType || 'pending', // if the user exists, we shouldn't overwrite the accountType
         })
       )
     );
@@ -329,7 +480,12 @@ class Members extends PureComponent {
   };
 
   importModal = () => {
-    const { showImportModal, importedData, validationErrors } = this.state;
+    const {
+      showImportModal,
+      importedData,
+      validationErrors,
+      rowConfig,
+    } = this.state;
     return (
       <ImportModal
         show={showImportModal}
@@ -355,14 +511,20 @@ class Members extends PureComponent {
           },
         ]}
         highlights={validationErrors}
-        // onChanged={(data) => this.handleOnChanged(data)}
-        onSubmit={(data) => this.handleOnSubmit(data)}
+        rowConfig={rowConfig}
+        onChanged={this.handleOnChanged}
+        onSubmit={this.handleOnSubmit}
         onCancel={this.handleOnCancel}
+        onDeleteRow={this.handleOnDeleteRow}
       />
     );
   };
 
-  /* ***********************************  */
+  /**
+   *********************************************
+   * END OF FUNCTIONS IMPLEMENTING IMPORT
+   *********************************************
+   */
 
   render() {
     const {
@@ -410,7 +572,6 @@ class Members extends PureComponent {
     }
     const filteredClassList = [];
     const guestList = [];
-    // console.log("Class list: ", classList);
     classList.forEach((member) => {
       if (member.role === 'guest') {
         guestList.push(member);
@@ -539,6 +700,97 @@ class Members extends PureComponent {
   }
 }
 
+function ResolutionButton(props) {
+  const {
+    usernameChoice,
+    emailChoice,
+    newUserChoice,
+    onSelect,
+    selection,
+  } = props;
+
+  const _handleSelect = (select) => {
+    if (select === selection()) {
+      onSelect(null);
+    } else {
+      onSelect(select);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+      }}
+    >
+      {usernameChoice && (
+        <div
+          role="button"
+          tabIndex={-1}
+          onClick={() => _handleSelect(usernameChoice)}
+          onKeyPress={() => _handleSelect(usernameChoice)}
+          title="Use existing username"
+        >
+          <i
+            className="fas fa-user"
+            style={{
+              color: selection() === usernameChoice ? '#66ff00' : 'black',
+            }}
+          />
+        </div>
+      )}
+      {emailChoice && (
+        <div
+          role="button"
+          tabIndex={-1}
+          onClick={() => _handleSelect(emailChoice)}
+          onKeyPress={() => _handleSelect(emailChoice)}
+          title="Use existing email"
+        >
+          <i
+            className="fas fa-envelope"
+            style={{ color: selection() === emailChoice ? '#66ff00' : 'black' }}
+          />
+        </div>
+      )}
+      {newUserChoice && (
+        <div
+          role="button"
+          tabIndex={-1}
+          onClick={() => _handleSelect(newUserChoice)}
+          onKeyPress={() => _handleSelect(newUserChoice)}
+          title="Create new user"
+        >
+          <i
+            className="fas fa-user-plus"
+            style={{
+              color: selection() === newUserChoice ? '#66ff00' : 'black',
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+ResolutionButton.propTypes = {
+  usernameChoice: PropTypes.shape({}),
+  emailChoice: PropTypes.shape({}),
+  newUserChoice: PropTypes.shape({}),
+  onSelect: PropTypes.func.isRequired,
+  selection: PropTypes.func,
+};
+
+ResolutionButton.defaultProps = {
+  usernameChoice: null,
+  emailChoice: null,
+  newUserChoice: null,
+  selection: null,
+};
+
 Members.propTypes = {
   searchedUsers: PropTypes.arrayOf(PropTypes.shape({})),
   user: PropTypes.shape({}).isRequired,
@@ -566,6 +818,7 @@ Members.defaultProps = {
   notifications: null,
   parentResource: null,
 };
+
 const mapStateToProps = (state, ownProps) => {
   // STart the search results populated with people already in the store
   const usersToExclude = ownProps.classList.map((member) => member.user._id);

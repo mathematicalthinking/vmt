@@ -263,7 +263,7 @@ class ClassCode extends Component {
                 </Fragment>
               </Modal>
               <Modal
-                show={memberToConf}
+                show={!!memberToConf} // might be undefined
                 closeModal={() => {
                   this.setState({ memberToConf: null });
                 }}
