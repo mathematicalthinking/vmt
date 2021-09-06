@@ -3,8 +3,8 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ReactDataSheet from 'react-datasheet';
 import { BigModal as Modal, Button } from 'Components';
-import 'react-datasheet/lib/react-datasheet.css';
-import './importModal.css';
+// import 'react-datasheet/lib/react-datasheet.css';
+// import './importModal.css';
 
 /* 
 
@@ -25,6 +25,8 @@ columnConfig is an array of objects, where each object represents a column
     header - the string to display on the top of each column
     type - can be 'string' or 'boolean'. If boolean, provides a checkbox in each
             row and a "select/deselect all" checkbox on the top of the column
+    style - a style to apply to cells in that column (not the header, however)
+    readOnly - if true, cells in that column cannot be edited
   }
   
 highlights is an array of objects, where each object represents a specific cell
@@ -34,6 +36,12 @@ highlights is an array of objects, where each object represents a specific cell
     property - the name of the property in that row to highlight
   }
   
+  rowConfig is an array of objects, where each object represents an action to take on
+    a specific row. Each object is of the form:
+    {
+      rowIndex - index of the row in the data prop for which an action should be displayed
+      action - a function that returns a React component that gets displayed in the Action column for that row
+    }
   
 */
 
@@ -42,10 +50,13 @@ export default function ImportModal(props) {
     show,
     data,
     columnConfig,
+    rowConfig,
     highlights,
     onSubmit,
     onChanged,
     onCancel,
+    canDeleteRow,
+    onDeleteRow,
   } = props;
   const [tableData, setTableData] = React.useState([]);
   const [allChecked, setAllChecked] = React.useState({});
@@ -92,17 +103,23 @@ export default function ImportModal(props) {
 
   const _handleCellsChanged = (changes) => {
     const grid = tableData.map((row) => [...row]);
+    const reportedChanges = [];
     changes.forEach(({ row, col, value }) => {
       grid[row][col] = { ...grid[row][col], value };
+      reportedChanges.push({
+        rowIndex: row,
+        [columnConfig[col].property]: value,
+      });
     });
-    setTableData(grid);
-    onChanged(_convertTableToData(grid));
+    // setTableData(grid);
+    onChanged(reportedChanges);
   };
 
   const _handleDelete = (row) => {
     const newData = [...tableData];
     newData.splice(row, 1);
-    setTableData(newData);
+    // setTableData(newData);
+    onDeleteRow(row);
   };
 
   // when the user clicks on a 'select/deselect all' checkbox in column col,
@@ -145,7 +162,6 @@ export default function ImportModal(props) {
     return columnConfig.map((row) => row.header);
   };
 
-  // eslint-disable-next-line no-unused-vars
   const _isHighlighted = (row, col) => {
     return highlights.find(
       (elt) =>
@@ -153,8 +169,19 @@ export default function ImportModal(props) {
     );
   };
 
+  // Do we have at least one action? Used to decide whether to have an Action column
+  const _hasActions = () => {
+    return rowConfig.some((row) => row.action);
+  };
+
+  // Used to place an action (usually a button or set of buttons) in the Action column at the end of indicated row.
+  const _rowAction = (row) => {
+    const rowAction = rowConfig.find((elt) => elt.rowIndex === row);
+    return rowAction ? rowAction.action && rowAction.action() : false;
+  };
+
   const _sheetRenderer = (givenProps) => (
-    <table style={{ marginBottom: '10px', marginTop: '20px' }}>
+    <table style={{ marginBottom: '10px', marginTop: '20px', width: '100%' }}>
       <thead>
         <tr>
           {_getHeaders().map((col, index) => (
@@ -178,7 +205,9 @@ export default function ImportModal(props) {
               </div>
             </th>
           ))}
-          <th style={{ padding: '10px', textAlign: 'center' }}>Actions</th>
+          {(canDeleteRow || _hasActions()) && (
+            <th style={{ padding: '10px', textAlign: 'center' }}>Actions</th>
+          )}
         </tr>
       </thead>
       <tbody>{givenProps.children}</tbody>
@@ -190,7 +219,10 @@ export default function ImportModal(props) {
       <tr>
         {ps.children}
         <td className="action-cell">
-          <DeleteButton onClick={() => _handleDelete(ps.row)} />
+          {canDeleteRow && (
+            <DeleteButton onClick={() => _handleDelete(ps.row)} />
+          )}
+          {_rowAction(ps.row) || null}
         </td>
       </tr>
     );
@@ -263,7 +295,9 @@ export default function ImportModal(props) {
           }}
         >
           <Button click={_handleOk}>Submit</Button>
-          <Button click={_handleCancel}>Cancel</Button>
+          <Button theme="Cancel" click={_handleCancel}>
+            Cancel
+          </Button>
         </div>
       </div>
     </Modal>
@@ -340,16 +374,27 @@ ImportModal.propTypes = {
   show: PropTypes.bool.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   columnConfig: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  rowConfig: PropTypes.arrayOf(
+    PropTypes.shape({
+      rowIndex: PropTypes.number.isRequired,
+      action: PropTypes.func.isRequired,
+    })
+  ),
   onSubmit: PropTypes.func.isRequired,
   highlights: PropTypes.arrayOf(PropTypes.shape({})),
   onChanged: PropTypes.func,
   onCancel: PropTypes.func,
+  canDeleteRow: PropTypes.bool,
+  onDeleteRow: PropTypes.func,
 };
 
 ImportModal.defaultProps = {
   highlights: [],
+  rowConfig: [],
   onChanged: () => {},
   onCancel: () => {},
+  canDeleteRow: true,
+  onDeleteRow: () => {},
 };
 
 DeleteButton.propTypes = {
