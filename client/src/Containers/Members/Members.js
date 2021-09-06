@@ -211,7 +211,8 @@ class Members extends PureComponent {
     const d = { ...dataRow };
     if (!d.isGmail) d.isGmail = false; // initialize if needed
     d.comment = '';
-    const username = d.username || d.firstName + d.lastName.charAt(0);
+    let username = d.username || d.firstName + d.lastName.charAt(0);
+    username = username.toLowerCase();
     this.setState(({ resolveSelections }) => {
       resolveSelections[rowIndex] = null;
       return { resolveSelections };
@@ -219,7 +220,9 @@ class Members extends PureComponent {
 
     // handle validating whether username/email exists, whether they are consistent, and the resolution thereof
     const userFromUsername = await validateExistingField('username', username);
-    const userFromEmail = await validateExistingField('email', d.email);
+    const userFromEmail = d.email
+      ? await validateExistingField('email', d.email)
+      : null;
     const isMatch =
       userFromUsername &&
       userFromEmail &&

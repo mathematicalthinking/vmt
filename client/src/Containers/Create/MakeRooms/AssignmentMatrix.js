@@ -38,14 +38,18 @@ const AssignmentMatrix = (props) => {
         });
       }
     });
-    let roomList = [];
-    for (let i = 0; i < roomNum; i++) {
-      const currentRoom = { ...newRoom };
-      currentRoom.roomIndex = i;
-      currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
-      currentRoom.course = course;
-      currentRoom.members = [...facilitators];
-      roomList = [...roomList, currentRoom];
+    let roomList = [...rooms];
+    if (roomNum > rooms.length) {
+      for (let i = rooms.length; i < roomNum; i++) {
+        const currentRoom = { ...newRoom };
+        currentRoom.roomIndex = i;
+        currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
+        currentRoom.course = course;
+        currentRoom.members = [...facilitators];
+        roomList = [...roomList, currentRoom];
+      }
+    } else {
+      roomList.splice(roomNum - rooms.length);
     }
     setRooms(roomList);
   }, [roomNum]);

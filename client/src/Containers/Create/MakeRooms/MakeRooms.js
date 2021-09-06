@@ -239,7 +239,6 @@ class MakeRooms extends Component {
         currentRoom.name = `${activity.name} room copy`;
         roomsToCreate.push(currentRoom);
       }
-      console.log('Room assignment rooms: ', roomsToCreate);
       roomsToCreate.forEach((room) => connectCreateRoom(room));
       close();
       const { url } = match;

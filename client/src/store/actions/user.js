@@ -115,6 +115,10 @@ export const signup = (body) => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
         }
+        if (res.data.courses.length > 0) {
+          dispatch(getUser(res.data._id));
+          return dispatch(loading.success());
+        }
         dispatch(gotUser(res.data));
         return dispatch(loading.success());
       })

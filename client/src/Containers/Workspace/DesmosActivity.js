@@ -118,7 +118,6 @@ const DesmosActivity = (props) => {
         updates
         // stateDifference
       );
-      console.log('Sent ', type, ' state');
 
       const currentStateString = JSON.stringify(currentState);
       // console.log(this.calculator.getState());
@@ -164,11 +163,6 @@ const DesmosActivity = (props) => {
         if (!temp) updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
         const updatesState = JSON.parse(data.currentState);
-        console.log(
-          'Received ',
-          updatesState.transient ? 'transient' : 'persistent',
-          ' state '
-        );
         // let transient event handle page change
         // if (
         //   updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
@@ -200,13 +194,13 @@ const DesmosActivity = (props) => {
       // fallback to turtle time trials, used for demo
       '5da9e2174769ea65a6413c93';
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
-    console.log('adapted activity url: ', URL);
+    // console.log('adapted activity url: ', URL);
     // calling Desmos to get activity config
     try {
       const result = await fetch(URL, {
         headers: { Accept: 'application/json' },
       });
-      console.log('Result: ', result);
+      // console.log('Result: ', result);
       // TODO handle this error message
       const status = await result.status;
       if (status !== 200) {
@@ -291,7 +285,6 @@ const DesmosActivity = (props) => {
     // Go to screen last used
     if (tab.currentScreen) {
       const { currentScreen } = tab;
-      console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
     }
     return unsubToken;
