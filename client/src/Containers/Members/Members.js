@@ -494,21 +494,21 @@ class Members extends PureComponent {
         show={showImportModal}
         data={importedData}
         columnConfig={[
-          { property: 'username', header: 'Username' },
+          { property: 'username', header: 'Username*' },
           { property: 'email', header: 'Email' },
           {
             property: 'isGmail',
-            header: 'Email is Google Account',
+            header: 'Login via Google with Email',
             type: 'boolean',
           },
-          { property: 'firstName', header: 'First Name' },
-          { property: 'lastName', header: 'Last Name' },
+          { property: 'firstName', header: 'First Name*' },
+          { property: 'lastName', header: 'Last Name*' },
           { property: 'organization', header: 'Affiliation' },
-          { property: 'identifier', header: 'Student ID or Unique Value' },
-          { property: 'sponsor', header: 'Sponsor Username' },
+          { property: 'identifier', header: 'Student or Org ID' },
+          { property: 'sponsor', header: 'Teacher VMT Username' },
           {
             property: 'comment',
-            header: 'Comments',
+            header: 'Comments (* req)',
             style: { color: 'red' },
             readOnly: true,
           },
