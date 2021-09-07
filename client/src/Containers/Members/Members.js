@@ -206,6 +206,7 @@ class Members extends PureComponent {
    * 3. If a sponsor is given, it must be an existing user.
    */
   validateDataRow = async (dataRow, rowIndex) => {
+    const { importedData } = this.state;
     // initialization, including default username if needed
     const validationErrors = [];
     const d = { ...dataRow };
@@ -228,6 +229,28 @@ class Members extends PureComponent {
       userFromEmail &&
       userFromUsername._id === userFromEmail._id;
     const isNewUser = !userFromEmail && !userFromUsername;
+
+    // handle duplicate email or usernames in the list
+    let emailDup = 0;
+    let usernameDup = 0;
+    importedData.forEach((u) => {
+      if (u.username.toLowerCase() === d.username.toLowerCase()) {
+        usernameDup += 1;
+      }
+      if (u.email === d.email) {
+        emailDup += 1;
+      }
+    });
+
+    if (emailDup > 1) {
+      d.comment += 'Email duplicated in list. ';
+      validationErrors.push({ rowIndex, property: 'email' });
+    }
+
+    if (usernameDup > 1) {
+      d.comment += 'Username duplicated in list. ';
+      validationErrors.push({ rowIndex, property: 'username' });
+    }
 
     if (!isMatch && !isNewUser) {
       d.comment += 'Username-email mismatch. ';
