@@ -136,13 +136,6 @@ class LoginLayout extends PureComponent {
               </div>
             </div>
           </form>
-          <Link
-            data-testid="login-link-code"
-            className={classes.Link}
-            to="/classcode"
-          >
-            Access VMT via Class Code
-          </Link>
           <div className={classes.Submit}>
             {loading ? (
               <SmallLoading />
@@ -151,6 +144,17 @@ class LoginLayout extends PureComponent {
                 Login
               </Button>
             )}
+          </div>
+          <div>
+            <span className={classes.AuthLinkQ}>Have a Class Code?</span>
+
+            <Link
+              data-testid="login-link-code"
+              className={classes.Link}
+              to="/classcode"
+            >
+              Enter with a Class Code
+            </Link>
           </div>
           <div>
             <span className={classes.AuthLinkQ}>New to VMT?</span>

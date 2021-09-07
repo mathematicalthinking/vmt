@@ -498,11 +498,14 @@ class Members extends PureComponent {
           { property: 'email', header: 'Email' },
           {
             property: 'isGmail',
-            header: 'Login via Google with Email',
+            header: 'Require Login via Google with Email',
             type: 'boolean',
           },
           { property: 'firstName', header: 'First Name*' },
-          { property: 'lastName', header: 'Last Name*' },
+          {
+            property: 'lastName',
+            header: 'Last Name* (full, inital, or other)',
+          },
           { property: 'organization', header: 'Affiliation' },
           { property: 'identifier', header: 'Student or Org ID' },
           { property: 'sponsor', header: 'Teacher VMT Username' },
