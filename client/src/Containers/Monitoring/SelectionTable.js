@@ -42,7 +42,10 @@ export default function SelectionTable(props) {
     const newValue = !toggleAll;
     const newSelections = {};
     Object.keys(selections).forEach((id) => {
-      newSelections[id] = newValue;
+      // check id against data in list
+      if (data.some((d) => d._id === id)) {
+        newSelections[id] = newValue;
+      }
     });
     setToggleAll(newValue);
     onChange(newSelections);

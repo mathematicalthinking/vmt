@@ -176,7 +176,7 @@ class ClassCode extends Component {
                   <table className={classes.ParticipantList}>
                     <thead>
                       <tr>
-                        <th className={classes.THead}>Username</th>
+                        <th className={classes.THead}>Select Your Username</th>
                         {/* <th>Name</th> */}
                       </tr>
                     </thead>

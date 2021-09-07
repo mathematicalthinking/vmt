@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import find from 'lodash/find';
+import { API } from 'utils';
 import CourseMonitor from './Monitoring/CourseMonitor';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
@@ -57,6 +58,7 @@ class Course extends Component {
       privacySetting: course ? course.privacySetting : null,
       trashing: false,
       isAdmin: false,
+      errorMessage: '',
     };
   }
   // SO we can reset the tabs easily
@@ -244,6 +246,7 @@ class Course extends Component {
       privacySetting: course.privacySetting,
       entryCode: course.entryCode,
       instruction: course.instructions,
+      errorMessage: '',
     }));
   };
 
@@ -262,16 +265,37 @@ class Course extends Component {
       privacySetting,
     } = this.state;
     const body = { entryCode, name, details, description, privacySetting };
+
     // only send the fields that have changed
     Object.keys(body).forEach((key) => {
       if (body[key] === course[key]) {
         delete body[key];
       }
     });
-    connectUpdateCourse(course._id, body);
-    this.setState({
-      editing: false,
-    });
+    if (body.entryCode) {
+      // basic validation for unique code
+      API.getWithCode('courses', body.entryCode)
+        .then((res) => {
+          if (res.data.result.length > 0) {
+            this.setState({ errorMessage: 'Invalid Entry Code!' });
+          } else {
+            connectUpdateCourse(course._id, body);
+            this.setState({
+              editing: false,
+            });
+            this.setState({ errorMessage: '' });
+          }
+        })
+        .catch((err) => {
+          this.setState({ errorMessage: err.response.data.errorMessage });
+          console.log('API err: ', err);
+        });
+    } else {
+      connectUpdateCourse(course._id, body);
+      this.setState({
+        editing: false,
+      });
+    }
   };
 
   clearFirstViewNtf = () => {
@@ -316,6 +340,7 @@ class Course extends Component {
       trashing,
       tabs,
       invited,
+      errorMessage,
     } = this.state;
     if (course && !guestMode) {
       const { resource } = match.params;
@@ -397,7 +422,12 @@ class Course extends Component {
 
       if (course.myRole === 'facilitator') {
         additionalDetails.code = (
-          <Error error={updateFail && updateKeys.indexOf('entryCode') > -1}>
+          <Error
+            error={
+              (updateFail && updateKeys.indexOf('entryCode') > -1) ||
+              errorMessage
+            }
+          >
             <EditText
               change={this.updateCourseInfo}
               inputType="text"
@@ -406,6 +436,7 @@ class Course extends Component {
             >
               {entryCode}
             </EditText>
+            {errorMessage}
           </Error>
         );
       }
