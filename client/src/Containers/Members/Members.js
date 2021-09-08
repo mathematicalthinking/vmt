@@ -237,7 +237,7 @@ class Members extends PureComponent {
       if (u.username.toLowerCase() === d.username.toLowerCase()) {
         usernameDup += 1;
       }
-      if (u.email === d.email) {
+      if (!!u.email && u.email === d.email) {
         emailDup += 1;
       }
     });
