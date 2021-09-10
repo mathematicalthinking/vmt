@@ -28,6 +28,20 @@ module.exports = {
     });
   },
 
+  // @TODO consider what params might be and how to handle them.
+  // populates a course to match what's in the redux store.
+  getPopulatedById: (id) => {
+    return new Promise((resolve, reject) => {
+      db.Course.findById(id)
+        .populate('rooms')
+        .populate({ path: 'rooms', populate: { path: 'members.user' } })
+        .populate('members.user', 'username')
+        .populate('activities')
+        .then((course) => resolve(course))
+        .catch((err) => reject(err));
+    });
+  },
+
   getByCode: (code) => {
     return new Promise((resolve, reject) => {
       const query = {};

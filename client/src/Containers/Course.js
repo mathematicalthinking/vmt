@@ -346,13 +346,16 @@ class Course extends Component {
       const { resource } = match.params;
       let myRooms;
       if (resource === 'rooms') {
-        myRooms = course.rooms.filter((room) => {
-          let included = false;
-          room.members.forEach((member) => {
-            if (member.user._id === user._id) included = true;
+        // allow course facilitators to see all rooms
+        if (course.myRole !== 'facilitator') {
+          myRooms = course.rooms.filter((room) => {
+            let included = false;
+            room.members.forEach((member) => {
+              if (member.user._id === user._id) included = true;
+            });
+            return included;
           });
-          return included;
-        });
+        }
       }
       // let contentData = {
       //   resource,
@@ -643,10 +646,15 @@ Course.defaultProps = {
 const mapStateToProps = (store, ownProps) => {
   // eslint-disable-next-line camelcase
   const { course_id } = ownProps.match.params;
+  const localCourse = store.courses.byId[course_id]
+    ? populateResource(store, 'courses', course_id, ['activities', 'rooms'])
+    : null;
+  // Ownprops.course is the course from the db given by withPopulatedCourse
   return {
-    course: store.courses.byId[course_id]
-      ? populateResource(store, 'courses', course_id, ['activities', 'rooms'])
-      : null,
+    course:
+      localCourse.myRole === 'facilitator'
+        ? { ...ownProps.course, myRole: 'facilitator' }
+        : localCourse,
     activities: store.activities.allIds,
     rooms: store.rooms.allIds,
     user: store.user,
