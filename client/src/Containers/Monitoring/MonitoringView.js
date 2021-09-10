@@ -102,7 +102,9 @@ function MonitoringView({
 
     if (!Object.values(result).reduce((acc, val) => acc || val, false)) {
       // if all the values are false
-      const roomsResult = [...rooms].sort((a, b) => b.updatedAt - a.updatedAt);
+      const roomsResult = [...rooms].sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
       if (roomsResult.length !== 0)
         roomsResult
           .slice(0, Math.min(5, roomsResult.length))

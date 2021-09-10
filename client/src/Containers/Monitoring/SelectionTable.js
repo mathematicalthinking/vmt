@@ -11,6 +11,11 @@ import classes from './selectionTable.css';
  * Implements a table that allows for selecting / deselecting of each row and for sorting based on columns.  Right now, the implementation
  * is specfic to the type of room data I want to show (from MontoringView), but this should be a generic component.
  *
+ * @TODO - SelectionTable is hard-wired for a specific structure of the data prop. That is, this knowledge is used
+ * in initialization, toggleAll, and in rendering. Instead, we should provide SelectionTable with a config prop that specifies
+ * which properties to pull out of data and how to display them (column headings). That would make SelectionTable more of a
+ * generic component.
+ *
  * Adapted from https://www.smashingmagazine.com/2020/03/sortable-tables-react/
  */
 
@@ -42,7 +47,9 @@ export default function SelectionTable(props) {
     const newValue = !toggleAll;
     const newSelections = {};
     Object.keys(selections).forEach((id) => {
-      // check id against data in list
+      // only toggle those selections that are part of the given data. We need this because sometimes a selectionTable
+      // could be given a set of selections that are a superset of its data. Alternatively, we could be more careful
+      // in parents to ensure that selections and data are in sync (I'm talking to you, ResourceTables.)
       if (data.some((d) => d._id === id)) {
         newSelections[id] = newValue;
       }
