@@ -202,8 +202,9 @@ class Members extends PureComponent {
    * by email (only if the emailalready exists), in which case the username for that email is filled in, (c) create a new user.
    * In case (c), if the username exists a new one is suggested. If the email exists, we clear it out (new user will have no
    * email).
-   * 2. If a new user, first and last names must be there.
-   * 3. If a sponsor is given, it must be an existing user.
+   * 2. Duplicate usernames or emails in the import list.
+   * 3. If a new user, first and last names must be there.
+   * 4. If a sponsor is given, it must be an existing user.
    */
   validateDataRow = async (dataRow, rowIndex) => {
     const { importedData } = this.state;
@@ -212,15 +213,19 @@ class Members extends PureComponent {
     const d = { ...dataRow };
     if (!d.isGmail) d.isGmail = false; // initialize if needed
     d.comment = '';
-    let username = d.username || d.firstName + d.lastName.charAt(0);
-    username = username.toLowerCase();
+    d.username = (
+      d.username || d.firstName + d.lastName.charAt(0)
+    ).toLowerCase();
     this.setState(({ resolveSelections }) => {
       resolveSelections[rowIndex] = null;
       return { resolveSelections };
     });
 
     // handle validating whether username/email exists, whether they are consistent, and the resolution thereof
-    const userFromUsername = await validateExistingField('username', username);
+    const userFromUsername = await validateExistingField(
+      'username',
+      d.username
+    );
     const userFromEmail = d.email
       ? await validateExistingField('email', d.email)
       : null;
@@ -229,6 +234,27 @@ class Members extends PureComponent {
       userFromEmail &&
       userFromUsername._id === userFromEmail._id;
     const isNewUser = !userFromEmail && !userFromUsername;
+
+    if (!isMatch && !isNewUser) {
+      d.comment += 'Username-email mismatch. ';
+      suggestUniqueUsername(d.username).then((name) => {
+        const newUser = {
+          username: name,
+          email: userFromEmail ? '<enter an email>' : d.email,
+        };
+        const choices = {
+          newUser,
+          userFromUsername,
+          userFromEmail,
+          original: { ...d },
+        };
+        this.setupChoices(choices, rowIndex);
+        validationErrors.push(
+          { rowIndex, property: 'username' },
+          { rowIndex, property: 'email' }
+        );
+      });
+    }
 
     // handle duplicate email or usernames in the list
     let emailDup = 0;
@@ -250,27 +276,6 @@ class Members extends PureComponent {
     if (usernameDup > 1) {
       d.comment += 'Username duplicated in list. ';
       validationErrors.push({ rowIndex, property: 'username' });
-    }
-
-    if (!isMatch && !isNewUser) {
-      d.comment += 'Username-email mismatch. ';
-      suggestUniqueUsername(username).then((name) => {
-        const newUser = {
-          username: name,
-          email: userFromEmail ? '<enter an email>' : d.email,
-        };
-        const choices = {
-          newUser,
-          userFromUsername,
-          userFromEmail,
-          original: { ...d },
-        };
-        this.setupChoices(choices, rowIndex);
-        validationErrors.push(
-          { rowIndex, property: 'username' },
-          { rowIndex, property: 'email' }
-        );
-      });
     }
 
     // handle validating that new users must have first and last names specified
@@ -392,10 +397,13 @@ class Members extends PureComponent {
   };
 
   handleOnDeleteRow = (row) => {
-    const { importedData } = this.state;
-    const newData = [...importedData];
+    const { importedData: originalData } = this.state;
+    const newData = [...originalData];
     newData.splice(row, 1);
-    this.setState({ importedData: newData });
+    this.setState({ importedData: newData }, async () => {
+      const [importedData, validationErrors] = await this.validateData(newData);
+      this.setState({ importedData, validationErrors });
+    });
   };
 
   // 'changes' is an array of objects of the form {rowIndex, property: value}. For each unique row, we want to run
@@ -452,19 +460,27 @@ class Members extends PureComponent {
   createAndInviteMembers = async () => {
     const { importedData, sponsors } = this.state;
     const { user: creator } = this.props;
-    const userObjects = importedData.map((user) => {
-      const { organization, identifier, ...rest } = user;
-      return { metadata: { organization, identifier }, ...rest };
-    });
-    const newUsers = await Promise.all(
-      userObjects.map(async (user) =>
-        API.post('user', {
-          ...user,
-          sponsor: sponsors[user.username] || creator._id, // if the user exists, we are adding a sponsor and metadata
-          accountType: user.accountType || 'pending', // if the user exists, we shouldn't overwrite the accountType
-        })
-      )
+    const userObjects = await Promise.all(
+      importedData.map(async (user) => {
+        const existingUser = await validateExistingField(
+          'username',
+          user.username
+        );
+        const { organization, identifier, ...rest } = existingUser || user;
+        return {
+          accountType: 'pending', // NOTE: if existing user, this will be overwritten by ...rest
+          ...rest,
+          // NOTE: if existing user, this will overwrite metadata and sponsor.
+          metadata: { organization, identifier },
+          sponsor: sponsors[user.username] || creator._id,
+        };
+      })
     );
+
+    const newUsers = await Promise.all(
+      userObjects.map(async (user) => API.post('user', user))
+    );
+
     newUsers.forEach(({ data: { result: user } }) =>
       this.inviteMember(user._id, user.username)
     );
