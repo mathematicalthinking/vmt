@@ -214,8 +214,11 @@ class Members extends PureComponent {
     if (!d.isGmail) d.isGmail = false; // initialize if needed
     d.comment = '';
     d.username = (
-      d.username || d.firstName + d.lastName.charAt(0)
+      d.username.trim() || d.firstName.trim() + d.lastName.charAt(0)
     ).toLowerCase();
+    if (d.email) {
+      d.email = d.email.toLowerCase().trim();
+    }
     this.setState(({ resolveSelections }) => {
       resolveSelections[rowIndex] = null;
       return { resolveSelections };
@@ -466,24 +469,35 @@ class Members extends PureComponent {
           'username',
           user.username
         );
-        const { organization, identifier, ...rest } = existingUser || user;
-        return {
-          accountType: 'pending', // NOTE: if existing user, this will be overwritten by ...rest
-          ...rest,
-          // NOTE: if existing user, this will overwrite metadata and sponsor.
-          metadata: { organization, identifier },
-          sponsor: sponsors[user.username] || creator._id,
-        };
+        const { organization, identifier, ...rest } = user;
+        return existingUser
+          ? {
+              ...existingUser,
+              metadata: { organization, identifier },
+              sponsor: sponsors[user.username] || creator._id,
+            }
+          : {
+              accountType: 'pending',
+              ...rest,
+              metadata: { organization, identifier },
+              sponsor: sponsors[user.username] || creator._id,
+            };
       })
     );
 
     const newUsers = await Promise.all(
-      userObjects.map(async (user) => API.post('user', user))
+      userObjects.map(async (user) =>
+        user._id
+          ? API.put('user', user._id, user).then(() => {
+              return user;
+            })
+          : API.post('user', user).then((res) => {
+              return res.data.result;
+            })
+      )
     );
 
-    newUsers.forEach(({ data: { result: user } }) =>
-      this.inviteMember(user._id, user.username)
-    );
+    newUsers.forEach((user) => this.inviteMember(user._id, user.username));
   };
 
   // These next two are functions to defeat the linter...
