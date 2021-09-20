@@ -56,7 +56,7 @@ mongoose.connect(mongoURI, mongoOptions, (err) => {
   if (err) {
     console.log(`DB CONNECTION FAILED: ${err}`);
   } else {
-    console.log(`DB CONNECTION SUCCESS${mongoURI}`);
+    console.log(`DB CONNECTION SUCCESS ${mongoURI}`);
   }
 });
 
