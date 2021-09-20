@@ -1,6 +1,7 @@
 // REQUIRE MODULES
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -31,8 +32,10 @@ if (process.env.NODE_ENV === 'dev') {
     ...mongoOptions,
     ssl: true,
     sslValidate: true,
-    user: process.env.MONGO_USER,
-    pass: process.env.MONGO_PASS,
+    user: process.env.MONGO_PROD_USER,
+    pass: process.env.MONGO_PROD_PASS,
+    sslKey: fs.readFileSync(process.env.MONGO_PROD_SSL_KEY_DIR),
+    authSource: process.env.MONGO_PROD_AUTHDB,
   };
 } else if (process.env.NODE_ENV === 'staging') {
   mongoURI = process.env.MONGO_STAGING_URI;
@@ -40,8 +43,10 @@ if (process.env.NODE_ENV === 'dev') {
     ...mongoOptions,
     ssl: true,
     sslValidate: true,
-    user: process.env.MONGO_USER,
-    pass: process.env.MONGO_PASS,
+    user: process.env.MONGO_STAGING_USER,
+    pass: process.env.MONGO_STAGING_PASS,
+    sslKey: fs.readFileSync(process.env.MONGO_STAGING_SSL_KEY_DIR),
+    authSource: process.env.MONGO_STAGING_AUTHDB,
   };
 } else if (process.env.NODE_ENV === 'test') {
   mongoURI = process.env.MONGO_TEST_URI;
