@@ -177,7 +177,7 @@
   /* justify-content: center;
   align-items: center; */
   width: 60px;
-  height: 36px;
+  height: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -197,7 +197,7 @@
 .Mic {
   composes: Send;
   width: 30px;
-  height: 18px;
+  height: 24px;
   margin-right: 1px;
   background-color: white;
   color: blue;
@@ -218,7 +218,7 @@
   font-size: 18px;
   border-radius: 0 0 2px 0;
   width: 30px;
-  height: 18px;
+  height: 24px;
   margin-top: 1px;
   background-color: white;
   color: blue;
