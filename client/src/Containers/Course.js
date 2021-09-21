@@ -649,11 +649,16 @@ const mapStateToProps = (store, ownProps) => {
   const localCourse = store.courses.byId[course_id]
     ? populateResource(store, 'courses', course_id, ['activities', 'rooms'])
     : null;
-  // Ownprops.course is the course from the db given by withPopulatedCourse
+  // Ownprops.course is the course from the db given by withPopulatedCourse. It has all the activities and rooms in the course; the localCourse
+  // only has the resources that the user has access to.
   return {
     course:
       localCourse.myRole === 'facilitator'
-        ? { ...ownProps.course, myRole: 'facilitator' }
+        ? {
+            ...localCourse,
+            activities: ownProps.course.activities,
+            rooms: ownProps.course.rooms,
+          }
         : localCourse,
     activities: store.activities.allIds,
     rooms: store.rooms.allIds,
