@@ -99,7 +99,6 @@ class Homepage extends PureComponent {
                 click={() => {
                   history.push('/classcode');
                 }}
-                m={25}
               >
                 Enter with a Class Code
               </Button>
@@ -110,13 +109,12 @@ class Homepage extends PureComponent {
                 click={() => {
                   history.push('/login');
                 }}
-                m={25}
               >
                 Login to VMT
               </Button>
             </div>
             <div className={classes.WorkspaceButton}>
-              <Button theme="Big" click={this.createRoom} m={25}>
+              <Button theme="Big" click={this.createRoom}>
                 Try Out A Temp Room
               </Button>
             </div>
