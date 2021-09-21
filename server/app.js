@@ -35,6 +35,7 @@ if (process.env.NODE_ENV === 'dev') {
     user: process.env.MONGO_PROD_USER,
     pass: process.env.MONGO_PROD_PASS,
     sslKey: fs.readFileSync(process.env.MONGO_PROD_SSL_KEY_DIR),
+    sslCert: fs.readFileSync(process.env.MONGO_PROD_SSL_CERT_DIR),
     authSource: process.env.MONGO_PROD_AUTHDB,
   };
 } else if (process.env.NODE_ENV === 'staging') {
@@ -46,6 +47,7 @@ if (process.env.NODE_ENV === 'dev') {
     user: process.env.MONGO_STAGING_USER,
     pass: process.env.MONGO_STAGING_PASS,
     sslKey: fs.readFileSync(process.env.MONGO_STAGING_SSL_KEY_DIR),
+    sslCert: fs.readFileSync(process.env.MONGO_STAGING_SSL_CERT_DIR),
     authSource: process.env.MONGO_STAGING_AUTHDB,
   };
 } else if (process.env.NODE_ENV === 'test') {
