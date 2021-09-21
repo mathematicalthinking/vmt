@@ -10,8 +10,17 @@ function CurrentMembers({
   activeMember,
   expanded,
   toggleExpansion,
+  showTitle,
 }) {
   const [presentMembers, setPresentMembers] = useState([]);
+  const activeMembers = React.useRef([]);
+
+  // allow for there to be more than one active member
+  React.useEffect(() => {
+    if (Array.isArray(activeMember)) activeMembers.current = activeMember;
+    else if (!activeMember) activeMembers.current = [];
+    else activeMembers.current = [activeMember];
+  }, [activeMember]);
 
   React.useEffect(() => {
     // filter out any malformed members. Of course, this has the effect of potentially not showing someone who is there.
@@ -54,16 +63,18 @@ function CurrentMembers({
 
   return (
     <div className={classes.Container}>
-      <div
-        className={classes.Title}
-        onClick={_toggle}
-        onKeyPress={_toggle}
-        role="button"
-        tabIndex="-1"
-      >
-        Currently in this room
-        <div className={classes.Count}>{presentMembers.length}</div>
-      </div>
+      {showTitle && (
+        <div
+          className={classes.Title}
+          onClick={_toggle}
+          onKeyPress={_toggle}
+          role="button"
+          tabIndex="-1"
+        >
+          Currently in this room
+          <div className={classes.Count}>{presentMembers.length}</div>
+        </div>
+      )}
       <div
         className={expanded ? classes.Expanded : classes.Collapsed}
         data-testid="current-members"
@@ -75,7 +86,8 @@ function CurrentMembers({
               <div
                 className={[
                   classes.Avatar,
-                  activeMember && presMember.user._id === activeMember
+                  activeMembers.current &&
+                  activeMembers.current.includes(presMember.user._id)
                     ? classes.Active
                     : classes.Passive,
                 ].join(' ')}
@@ -97,14 +109,19 @@ CurrentMembers.propTypes = {
     PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])
   ).isRequired,
   members: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  activeMember: PropTypes.string,
+  activeMember: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.shape({})),
+    PropTypes.string,
+  ]),
   expanded: PropTypes.bool.isRequired,
+  showTitle: PropTypes.bool,
   toggleExpansion: PropTypes.func,
 };
 
 CurrentMembers.defaultProps = {
   activeMember: null,
   toggleExpansion: null,
+  showTitle: true,
 };
 
 export default CurrentMembers;
