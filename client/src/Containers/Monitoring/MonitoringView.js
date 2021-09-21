@@ -7,7 +7,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { NavItem, ToggleGroup, SimpleChat } from 'Components';
+import { NavItem, ToggleGroup, SimpleChat, CurrentMembers } from 'Components';
 import { updateMonitorSelections } from 'store/actions';
 import { usePopulatedRoom } from 'utils';
 import Chart from 'Containers/Stats/Chart';
@@ -59,6 +59,7 @@ function MonitoringView({
     VIEW: 'View',
     CHAT: 'Chat',
     THUMBNAIL: 'Thumbnail',
+    ATTENDANCE: 'Attendance',
     GRAPH: 'Graph',
     SIMPLE: 'Simple Chat',
     DETAILED: 'Detailed Chat',
@@ -118,7 +119,7 @@ function MonitoringView({
   const [selections, setSelections] = React.useState(
     _initializeSelections(userResources)
   );
-  const [viewType, setViewType] = React.useState(constants.CHAT);
+  const [viewType, setViewType] = React.useState(constants.ATTENDANCE);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
   const savedState = React.useRef(selections);
 
@@ -262,6 +263,18 @@ function MonitoringView({
           />
         );
       }
+      case constants.ATTENDANCE: {
+        const data = queryStates[id].isSuccess ? queryStates[id].data : null;
+        return (
+          <CurrentMembers
+            members={data ? data.members : []}
+            currentMembers={data ? data.members.map((m) => m.user) : []}
+            activeMember={data ? data.currentMembers.map((m) => m._id) : []}
+            expanded
+            showTitle={false}
+          />
+        );
+      }
       default:
         return null;
     }
@@ -293,7 +306,12 @@ function MonitoringView({
         {viewOrSelect === constants.VIEW && (
           <Fragment>
             <ToggleGroup
-              buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
+              buttons={[
+                constants.ATTENDANCE,
+                constants.CHAT,
+                constants.THUMBNAIL,
+                constants.GRAPH,
+              ]}
               value={viewType}
               onChange={setViewType}
             />
