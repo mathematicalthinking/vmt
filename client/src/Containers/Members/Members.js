@@ -225,6 +225,7 @@ class Members extends PureComponent {
     });
 
     // handle validating whether username/email exists, whether they are consistent, and the resolution thereof
+    this.clearChoices(rowIndex);
     const userFromUsername = await validateExistingField(
       'username',
       d.username
@@ -382,6 +383,15 @@ class Members extends PureComponent {
     );
     this.setState((prevState) => ({
       rowConfig: [...prevState.rowConfig, { rowIndex, action }],
+    }));
+  };
+
+  // Remove any buttons from the previous validation
+  clearChoices = (rowIndex) => {
+    this.setState((prevState) => ({
+      rowConfig: prevState.rowConfig
+        ? prevState.rowConfig.filter((config) => config.rowIndex !== rowIndex)
+        : [],
     }));
   };
 
