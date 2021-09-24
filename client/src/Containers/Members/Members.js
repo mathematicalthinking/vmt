@@ -458,18 +458,10 @@ class Members extends PureComponent {
     const { validationErrors } = this.state;
     if (validationErrors) {
       this.validateData(data).then(([newData, newValidationErrors]) => {
-        const hasIssues = newValidationErrors.length > 0;
-        if (hasIssues) {
-          this.setState({
-            importedData: newData,
-            validationErrors: newValidationErrors,
-          });
-        } else {
-          this.setState({
-            importedData: newData,
-            validationErrors: newValidationErrors,
-          });
-        }
+        this.setState({
+          importedData: newData,
+          validationErrors: newValidationErrors,
+        });
       });
     } else {
       this.createAndInviteMembers();
