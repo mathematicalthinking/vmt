@@ -26,13 +26,11 @@ function ClassCode(props) {
   useEffect(() => {
     const { clearError } = props;
 
-    window.addEventListener('keypress', onKeyPress);
     return () => {
       if (errorMessage) {
         setErrorMessage('');
         clearError();
       }
-      window.removeEventListener('keypress', onKeyPress);
     };
   }, []);
 
@@ -40,14 +38,9 @@ function ClassCode(props) {
     if (errorMessage && code === '') reset();
   }, [code]);
 
-  const onKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      courseSearch();
-    }
-  };
-
   const courseSearch = (e) => {
     if (e) e.preventDefault();
+    console.log('THis is the code: ', code);
     if (!code) {
       setErrorMessage('Please enter a class code');
     } else {
@@ -114,7 +107,6 @@ function ClassCode(props) {
   };
 
   const memberConfirmMessage = (memInfo) => {
-    console.log('Mem info: ', memInfo);
     if (!memInfo) return null;
     if (memInfo.socketId) {
       return (
@@ -158,10 +150,15 @@ function ClassCode(props) {
               </div>
             ) : (
               <Fragment>
-                <form className={classes.Form} onSubmit={courseSearch}>
+                <div className={classes.Form} onSubmit={courseSearch}>
                   <TextInput
                     light={temp}
                     change={(e) => setCode(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        courseSearch(e);
+                      } else setCode(e.target.value);
+                    }}
                     type="text"
                     label="Code"
                     value={code}
@@ -171,7 +168,7 @@ function ClassCode(props) {
                   <div className={classes.ErrorMsg}>
                     <div className={classes.Error}>{errorMessage}</div>
                   </div>
-                </form>
+                </div>
                 <div className={classes.Submit}>
                   <Button
                     type=""
