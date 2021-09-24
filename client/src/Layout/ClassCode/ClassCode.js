@@ -5,30 +5,27 @@ import React, { useEffect, useState, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { API } from 'utils';
-import { TextInput, Button, Background, Aux, Modal } from '../../Components';
+import {
+  TextInput,
+  Button,
+  Background,
+  Aux,
+  Modal,
+  ClassList,
+} from '../../Components';
 import classes from './classcode.css';
 import GoogleLogin from '../../Components/Form/Google/LoginButton';
 
 function ClassCode(props) {
-  // @TODO Redo Login containers state to match this. cleaner
-  // @TODO dispatch an action to clear error message when user starts typing again
-
   const [code, setCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  // const [participantAccount, setParticipantAccount] = useState(true);
   const [resource, setResource] = useState({});
-  const [members, setMembers] = useState([]);
   const [isResourceConf, setIsResourceConf] = useState(false);
   const [memberToConf, setMemberToConf] = useState();
 
   useEffect(() => {
     const { clearError } = props;
 
-    // what is this trying to accomplish???
-    // const { temp, user } = this.props;
-    // if (temp && user) {
-    //   this.setState({ username: user.username });
-    // }
     window.addEventListener('keypress', onKeyPress);
     return () => {
       if (errorMessage) {
@@ -43,12 +40,7 @@ function ClassCode(props) {
     if (errorMessage && code === '') reset();
   }, [code]);
 
-  // const codeHandler = (input) => {
-  //   setCode(input);
-  // };
-
   const onKeyPress = (event) => {
-    // const { errorMessage, clearError } = this.props;
     if (event.key === 'Enter') {
       courseSearch();
     }
@@ -64,10 +56,9 @@ function ClassCode(props) {
           if (res.data.result.length < 1) {
             setErrorMessage('Invalid Course Code');
           } else {
-            setResource(res.data.result[0]);
-            console.log('Found members: ', res.data.result[0].members);
-            setMembers(res.data.result[0].members);
             setErrorMessage('');
+            setResource(res.data.result[0]);
+            // console.log('Found members: ', res.data.result[0].members);
           }
         })
         .catch((err) => {
@@ -85,15 +76,14 @@ function ClassCode(props) {
     setCode('');
     setErrorMessage('');
     setResource({});
-    setMembers([]);
     setIsResourceConf(false);
     setMemberToConf();
   };
 
-  const join = (member) => {
-    const user = members.find(
-      (mem) => mem.user.username.toLowerCase() === member.username.toLowerCase()
-    ).user;
+  const join = (user) => {
+    // const user = members.find(
+    //   (mem) => mem.user.username.toLowerCase() === member.username.toLowerCase()
+    // ).user;
     setMemberToConf(user);
     window.scrollTo(0, 0);
   };
@@ -123,22 +113,30 @@ function ClassCode(props) {
     }
   };
 
-  const isUserInSession = (userData) => {
-    if (userData.user.socketId) {
-      return true;
+  const memberConfirmMessage = (memInfo) => {
+    console.log('Mem info: ', memInfo);
+    if (!memInfo) return null;
+    if (memInfo.socketId) {
+      return (
+        <div className={classes.ErrorMsg}>
+          User has an active session - Are you sure you want to continue?
+        </div>
+      );
     }
-    return false;
+    if (memInfo.accountType === 'pending') {
+      return (
+        <div>
+          {`${
+            memInfo.username
+          } has not been claimed yet, continue to claim this account`}
+        </div>
+      );
+    }
+    return <div>Welcome back to VMT!</div>;
   };
 
   const { temp, loggedIn } = props;
   const isGoogleUser = memberToConf ? memberToConf.isGmail : false;
-  const participantList = [];
-
-  members.forEach((member) => {
-    if (member.role === 'participant' || member.role === 'guest') {
-      participantList.push(member);
-    }
-  });
 
   return (
     // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
@@ -151,47 +149,13 @@ function ClassCode(props) {
         <div className={classes.Container}>
           <div className={classes.SignupContainer}>
             <h2 className={classes.Title}>Enter with Code</h2>
-            {members.length > 0 && isResourceConf ? (
-              <Fragment>
-                <div className={classes.THead}>Member List</div>
-                <table className={classes.ParticipantList}>
-                  <thead>
-                    <tr>
-                      <th className={classes.THead}>Select Your Username</th>
-                      {/* <th>Name</th> */}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {participantList.map((member, i) => {
-                      return (
-                        <tr
-                          className={
-                            isUserInSession(member)
-                              ? classes.InSession
-                              : classes.Participant
-                          }
-                          key={member.user._id}
-                          id={member.user._id}
-                          onClick={() => join(member.user)}
-                        >
-                          <td>
-                            {`${i +
-                              1}. Username: ${member.user.username.toLowerCase()}`}
-                          </td>
-                          <td>
-                            {isUserInSession(member) && (
-                              <span>User already in session</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            {isResourceConf ? (
+              <div>
+                <ClassList classId={code} join={join} />
                 <Button theme="SmallCancel" click={reset}>
                   Try a different code
                 </Button>
-              </Fragment>
+              </div>
             ) : (
               <Fragment>
                 <form className={classes.Form} onSubmit={courseSearch}>
@@ -212,7 +176,7 @@ function ClassCode(props) {
                   <Button
                     type=""
                     theme="Big"
-                    data-testid="submit-signup"
+                    data-testid="submit-code"
                     click={courseSearch}
                   >
                     Enter
@@ -221,7 +185,7 @@ function ClassCode(props) {
               </Fragment>
             )}
             <Modal
-              show={members.length > 0 && !isResourceConf}
+              show={Object.keys(resource).length && !isResourceConf}
               closeModal={reset}
             >
               <div className={classes.Modal}>
@@ -252,6 +216,7 @@ function ClassCode(props) {
             >
               <Fragment>
                 <div className={classes.Modal}>
+                  {memberConfirmMessage(memberToConf)}
                   {memberToConf ? `Are you ${memberToConf.username}?` : ''}
                 </div>
                 <div>

@@ -1,5 +1,6 @@
 export { default as Background } from './Background/Background';
 export { default as Chat } from './Chat/Chat';
+export { default as ClassList } from './ClassList/ClassList';
 export { default as SimpleChat } from './Chat/SimpleChat';
 export { default as CurrentMembers } from './CurrentMembers/CurrentMembers';
 export { default as Checkbox } from './Form/Checkbox/Checkbox';
