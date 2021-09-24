@@ -241,6 +241,10 @@ class Members extends PureComponent {
 
     if (!isMatch && !isNewUser) {
       d.comment += 'Username-email mismatch. ';
+      validationErrors.push(
+        { rowIndex, property: 'username' },
+        { rowIndex, property: 'email' }
+      );
       suggestUniqueUsername(d.username).then((name) => {
         const newUser = {
           username: name,
@@ -253,10 +257,6 @@ class Members extends PureComponent {
           original: { ...d },
         };
         this.setupChoices(choices, rowIndex);
-        validationErrors.push(
-          { rowIndex, property: 'username' },
-          { rowIndex, property: 'email' }
-        );
       });
     }
 
@@ -324,7 +324,6 @@ class Members extends PureComponent {
         ? data.map(async (d, index) => this.validateDataRow(d, index))
         : rows.map(async (row) => this.validateDataRow(data[row], row))
     );
-
     // next, reconfigure the results of the above call so that we accumulate the data rows and errors
     // gathered above. validatedData will be an array of each row. For validationsErrors, because there can be
     // more than one error on each row, we have to use a spread operator in accumulation so that we
@@ -456,18 +455,17 @@ class Members extends PureComponent {
   // Called when the user clicks on 'Submit' in the modal. Revalidate all the data. If there are any issues, update the data
   // and highligt any relevant cells. If no issues, update the data, create any new users, and invite them to the course.
   handleOnSubmit = (data) => {
-    this.validateData(data).then(([newData, validationErrors]) => {
-      const hasIssues = validationErrors.length > 0;
-      if (hasIssues) this.setState({ importedData: newData, validationErrors });
-      else {
+    const { validationErrors } = this.state;
+    if (validationErrors) {
+      this.validateData(data).then(([newData, newValidationErrors]) => {
         this.setState({
-          showImportModal: false,
           importedData: newData,
-          validationErrors,
+          validationErrors: newValidationErrors,
         });
-        this.createAndInviteMembers();
-      }
-    });
+      });
+    } else {
+      this.createAndInviteMembers();
+    }
   };
 
   createAndInviteMembers = async () => {

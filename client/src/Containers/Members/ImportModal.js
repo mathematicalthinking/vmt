@@ -294,7 +294,9 @@ export default function ImportModal(props) {
             marginTop: '10px',
           }}
         >
-          <Button click={_handleOk}>Submit</Button>
+          <Button click={_handleOk}>
+            {highlights.length > 0 ? 'Validate' : 'Submit'}
+          </Button>
           <Button theme="Cancel" click={_handleCancel}>
             Cancel
           </Button>
