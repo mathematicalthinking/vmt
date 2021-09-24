@@ -456,7 +456,7 @@ class Members extends PureComponent {
   // and highligt any relevant cells. If no issues, update the data, create any new users, and invite them to the course.
   handleOnSubmit = (data) => {
     const { validationErrors } = this.state;
-    if (validationErrors) {
+    if (validationErrors.length > 0) {
       this.validateData(data).then(([newData, newValidationErrors]) => {
         this.setState({
           importedData: newData,
@@ -464,6 +464,9 @@ class Members extends PureComponent {
         });
       });
     } else {
+      this.setState({
+        showImportModal: false,
+      });
       this.createAndInviteMembers();
     }
   };
