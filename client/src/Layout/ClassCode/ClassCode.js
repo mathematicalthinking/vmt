@@ -40,7 +40,6 @@ function ClassCode(props) {
 
   const courseSearch = (e) => {
     if (e) e.preventDefault();
-    console.log('THis is the code: ', code);
     if (!code) {
       setErrorMessage('Please enter a class code');
     } else {

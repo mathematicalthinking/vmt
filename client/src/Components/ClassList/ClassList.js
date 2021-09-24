@@ -12,7 +12,7 @@ const ClassList = ({ classId, join }) => {
         const { members } = res.data.result[0];
         return members;
       }),
-    {}
+    { refreshInterval: 1000 }
   );
 
   const members = isSuccess ? data : [];
@@ -39,8 +39,7 @@ const ClassList = ({ classId, join }) => {
       <table className={classes.ParticipantList}>
         <thead>
           <tr>
-            <th className={classes.THead}>Select Your Username</th>
-            {/* <th>Name</th> */}
+            {/* <th className={classes.THead}>Select Your Username</th> */}
           </tr>
         </thead>
         <tbody>
@@ -56,9 +55,7 @@ const ClassList = ({ classId, join }) => {
                 id={member.user._id}
                 onClick={() => join(member.user)}
               >
-                <td>
-                  {`${i + 1}. Username: ${member.user.username.toLowerCase()}`}
-                </td>
+                <td>{`${i + 1}. ${member.user.username.toLowerCase()}`}</td>
                 <td>
                   {isUserInSession(member) && (
                     <span>User already in session</span>
