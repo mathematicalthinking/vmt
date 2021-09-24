@@ -4,6 +4,7 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
+import { useQuery } from 'react-query';
 import { API } from 'utils';
 import {
   TextInput,
@@ -21,7 +22,7 @@ function ClassCode(props) {
   const [errorMessage, setErrorMessage] = useState('');
   const [resource, setResource] = useState({});
   const [isResourceConf, setIsResourceConf] = useState(false);
-  const [memberToConf, setMemberToConf] = useState();
+  const [memberToConf, setMemberToConf] = useState({});
 
   useEffect(() => {
     const { clearError } = props;
@@ -37,6 +38,25 @@ function ClassCode(props) {
   useEffect(() => {
     if (errorMessage && code === '') reset();
   }, [code]);
+
+  const { isSuccess, data } = useQuery(
+    code,
+    () =>
+      API.getWithCode('courses', code).then((res) => {
+        const { members } = res.data.result[0];
+        return members;
+      }),
+    { refreshInterval: 1000 }
+  );
+
+  const members = isSuccess ? data : [];
+
+  const participantList = [];
+  members.forEach((member) => {
+    if (member.role !== 'facilitator') {
+      participantList.push(member);
+    }
+  });
 
   const courseSearch = (e) => {
     if (e) e.preventDefault();
@@ -69,7 +89,7 @@ function ClassCode(props) {
     setErrorMessage('');
     setResource({});
     setIsResourceConf(false);
-    setMemberToConf();
+    setMemberToConf({});
   };
 
   const join = (user) => {
@@ -83,42 +103,50 @@ function ClassCode(props) {
   const handleLogin = () => {
     const { signup, login, history } = props;
 
-    if (memberToConf.accountType === 'pending') {
+    if (memberToConf.user.accountType === 'pending') {
       const userToConvert = {
         accountType: 'participant',
-        email: memberToConf.email || '',
-        firstName: memberToConf.firstName,
-        lastName: memberToConf.lastName,
+        email: memberToConf.user.email || '',
+        firstName: memberToConf.user.firstName,
+        lastName: memberToConf.user.lastName,
         password: process.env.REACT_APP_VMT_LOGIN_DEFAULT,
-        rooms: memberToConf.rooms,
-        courses: memberToConf.courses,
-        username: memberToConf.username,
-        _id: memberToConf._id,
+        rooms: memberToConf.user.rooms,
+        courses: memberToConf.user.courses,
+        username: memberToConf.user.username,
+        _id: memberToConf.user._id,
       };
 
       // console.log('signing up user: ', userToConvert);
       signup(userToConvert);
-    } else if (!memberToConf.isGmail) {
-      login(memberToConf.username, process.env.REACT_APP_VMT_LOGIN_DEFAULT);
+    } else if (!memberToConf.user.isGmail) {
+      login(
+        memberToConf.user.username,
+        process.env.REACT_APP_VMT_LOGIN_DEFAULT
+      );
     } else {
       history.push('/login');
     }
   };
 
   const memberConfirmMessage = (memInfo) => {
-    if (!memInfo) return null;
-    if (memInfo.socketId) {
+    if (!memInfo.user) return null;
+    const currentMember = members.find(
+      (mem) => mem.user._id === memInfo.user._id
+    );
+
+    if (!currentMember) return null;
+    if (currentMember.user.socketId) {
       return (
         <div className={classes.ErrorMsg}>
           User has an active session - Are you sure you want to continue?
         </div>
       );
     }
-    if (memInfo.accountType === 'pending') {
+    if (currentMember.user.accountType === 'pending') {
       return (
         <div>
           {`${
-            memInfo.username
+            currentMember.user.username
           } has not been claimed yet, continue to claim this account`}
         </div>
       );
@@ -127,7 +155,7 @@ function ClassCode(props) {
   };
 
   const { temp, loggedIn } = props;
-  const isGoogleUser = memberToConf ? memberToConf.isGmail : false;
+  const isGoogleUser = memberToConf.user ? memberToConf.user.isGmail : false;
 
   return (
     // after creating a user redirect to login @TODO figure out if this is for creating participants or for signing up on your own
@@ -142,7 +170,7 @@ function ClassCode(props) {
             <h2 className={classes.Title}>Enter with Code</h2>
             {isResourceConf ? (
               <div>
-                <ClassList classId={code} join={join} />
+                <ClassList members={participantList} join={join} />
                 <Button theme="SmallCancel" click={reset}>
                   Try a different code
                 </Button>
@@ -205,21 +233,23 @@ function ClassCode(props) {
               </Fragment>
             </Modal>
             <Modal
-              show={!!memberToConf} // might be undefined
+              show={!!memberToConf.user} // might be undefined
               closeModal={() => {
-                setMemberToConf();
+                setMemberToConf({});
               }}
             >
               <Fragment>
                 <div className={classes.Modal}>
                   {memberConfirmMessage(memberToConf)}
-                  {memberToConf ? `Are you ${memberToConf.username}?` : ''}
+                  {memberToConf.user
+                    ? `Are you ${memberToConf.user.username}?`
+                    : ''}
                 </div>
                 <div>
                   <Button
                     m={10}
                     click={() => {
-                      setMemberToConf();
+                      setMemberToConf({});
                     }}
                   >
                     No, this isn&apos;t me
