@@ -643,6 +643,14 @@ Course.defaultProps = {
   notifications: null,
 };
 
+const combineResources = (resources) => {
+  // eslint-disable-next-line no-return-assign
+  const obj = resources.reduce((acc, res) => {
+    acc[res._id] = res;
+    return acc;
+  }, {});
+  return [...Object.values(obj)];
+};
 const mapStateToProps = (store, ownProps) => {
   // eslint-disable-next-line camelcase
   const { course_id } = ownProps.match.params;
@@ -656,8 +664,14 @@ const mapStateToProps = (store, ownProps) => {
       localCourse.myRole === 'facilitator'
         ? {
             ...localCourse,
-            activities: ownProps.course.activities,
-            rooms: ownProps.course.rooms,
+            activities: combineResources([
+              ...ownProps.course.activities,
+              ...localCourse.activities,
+            ]),
+            rooms: combineResources([
+              ...ownProps.course.rooms,
+              ...localCourse.rooms,
+            ]),
           }
         : localCourse,
     activities: store.activities.allIds,
