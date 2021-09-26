@@ -1,48 +1,32 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { useQuery } from 'react-query';
 import API from 'utils/apiRequests';
-import Loading from 'Components/Loading/Loading';
 
 function withPopulatedCourse(WrappedComponent) {
-  class PopulatedCourse extends Component {
-    state = {
-      loading: true,
-    };
+  function PopulatedCourse(props) {
+    const { match, history } = props;
+    const { isSuccess, data, error, isError } = useQuery(
+      match.params.course_id,
+      () => API.getPopulatedById('courses', match.params.course_id),
+      { refresh: 10000 }
+    );
 
-    componentDidMount() {
-      this.cancelFetch = false;
-      const { match } = this.props;
-      API.getPopulatedById('courses', match.params.course_id)
-        .then((res) => {
-          this.populatedCourse = res.data.result;
-          if (!this.cancelFetch) this.setState({ loading: false });
-        })
-        .catch(() => {
-          console.log(
-            'we should probably just go back to the previous page? maybe display the error'
-          );
-        });
+    if (isError) {
+      console.log(error);
     }
 
-    componentWillUnmount() {
-      this.cancelFetch = true;
-    }
+    const populatedCourse = isSuccess
+      ? data.data.result
+      : { _id: match.params.course_id, activities: [], rooms: [] };
 
-    render() {
-      const { history, match } = this.props;
-      const { loading } = this.state;
-      if (loading) {
-        return <Loading message="Fetching your course..." />;
-      }
-
-      return (
-        <WrappedComponent
-          course={this.populatedCourse}
-          history={history}
-          match={match}
-        />
-      );
-    }
+    return (
+      <WrappedComponent
+        course={populatedCourse}
+        history={history}
+        match={match}
+      />
+    );
   }
 
   PopulatedCourse.propTypes = {
