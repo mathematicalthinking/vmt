@@ -205,6 +205,7 @@ class Members extends PureComponent {
    * 2. Duplicate usernames or emails in the import list.
    * 3. If a new user, first and last names must be there.
    * 4. If a sponsor is given, it must be an existing user.
+   * 5. If an email is blank, this cannot be a gmail account.
    */
   validateDataRow = async (dataRow, rowIndex) => {
     const { importedData } = this.state;
@@ -224,7 +225,7 @@ class Members extends PureComponent {
       return { resolveSelections };
     });
 
-    // handle validating whether username/email exists, whether they are consistent, and the resolution thereof
+    // 1. handle validating whether username/email exists, whether they are consistent, and the resolution thereof
     this.clearChoices(rowIndex);
     const userFromUsername = await validateExistingField(
       'username',
@@ -260,7 +261,7 @@ class Members extends PureComponent {
       });
     }
 
-    // handle duplicate email or usernames in the list
+    // 2. handle duplicate email or usernames in the list
     let emailDup = 0;
     let usernameDup = 0;
     importedData.forEach((u) => {
@@ -282,7 +283,7 @@ class Members extends PureComponent {
       validationErrors.push({ rowIndex, property: 'username' });
     }
 
-    // handle validating that new users must have first and last names specified
+    // 3. handle validating that new users must have first and last names specified
     if (isNewUser && (!d.firstName || !d.lastName)) {
       d.comment += 'First and last names are required. ';
       if (!d.firstName)
@@ -291,7 +292,7 @@ class Members extends PureComponent {
         validationErrors.push({ rowIndex, property: 'lastName' });
     }
 
-    // handle validating that any specified sponsors must be existing users
+    // 4. handle validating that any specified sponsors must be existing users
     if (d.sponsor && d.sponsor !== '') {
       const { _id: sponsor_id } = await validateExistingField(
         'username',
@@ -305,6 +306,15 @@ class Members extends PureComponent {
         d.comment += 'No such sponsor username. ';
         validationErrors.push({ rowIndex, property: 'sponsor' });
       }
+    }
+
+    // 5. handle validating that a blank email cannot be a gmail account
+    if (d.email === '' && d.isGmail) {
+      d.comment += 'Google login may only be used if an email is specified. ';
+      validationErrors.push(
+        { rowIndex, property: 'email' },
+        { rowIndex, property: 'isGmail' }
+      );
     }
 
     return [d, validationErrors];
