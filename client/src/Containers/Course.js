@@ -661,7 +661,7 @@ const mapStateToProps = (store, ownProps) => {
   // only has the resources that the user has access to.
   return {
     course:
-      localCourse.myRole === 'facilitator'
+      localCourse && localCourse.myRole === 'facilitator'
         ? {
             ...localCourse,
             activities: combineResources([
