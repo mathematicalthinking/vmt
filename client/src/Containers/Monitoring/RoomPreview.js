@@ -49,30 +49,32 @@ function RoomPreview({ roomId }) {
             />
           }
         </div>
-        <div className={classes.Tile}>
+        <div>
+          <div className={classes.Tile}>
+            <div className={classes.TileContainer}>
+              <div
+                className={classes.Title}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  marginBottom: '5px',
+                }}
+              >
+                {isSuccess ? 'Chat' : 'Loading...'}
+              </div>
+              <SimpleChat
+                isSimplified={chatType === constants.SIMPLE}
+                log={isSuccess ? data.chat : []}
+              />
+            </div>
+          </div>
           <ToggleGroup
             buttons={[constants.DETAILED, constants.SIMPLE]}
             value={chatType}
             onChange={setChatType}
           />
-          <div className={classes.TileContainer}>
-            <div
-              className={classes.Title}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                marginBottom: '5px',
-              }}
-            >
-              {isSuccess ? 'Chat' : 'Loading...'}
-            </div>
-            <SimpleChat
-              isSimplified={chatType === constants.SIMPLE}
-              log={isSuccess ? data.chat : []}
-            />
-          </div>
         </div>
       </div>
     </div>

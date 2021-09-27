@@ -33,10 +33,30 @@ module.exports = {
   getPopulatedById: (id) => {
     return new Promise((resolve, reject) => {
       db.Course.findById(id)
-        .populate('rooms')
-        .populate({ path: 'rooms', populate: { path: 'members.user' } })
         .populate('members.user', 'username')
+        .populate('rooms')
+        .populate({
+          path: 'rooms',
+          populate: { path: 'creator', select: 'username' },
+        })
+        .populate({
+          path: 'rooms',
+          populate: { path: 'members.user', select: 'username' },
+        })
+        .populate({
+          path: 'rooms',
+          populate: { path: 'currentMembers', select: 'username' },
+        })
+        .populate({
+          path: 'rooms',
+          populate: { path: 'course', select: 'name' },
+        })
+        .populate({
+          path: 'rooms',
+          populate: { path: 'tabs' },
+        })
         .populate('activities')
+        .populate({ path: 'activities', populate: { path: 'tabs' } })
         .then((course) => resolve(course))
         .catch((err) => reject(err));
     });
