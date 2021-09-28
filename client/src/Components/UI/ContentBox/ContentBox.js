@@ -80,6 +80,9 @@ class ContentBox extends PureComponent {
                       {details.facilitators.map((facilitator) => facilitator)}
                     </div>
                   ) : null}
+                  {details.sinceUpdated ? (
+                    <div>Updated: {details.sinceUpdated} ago</div>
+                  ) : null}
                   {details.creator ? `Creator: ${details.creator}` : null}
                   {details.entryCode ? (
                     <div>Entry Code: {details.entryCode}</div>
