@@ -78,11 +78,11 @@ class MakeRooms extends Component {
   setRoomNumber = (event) => {
     const number = +event.target.value;
     if (number === 0) this.setState({ roomNum: '' });
-    if (number > 0 && number < 8) {
+    if (number > 0 && number < 13) {
       this.setState({ roomNum: number, error: null });
     } else {
       this.setState({
-        error: 'Please create between 1 and 7 rooms',
+        error: 'Please create between 1 and 12 rooms',
       });
     }
   };
