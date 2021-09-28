@@ -16,6 +16,26 @@ const boxList = (props) => {
     maxHeight,
     scrollable,
   } = props;
+
+  const timeDiff = (ts) => {
+    const diff = new Date() - new Date(ts);
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (seconds < 60) {
+      return `${seconds} second${seconds > 1 ? 's' : ''}`;
+    }
+    if (minutes < 60) {
+      return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    }
+    if (hours < 60) {
+      return `${hours} hour${hours > 1 ? 's' : ''}`;
+    }
+    return `${days} day${days > 1 ? 's' : ''}`;
+  };
+
   let listElems = "There doesn't appear to be anything here yet";
   if (list.length > 0) {
     listElems = list.map((item) => {
@@ -30,6 +50,7 @@ const boxList = (props) => {
                     `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
                 )
             : [],
+          sinceUpdated: timeDiff(item.updatedAt),
         };
 
         let notificationCount = 0;
