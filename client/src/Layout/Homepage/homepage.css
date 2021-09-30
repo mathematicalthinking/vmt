@@ -51,7 +51,7 @@
 }
 
 .WorkspaceButton {
-  height: 70px;
+  margin-bottom: 10px;
 }
 
 .Down {
@@ -94,7 +94,7 @@
 
 .Blurb {
   padding: 0 20px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   font-size: 30px;
 }
 

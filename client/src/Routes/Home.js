@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
-import { HomeNav, Navbar } from '../Components';
+import { HomeNav, Modal, Navbar } from '../Components';
 import {
   Homepage,
   Login,
   Signup,
+  ClassCode,
   Community,
   Logout,
   Profile,
@@ -23,6 +24,7 @@ import { updateUser } from '../store/actions/user';
 class Home extends PureComponent {
   state = {
     scrollPosition: 0,
+    errorMsgSeen: false,
   };
 
   componentDidMount() {
@@ -46,10 +48,17 @@ class Home extends PureComponent {
     connectUpdateUser({ inAdminMode: !user.inAdminMode });
   };
 
+  isMobile = () => {
+    return window.matchMedia('only screen and (max-width: 760px)').matches;
+  };
+
+  closeModal = () => {
+    this.setState({ errorMsgSeen: true });
+  };
+
   render() {
     const { location, user } = this.props;
-    const { scrollPosition } = this.state;
-
+    const { scrollPosition, errorMsgSeen } = this.state;
     return (
       <Aux>
         {location.pathname.indexOf('community') > -1 ||
@@ -64,6 +73,16 @@ class Home extends PureComponent {
             toggleAdmin={this.toggleAdmin}
           />
         )}
+        <Modal
+          show={this.isMobile() && !errorMsgSeen}
+          closeModal={this.closeModal}
+          height={120}
+          width={150}
+        >
+          {'Welcome to Virtual Math Teams! '}
+          <br />
+          {'This Math experience is best viewed on a larger computer screen'}
+        </Modal>
         <div
           className={classes.Container}
           style={{
@@ -77,6 +96,7 @@ class Home extends PureComponent {
             <Route exact path="/logout" component={Logout} />
             <Route path="/login" component={Login} />
             <Route path="/signup" component={Signup} />
+            <Route path="/classcode" component={ClassCode} />
 
             <Route path="/confirmation" component={Confirmation} />
             <Route path="/profile" component={Profile} />

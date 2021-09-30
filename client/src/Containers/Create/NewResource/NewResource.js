@@ -36,8 +36,11 @@ const initialState = {
   appName: 'classic',
   dueDate: null,
   activities: [],
-  privacySetting: 'public',
+  privacySetting: 'private',
   roomType: 'geogebra',
+  organization: '',
+  school: '',
+  district: '',
 };
 
 class NewResourceContainer extends Component {
@@ -106,6 +109,9 @@ class NewResourceContainer extends Component {
       roomType,
       dueDate,
       appName,
+      organization,
+      school,
+      district,
     } = this.state;
     const {
       resource,
@@ -151,10 +157,10 @@ class NewResourceContainer extends Component {
               role: 'facilitator',
             },
           ];
+          newResource.metadata = { organization, district, school };
           connectCreateCourse(newResource);
           break;
         case 'activities':
-          console.log(`New template created: ${newResource}`);
           connectCreateActivity(newResource);
           break;
         case 'rooms':
@@ -168,7 +174,7 @@ class NewResourceContainer extends Component {
           if (roomType === 'geogebra') {
             newResource.appName = appName;
           }
-          console.log(`New room created: ${newResource}`);
+          // console.log(`New room created: ${newResource}`);
           connectCreateRoom(newResource);
           break;
         default:
@@ -220,19 +226,9 @@ class NewResourceContainer extends Component {
   setPrivacy = (privacySetting) => {
     this.setState({ privacySetting });
   };
-  nextStep = (direction) => {
-    const _isCopy = (step) => {
-      if (step === 0) {
-        if (direction === 'copy') {
-          return true;
-        }
-      }
-      // TODO CHECK THIS REFACTOR
-      return false;
-    };
+  nextStep = () => {
     this.setState((previousState) => ({
       step: previousState.step + 1,
-      copying: _isCopy(previousState.step),
     }));
   };
 
@@ -267,6 +263,9 @@ class NewResourceContainer extends Component {
       dueDate,
       step,
       creating,
+      organization,
+      school,
+      district,
     } = this.state;
     let displayResource;
     if (resource === 'activities') {
@@ -281,6 +280,9 @@ class NewResourceContainer extends Component {
         displayResource={displayResource}
         name={name}
         description={description}
+        organization={organization}
+        district={district}
+        school={school}
         resource={resource}
         changeHandler={this.changeHandler}
       />,
@@ -356,7 +358,10 @@ class NewResourceContainer extends Component {
               <Button
                 disabled={name.length === 0}
                 click={() => {
-                  this.nextStep('new');
+                  this.nextStep();
+                  this.setState({
+                    copying: false,
+                  });
                 }}
                 tabIndex={0}
                 m={5}
@@ -368,12 +373,15 @@ class NewResourceContainer extends Component {
               <Button
                 disabled={name.length === 0}
                 click={() => {
-                  this.nextStep('copy');
+                  this.nextStep();
+                  this.setState({
+                    copying: true,
+                  });
                 }}
                 m={5}
                 tabIndex={0}
               >
-                copy existing template
+                use existing template
               </Button>
             </div>
           </Aux>
@@ -388,7 +396,14 @@ class NewResourceContainer extends Component {
         </div>
       );
     } else {
-      buttons = <Button click={this.nextStep}>next</Button>;
+      buttons = (
+        <Button
+          disabled={copying && activities.length < 1}
+          click={this.nextStep}
+        >
+          next
+        </Button>
+      );
     }
 
     return (
@@ -408,7 +423,17 @@ class NewResourceContainer extends Component {
               <h2 className={classes.ModalTitle}>
                 Create {resource === 'activities' ? 'a' : 'a'} {displayResource}
               </h2>
-              <div className={classes.MainModalContent}>{steps[step]}</div>
+              <div
+                className={classes.MainModalContent}
+                style={
+                  (step === 1 && copying) ||
+                  (step === 0 && resource === 'courses')
+                    ? { overflow: 'scroll' }
+                    : {}
+                }
+              >
+                {steps[step]}
+              </div>
               <div className={classes.Row}>{buttons}</div>
             </div>
             <div className={classes.StepDisplayContainer}>{stepDisplays}</div>

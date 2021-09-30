@@ -103,17 +103,21 @@ export const clearNotification = (ntfId) => {
   };
 };
 
-export const signup = (body, room) => {
+export const signup = (body) => {
   // room is optional -- if we're siging up someone in a temp room
   return (dispatch) => {
-    if (room) {
-      // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
-    }
+    // if (room) {
+    //   // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
+    // }
     dispatch(loading.start());
     AUTH.signup(body)
       .then((res) => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
+        }
+        if (res.data.courses.length > 0) {
+          dispatch(getUser(res.data._id));
+          return dispatch(loading.success());
         }
         dispatch(gotUser(res.data));
         return dispatch(loading.success());
@@ -121,6 +125,35 @@ export const signup = (body, room) => {
       .catch((err) => {
         dispatch(loading.fail(err.response.data.errorMessage));
       });
+  };
+};
+
+// When we are signing up several people at once. Need to use this so that we can aggregate any errors.
+export const signupMultiple = (bodies) => {
+  return (dispatch) => {
+    const messages = [];
+    let success = true;
+    dispatch(loading.start());
+    bodies.foreach((body) => {
+      AUTH.signup(body)
+        .then((res) => {
+          if (res.data.errorMessage) {
+            messages.push({ body, fail: res.data.errorMessage });
+            success = false;
+          } else {
+            messages.push({ body, success: true });
+          }
+        })
+        .catch((err) => {
+          messages.push({ body, fail: err.response.data.errorMessage });
+          success = false;
+        });
+    });
+    if (success) {
+      dispatch(loading.success());
+    } else {
+      dispatch(loading.multiFail(messages));
+    }
   };
 };
 
@@ -224,11 +257,16 @@ export const getUser = (id) => {
         return dispatch(loading.success());
       })
       .catch((err) => {
+        console.log('ERROR getting user- ', err);
         // if the session has expired logout
-        if (err.response.data.errorMessage === 'Not Authorized') {
-          dispatch(logout());
+        if (err.response) {
+          if (err.response.data.errorMessage === 'Not Authorized') {
+            dispatch(logout());
+          }
+          dispatch(loading.fail(err.response.data.errorMessage));
+        } else {
+          dispatch(loading.fail(`Error getting user - ${err}`));
         }
-        dispatch(loading.fail(err.response.data.errorMessage));
       });
   };
 };
@@ -237,6 +275,19 @@ export const googleLogin = (username, password) => {
   return (dispatch) => {
     dispatch(loading.start());
     AUTH.googleLogin(username, password)
+      .then((res) => {
+        dispatch(loading.success(res));
+      })
+      .catch((err) => {
+        dispatch(loading.fail(err));
+      });
+  };
+};
+
+export const codeLogin = (resource, code) => {
+  return (dispatch) => {
+    dispatch(loading.start());
+    API.getWithCode(resource, code)
       .then((res) => {
         dispatch(loading.success(res));
       })

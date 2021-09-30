@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import withPopulatedCourse from 'utils/withPopulatedCourse';
 import Navbar from '../Components/Navigation/Navbar';
 import {
   MyVMT,
@@ -27,18 +28,18 @@ const pages = [
   { path: '/:resource', component: MyVMT },
   {
     path: '/courses/:course_id/:resource',
-    component: Course,
-    redirectPath: '/signup',
+    component: withPopulatedCourse(Course), // provide the course from the DB to allow facilitators to see all resources
+    redirectPath: '/classcode',
   },
   {
     path: '/courses/:course_id/activities/:activity_id/:resource',
     component: Activity,
-    redirectPath: '/signup',
+    redirectPath: '/classcode',
   },
   {
     path: '/courses/:course_id/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/signup',
+    redirectPath: '/classcode',
   },
   {
     path: '/rooms/:room_id/:resource',
@@ -86,7 +87,7 @@ class MyVmt extends Component {
     const { email, isEmailConfirmed } = user;
 
     const doRedirectToUnconfirmed =
-      loggedIn && email.length > 0 && isEmailConfirmed === false;
+      loggedIn && email.length > 0 && !isEmailConfirmed;
     return (
       <ErrorBoundary>
         <Navbar user={user} toggleAdmin={this.toggleAdmin} />

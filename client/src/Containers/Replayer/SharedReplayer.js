@@ -27,6 +27,7 @@ const INITIAL_STATE = {
   absTimeElapsed: 0,
   changingIndex: false,
   currentMembers: [],
+  activeMember: null,
   allTabsLoaded: false,
   startTime: '',
   loading: true,
@@ -112,6 +113,9 @@ class SharedReplayer extends Component {
     } else if (!playing && this.interval) {
       // switched from playing to stopped
       clearInterval(this.interval);
+    }
+    if (prevState.logIndex !== logIndex) {
+      this.setActiveMember(this.updatedLog[logIndex] || {});
     }
   }
 
@@ -277,8 +281,10 @@ class SharedReplayer extends Component {
     }
     if (populatedRoom.tabs) {
       populatedRoom.tabs.forEach((tab) => {
-        if (tab._id === this.updatedLog[logIndex].tab) {
-          currentTabId = tab._id;
+        if (this.updatedLog[logIndex]) {
+          if (tab._id === this.updatedLog[logIndex].tab) {
+            currentTabId = tab._id;
+          }
         }
       });
     }
@@ -395,6 +401,27 @@ class SharedReplayer extends Component {
     }));
   };
 
+  setActiveMember = (evnt) => {
+    const { activeMember } = this.state;
+    // if a member takes control, set them as active
+    if (evnt.messageType === 'TOOK_CONTROL') {
+      // console.log('Setting member: ', evnt.user && evnt.user._id);
+      this.setState({ activeMember: evnt.user && evnt.user._id });
+      // if there is a mathspace event, noted by a description, the user who did it was in control
+    } else if (evnt.description) {
+      this.setState({ activeMember: evnt.user && evnt.user._id });
+    } else if (
+      // if the active user leaves or released control, reset the activeMember
+      (evnt.messageType === 'RELEASED_CONTROL' ||
+        evnt.messageType === 'LEFT_ROOM') &&
+      activeMember === evnt.user._id
+    ) {
+      this.setState({ activeMember: null });
+    }
+
+    // if the replayer jumps ahead or back, look for mathspace interactions and set active from that
+  };
+
   onEncMessage = (event) => {
     const allowedOrigin = window.location.origin;
     const { origin, data } = event;
@@ -436,6 +463,7 @@ class SharedReplayer extends Component {
       isCreatingActivity,
       mathState,
       isSimplified,
+      activeMember,
     } = this.state;
     if (errorMessage) {
       return (
@@ -558,7 +586,6 @@ class SharedReplayer extends Component {
         />
       );
     });
-    const event = this.updatedLog[logIndex] || {};
     return (
       <Fragment>
         <div>{isFullscreen}</div>
@@ -582,12 +609,12 @@ class SharedReplayer extends Component {
                 members={populatedRoom.members}
                 currentMembers={currentMembers}
                 expanded
-                activeMember={event.user && event.user._id}
+                activeMember={activeMember}
               />
             ) : null
           }
           bottomLeft={replayer}
-          activeMember={event.user}
+          // activeMember={event.user}  // not used in Layout
           replayerControls={replayer}
           currentTabId={currentTabId}
           roomName={`${populatedRoom.name} Replayer`}

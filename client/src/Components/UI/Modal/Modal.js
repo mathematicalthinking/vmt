@@ -3,6 +3,8 @@
 // closeModal: function()
 // children: jsx
 // message: String (if no children display loading icon with custom message)
+// height: number of pixels (optional)
+// width: number of pixels (optional)
 //
 
 import React, { Fragment } from 'react';
@@ -11,7 +13,15 @@ import gif from './Ripple.gif';
 import Backdrop from '../Backdrop/Backdrop';
 import classes from './modal.css';
 
-const Modal = ({ show, closeModal, message, children, height, testId }) => (
+const Modal = ({
+  show,
+  closeModal,
+  message,
+  children,
+  height,
+  width,
+  testId,
+}) => (
   <Fragment>
     <Backdrop show={show} clicked={closeModal} />
     <div
@@ -21,6 +31,7 @@ const Modal = ({ show, closeModal, message, children, height, testId }) => (
         transform: show ? 'translateY(-50%)' : 'translateY(-150vh)',
         opacity: show ? '1' : '0',
         height: height || 'auto',
+        width: width || 'auto',
       }}
     >
       {children ? (
@@ -55,12 +66,14 @@ Modal.propTypes = {
   message: PropTypes.string,
   children: PropTypes.node.isRequired,
   height: PropTypes.number,
+  width: PropTypes.number,
   testId: PropTypes.string,
 };
 
 Modal.defaultProps = {
   message: null,
   height: null,
+  width: null,
   testId: null,
 };
 

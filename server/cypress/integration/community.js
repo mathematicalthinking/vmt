@@ -2,12 +2,15 @@ const { each, capitalize } = require('lodash');
 
 const fixtures = require('../fixtures/community');
 
-const { rooms, activities, courses } = fixtures;
+const { rooms, templates, courses } = fixtures;
 describe('test community search and filter', function() {
   function checkUrl(privacy, roomType, query, resourceType) {
-    let expectedUrl = `community/${resourceType}?privacy=${privacy}`;
+    // @TODO The community link shows 'activities' in the URL rather than 'templates'. This must be fixed in the codebase.
+    const adjustedResourceType =
+      resourceType === 'templates' ? 'activities' : resourceType;
+    let expectedUrl = `community/${adjustedResourceType}?privacy=${privacy}`;
 
-    if (resourceType !== 'courses') {
+    if (adjustedResourceType !== 'courses') {
       expectedUrl += `&roomType=${roomType}`;
     }
 
@@ -81,7 +84,7 @@ describe('test community search and filter', function() {
       expectedItems: {
         rooms: rooms.all,
         courses: courses.all,
-        activities: activities.all,
+        templates: templates.all,
       },
     },
     allGgb: {
@@ -100,7 +103,7 @@ describe('test community search and filter', function() {
       },
       expectedItems: {
         rooms: rooms.allGgb,
-        activities: activities.allGgb,
+        templates: templates.allGgb,
       },
     },
     allDesmos: {
@@ -119,7 +122,7 @@ describe('test community search and filter', function() {
       },
       expectedItems: {
         rooms: rooms.allDesmos,
-        activities: activities.allDesmos,
+        templates: templates.allDesmos,
       },
     },
     publicAll: {
@@ -139,7 +142,7 @@ describe('test community search and filter', function() {
       expectedItems: {
         rooms: rooms.publicAll,
         courses: courses.publicAll,
-        activities: activities.publicAll,
+        templates: templates.publicAll,
       },
     },
     privateAll: {
@@ -159,7 +162,7 @@ describe('test community search and filter', function() {
       expectedItems: {
         rooms: rooms.privateAll,
         courses: courses.privateAll,
-        activities: activities.privateAll,
+        templates: templates.privateAll,
       },
     },
     publicGgb: {
@@ -178,7 +181,7 @@ describe('test community search and filter', function() {
       },
       expectedItems: {
         rooms: rooms.publicGgb,
-        activities: activities.publicGgb,
+        templates: templates.publicGgb,
       },
     },
     publicDesmos: {
@@ -197,7 +200,7 @@ describe('test community search and filter', function() {
       },
       expectedItems: {
         rooms: rooms.publicDesmos,
-        activities: activities.publicDesmos,
+        templates: templates.publicDesmos,
       },
     },
     privateDesmos: {
@@ -216,7 +219,7 @@ describe('test community search and filter', function() {
       },
       expectedItems: {
         rooms: rooms.privateDesmos,
-        activities: activities.privateDesmos,
+        templates: templates.privateDesmos,
       },
     },
   };
@@ -314,12 +317,13 @@ describe('test community search and filter', function() {
     });
 
     it('Changing resource tab should clear search text', function() {
-      clickResourceTab('activities');
+      clickResourceTab('templates');
       cy.getTestElement('community-search').should('have.value', '');
       clickResourceTab('rooms');
     });
 
-    xit('Clicking community tab should clear search text', function() {
+    // @TODO This test CORRECTLY fails; the search box does not get clear. Something to fix in the codebase.
+    it('Clicking community tab should clear search text', function() {
       doSearch('reference');
       cy.getTestElement('community-search').should('have.value', 'reference');
       cy.getTestElement('nav-Community').click({ force: true });

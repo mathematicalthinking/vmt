@@ -1,4 +1,4 @@
-:import('../../colors.css'){
+:import('../../colors.css') {
   gray: backgroundGray;
   blue: blue;
   red: red;
@@ -23,9 +23,17 @@
   color: white;
 }
 
+.Link {
+  text-decoration: underline;
+  transition: 0.2s;
+  font-size: 120%;
+  padding-top: 2px;
+  padding-bottom: 4px;
+}
+
 .Title {
   /* color: blue; */
-  letter-spacing: .07em;
+  letter-spacing: 0.07em;
   margin-bottom: 40px;
   font-weight: 300;
   font-size: 32px;
@@ -47,7 +55,6 @@
   position: absolute;
   text-align: center;
   width: 100%;
-
 }
 
 .Form {
@@ -57,7 +64,6 @@
   align-items: center;
   width: 90%;
 }
-
 
 .Submit {
   margin: 20px 0;

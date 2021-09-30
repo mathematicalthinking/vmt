@@ -70,7 +70,7 @@ class TempWorkspace extends Component {
 
   joinRoom = (graphType) => {
     const { loggedIn, username, userId, populatedRoom } = this.props;
-    const { tempUsername, firstEntry } = this.state;
+    const { tempUsername, firstEntry, saved } = this.state;
     // Set username
     let roomUsername;
     if (loggedIn) {
@@ -102,6 +102,9 @@ class TempWorkspace extends Component {
     }
     if (graphType === 'desmosActivity' && firstEntry) {
       updatedTabs[0].tabType = 'desmosActivity';
+      // disable save for DesmosActivities
+
+      this.setState({ saved: true });
     }
     if (graphType === 'pyret' && firstEntry) {
       updatedTabs[0].tabType = 'pyret';

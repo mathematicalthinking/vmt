@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { SelectionList, Aux } from '../../../Components';
+import { SelectionList } from '../../../Components';
 import API from '../../../utils/apiRequests';
 
 // import classes from '../create.css';
@@ -10,21 +10,25 @@ class Step2Copy extends Component {
   };
   componentDidMount() {
     API.get('activities').then((res) => {
-      this.setState({ activityList: res.data.results });
+      const activties = res.data.results;
+      activties.sort(function(a, b) {
+        return new Date(b.updatedAt) - new Date(a.updatedAt);
+      });
+      this.setState({ activityList: activties });
     });
   }
   render() {
     const { selectedActivities, addActivity } = this.props;
     const { activityList } = this.state;
     return (
-      <Aux>
+      <div>
         <p>Select one or many templates to copy</p>
         <SelectionList
           listToSelectFrom={activityList}
           selectItem={addActivity}
           selected={selectedActivities}
         />
-      </Aux>
+      </div>
     );
   }
 }

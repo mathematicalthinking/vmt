@@ -76,12 +76,13 @@ class Chat extends PureComponent {
   }
 
   render() {
-    const { isSimplified } = this.props;
+    const { isSimplified, changingIndex } = this.props;
     const { messages } = this.state;
     return (
       <ChatLayout
         log={messages}
         replayer
+        changingIndex={changingIndex}
         expanded
         isSimplified={isSimplified}
       />

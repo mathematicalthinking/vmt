@@ -13,6 +13,7 @@
 /server/node_modules
 backup.zip
 /geogebra/
-Icon
+Icon
+
 .DS_Store
 client/.env

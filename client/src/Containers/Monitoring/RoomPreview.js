@@ -5,7 +5,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { usePopulatedRoom } from 'utils/utilityHooks';
-import { SimpleChat } from 'Components';
+import { SimpleChat, ToggleGroup } from 'Components';
 import classes from './monitoringView.css';
 import Thumbnails from './Thumbnails';
 
@@ -28,8 +28,12 @@ import Thumbnails from './Thumbnails';
  */
 
 function RoomPreview({ roomId }) {
-  //   const [chatType, setChatType] = React.useState(constants.DETAILED);
+  const constants = {
+    SIMPLE: 'Simple Chat',
+    DETAILED: 'Detailed Chat',
+  };
 
+  const [chatType, setChatType] = React.useState(constants.DETAILED);
   const { isSuccess, data } = usePopulatedRoom(roomId, false, {
     refetchInterval: 10000, // check for new info every 10 seconds
   });
@@ -45,22 +49,32 @@ function RoomPreview({ roomId }) {
             />
           }
         </div>
-        <div className={classes.Tile}>
-          <div className={classes.TileContainer}>
-            <div
-              className={classes.Title}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                marginBottom: '5px',
-              }}
-            >
-              {isSuccess ? 'Chat' : 'Loading...'}
+        <div>
+          <div className={classes.Tile}>
+            <div className={classes.TileContainer}>
+              <div
+                className={classes.Title}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  marginBottom: '5px',
+                }}
+              >
+                {isSuccess ? 'Chat' : 'Loading...'}
+              </div>
+              <SimpleChat
+                isSimplified={chatType === constants.SIMPLE}
+                log={isSuccess ? data.chat : []}
+              />
             </div>
-            <SimpleChat isSimplified={false} log={isSuccess ? data.chat : []} />
           </div>
+          <ToggleGroup
+            buttons={[constants.DETAILED, constants.SIMPLE]}
+            value={chatType}
+            onChange={setChatType}
+          />
         </div>
       </div>
     </div>

@@ -79,9 +79,10 @@ class Homepage extends PureComponent {
   };
 
   render() {
+    const { history } = this.props;
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
-    const dateStamp = <p>Last updated: 06.10.2021</p>;
+    const dateStamp = <p>Last updated: 09.27.2021, v.1.3.8</p>;
 
     return (
       <Aux>
@@ -93,8 +94,28 @@ class Homepage extends PureComponent {
               Collaborative Workspaces for Exploring the World of Math
             </p>
             <div className={classes.WorkspaceButton}>
-              <Button theme="Big" click={this.createRoom} m={35}>
-                Try out a Workspace
+              <Button
+                theme="Big"
+                click={() => {
+                  history.push('/classcode');
+                }}
+              >
+                Enter with a Class Code
+              </Button>
+            </div>
+            <div className={classes.WorkspaceButton}>
+              <Button
+                theme="Big"
+                click={() => {
+                  history.push('/login');
+                }}
+              >
+                Login to VMT
+              </Button>
+            </div>
+            <div className={classes.WorkspaceButton}>
+              <Button theme="Big" click={this.createRoom}>
+                Try Out A Temp Room
               </Button>
             </div>
           </section>

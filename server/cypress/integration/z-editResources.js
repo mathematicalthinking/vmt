@@ -87,10 +87,10 @@ describe('Edit Resources', function() {
       .contains('My VMT')
       .click();
     cy.getTestElement('tab')
-      .contains('Activities')
+      .contains('Templates')
       .click();
     cy.getTestElement("content-box-Deanna's stand alone activity").click();
-    cy.getTestElement('edit-activity').click();
+    cy.getTestElement('edit-template').click();
     cy.getTestElement('edit-name')
       .type('{selectall} {backspace}')
       .type('NEW NAME');
@@ -101,7 +101,7 @@ describe('Edit Resources', function() {
       .type('{selectall} {backspace}')
       .type('NEW INSTRUCTIONS');
     cy.getTestElement('edit-private').click();
-    cy.getTestElement('save-activity').click();
+    cy.getTestElement('save-template').click();
     cy.wait(1000);
     cy.getTestElement('name')
       .contains('NEW NAME')

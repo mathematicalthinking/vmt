@@ -78,6 +78,18 @@ export const removeCourseMember = (courseId, userId) => {
   };
 };
 
+// export const getWithCode = (code) => {
+//   return (dispatch) => {
+//     dispatch(loading.start());
+//     API.getWithCode('courses', code)
+//       .then((res) => {
+//         dispatch(updatedCourse(courseId, { members: res.data }));
+//         dispatch(loading.success());
+//       })
+//       .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
+//   };
+// };
+
 export const updateCourseMembers = (courseId, updatedMembers) => {
   return (dispatch) => {
     dispatch(loading.start());
@@ -188,6 +200,7 @@ export const createCourse = (body) => {
           // NB If we're creating a template we're going to get back two results in an array (the course that was created & then template that was created)
           return dispatch(addUserCourses(res.data.result[0]._id));
         }
+        res.data.result.myRole = 'facilitator'; // follows the pattern used when adding a room
         dispatch(createdCourse(res.data.result));
         dispatch(addUserCourses([res.data.result._id]));
         return dispatch(loading.success());

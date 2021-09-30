@@ -104,6 +104,7 @@ class PrivateAccess extends Component {
           type="text"
           value={entryCode}
           placeholder="entry code"
+          data-testid={`content-box-entry-code ${displayResource}`}
           name="entryCode"
           change={this.updateEntry}
         />

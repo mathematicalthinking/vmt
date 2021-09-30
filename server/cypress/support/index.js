@@ -17,7 +17,7 @@
 import './commands';
 
 Cypress.Cookies.defaults({
-  whitelist: 'mt_sso_ac',
+  preserve: 'mt_sso_ac',
 });
 
 // Alternatively you can use CommonJS syntax:

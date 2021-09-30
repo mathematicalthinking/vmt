@@ -1,5 +1,5 @@
-/* eslint-disable func-names */
 import * as yup from 'yup';
+import api from 'utils/apiRequests';
 
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 const usernamePattern = /^[a-z0-9_]{3,30}$/;
@@ -62,7 +62,7 @@ const resetPasswordSchema = yup.object().shape({
   password: passwordSchema.required(),
   confirmPassword: yup
     .mixed()
-    .test('doPasswordsMatch', 'Passwords do not match', function(value) {
+    .test('doPasswordsMatch', 'Passwords do not match', (value) => {
       return value === this.parent.password;
     }),
   token: trimmed.required(),
@@ -82,4 +82,34 @@ const basicTokenSchema = yup.object().shape({
 
 export const validateBasicToken = (token) => {
   return validateSchema(basicTokenSchema, { token });
+};
+
+// returns false if no existing value for the field; returns the user object if it does exist
+
+export const validateExistingField = async (field, value) => {
+  return api
+    .get('user', { [field]: value })
+    .then((res) => {
+      return (
+        res.data &&
+        res.data.results &&
+        res.data.results.length > 0 &&
+        res.data.results[0]
+      );
+    })
+    .catch((err) => console.error(err));
+};
+
+export const suggestUniqueUsername = (username) => {
+  const uniqueName = validateExistingField('username', username)
+    .then((isExisting) => {
+      return !isExisting
+        ? username
+        : suggestUniqueUsername(username + Math.floor(Math.random() * 1000));
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  return uniqueName;
 };

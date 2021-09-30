@@ -78,11 +78,11 @@ class MakeRooms extends Component {
   setRoomNumber = (event) => {
     const number = +event.target.value;
     if (number === 0) this.setState({ roomNum: '' });
-    if (number > 0 && number < 8) {
+    if (number > 0 && number < 13) {
       this.setState({ roomNum: number, error: null });
     } else {
       this.setState({
-        error: 'Please create between 1 and 7 rooms',
+        error: 'Please create between 1 and 12 rooms',
       });
     }
   };
@@ -114,8 +114,12 @@ class MakeRooms extends Component {
     const _updateParticipantList = (selectedParticipants) => {
       const newParticipant = userId;
       let updatedSelectedParticipants = [...selectedParticipants];
-      // if user is already selected, remove them from the selected lis
-      if (selectedParticipants.includes(newParticipant)) {
+      // if user is already selected, remove them from the selected list
+      if (
+        selectedParticipants.some((mem) => {
+          return mem.user._id === newParticipant.user._id;
+        })
+      ) {
         updatedSelectedParticipants = selectedParticipants.filter(
           (participant) => participant !== newParticipant
         );
@@ -161,8 +165,6 @@ class MakeRooms extends Component {
   };
 
   updateParticipants = (selectionMatrix) => {
-    // const { roomNum } = this.state;
-    // console.log('Passed matrix: ', selectionMatrix, ' Room num: ', roomNum);
     this.setState({ roomDrafts: selectionMatrix });
   };
 
@@ -210,16 +212,18 @@ class MakeRooms extends Component {
       for (let i = 0; i < roomDrafts.length; i++) {
         // const currentRoom = { ...roomDrafts[i] };
         const currentRoom = { ...newRoom };
-        const members = roomDrafts[i].members.map((id, index) => ({
-          user: id,
-          role: 'participant',
-          color: COLOR_MAP[index + 1],
+        const members = roomDrafts[i].members.map((mem, index) => ({
+          user: course ? mem._id : mem,
+          role: mem.role,
+          color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
         }));
-        members.push({
-          user: userId,
-          role: 'facilitator',
-          color: COLOR_MAP[0],
-        });
+        if (!course) {
+          members.unshift({
+            user: userId,
+            role: 'facilitator',
+            color: COLOR_MAP[0],
+          });
+        }
         currentRoom.members = members;
         currentRoom.name = roomDrafts[i].name;
         currentRoom.activity = roomDrafts[i].activity;
@@ -235,7 +239,6 @@ class MakeRooms extends Component {
         currentRoom.name = `${activity.name} room copy`;
         roomsToCreate.push(currentRoom);
       }
-      console.log('Room assignment rooms: ', roomsToCreate);
       roomsToCreate.forEach((room) => connectCreateRoom(room));
       close();
       const { url } = match;
@@ -312,6 +315,7 @@ class MakeRooms extends Component {
         activity={activity}
         course={course}
         dueDate={dueDate}
+        userId={userId}
       />
     );
 

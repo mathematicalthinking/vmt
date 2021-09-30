@@ -322,12 +322,13 @@ export const populateRoom = (id, opts) => {
   };
 };
 
-export const inviteToRoom = (roomId, toUserId, toUserUsername) => {
+export const inviteToRoom = (roomId, toUserId, toUserUsername, color) => {
   return (dispatch) => {
     dispatch(
       addRoomMember(roomId, {
         user: { _id: toUserId, username: toUserUsername },
         role: 'participant',
+        color,
       })
     );
     API.grantAccess(toUserId, 'room', roomId, 'invitation')

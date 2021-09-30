@@ -412,7 +412,7 @@ class Room extends Component {
       if (course) {
         crumbs.splice(1, 0, {
           title: course.name,
-          link: `/myVMT/courses/${course._id}/activities`,
+          link: `/myVMT/courses/${course._id}/rooms`,
         });
       }
       let mainContent;
@@ -443,7 +443,10 @@ class Room extends Component {
             parentResource={course ? course._id : null}
             courseMembers={course ? course.members : null}
             notifications={
-              notifications.filter((ntf) => ntf.resourceId === room._id) || []
+              course
+                ? notifications.filter((ntf) => ntf.resourceId === course._id)
+                : notifications.filter((ntf) => ntf.resourceId === room._id) ||
+                  []
             }
           />
         );

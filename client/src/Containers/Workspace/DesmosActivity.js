@@ -44,7 +44,7 @@ const DesmosActivity = (props) => {
   // }
 
   const putState = () => {
-    const { tab, updateRoomTab, room } = props;
+    const { tab, temp, updateRoomTab, room } = props;
     const { _id } = tab;
     let responseData = {};
     if (tab.currentStateBase64) {
@@ -63,9 +63,9 @@ const DesmosActivity = (props) => {
     if (calculatorInst.current) {
       updateObject.currentScreen = getCurrentScreen();
     }
-    // console.log('Update object: ', updateObject);
+    // console.log('Update object: ', updateObject, 'Temp: ', temp);
     API.put('tabs', _id, updateObject)
-      .then(() => updateRoomTab(room._id, _id, updateObject))
+      .then(() => (temp ? {} : updateRoomTab(room._id, _id, updateObject)))
       .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
@@ -118,7 +118,6 @@ const DesmosActivity = (props) => {
         updates
         // stateDifference
       );
-      console.log('Sent ', type, ' state');
 
       const currentStateString = JSON.stringify(currentState);
       // console.log(this.calculator.getState());
@@ -146,7 +145,7 @@ const DesmosActivity = (props) => {
 
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
-    const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
+    const { tab, updatedRoom, addNtfToTabs, addToLog, temp } = props;
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
@@ -161,14 +160,9 @@ const DesmosActivity = (props) => {
           }
           return tab;
         });
-        updatedRoom(room._id, { tabs: updatedTabs });
+        if (!temp) updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
         const updatesState = JSON.parse(data.currentState);
-        console.log(
-          'Received ',
-          updatesState.transient ? 'transient' : 'persistent',
-          ' state '
-        );
         // let transient event handle page change
         // if (
         //   updatesState.screen !== calculatorInst.current.getActiveScreenIndex()
@@ -200,13 +194,13 @@ const DesmosActivity = (props) => {
       // fallback to turtle time trials, used for demo
       '5da9e2174769ea65a6413c93';
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
-    console.log('adapted activity url: ', URL);
+    // console.log('adapted activity url: ', URL);
     // calling Desmos to get activity config
     try {
       const result = await fetch(URL, {
         headers: { Accept: 'application/json' },
       });
-      console.log('Result: ', result);
+      // console.log('Result: ', result);
       // TODO handle this error message
       const status = await result.status;
       if (status !== 200) {
@@ -291,7 +285,6 @@ const DesmosActivity = (props) => {
     // Go to screen last used
     if (tab.currentScreen) {
       const { currentScreen } = tab;
-      console.log('Prior screen index loaded: ', currentScreen);
       calculatorInst.current.setActiveScreenIndex(currentScreen);
     }
     return unsubToken;
@@ -456,10 +449,12 @@ DesmosActivity.propTypes = {
   // updateUserSettings: PropTypes.func,
   addToLog: PropTypes.func.isRequired,
   onScreenChange: PropTypes.func,
+  temp: PropTypes.bool,
 };
 
 DesmosActivity.defaultProps = {
   onScreenChange: () => {},
+  temp: false,
 };
 
 export default withRouter(DesmosActivity);

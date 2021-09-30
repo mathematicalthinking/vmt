@@ -1,6 +1,9 @@
 # VMT (Virutal Math Teams) Env Guide
 
-Below are examples intended to help in configuring the .env files for VMT. Remove placeholders as needed for deployment. 
+Below are examples intended to help in configuring the .env files for VMT. Remove placeholders as needed for deployment. A couple of points:
+
+- the various JWT variables need to match up among client, server, and MT-SSO
+- to do cypress testing, MT-SSO will need a .env_test file, which sets the regular MT-SSO variables to values that correspond with the 'test' variables in the client or server. For example, REACT_APP_MT_LOGIN_URL_TEST points to localhost:3003. This means that the SSO_PORT in .env_test should be set to 3003.
 
 ## 1. Client
 

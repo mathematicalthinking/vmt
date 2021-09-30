@@ -7,15 +7,15 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { NavItem, ToggleGroup, SimpleChat } from 'Components';
+import { NavItem, ToggleGroup, SimpleChat, CurrentMembers } from 'Components';
 import { updateMonitorSelections } from 'store/actions';
 import { usePopulatedRoom } from 'utils';
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
 import Thumbnails from './Thumbnails';
-import SelectionTable from './SelectionTable';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
+import ResourceTables from './ResourceTables';
 
 /**
  * The MonitoringView provides three views into a set of rooms: activity graph, thumbnail, and chat. Users can
@@ -48,7 +48,7 @@ import DropdownMenuClasses from './dropdownmenu.css';
  */
 
 function MonitoringView({
-  userResources: allResources,
+  userResources,
   storedSelections,
   user,
   connectUpdateMonitorSelections,
@@ -59,16 +59,18 @@ function MonitoringView({
     VIEW: 'View',
     CHAT: 'Chat',
     THUMBNAIL: 'Thumbnail',
+    ATTENDANCE: 'Attendance',
     GRAPH: 'Graph',
     SIMPLE: 'Simple Chat',
     DETAILED: 'Detailed Chat',
   };
 
   // Monitoring is allowed only on the rooms that the user manages.
-  const userResources = React.useMemo(
-    () => allResources.filter((res) => res.myRole === 'facilitator'),
-    [allResources]
-  );
+  // @TODO When we switch to a centralized 'hasAccess' facility, we can do our filtering based on that
+  // const userResources = React.useMemo(
+  //   () => allResources.filter((res) => res.myRole === 'facilitator'),
+  //   [allResources]
+  // );
 
   const _wasRecentlyUpdated = (room) => {
     // integrated logic to determine default rooms to view
@@ -96,6 +98,20 @@ function MonitoringView({
         result[room._id] = storedSelections[room._id];
       }
     });
+
+    // if there's nothing to display, show the (up to) 5 most recently updated rooms
+
+    if (!Object.values(result).reduce((acc, val) => acc || val, false)) {
+      // if all the values are false
+      const roomsResult = [...rooms].sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
+      if (roomsResult.length !== 0)
+        roomsResult
+          .slice(0, Math.min(5, roomsResult.length))
+          // eslint-disable-next-line no-return-assign
+          .forEach((room) => (result[room._id] = true));
+    }
     return result;
   };
 
@@ -103,28 +119,47 @@ function MonitoringView({
   const [selections, setSelections] = React.useState(
     _initializeSelections(userResources)
   );
-  const [viewType, setViewType] = React.useState(constants.CHAT);
+  const [viewType, setViewType] = React.useState(constants.ATTENDANCE);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
   const savedState = React.useRef(selections);
 
+  // UserResources have the myRole property defined because that gets set when
+  // the room is pulled into the redux store from the DB. However, we are polling
+  // the DB directly (via usePopulatedRoom), so have to assign the myRole property.
+  const assignMyRole = (roomQuery) => {
+    let myRole = 'participant';
+    if (roomQuery.isSuccess) {
+      const myMembership =
+        roomQuery.data.members &&
+        roomQuery.data.members.find((mem) => mem.user._id === user._id);
+      if (myMembership && myMembership.role === 'facilitator')
+        myRole = 'facilitator';
+    }
+
+    return roomQuery.isSuccess
+      ? { ...roomQuery, data: { ...roomQuery.data, myRole } }
+      : roomQuery;
+  };
   // Because "useQuery" is the equivalent of useState, do this
   // initialization of queryStates (an object containing the states
   // for the API-retrieved data) at the top level rather than inside
   // of a useEffect.
   const queryStates = {};
   userResources.forEach((room) => {
-    queryStates[room._id] = usePopulatedRoom(
-      room._id,
-      true,
-      // Check for updates every 10 sec. If we are viewing rooms (i.e., Chat, Thumbnail, or Graph), then we need
-      // to update only the currently selected rooms. If we are selecting rooms via the selection table, then we
-      // should try to update all rooms so that the "current in room" column remains correct.
-      {
-        refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
-        enabled:
-          (savedState.current && savedState.current[room._id]) ||
-          viewOrSelect === constants.SELECT,
-      }
+    queryStates[room._id] = assignMyRole(
+      usePopulatedRoom(
+        room._id,
+        true,
+        // Check for updates every 10 sec. If we are viewing rooms (i.e., Chat, Thumbnail, or Graph), then we need
+        // to update only the currently selected rooms. If we are selecting rooms via the selection table, then we
+        // should try to update all rooms so that the "current in room" column remains correct.
+        {
+          refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+          enabled:
+            (savedState.current && savedState.current[room._id]) ||
+            viewOrSelect === constants.SELECT,
+        }
+      )
     );
   });
 
@@ -228,6 +263,18 @@ function MonitoringView({
           />
         );
       }
+      case constants.ATTENDANCE: {
+        const data = queryStates[id].isSuccess ? queryStates[id].data : null;
+        return (
+          <CurrentMembers
+            members={data ? data.members : []}
+            currentMembers={data ? data.members.map((m) => m.user) : []}
+            activeMember={data ? data.currentMembers.map((m) => m._id) : []}
+            expanded
+            showTitle={false}
+          />
+        );
+      }
       default:
         return null;
     }
@@ -259,7 +306,12 @@ function MonitoringView({
         {viewOrSelect === constants.VIEW && (
           <Fragment>
             <ToggleGroup
-              buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
+              buttons={[
+                constants.ATTENDANCE,
+                constants.CHAT,
+                constants.THUMBNAIL,
+                constants.GRAPH,
+              ]}
               value={viewType}
               onChange={setViewType}
             />
@@ -275,12 +327,12 @@ function MonitoringView({
       </div>
 
       {viewOrSelect === constants.SELECT ? (
-        <SelectionTable
-          data={Object.keys(queryStates)
-            .filter((id) => queryStates[id].isSuccess)
-            .map((_id) => {
-              return { _id, ...queryStates[_id].data };
-            })}
+        <ResourceTables
+          // So that we quickly display the table: use the data in userResources until we have more recent live data
+          data={userResources.map((room) =>
+            queryStates[room._id].isSuccess ? queryStates[room._id].data : room
+          )}
+          resource="rooms"
           selections={selections}
           onChange={(newSelections) => {
             setSelections((prev) => {
