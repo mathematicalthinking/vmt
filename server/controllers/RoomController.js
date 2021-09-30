@@ -222,7 +222,7 @@ module.exports = {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
-    const rooms = await Room.aggregate(aggregationPipeline);
+    const rooms = await Room.aggregate(aggregationPipeline).allowDiskUse(true);
     return rooms;
   },
 
