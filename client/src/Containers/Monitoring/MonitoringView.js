@@ -268,7 +268,14 @@ function MonitoringView({
         return (
           <CurrentMembers
             members={data ? data.members : []}
-            currentMembers={data ? data.members.map((m) => m.user) : []}
+            currentMembers={
+              data
+                ? _selectFirst([
+                    ...data.currentMembers,
+                    ...data.members.map((m) => m.user),
+                  ])
+                : []
+            }
             activeMember={data ? data.currentMembers.map((m) => m._id) : []}
             expanded
             showTitle={false}
@@ -278,6 +285,14 @@ function MonitoringView({
       default:
         return null;
     }
+  };
+
+  const _selectFirst = (list) => {
+    const values = list.reduce((acc, elt) => {
+      if (!acc[elt._id]) acc[elt._id] = elt;
+      return acc;
+    }, {});
+    return Object.values(values);
   };
 
   // @TODO VMT should have a standard way of displaying timestamps, perhaps in utilities. This function should be there.
