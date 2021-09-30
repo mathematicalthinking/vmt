@@ -5,7 +5,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { usePopulatedRoom } from 'utils/utilityHooks';
-import { SimpleChat, ToggleGroup } from 'Components';
+import { SimpleChat, ToggleGroup, CurrentMembers } from 'Components';
 import classes from './monitoringView.css';
 import Thumbnails from './Thumbnails';
 
@@ -42,12 +42,31 @@ function RoomPreview({ roomId }) {
     <div className={classes.Container}>
       <div className={classes.TileGroup}>
         <div className={classes.Tile}>
-          {
-            <Thumbnails
-              populatedRoom={isSuccess ? data : {}}
-              defaultLabel="Thumbnail"
+          <div className={classes.TileContainer}>
+            <div
+              className={classes.Title}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                marginBottom: '5px',
+              }}
+            >
+              {isSuccess
+                ? `Members: ${data.members.length}; Currently: ${
+                    data.currentMembers.length
+                  }`
+                : 'Loading...'}
+            </div>
+            <CurrentMembers
+              members={data ? data.members : []}
+              currentMembers={data ? data.members.map((m) => m.user) : []}
+              activeMember={data ? data.currentMembers.map((m) => m._id) : []}
+              expanded
+              showTitle={false}
             />
-          }
+          </div>
         </div>
         <div>
           <div className={classes.Tile}>
@@ -74,6 +93,12 @@ function RoomPreview({ roomId }) {
             buttons={[constants.DETAILED, constants.SIMPLE]}
             value={chatType}
             onChange={setChatType}
+          />
+        </div>
+        <div className={classes.Tile}>
+          <Thumbnails
+            populatedRoom={isSuccess ? data : {}}
+            defaultLabel="Thumbnail"
           />
         </div>
       </div>
