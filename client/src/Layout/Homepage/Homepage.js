@@ -96,7 +96,8 @@ class Homepage extends PureComponent {
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
     const dateStamp = <p>Last updated: 10.03.2021, v.1.3.9</p>;
-    const maintWindow = 'Sunday, 3-7pm EST';
+    const maintWindow =
+      process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE || 'Sunday, 3-7pm EST';
     return (
       <Aux>
         <Background bottomSpace={null} />
