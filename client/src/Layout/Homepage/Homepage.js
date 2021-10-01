@@ -57,6 +57,19 @@ class Homepage extends PureComponent {
     return 'production';
   };
 
+  determineMaintWindow = (win) => {
+    const { pageLocation } = this.state;
+    if (pageLocation === 'development') {
+      return `VMT is in development and updated reguarly${
+        win ? `: maintenance window is ${win}` : ''
+      }, please contact if uptime is required.`;
+    }
+    if (pageLocation === 'staging') {
+      return 'Staging deployment may have unplanned maintenance, please notify if an uptime window is required.';
+    }
+    return null;
+  };
+
   createRoom = () => {
     const { user, createRoom } = this.props;
     const room = {
@@ -83,7 +96,7 @@ class Homepage extends PureComponent {
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
     const dateStamp = <p>Last updated: 10.03.2021, v.1.3.9</p>;
-
+    const maintWindow = 'Sunday, 3-7pm EST';
     return (
       <Aux>
         <Background bottomSpace={null} />
@@ -124,15 +137,16 @@ class Homepage extends PureComponent {
             <br />
             <p>
               If you encounter bugs or want to suggest new features please email
-              us at{' '}
+              us at:{' '}
               <a
                 className={classes.Link}
                 href="mailto:vmt@21pstem.org?subject=%5BVMT%20Feedback%5D&body=Thank%20you%20for%20taking%20the%20time%20to%20help%20improve%20VMT!%20Please%20add%20the%20following%20information%20so%20that%20we%20can%20address%20your%20request-%0D%0A%0D%0AType%20of%20Request%20(Bug%2C%20Feature%2C%20Feedback%2C%20Question)%3A%0D%0ADescription%20or%20steps%20to%20reproduce%3A%0D%0ATime%20of%20issue%3A%0D%0AWeb%20browser%3A%0D%0ASite%20specific%20URL%3A"
               >
                 vmt@21pstem.org
-              </a>
-              .{' '}
+              </a>{' '}
             </p>
+            {this.determineMaintWindow(maintWindow)}
+            <p />
             <br />
             <p>
               VMT is{' '}
