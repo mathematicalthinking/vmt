@@ -4,6 +4,7 @@ import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import API from '../../utils/apiRequests';
+import classes from './graph.css';
 
 function PyretAPI(iframeReference, onmessageHandler) {
   const oldOnMessage = window.onmessage;
@@ -12,6 +13,7 @@ function PyretAPI(iframeReference, onmessageHandler) {
     postMessage,
     setParams,
   };
+
   function postMessage(data) {
     if (!iframeReference()) {
       return;
@@ -248,18 +250,31 @@ const CodePyretOrg = (props) => {
       />
 
       <div
-        ref={cpoDivWrapper}
-        style={{ height: '100%' }}
-        id="container"
+        className={classes.Activity}
         onClickCapture={_checkForControl}
+        id="containerParent"
+        style={{
+          height: '890px', // @TODO this needs to be adjusted based on the editor instance.
+        }}
       >
-        <iframe
-          ref={cpoIframe}
-          style={style}
-          title="pyret"
-          src="https://pyret-horizon.herokuapp.com/editor" // "http://localhost:5000/editor"
-        />
-        ;
+        <div
+          ref={cpoDivWrapper}
+          // style={{ height: '100%' }}
+          id="container"
+          style={{
+            pointerEvents: !_hasControl() ? 'none' : 'auto',
+            height: '100%',
+            overflow: 'auto',
+          }}
+        >
+          <iframe
+            ref={cpoIframe}
+            style={style}
+            title="pyret"
+            src="https://pyret-horizon.herokuapp.com/editor" // "http://localhost:5000/editor"
+          />
+          ;
+        </div>
       </div>
     </Fragment>
   );
