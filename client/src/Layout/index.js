@@ -10,11 +10,10 @@ export { default as NewResource } from './Create/NewResource/NewResource';
 export { default as BoxList } from './BoxList/BoxList';
 export { default as WorkspaceLayout } from './Workspace/Workspace';
 export { default as About } from './About/About';
+export { default as NotFound } from './NotFound/NotFound';
 export { default as ForgotPassword } from './ForgotPassword/ForgotPassword';
 export { default as ResetPasswordLayout } from './ResetPassword/ResetPassword';
-export {
-  default as AdminDashboardLayout,
-} from './AdminDashboard/AdminDashboard';
-export {
-  default as DashboardBoxList,
-} from './DashboardBoxList/DashboardBoxList';
+// prettier-ignore
+export { default as AdminDashboardLayout } from './AdminDashboard/AdminDashboard';
+// prettier-ignore
+export { default as DashboardBoxList } from './DashboardBoxList/DashboardBoxList';

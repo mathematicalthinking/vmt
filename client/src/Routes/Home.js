@@ -15,7 +15,7 @@ import {
   ConfirmEmail,
   Unconfirmed,
 } from '../Containers';
-import { Confirmation, About } from '../Layout';
+import { Confirmation, About, NotFound } from '../Layout';
 import classes from './main.css';
 import Aux from '../Components/HOC/Auxil';
 import OauthReturn from '../Components/HOC/OauthReturn';
@@ -120,16 +120,14 @@ class Home extends PureComponent {
             <Route path="/confirmEmail/:token?" component={ConfirmEmail} />
             <Route path="/unconfirmed" component={Unconfirmed} />
             <Route path="/oauth/return" component={OauthReturn} />
+            <Route path="/*" component={NotFound} />
           </Switch>
         </div>
       </Aux>
     );
   }
 }
-
-export default connect(
-  (state) => ({ user: state.user }),
-  {
-    connectUpdateUser: updateUser,
-  }
-)(Home);
+// prettier-ignore
+export default connect((state) => ({ user: state.user }), {
+  connectUpdateUser: updateUser,
+})(Home);
