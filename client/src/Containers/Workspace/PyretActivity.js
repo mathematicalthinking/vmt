@@ -6,6 +6,37 @@ import mongoIdGenerator from '../../utils/createMongoId';
 import API from '../../utils/apiRequests';
 import classes from './graph.css';
 
+function PyretAPI(iframeReference, onmessageHandler) {
+  const oldOnMessage = window.onmessage;
+  const handlers = {
+    onmessage: onmessageHandler,
+    postMessage,
+    setParams,
+  };
+
+  function postMessage(data) {
+    if (!iframeReference()) {
+      return;
+    }
+    iframeReference().contentWindow.postMessage(data, '*');
+  }
+  function setParams(params) {
+    console.log(params, iframeReference());
+    const pyretWindow = iframeReference();
+    pyretWindow.src += params;
+  }
+  window.onmessage = function(event) {
+    if (event.data.protocol !== 'pyret') {
+      console.log('Not a pyret');
+      if (typeof oldOnMessage === 'function') {
+        return oldOnMessage(event);
+      }
+    }
+    return handlers.onmessage(event.data);
+  };
+  return handlers;
+}
+
 const CodePyretOrg = (props) => {
   const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
