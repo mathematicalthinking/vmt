@@ -15,7 +15,7 @@ import {
   ConfirmEmail,
   Unconfirmed,
 } from '../Containers';
-import { Confirmation, About, NotFound } from '../Layout';
+import { Confirmation, About, NotFound, Terms, Instructions } from '../Layout';
 import classes from './main.css';
 import Aux from '../Components/HOC/Auxil';
 import OauthReturn from '../Components/HOC/OauthReturn';
@@ -107,6 +107,8 @@ class Home extends PureComponent {
           <Switch>
             <Route exact path="/" render={() => <Homepage {...this.props} />} />
             <Route path="/about" component={About} />
+            <Route path="/instructions" component={Instructions} />
+            <Route path="/terms" component={Terms} />
             <Route path="/community/:resource" component={Community} />
             <Route exact path="/logout" component={Logout} />
             <Route path="/login" component={Login} />
