@@ -36,7 +36,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
     { name: 'About', link: '/about' },
     { name: 'Instructions', link: '/instructions' },
     { name: 'FAQ', link: '/faq' },
-    { name: 'Terms', link: '/terms' },
+    { name: 'Contact', link: '/contact' },
   ];
   return (
     <nav className={styles}>
