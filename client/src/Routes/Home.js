@@ -22,6 +22,7 @@ import {
   Terms,
   Instructions,
   Faq,
+  Contact,
 } from '../Layout';
 import classes from './main.css';
 import Aux from '../Components/HOC/Auxil';
@@ -117,6 +118,7 @@ class Home extends PureComponent {
             <Route path="/instructions" component={Instructions} />
             <Route path="/terms" component={Terms} />
             <Route path="/faq" component={Faq} />
+            <Route path="/contact" component={Contact} />
             <Route path="/community/:resource" component={Community} />
             <Route exact path="/logout" component={Logout} />
             <Route path="/login" component={Login} />

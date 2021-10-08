@@ -14,6 +14,7 @@ export { default as NotFound } from './NotFound/NotFound';
 export { default as Terms } from './Terms/Terms';
 export { default as Faq } from './Faq/Faq';
 export { default as Instructions } from './Instructions/Instructions';
+export { default as Contact } from './Contact/Contact';
 export { default as ForgotPassword } from './ForgotPassword/ForgotPassword';
 export { default as ResetPasswordLayout } from './ResetPassword/ResetPassword';
 // prettier-ignore
