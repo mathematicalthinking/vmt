@@ -1,6 +1,7 @@
 // REQUIRE MODULES
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -20,23 +21,44 @@ const app = express();
 console.log('NODE_ENV=', process.env.NODE_ENV);
 // SETUP DATABASE & SESSION
 let mongoURI;
+let mongoOptions = { useNewUrlParser: true, poolSize: 10 };
 if (process.env.NODE_ENV === 'dev') {
   mongoURI = process.env.MONGO_DEV_URI;
 } else if (process.env.TRAVIS) {
   mongoURI = process.env.MONGO_TEST_URI;
 } else if (process.env.NODE_ENV === 'production') {
   mongoURI = process.env.MONGO_PROD_URI;
+  mongoOptions = {
+    ...mongoOptions,
+    ssl: true,
+    sslValidate: true,
+    user: process.env.MONGO_PROD_USER,
+    pass: process.env.MONGO_PROD_PASS,
+    sslKey: fs.readFileSync(process.env.MONGO_PROD_SSL_KEY_DIR),
+    sslCert: fs.readFileSync(process.env.MONGO_PROD_SSL_CERT_DIR),
+    authSource: process.env.MONGO_PROD_AUTHDB,
+  };
 } else if (process.env.NODE_ENV === 'staging') {
   mongoURI = process.env.MONGO_STAGING_URI;
+  mongoOptions = {
+    ...mongoOptions,
+    ssl: true,
+    sslValidate: true,
+    user: process.env.MONGO_STAGING_USER,
+    pass: process.env.MONGO_STAGING_PASS,
+    sslKey: fs.readFileSync(process.env.MONGO_STAGING_SSL_KEY_DIR),
+    sslCert: fs.readFileSync(process.env.MONGO_STAGING_SSL_CERT_DIR),
+    authSource: process.env.MONGO_STAGING_AUTHDB,
+  };
 } else if (process.env.NODE_ENV === 'test') {
   mongoURI = process.env.MONGO_TEST_URI;
 }
 
-mongoose.connect(mongoURI, { useNewUrlParser: true }, (err) => {
+mongoose.connect(mongoURI, mongoOptions, (err) => {
   if (err) {
     console.log(`DB CONNECTION FAILED: ${err}`);
   } else {
-    console.log(`DB CONNECTION SUCCESS${mongoURI}`);
+    console.log(`DB CONNECTION SUCCESS ${mongoURI}`);
   }
 });
 
