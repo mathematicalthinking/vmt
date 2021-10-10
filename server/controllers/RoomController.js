@@ -385,7 +385,20 @@ module.exports = {
 
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
-      db.User.findByIdAndUpdate(body.members.user, { $pull: { rooms: id } }); // @todo there is no error handling for this
+      db.Notification.find({ resourceId: id })
+        .then((ntfs) => {
+          const ntfIds = ntfs.map((ntf) => ntf._id);
+          db.User.findByIdAndUpdate(body.members.user, {
+            $pull: {
+              rooms: id,
+              notifications: { $in: ntfIds },
+            },
+          }).then(() => {
+            // TODO delete notification that matches user ntfs
+            // db.Notification.delete({ _id: { $in: ntfIds } })
+          });
+        })
+        .catch((err) => reject(err)); // @todo there is no real error handling for this
       db.Room.findByIdAndUpdate(id, { $pull: body }, { new: true })
         .populate({ path: 'members.user', select: 'username' })
         .then((res) => {

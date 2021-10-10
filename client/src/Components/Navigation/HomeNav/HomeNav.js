@@ -20,17 +20,24 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
     ntf = true;
   }
 
-  const list = [
+  const profileList = [
     { name: 'Profile', link: '/myVMT/profile' },
     { name: 'Logout', link: '/logout' },
   ];
 
   if (user.isAdmin) {
-    list.splice(1, 0, {
+    profileList.splice(1, 0, {
       name: 'Admin Mode',
       sliderDetails: { isOn: user.inAdminMode, onClick: toggleAdmin },
     });
   }
+
+  const aboutList = [
+    { name: 'About', link: '/about' },
+    { name: 'Instructions', link: '/instructions' },
+    { name: 'FAQ', link: '/faq' },
+    { name: 'Contact', link: '/contact' },
+  ];
   return (
     <nav className={styles}>
       <div className={classes.NavContainer}>
@@ -64,7 +71,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
             {user.isAdmin ? (
               <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
             ) : null}
-            <NavItem link="/about" name="About" />
+            <DropdownNavItem name="Info" list={aboutList} />
             {loggedIn ? (
               <DropdownNavItem
                 name={
@@ -73,7 +80,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
                     color={user.inAdminMode ? '#ffd549' : '#2d91f2'}
                   />
                 }
-                list={list}
+                list={profileList}
               />
             ) : null}
           </ul>
@@ -99,8 +106,5 @@ Navbar.defaultProps = {
 const mapStateToProps = (store) => ({
   loggedIn: store.user.loggedIn,
 });
-
-export default connect(
-  mapStateToProps,
-  null
-)(Navbar);
+// prettier-ignore
+export default connect(mapStateToProps, null)(Navbar);

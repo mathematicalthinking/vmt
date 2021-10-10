@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { CSVReader } from 'react-papaparse';
 import { Member, Search, Modal, Button, InfoBox } from 'Components';
+import Slider from 'Components/UI/Button/Slider';
 import COLOR_MAP from 'utils/colorMap';
 import API from 'utils/apiRequests';
 import { suggestUniqueUsername, validateExistingField } from 'utils/validators';
@@ -39,6 +40,7 @@ class Members extends PureComponent {
       sponsors: {},
       rowConfig: [],
       resolveSelections: {},
+      isCourseOnly: false,
     };
     this.buttonRef = React.createRef();
   }
@@ -161,13 +163,18 @@ class Members extends PureComponent {
 
   // Consider finding a way to NOT duplicate this in MakeRooms and also now in Profile
   search = (text) => {
-    const { classList } = this.props;
+    const { classList, courseMembers } = this.props;
+    const { isCourseOnly } = this.state;
     if (text.length > 0) {
       API.search('user', text, classList.map((member) => member.user._id))
         .then((res) => {
-          const searchResults = res.data.results.filter(
-            (user) => user.accountType !== 'temp'
-          );
+          const searchResults = res.data.results.filter((user) => {
+            if (user.accountType === 'temp') return false;
+            if (isCourseOnly) {
+              return courseMembers.some((mem) => mem.user._id === user._id);
+            }
+            return true;
+          });
           this.setState({ searchResults, searchText: text });
         })
         .catch((err) => {
@@ -613,7 +620,7 @@ class Members extends PureComponent {
       owner,
       resourceType,
       resourceId,
-      // courseMembers,
+      courseMembers,
       connectGrantAccess,
       connectClearNotification,
     } = this.props;
@@ -622,6 +629,7 @@ class Members extends PureComponent {
       username,
       searchResults,
       searchText,
+      isCourseOnly,
     } = this.state;
 
     let joinRequests = <p>There are no new requests to join</p>;
@@ -749,10 +757,30 @@ class Members extends PureComponent {
                     inviteMember={this.inviteMember}
                   />
                 ) : null}
-                {/* <div>Add current VMT users</div>
                 {resourceType === 'room' && courseMembers ? (
-                  <div>(participants from this course or guests)</div>
-                ) : null} */}
+                  <div className={classes.ToggleContainer}>
+                    <Slider
+                      data-testid="search-toggle"
+                      action={() => {
+                        this.setState(
+                          (prevState) => ({
+                            isCourseOnly: !prevState.isCourseOnly,
+                          }),
+                          () => {
+                            this.search(searchText);
+                          }
+                        );
+                      }}
+                      isOn={isCourseOnly}
+                      name="isCourseOnly"
+                    />
+                    <span className={classes.Email}>
+                      {isCourseOnly
+                        ? ' Toggle to Search all VMT users '
+                        : ' Toggle to Search only for course members '}
+                    </span>
+                  </div>
+                ) : null}
               </Fragment>
             </InfoBox>
           ) : null}

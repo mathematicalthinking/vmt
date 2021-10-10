@@ -22,13 +22,20 @@ const Navbar = ({ user, location, toggleAdmin }) => {
     styles = classes.Fixed;
   }
 
-  const list = [
+  const aboutList = [
+    { name: 'About', link: '/about' },
+    { name: 'Instructions', link: '/instructions' },
+    { name: 'FAQ', link: '/faq' },
+    { name: 'Contact', link: '/contact' },
+  ];
+
+  const profileList = [
     { name: 'Profile', link: '/myVMT/profile' },
     { name: 'Logout', link: '/logout' },
   ];
 
   if (user.isAdmin) {
-    list.splice(1, 0, {
+    profileList.splice(1, 0, {
       name: 'Admin Mode',
       sliderDetails: { isOn: user.inAdminMode, onClick: toggleAdmin },
     });
@@ -58,6 +65,8 @@ const Navbar = ({ user, location, toggleAdmin }) => {
           {user.isAdmin ? (
             <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
           ) : null}
+          <DropdownNavItem name="Info" list={aboutList} />
+
           <DropdownNavItem
             data-testid="avatar"
             name={
@@ -66,7 +75,7 @@ const Navbar = ({ user, location, toggleAdmin }) => {
                 color={user.inAdminMode ? '#ffd549' : '#2d91f2'}
               />
             }
-            list={list}
+            list={profileList}
           />
         </ul>
       </div>

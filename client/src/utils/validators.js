@@ -62,7 +62,7 @@ const resetPasswordSchema = yup.object().shape({
   password: passwordSchema.required(),
   confirmPassword: yup
     .mixed()
-    .test('doPasswordsMatch', 'Passwords do not match', (value) => {
+    .test('doPasswordsMatch', 'Passwords do not match', function(value) {
       return value === this.parent.password;
     }),
   token: trimmed.required(),

@@ -1,0 +1,115 @@
+:import('../../colors.css') {
+  navBarHeight: navBarHeight;
+  lightBlue: lightBlue;
+  darkBlue: darkBlue;
+  gridBlue: gridBlue;
+  lightShadow: lightShadow;
+}
+
+.Container {
+  margin-top: navBarHeight;
+  padding-top: 40px;
+  z-index: 1000;
+  width: 90%;
+  align-self: center;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  transition: 0.2s;
+  color: white;
+  z-index: 1;
+  /* background-image: linear-gradient(
+    to top,
+    #d4edfc 1%,
+    gridBlue 15%,
+    darkBlue 100%
+  ); */
+}
+
+.BackgroundContainer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.Background {
+  position: fixed;
+  width: 100%;
+  /* overflow: hidden; */
+  height: 100%;
+  bottom: -1px;
+  background-image: linear-gradient(to top, #708eb1 1%, darkBlue 100%);
+}
+
+.Tagline {
+  color: rgb(206, 238, 248);
+  margin-bottom: 20px;
+  /* color: white; */
+  font-size: 34px;
+  width: 700px;
+  text-align: center;
+  /* z-index: 1000; */
+}
+
+.Banner {
+  display: flex; /* NEW, Spec - Firefox, Chrome, Opera */
+
+  justify-content: center;
+  align-items: center;
+}
+
+.Sup {
+  font-size: smaller;
+  vertical-align: super;
+}
+
+.Image {
+  width: 100%;
+  height: calc(100% - 30px);
+}
+
+.Content {
+  margin-top: 50px;
+  display: flex;
+  /* justify-content: flex-end; */
+  align-items: left;
+  font-size: 20px;
+  width: 100%;
+}
+
+.Description {
+  margin: 0 25px;
+  width: 85%;
+}
+
+h3 {
+  width: 15%;
+}
+
+.Link {
+  text-decoration: underline;
+  transition: 0.2s;
+}
+
+.Link:hover {
+  color: rgb(206, 238, 248);
+}
+
+.Links {
+  composes: Link;
+
+  margin: 20px;
+  font-size: 25px;
+}
+
+.Content:last-child {
+  margin-bottom: 100px;
+}
+
+@media screen and (max-height: 650px) {
+  .Container {
+    padding-top: 60px;
+  }
+}

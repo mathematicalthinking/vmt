@@ -85,3 +85,14 @@
   display: flex;
   animation: showDropdown 0.2s;
 }
+
+.ToggleContainer {
+  margin: 3px 0;
+  padding-top: 4px;
+  display: flex;
+  justify-content: left;
+  box-shadow: lightShadow;
+  align-self: auto;
+  flex: 0 0 auto;
+  transition: 0.2s;
+}
