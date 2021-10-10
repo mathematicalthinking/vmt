@@ -40,16 +40,16 @@ if (process.env.NODE_ENV === 'dev') {
   };
 } else if (process.env.NODE_ENV === 'staging') {
   mongoURI = process.env.MONGO_STAGING_URI;
-  mongoOptions = {
-    ...mongoOptions,
-    ssl: true,
-    sslValidate: true,
-    user: process.env.MONGO_STAGING_USER,
-    pass: process.env.MONGO_STAGING_PASS,
-    sslKey: fs.readFileSync(process.env.MONGO_STAGING_SSL_KEY_DIR),
-    sslCert: fs.readFileSync(process.env.MONGO_STAGING_SSL_CERT_DIR),
-    authSource: process.env.MONGO_STAGING_AUTHDB,
-  };
+  // mongoOptions = {
+  //   ...mongoOptions,
+  //   ssl: true,
+  //   sslValidate: true,
+  //   user: process.env.MONGO_STAGING_USER,
+  //   pass: process.env.MONGO_STAGING_PASS,
+  //   sslKey: fs.readFileSync(process.env.MONGO_STAGING_SSL_KEY_DIR),
+  //   sslCert: fs.readFileSync(process.env.MONGO_STAGING_SSL_CERT_DIR),
+  //   authSource: process.env.MONGO_STAGING_AUTHDB,
+  // };
 } else if (process.env.NODE_ENV === 'test') {
   mongoURI = process.env.MONGO_TEST_URI;
 }
