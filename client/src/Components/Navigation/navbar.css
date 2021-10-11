@@ -78,7 +78,7 @@
   }
 }
 
-@media screen and (max-width: 620px) {
+@media screen and (max-width: 960px) {
   .LogoShort {
     display: block;
     margin-left: 25px;
