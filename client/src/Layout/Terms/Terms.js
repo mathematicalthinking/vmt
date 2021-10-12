@@ -30,7 +30,7 @@ const Terms = () => {
         <h2 id="terms" className={classes.Tagline}>
           Terms of Service
         </h2>
-        <p>
+        <p className={classes.DetailDescription}>
           Thank you for your interest in using the online services operated by
           the 21st Century Partnership for STEM Education.
           (&quot;21PSTEM&quot;). These Terms of Service (&quot;Terms&quot;)
@@ -458,7 +458,7 @@ const Terms = () => {
         <h2 id="privacy" className={classes.Tagline}>
           Privacy Policy
         </h2>
-        <p>
+        <p className={classes.DetailDescription}>
           21PSTEM, Inc. (&quot;we&quot; or &quot;21PSTEM&quot;) is committed to
           protecting your privacy. This Privacy Policy describes our collection
           and use of personal information collected from visitors to our website
