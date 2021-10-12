@@ -1,6 +1,7 @@
 // ALSO CONSIDER MOVING GRANTACCESS() FROM COURSE CONTAINER TO HERE
 // EXTRACT OUT THE LAYOUT PORTION INTO THE LAYYOUT FOLDER
 import React, { PureComponent, Fragment } from 'react';
+import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { CSVReader } from 'react-papaparse';
@@ -166,7 +167,12 @@ class Members extends PureComponent {
     const { classList, courseMembers } = this.props;
     const { isCourseOnly } = this.state;
     if (text.length > 0) {
-      API.search('user', text, classList.map((member) => member.user._id))
+      // prettier-ignore
+      API.search(
+        'user',
+        text,
+        classList.map((member) => member.user._id)
+      )
         .then((res) => {
           const searchResults = res.data.results.filter((user) => {
             if (user.accountType === 'temp') return false;
@@ -539,9 +545,16 @@ class Members extends PureComponent {
             <p>
               The search bar allows for the searching and addition of existing
               VMT Users. By using the Import feature, new users can be created
-              for your course. <br /> Please arrange your new members in a csv
-              file with the headers: username, email, firstName, lastName,
-              organization, identifier, sponsor
+              for your course. <br /> For csv formatting and importing guides,
+              please see the VMT{' '}
+              <NavLink
+                exact
+                to="/instructions"
+                className={classes.Link}
+                activeStyle={{ borderBottom: '1px solid #2d91f2' }}
+              >
+                Instructions
+              </NavLink>
             </p>
           </div>
         </div>
@@ -942,16 +955,14 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectGrantAccess: grantAccess,
-    connectUpdateCourseMembers: updateCourseMembers,
-    connectUpdateRoomMembers: updateRoomMembers,
-    connectInviteToCourse: inviteToCourse,
-    connectInviteToRoom: inviteToRoom,
-    connectClearNotification: clearNotification,
-    connectRemoveRoomMember: removeRoomMember,
-    connectRemoveCourseMember: removeCourseMember,
-  }
-)(Members);
+// prettier-ignore
+export default connect(mapStateToProps, {
+  connectGrantAccess: grantAccess,
+  connectUpdateCourseMembers: updateCourseMembers,
+  connectUpdateRoomMembers: updateRoomMembers,
+  connectInviteToCourse: inviteToCourse,
+  connectInviteToRoom: inviteToRoom,
+  connectClearNotification: clearNotification,
+  connectRemoveRoomMember: removeRoomMember,
+  connectRemoveCourseMember: removeCourseMember,
+})(Members);
