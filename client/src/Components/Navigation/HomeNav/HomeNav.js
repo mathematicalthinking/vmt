@@ -20,10 +20,11 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
     ntf = true;
   }
 
-  const profileList = [
-    { name: 'Profile', link: '/myVMT/profile' },
-    { name: 'Logout', link: '/logout' },
-  ];
+  const profileList = [{ name: 'Profile', link: '/myVMT/profile' }];
+
+  if (loggedIn) {
+    profileList.push({ name: 'Logout', link: '/logout' });
+  }
 
   if (user.isAdmin) {
     profileList.splice(1, 0, {
@@ -56,7 +57,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
             ) : (
               <Aux>
-                <NavItem link="/login" name="Login" />
+                {/* <NavItem link="/login" name="Login" /> */}
                 <NavItem link="/signup" name="Signup" />
               </Aux>
             )}
