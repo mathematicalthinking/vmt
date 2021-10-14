@@ -82,6 +82,7 @@ const CodePyretOrg = (props) => {
   useEffect(() => {
     handleResponseData(activityUpdates);
   }, [activityUpdates]);
+
   const handleResponseData = (updates) => {
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
@@ -168,6 +169,7 @@ const CodePyretOrg = (props) => {
     console.log('Tab data: ', props.tab);
 
     const onMessage = function(data) {
+      if (data.source === 'react-devtools-bridge') return;
       console.log('Got a message VMT side', data);
       const currentState = {
         data,
