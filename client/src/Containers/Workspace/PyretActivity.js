@@ -21,7 +21,10 @@ function PyretAPI(iframeReference, onmessageHandler) {
   function setParams(params) {
     console.log(params, iframeReference());
     const pyretWindow = iframeReference();
-    pyretWindow.src += params;
+    // pyretWindow.src += params;
+    const rand = Math.floor(Math.random() * 1000000 + 1);
+    // eslint-disable-next-line
+    pyretWindow.src += '?uid=' + rand + params;
   }
   window.onmessage = function(event) {
     if (event.data.protocol !== 'pyret') {
@@ -160,7 +163,6 @@ const CodePyretOrg = (props) => {
   const initPlayer = async () => {
     const { tab } = props;
     // TODO(joe): saved data?
-    props.setFirstTabLoaded();
     initializeListeners();
     // Print current Tab data
     console.log('Tab data: ', props.tab);
@@ -175,17 +177,21 @@ const CodePyretOrg = (props) => {
       setActivityUpdates(currentState);
       updateSavedData(data);
     };
+
     pyret = PyretAPI(function() {
       return cpoIframe.current;
     }, onMessage);
+
     if (tab.currentStateBase64) {
       const { currentStateBase64 } = tab;
       const savedData = JSON.parse(currentStateBase64);
       console.log('Prior state data loaded: ');
       console.log(savedData);
       const hasSaved = savedData.data && savedData.data.length > 0;
-      const contents = hasSaved ? savedData.data[0].currentState : '';
+      let contents = hasSaved ? savedData.data[0].currentState : '';
+      contents = encodeURIComponent(contents);
       pyret.setParams(`#warnOnExit=false&editorContents=${contents}`);
+      // #warnOnExit=false&editorContents=use%20context%20essentials2021%0A%0Ax%20%3D%205%0A%0Ax%0A
       /*
       pyret.postMessage({
         protocol: 'pyret',
@@ -196,6 +202,7 @@ const CodePyretOrg = (props) => {
       });
       */
     }
+    props.setFirstTabLoaded();
 
     window.tryItOut = function() {
       const change = {
