@@ -1,3 +1,19 @@
+:import('../../colors.css') {
+  lightBlue: lightBlue;
+}
+
+.Link {
+  color: lightBlue;
+  padding-bottom: 2px;
+  border-bottom: none;
+  transition: 0.2s;
+}
+
+.Link:hover {
+  color: white;
+  border-bottom: 1px solid #999;
+}
+
 .Container {
   width: 100%;
   max-width: 1000px;
@@ -62,21 +78,22 @@
   background-color: white;
   border-radius: 50%;
   margin: 5px 10px;
+  position: relative;
 }
 
 .TooltipContent {
   display: none;
   position: absolute;
   padding: 10px;
-  left: auto;
-  right: 65px;
+  /* left: auto;
+  right: 65px; */
   z-index: 1000;
   box-shadow: lightShadow;
-  background: white;
-  /* color: blue; */
+  background: #2d91f2;
+  color: white;
   border: 2px solid #ddd;
-  min-width: 150px;
-  width: max-content;
+  min-width: 250px;
+  /* width: max-content; */
   max-width: 85%;
   transition: 0.2s;
 }
@@ -84,4 +101,19 @@
 .Instructions:hover .TooltipContent {
   display: flex;
   animation: showDropdown 0.2s;
+}
+
+.InstructionsLink {
+  color: white;
+}
+
+.ToggleContainer {
+  margin: 3px 0;
+  padding-top: 4px;
+  display: flex;
+  justify-content: left;
+  box-shadow: lightShadow;
+  align-self: auto;
+  flex: 0 0 auto;
+  transition: 0.2s;
 }
