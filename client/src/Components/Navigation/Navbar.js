@@ -32,7 +32,6 @@ const Navbar = ({ user, location, toggleAdmin }) => {
   const profileList = [{ name: 'Profile', link: '/myVMT/profile' }];
 
   if (user.loggedIn) {
-    console.log('User? : ', user);
     profileList.push({ name: 'Logout', link: '/logout' });
   }
 
