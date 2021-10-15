@@ -27,7 +27,7 @@ const Faq = () => {
             VMT is designed for online collaborative problem solving and
             story-telling, with an innovative context that integrates a focus on
             executive functions in practice, while developing conceptual
-            understanding and fostering equity. This student-first appraoch
+            understanding and fostering equity. This student-first approach
             seeks to provide an educational experience through the collaborative
             process and capturing the ideas that materialize throughout the
             mathematical process.
@@ -69,7 +69,7 @@ const Faq = () => {
             the difference?
           </h3>
           <p className={classes.Description}>
-            It really doesn&#39;t matter- you can concert to a facilitator at
+            It really doesn&#39;t matter- you can convert to a facilitator at
             any time!{<br />}A facilitator is able to create and manage
             resources, such as Rooms or Courses. Participants can only join
             them.
@@ -78,8 +78,8 @@ const Faq = () => {
         <div className={classes.Content}>
           <h3>5. How many people can be in a room?</h3>
           <p className={classes.Description}>
-            There technically itsn&#39;t a set limit, however it is recomended
-            to keep the number of participants at one time under 10 or so. The
+            There technically isn&#39;t a set limit, however it is recomended to
+            keep the number of participants at one time under 10 or so. The
             collaborative aspects of VMT work best with a room of about 5
             participants. By creating a Template, multiple instances of Rooms
             can easily be created and assigned to participants.
@@ -195,7 +195,7 @@ const Faq = () => {
             </a>{' '}
           </p>
         </div>
-        <Link to="/terms#top" className={classes.Links}>
+        <Link to="/faq#top" className={classes.Links}>
           Back to Top
         </Link>
         <br />
