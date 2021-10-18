@@ -34,6 +34,14 @@
   right: 0;
 }
 
+.RoomDemo {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 56.25%;
+  margin: 25px 0;
+}
+
 .Background {
   position: fixed;
   width: 100%;
@@ -89,6 +97,24 @@
 .Link:hover {
   color: rgb(206, 238, 248);
 }
+.Links {
+  composes: Link;
+
+  margin: 20px;
+  font-size: 25px;
+}
+
+.List {
+  list-style: initial;
+  list-style-type: decimal;
+  margin: initial;
+  padding: 0 0 0 25px;
+}
+
+.ListItem {
+  display: list-item;
+}
+
 .Content:last-child {
   margin-bottom: 100px;
 }
