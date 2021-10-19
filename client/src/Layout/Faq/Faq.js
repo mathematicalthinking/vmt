@@ -41,6 +41,8 @@ const Faq = () => {
             <a
               className={classes.Link}
               href="https://www.21pstem.org/mathematical-thinkers"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               (21PSTEM.org)
             </a>
@@ -91,19 +93,34 @@ const Faq = () => {
             VMT supports a number of different types of mathspaces:
             <ul>
               <li>
-                <a className={classes.Link} href="https://www.geogebra.org/">
+                <a
+                  className={classes.Link}
+                  href="https://www.geogebra.org/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
                   GeoGebra
                 </a>{' '}
                 : A dynamic geometry software
               </li>
               <li>
-                <a className={classes.Link} href="https://www.desmos.com/">
+                <a
+                  className={classes.Link}
+                  href="https://www.desmos.com/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
                   Desmos
                 </a>{' '}
                 : A fully-featured online graphing calculator
               </li>
               <li>
-                <a className={classes.Link} href="https://teacher.desmos.com/">
+                <a
+                  className={classes.Link}
+                  href="https://teacher.desmos.com/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
                   Desmos Activities
                 </a>{' '}
                 : Flexible and interactive mathspaces
@@ -113,6 +130,8 @@ const Faq = () => {
                 <a
                   className={classes.Link}
                   href="https://www.pyret.org/pyret-code/"
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   Pyret
                 </a>{' '}
@@ -183,6 +202,8 @@ const Faq = () => {
             <a
               className={classes.Link}
               href="https://github.com/mathematicalthinking/vmt"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               open source
             </a>{' '}

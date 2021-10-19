@@ -48,6 +48,8 @@ const Contact = () => {
             <a
               className={classes.Link}
               href="https://github.com/mathematicalthinking/vmt"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               github.com/mathematicalthinking/vmt
             </a>

@@ -142,6 +142,8 @@ class Homepage extends PureComponent {
               <a
                 className={classes.Link}
                 href="https://www.21pstem.org/mathematical-thinkers"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 21PSTEM.org
               </a>
@@ -170,6 +172,8 @@ class Homepage extends PureComponent {
               <a
                 className={classes.Link}
                 href="https://github.com/mathematicalthinking/vmt"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 open source
               </a>{' '}
