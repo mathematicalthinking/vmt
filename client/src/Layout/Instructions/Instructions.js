@@ -23,7 +23,7 @@ const Instructions = () => {
             Virtual Math Teams (VMT) Instructions
           </h2>
         </div>
-        <div className={classes.Banner}>
+        <div className={classes.QuickLinks}>
           <Link to="/instructions#codeLogin" className={classes.Links}>
             Student Login with code
           </Link>
@@ -31,11 +31,15 @@ const Instructions = () => {
             Creating and Assigning Templates{' '}
           </Link>
         </div>
-        <div>Interactive Map of the VMT Collaborative Mathspace</div>
+        <br />
+        <div className={classes.Header}>
+          Interactive Map of the VMT Collaborative Mathspace
+        </div>
         <div className={classes.RoomDemo}>
           <Iframe source="https://view.genial.ly/615555bba4670a10262ee271" />
         </div>
-        <div> Student Login </div>
+        <br />
+        <div className={classes.Header}> Student Login </div>
         <div id="codeLogin" className={classes.Content}>
           <DemoBrowser>
             <img src={example2} height={320} alt="student-login-with-code-1" />
@@ -87,7 +91,9 @@ const Instructions = () => {
             />
           </DemoBrowser>
         </div>
-        <div> Creating and Assigning Templates </div>
+        <br />
+        <br />
+        <div className={classes.Header}> Creating and Assigning Templates </div>
         <div id="template" className={classes.Content}>
           <DemoBrowser>
             <img src={example4} height={320} alt="screate-assign-template-1" />
@@ -119,7 +125,7 @@ const Instructions = () => {
             </ol>
           </p>
         </div>
-        <div>
+        <div className={classes.Intermediate}>
           You’ve created a template. Now let’s use it to make any number of
           identical rooms based on that template. If your roster of students is
           already in this course, you can assign those rooms to your students.
@@ -163,7 +169,8 @@ const Instructions = () => {
             />
           </DemoBrowser>
         </div>
-        <hr />
+        <br />
+        <br />
         <Link to="/instructions#top" className={classes.Links}>
           Back to Top
         </Link>

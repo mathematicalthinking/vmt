@@ -65,6 +65,25 @@
   /* z-index: 1000; */
 }
 
+.QuickLinks {
+  align-content: center;
+  margin-top: 30px;
+}
+
+.Header {
+  color: rgb(206, 238, 248);
+  text-align: center;
+  font-size: 36px;
+  margin-top: 75px;
+}
+
+.Intermediate {
+  margin-top: 20px;
+  text-align: center;
+  font-style: italic;
+  font-size: inherit;
+}
+
 .Sup {
   font-size: smaller;
   vertical-align: super;
@@ -76,7 +95,7 @@
 }
 
 .Content {
-  margin-top: 150px;
+  margin-top: 30px;
   display: flex;
   justify-content: space-around;
   align-items: center;
