@@ -33,8 +33,6 @@ const Tools = ({
   return (
     <div className={classes.Container}>
       <div className={classes.Expanded}>
-        <Awareness lastEvent={lastEvent} />
-
         {save ? (
           <div className={classes.Save}>
             <div
@@ -126,6 +124,7 @@ const Tools = ({
             </Button>
           </div>
         </div>
+        <Awareness lastEvent={lastEvent} />
       </div>
     </div>
   );

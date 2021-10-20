@@ -19,7 +19,7 @@ describe('Referencing', function() {
       cy.get('#Rooms').click();
       cy.getTestElement('content-box-reference room').click();
       cy.getTestElement('Enter').click();
-      cy.wait(3000);
+      cy.wait(5000);
       cy.getTestElement('chat')
         .children()
         .should('have.length', 23);

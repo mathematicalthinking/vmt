@@ -79,3 +79,8 @@
   color: red;
   height: 20px;
 }
+
+.roomsList {
+  margin: 0px 2px;
+  padding-right: 6px;
+}

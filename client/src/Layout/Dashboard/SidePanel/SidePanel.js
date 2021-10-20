@@ -54,7 +54,7 @@ const SidePanel = ({
       <div className={classes.Bottom}>
         {accountType === 'participant' && !bothRoles ? (
           <div className={classes.CreateForParticipant}>
-            <Link to="facilitator" data-testid="become-facilitator">
+            <Link to="/myVMT/facilitator" data-testid="become-facilitator">
               become a facilitator
             </Link>
           </div>

@@ -85,7 +85,7 @@ class ResourceList extends Component {
     let linkPath = `/myVMT/${resource}/`;
     let linkSuffix;
     if (resource === 'courses') {
-      linkSuffix = '/activities';
+      linkSuffix = '/rooms';
     } else {
       linkSuffix = '/details';
     }

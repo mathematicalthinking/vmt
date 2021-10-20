@@ -113,11 +113,11 @@ Room.post('save', function(doc, next) {
     // Add the room to all of the users in this room
     promises = promises.concat(
       this.members.map((member) => {
-        // add a new room notification if they're not the facilitator
+        // add a new room notification if they're not the creator
         // const query = { $addToSet: { rooms: this._id } };
         // @TODO use notification schema
         let notification;
-        if (member.role === 'participant') {
+        if (member.user !== this.creator) {
           notification = {
             notificationType: 'assignedNewRoom',
             resourceType: 'room',

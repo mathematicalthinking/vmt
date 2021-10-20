@@ -41,7 +41,7 @@ const DesActivityReplayer = (props) => {
       '5da9e2174769ea65a6413c93';
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
     // eslint-disable-next-line no-console
-    console.log('adapted activity url: ', URL);
+    // console.log('adapted activity url: ', URL);
     // calling Desmos to get activity config
     const result = await fetch(URL, {
       headers: { Accept: 'application/json' },

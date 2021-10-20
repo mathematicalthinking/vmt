@@ -7,7 +7,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
-import { NavItem, ToggleGroup, SimpleChat } from 'Components';
+import { NavItem, ToggleGroup, SimpleChat, CurrentMembers } from 'Components';
 import { usePopulatedRoom } from 'utils';
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
@@ -40,12 +40,13 @@ function TemplatePreview({ activity }) {
   const constants = {
     CHAT: 'Chat',
     THUMBNAIL: 'Thumbnail',
+    ATTENDANCE: 'Attendance',
     GRAPH: 'Graph',
     SIMPLE: 'Simple Chat',
     DETAILED: 'Detailed Chat',
   };
 
-  const [viewType, setViewType] = React.useState(constants.CHAT);
+  const [viewType, setViewType] = React.useState(constants.ATTENDANCE);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
   const [tabSelection, setTabSelection] = React.useState();
 
@@ -121,6 +122,18 @@ function TemplatePreview({ activity }) {
           />
         );
       }
+      case constants.ATTENDANCE: {
+        const data = queryStates[id].isSuccess ? queryStates[id].data : null;
+        return (
+          <CurrentMembers
+            members={data ? data.members : []}
+            currentMembers={data ? data.members.map((m) => m.user) : []}
+            activeMember={data ? data.currentMembers.map((m) => m._id) : []}
+            expanded
+            showTitle={false}
+          />
+        );
+      }
       default:
         return null;
     }
@@ -141,75 +154,88 @@ function TemplatePreview({ activity }) {
 
   return (
     <div className={classes.Container}>
-      <div className={classes.TogglesContainer}>
+      {!activity.rooms || activity.rooms.length === 0 ? (
+        'No rooms for this template.'
+      ) : (
         <Fragment>
-          <ToggleGroup
-            buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
-            value={viewType}
-            onChange={setViewType}
-          />
-          {viewType === constants.CHAT && (
-            <ToggleGroup
-              buttons={[constants.DETAILED, constants.SIMPLE]}
-              value={chatType}
-              onChange={setChatType}
-            />
-          )}
-        </Fragment>
-      </div>
-      {viewType === constants.THUMBNAIL && (
-        <Select
-          options={activity.tabs.map((tab, index) => {
-            return { value: index, label: tab.name };
-          })}
-          value={tabSelection}
-          onChange={(selectedOption) => {
-            setTabSelection(selectedOption);
-          }}
-          placeholder="Select a Tab..."
-        />
-      )}
-      <div className={classes.TileGroup}>
-        {activity.rooms.map((roomId) => {
-          // for each of the rooms
-          // display its title bar (title and menu) and
-          // then the particular view type.
-          return (
-            <div key={roomId} className={classes.Tile}>
-              <div className={classes.TileContainer}>
-                <div
-                  className={classes.Title}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'flex-start',
-                    alignItems: 'center',
-                    marginBottom: '5px',
-                  }}
-                >
-                  <DropdownMenu
-                    list={_makeMenu(roomId)}
-                    name={<i className="fas fa-bars" />}
-                  />
-                  {queryStates[roomId].isSuccess ? (
-                    <Fragment>
-                      {queryStates[roomId].data.name}
-                      <span className={classes.Timestamp}>
-                        updated:{' '}
-                        {_roomDateStamp(queryStates[roomId].data.updatedAt)}
-                      </span>
-                    </Fragment>
-                  ) : (
-                    'Loading...'
-                  )}
-                </div>
+          <div className={classes.TogglesContainer}>
+            <Fragment>
+              <ToggleGroup
+                buttons={[
+                  constants.ATTENDANCE,
+                  constants.CHAT,
+                  constants.THUMBNAIL,
+                  constants.GRAPH,
+                ]}
+                value={viewType}
+                onChange={setViewType}
+              />
+              {viewType === constants.CHAT && (
+                <ToggleGroup
+                  buttons={[constants.DETAILED, constants.SIMPLE]}
+                  value={chatType}
+                  onChange={setChatType}
+                />
+              )}
+            </Fragment>
+          </div>
+          {viewType === constants.THUMBNAIL &&
+            activity.tabs &&
+            activity.tabs.length > 1 && (
+              <Select
+                options={activity.tabs.map((tab, index) => {
+                  return { value: index, label: tab.name };
+                })}
+                value={tabSelection}
+                onChange={(selectedOption) => {
+                  setTabSelection(selectedOption);
+                }}
+                placeholder="Select a Tab..."
+              />
+            )}
+          <div className={classes.TileGroup}>
+            {activity.rooms.map((roomId) => {
+              // for each of the rooms
+              // display its title bar (title and menu) and
+              // then the particular view type.
+              return (
+                <div key={roomId} className={classes.Tile}>
+                  <div className={classes.TileContainer}>
+                    <div
+                      className={classes.Title}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'flex-start',
+                        alignItems: 'center',
+                        marginBottom: '5px',
+                      }}
+                    >
+                      <DropdownMenu
+                        list={_makeMenu(roomId)}
+                        name={<i className="fas fa-bars" />}
+                      />
+                      {queryStates[roomId].isSuccess ? (
+                        <Fragment>
+                          {queryStates[roomId].data.name}
+                          <span className={classes.Timestamp}>
+                            updated:{' '}
+                            {_roomDateStamp(queryStates[roomId].data.updatedAt)}
+                          </span>
+                        </Fragment>
+                      ) : (
+                        'Loading...'
+                      )}
+                    </div>
 
-                {queryStates[roomId].isSuccess && _displayViewType(roomId)}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                    {queryStates[roomId].isSuccess && _displayViewType(roomId)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Fragment>
+      )}
     </div>
   );
 }

@@ -9,6 +9,8 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { isNil, isEqual } = require('lodash');
+const controllers = require('../controllers');
+// const Course = require('../models/Course');
 const User = require('../models/User');
 const errors = require('../middleware/errors');
 const {
@@ -104,8 +106,8 @@ router.post('/signup', async (req, res) => {
     if (wasFromTempUser) {
       // update the room
       const tempRoom = await Room.findById(user.rooms[0]);
-
-      if (tempRoom) {
+      // verify the found room exists and is temp (not a pending user)
+      if (tempRoom && tempRoom.tempRoom) {
         tempRoom.tempRoom = false;
 
         let foundUser = false;

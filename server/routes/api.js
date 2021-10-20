@@ -13,7 +13,7 @@ const { getUser, getResource } = require('../middleware/utils/request');
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
 
-router.get('/:resource', (req, res) => {
+router.get('/:resource', middleware.validateUser, (req, res) => {
   const { resource } = req.params;
   const controller = controllers[resource];
   req.query.isTrashed = false;
@@ -31,6 +31,32 @@ router.get('/:resource', (req, res) => {
     });
 });
 
+router.post('/:resource/code', (req, res) => {
+  const { resource } = req.params;
+  const { code } = req.body;
+  if (resource !== 'courses') {
+    return errors.sendError.InternalError(
+      'Resource not supported via class code entry!',
+      res
+    );
+  }
+  const controller = controllers[resource];
+
+  controller
+    .getByCode(code)
+    .then((result) => res.json({ result }))
+    .catch((err) => {
+      console.error(`Error: unable to retrieve resource via code`);
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+
+      return errors.sendError.InternalError(msg, res);
+    });
+});
+
 router.get('/search/:resource', (req, res) => {
   const resource = getResource(req);
   // currently only /search/user uses this endpt
@@ -42,6 +68,7 @@ router.get('/search/:resource', (req, res) => {
 
   text = text.replace(/\s+/g, '');
   const regex = new RegExp(text, 'i');
+  // console.log('Search: ', req.params.resource, ' for ', regex);
   controller
     .search(regex, req.query.exclude)
     .then((results) => {
@@ -259,6 +286,7 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res) => {
           res
         );
       }
+
       const prunedBody = middleware.prunePutBody(user, id, req.body, details);
       return controller.add(id, prunedBody);
     })
@@ -279,6 +307,7 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res) => {
 router.put('/:resource/:id/remove', middleware.validateUser, (req, res) => {
   const { resource, id } = req.params;
   const controller = controllers[resource];
+  const user = getUser(req);
   req.params.remove = true; // Add remove to the params so we can allow users to modify their own status in  a resource (not just the resource owners) i.e. I should be able to remove myself from a course even if I'm not an owner of that course // THIS SHOULD BE DONE DIFFERENTLY CHECK req.USER and compare to member being removed
   return middleware
     .canModifyResource(req)
@@ -294,17 +323,13 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res) => {
           res
         );
       }
-      const prunedBody = middleware.prunePutBody(
-        req.user,
-        id,
-        req.body,
-        details
-      );
+
+      const prunedBody = middleware.prunePutBody(user, id, req.body, details);
       return controller.remove(id, prunedBody);
     })
     .then((result) => res.json(result))
     .catch((err) => {
-      console.error(`Error put/remove ${resource}/${id}: ${err}`);
+      console.error(`Error put/remove/${resource}/${id}: ${err}`);
 
       let msg = null;
 

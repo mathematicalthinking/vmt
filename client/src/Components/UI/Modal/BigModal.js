@@ -26,16 +26,18 @@ const BigModal = ({ show, closeModal, message, children, height, testId }) => (
     >
       {children ? (
         <Fragment>
-          <div
-            data-testid="close-modal"
-            className={classes.Close}
-            onClick={closeModal}
-            onKeyPress={closeModal}
-            tabIndex="-2"
-            role="button"
-          >
-            <i className="fas fa-times" />
-          </div>
+          {closeModal && (
+            <div
+              data-testid="close-modal"
+              className={classes.Close}
+              onClick={closeModal}
+              onKeyPress={closeModal}
+              tabIndex="-2"
+              role="button"
+            >
+              <i className="fas fa-times" />
+            </div>
+          )}
           {children}
         </Fragment>
       ) : (
@@ -52,7 +54,7 @@ const BigModal = ({ show, closeModal, message, children, height, testId }) => (
 
 BigModal.propTypes = {
   show: PropTypes.bool.isRequired,
-  closeModal: PropTypes.func.isRequired,
+  closeModal: PropTypes.func,
   message: PropTypes.string,
   children: PropTypes.node.isRequired,
   height: PropTypes.string,
@@ -60,6 +62,7 @@ BigModal.propTypes = {
 };
 
 BigModal.defaultProps = {
+  closeModal: null,
   message: null,
   height: null,
   testId: null,
