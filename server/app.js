@@ -40,11 +40,7 @@ if (process.env.NODE_ENV === 'development') {
   };
 } else if (process.env.NODE_ENV === 'staging') {
   mongoURI = process.env.MONGO_STAGING_URI;
-  if (
-    process.env.YES_TO_MONGO_STAGE_SSL === 'yes' ||
-    process.env.YES_TO_MONGO_STAGE_SSL === 'Yes' ||
-    process.env.YES_TO_MONGO_STAGE_SSL === 'YES'
-  ) {
+  if (process.env.YES_TO_MONGO_STAGE_SSL.toLowerCase() === 'yes') {
     mongoOptions = {
       ...mongoOptions,
       ssl: true,
