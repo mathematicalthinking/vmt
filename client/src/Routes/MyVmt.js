@@ -116,7 +116,7 @@ class MyVmt extends Component {
             path="*"
             component={
               () => <div>Error</div>
-              // ^ @TODO 404 page
+              // ^ @TODO 404 page ...will never hit due to resource wildcard
             }
           />
         </Switch>

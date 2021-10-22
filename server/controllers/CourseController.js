@@ -66,6 +66,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       const query = {};
       query.entryCode = code;
+      query.isTrashed = false;
       db.Course.find(query)
         .sort('-createdAt')
         // .populate('creator')

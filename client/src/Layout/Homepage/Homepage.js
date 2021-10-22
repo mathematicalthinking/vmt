@@ -96,7 +96,7 @@ class Homepage extends PureComponent {
     const { history } = this.props;
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
-    const dateStamp = <p>Last updated: 10.09.2021, v.1.3.10</p>;
+    const dateStamp = <p>Last updated: 10.19.2021, v.1.3.12</p>;
     const maintWindow =
       process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE || 'Sunday, 3-7pm EST';
     return (
@@ -142,6 +142,8 @@ class Homepage extends PureComponent {
               <a
                 className={classes.Link}
                 href="https://www.21pstem.org/mathematical-thinkers"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 21PSTEM.org
               </a>
@@ -170,6 +172,8 @@ class Homepage extends PureComponent {
               <a
                 className={classes.Link}
                 href="https://github.com/mathematicalthinking/vmt"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 open source
               </a>{' '}

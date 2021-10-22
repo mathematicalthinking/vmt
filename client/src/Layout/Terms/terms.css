@@ -53,6 +53,11 @@
   /* z-index: 1000; */
 }
 
+.DetailDescription {
+  text-align: center;
+  font-size: 22px;
+}
+
 .Banner {
   display: flex; /* NEW, Spec - Firefox, Chrome, Opera */
 
@@ -102,6 +107,15 @@ h3 {
 
   margin: 20px;
   font-size: 25px;
+}
+
+.Tagline::before {
+  display: block;
+  content: ' ';
+  margin-top: -285px;
+  height: 285px;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .Content:last-child {
