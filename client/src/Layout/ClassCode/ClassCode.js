@@ -46,8 +46,7 @@ function ClassCode(props) {
         const { members } = res.data.result[0];
         return members;
       }),
-    { enabled: isResourceConf },
-    { refreshInterval: 1000 }
+    { enabled: isResourceConf, refreshInterval: 1000 }
   );
 
   const members = isSuccess ? data : [];

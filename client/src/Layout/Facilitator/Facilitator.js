@@ -18,7 +18,7 @@ class FacilitatorInstructions extends Component {
               <div className={classes.Card}>
                 <i className="fas fa-object-group fa-7x" />
                 <div className={classes.CreateTitle}>
-                  Make resources, like Rooms and Courses
+                  Make resources, such as Rooms and Courses
                 </div>
               </div>
             </div>

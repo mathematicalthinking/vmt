@@ -22,7 +22,7 @@ console.log('NODE_ENV=', process.env.NODE_ENV);
 // SETUP DATABASE & SESSION
 let mongoURI;
 let mongoOptions = { useNewUrlParser: true, poolSize: 10 };
-if (process.env.NODE_ENV === 'dev') {
+if (process.env.NODE_ENV === 'development') {
   mongoURI = process.env.MONGO_DEV_URI;
 } else if (process.env.TRAVIS) {
   mongoURI = process.env.MONGO_TEST_URI;
@@ -40,11 +40,7 @@ if (process.env.NODE_ENV === 'dev') {
   };
 } else if (process.env.NODE_ENV === 'staging') {
   mongoURI = process.env.MONGO_STAGING_URI;
-  if (
-    process.env.YES_TO_MONGO_STAGE_SSL === 'yes' ||
-    process.env.YES_TO_MONGO_STAGE_SSL === 'Yes' ||
-    process.env.YES_TO_MONGO_STAGE_SSL === 'YES'
-  ) {
+  if (process.env.YES_TO_MONGO_STAGE_SSL.toLowerCase() === 'yes') {
     mongoOptions = {
       ...mongoOptions,
       ssl: true,
