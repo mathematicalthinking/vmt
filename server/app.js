@@ -22,11 +22,11 @@ console.log('NODE_ENV=', process.env.NODE_ENV);
 // SETUP DATABASE & SESSION
 let mongoURI;
 let mongoOptions = { useNewUrlParser: true, poolSize: 10 };
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV.trim() === 'development') {
   mongoURI = process.env.MONGO_DEV_URI;
 } else if (process.env.TRAVIS) {
   mongoURI = process.env.MONGO_TEST_URI;
-} else if (process.env.NODE_ENV === 'production') {
+} else if (process.env.NODE_ENV.trim() === 'production') {
   mongoURI = process.env.MONGO_PROD_URI;
   mongoOptions = {
     ...mongoOptions,
@@ -38,9 +38,9 @@ if (process.env.NODE_ENV === 'development') {
     sslCert: fs.readFileSync(process.env.MONGO_PROD_SSL_CERT_DIR),
     authSource: process.env.MONGO_PROD_AUTHDB,
   };
-} else if (process.env.NODE_ENV === 'staging') {
+} else if (process.env.NODE_ENV.trim() === 'staging') {
   mongoURI = process.env.MONGO_STAGING_URI;
-  if (process.env.YES_TO_MONGO_STAGE_SSL.toLowerCase() === 'yes') {
+  if (process.env.YES_TO_MONGO_STAGE_SSL.toLowerCase().trim() === 'yes') {
     mongoOptions = {
       ...mongoOptions,
       ssl: true,
@@ -52,7 +52,7 @@ if (process.env.NODE_ENV === 'development') {
       authSource: process.env.MONGO_STAGING_AUTHDB,
     };
   }
-} else if (process.env.NODE_ENV === 'test') {
+} else if (process.env.NODE_ENV.trim() === 'test') {
   mongoURI = process.env.MONGO_TEST_URI;
 }
 
