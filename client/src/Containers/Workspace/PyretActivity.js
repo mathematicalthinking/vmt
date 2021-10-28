@@ -4,6 +4,7 @@ import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import API from '../../utils/apiRequests';
+import classes from './graph.css';
 
 const CodePyretOrg = (props) => {
   const [activityHistory, setActivityHistory] = useState({});
@@ -245,7 +246,11 @@ const CodePyretOrg = (props) => {
     }
   }
 
-  const style = { width: '100%', height: '100%' };
+  const style = {
+    width: '100%',
+    height: '100%',
+    pointerEvents: !_hasControl() ? 'none' : 'auto',
+  };
   const { inControl, user } = props;
 
   return (
@@ -267,18 +272,31 @@ const CodePyretOrg = (props) => {
       />
 
       <div
-        ref={cpoDivWrapper}
-        style={{ height: '100%' }}
-        id="container"
+        className={classes.Activity}
         onClickCapture={_checkForControl}
+        id="containerParent"
+        style={{
+          height: '890px', // @TODO this needs to be adjusted based on the editor instance.
+        }}
       >
-        <iframe
-          ref={cpoIframe}
-          style={style}
-          title="pyret"
-          src={iframeSrc} // "http://localhost:5000/editor"
-        />
-        ;
+        <div
+          ref={cpoDivWrapper}
+          // style={{ height: '100%' }}
+          id="container"
+          style={{
+            pointerEvents: !_hasControl() ? 'none' : 'auto',
+            height: '100%',
+            overflow: 'auto',
+          }}
+        >
+          <iframe
+            ref={cpoIframe}
+            style={style}
+            title="pyret"
+            src={iframeSrc} // "http://localhost:5000/editor"
+          />
+          ;
+        </div>
       </div>
     </Fragment>
   );
