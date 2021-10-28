@@ -265,6 +265,7 @@ export const getRooms = (params) => {
         dispatch(gotRooms(rooms));
         dispatch(loading.success());
       })
+      // @TODO do we need to change catch pattern for undef err.{} case / see courses/activities
       .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
   };
 };

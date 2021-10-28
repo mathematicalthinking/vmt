@@ -165,7 +165,12 @@ export const getCourse = (id) => {
         dispatch(loading.success());
       })
       .catch((err) => {
-        dispatch(loading.fail(err.response.data.errorMessage));
+        if (err.response) {
+          dispatch(loading.fail(err.response.data.errorMessage));
+        } else
+          dispatch(
+            loading.fail('Could not retrieve course data, please check address')
+          );
       });
   };
 };

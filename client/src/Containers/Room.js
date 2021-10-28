@@ -638,7 +638,7 @@ class Room extends Component {
         </Aux>
       );
     }
-    if (!room) return <div>Loading</div>;
+
     return (
       <Access
         closeModal={() =>

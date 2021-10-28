@@ -345,7 +345,7 @@ class Activity extends Component {
         </Aux>
       );
     }
-    if (!activity) return <div>Loading</div>;
+    // if (!activity) return <div>Loading</div>;
 
     // cannot access
     return (
@@ -357,8 +357,14 @@ class Activity extends Component {
         resourceId={match.params.activity_id}
         userId={user._id}
         username={user.username}
-        privacySetting={activity.privacySetting}
-        owners={[activity.creator]}
+        privacySetting={activity ? activity.privacySetting : 'private'}
+        owners={
+          activity && activity.members
+            ? activity.members
+                .filter((member) => member.role.toLowerCase() === 'facilitator')
+                .map((member) => member.user)
+            : []
+        }
       />
     );
   }

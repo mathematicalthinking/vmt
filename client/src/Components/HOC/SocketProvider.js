@@ -174,11 +174,11 @@ class SocketProvider extends Component {
       }
     });
 
-    socket.on('disconnect', () => {
+    socket.io.on('disconnect', () => {
       connectUpdateUser({ connected: false });
     });
 
-    socket.on('reconnect', () => {
+    socket.io.on('reconnect', () => {
       this.syncSocket();
       // connectGetUser(user._id);
     });
