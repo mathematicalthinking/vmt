@@ -5,49 +5,55 @@ import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import API from '../../utils/apiRequests';
 
-function PyretAPI(iframeReference, onmessageHandler) {
-  const oldOnMessage = window.onmessage;
-  const handlers = {
-    onmessage: onmessageHandler,
-    postMessage,
-    setParams,
-  };
-  function postMessage(data) {
-    if (!iframeReference()) {
-      return;
-    }
-    iframeReference().contentWindow.postMessage(data, '*');
-  }
-  function setParams(params) {
-    console.log(params, iframeReference());
-    const pyretWindow = iframeReference();
-    // pyretWindow.src += params;
-    const rand = Math.floor(Math.random() * 1000000 + 1);
-    // eslint-disable-next-line
-    pyretWindow.src += '?uid=' + rand + params;
-  }
-  window.onmessage = function(event) {
-    if (event.data.protocol !== 'pyret') {
-      console.log('Not a pyret');
-      if (typeof oldOnMessage === 'function') {
-        return oldOnMessage(event);
-      }
-    }
-    return handlers.onmessage(event.data);
-  };
-  return handlers;
-}
-
 const CodePyretOrg = (props) => {
   const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
+  const [iframeSrc, setIframeSrc] = useState(
+    'https://pyret-horizon.herokuapp.com/editor'
+  );
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
   let pyret = null;
 
   let receivingData = false;
   let initializing = false;
+
+  function PyretAPI(iframeReference, onmessageHandler) {
+    const oldOnMessage = window.onmessage;
+    const handlers = {
+      onmessage: onmessageHandler,
+      postMessage,
+      setParams,
+    };
+    function postMessage(data) {
+      if (!iframeReference()) {
+        return;
+      }
+      iframeReference().contentWindow.postMessage(data, '*');
+    }
+    function setParams(params) {
+      console.log(params, iframeReference());
+      // Test to see if this forces an iframe refresh
+      setIframeSrc(`https://pyret-horizon.herokuapp.com/editor${params}`);
+      // const pyretWindow = iframeReference();
+      // pyretWindow.src += params;
+      // forcing iFrame reload with random param
+      // const rand = Math.floor(Math.random() * 1000000 + 1);
+      // eslint-disable-next-line
+      // pyretWindow.src += '?uid=' + rand + params;
+    }
+    window.onmessage = function(event) {
+      if (event.data.protocol !== 'pyret') {
+        console.log('Not a pyret');
+        if (typeof oldOnMessage === 'function') {
+          return oldOnMessage(event);
+        }
+      }
+      return handlers.onmessage(event.data);
+    };
+    return handlers;
+  }
 
   function updateSavedData(updates) {
     setActivityHistory((oldState) => ({ ...oldState, ...updates }));
@@ -83,6 +89,7 @@ const CodePyretOrg = (props) => {
   useEffect(() => {
     handleResponseData(activityUpdates);
   }, [activityUpdates]);
+
   const handleResponseData = (updates) => {
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
@@ -264,7 +271,7 @@ const CodePyretOrg = (props) => {
           ref={cpoIframe}
           style={style}
           title="pyret"
-          src="https://pyret-horizon.herokuapp.com/editor" // "http://localhost:5000/editor"
+          src={iframeSrc} // "http://localhost:5000/editor"
         />
         ;
       </div>
