@@ -213,14 +213,17 @@ class TempWorkspace extends Component {
             >
               GeoGebra
             </Button>
-            <Button
-              data-testid="temp-pyret"
-              m={5}
-              click={() => this.joinRoom('pyret')}
-              disabled={!loggedIn && !tempUsername}
-            >
-              Pyret
-            </Button>
+            {process.env.REACT_APP_PYRET_MODE &&
+            process.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' ? (
+              <Button
+                data-testid="temp-pyret"
+                m={5}
+                click={() => this.joinRoom('pyret')}
+                disabled={!loggedIn && !tempUsername}
+              >
+                Pyret
+              </Button>
+            ) : null}
           </div>
         ) : (
           <Button
