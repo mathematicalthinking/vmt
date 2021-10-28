@@ -175,6 +175,11 @@ const CodePyretOrg = (props) => {
     console.log('Tab data: ', props.tab);
 
     const onMessage = function(data) {
+      if (
+        data.source === 'react-devtools-bridge' ||
+        data.source === 'react-devtools-content-script'
+      )
+        return;
       console.log('Got a message VMT side', data);
       const currentState = {
         data,
