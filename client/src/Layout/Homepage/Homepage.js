@@ -96,7 +96,15 @@ class Homepage extends PureComponent {
     const { history } = this.props;
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
-    const dateStamp = <p>Last updated: 10.19.2021, v.1.3.12</p>;
+    const dateStamp = <p>Last updated: 10.28.2021, v.1.3.13-alpha</p>;
+    let pyretStatus = '';
+    if (
+      process.env.REACT_APP_PYRET_MODE &&
+      process.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes'
+    ) {
+      pyretStatus = 'Pyret mode is enabled';
+    }
+
     const maintWindow =
       process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE || 'Sunday, 3-7pm EST';
     return (
@@ -178,7 +186,7 @@ class Homepage extends PureComponent {
                 open source
               </a>{' '}
               and currently in active development - You are viewing this
-              application in <b>{pageLocation}</b> mode.{' '}
+              application in <b>{pageLocation}</b> mode. {pyretStatus}
             </p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />
