@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import find from 'lodash/find';
+import { socket } from 'utils';
 // import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
@@ -441,6 +442,20 @@ class Chat extends Component {
                 </button>
               </div>
             ) : null}
+            {!socket.connected ? (
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
+                  onClick={() => {
+                    window.location.reload();
+                  }}
+                  data-testid="resync"
+                >
+                  Force Refresh
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       );
@@ -538,7 +553,23 @@ class Chat extends Component {
                   {user.connected ? '' : 'Disconnected!'}
                 </div>
                 <div className={classes.TooltipContent}>
-                  {`Connection Status: ${connectionStatus}`}
+                  {!socket.connected ? (
+                    <div className={DropdownMenuClasses.DropdownItem}>
+                      {`Connection Status: ${connectionStatus}`}
+                      <button
+                        type="button"
+                        className={classes.Button}
+                        onClick={() => {
+                          window.location.reload();
+                        }}
+                        data-testid="resync"
+                      >
+                        Force Refresh
+                      </button>
+                    </div>
+                  ) : (
+                    `Connection Status: ${connectionStatus}`
+                  )}
                 </div>
               </div>
             ) : null}
