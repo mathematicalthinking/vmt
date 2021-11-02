@@ -397,12 +397,18 @@ class Workspace extends Component {
       const start = Date.now();
       this.setHeartbeatTimer();
       // volatile, so the packet will be discarded if the socket is not connected
-      socket.volatile.emit('ping', () => {
-        const latency = Date.now() - start;
-        if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
-        else this.setState({ connectionStatus: 'Good' });
-        console.log('Heartbeat<3 latency: ', latency);
-      });
+      // PROBLEM: using volatile can hide the fact that the user is disconnected. (was "socket.volatile.emit...")
+      if (socket.connected) {
+        socket.emit('ping', () => {
+          const latency = Date.now() - start;
+          if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
+          else this.setState({ connectionStatus: 'Good' });
+          console.log('Heartbeat<3 latency: ', latency);
+        });
+      } else {
+        // not connected
+        this.setState({ connectionStatus: 'Error' });
+      }
     }, 5000);
 
     // socket.on('pong', (latency) => {
