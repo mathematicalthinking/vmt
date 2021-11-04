@@ -1,6 +1,10 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "VMT",
+  "name": "Virtual Math Teams - MathematicalthinkersLikeMe",
+  "developer": {
+    "name": "21PSTEM",
+    "url": "https://github.com/mathematicalthinking/vmt"
+  },
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,7 +12,18 @@
       "type": "image/x-icon"
     }
   ],
+  "type": "privileged",
+  "launch_path": "/index.html",
   "start_url": "./index.html",
+  "default_locale": "en",
+  "permissions": {
+    "audio-capture": {
+      "description": "Audio capture"
+    },
+    "speech-recognition": {
+      "description": "Speech recognition"
+    }
+  },
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff"
