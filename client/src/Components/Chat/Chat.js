@@ -42,18 +42,22 @@ class Chat extends Component {
     this.debouncedUpdateCoords = debounce(this.updateCoords, 200);
     // new speech recognition object
     const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    this.recognition = new SpeechRecognition();
+      SpeechRecognition ||
+      window.speechRecognition ||
+      window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      this.recognition = new SpeechRecognition();
 
-    // This runs when the speech recognition service starts
-    this.recognition.onstart = () => {
-      // console.log('We are listening. Try speaking into the microphone.');
-    };
+      // This runs when the speech recognition service starts
+      this.recognition.onstart = () => {
+        // console.log('We are listening. Try speaking into the microphone.');
+      };
 
-    this.recognition.onspeechend = () => {
-      // when user is done speaking
-      this.recognition.stop();
-    };
+      this.recognition.onspeechend = () => {
+        // when user is done speaking
+        this.recognition.stop();
+      };
+    }
   }
 
   componentDidMount() {
@@ -361,12 +365,17 @@ class Chat extends Component {
 
   toggleListen() {
     const { isListening } = this.state;
-    this.setState(
-      {
-        isListening: !isListening,
-      },
-      this.speechToText
-    );
+    console.log('Listener toggle: ', this.recognition);
+    if (this.recognition) {
+      this.setState(
+        {
+          isListening: !isListening,
+        },
+        this.speechToText
+      );
+    } else {
+      window.alert('Speech to Text not yet suported by your browser!');
+    }
   }
 
   render() {
