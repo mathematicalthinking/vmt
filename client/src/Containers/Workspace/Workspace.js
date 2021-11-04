@@ -590,6 +590,7 @@ class Workspace extends Component {
     clearTimeout(this.controlTimer);
     this.controlTimer = setTimeout(() => {
       this.toggleControl();
+      // one minute control timer
     }, 60 * 1000);
   };
 
