@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import find from 'lodash/find';
+import { socket } from 'utils';
 // import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
@@ -41,18 +42,22 @@ class Chat extends Component {
     this.debouncedUpdateCoords = debounce(this.updateCoords, 200);
     // new speech recognition object
     const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    this.recognition = new SpeechRecognition();
+      SpeechRecognition ||
+      window.speechRecognition ||
+      window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      this.recognition = new SpeechRecognition();
 
-    // This runs when the speech recognition service starts
-    this.recognition.onstart = () => {
-      // console.log('We are listening. Try speaking into the microphone.');
-    };
+      // This runs when the speech recognition service starts
+      this.recognition.onstart = () => {
+        // console.log('We are listening. Try speaking into the microphone.');
+      };
 
-    this.recognition.onspeechend = () => {
-      // when user is done speaking
-      this.recognition.stop();
-    };
+      this.recognition.onspeechend = () => {
+        // when user is done speaking
+        this.recognition.stop();
+      };
+    }
   }
 
   componentDidMount() {
@@ -360,12 +365,17 @@ class Chat extends Component {
 
   toggleListen() {
     const { isListening } = this.state;
-    this.setState(
-      {
-        isListening: !isListening,
-      },
-      this.speechToText
-    );
+    console.log('Listener toggle: ', this.recognition);
+    if (this.recognition) {
+      this.setState(
+        {
+          isListening: !isListening,
+        },
+        this.speechToText
+      );
+    } else {
+      window.alert('Speech to Text not yet suported by your browser!');
+    }
   }
 
   render() {
@@ -438,6 +448,20 @@ class Chat extends Component {
                 >
                   Create Template
                   {/* or Room */}
+                </button>
+              </div>
+            ) : null}
+            {!socket.connected ? (
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
+                  onClick={() => {
+                    window.location.reload();
+                  }}
+                  data-testid="resync"
+                >
+                  Force Refresh
                 </button>
               </div>
             ) : null}
@@ -538,7 +562,23 @@ class Chat extends Component {
                   {user.connected ? '' : 'Disconnected!'}
                 </div>
                 <div className={classes.TooltipContent}>
-                  {`Connection Status: ${connectionStatus}`}
+                  {!socket.connected ? (
+                    <div className={DropdownMenuClasses.DropdownItem}>
+                      {`Connection Status: ${connectionStatus}`}
+                      <button
+                        type="button"
+                        className={classes.Button}
+                        onClick={() => {
+                          window.location.reload();
+                        }}
+                        data-testid="resync"
+                      >
+                        Force Refresh
+                      </button>
+                    </div>
+                  ) : (
+                    `Connection Status: ${connectionStatus}`
+                  )}
                 </div>
               </div>
             ) : null}

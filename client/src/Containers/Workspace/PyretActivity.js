@@ -10,7 +10,10 @@ const CodePyretOrg = (props) => {
   const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
-  const [iframeSrc, setIframeSrc] = useState(process.env.REACT_APP_PYRET_URL);
+  const [iframeSrc, setIframeSrc] = useState(
+    process.env.REACT_APP_PYRET_URL ||
+      'https://pyret-horizon.herokuapp.com/editor'
+  );
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
   let pyret = null;
@@ -34,7 +37,7 @@ const CodePyretOrg = (props) => {
     function setParams(params) {
       console.log(params, iframeReference());
       // Test to see if this forces an iframe refresh
-      setIframeSrc(`https://pyret-horizon.herokuapp.com/editor${params}`);
+      setIframeSrc(`${process.env.REACT_APP_PYRET_URL}${params}`);
       // const pyretWindow = iframeReference();
       // pyretWindow.src += params;
       // forcing iFrame reload with random param
@@ -86,7 +89,9 @@ const CodePyretOrg = (props) => {
   };
 
   useEffect(() => {
-    handleResponseData(activityUpdates);
+    if (_hasControl()) {
+      handleResponseData(activityUpdates);
+    }
   }, [activityUpdates]);
 
   const handleResponseData = (updates) => {
