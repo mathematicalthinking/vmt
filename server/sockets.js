@@ -183,23 +183,26 @@ module.exports = function() {
       // console.log('from user: ', socket.user_id);
       // console.log(new Date());
       socket.leave(roomId);
-      leaveRoom(cb);
+      leaveRoom(roomId, color, cb);
     });
 
     socket.on('disconnecting', () => {
       // if they're in a room we need to remove them
       // console.log('socket id: ', socket.user_id);
-      const room = Object.keys(socket.rooms).pop(); // they can only be in one room so just grab the last one
+      // socket.rooms is a set, so first convert to an array
+      const room = [...socket.rooms].pop(); // they can only be in one room so just grab the last one
+
       if (room && ObjectId.isValid(room)) {
         socket.leave(room);
-        leaveRoom();
+        leaveRoom(room);
       }
     });
 
-    socket.on('disconnect', () => {
-      // console.log('socket disconnect');
-      // console.log('from user: ', socket.user_id);
-      // console.log(new Date());
+    socket.on('disconnect', (reason) => {
+      console.log('socket disconnect');
+      console.log('from user: ', socket.user_id);
+      console.log(new Date());
+      console.log('Because', reason);
     });
 
     socket.on('SYNC_SOCKET', (_id, cb) => {
@@ -314,8 +317,7 @@ module.exports = function() {
         .emit('RECEIVED_UPDATED_REFERENCES', updatedEvents);
     });
 
-    const leaveRoom = function(color, cb) {
-      const room = Object.keys(socket.rooms).pop();
+    const leaveRoom = function(room, color, cb) {
       controllers.rooms
         .removeCurrentUsers(room, socket.user_id)
         .then((res) => {
