@@ -235,7 +235,8 @@ const CodePyretOrg = (props) => {
       console.log('Prior state data loaded: ');
       console.log(savedData);
       const hasSaved = savedData.data && savedData.data.length > 0;
-      let contents = hasSaved ? savedData.data[0].currentState : '';
+      // prettier-ignore
+      let contents = hasSaved ? savedData.data[0].currentState.editorContents : '';
       contents = encodeURIComponent(contents);
       pyret.setParams(`#warnOnExit=false&editorContents=${contents}`);
       // #warnOnExit=false&editorContents=use%20context%20essentials2021%0A%0Ax%20%3D%205%0A%0Ax%0A
