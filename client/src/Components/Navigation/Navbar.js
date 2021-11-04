@@ -22,13 +22,21 @@ const Navbar = ({ user, location, toggleAdmin }) => {
     styles = classes.Fixed;
   }
 
-  const list = [
-    { name: 'Profile', link: '/myVMT/profile' },
-    { name: 'Logout', link: '/logout' },
+  const aboutList = [
+    { name: 'About', link: '/about' },
+    { name: 'Instructions', link: '/instructions' },
+    { name: 'FAQ', link: '/faq' },
+    { name: 'Contact', link: '/contact' },
   ];
 
+  const profileList = [{ name: 'Profile', link: '/myVMT/profile' }];
+
+  if (user.loggedIn) {
+    profileList.push({ name: 'Logout', link: '/logout' });
+  }
+
   if (user.isAdmin) {
-    list.splice(1, 0, {
+    profileList.splice(1, 0, {
       name: 'Admin Mode',
       sliderDetails: { isOn: user.inAdminMode, onClick: toggleAdmin },
     });
@@ -58,16 +66,20 @@ const Navbar = ({ user, location, toggleAdmin }) => {
           {user.isAdmin ? (
             <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
           ) : null}
-          <DropdownNavItem
-            data-testid="avatar"
-            name={
-              <Avatar
-                username={user ? user.username : ''}
-                color={user.inAdminMode ? '#ffd549' : '#2d91f2'}
-              />
-            }
-            list={list}
-          />
+          <DropdownNavItem name="Info" list={aboutList} />
+
+          {user.loggedIn ? (
+            <DropdownNavItem
+              data-testid="avatar"
+              name={
+                <Avatar
+                  username={user ? user.username : ''}
+                  color={user.inAdminMode ? '#ffd549' : '#2d91f2'}
+                />
+              }
+              list={profileList}
+            />
+          ) : null}
         </ul>
       </div>
     </nav>

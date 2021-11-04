@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import classes from './homepage.css';
 import Button from '../../Components/UI/Button/Button';
 import Background from '../../Components/Background/Background';
@@ -57,6 +58,19 @@ class Homepage extends PureComponent {
     return 'production';
   };
 
+  determineMaintWindow = (win) => {
+    const { pageLocation } = this.state;
+    if (pageLocation === 'development') {
+      return `VMT is in development and updated reguarly${
+        win ? `: maintenance window is ${win}` : ''
+      }, please contact if uptime is required.`;
+    }
+    if (pageLocation === 'staging') {
+      return 'Staging deployment may have unplanned maintenance, please notify if an uptime window is required.';
+    }
+    return null;
+  };
+
   createRoom = () => {
     const { user, createRoom } = this.props;
     const room = {
@@ -82,8 +96,9 @@ class Homepage extends PureComponent {
     const { history } = this.props;
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
-    const dateStamp = <p>Last updated: 09.27.2021, v.1.3.8</p>;
-
+    const dateStamp = <p>Last updated: 10.19.2021, v.1.3.12</p>;
+    const maintWindow =
+      process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE || 'Sunday, 3-7pm EST';
     return (
       <Aux>
         <Background bottomSpace={null} />
@@ -121,29 +136,49 @@ class Homepage extends PureComponent {
           </section>
           <section>
             {dateStamp}
-            <br />
             <p>
-              If you encounter bugs or want to suggest new features please email
-              us at{' '}
+              {' '}
+              VMT is maintained by
+              <a
+                className={classes.Link}
+                href="https://www.21pstem.org/mathematical-thinkers"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                21PSTEM.org
+              </a>
+              through the grant-funded &#39;Mathematical Thinkers Like Me&#39;
+              project.{' '}
+              <Link className={classes.Link} to="/terms">
+                Use and Privacy Statements
+              </Link>
+            </p>
+            <br />
+            {this.determineMaintWindow(maintWindow)}
+            <p>
+              If you encounter bugs or want to suggest new features please
+              contact us at:{' '}
               <a
                 className={classes.Link}
                 href="mailto:vmt@21pstem.org?subject=%5BVMT%20Feedback%5D&body=Thank%20you%20for%20taking%20the%20time%20to%20help%20improve%20VMT!%20Please%20add%20the%20following%20information%20so%20that%20we%20can%20address%20your%20request-%0D%0A%0D%0AType%20of%20Request%20(Bug%2C%20Feature%2C%20Feedback%2C%20Question)%3A%0D%0ADescription%20or%20steps%20to%20reproduce%3A%0D%0ATime%20of%20issue%3A%0D%0AWeb%20browser%3A%0D%0ASite%20specific%20URL%3A"
               >
                 vmt@21pstem.org
-              </a>
-              .{' '}
+              </a>{' '}
             </p>
+            <p />
             <br />
             <p>
               VMT is{' '}
               <a
                 className={classes.Link}
                 href="https://github.com/mathematicalthinking/vmt"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 open source
               </a>{' '}
-              and currently in Alpha - You are viewing this application in{' '}
-              <b>{pageLocation}</b> mode.{' '}
+              and currently in active development - You are viewing this
+              application in <b>{pageLocation}</b> mode.{' '}
             </p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />

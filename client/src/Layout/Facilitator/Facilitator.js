@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-// import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
+// import { Link } from 'react-router-dom';
+import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
 import NewResource from '../../Containers/Create/NewResource/NewResource';
 import classes from './facilitator.css';
 
@@ -14,15 +15,30 @@ class FacilitatorInstructions extends Component {
           <div className={classes.Cards}>
             <div className={classes.CardContainer}>
               <h2 className={classes.FeatureName}>Create</h2>
-              <div className={classes.Card} />
+              <div className={classes.Card}>
+                <i className="fas fa-object-group fa-7x" />
+                <div className={classes.CreateTitle}>
+                  Make resources, such as Rooms and Courses
+                </div>
+              </div>
             </div>
             <div className={classes.CardContainer}>
               <h2 className={classes.FeatureName}>Invite</h2>
-              <div className={classes.Card} />
+              <div className={classes.Card}>
+                <i className="fas fa-user-plus fa-7x" />
+                <div className={classes.CreateTitle}>
+                  Add other VMT users to collaborate{' '}
+                </div>
+              </div>
             </div>
             <div className={classes.CardContainer}>
               <h2 className={classes.FeatureName}>Manage</h2>
-              <div className={classes.Card} />
+              <div className={classes.Card}>
+                <i className="fas fa-wrench fa-7x" />
+                <div className={classes.CreateTitle}>
+                  See and Monitor resource activity{' '}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -47,7 +63,10 @@ class FacilitatorInstructions extends Component {
           </div>
           <p className={classes.Tutorial}>
             What&#39;s the difference between an activity and a room? To learn
-            about how VMT works, try one of our{' '}
+            about how VMT works, check out the{' '}
+            <CustomLink to="/faq">FAQs</CustomLink> or{' '}
+            <CustomLink to="/instructions">Instructions</CustomLink>
+            {/* <Link to="/instructions">instructions</Link>{' '} */}
             {/* <CustomLink to="tutorials">tutorials</CustomLink> */}
           </p>
         </div>

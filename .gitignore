@@ -17,3 +17,6 @@ Icon
 
 .DS_Store
 client/.env
+server/.env_pyret
+.gitignore
+client/.env_pyret

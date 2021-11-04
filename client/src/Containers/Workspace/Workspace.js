@@ -217,7 +217,6 @@ class Workspace extends Component {
       clearTimeout(this.controlTimer);
     }
 
-    socket.off('pong');
     const { cancelSnapshots } = this.state;
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
     this.clearHeartbeatTimer();
@@ -394,12 +393,24 @@ class Workspace extends Component {
     // bad connection latency threshold
     const THRESHOLD = 100;
 
-    socket.on('pong', (latency) => {
+    setInterval(() => {
+      const start = Date.now();
       this.setHeartbeatTimer();
-      if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
-      else this.setState({ connectionStatus: 'Good' });
-      console.log('Heartbeat<3 latency: ', latency);
-    });
+      // volatile, so the packet will be discarded if the socket is not connected
+      socket.volatile.emit('ping', () => {
+        const latency = Date.now() - start;
+        if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
+        else this.setState({ connectionStatus: 'Good' });
+        console.log('Heartbeat<3 latency: ', latency);
+      });
+    }, 5000);
+
+    // socket.on('pong', (latency) => {
+    //   this.setHeartbeatTimer();
+    //   if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
+    //   else this.setState({ connectionStatus: 'Good' });
+    //   console.log('Heartbeat<3 latency: ', latency);
+    // });
   };
 
   setHeartbeatTimer = () => {

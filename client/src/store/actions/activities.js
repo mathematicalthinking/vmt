@@ -133,8 +133,12 @@ export const getCurrentActivity = (id) => {
         dispatch(addActivity(res.data.result));
       })
       .catch((err) => {
-        dispatch(loading.fail());
-        console.log(err);
+        if (err.response) {
+          dispatch(loading.fail(err.response.data.errorMessage));
+        } else {
+          dispatch(loading.fail('Error getting template'));
+          console.log(err);
+        }
       });
   };
 };

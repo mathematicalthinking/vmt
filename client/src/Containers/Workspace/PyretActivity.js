@@ -6,47 +6,53 @@ import mongoIdGenerator from '../../utils/createMongoId';
 import API from '../../utils/apiRequests';
 import classes from './graph.css';
 
-function PyretAPI(iframeReference, onmessageHandler) {
-  const oldOnMessage = window.onmessage;
-  const handlers = {
-    onmessage: onmessageHandler,
-    postMessage,
-    setParams,
-  };
-
-  function postMessage(data) {
-    if (!iframeReference()) {
-      return;
-    }
-    iframeReference().contentWindow.postMessage(data, '*');
-  }
-  function setParams(params) {
-    console.log(params, iframeReference());
-    const pyretWindow = iframeReference();
-    pyretWindow.src += params;
-  }
-  window.onmessage = function(event) {
-    if (event.data.protocol !== 'pyret') {
-      console.log('Not a pyret');
-      if (typeof oldOnMessage === 'function') {
-        return oldOnMessage(event);
-      }
-    }
-    return handlers.onmessage(event.data);
-  };
-  return handlers;
-}
-
 const CodePyretOrg = (props) => {
   const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
+  const [iframeSrc, setIframeSrc] = useState(process.env.REACT_APP_PYRET_URL);
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
   let pyret = null;
 
   let receivingData = false;
   let initializing = false;
+
+  function PyretAPI(iframeReference, onmessageHandler) {
+    const oldOnMessage = window.onmessage;
+    const handlers = {
+      onmessage: onmessageHandler,
+      postMessage,
+      setParams,
+    };
+    function postMessage(data) {
+      if (!iframeReference()) {
+        return;
+      }
+      iframeReference().contentWindow.postMessage(data, '*');
+    }
+    function setParams(params) {
+      console.log(params, iframeReference());
+      // Test to see if this forces an iframe refresh
+      setIframeSrc(`https://pyret-horizon.herokuapp.com/editor${params}`);
+      // const pyretWindow = iframeReference();
+      // pyretWindow.src += params;
+      // forcing iFrame reload with random param
+      // const rand = Math.floor(Math.random() * 1000000 + 1);
+      // eslint-disable-next-line
+      // pyretWindow.src += '?uid=' + rand + params;
+    }
+    window.onmessage = function(event) {
+      if (event.data.protocol !== 'pyret') {
+        console.log('Not a pyret');
+        if (typeof oldOnMessage === 'function') {
+          return oldOnMessage(event);
+        }
+      }
+      return handlers.onmessage(event.data);
+    };
+    return handlers;
+  }
 
   function updateSavedData(updates) {
     setActivityHistory((oldState) => ({ ...oldState, ...updates }));
@@ -84,6 +90,7 @@ const CodePyretOrg = (props) => {
   }, [activityUpdates]);
 
   const handleResponseData = (updates) => {
+    console.log("Response data processing: ", updates);
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
@@ -163,13 +170,16 @@ const CodePyretOrg = (props) => {
   const initPlayer = async () => {
     const { tab } = props;
     // TODO(joe): saved data?
-    props.setFirstTabLoaded();
     initializeListeners();
     // Print current Tab data
     console.log('Tab data: ', props.tab);
 
     const onMessage = function(data) {
-      if (data.source === 'react-devtools-bridge') return;
+      if (
+        data.source === 'react-devtools-bridge' ||
+        data.source === 'react-devtools-content-script'
+      )
+        return;
       console.log('Got a message VMT side', data);
       const currentState = {
         data,
@@ -179,17 +189,21 @@ const CodePyretOrg = (props) => {
       setActivityUpdates(currentState);
       updateSavedData(data);
     };
+
     pyret = PyretAPI(function() {
       return cpoIframe.current;
     }, onMessage);
+
     if (tab.currentStateBase64) {
       const { currentStateBase64 } = tab;
       const savedData = JSON.parse(currentStateBase64);
       console.log('Prior state data loaded: ');
       console.log(savedData);
       const hasSaved = savedData.data && savedData.data.length > 0;
-      const contents = hasSaved ? savedData.data[0].currentState : '';
+      let contents = hasSaved ? savedData.data[0].currentState : '';
+      contents = encodeURIComponent(contents);
       pyret.setParams(`#warnOnExit=false&editorContents=${contents}`);
+      // #warnOnExit=false&editorContents=use%20context%20essentials2021%0A%0Ax%20%3D%205%0A%0Ax%0A
       /*
       pyret.postMessage({
         protocol: 'pyret',
@@ -200,6 +214,7 @@ const CodePyretOrg = (props) => {
       });
       */
     }
+    props.setFirstTabLoaded();
 
     window.tryItOut = function() {
       const change = {
@@ -230,7 +245,11 @@ const CodePyretOrg = (props) => {
     }
   }
 
-  const style = { width: '100%', height: '100%' };
+  const style = {
+    width: '100%',
+    height: '100%',
+    pointerEvents: !_hasControl() ? 'none' : 'auto',
+  };
   const { inControl, user } = props;
 
   return (
@@ -273,7 +292,7 @@ const CodePyretOrg = (props) => {
             ref={cpoIframe}
             style={style}
             title="pyret"
-            src="https://pyret-horizon.herokuapp.com/editor" // "http://localhost:5000/editor"
+            src={iframeSrc} // "http://localhost:5000/editor"
           />
           ;
         </div>
