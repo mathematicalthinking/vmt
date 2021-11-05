@@ -1,25 +1,34 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { DashboardLayout, SidePanel, ResourceList } from '../Layout/Dashboard';
+import {
+  DashboardLayout,
+  SidePanel,
+  DashboardContent,
+} from '../Layout/Dashboard';
 import {
   TabList,
   BreadCrumbs,
   // Avatar,
 } from '../Components';
-import {
-  getRooms,
-  getActivities,
-  getCourses,
-  getUser,
-  toggleJustLoggedIn,
-} from '../store/actions';
+// import {
+//   getRooms,
+//   getActivities,
+//   getCourses,
+//   getUser,
+//   toggleJustLoggedIn,
+// } from '../store/actions';
 
 import getUserNotifications from '../utils/notifications';
 
 class MyVMT extends Component {
   state = {
-    tabs: [{ name: 'Rooms' }, { name: 'Courses' }, { name: 'Activities' }],
+    tabs: [
+      { name: 'Rooms' },
+      { name: 'Courses' },
+      { name: 'Activities' },
+      { name: 'Monitor' },
+    ],
     // touring: false,
     // displayResources: [],
     view: 'facilitator',
@@ -43,6 +52,9 @@ class MyVMT extends Component {
     const { resource } = match.params;
 
     if (
+      prevProps[resource] &&
+      // eslint-disable-next-line react/destructuring-assignment
+      this.props[resource] &&
       // eslint-disable-next-line react/destructuring-assignment
       prevProps[resource].allIds.length !== this.props[resource].allIds.length
     ) {
@@ -85,12 +97,50 @@ class MyVMT extends Component {
     const { user, match } = this.props;
     const { bothRoles, view, tabs } = this.state;
     const { resource } = match.params;
+    // eslint-disable-next-line react/destructuring-assignment
 
     const additionalDetails = {
       courses: user.courses.length,
       rooms: user.rooms.length,
       activities: user.activities.length,
     };
+    const resourceTypes = [
+      'rooms',
+      'courses',
+      'activities',
+      'templates',
+      'monitor',
+    ];
+    let bodyContent = (
+      <DashboardContent
+        userResources={
+          // simple ternary in case navigation beats props update
+          user[resource]
+            ? user[resource]
+                // eslint-disable-next-line react/destructuring-assignment
+                .map((id) => this.props[resource].byId[id])
+                .sort((a, b) => {
+                  return new Date(b.createdAt) - new Date(a.createdAt);
+                }) || []
+            : []
+        }
+        notifications={
+          resource === 'courses'
+            ? getUserNotifications(user, null, 'course')
+            : getUserNotifications(user, null, 'room')
+        }
+        user={user}
+        resource={resource}
+      />
+    );
+    // resource 404 error display
+    if (!resourceTypes.includes(resource)) {
+      bodyContent = (
+        <div>
+          Could not find &#39;{resource}&#39; as a resource, please check again!{' '}
+        </div>
+      );
+    }
     return (
       <DashboardLayout
         breadCrumbs={
@@ -111,25 +161,7 @@ class MyVMT extends Component {
             view={view}
           />
         }
-        mainContent={
-          <ResourceList
-            userResources={
-              user[resource]
-                // eslint-disable-next-line react/destructuring-assignment
-                .map((id) => this.props[resource].byId[id])
-                .sort((a, b) => {
-                  return new Date(b.createdAt) - new Date(a.createdAt);
-                }) || []
-            }
-            notifications={
-              resource === 'courses'
-                ? getUserNotifications(user, null, 'course')
-                : getUserNotifications(user, null, 'room')
-            }
-            user={user}
-            resource={resource}
-          />
-        }
+        mainContent={bodyContent}
         tabs={<TabList routingInfo={match} tabs={tabs} />}
       />
     );
@@ -145,20 +177,21 @@ MyVMT.propTypes = {
 // OF CONDITIONAL LOGIC CHECKING THE RESOURCE TYPE AND THEN GRABBING DATA BASED
 // ON ITS VALUE. INSTEAD, WITH THE CURRENT METHOD WE CAN DO LIKE user[resource] or get[resource]
 const mapStateToProps = (store) => ({
-  user: store.user,
+  user: { ...store.user, monitor: store.user.rooms },
   rooms: store.rooms,
   courses: store.courses,
   activities: store.activities,
+  monitor: store.rooms,
   loading: store.loading.loading,
 });
 
 export default connect(
   mapStateToProps,
   {
-    getRooms,
-    getActivities,
-    getCourses,
-    getUser,
-    toggleJustLoggedIn,
+    // getRooms,
+    // getActivities,
+    // getCourses,
+    // getUser,
+    // toggleJustLoggedIn,
   }
 )(MyVMT);

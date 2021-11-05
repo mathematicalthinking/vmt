@@ -2,22 +2,24 @@ module.exports = {
   // At least WCAG AA Normal Text against #ffffff
   // amber
   0: '#A7230C',
-  // gold
-  1: '#9E6400',
-  // baby blue
-  2: '#11799C',
-  // lime
-  3: '#128401',
-  // lilac
-  5: '#BF00E0',
-  // moss
-  6: '#148572',
   // sky blue
-  7: '#105BB2',
-  // peach
-  8: '#EB1400',
-  // purple
-  9: '#2929FF',
+  1: '#105BB2',
+  // moss
+  2: '#197B7B',
+  // lilac
+  3: '#BF00E0',
+  // gold
+  4: '#9E6400',
   // salmon
-  10: '#BD0023',
+  5: '#BD0023',
+  // purple
+  6: '#2929FF',
+  // peach
+  7: '#EB1400',
+  // baby blue
+  8: '#11799C',
+  // lime
+  9: '#105102',
+  //  magenta
+  10: '#750044',
 };

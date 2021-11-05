@@ -102,6 +102,23 @@
   transition: 0.2s;
 }
 
+.ntf {
+  composes: Small;
+  height: auto;
+  width: 75px;
+  margin-left: auto;
+  /* position: absolute;
+  right: 5px;
+  bottom: 42px; */
+  /* margin-bottom: 1px; */
+  padding: 4px 2px;
+  transition: 0.2s;
+}
+
+.ntf:hover {
+  background-color: blue;
+}
+
 .xs-cancel {
   composes: xs Cancel;
   font-weight: 500 !important;

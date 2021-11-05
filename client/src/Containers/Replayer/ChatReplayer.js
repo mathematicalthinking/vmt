@@ -76,8 +76,17 @@ class Chat extends PureComponent {
   }
 
   render() {
+    const { isSimplified, changingIndex } = this.props;
     const { messages } = this.state;
-    return <ChatLayout log={messages} replayer expanded />;
+    return (
+      <ChatLayout
+        log={messages}
+        replayer
+        changingIndex={changingIndex}
+        expanded
+        isSimplified={isSimplified}
+      />
+    );
   }
 }
 
@@ -88,5 +97,11 @@ Chat.propTypes = {
   roomId: PropTypes.string.isRequired,
   changingIndex: PropTypes.bool.isRequired,
   setCurrentMembers: PropTypes.func.isRequired,
+  isSimplified: PropTypes.bool,
 };
+
+Chat.defaultProps = {
+  isSimplified: false,
+};
+
 export default Chat;

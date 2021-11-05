@@ -23,8 +23,9 @@ module.exports = {
         $or: [{ email: regex }, { username: regex }],
         _id: { $nin: idsToExclude },
       })
-        .limit(5)
-        .select('username email')
+        .sort([['updatedAt', -1]])
+        .limit(7)
+        .select('username email accountType')
         .then((users) => {
           resolve(users);
         })
@@ -65,7 +66,7 @@ module.exports = {
     return db.User.findOne({ _id: id }, { select: resources })
       .populate({
         path: 'activities',
-        select: 'name members intructions image rooms',
+        select: 'name members instructions image rooms', // do activities have members?
         populate: {
           path: 'rooms',
           populate: {

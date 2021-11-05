@@ -2,13 +2,37 @@
 // const { parseString } = require('xml2js');
 const { ObjectId } = require('mongoose').Types;
 // const cookie = require('cookie');
+const axios = require('axios');
 const socketInit = require('./socketInit');
 const controllers = require('./controllers');
 const Message = require('./models/Message');
 
+const url =
+  process.env.BAD_DATA_URL || 'https://dweet.io/dweet/for/VMT-BAD-DATA';
+
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
 module.exports = function() {
   const { io } = socketInit;
+  const constants = { EVENT: 'event', MESSAGE: 'message' };
+  const timestamps = { [constants.EVENT]: {}, [constants.MESSAGE]: {} };
+
+  const recordEventProblem = (data) => {
+    axios.post(url, data);
+  };
+
+  const recordData = (type, data) => {
+    try {
+      if (
+        timestamps[type][data.user._id] &&
+        timestamps[type][data.user._id] > data.timestamp
+      ) {
+        data.type = type;
+        recordEventProblem(data);
+      } else timestamps[type][data.user._id] = data.timestamp;
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   io.use((socket, next) => {
     // const cookief = socket.handshake.headers.cookie;
@@ -23,12 +47,18 @@ module.exports = function() {
   io.sockets.on('connection', (socket) => {
     console.log('socket connected: ', socket.id);
 
+    socket.on('ping', (cb) => {
+      if (typeof cb === 'function') cb();
+    });
+
     // console.log(socket.getEventNames())
     // if the socket has a jwt cookie find the user and update their socket
     // should we try to detect if the socket is already associated with a user...if so we need to update users on socket disconnect and remove their socket id
 
     socket.on('JOIN_TEMP', async (data, callback) => {
-      socket.join(data.roomId, async () => {
+      // now synchronous?
+      socket.join(data.roomId);
+      const joinUser = async () => {
         let user;
         const promises = [];
         // If the user is NOT logged in, create a temp user
@@ -92,7 +122,8 @@ module.exports = function() {
         } catch (err) {
           console.log(err);
         }
-      });
+      };
+      joinUser();
     });
 
     socket.on('JOIN', async (data, cb) => {
@@ -105,8 +136,11 @@ module.exports = function() {
       const promises = [];
       const user = { _id: data.userId, username: data.username };
 
-      socket.join(data.roomId, async () => {
-        // update current users of this room
+      socket.join(data.roomId);
+      // console.log('user joined: ', data);
+
+      // update current users of this room
+      const joinUserMembers = async () => {
         const message = {
           _id: data._id,
           user: { _id: data.userId, username: 'VMTbot' },
@@ -140,7 +174,8 @@ module.exports = function() {
           console.log('ERROR JOINING ROOM for user: ', data.userId);
           return cb(null, err);
         }
-      });
+      };
+      joinUserMembers();
     });
 
     socket.on('LEAVE_ROOM', (roomId, color, cb) => {
@@ -182,10 +217,7 @@ module.exports = function() {
     });
 
     socket.on('SEND_MESSAGE', (data, callback) => {
-      // console.log('message received: ', data.messageType);
-      // console.log('user with data: ', data.user);
-      // console.log('from user: ', socket.user_id);
-      // console.log(new Date());
+      recordData(constants.MESSAGE, data);
       const postData = { ...data };
       postData.user = postData.user._id;
       controllers.messages
@@ -199,6 +231,10 @@ module.exports = function() {
         .catch((err) => {
           callback('fail', err);
         });
+    });
+
+    socket.on('PENDING_MESSAGE', (data) => {
+      socket.broadcast.to(data.room).emit('PENDING_MESSAGE', { ...data });
     });
 
     socket.on('TAKE_CONTROL', async (data, callback) => {
@@ -238,18 +274,10 @@ module.exports = function() {
     });
 
     socket.on('SEND_EVENT', async (data) => {
-      // console.log('event received');
-      // console.log('from user: ', socket.user_id);
-      // console.log({ data });
-      // console.log(new Date());
-      // const xmlObj = '';
-      // if (data.xml && data.eventType !== 'CHANGE_PERSPECTIVE') {
-      //   xmlObj = await parseXML(xml); // @TODO We should do this parsing on the backend yeah? we only need this for to build the description which we only need in the replayer anyway
-      // }
+      recordData(constants.EVENT, data);
       try {
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
         await controllers.events.post(data);
-        // data.currentState = currentState;
       } catch (err) {
         console.log('ERROR SENDING EVENT: ', err);
       }
@@ -331,7 +359,16 @@ module.exports = function() {
           }
         })
         .catch((err) => {
-          console.log('ERROR LEAVING ROOM ', room, ' user: ', socket.user._id);
+          if (socket.user) {
+            console.log(
+              'ERROR LEAVING ROOM ',
+              room,
+              ' user: ',
+              socket.user._id
+            );
+          } else {
+            console.log('ERROR LEAVING ROOM ', room, ' user not found!');
+          }
           console.log('socketid: ', socket.id);
           if (cb) cb(null, err);
         });

@@ -42,10 +42,10 @@ class ResourceList extends Component {
       userResources
     );
     facilitatorList = facilitatorList.filter((resource) => {
-      return resource.name.indexOf(criteria) > -1;
+      return resource.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
     });
     participantList = participantList.filter((resource) => {
-      return resource.name.indexOf(criteria) > -1;
+      return resource.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
     });
     this.setState({
       facilitatorList,
@@ -56,13 +56,17 @@ class ResourceList extends Component {
   sortUserResources = (resources) => {
     const facilitatorList = [];
     const participantList = [];
-    resources.forEach((userResource) => {
-      if (userResource.myRole === 'facilitator') {
-        facilitatorList.push(userResource);
-      } else {
-        participantList.push(userResource);
-      }
-    });
+    if (resources) {
+      resources.forEach((userResource) => {
+        if (userResource) {
+          if (userResource.myRole === 'facilitator') {
+            facilitatorList.push(userResource);
+          } else {
+            participantList.push(userResource);
+          }
+        }
+      });
+    }
     return {
       facilitatorList,
       participantList,
@@ -81,11 +85,12 @@ class ResourceList extends Component {
     let linkPath = `/myVMT/${resource}/`;
     let linkSuffix;
     if (resource === 'courses') {
-      linkSuffix = '/activities';
+      linkSuffix = '/rooms';
     } else {
       linkSuffix = '/details';
     }
-    const displayResource = resource[0].toUpperCase() + resource.slice(1);
+    let displayResource = resource[0].toUpperCase() + resource.slice(1);
+    if (displayResource === 'Activities') displayResource = 'Templates';
     if (parentResource === 'courses') {
       linkPath = `/myVMT/${parentResource}/${parentResourceId}/${resource}/`;
       linkSuffix = '/details';

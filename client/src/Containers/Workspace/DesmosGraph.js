@@ -290,9 +290,9 @@ class DesmosGraph extends Component {
       let verbPhrase = 'modified';
       let valuesDescriptionPhrase = '';
       if (modifiedExpressionProp === 'hidden') {
-        verbPhrase = newValue === true ? 'hid' : 'unhid';
+        verbPhrase = newValue ? 'hid' : 'unhid';
       } else if (modifiedExpressionProp === 'collapsed') {
-        verbPhrase = newValue === true ? 'collapsed' : 'expanded';
+        verbPhrase = newValue ? 'collapsed' : 'expanded';
       } else if (modifiedExpressionProp === 'columns') {
         if (newValue.length > oldValue.length) {
           verbPhrase = 'added a column to';
@@ -339,14 +339,13 @@ class DesmosGraph extends Component {
       'yAxisMinorSubdivisions',
     ];
     if (modifiedGraphProp === 'degreeMode') {
-      const displayValue = newValue === true ? 'degrees mode' : 'radians mode';
+      const displayValue = newValue ? 'degrees mode' : 'radians mode';
       verbPhrase = `switched to ${displayValue}`;
     } else if (modifiedGraphProp === 'polarMode') {
-      const displayValue =
-        newValue === true ? 'polar grid mode' : 'regular grid mode';
+      const displayValue = newValue ? 'polar grid mode' : 'regular grid mode';
       verbPhrase = `switched to ${displayValue}`;
     } else if (showHideProps.indexOf(modifiedGraphProp) !== -1) {
-      let verb = newValue === false ? 'hid' : 'unhid';
+      let verb = !newValue ? 'hid' : 'unhid';
 
       let noun;
       const target = 'show';

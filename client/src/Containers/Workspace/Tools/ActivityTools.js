@@ -12,17 +12,18 @@ const ActivityTools = (props) => {
         {owner ? (
           <div>
             <p data-testid="owner-msg">
-              As the owner of this activity you can make changes to initial
+              As the owner of this template you can make changes to initial
               construction.
             </p>
+            <br />
             <p>
-              Once you are ready to collaborate on this activity you can click
-              &#147; Exit Activity &#148; and then select &#147;Assign
-              Activity&#148;. You can then decide who you want to collaborate
+              Once you are ready to collaborate on this template you can click
+              &#147;Exit Template&#148; and then select &#147;Assign
+              Template&#148;. You can then decide who you want to collaborate
               with.
             </p>
             <p>
-              When you click &#147;Assign&#148; this activity will be copied to
+              When you click &#147;Assign&#148; this template will be copied to
               a room where you can begin collaborating.
             </p>
             <p>
@@ -34,6 +35,18 @@ const ActivityTools = (props) => {
               >
                 here
               </Link>
+              {'. '}
+              Desmos Activity editing is not yet supported on VMT and must be
+              edited at{' '}
+              <a
+                className={classes.Link}
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://teacher.desmos.com/"
+                data-testid="desmos-link"
+              >
+                teacher.desmos.com
+              </a>
             </p>
             <div className={classes.Save}>
               <div
@@ -42,21 +55,21 @@ const ActivityTools = (props) => {
                 tabIndex="-3"
                 onKeyPress={copy}
                 onClick={copy}
-                data-testid="copy-activity"
+                data-testid="copy-template"
               >
-                copy this activity
+                copy this template
               </div>
             </div>
           </div>
         ) : (
           <div>
             <p>
-              If you want to make changes to this activity, copy it to your list
-              of activities first.
+              If you want to make changes to this template, copy it to your list
+              of activity templates first.
             </p>
             <br />
             <p>
-              After you copy it you can create your own rooms from this activity
+              After you copy it you can create your own rooms from this template
               and invite others to collaborate with you.
             </p>
             <div className={classes.Save}>
@@ -68,7 +81,7 @@ const ActivityTools = (props) => {
                 onClick={copy}
                 data-testid="copy-activity"
               >
-                copy this activity
+                copy this template
               </div>
             </div>
           </div>
@@ -83,7 +96,7 @@ const ActivityTools = (props) => {
             theme="Small"
             data-testid="exit-room"
           >
-            Exit Activity
+            Exit Template
           </div>
         </div>
       </div>

@@ -3,10 +3,14 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import find from 'lodash/find';
-import Modal from '../UI/Modal/Modal';
+import { socket } from 'utils';
+// import Modal from '../UI/Modal/Modal';
 import Message from './Message';
 import Event from './Event';
+import Pending from './Pending';
 import classes from './chat.css';
+import quickChats from './QuickChatList';
+import DropdownMenuClasses from '../../Layout/Dashboard/MainContent/dropdownmenu.css';
 import Button from '../UI/Button/Button';
 
 class Chat extends Component {
@@ -19,7 +23,12 @@ class Chat extends Component {
       chatCoords: null,
       chatInputCoords: null,
       highlightedMessage: null,
-      settings: false,
+      // settings: false,
+      hasNewMessages: false,
+      lastTimestamp: '',
+      isChatPicker: false,
+      isListening: false,
+      seenChatInstructions: false,
     };
     this.chatContainer = React.createRef();
     this.chatInput = chatInput || React.createRef();
@@ -31,6 +40,24 @@ class Chat extends Component {
     });
 
     this.debouncedUpdateCoords = debounce(this.updateCoords, 200);
+    // new speech recognition object
+    const SpeechRecognition =
+      SpeechRecognition ||
+      window.speechRecognition ||
+      window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      this.recognition = new SpeechRecognition();
+
+      // This runs when the speech recognition service starts
+      this.recognition.onstart = () => {
+        // console.log('We are listening. Try speaking into the microphone.');
+      };
+
+      this.recognition.onspeechend = () => {
+        // when user is done speaking
+        this.recognition.stop();
+      };
+    }
   }
 
   componentDidMount() {
@@ -57,11 +84,18 @@ class Chat extends Component {
       setToElAndCoords,
       referToEl,
       showingReference,
+      isSimplified,
+      replayer,
     } = this.props;
     if (prevProps.log.length !== log.length) {
       // create a ref for the new element
-      this[`message-${log[log.length - 1]._id}`] = React.createRef();
-      this.scrollToBottom();
+      if (log.length) {
+        const ts = new Date(log[log.length - 1].timestamp);
+        this[`message-${log[log.length - 1]._id}`] = React.createRef();
+        this.setState({ lastTimestamp: ts.toTimeString().split(' ')[0] });
+      }
+      if (this.nearBottom()) this.scrollToBottom();
+      else this.setState({ hasNewMessages: true });
     } else if (!prevProps.referencing && referencing) {
       setFromElAndCoords(
         this.chatInput.current,
@@ -86,6 +120,27 @@ class Chat extends Component {
         this.getRelativeCoords(this.chatInput.current)
       );
     }
+
+    // if the view is switched, always scroll to the bottom after updating
+    if (prevProps.isSimplified !== isSimplified) {
+      this.scrollToBottom();
+    }
+    // if we are in replayer and skip ahead, scroll to bottom
+    if (replayer && prevProps.changingIndex) {
+      this.scrollToBottom();
+    }
+
+    // if we have a new pending user and are near bottom, scroll to bottom to not cover messages
+    // if (!replayer) {
+    //   if (
+    //     Object.keys(prevProps.pendingUsers).length <
+    //     Object.keys(pendingUsers).length
+    //   ) {
+    //     if (this.nearBottom()) {
+    //       this.scrollToBottom();
+    //     }
+    //   }
+    // }
   }
 
   componentWillUnmount() {
@@ -122,6 +177,18 @@ class Chat extends Component {
     // window.scroll({top: this.containerRef.current.offsetTop - 100, left: 0, behavior: 'smooth'})
   };
 
+  nearBottom = () => {
+    const chat = this.chatEnd.current;
+    return (
+      chat.scrollHeight - Math.floor(chat.scrollTop) - chat.clientHeight - 100 <
+      0
+    );
+  };
+
+  clearNewMessages = () => {
+    this.setState({ hasNewMessages: false });
+  };
+
   showReference = (event, reference, messageId) => {
     const {
       showReference,
@@ -141,6 +208,8 @@ class Chat extends Component {
       let toCoords;
       this.currentRefMessageId = messageId;
       if (reference.elementType === 'chat_message') {
+        // escape hatch in case referenced message is not rendred in current display
+        if (!this[`message-${reference.element}`].current) return;
         toCoords = this.getRelativeCoords(
           this[`message-${reference.element}`].current
         );
@@ -181,7 +250,10 @@ class Chat extends Component {
     setToElAndCoords({ element: id, elementType: 'chat_message' }, position);
   };
 
-  scrollHandler = () => {};
+  scrollHandler = () => {
+    this.updateReferencePositions();
+    if (this.nearBottom()) this.clearNewMessages();
+  };
 
   updateReferencePositions = () => {
     const {
@@ -244,15 +316,67 @@ class Chat extends Component {
 
   createActivity = () => {
     const { createActivity } = this.props;
-    this.setState({ settings: false });
+    // this.setState({ settings: false });
     createActivity();
   };
 
   openReplayer = () => {
     const { goToReplayer } = this.props;
-    this.setState({ settings: false });
+    // this.setState({ settings: false });
     goToReplayer();
   };
+
+  toggleChatPicker = () => {
+    this.setState((prevState) => ({
+      isChatPicker: !prevState.isChatPicker,
+    }));
+  };
+
+  speechToText = () => {
+    const { quickChat } = this.props;
+    const { isListening } = this.state;
+    if (isListening) {
+      // start recognition
+      this.recognition.start();
+      // recognition.onend = () => {
+      //   console.log('...continue listening...');
+      //   recognition.start();
+      // };
+    } else {
+      this.recognition.stop();
+      this.recognition.onend = () => {
+        // console.log('Stopped listening per click');
+      };
+    }
+
+    // This runs when the speech recognition service returns result
+    this.recognition.onresult = (event) => {
+      const { transcript } = event.results[0][0];
+      // console.log(
+      //   'Speech- Transcript: ',
+      //   transcript,
+      //   ', Confidence: ',
+      //   confidence
+      // );
+      if (isListening) this.toggleListen();
+      quickChat(transcript, 'STT');
+    };
+  };
+
+  toggleListen() {
+    const { isListening } = this.state;
+    console.log('Listener toggle: ', this.recognition);
+    if (this.recognition) {
+      this.setState(
+        {
+          isListening: !isListening,
+        },
+        this.speechToText
+      );
+    } else {
+      window.alert('Speech to Text not yet suported by your browser!');
+    }
+  }
 
   render() {
     const {
@@ -260,16 +384,92 @@ class Chat extends Component {
       replayer,
       change,
       submit,
+      quickChat,
       value,
       expanded,
       referToEl,
       referencing,
+      isSimplified,
       user,
       startNewReference,
       goToReplayer,
       createActivity,
+      pendingUsers,
+      connectionStatus,
     } = this.props;
-    const { settings, highlightedMessage } = this.state;
+    const {
+      highlightedMessage,
+      hasNewMessages,
+      lastTimestamp,
+      isChatPicker,
+      isListening,
+      seenChatInstructions,
+    } = this.state;
+    const DropdownMenu = () => {
+      return (
+        // eslint-disable-next-line
+        <div
+          className={DropdownMenuClasses.Container}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <i className="fas fa-bars" />
+
+          <div className={DropdownMenuClasses.DropdownContent}>
+            {goToReplayer ? (
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
+                  onClick={(e) => {
+                    this.openReplayer();
+                    e.stopPropagation();
+                  }}
+                  data-testid="open-replayer"
+                >
+                  Open Replayer
+                  <span className={classes.ExternalLink}>
+                    <i className="fas fa-external-link-alt" />
+                  </span>
+                </button>
+              </div>
+            ) : null}
+            {createActivity ? (
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
+                  onClick={(e) => {
+                    this.createActivity();
+                    e.stopPropagation();
+                  }}
+                  data-testid="create-workspace"
+                >
+                  Create Template
+                  {/* or Room */}
+                </button>
+              </div>
+            ) : null}
+            {!socket.connected ? (
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
+                  onClick={() => {
+                    window.location.reload();
+                  }}
+                  data-testid="resync"
+                >
+                  Force Refresh
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      );
+    };
+
     let displayMessages = [];
     if (log) {
       displayMessages = log.map((message) => {
@@ -308,12 +508,15 @@ class Chat extends Component {
               highlighted={highlighted}
               reference={reference}
               referencing={referencing}
+              isSimplified={isSimplified}
             />
           );
         }
-        if (!message.synthetic) {
-          // for replayer only. should not show up in chat, only slider
-          return <Event event={message} id={message._id} key={message._id} />;
+        if (!isSimplified) {
+          if (!message.synthetic) {
+            // for replayer only. should not show up in chat, only slider
+            return <Event event={message} id={message._id} key={message._id} />;
+          }
         }
         return null;
       });
@@ -333,28 +536,50 @@ class Chat extends Component {
             tabIndex="0"
             role="button"
           >
+            {!replayer ? (
+              <div className={classes.DropdownContainer}>
+                <DropdownMenu />{' '}
+              </div>
+            ) : null}
             Chat
             {!replayer ? (
-              <div className={classes.Status}>
+              // eslint-disable-next-line
+              <div
+                className={classes.Status}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
                 <i
                   className={[
                     'fas fa-wifi',
-                    user.connected ? classes.Connected : classes.Disconnected,
+                    // user.connected ? classes.Connected : classes.Disconnected,
+                    classes[connectionStatus],
                   ].join(' ')}
-                  title={user.connected ? 'Connected' : 'Disconnected'}
+                  // title={`Connection: ${connectionStatus}`}
                 />
                 <div className={classes.StatusText}>
-                  {user.connected ? '' : 'disconnected!'}
+                  {user.connected ? '' : 'Disconnected!'}
                 </div>
-                <i
-                  onClick={() => this.setState({ settings: true })}
-                  onKeyPress={() => this.setState({ settings: true })}
-                  className={['fas fa-ellipsis-v', classes.Settings].join(' ')}
-                  tabIndex="-1"
-                  role="button"
-                  data-testid="more-menu"
-                  title="More options"
-                />
+                <div className={classes.TooltipContent}>
+                  {!socket.connected ? (
+                    <div className={DropdownMenuClasses.DropdownItem}>
+                      {`Connection Status: ${connectionStatus}`}
+                      <button
+                        type="button"
+                        className={classes.Button}
+                        onClick={() => {
+                          window.location.reload();
+                        }}
+                        data-testid="resync"
+                      >
+                        Force Refresh
+                      </button>
+                    </div>
+                  ) : (
+                    `Connection Status: ${connectionStatus}`
+                  )}
+                </div>
               </div>
             ) : null}
           </div>
@@ -362,70 +587,117 @@ class Chat extends Component {
             className={expanded ? classes.ChatScroll : classes.Collapsed}
             data-testid="chat"
             ref={this.chatEnd}
-            onScroll={this.updateReferencePositions}
+            onScroll={this.scrollHandler}
             id="scrollable"
           >
             {displayMessages}
+            <div className={classes.Timestamp}>
+              {isSimplified
+                ? `End of log - last event ${lastTimestamp}`
+                : 'End of log'}
+            </div>
           </div>
+          {hasNewMessages && (
+            <Button click={this.scrollToBottom} theme="ntf" m="0 0 0 auto">
+              New <i className="fas fa-arrow-down" />
+            </Button>
+          )}
           {!replayer ? (
-            <div className={classes.ChatInput}>
-              <input
-                ref={this.chatInput}
-                className={classes.Input}
-                type="text"
-                onChange={change}
-                value={value}
-                onFocus={() => {
-                  if (!referencing) {
-                    startNewReference();
+            <Fragment>
+              <div className={classes.ChatInput}>
+                <Pending pendingUsers={pendingUsers} />
+
+                <textarea
+                  ref={this.chatInput}
+                  className={classes.Input}
+                  type="text"
+                  placeholder={
+                    seenChatInstructions
+                      ? ''
+                      : 'You can type in here or hit the microphone and dictate. Also, click the dots for quick chats!'
                   }
-                }}
-                disabled={user.inAdminMode}
-              />
-              {!user.inAdminMode ? (
-                <div
-                  className={classes.Send}
-                  onClick={submit}
-                  onKeyPress={submit}
-                  tabIndex="-2"
-                  role="button"
-                >
-                  <i className="fab fa-telegram-plane" />
+                  onChange={change}
+                  value={value}
+                  onFocus={() => {
+                    if (!referencing) {
+                      startNewReference();
+                    }
+                    this.setState({
+                      seenChatInstructions: true,
+                    });
+                  }}
+                  disabled={user.inAdminMode}
+                />
+                {!user.inAdminMode ? (
+                  <div className={classes.ChatOptions}>
+                    <div
+                      className={classes.Send}
+                      onClick={submit}
+                      title="Submit message"
+                      onKeyPress={submit}
+                      tabIndex="-2"
+                      role="button"
+                    >
+                      <i className="fas fa-level-up-alt" />
+                    </div>
+                    <div className={classes.ChatButtons}>
+                      <div
+                        className={classes.Mic}
+                        key="qucikChat-ST"
+                        title="Speech to text"
+                        tabIndex={-3}
+                        role="button"
+                        onClick={() => {
+                          this.toggleListen();
+                        }}
+                        onKeyPress={() => {
+                          this.toggleListen();
+                        }}
+                      >
+                        <i
+                          className={`fas fa-microphone fa ${
+                            isListening ? classes.Listening : ''
+                          }`}
+                        />
+                      </div>
+                      <div
+                        className={classes.QuickMenu}
+                        title="Toggle quick-chat drawer"
+                        onClick={this.toggleChatPicker}
+                        onKeyPress={this.toggleChatPicker}
+                        tabIndex="-2"
+                        role="button"
+                      >
+                        <i className="fas fa-ellipsis-h" />
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+              {isChatPicker ? (
+                <div className={classes.ChatPicker}>
+                  {quickChats.map((chat, i) => {
+                    return (
+                      <div
+                        className={classes.QuickChatItem}
+                        key={`quickChat-${chat.display}`}
+                        title={chat.message}
+                        tabIndex={-4 - i}
+                        role="button"
+                        onClick={() => quickChat(chat, 'EMOJI')}
+                        onKeyPress={() => quickChat(chat, 'EMOJI')}
+                      >
+                        <span role="img" aria-label="rainbow emoji">
+                          {chat.display}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : null}
-            </div>
+            </Fragment>
           ) : null}
         </div>
-        {settings ? (
-          <Modal
-            show={settings}
-            closeModal={() => this.setState({ settings: false })}
-          >
-            More Options
-            <div className={classes.MoreMenu}>
-              {goToReplayer ? (
-                <div className={classes.MoreMenuOption}>
-                  <Button click={this.openReplayer} data-testid="open-replayer">
-                    Open Replayer
-                    <span className={classes.ExternalLink}>
-                      <i className="fas fa-external-link-alt" />
-                    </span>
-                  </Button>
-                </div>
-              ) : null}
-              {createActivity ? (
-                <div className={classes.MoreMenuOption}>
-                  <Button
-                    click={this.createActivity}
-                    data-testid="create-workspace"
-                  >
-                    Create Activity or Room
-                  </Button>
-                </div>
-              ) : null}
-            </div>
-          </Modal>
-        ) : null}
       </Fragment>
     );
   }
@@ -442,6 +714,7 @@ Chat.propTypes = {
   },
   toggleExpansion: PropTypes.func,
   referencing: PropTypes.bool,
+  isSimplified: PropTypes.bool,
   referToEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   referFromEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   setFromElAndCoords: PropTypes.func,
@@ -455,12 +728,16 @@ Chat.propTypes = {
   startNewReference: PropTypes.func,
   replayer: PropTypes.bool,
   submit: PropTypes.func,
+  quickChat: PropTypes.func,
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   expanded: PropTypes.bool.isRequired,
   chatInput: PropTypes.shape({ current: PropTypes.any }),
   eventsWithRefs: PropTypes.arrayOf(PropTypes.shape({})),
   goToReplayer: PropTypes.func,
   createActivity: PropTypes.func,
+  pendingUsers: PropTypes.shape({}),
+  connectionStatus: PropTypes.string,
+  changingIndex: PropTypes.bool,
 };
 
 Chat.defaultProps = {
@@ -473,7 +750,9 @@ Chat.defaultProps = {
   replayer: false,
   change: null,
   submit: null,
+  quickChat: null,
   referencing: false,
+  isSimplified: true,
   setFromElAndCoords: null,
   setToElAndCoords: null,
   startNewReference: null,
@@ -484,6 +763,9 @@ Chat.defaultProps = {
   eventsWithRefs: [],
   goToReplayer: null,
   createActivity: null,
+  pendingUsers: null,
+  connectionStatus: 'None',
+  changingIndex: false,
 };
 
 export default Chat;

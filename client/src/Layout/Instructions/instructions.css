@@ -1,0 +1,145 @@
+:import('../../colors.css') {
+  navBarHeight: navBarHeight;
+  lightBlue: lightBlue;
+  darkBlue: darkBlue;
+  gridBlue: gridBlue;
+  lightShadow: lightShadow;
+}
+
+.Container {
+  margin-top: navBarHeight;
+  padding-top: 90px;
+  z-index: 1000;
+  width: 90%;
+  align-self: center;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  transition: 0.2s;
+  color: white;
+  z-index: 1;
+  /* background-image: linear-gradient(
+    to top,
+    #d4edfc 1%,
+    gridBlue 15%,
+    darkBlue 100%
+  ); */
+}
+
+.BackgroundContainer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.RoomDemo {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 56.25%;
+  margin: 25px 0;
+}
+
+.Background {
+  position: fixed;
+  width: 100%;
+  /* overflow: hidden; */
+  height: 100%;
+  bottom: -1px;
+  background-image: linear-gradient(
+    to top,
+    #d4edfc 1%,
+    gridBlue 15%,
+    darkBlue 100%
+  );
+}
+
+.Tagline {
+  color: rgb(206, 238, 248);
+  /* color: white; */
+  font-size: 40px;
+  width: 700px;
+  text-align: center;
+  /* z-index: 1000; */
+}
+
+.QuickLinks {
+  align-content: center;
+  margin-top: 30px;
+}
+
+.Header {
+  color: rgb(206, 238, 248);
+  text-align: center;
+  font-size: 36px;
+  margin-top: 75px;
+}
+
+.Intermediate {
+  margin-top: 20px;
+  text-align: center;
+  font-style: italic;
+  font-size: inherit;
+}
+
+.Sup {
+  font-size: smaller;
+  vertical-align: super;
+}
+
+.Image {
+  width: 100%;
+  height: calc(100% - 30px);
+}
+
+.Content {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 20px;
+  width: 100%;
+}
+
+.Description {
+  margin: 0 40px;
+  max-width: 500px;
+}
+
+.Link {
+  text-decoration: underline;
+  transition: 0.2s;
+}
+
+.Link:hover {
+  color: rgb(206, 238, 248);
+}
+.Links {
+  composes: Link;
+
+  margin: 20px;
+  font-size: 25px;
+}
+
+.List {
+  list-style: initial;
+  list-style-type: decimal;
+  margin: initial;
+  padding: 0 0 0 25px;
+}
+
+.ListItem {
+  display: list-item;
+}
+
+.Content:last-child {
+  margin-bottom: 100px;
+}
+
+@media screen and (max-height: 650px) {
+  .Container {
+    padding-top: 60px;
+  }
+}

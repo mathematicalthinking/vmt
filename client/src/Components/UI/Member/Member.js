@@ -36,6 +36,7 @@ class Member extends PureComponent {
     this.setState({ editing: false });
     info.role = newRole;
     changeRole(info);
+    this.setState({ role: newRole });
   };
 
   trash = () => {
@@ -60,6 +61,8 @@ class Member extends PureComponent {
     } = this.props;
     const { editing, trashing } = this.state;
     const username = info.user ? info.user.username : info.username;
+    if (trashing) window.scrollTo(0, 0);
+
     return (
       <div data-testid={`member-${username}`}>
         <div className={classes.Container}>

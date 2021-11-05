@@ -89,7 +89,7 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    const { currentTabId } = this.props;
+    // const { currentTabId } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -111,7 +111,7 @@ class GgbGraph extends Component {
         this.unlockWindowScroll
       );
     }
-    console.log('Mounted - Tab Id: ', currentTabId);
+    // console.log('Mounted - Tab Id: ', currentTabId);
     socket.on('RECEIVE_EVENT', (data) => {
       this.handleUpdate(data);
     });
@@ -624,6 +624,7 @@ class GgbGraph extends Component {
     // 0 = MOVE
 
     const { referencing, clearReference } = this.props;
+    const canChangePerspective = false; //  room.settings.participantsCanChangePerspective;
     if (this.receivingData) {
       return;
     }
@@ -745,6 +746,12 @@ class GgbGraph extends Component {
         }
         break;
       case 'perspectiveChange':
+        // console.log(
+        //   'Perspective change... Can edit?: ',
+        //   this.userCanEdit(),
+        //   ' can change: ',
+        //   canChangePerspective
+        // );
         if (this.userCanEdit()) {
           this.parseVisibleViews()
             .then((visibleViews) => {
@@ -762,7 +769,7 @@ class GgbGraph extends Component {
             .catch((err) => {
               console.log('parse visible views err: ', err);
             });
-        } else {
+        } else if (!canChangePerspective) {
           this.setState({ showControlWarning: true });
         }
 
@@ -2072,7 +2079,6 @@ class GgbGraph extends Component {
       this.isFaviconNtf = true;
       this.changeFavicon('/favNtf.ico');
     }
-    // console.log('CurrentTab: ', currentTabId);
     // If the event is for this room tab (i.e., not browser tab) but this tab is not in view,
     // add a notification to this tab
     if (currentTabId !== data.tab) {

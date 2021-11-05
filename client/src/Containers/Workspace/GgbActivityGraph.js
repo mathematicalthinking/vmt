@@ -25,7 +25,7 @@ class GgbActivityGraph extends Component {
         } else {
           // eslint-disable-next-line no-alert
           window.alert(
-            'You cannot edit this activity because you are not the owner. If you want to make changes, copy it to your list of activities first.'
+            'You cannot edit this activity because you are not the owner. If you want to make changes, copy it to your list of activity templates first.'
           );
         }
       },
@@ -228,7 +228,7 @@ class GgbActivityGraph extends Component {
       <Aux>
         {tab ? (
           <Script
-            url="https://cdn.geogebra.org/apps/deployggb.js"
+            url="https://www.geogebra.org/apps/deployggb.js"
             onLoad={this.onScriptLoad}
           />
         ) : null}

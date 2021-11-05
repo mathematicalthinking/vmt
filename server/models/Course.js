@@ -18,10 +18,14 @@ const Course = new mongoose.Schema(
     members: [
       {
         user: { type: ObjectId, ref: 'User' },
-        role: { type: String, enum: ['facilitator', 'participant', 'guest'] },
+        role: {
+          type: String,
+          enum: ['facilitator', 'participant', 'guest', 'pending'],
+        },
         _id: false,
       },
     ],
+    metadata: { type: Object },
     image: { type: String }, // URL
     isTrashed: { type: Boolean, default: false },
   },

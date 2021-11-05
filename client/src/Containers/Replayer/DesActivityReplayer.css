@@ -62,7 +62,15 @@
   /* color: ; */
 }
 
+.Screens {
+  color: #2d91f2;
+  font-size: 13.5px;
+  text-transform: lowercase;
+  text-align: center;
+}
+
 .ActivityNav {
   z-index: 999;
   position: absolute;
+  display: flex;
 }

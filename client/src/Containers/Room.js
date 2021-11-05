@@ -1,18 +1,24 @@
 /* eslint-disable react/no-did-update-set-state */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import {
   DashboardLayout,
   SidePanel,
   RoomDetails,
   RoomSettings,
-} from '../Layout/Dashboard';
-import Members from './Members/Members';
-import Stats from './Stats/Stats';
-import withPopulatedRoom from './Data/withPopulatedRoom';
-import getUserNotifications from '../utils/notifications';
+} from 'Layout/Dashboard';
+import {
+  Aux,
+  Modal,
+  Button,
+  BreadCrumbs,
+  TabList,
+  EditText,
+  TrashModal,
+  Error,
+} from 'Components';
 import {
   joinWithCode,
   requestAccess,
@@ -25,18 +31,13 @@ import {
   clearLoadingInfo,
   // populateRoom,
   updateUser,
-} from '../store/actions';
-import {
-  Aux,
-  Modal,
-  Button,
-  BreadCrumbs,
-  TabList,
-  EditText,
-  TrashModal,
-  Error,
-} from '../Components';
+} from 'store/actions';
+import getUserNotifications from 'utils/notifications';
+import Members from './Members/Members';
+import Stats from './Stats/Stats';
+// import withPopulatedRoom from './Data/withPopulatedRoom';
 import Access from './Access';
+import RoomPreview from './Monitoring/RoomPreview';
 
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
@@ -49,6 +50,7 @@ class Room extends Component {
       tabs: [
         { name: 'Details' },
         { name: 'Members' },
+        { name: 'Preview' },
         { name: 'Stats' },
         { name: 'Settings' },
       ],
@@ -76,10 +78,11 @@ class Room extends Component {
     if (room) {
       // check access
       let updatedTabs = [...tabs];
-      const owner = false;
+      let owner = false;
       let firstView = false;
       let invited = false;
       if (room.myRole === 'facilitator') {
+        owner = true;
         updatedTabs = this.displayNotifications(updatedTabs);
       }
       if (notifications.length > 0) {
@@ -334,15 +337,18 @@ class Room extends Component {
       let ggb = false;
       let desmos = false;
       let desmosActivity = false;
+      let pyret = false;
       room.tabs.forEach((tab) => {
         if (tab.tabType === 'geogebra') ggb = true;
         else if (tab.tabType === 'desmos') desmos = true;
         else if (tab.tabType === 'desmosActivity') desmosActivity = true;
+        else if (tab.tabType === 'pyret') pyret = true;
       });
       let roomType;
       if (ggb && (desmos || desmosActivity)) roomType = 'GeoGebra/Desmos';
       else if (ggb) roomType = 'GeoGebra';
       else if (desmos) roomType = 'Desmos';
+      else if (pyret) roomType = 'Pyret';
       else roomType = 'Desmos Activity';
 
       const { updateFail, updateKeys } = loading;
@@ -406,7 +412,7 @@ class Room extends Component {
       if (course) {
         crumbs.splice(1, 0, {
           title: course.name,
-          link: `/myVMT/courses/${course._id}/activities`,
+          link: `/myVMT/courses/${course._id}/rooms`,
         });
       }
       let mainContent;
@@ -437,7 +443,10 @@ class Room extends Component {
             parentResource={course ? course._id : null}
             courseMembers={course ? course.members : null}
             notifications={
-              notifications.filter((ntf) => ntf.resourceId === room._id) || []
+              course
+                ? notifications.filter((ntf) => ntf.resourceId === course._id)
+                : notifications.filter((ntf) => ntf.resourceId === room._id) ||
+                  []
             }
           />
         );
@@ -451,8 +460,11 @@ class Room extends Component {
           />
         );
       } else if (resource === 'stats') {
-        const MainContent = withRouter(withPopulatedRoom(Stats));
-        mainContent = <MainContent />;
+        // const MainContent = withRouter(withPopulatedRoom(Stats));
+        // mainContent = <MainContent />;
+        mainContent = <Stats roomId={room._id} />;
+      } else if (resource === 'preview') {
+        mainContent = <RoomPreview roomId={room._id} />;
       }
       return (
         <Aux>
@@ -574,24 +586,26 @@ class Room extends Component {
               history={history}
             >
               <p>
-                Welcome to {room.name}. If this is your first time joining a
-                room, we recommend you take a tour. Otherwise you can start
-                exploring this room&#39;s features.
+                Hey {user.firstName}- Welcome to {room.name}. Join and click the
+                &#34;Enter&#34; button to collaborate with other mathematical
+                thinkers like you.
               </p>
+              <br />
               <Button
                 data-testid="explore-room"
                 click={() => this.setState({ firstView: false })}
               >
-                Explore
+                I&#39;m ready!
               </Button>
             </Modal>
           ) : null}
           <Modal show={invited} closeModal={this.clearFirstViewModal}>
             <p>
-              You have been invited to {room.name}. If you think you&#39;ve been
-              added to this course in error you can click &#34;leave&#34; and
-              you will be removed.
+              Hey {user.firstName}- You have been invited to {room.name}. Join
+              and click the &#34;Enter&#34; button to collaborate with other
+              mathematical thinkers like you.
             </p>
+            <br />
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
               <Button
                 data-testid="join"
@@ -600,13 +614,13 @@ class Room extends Component {
               >
                 Join
               </Button>
-              <Button
+              {/* <Button
                 data-testid="leave"
                 theme="Small"
                 click={this.removeMeFromRoom}
               >
                 Leave
-              </Button>
+              </Button> */}
             </div>
           </Modal>
           {trashing ? (
@@ -624,7 +638,7 @@ class Room extends Component {
         </Aux>
       );
     }
-    if (!room) return <div>Loading</div>;
+
     return (
       <Access
         closeModal={() =>

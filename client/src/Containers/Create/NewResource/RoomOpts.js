@@ -99,16 +99,32 @@ class RoomOpts extends Component {
         </Aux>
       );
     }
+    if (roomType === 'pyret') {
+      return (
+        <Aux>
+          <p>Pyret Activity Configuration:</p>
+          <p>Do nothing at all for now</p>
+        </Aux>
+      );
+    }
     return (
       <Aux>
         <TextInput
           light
-          name="desmosLink"
-          label="Paste a Desmos workspace link (optional)"
-          value={desmosLink}
+          name="desmosInput"
+          label="Paste a Desmos Graphing workspace code or link (optional)"
           change={setDesmosCalcLink}
           width="100%"
         />
+        <p>Desmos Graph URL:</p>
+        <a
+          className={classes.Code}
+          target="_blank"
+          rel="noopener noreferrer"
+          href={desmosLink}
+        >
+          {desmosLink}
+        </a>
       </Aux>
     );
   }

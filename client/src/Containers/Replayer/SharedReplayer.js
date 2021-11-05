@@ -16,6 +16,7 @@ import Loading from '../../Components/Loading/Loading';
 import Tabs from '../Workspace/Tabs';
 import Tools from '../Workspace/Tools/Tools';
 import buildReplayerLog from './SharedReplayer.utils';
+import CreationModal from '../Workspace/Tools/CreationModal';
 
 const PLAYBACK_FIDELITY = 100;
 const INITIAL_STATE = {
@@ -26,6 +27,7 @@ const INITIAL_STATE = {
   absTimeElapsed: 0,
   changingIndex: false,
   currentMembers: [],
+  activeMember: null,
   allTabsLoaded: false,
   startTime: '',
   loading: true,
@@ -35,6 +37,9 @@ const INITIAL_STATE = {
   stopTime: null,
   showControls: true,
   errorMessage: null,
+  isCreatingActivity: false,
+  mathState: {},
+  isSimplified: false,
 };
 class SharedReplayer extends Component {
   state = INITIAL_STATE;
@@ -57,6 +62,7 @@ class SharedReplayer extends Component {
       // @TODO We should never populate the tabs events before getting here
       // we dont need them for the regular room activity only for playback
       this.buildReplayerLog();
+      this._setInitialMathState();
     }
   }
 
@@ -108,6 +114,9 @@ class SharedReplayer extends Component {
       // switched from playing to stopped
       clearInterval(this.interval);
     }
+    if (prevState.logIndex !== logIndex) {
+      this.setActiveMember(this.updatedLog[logIndex] || {});
+    }
   }
 
   componentWillUnmount() {
@@ -140,6 +149,20 @@ class SharedReplayer extends Component {
       currentTabId: this.updatedLog[0].tab,
     });
     this.setState({ loading: false });
+  };
+
+  beginCreatingActivity = () => {
+    // create a new activity that belongs to the current user
+    // const { tabs } = this.state;
+    this.setState({
+      isCreatingActivity: true,
+    });
+  };
+
+  closeCreate = () => {
+    this.setState({
+      isCreatingActivity: false,
+    });
   };
 
   playing = () => {
@@ -213,6 +236,30 @@ class SharedReplayer extends Component {
     }
   };
 
+  // records latest math state per tab
+  setMathState = (newState) => {
+    const { currentTabId } = this.state;
+    this.setState((prevState) => ({
+      mathState: { ...prevState.mathState, [currentTabId]: newState },
+    }));
+  };
+
+  // sets starting point for math states from each tab
+  _setInitialMathState = () => {
+    const { populatedRoom } = this.props;
+    populatedRoom.tabs.forEach((tab) => {
+      if (tab.tabType === 'geogebra') {
+        this.setState({
+          mathState: { [tab._id]: tab.startingPointBase64 },
+        });
+      } else if (tab.tabType === 'desmos') {
+        this.setState({
+          mathState: { [tab._id]: tab.startingPoint },
+        });
+      }
+    });
+  };
+
   // Takes a % of total progress and goes to the nearest timestamp
   goToTime = (percent, doAutoPlay = false, stopTime = null) => {
     const { populatedRoom } = this.props;
@@ -232,11 +279,15 @@ class SharedReplayer extends Component {
         return false;
       });
     }
-    populatedRoom.tabs.forEach((tab) => {
-      if (tab._id === this.updatedLog[logIndex].tab) {
-        currentTabId = tab._id;
-      }
-    });
+    if (populatedRoom.tabs) {
+      populatedRoom.tabs.forEach((tab) => {
+        if (this.updatedLog[logIndex]) {
+          if (tab._id === this.updatedLog[logIndex].tab) {
+            currentTabId = tab._id;
+          }
+        }
+      });
+    }
 
     const { logIndex: previousIndex } = this.state;
     const updatedMembers = this.deriveCurrentMembers(previousIndex, logIndex);
@@ -344,6 +395,33 @@ class SharedReplayer extends Component {
     }
   };
 
+  toggleSimpleChat = () => {
+    this.setState((prevState) => ({
+      isSimplified: !prevState.isSimplified,
+    }));
+  };
+
+  setActiveMember = (evnt) => {
+    const { activeMember } = this.state;
+    // if a member takes control, set them as active
+    if (evnt.messageType === 'TOOK_CONTROL') {
+      // console.log('Setting member: ', evnt.user && evnt.user._id);
+      this.setState({ activeMember: evnt.user && evnt.user._id });
+      // if there is a mathspace event, noted by a description, the user who did it was in control
+    } else if (evnt.description) {
+      this.setState({ activeMember: evnt.user && evnt.user._id });
+    } else if (
+      // if the active user leaves or released control, reset the activeMember
+      (evnt.messageType === 'RELEASED_CONTROL' ||
+        evnt.messageType === 'LEFT_ROOM') &&
+      activeMember === evnt.user._id
+    ) {
+      this.setState({ activeMember: null });
+    }
+
+    // if the replayer jumps ahead or back, look for mathspace interactions and set active from that
+  };
+
   onEncMessage = (event) => {
     const allowedOrigin = window.location.origin;
     const { origin, data } = event;
@@ -368,7 +446,7 @@ class SharedReplayer extends Component {
   };
 
   render() {
-    const { populatedRoom, encompass } = this.props;
+    const { populatedRoom, encompass, user } = this.props;
     const {
       playing,
       playbackSpeed,
@@ -382,6 +460,10 @@ class SharedReplayer extends Component {
       currentMembers,
       allTabsLoaded,
       errorMessage,
+      isCreatingActivity,
+      mathState,
+      isSimplified,
+      activeMember,
     } = this.state;
     if (errorMessage) {
       return (
@@ -440,6 +522,7 @@ class SharedReplayer extends Component {
         roomId={populatedRoom._id}
         log={this.updatedLog}
         index={logIndex}
+        isSimplified={isSimplified}
         changingIndex={changingIndex}
         reset={this.reset}
         setCurrentMembers={this.setCurrentMembers}
@@ -462,6 +545,10 @@ class SharedReplayer extends Component {
             tabId={i}
             isFullscreen={isFullscreen}
             inView={currentTabId === tab._id}
+            style={{
+              pointerEvents: 'none',
+            }}
+            setMathState={this.setMathState}
           />
         );
       }
@@ -495,10 +582,10 @@ class SharedReplayer extends Component {
           tab={tab}
           key={tab._id}
           inView={currentTabId === tab._id}
+          setMathState={this.setMathState}
         />
       );
     });
-    const event = this.updatedLog[logIndex] || {};
     return (
       <Fragment>
         <div>{isFullscreen}</div>
@@ -522,12 +609,12 @@ class SharedReplayer extends Component {
                 members={populatedRoom.members}
                 currentMembers={currentMembers}
                 expanded
-                activeMember={event.user && event.user._id}
+                activeMember={activeMember}
               />
             ) : null
           }
           bottomLeft={replayer}
-          activeMember={event.user}
+          // activeMember={event.user}  // not used in Layout
           replayerControls={replayer}
           currentTabId={currentTabId}
           roomName={`${populatedRoom.name} Replayer`}
@@ -537,6 +624,9 @@ class SharedReplayer extends Component {
               toggleControl={this.toggleControl}
               lastEvent={this.updatedLog[logIndex]}
               replayer
+              createActivity={this.beginCreatingActivity}
+              isSimplified={isSimplified}
+              toggleSimpleChat={this.toggleSimpleChat}
             />
           }
           replayer
@@ -547,6 +637,17 @@ class SharedReplayer extends Component {
           instructionsExpanded
           encompass={encompass}
         />
+        {isCreatingActivity && (
+          <CreationModal
+            closeModal={this.closeCreate}
+            isCreatingActivity
+            populatedRoom={populatedRoom}
+            currentTabs={populatedRoom.tabs || []}
+            user={user}
+            mathState={mathState}
+            currentTabId={currentTabId}
+          />
+        )}
         {!allTabsLoaded && this.updatedLog.length > 0 ? (
           <Loading message="Preparing the replayer..." />
         ) : null}
@@ -559,7 +660,7 @@ SharedReplayer.propTypes = {
   encompass: PropTypes.bool,
   // match: PropTypes.shape({}).isRequired,
   populatedRoom: PropTypes.shape({}).isRequired,
-  // user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
   updateEnc: PropTypes.func,
   history: PropTypes.shape({}).isRequired,
 };

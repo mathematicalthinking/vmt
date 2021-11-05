@@ -26,19 +26,28 @@ class GgbReplayer extends Component {
   // }
 
   componentDidUpdate(prevProps) {
-    const { inView, log, index, changingIndex, isFullscreen } = this.props;
+    const {
+      inView,
+      log,
+      index,
+      changingIndex,
+      isFullscreen,
+      setMathState,
+    } = this.props;
     if (!prevProps.inView && inView) {
       this.updateDimensions();
     }
     if (inView) {
       if (changingIndex && prevProps.index !== index) {
         this.applyMultipleEvents(prevProps.index, index);
+        setMathState(this._getGgbState());
       } else if (
         prevProps.index !== index &&
         (getEventXml(log[index]) || log[index].eventArray)
       ) {
         // check if the tab has changed
         this.constructEvent(log[index]);
+        setMathState(this._getGgbState());
       }
 
       // IF we're skipping it means we might need to reconstruct several evenets, possible in reverse order if the prevIndex is greater than this index.
@@ -444,6 +453,11 @@ class GgbReplayer extends Component {
     //   this.clearSocketQueue();
     // }
   }
+
+  _getGgbState() {
+    return this.ggbApplet.getBase64();
+  }
+
   render() {
     const { tabId } = this.props;
     return (
@@ -469,6 +483,7 @@ GgbReplayer.propTypes = {
   index: PropTypes.number.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
   setTabLoaded: PropTypes.func.isRequired,
+  setMathState: PropTypes.func.isRequired,
   tab: PropTypes.shape({
     appName: PropTypes.string,
     _id: PropTypes.string.isRequired,

@@ -1,4 +1,4 @@
-import io from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 let url = 'http://localhost:3001';
 if (process.env.REACT_APP_STAGING) {
@@ -12,9 +12,13 @@ if (process.env.REACT_APP_STAGING) {
 // legacy config
 // const socket = io.connect(url);
 
-// updated config that includes options object, skips long polling connection
-const socket = io(url);
+// updated config that includes options object, includes long polling connection
+// const socket = io(url);
+// const { io } = require('socket.io-client');
 
+const socket = io(url, {
+  withCredentials: true,
+});
 // helper socket methods to print socket messages
 // const socket = {
 //   emit: (message, payload_1, payload_2) => {

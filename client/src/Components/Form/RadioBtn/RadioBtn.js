@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import classes from './radioBtn.css';
 
 const RadioBtn = (props) => {
-  const { children, checked, name, check } = props;
+  const { children, checked, name, check, isDisabled } = props;
   return (
     <label className={classes.Container}>
       {children}
@@ -16,6 +16,7 @@ const RadioBtn = (props) => {
         checked={checked}
         name={name}
         onChange={check}
+        disabled={isDisabled}
       />
       <span className={classes.Checkmark} />
     </label>
@@ -25,6 +26,7 @@ const RadioBtn = (props) => {
 RadioBtn.propTypes = {
   children: PropTypes.node.isRequired,
   checked: PropTypes.bool.isRequired,
+  isDisabled: PropTypes.bool,
   name: PropTypes.string.isRequired,
   check: PropTypes.func.isRequired,
   'data-testid': PropTypes.string,
@@ -32,5 +34,6 @@ RadioBtn.propTypes = {
 
 RadioBtn.defaultProps = {
   'data-testid': 'radioBtn',
+  isDisabled: false,
 };
 export default RadioBtn;

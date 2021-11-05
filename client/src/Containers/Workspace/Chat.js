@@ -12,6 +12,9 @@ import { Chat as ChatLayout } from '../../Components';
 class Chat extends Component {
   state = {
     newMessage: '',
+    pendingUsers: {},
+    timeOut: null,
+    isDictated: false,
   };
 
   chatInput = React.createRef();
@@ -22,7 +25,8 @@ class Chat extends Component {
     document.addEventListener('keydown', (event) => {
       const { newMessage } = this.state;
 
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
         // handle differenct contexts of Enter clicks
         const isChatInputInFocus =
           this.chatInput.current === document.activeElement;
@@ -38,13 +42,107 @@ class Chat extends Component {
         addToLog(data);
         // this.scrollToBottom()
       });
+      socket.removeAllListeners('PENDING_MESSAGE');
+      socket.on('PENDING_MESSAGE', (data) => {
+        this.handlePending(data);
+      });
     }
   }
 
+  componentWillUnmount() {
+    const { timeOut: timeID } = this.state;
+    clearTimeout(timeID);
+  }
+
+  handlePending = (data) => {
+    // handle data.isTyping boolean
+    const { pendingUsers } = this.state;
+    if (!data.isTyping) {
+      const usersObj = Object.assign({}, pendingUsers);
+      const key = data.user.username;
+      // accessing { username: boolean }
+      delete usersObj[key];
+      this.setState({
+        pendingUsers: usersObj,
+      });
+    } else {
+      this.setState({
+        pendingUsers: { ...pendingUsers, [data.user.username]: true },
+      });
+    }
+  };
+
+  sendPending = (isTyping) => {
+    const { roomId, user, myColor, timeOut: timeID } = this.props;
+    if (!isTyping) clearTimeout(timeID);
+
+    const messageData = {
+      _id: mongoIdGenerator(),
+      user: { _id: user._id, username: user.username },
+      room: roomId,
+      color: myColor,
+      isTyping,
+      timestamp: new Date().getTime(),
+    };
+
+    socket.emit('PENDING_MESSAGE', messageData, (res, err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+  };
+
   changeHandler = (event) => {
+    const { timeOut: timeID } = this.state;
+    clearTimeout(timeID);
+    if (event.target.value === '') {
+      this.sendPending(false);
+      this.setState({ isDictated: false });
+    } else {
+      this.sendPending(true);
+      const timeOut = setTimeout(() => this.sendPending(false), 5000);
+      this.setState({ timeOut });
+    }
     this.setState({
       newMessage: event.target.value,
     });
+  };
+
+  quickChatHandler = (value, type) => {
+    const { timeOut: timeID, newMessage } = this.state;
+    clearTimeout(timeID);
+    this.sendPending(true);
+    const timeOut = setTimeout(() => this.sendPending(false), 5000);
+    this.setState({ timeOut });
+    // quick clear message if same message is repeated
+    switch (type) {
+      case 'STT':
+        this.setState({ isDictated: true });
+        this.setState({
+          newMessage: `${newMessage} ${value}`,
+        });
+        break;
+      case 'EMOJI':
+        if (newMessage === value.message) {
+          this.setState({
+            newMessage: value.display,
+          });
+        } else if (newMessage === value.display) {
+          this.setState({
+            newMessage: '',
+          });
+        } else {
+          this.setState({
+            newMessage: value.message,
+          });
+        }
+        break;
+      default:
+        this.setState({
+          newMessage: value,
+        });
+        break;
+    }
   };
 
   submitMessage = () => {
@@ -59,7 +157,8 @@ class Chat extends Component {
       myColor,
       log,
     } = this.props;
-    const { newMessage } = this.state;
+    const { newMessage, isDictated } = this.state;
+    this.sendPending(false);
     if (!user.connected) {
       // eslint-disable-next-line no-alert
       window.alert(
@@ -67,9 +166,11 @@ class Chat extends Component {
       );
     }
     if (newMessage.length === 0) return;
+    let messageText = newMessage;
+    if (isDictated) messageText = `🎙 ${newMessage}`;
     const messageData = {
       _id: mongoIdGenerator(),
-      text: newMessage,
+      text: messageText,
       user: { _id: user._id, username: user.username },
       room: roomId,
       color: myColor,
@@ -131,6 +232,7 @@ class Chat extends Component {
     this.setState(
       {
         newMessage: '',
+        isDictated: false,
       },
       () => {
         if (this.chatInput.current) {
@@ -141,11 +243,13 @@ class Chat extends Component {
   };
 
   render() {
-    const { newMessage } = this.state;
+    const { newMessage, pendingUsers } = this.state;
     return (
       <ChatLayout
+        pendingUsers={pendingUsers}
         change={this.changeHandler}
         submit={this.submitMessage}
+        quickChat={this.quickChatHandler}
         value={newMessage}
         chatInput={this.chatInput}
         {...this.props}

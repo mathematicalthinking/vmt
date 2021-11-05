@@ -1,0 +1,50 @@
+/* Styling adapted from example #27 from https://onaircode.com/html-css-radio-button-styles-examples/ */
+
+.ToggleGroup {
+  display: flex;
+  flex-direction: row;
+  width: 300px;
+  font-size: inherit;
+  margin-bottom: 5px;
+  margin-right: 5px;
+}
+
+/* button plus label */
+.ToggleElement {
+  display: flex;
+  flex-grow: 1;
+}
+
+.ToggleElement:first-child > label {
+  border-radius: 5px 0 0 5px;
+}
+
+.ToggleElement:last-child > label {
+  border-right: 1px solid black;
+  border-radius: 0 5px 5px 0;
+}
+
+.ToggleElement > label {
+  width: 100%;
+  cursor: pointer;
+  font-style: italic;
+  text-align: center;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  margin: 0 -5px; /* necessary bc flexbox doesn't have collapsing margins */
+}
+
+.ToggleButton {
+  appearance: none;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  margin: 0;
+}
+
+.ToggleButton:checked ~ label {
+  background-color: darkgray;
+  font-weight: bold;
+  color: black;
+}

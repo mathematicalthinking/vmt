@@ -18,6 +18,7 @@
 .Container {
   display: flex;
   flex-flow: column;
+  /* position: relative; */
   background-color: white;
   height: 100%;
   width: 100%;
@@ -52,12 +53,32 @@
   /*  ^ // HACKY! */
 }
 
-.Connected {
+.Good {
   color: #34a505;
 }
 
-.Disconnected {
+.Error {
   color: red;
+  opacity: 1;
+  animation: fade 1.5s infinite;
+}
+
+@keyframes fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.Bad {
+  color: orange;
+}
+
+.None {
+  color: darkgray;
 }
 
 .Settings {
@@ -74,6 +95,17 @@
   float: right;
 }
 
+.ChatOptions {
+  display: flex;
+  flex-direction: column;
+}
+
+.ChatButtons {
+  display: flex;
+  flex-direction: row;
+  width: 60px;
+}
+
 .ChatScroll {
   flex-grow: 0;
   /* display: flex;
@@ -85,6 +117,7 @@
   overflow-x: hidden;
   /* max-height: 100%; */
   flex: 0 1 100%;
+  /* padding-bottom: 34px; */
 }
 
 .Collapsed {
@@ -109,7 +142,8 @@
 }
 
 .ChatInput {
-  height: 40px;
+  position: relative;
+  height: 56px;
   display: flex;
   flex-shrink: 0;
   align-items: flex-end;
@@ -119,15 +153,18 @@
 }
 
 .Input {
-  padding: 15px 10px;
+  padding: 4px 3px;
   width: 100%;
-  height: 40px;
+  height: 56px;
   border: 1px solid #ddd;
   border-radius: 0 0 0 3px;
-  font-size: 13px;
+  resize: none;
+  overflow: auto;
+  font-size: 13.5px;
+  font-family: inherit;
   z-index: 100;
   font-weight: 400;
-  background-color: white;
+  /* background-color: white; */
 }
 
 .Input:focus {
@@ -136,22 +173,60 @@
 }
 
 .Send {
+  /* display: flex; */
+  /* justify-content: center;
+  align-items: center; */
+  width: 60px;
+  height: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 42px;
-  height: 40px;
   background: inherit;
   cursor: pointer;
   transition: 0.2s;
   background-color: blue;
   color: white;
   font-size: 18px;
-  border-radius: 0 0 2px 0;
+  border-radius: 0 0 3px 3px;
 }
 
 .Send:hover {
   background: blueHover;
+}
+
+.Mic {
+  composes: Send;
+  width: 30px;
+  height: 24px;
+  margin-right: 1px;
+  background-color: white;
+  color: blue;
+}
+
+.Mic:hover {
+  background: blueHover;
+  color: white;
+}
+
+.QuickMenu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: inherit;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 18px;
+  border-radius: 0 0 2px 0;
+  width: 30px;
+  height: 24px;
+  margin-top: 1px;
+  background-color: white;
+  color: blue;
+}
+
+.QuickMenu:hover {
+  background: blueHover;
+  color: white;
 }
 
 .Entry {
@@ -226,4 +301,156 @@
 
 .MoreMenuOption {
   margin: 10px;
+}
+
+.DropdownContainer {
+  float: left;
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+  margin-right: 3px;
+  padding: 3px 3px;
+  position: relative;
+  height: 100%;
+  cursor: pointer;
+}
+
+.DropdownContent {
+  display: none;
+  position: absolute;
+  padding: 15px 15px;
+  top: 12px;
+  left: auto;
+  right: 0;
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: white;
+  color: white;
+  border: 1px solid #ddd;
+  min-width: 150px;
+  width: max-content;
+  flex-flow: column;
+  transition: 0.2s;
+}
+
+.DropdownItem {
+  margin: 8px 0;
+}
+
+.DropdownContainer:hover .DropdownContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
+.TooltipContent {
+  display: none;
+  position: absolute;
+  padding: 5px 5px;
+  top: 12px;
+  left: auto;
+  right: 0;
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: white;
+  color: blue;
+  border: 1px solid #ddd;
+  min-width: 150px;
+  width: max-content;
+  transition: 0.2s;
+}
+
+.Status:hover .TooltipContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
+.ChatPicker {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  height: 56px;
+  border: 1px solid lightslategrey;
+  padding: 3px;
+  border-radius: 3px;
+  overflow-y: scroll;
+}
+
+.ChatPickerTooltip {
+  composes: TooltipContent;
+  top: -28px;
+}
+
+.QuickMenu:hover .ChatPickerTooltip {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
+
+.QuickChatItem {
+  padding: 3px;
+}
+
+.Listening {
+  animation: pulse 1s infinite;
+}
+
+@keyframes showDropdown {
+  /* style rules */
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    color: darkgray;
+  }
+  100% {
+    color: red;
+  }
+}
+
+.Button {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 10;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-basis: 100px;
+  list-style-type: none;
+  transition: 0.2;
+  position: relative;
+  max-width: 125px;
+  /* border: 1px solid white; */
+  margin: 2px 10px;
+  font-weight: 300;
+}
+
+.Button:after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  width: 0;
+  height: 2px;
+  display: block;
+  border-radius: 4px;
+  /* margin-top: 10px; */
+  right: 0;
+  background: white;
+  transition: width 0.2s ease-in;
+  /* -webkit-transition: width .2s; */
+}
+
+.Button:hover:after {
+  width: 100%;
 }

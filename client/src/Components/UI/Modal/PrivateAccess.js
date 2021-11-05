@@ -35,7 +35,7 @@ class PrivateAccess extends Component {
     } else if (resource === 'room') {
       pluralResource = 'rooms';
     } else if (resource === 'activity') {
-      pluralResource = 'activities';
+      pluralResource = 'templates';
     }
 
     let query = '?privacy=all&roomType=all';
@@ -77,15 +77,16 @@ class PrivateAccess extends Component {
   render() {
     const { resource, user, setAdmin, error } = this.props;
     const { show, entryCode } = this.state;
-    let displayResource = 'activity';
+    let displayResource = 'template';
     if (resource === 'rooms') displayResource = 'room';
     if (resource === 'courses') displayResource = 'course';
-
-    if (displayResource === 'activity') {
+    if (displayResource === 'template') {
       return (
         <Modal show={show} closeModal={this.closeModal}>
           <p className={classes.Description}>
-            {`You currently don't have access to this ${displayResource}. Access via entry code is not yet available for private activities.`}
+            {error
+              ? `Error (${error}) - ${displayResource} not found`
+              : `You currently don't have access to this ${displayResource}. Access via entry code is not yet available for private activities.`}
           </p>
           <Button theme="Small" m={10} click={this.closeModal}>
             Okay
@@ -104,6 +105,7 @@ class PrivateAccess extends Component {
           type="text"
           value={entryCode}
           placeholder="entry code"
+          data-testid={`content-box-entry-code ${displayResource}`}
           name="entryCode"
           change={this.updateEntry}
         />
@@ -134,7 +136,9 @@ class PrivateAccess extends Component {
 
 PrivateAccess.propTypes = {
   resource: PropTypes.string.isRequired,
-  owners: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  owners: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+  ).isRequired,
   resourceId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   requestAccess: PropTypes.func.isRequired,

@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
-import { HomeNav, Navbar } from '../Components';
+import { HomeNav, Modal, Navbar } from '../Components';
 import {
   Homepage,
   Login,
   Signup,
+  ClassCode,
   Community,
   Logout,
   Profile,
@@ -14,7 +15,15 @@ import {
   ConfirmEmail,
   Unconfirmed,
 } from '../Containers';
-import { Confirmation, About } from '../Layout';
+import {
+  Confirmation,
+  About,
+  NotFound,
+  Terms,
+  Instructions,
+  Faq,
+  Contact,
+} from '../Layout';
 import classes from './main.css';
 import Aux from '../Components/HOC/Auxil';
 import OauthReturn from '../Components/HOC/OauthReturn';
@@ -23,6 +32,7 @@ import { updateUser } from '../store/actions/user';
 class Home extends PureComponent {
   state = {
     scrollPosition: 0,
+    errorMsgSeen: false,
   };
 
   componentDidMount() {
@@ -46,10 +56,22 @@ class Home extends PureComponent {
     connectUpdateUser({ inAdminMode: !user.inAdminMode });
   };
 
+  isMobile = () => {
+    return window.matchMedia('only screen and (max-width: 760px)').matches;
+  };
+
+  isWeekend = () => {
+    const today = new Date();
+    return !(today.getDay() % 6);
+  };
+
+  closeModal = () => {
+    this.setState({ errorMsgSeen: true });
+  };
+
   render() {
     const { location, user } = this.props;
-    const { scrollPosition } = this.state;
-
+    const { scrollPosition, errorMsgSeen } = this.state;
     return (
       <Aux>
         {location.pathname.indexOf('community') > -1 ||
@@ -64,6 +86,26 @@ class Home extends PureComponent {
             toggleAdmin={this.toggleAdmin}
           />
         )}
+        <Modal
+          show={(this.isWeekend() || this.isMobile()) && !errorMsgSeen}
+          closeModal={this.closeModal}
+          height={400}
+          width={300}
+        >
+          {'Welcome to Virtual Math Teams! '}
+          <hr />
+          {this.isMobile()
+            ? 'This Math experience is best viewed on a larger computer screen.'
+            : null}
+          <br />
+          {this.isWeekend()
+            ? `VMT is in development and may undergo regular weekend maintenance${
+                process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE
+                  ? ` on ${process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE}`
+                  : ''
+              }, please contact if uptime is needed.`
+            : null}
+        </Modal>
         <div
           className={classes.Container}
           style={{
@@ -73,10 +115,15 @@ class Home extends PureComponent {
           <Switch>
             <Route exact path="/" render={() => <Homepage {...this.props} />} />
             <Route path="/about" component={About} />
+            <Route path="/instructions" component={Instructions} />
+            <Route path="/terms" component={Terms} />
+            <Route path="/faq" component={Faq} />
+            <Route path="/contact" component={Contact} />
             <Route path="/community/:resource" component={Community} />
             <Route exact path="/logout" component={Logout} />
             <Route path="/login" component={Login} />
             <Route path="/signup" component={Signup} />
+            <Route path="/classcode" component={ClassCode} />
 
             <Route path="/confirmation" component={Confirmation} />
             <Route path="/profile" component={Profile} />
@@ -85,16 +132,14 @@ class Home extends PureComponent {
             <Route path="/confirmEmail/:token?" component={ConfirmEmail} />
             <Route path="/unconfirmed" component={Unconfirmed} />
             <Route path="/oauth/return" component={OauthReturn} />
+            <Route path="/*" component={NotFound} />
           </Switch>
         </div>
       </Aux>
     );
   }
 }
-
-export default connect(
-  (state) => ({ user: state.user }),
-  {
-    connectUpdateUser: updateUser,
-  }
-)(Home);
+// prettier-ignore
+export default connect((state) => ({ user: state.user }), {
+  connectUpdateUser: updateUser,
+})(Home);

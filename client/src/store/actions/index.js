@@ -1,6 +1,7 @@
 export {
   login,
   signup,
+  codeLogin,
   getUser,
   gotUser,
   updateUser,
@@ -55,6 +56,7 @@ export {
   inviteToRoom,
   addCourseRooms,
   removeCourseRooms,
+  updateMonitorSelections,
 } from './rooms';
 export {
   getCourses,

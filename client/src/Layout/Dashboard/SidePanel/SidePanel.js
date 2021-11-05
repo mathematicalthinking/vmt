@@ -23,7 +23,9 @@ const SidePanel = ({
   const details = Object.keys(additionalDetails).map((key) => {
     return (
       <div key={key} className={classes.KeyContainer}>
-        <span className={classes.KeyName}>{key} </span>
+        <span className={classes.KeyName}>
+          {key === 'activities' || key === 'Activities' ? 'Templates' : key}{' '}
+        </span>
         <span className={classes.KeyValue}>{additionalDetails[key]}</span>
       </div>
     );
@@ -52,7 +54,7 @@ const SidePanel = ({
       <div className={classes.Bottom}>
         {accountType === 'participant' && !bothRoles ? (
           <div className={classes.CreateForParticipant}>
-            <Link to="facilitator" data-testid="become-facilitator">
+            <Link to="/myVMT/facilitator" data-testid="become-facilitator">
               become a facilitator
             </Link>
           </div>
