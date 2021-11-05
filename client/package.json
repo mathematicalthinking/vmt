@@ -54,7 +54,7 @@
     "react-click-outside": "^3.0.1",
     "react-copy-to-clipboard": "^5.0.1",
     "react-datepicker": "^2.0.0",
-    "react-dev-utils": "^5.0.1",
+    "react-dev-utils": "^11.0.4",
     "react-dnd": "^5.0.0",
     "react-dnd-html5-backend": "^5.0.1",
     "react-dom": "^16.8.6",
