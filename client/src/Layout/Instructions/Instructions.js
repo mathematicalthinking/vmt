@@ -20,7 +20,7 @@ const Instructions = () => {
       >
         <div className={classes.Background} />
       </div>
-      <div className={classes.Container}>
+      <div className={`${classes.PrintSection} ${classes.Container}`}>
         <div className={classes.Banner}>
           <h2 id="top" className={classes.Tagline}>
             Virtual Math Teams (VMT) Instructions
@@ -52,10 +52,10 @@ const Instructions = () => {
         <br />
         {isStudent && (
           <Fragment>
-            <div className={classes.Header}>
+            <div className={`${classes.Header} ${classes.NoPrint}`}>
               Interactive Map of the VMT Collaborative Mathspace
             </div>
-            <div className={classes.RoomDemo}>
+            <div className={`${classes.RoomDemo} ${classes.NoPrint}`}>
               <Iframe source="https://view.genial.ly/615555bba4670a10262ee271" />
             </div>
           </Fragment>

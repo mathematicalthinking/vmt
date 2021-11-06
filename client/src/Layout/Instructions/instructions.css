@@ -143,3 +143,30 @@
     padding-top: 60px;
   }
 }
+
+@media print {
+  @page {
+    size: portrait;
+  }
+  body * {
+    visibility: hidden;
+    /* display: none; */
+  }
+  .NoPrint,
+  .NoPrint * {
+    /* visibility: hidden !important; */
+    display: none;
+  }
+  .PrintSection,
+  .PrintSection * {
+    visibility: visible;
+    /* display: block; */
+    color: #000;
+    background-color: #fff;
+  }
+  .PrintSection {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
