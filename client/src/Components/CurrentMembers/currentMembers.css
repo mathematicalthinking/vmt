@@ -61,12 +61,18 @@
   font-size: 17px;
   letter-spacing: 1px;
   cursor: pointer;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  flex-wrap: nowrap;
 }
 
-.Count {
-  /* color: darkGray; */
-  float: right;
-  position: relative;
-  right: 0px;
-  top: 0px;
+.RoomDetail {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.RoomDetailText {
 }
