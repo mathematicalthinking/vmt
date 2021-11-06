@@ -26,17 +26,21 @@ const Instructions = () => {
             Virtual Math Teams (VMT) Instructions
           </h2>
         </div>
-        <Slider
-          data-testid="intructions-toggle"
-          action={() => {
-            setIsStudent((prevIsStudent) => !prevIsStudent);
-          }}
-          isOn={!isStudent}
-          name="isStudent"
-        />
-        {isStudent
-          ? 'Toggle for Teacher Instructions'
-          : 'Toggle for Student Instructions'}
+        <div className={classes.Toggle}>
+          <Slider
+            data-testid="intructions-toggle"
+            action={() => {
+              setIsStudent((prevIsStudent) => !prevIsStudent);
+            }}
+            isOn={!isStudent}
+            name="isStudent"
+          />
+          <span className={classes.ToggleLable}>
+            {isStudent
+              ? 'Toggle for Teacher Instructions'
+              : 'Toggle for Student Instructions'}
+          </span>
+        </div>
         <div className={classes.QuickLinks}>
           {isStudent && (
             <Link to="/instructions#codeLogin" className={classes.Links}>
