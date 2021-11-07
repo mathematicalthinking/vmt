@@ -565,16 +565,14 @@ class Chat extends Component {
                   {!socket.connected ? (
                     <div className={DropdownMenuClasses.DropdownItem}>
                       {`Connection Status: ${connectionStatus}`}
-                      <button
-                        type="button"
-                        className={classes.Button}
-                        onClick={() => {
+                      <Button
+                        click={() => {
                           window.location.reload();
                         }}
                         data-testid="resync"
                       >
                         Force Refresh
-                      </button>
+                      </Button>
                     </div>
                   ) : (
                     `Connection Status: ${connectionStatus}`
