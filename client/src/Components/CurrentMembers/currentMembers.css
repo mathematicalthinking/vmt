@@ -68,6 +68,7 @@
 }
 
 .RoomDetail {
+  width: 100%;
   display: flex;
   flex-flow: row;
   justify-content: space-between;
@@ -75,4 +76,9 @@
 }
 
 .RoomDetailText {
+  margin-left: 0;
+}
+
+.RoomDetailValue {
+  margin-right: 0;
 }

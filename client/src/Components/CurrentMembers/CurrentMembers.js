@@ -13,7 +13,7 @@ function CurrentMembers({
   showTitle,
 }) {
   const [presentMembers, setPresentMembers] = useState([]);
-  const [activeUser, setActiveUser] = useState('none');
+  const [activeUser, setActiveUser] = useState('(no one)');
   const activeMembers = React.useRef([]);
 
   // allow for there to be more than one active member
@@ -21,16 +21,16 @@ function CurrentMembers({
     if (Array.isArray(activeMember)) activeMembers.current = activeMember;
     else if (!activeMember) activeMembers.current = [];
     else activeMembers.current = [activeMember];
+    let activeMemberDisplay = '(no one)';
     presentMembers.forEach((presMember) => {
       if (
         activeMembers.current &&
         activeMembers.current.includes(presMember.user._id)
       ) {
-        setActiveUser(usernameGen(presMember.user.username));
-      } else {
-        setActiveUser('none');
+        activeMemberDisplay = usernameGen(presMember.user.username);
       }
     });
+    setActiveUser(activeMemberDisplay);
   }, [activeMember]);
 
   React.useEffect(() => {
@@ -83,12 +83,14 @@ function CurrentMembers({
           tabIndex="-1"
         >
           <div className={classes.RoomDetail}>
-            <p className={classes.RoomDetailText}>Currently in this room</p>
-            <p className={classes.RoomDetailText}>{presentMembers.length}</p>
+            <p className={classes.RoomDetailText}>In control:</p>
+            <p className={classes.RoomDetailValue}>{activeUser}</p>
           </div>
           <div className={classes.RoomDetail}>
-            <p className={classes.RoomDetailText}>In control:</p>
-            <p className={classes.RoomDetailText}>{activeUser}</p>
+            <p className={classes.RoomDetailText}>Currently in this room</p>
+            <p className={classes.RoomDetailValue}>
+              {presentMembers.length} /{members.length}
+            </p>
           </div>
         </div>
       )}
