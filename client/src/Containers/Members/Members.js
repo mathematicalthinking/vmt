@@ -21,7 +21,7 @@ import {
   removeRoomMember,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
-// import Importer from '../../Components/Importer/Importer';
+import Importer from '../../Components/Importer/Importer';
 import SearchResults from './SearchResults';
 import ImportModal from './ImportModal';
 import classes from './members.css';
@@ -649,7 +649,7 @@ class Members extends PureComponent {
       classList,
       notifications,
       owner,
-      // user,
+      user,
       resourceType,
       resourceId,
       courseMembers,
