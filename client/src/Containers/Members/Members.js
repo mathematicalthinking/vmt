@@ -745,7 +745,7 @@ class Members extends PureComponent {
     });
     return (
       <div className={classes.Container}>
-        {/* {this.importModal()} */}
+        {this.importModal()}
         <Modal
           show={confirmingInvitation}
           closeModal={() => this.setState({ confirmingInvitation: false })}
@@ -775,9 +775,10 @@ class Members extends PureComponent {
               title="Add Participants"
               icon={<i className="fas fa-user-plus" />}
               rightIcons={
-                resourceType === 'course' ? (
-                  <Importer user={user} onImport={this.handleImport} />
-                ) : null
+                this.csvItem()
+                // resourceType === 'course' ? (
+                //   <Importer user={user} onImport={this.handleImport} />
+                // ) : null
               }
             >
               <Fragment>
