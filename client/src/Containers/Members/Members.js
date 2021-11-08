@@ -745,7 +745,7 @@ class Members extends PureComponent {
     });
     return (
       <div className={classes.Container}>
-        {/* {this.importModal()} */}
+        {this.importModal()}
         <Modal
           show={confirmingInvitation}
           closeModal={() => this.setState({ confirmingInvitation: false })}
