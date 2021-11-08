@@ -20,7 +20,7 @@
 }
 
 .ToggleElement:last-child > label {
-  border-right: 1px solid black;
+  border-right: 1px solid #2a85e0;
   border-radius: 0 5px 5px 0;
 }
 
@@ -29,9 +29,9 @@
   cursor: pointer;
   font-style: italic;
   text-align: center;
-  border-left: 1px solid black;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
+  border-left: 1px solid #2a85e0;
+  border-top: 1px solid #2a85e0;
+  border-bottom: 1px solid #2a85e0;
   margin: 0 -5px; /* necessary bc flexbox doesn't have collapsing margins */
 }
 
@@ -44,7 +44,8 @@
 }
 
 .ToggleButton:checked ~ label {
-  background-color: darkgray;
+  background-image: linear-gradient(-180deg, #91c4ff, #2a85e0 100%);
+  background-color: #2a85e0;
   font-weight: bold;
-  color: black;
+  color: white;
 }
