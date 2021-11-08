@@ -199,10 +199,14 @@ module.exports = function() {
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('socket disconnect');
-      console.log('from user: ', socket.user_id);
-      console.log(new Date());
-      console.log('Because', reason);
+      console.log(
+        'socket disconnect from user: ',
+        socket.user_id,
+        ', ',
+        new Date(),
+        ', due to: ',
+        reason
+      );
     });
 
     socket.on('SYNC_SOCKET', (_id, cb) => {

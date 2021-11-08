@@ -26,6 +26,16 @@
   ); */
 }
 
+.Toggle {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.ToggleLable {
+  padding-left: 10px;
+}
+
 .BackgroundContainer {
   position: absolute;
   top: 0;
@@ -62,6 +72,7 @@
   font-size: 40px;
   width: 700px;
   text-align: center;
+  margin-bottom: 15px;
   /* z-index: 1000; */
 }
 
@@ -141,5 +152,32 @@
 @media screen and (max-height: 650px) {
   .Container {
     padding-top: 60px;
+  }
+}
+
+@media print {
+  @page {
+    size: portrait;
+  }
+  body * {
+    visibility: hidden;
+    /* display: none; */
+  }
+  .NoPrint,
+  .NoPrint * {
+    /* visibility: hidden !important; */
+    display: none;
+  }
+  .PrintSection,
+  .PrintSection * {
+    visibility: visible;
+    /* display: block; */
+    color: #000;
+    background-color: #fff;
+  }
+  .PrintSection {
+    position: absolute;
+    left: 0;
+    top: 0;
   }
 }
