@@ -386,7 +386,6 @@ export default function Importer(props) {
           </p>
         </div>
       </div>
-
       <CSVReader
         ref={buttonRef}
         onFileLoad={handleOnFileLoad}
