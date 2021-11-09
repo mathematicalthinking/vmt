@@ -21,6 +21,7 @@ import {
   removeRoomMember,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
+import Importer from '../../Components/Importer/Importer';
 import SearchResults from './SearchResults';
 import ImportModal from './ImportModal';
 import classes from './members.css';
@@ -620,6 +621,23 @@ class Members extends PureComponent {
     );
   };
 
+  // Within Members. <Importer user={user} onImport={handleImport} />
+  handleImport = (userObjects) => {
+    Promise.all(
+      userObjects.map(async (user) =>
+        user._id
+          ? API.put('user', user._id, user).then(() => {
+              return user;
+            })
+          : API.post('user', user).then((res) => {
+              return res.data.result;
+            })
+      )
+    ).then((newUsers) =>
+      newUsers.forEach((user) => this.inviteMember(user._id, user.username))
+    );
+  };
+
   /**
    *********************************************
    * END OF FUNCTIONS IMPLEMENTING IMPORT
@@ -631,6 +649,7 @@ class Members extends PureComponent {
       classList,
       notifications,
       owner,
+      user,
       resourceType,
       resourceId,
       courseMembers,
@@ -755,7 +774,12 @@ class Members extends PureComponent {
             <InfoBox
               title="Add Participants"
               icon={<i className="fas fa-user-plus" />}
-              rightIcons={this.csvItem()}
+              rightIcons={
+                // this.csvItem()
+                resourceType === 'course' ? (
+                  <Importer user={user} onImport={this.handleImport} />
+                ) : null
+              }
             >
               <Fragment>
                 <Search
