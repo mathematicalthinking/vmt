@@ -11,7 +11,7 @@ import {
 import { Modal, Loading } from '../../Components';
 import {
   DesmosActivityGraph,
-  DesmosActivity,
+  DesmosActivityEditor,
   GgbActivityGraph,
   CodePyretOrg,
   Tabs,
@@ -125,7 +125,7 @@ class ActivityWorkspace extends Component {
         }
         if (tab.tabType === 'desmosActivity') {
           return (
-            <DesmosActivity
+            <DesmosActivityEditor
               key={tab._id}
               tab={tab}
               activity={activity}
