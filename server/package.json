@@ -27,6 +27,7 @@
     "seed": "node cypress/seedDb",
     "seed-sso": "cd ../../mt-sso && npm run test",
     "seed-enc": "cd ../../encompass &&  grunt serve-seed",
+    "test-vmt": "concurrently \"npm:test\"  \"npm:seed-sso\"",
     "test-all": "concurrently \"npm:seed-enc\" \"npm:test\"  \"npm:seed-sso\"",
     "restore-sso": "cd ../../mt-sso && npm run seed",
     "restore-enc": "cd ..",
