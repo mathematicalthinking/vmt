@@ -2,9 +2,10 @@
 const baseURL = 'https://teacher.desmos.com/activitybuilder/export/'; // + activity code
 // utility for getting Desmos Activity Confguration
 export const fetchConfigData = async (tab) => {
+  // console.log('Tab data: ', tab);
   // setting our return object
   const configData = {};
-  // load a saved config as json if we have it and prior event data
+  // load a saved config as json if we have it and any prior event data
   if (
     tab.startingPointBase64 &&
     tab.currentStateBase64 &&
@@ -14,7 +15,13 @@ export const fetchConfigData = async (tab) => {
     configData.status = 'Prior content loaded';
     return configData;
   }
-  // otherwise fetch the config
+  // Catch if we have a template with no config for blank starting point
+  if (tab.activity && !tab.desmosLink) {
+    configData.config = undefined;
+    configData.status = 'Blank workspace loaded';
+    return configData;
+  }
+  // otherwise fetch the config if we have a code, or for a room have a default config
   const code =
     tab.desmosLink ||
     // fallback to turtle time trials, used for demo
