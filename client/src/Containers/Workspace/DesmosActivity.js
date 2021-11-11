@@ -43,25 +43,26 @@ const DesmosActivity = (props) => {
   //   setActivityHistory((oldState) => ({ ...oldState, ...updates }));
   // }
 
-  const putState = () => {
+  const putState = (config) => {
     const { tab, temp, updateRoomTab, room } = props;
     const { _id } = tab;
     let responseData = {};
+    // grab current state-event list
     if (tab.currentStateBase64) {
       responseData = JSON.parse(tab.currentStateBase64);
     }
-    // eslint-disable-next-line array-callback-return
-    // Object.entries(activityHistory).map(([key, value]) => {
-    //   responseData[key] = [value];
-    // });
-
+    // update state-event list with new history
     responseData = { ...responseData, ...activityHistory };
-
+    // start creating a string-based object to update the tab
     const updateObject = {
       currentStateBase64: JSON.stringify(responseData),
     };
+    // get and add the current screen
     if (calculatorInst.current) {
       updateObject.currentScreen = getCurrentScreen();
+    }
+    if (config) {
+      updateObject.startingPointBase64 = JSON.stringify(config);
     }
     // console.log('Update object: ', updateObject, 'Temp: ', temp);
     API.put('tabs', _id, updateObject)
@@ -189,18 +190,21 @@ const DesmosActivity = (props) => {
 
   const fetchData = async () => {
     const { tab } = props;
+    // load a saved config as json if we have it and prior data
+    if (tab.startingPointBase64 && tab.currentStateBase64 !== '{}') {
+      return JSON.parse(tab.startingPointBase64);
+    }
+    // otherwise fetch the config
     const code =
       tab.desmosLink ||
       // fallback to turtle time trials, used for demo
       '5da9e2174769ea65a6413c93';
     const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
-    // console.log('adapted activity url: ', URL);
     // calling Desmos to get activity config
     try {
       const result = await fetch(URL, {
         headers: { Accept: 'application/json' },
       });
-      // console.log('Result: ', result);
       // TODO handle this error message
       const status = await result.status;
       if (status !== 200) {
@@ -209,6 +213,8 @@ const DesmosActivity = (props) => {
         return null;
       }
       const data = await result.json();
+      // save the valid configuration string
+      putState(data);
       return data;
     } catch (err) {
       console.log('Initalization fetch error: ', err);
@@ -218,6 +224,7 @@ const DesmosActivity = (props) => {
 
   const initPlayer = async () => {
     const { tab, setFirstTabLoaded } = props;
+    // look for and load prior activity data
     const playerOptions = {
       activityConfig: await fetchData(),
       targetElement: calculatorRef.current,
@@ -235,14 +242,11 @@ const DesmosActivity = (props) => {
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
-    if (tab.currentStateBase64) {
+    if (tab.currentStateBase64 !== '{}') {
       const { currentStateBase64 } = tab;
       const savedData = JSON.parse(currentStateBase64);
-      // console.log('Prior state data loaded: ');
-      // console.log(savedData);
       playerOptions.responseData = savedData;
     }
-
     try {
       calculatorInst.current = new Player(playerOptions);
     } catch (err) {
