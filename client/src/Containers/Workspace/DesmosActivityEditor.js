@@ -6,11 +6,12 @@ import PropTypes from 'prop-types';
 import classes from './graph.css';
 import { ActivityEditor } from '../../external/js/editor.es';
 import {
-  activityMetadataSchema,
-  screenMetadataSchema,
-  componentMetadataSchema,
+  fetchConfigData,
+  // activityMetadataSchema,
+  // screenMetadataSchema,
+  // componentMetadataSchema,
 } from './Tools/DesActivityHelpers.es';
-// import API from '../../utils/apiRequests';
+import API from '../../utils/apiRequests';
 
 const DesmosActivityEditor = (props) => {
   const [activityHistory, setActivityHistory] = useState({});
@@ -19,83 +20,57 @@ const DesmosActivityEditor = (props) => {
 
   let initializing = false;
   // trigger variable for any Desmos server response other than 200
-  let configResponse;
+  // let configResponse;
 
-  //   const { history } = props;
-  //   const handleOnErrorClick = () => history.goBack();
+  useEffect(() => {
+    putState();
+  }, [activityHistory]);
 
-  const putState = () => {
-    const { tab } = props;
+  const putState = (config) => {
+    const { tab, activity, updateActivityTab } = props;
     // const { _id } = tab;
-    let responseData = {};
-    if (tab.currentStateBase64) {
-      responseData = JSON.parse(tab.currentStateBase64);
+    let configData = {};
+    if (tab.startingPointBase64) {
+      configData = JSON.parse(tab.startingPointBase64);
     }
     // eslint-disable-next-line array-callback-return
     // Object.entries(activityHistory).map(([key, value]) => {
-    //   responseData[key] = [value];
+    //   configData[key] = [value];
     // });
 
-    responseData = { ...responseData, ...activityHistory };
+    configData = { ...configData, ...activityHistory };
 
     const updateObject = {
-      currentStateBase64: JSON.stringify(responseData),
+      startingPointBase64: JSON.stringify(configData),
     };
-    console.log('Update object to save: ', updateObject);
-    // if (editorInst.current) {
-    //   updateObject.currentScreen = getCurrentScreen();
-    // }
-    // // console.log('Update object: ', updateObject, 'Temp: ', temp);
-    // API.put('tabs', _id, updateObject)
-    //   .then(() => (temp ? {} : updateRoomTab(room._id, _id, updateObject)))
-    //   .catch((err) => {
-    //     // eslint-disable-next-line no-console
-    //     console.log(err);
-    //   });
-  };
-
-  const fetchData = async () => {
-    const { tab } = props;
-    const code =
-      tab.desmosLink ||
-      // fallback to turtle time trials, used for demo
-      '5da9e2174769ea65a6413c93';
-    const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
-    // console.log('adapted activity url: ', URL);
-    // calling Desmos to get activity config
-    try {
-      const result = await fetch(URL, {
-        headers: { Accept: 'application/json' },
-      });
-      // console.log('Result: ', result);
-      // TODO handle this error message
-      const status = await result.status;
-      if (status !== 200) {
-        // any denied respose sets the trigger
-        configResponse = status;
-        return null;
-      }
-      const data = await result.json();
-      return data;
-    } catch (err) {
-      console.log('Initalization fetch error: ', err);
-      return null;
+    if (config) {
+      updateObject.startingPointBase64 = JSON.stringify(config);
+      // simply put truthy value to trigger config response on reload
+      updateObject.currentStateBase64 = true;
     }
+
+    API.put('tabs', tab._id, updateObject)
+      .then(() => updateActivityTab(activity._id, tab._id, updateObject))
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.log(err);
+      });
   };
 
   const initEditor = async () => {
     const { tab, setFirstTabLoaded } = props;
+    const { config } = await fetchConfigData(tab);
     const editorOptions = {
-      activityConfig: await fetchData(),
+      activityConfig: config,
       targetElement: editorRef.current,
-      customMetadataConfig: {
-        schemas: {
-          activity: activityMetadataSchema,
-          screen: screenMetadataSchema,
-          component: componentMetadataSchema,
-        },
-        key: tab._id,
-      },
+      // customMetadataConfig: {
+      //   schemas: {
+      //     activity: activityMetadataSchema,
+      //     screen: screenMetadataSchema,
+      //     component: componentMetadataSchema,
+      //   },
+      //   key: tab._id,
+      // },
       onError: (err) => {
         console.error(
           err.message ? err : `EditorAPI error: ${JSON.stringify(err, null, 2)}`
@@ -103,18 +78,15 @@ const DesmosActivityEditor = (props) => {
       },
       // callback to handle persistent state
       onConfigurationUpdated: (responses) => {
-        // milisecond timeout to ensure transient events are sent prior to persistent
-        console.log('New updates: ', responses);
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
-    // if (tab.currentStateBase64) {
-    //   const { currentStateBase64 } = tab;
-    //   const savedData = JSON.parse(currentStateBase64);
-    //   // console.log('Prior state data loaded: ');
-    //   // console.log(savedData);
-    //   playerOptions.responseData = savedData;
-    // }
+
+    if (!tab.startingPointBase64 || tab.startingPointBase64 === '{}') {
+      // first load or no events, save configuration
+      console.log('Saving this initial configuration to tab');
+      putState(config);
+    }
 
     try {
       editorInst.current = new ActivityEditor(editorOptions);
@@ -124,7 +96,7 @@ const DesmosActivityEditor = (props) => {
       setFirstTabLoaded();
       return null;
     }
-
+    console.log('Initializing: ', initializing);
     console.log(
       'Desmos Activity Editor initialized Version: ',
       ActivityEditor.version(),
@@ -144,20 +116,13 @@ const DesmosActivityEditor = (props) => {
     initializing = false;
     return () => {
       if (editorInst.current) {
-        putState();
-        if (!editorInst.current.isDestroyed()) editorInst.current.destroy();
+        // if (!editorInst.current.isDestroyed()) editorInst.current.destroy();
       }
     };
   }, []);
 
   return (
     <Fragment>
-      {console.log(
-        'init: ',
-        initializing,
-        ' Config response: ',
-        configResponse
-      )}
       {/* <div
         id="activityNavigation"
         className={classes.ActivityNav}
@@ -208,14 +173,17 @@ const DesmosActivityEditor = (props) => {
 };
 
 DesmosActivityEditor.propTypes = {
-  room: PropTypes.shape({}).isRequired,
+  activity: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}),
   setFirstTabLoaded: PropTypes.func.isRequired,
+  updateActivityTab: PropTypes.func.isRequired,
   // referencing: PropTypes.bool.isRequired,
   // updateUserSettings: PropTypes.func,
 };
 
-DesmosActivityEditor.defaultProps = {};
+DesmosActivityEditor.defaultProps = {
+  user: undefined,
+};
 
 export default withRouter(DesmosActivityEditor);

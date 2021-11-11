@@ -28,23 +28,6 @@ const DesActivityReplayer = (props) => {
     );
   };
 
-  // const fetchData = async () => {
-  //   const { tab } = props;
-  //   // window.addEventListener('keydown', allowKeypressCheck());
-  //   const code =
-  //     tab.desmosLink ||
-  //     // fallback to turtle time trials, used for demo
-  //     '5da9e2174769ea65a6413c93';
-  //   const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
-  //   // eslint-disable-next-line no-console
-  //   // console.log('adapted activity url: ', URL);
-  //   // calling Desmos to get activity config
-  //   const result = await fetch(URL, {
-  //     headers: { Accept: 'application/json' },
-  //   });
-  //   return result.json();
-  // };
-
   // handles the updates to the player
 
   useEffect(() => {
