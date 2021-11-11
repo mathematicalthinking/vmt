@@ -10,6 +10,7 @@ import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 // import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
+import { fetchConfigData } from './Tools/DesActivityHelpers.es';
 import Modal from '../../Components/UI/Modal/Modal';
 import API from '../../utils/apiRequests';
 
@@ -64,7 +65,6 @@ const DesmosActivity = (props) => {
     if (config) {
       updateObject.startingPointBase64 = JSON.stringify(config);
     }
-    // console.log('Update object: ', updateObject, 'Temp: ', temp);
     API.put('tabs', _id, updateObject)
       .then(() => (temp ? {} : updateRoomTab(room._id, _id, updateObject)))
       .catch((err) => {
@@ -103,7 +103,6 @@ const DesmosActivity = (props) => {
 
   // Event listener callback on the persistent Activity instance
   const handleResponseData = (updates, type) => {
-    // console.log('Screenpage(state): ', screenPage, ' Tab data: ', tab);
     const transient = type === 'transient';
     if (initializing) return;
     // console.log('Receiving data: ', receivingData);
@@ -121,7 +120,6 @@ const DesmosActivity = (props) => {
       );
 
       const currentStateString = JSON.stringify(currentState);
-      // console.log(this.calculator.getState());
       const newData = {
         _id: mongoIdGenerator(),
         room: room._id,
@@ -188,45 +186,13 @@ const DesmosActivity = (props) => {
     // const { settings } = propsUser;
   }
 
-  const fetchData = async () => {
-    const { tab } = props;
-    // load a saved config as json if we have it and prior data
-    if (tab.startingPointBase64 && tab.currentStateBase64 !== '{}') {
-      return JSON.parse(tab.startingPointBase64);
-    }
-    // otherwise fetch the config
-    const code =
-      tab.desmosLink ||
-      // fallback to turtle time trials, used for demo
-      '5da9e2174769ea65a6413c93';
-    const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
-    // calling Desmos to get activity config
-    try {
-      const result = await fetch(URL, {
-        headers: { Accept: 'application/json' },
-      });
-      // TODO handle this error message
-      const status = await result.status;
-      if (status !== 200) {
-        // any denied respose sets the trigger
-        configResponse = status;
-        return null;
-      }
-      const data = await result.json();
-      // save the valid configuration string
-      putState(data);
-      return data;
-    } catch (err) {
-      console.log('Initalization fetch error: ', err);
-      return null;
-    }
-  };
-
   const initPlayer = async () => {
     const { tab, setFirstTabLoaded } = props;
     // look for and load prior activity data
+    const { config, status } = await fetchConfigData(tab);
+    configResponse = status;
     const playerOptions = {
-      activityConfig: await fetchData(),
+      activityConfig: config,
       targetElement: calculatorRef.current,
       onError: (err) => {
         console.error(
@@ -242,10 +208,14 @@ const DesmosActivity = (props) => {
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
-    if (tab.currentStateBase64 !== '{}') {
+    if (tab.currentStateBase64 && tab.currentStateBase64 !== '{}') {
+      // existing event data on tab
       const { currentStateBase64 } = tab;
       const savedData = JSON.parse(currentStateBase64);
       playerOptions.responseData = savedData;
+    } else {
+      // first load or no events, save configuration
+      putState(config);
     }
     try {
       calculatorInst.current = new Player(playerOptions);
@@ -284,8 +254,6 @@ const DesmosActivity = (props) => {
     );
     props.setFirstTabLoaded();
     initializeListeners();
-    // Print current Tab data
-    // console.log('Tab data: ', props.tab);
     // Go to screen last used
     if (tab.currentScreen) {
       const { currentScreen } = tab;
@@ -339,7 +307,6 @@ const DesmosActivity = (props) => {
   // @TODO this could be selectively handled depending what div is clicked
   function _checkForControl(event) {
     // check if user is not in control and intercept event
-    // console.log('Click intercepted - Event: ', event.target.id);
     if (!_hasControl()) {
       event.preventDefault();
       setShowControlWarning(true);

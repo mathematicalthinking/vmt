@@ -9,7 +9,7 @@ import {
   activityMetadataSchema,
   screenMetadataSchema,
   componentMetadataSchema,
-} from './Tools/DesActivityMetadatSchemas.es';
+} from './Tools/DesActivityHelpers.es';
 // import API from '../../utils/apiRequests';
 
 const DesmosActivityEditor = (props) => {
