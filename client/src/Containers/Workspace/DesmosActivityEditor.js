@@ -45,10 +45,10 @@ const DesmosActivityEditor = (props) => {
     };
     if (config) {
       updateObject.startingPointBase64 = JSON.stringify(config);
-      // simply put truthy value to trigger config response on reload
-      updateObject.currentStateBase64 = true;
     }
-
+    // simply put truthy value to trigger config response on reload
+    updateObject.currentStateBase64 = 'customized activity';
+    // console.log('Update object: ', updateObject);
     API.put('tabs', tab._id, updateObject)
       .then(() => updateActivityTab(activity._id, tab._id, updateObject))
       .catch((err) => {
