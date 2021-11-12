@@ -190,13 +190,14 @@ class ActivityWorkspace extends Component {
             tabs={tabs}
             roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
             user={user}
-            role={role} // oh shit role is taken...its for a11y  stuff
+            role={role} // oh sh*t role is taken...its for a11y  stuff
             currentTabId={currentTabId || initialTabId}
             bottomRight={
               <ActivityTools
                 owner={role === 'facilitator'}
                 goBack={this.goBack}
                 copy={this.addToMyActivities}
+                tabs={activity.tabs}
               />
             }
             bottomLeft={
