@@ -92,8 +92,7 @@ const DesmosActivityEditor = (props) => {
       editorInst.current = new ActivityEditor(editorOptions);
     } catch (err) {
       console.log('Editor initialization error: ', err);
-      initializing = false;
-      setFirstTabLoaded();
+      window.location.reload();
       return null;
     }
     console.log('Initializing: ', initializing);
@@ -103,7 +102,7 @@ const DesmosActivityEditor = (props) => {
       'Editor instance: ',
       editorInst.current
     );
-    props.setFirstTabLoaded();
+    setFirstTabLoaded();
     // Print current Tab data
     // console.log('Tab data: ', props.tab);
     // Go to screen last used
