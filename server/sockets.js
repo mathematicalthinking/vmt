@@ -190,12 +190,11 @@ module.exports = function() {
       // if they're in a room we need to remove them
       // console.log('socket id: ', socket.user_id);
       // socket.rooms is a set, so first convert to an array
-      const room = [...socket.rooms].pop(); // they can only be in one room so just grab the last one
-
-      if (room && ObjectId.isValid(room)) {
-        socket.leave(room);
-        leaveRoom(room, true);
-      }
+      // const room = [...socket.rooms].pop(); // they can only be in one room so just grab the last one
+      // if (room && ObjectId.isValid(room)) {
+      //   socket.leave(room);
+      //   leaveRoom(room, true);
+      // }
     });
 
     socket.on('disconnect', (reason) => {
