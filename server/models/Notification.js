@@ -116,9 +116,8 @@ Notification.post('save', async function(notification, next) {
 
     try {
       const updatedUser = await updateUser(notification.toUser, updateQuery);
-      const socketId = (await updatedUser) && updatedUser.socketId;
-      const socketList = await sockets.io.in(socketId).fetchSockets();
-      const socket = await socketList[0];
+      const socketId = updatedUser && updatedUser.socketId;
+      const socket = (await sockets.io.in(socketId).fetchSockets())[0];
       const data = await buildEmitData(notification);
       return socket && data ? socket.emit('NEW_NOTIFICATION', data) : null;
     } catch (err) {
