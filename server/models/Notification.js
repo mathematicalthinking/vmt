@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Schema.Types;
-const _ = require('lodash');
+// const _ = require('lodash');
 const User = require('./User');
 const sockets = require('../socketInit');
 
@@ -99,7 +99,7 @@ function buildEmitData(notification) {
 }
 
 // update toUser with notification
-Notification.post('save', function(notification, next) {
+Notification.post('save', async function(notification, next) {
   if (notification.toUser) {
     const ntfType = notification.notificationType;
 
@@ -113,30 +113,49 @@ Notification.post('save', function(notification, next) {
     }
     // granted access - send course along with ntf
     // assigned new room - send room along with ntf
-    return updateUser(notification.toUser, updateQuery)
-      .then((updatedUser) => {
-        // check if there is socket for user
-        // if (!notification.isTrashed) {
-        const socketId = _.propertyOf(updatedUser)('socketId');
-        const socket = _.propertyOf(sockets)(`io.sockets.sockets.${socketId}`);
-        // console.log('socket: ', socket);
-        if (socket) {
-          return buildEmitData(notification).then((data) => {
-            if (data) {
-              // console.log('EMITTING NTF: ', data);
-              return socket.emit('NEW_NOTIFICATION', data);
-            }
-            return null;
-          });
-        }
-        return null;
-      })
-      .catch((err) => {
-        console.log('err post save ntf', err);
-        next(err);
-      });
+
+    try {
+      const updatedUser = await updateUser(notification.toUser, updateQuery);
+      const socketId = (await updatedUser) && updatedUser.socketId;
+      const socketList = await sockets.io.in(socketId).fetchSockets();
+      const socket = await socketList[0];
+      const data = await buildEmitData(notification);
+      return socket && data ? socket.emit('NEW_NOTIFICATION', data) : null;
+    } catch (err) {
+      console.log('err post save ntf', err);
+      return next(err);
+    }
   }
   return next();
 });
+
+//   return updateUser(notification.toUser, updateQuery)
+//     .then((updatedUser) => {
+//       // check if there is socket for user
+//       // if (!notification.isTrashed) {
+//       const { socketId } = updatedUser;
+
+//       return sockets.io
+//         .in(socketId)
+//         .fetchSockets()
+//         .then((socketList) => {
+//           const socket = socketList[0];
+//           if (socket) {
+//             return buildEmitData(notification).then((data) => {
+//               if (data) {
+//                 // console.log('EMITTING NTF: ', data);
+//                 return socket.emit('NEW_NOTIFICATION', data);
+//               }
+//               return null;
+//             });
+//           }
+//           return null;
+//         });
+//     })
+//     .catch((err) => {
+//       console.log('err post save ntf', err);
+//       next(err);
+//     });
+// }
 
 module.exports = mongoose.model('Notification', Notification);
