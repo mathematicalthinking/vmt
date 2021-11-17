@@ -1,5 +1,4 @@
 const defaults = require('lodash/defaults');
-const propertyOf = require('lodash/propertyOf');
 const {
   isValidMongoId,
   verifyJwt,
@@ -121,11 +120,15 @@ const prepareVmtUser = (req, res, next) => {
         ssoService.revokeRefreshToken(req.cookies[refreshCookie.name], user);
 
         const { socketId } = user;
-        const socket = propertyOf(sockets)(`io.sockets.sockets.${socketId}`);
-
-        if (socket) {
-          socket.emit('FORCED_LOGOUT');
-        }
+        sockets.io
+          .in(socketId)
+          .fetchSockets()
+          .then((socketList) => {
+            const socket = socketList[0];
+            if (socket) {
+              socket.emit('FORCED_LOGOUT');
+            }
+          });
 
         clearAccessCookie(res);
         clearRefreshCookie(res);
