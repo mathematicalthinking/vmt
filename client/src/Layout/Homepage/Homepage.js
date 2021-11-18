@@ -96,7 +96,7 @@ class Homepage extends PureComponent {
     const { history } = this.props;
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
-    const dateStamp = <p>Last updated: 11.06.2021, v.1.4.2</p>;
+    const dateStamp = <p>Last updated: 11.16.2021, v.1.5.1</p>;
     let pyretStatus = '';
     if (
       process.env.REACT_APP_PYRET_MODE &&
