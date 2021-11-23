@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { capitalize } from 'lodash';
+import { capitalize, throttle } from 'lodash';
 import socket from '../../utils/sockets';
 import { normalize } from '../../store/utils';
 import {
@@ -27,6 +27,23 @@ class SocketProvider extends Component {
     ntfMessage: '',
     showNtfMessage: false,
   };
+
+  syncSocket = throttle(() => {
+    const {
+      connectUpdateUser,
+      user: { _id },
+    } = this.props;
+    socket.emit('SYNC_SOCKET', _id, (res, err) => {
+      if (err) {
+        console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
+        return;
+      }
+      console.log(res);
+      connectUpdateUser({ connected: true });
+      this.initializeListeners();
+    });
+  }, 10000000);
+
   componentDidMount() {
     const { user, connectClearError, connectGetUser } = this.props;
     const url = window.location.href;
@@ -90,21 +107,6 @@ class SocketProvider extends Component {
     socket.removeAllListeners();
   }
 
-  syncSocket = () => {
-    const {
-      connectUpdateUser,
-      user: { _id },
-    } = this.props;
-    socket.emit('SYNC_SOCKET', _id, (res, err) => {
-      if (err) {
-        console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
-        return;
-      }
-      connectUpdateUser({ connected: true });
-      this.initializeListeners();
-    });
-  };
-
   showNtfToast = (ntfMessage) => {
     this.setState({ showNtfMessage: true, ntfMessage }, () => {
       this.toastTimer = setTimeout(() => {
@@ -130,7 +132,9 @@ class SocketProvider extends Component {
       user,
       connectLogout,
     } = this.props;
-    socket.removeAllListeners();
+    socket.removeAllListeners('NEW_NOTIFICATION');
+    socket.removeAllListeners('FORCED_LOGOUT');
+
     socket.on('NEW_NOTIFICATION', (data) => {
       const { notification, course, room } = data;
       const type = notification.notificationType;
