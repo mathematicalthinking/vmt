@@ -27,6 +27,7 @@ class SocketProvider extends Component {
     ntfMessage: '',
     showNtfMessage: false,
   };
+
   componentDidMount() {
     const { user, connectClearError, connectGetUser } = this.props;
     const url = window.location.href;
@@ -100,6 +101,7 @@ class SocketProvider extends Component {
         console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
         return;
       }
+      console.log(res);
       connectUpdateUser({ connected: true });
       this.initializeListeners();
     });
@@ -130,7 +132,9 @@ class SocketProvider extends Component {
       user,
       connectLogout,
     } = this.props;
-    socket.removeAllListeners();
+    socket.removeAllListeners('NEW_NOTIFICATION');
+    socket.removeAllListeners('FORCED_LOGOUT');
+
     socket.on('NEW_NOTIFICATION', (data) => {
       const { notification, course, room } = data;
       const type = notification.notificationType;

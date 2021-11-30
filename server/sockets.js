@@ -46,7 +46,6 @@ module.exports = function() {
 
   io.sockets.on('connection', (socket) => {
     console.log('socket connected: ', socket.id);
-
     socket.on('ping', (cb) => {
       if (typeof cb === 'function') cb();
     });
@@ -190,12 +189,11 @@ module.exports = function() {
       // if they're in a room we need to remove them
       // console.log('socket id: ', socket.user_id);
       // socket.rooms is a set, so first convert to an array
-      const room = [...socket.rooms].pop(); // they can only be in one room so just grab the last one
-
-      if (room && ObjectId.isValid(room)) {
-        socket.leave(room);
-        leaveRoom(room, true);
-      }
+      // const room = [...socket.rooms].pop(); // they can only be in one room so just grab the last one
+      // if (room && ObjectId.isValid(room)) {
+      //   socket.leave(room);
+      //   leaveRoom(room, true);
+      // }
     });
 
     socket.on('disconnect', (reason) => {
@@ -219,8 +217,9 @@ module.exports = function() {
         .put(_id, { socketId: socket.id })
         .then(() => {
           cb(`User socketId updated to ${socket.id}`, null);
+          socket.emit('SOCKET_SYNCED');
         })
-        .catch((err) => cb(null, err));
+        .catch((err) => cb('Error found', err));
     });
 
     socket.on('SEND_MESSAGE', (data, callback) => {
