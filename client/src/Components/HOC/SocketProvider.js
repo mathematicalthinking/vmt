@@ -28,22 +28,6 @@ class SocketProvider extends Component {
     showNtfMessage: false,
   };
 
-  syncSocket = () => {
-    const {
-      connectUpdateUser,
-      user: { _id },
-    } = this.props;
-    socket.emit('SYNC_SOCKET', _id, (res, err) => {
-      if (err) {
-        console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
-        return;
-      }
-      console.log(res);
-      connectUpdateUser({ connected: true });
-      this.initializeListeners();
-    });
-  };
-
   componentDidMount() {
     const { user, connectClearError, connectGetUser } = this.props;
     const url = window.location.href;
@@ -106,6 +90,22 @@ class SocketProvider extends Component {
     }
     socket.removeAllListeners();
   }
+
+  syncSocket = () => {
+    const {
+      connectUpdateUser,
+      user: { _id },
+    } = this.props;
+    socket.emit('SYNC_SOCKET', _id, (res, err) => {
+      if (err) {
+        console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
+        return;
+      }
+      console.log(res);
+      connectUpdateUser({ connected: true });
+      this.initializeListeners();
+    });
+  };
 
   showNtfToast = (ntfMessage) => {
     this.setState({ showNtfMessage: true, ntfMessage }, () => {
