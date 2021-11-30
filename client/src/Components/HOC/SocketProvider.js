@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { capitalize, throttle } from 'lodash';
+import { capitalize } from 'lodash';
 import socket from '../../utils/sockets';
 import { normalize } from '../../store/utils';
 import {
@@ -28,7 +28,7 @@ class SocketProvider extends Component {
     showNtfMessage: false,
   };
 
-  syncSocket = throttle(() => {
+  syncSocket = () => {
     const {
       connectUpdateUser,
       user: { _id },
@@ -42,7 +42,7 @@ class SocketProvider extends Component {
       connectUpdateUser({ connected: true });
       this.initializeListeners();
     });
-  }, 10000000);
+  };
 
   componentDidMount() {
     const { user, connectClearError, connectGetUser } = this.props;
