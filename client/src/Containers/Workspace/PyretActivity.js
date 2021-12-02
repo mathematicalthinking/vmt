@@ -11,8 +11,8 @@ const CodePyretOrg = (props) => {
   const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
   const [iframeSrc, setIframeSrc] = useState(
-    process.env.REACT_APP_PYRET_URL ||
-      'https://pyret-horizon.herokuapp.com/editor'
+    // 'https://localhost:5000/editor' or 'https://pyret-horizon.herokuapp.com/editor'
+    process.env.REACT_APP_PYRET_URL
   );
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
@@ -37,6 +37,7 @@ const CodePyretOrg = (props) => {
     function setParams(params) {
       console.log(params, iframeReference());
       // Test to see if this forces an iframe refresh
+      // setIframeSrc(`${process.env.REACT_APP_PYRET_URL}${params}`);
       setIframeSrc(`${process.env.REACT_APP_PYRET_URL}${params}`);
       // const pyretWindow = iframeReference();
       // pyretWindow.src += params;
@@ -126,6 +127,7 @@ const CodePyretOrg = (props) => {
       // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
+      console.log('Sent event... ', newData);
       resetControlTimer();
       putState();
     }
@@ -183,8 +185,10 @@ const CodePyretOrg = (props) => {
       if (
         data.source === 'react-devtools-bridge' ||
         data.source === 'react-devtools-content-script'
-      )
+      ) {
         return;
+      }
+
       console.log('Got a message VMT side', data);
       const currentState = {
         data,
