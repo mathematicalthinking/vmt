@@ -10,7 +10,7 @@ import classes from './homeNav.css';
 
 const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
   let styles = classes.Nav;
-  if (page === '/about') {
+  if (page === '/about' || page === '/faq') {
     styles = classes.FixedGradientNav;
   } else if (isDark) {
     styles = classes.LightNav;

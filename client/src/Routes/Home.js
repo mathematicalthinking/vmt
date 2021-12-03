@@ -80,7 +80,7 @@ class Home extends PureComponent {
           <Navbar fixed user={user} toggleAdmin={this.toggleAdmin} />
         ) : (
           <HomeNav
-            isDark={scrollPosition > 0.45}
+            isDark={scrollPosition > 0.2}
             page={location.pathname}
             user={user}
             toggleAdmin={this.toggleAdmin}
