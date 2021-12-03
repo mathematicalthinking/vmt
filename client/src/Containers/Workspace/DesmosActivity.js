@@ -208,6 +208,8 @@ const DesmosActivity = (props) => {
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
+    console.log('Config status: ', status);
+
     if (tab.currentStateBase64 && tab.currentStateBase64 !== '{}') {
       // existing event data on tab
       const { currentStateBase64 } = tab;

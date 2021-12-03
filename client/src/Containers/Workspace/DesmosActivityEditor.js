@@ -30,6 +30,7 @@ const DesmosActivityEditor = (props) => {
     const { tab, activity, updateActivityTab } = props;
     // const { _id } = tab;
     let configData = {};
+    // startingPointBase64 is the latest config state of the template
     if (tab.startingPointBase64) {
       configData = JSON.parse(tab.startingPointBase64);
     }
@@ -44,10 +45,8 @@ const DesmosActivityEditor = (props) => {
       startingPointBase64: JSON.stringify(configData),
     };
     if (config) {
-      updateObject.startingPointBase64 = JSON.stringify(config);
+      updateObject.currentStateBase64 = JSON.stringify(config);
     }
-    // simply put truthy value to trigger config response on reload
-    updateObject.currentStateBase64 = 'customized activity';
     // console.log('Update object: ', updateObject);
     API.put('tabs', tab._id, updateObject)
       .then(() => updateActivityTab(activity._id, tab._id, updateObject))
@@ -59,7 +58,7 @@ const DesmosActivityEditor = (props) => {
 
   const initEditor = async () => {
     const { tab, setFirstTabLoaded } = props;
-    const { config } = await fetchConfigData(tab);
+    const { config, status } = await fetchConfigData(tab);
     const editorOptions = {
       activityConfig: config,
       targetElement: editorRef.current,
@@ -81,10 +80,10 @@ const DesmosActivityEditor = (props) => {
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
-
-    if (!tab.startingPointBase64 || tab.startingPointBase64 === '{}') {
-      // first load or no events, save configuration
-      console.log('Saving this initial configuration to tab');
+    console.log('Config status: ', status);
+    if (config) {
+      // save configuration at load, could implement reset of current edits
+      console.log('Saving this initial session configuration to tab...');
       putState(config);
     }
 
@@ -92,7 +91,7 @@ const DesmosActivityEditor = (props) => {
       editorInst.current = new ActivityEditor(editorOptions);
     } catch (err) {
       console.log('Editor initialization error: ', err);
-      window.location.reload();
+      // window.location.reload();
       return null;
     }
     console.log('Initializing: ', initializing);
@@ -115,42 +114,13 @@ const DesmosActivityEditor = (props) => {
     initializing = false;
     return () => {
       if (editorInst.current) {
-        // if (!editorInst.current.isDestroyed()) editorInst.current.destroy();
+        if (!editorInst.current.isDestroyed()) editorInst.current.destroy();
       }
     };
   }, []);
 
   return (
     <Fragment>
-      {/* <div
-        id="activityNavigation"
-        className={classes.ActivityNav}
-        onClickCapture={_checkForControl}
-        style={{
-          pointerEvents: !_hasControl() ? 'none' : 'auto',
-        }}
-      >
-        {_hasControl() && backBtn && (
-          <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
-            Prev
-          </Button>
-        )}
-        <span
-          title="Navigation buttons only seen when in control"
-          id="show-screen"
-          className={classes.Title}
-        >
-          <div>Screen {getCurrentScreen() + 1}</div>
-          <div id="screen-count" className={classes.Screens}>
-            of {getScreenCount()}
-          </div>
-        </span>
-        {_hasControl() && fwdBtn && (
-          <Button theme="Small" id="nav-right" click={() => navigateBy(1)}>
-            Next
-          </Button>
-        )}
-      </div> */}
       <div
         className={classes.Activity}
         id="editorParent"

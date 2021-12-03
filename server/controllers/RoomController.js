@@ -288,8 +288,12 @@ module.exports = {
             desmosLink: tab.desmosLink,
             currentState: tab.currentState,
             startingPoint: tab.currentState,
-            startingPointBase64: tab.currentStateBase64,
-            currentStateBase64: tab.currentStateBase64,
+            startingPointBase64:
+              tab.tabType === 'desmosActivity'
+                ? tab.startingPointBase64
+                : tab.currentStateBase64,
+            currentStateBase64:
+              tab.tabType === 'desmosActivity' ? '{}' : tab.currentStateBase64,
             tabType: tab.tabType,
             appName: tab.appName,
           });
