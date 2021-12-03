@@ -18,13 +18,13 @@ import {
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
 import { PrivateRoute, ErrorToast } from '../Components';
-import { Confirmation, FacilitatorInstructions } from '../Layout';
+import { Confirmation, FacilitatorIntro } from '../Layout';
 import ErrorBoundary from '../ErrorBoundary';
 import { updateUser } from '../store/actions/user';
 
 const pages = [
   { path: '/', component: MyVMT },
-  { path: '/facilitator', component: FacilitatorInstructions },
+  { path: '/facilitator', component: FacilitatorIntro },
   { path: '/profile', component: Profile },
   { path: '/:resource', component: MyVMT },
   {
