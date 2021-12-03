@@ -1,42 +1,55 @@
 // Teacher.Desmos export url
 const baseURL = 'https://teacher.desmos.com/activitybuilder/export/'; // + activity code
-// utility for getting Desmos Activity Confguration
+
+// utility for getting Desmos Activity Confguration from tab state
 export const fetchConfigData = async (tab) => {
-  // console.log('Tab data: ', tab);
+  console.log('Tab data: ', tab);
   // setting our return object
   const configData = {};
-  // load a saved config as json if we have it and any prior event data
-  if (
-    tab.startingPointBase64 &&
-    tab.currentStateBase64 &&
-    tab.currentStateBase64 !== '{}'
-  ) {
-    configData.config = JSON.parse(tab.startingPointBase64);
-    configData.status = 'Prior content loaded';
-    return configData;
+  // Room condition
+  if (tab.room) {
+    // if we have a starting config and saved data, return the config
+    if (
+      tab.startingPointBase64 &&
+      // Check to see if there is any activity
+      tab.currentStateBase64
+    ) {
+      configData.config = JSON.parse(tab.startingPointBase64);
+      configData.status = 'Prior content loaded';
+      return configData;
+    }
   }
-  // Catch if we have a template with no config for blank starting point
-  if (tab.activity && !tab.desmosLink) {
-    configData.config = undefined;
-    configData.status = 'Blank workspace loaded';
-    return configData;
+
+  // else handle an activity (template) tab condition
+  if (tab.activity) {
+    // load a saved config as json if we have it and any prior event data
+    if (tab.startingPointBase64 && tab.startingPointBase64 !== '{}') {
+      configData.config = JSON.parse(tab.startingPointBase64);
+      configData.status = 'Prior edited template loaded';
+      return configData;
+    }
+    // Catch if we have a template with no config for blank starting point
+    if (tab.activity && !tab.desmosLink) {
+      configData.config = undefined;
+      configData.status = 'Blank workspace loaded';
+      return configData;
+    }
   }
-  // otherwise fetch the config if we have a code, or for a room have a default config
-  const code =
-    tab.desmosLink ||
-    // fallback to turtle time trials, used for demo
-    '5da9e2174769ea65a6413c93';
-  // calling Desmos to get activity config
+
+  // calling Desmos to get activity config via link code
   try {
+    // otherwise fetch the config if we have a code, or for a room have a default config
+    const code =
+      tab.desmosLink ||
+      // fallback to turtle time trials, used for demo
+      '5da9e2174769ea65a6413c93';
     const result = await fetch(`${baseURL}${code}`, {
       headers: { Accept: 'application/json' },
     });
-    // TODO handle this error message
     const status = await result.status;
     configData.status = status;
     if (status !== 200) {
       configData.config = null;
-      console.log('ConfigData: ', configData);
       return configData;
     }
     const data = await result.json();
