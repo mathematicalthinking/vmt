@@ -4,7 +4,8 @@ import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classes from './graph.css';
-import { ActivityEditor } from '../../external/js/editor.es';
+// import { ActivityEditor } from '../../external/js/editor.es';
+
 import {
   fetchConfigData,
   // activityMetadataSchema,
@@ -59,6 +60,7 @@ const DesmosActivityEditor = (props) => {
   const initEditor = async () => {
     const { tab, setFirstTabLoaded } = props;
     const { config, status } = await fetchConfigData(tab);
+    const { ActivityEditor } = await import('../../external/js/editor.es');
     const editorOptions = {
       activityConfig: config,
       targetElement: editorRef.current,
