@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classes from './DesActivityReplayer.css';
-import { Player } from '../../external/js/api.full.es';
+// import { Player } from '../../external/js/api.full.es';
 import { fetchConfigData } from '../Workspace/Tools/DesActivityHelpers.es';
 
 const DesActivityReplayer = (props) => {
@@ -12,9 +12,12 @@ const DesActivityReplayer = (props) => {
   //   function allowKeypressCheck(event) {
   //     event.preventDefault();
   //   }
-  const initCalc = (data) => {
+  const initCalc = async (tab) => {
+    const { config, status } = await fetchConfigData(tab);
+
+    const { Player } = await import('../../external/js/api.full.es');
     const playerOptions = {
-      activityConfig: data,
+      activityConfig: config,
       targetElement: calculatorRef.current,
     };
 
@@ -24,8 +27,11 @@ const DesActivityReplayer = (props) => {
       'Desmos Activity Player initialized Version: ',
       Player.version(),
       'Player instance: ',
-      calculatorInst.current
+      calculatorInst.current,
+      ' Config status: ',
+      status
     );
+    props.setTabLoaded(tab._id);
   };
 
   // handles the updates to the player
@@ -72,10 +78,8 @@ const DesActivityReplayer = (props) => {
 
   useEffect(() => {
     const { tab } = props;
-    fetchConfigData(tab).then((data) => {
-      initCalc(data.config);
-      props.setTabLoaded(tab._id);
-    });
+    initCalc(tab);
+
     return function() {
       if (calculatorInst.current) {
         calculatorInst.current.destroy();
