@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { socket } from 'utils';
 import API from '../../utils/apiRequests';
 import buildLog from '../../utils/buildLog';
 import Loading from '../../Components/Loading/Loading';
@@ -11,15 +12,10 @@ function withPopulatedRoom(WrappedComponent) {
     };
 
     componentDidMount() {
+      this.initializeListeners();
       this.cancelFetch = false;
-      const { match } = this.props;
-      API.getPopulatedById('rooms', match.params.room_id, false, true)
-        .then((res) => {
-          this.populatedRoom = res.data.result;
-          this.populatedRoom.log = buildLog(
-            this.populatedRoom.tabs,
-            this.populatedRoom.chat
-          );
+      this.fetch()
+        .then(() => {
           if (!this.cancelFetch) this.setState({ loading: false });
         })
         .catch(() => {
@@ -32,6 +28,33 @@ function withPopulatedRoom(WrappedComponent) {
     componentWillUnmount() {
       this.cancelFetch = true;
     }
+
+    initializeListeners() {
+      socket.removeAllListeners('SOCKET_SYNCED');
+      socket.on('SOCKET_SYNCED', () => {
+        console.log('SOCKET_SYNCED');
+        this.fetch();
+      });
+    }
+
+    fetch() {
+      const { match } = this.props;
+      return API.getPopulatedById(
+        'rooms',
+        match.params.room_id,
+        false,
+        true
+      ).then((res) => {
+        if (!this.cancelFetch) {
+          this.populatedRoom = res.data.result;
+          this.populatedRoom.log = buildLog(
+            this.populatedRoom.tabs,
+            this.populatedRoom.chat
+          );
+        }
+      });
+    }
+
     render() {
       const { history } = this.props;
       const { loading } = this.state;
