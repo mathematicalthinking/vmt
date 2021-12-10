@@ -16,6 +16,7 @@ const desmos = require('./routes/desmos');
 const enc = require('./routes/enc');
 const admin = require('./routes/admin');
 const cors = require('./middleware/cors');
+const metrics = require('./services/metrics');
 
 const app = express();
 console.log('NODE_ENV=', process.env.NODE_ENV);
@@ -83,6 +84,9 @@ app.use('/auth', auth);
 app.use('/api', api);
 app.use('/enc', enc);
 app.use('/admin', admin);
+
+// COLLECT AND EXPOSE METRICS
+app.use('/metrics', metrics);
 
 if (process.env.ENCOMPASS) {
   app.use(express.static(path.join(__dirname, '../client/encompassBuild')));

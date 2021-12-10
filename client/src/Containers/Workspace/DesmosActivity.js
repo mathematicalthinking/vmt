@@ -5,7 +5,7 @@ import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classes from './graph.css';
 import { Button } from '../../Components';
-import { Player } from '../../external/js/api.full.es';
+// import { Player } from '../../external/js/api.full.es';
 import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
@@ -190,6 +190,7 @@ const DesmosActivity = (props) => {
     const { tab, setFirstTabLoaded } = props;
     // look for and load prior activity data
     const { config, status } = await fetchConfigData(tab);
+    const { Player } = await import('../../external/js/api.full.es');
     configResponse = status;
     const playerOptions = {
       activityConfig: config,
