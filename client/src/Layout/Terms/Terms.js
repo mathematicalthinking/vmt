@@ -32,12 +32,12 @@ const Terms = () => {
         </h2>
         <p className={classes.DetailDescription}>
           Thank you for your interest in using the online services operated by
-          the 21st Century Partnership for STEM Education.
-          (&quot;21PSTEM&quot;). These Terms of Service (&quot;Terms&quot;)
-          govern your use of 21PSTEM’s online services (collectively, the
-          &quot;Services&quot;), including the services which are offered
-          through (i) our website located at www.21PSTEM.org and
-          www.MathematicalThinking.org and (ii) third party providers.{' '}
+          the 21st Century Partnership for STEM Education (&quot;21PSTEM&quot;).
+          These Terms of Service (&quot;Terms&quot;) govern your use of
+          21PSTEM’s online services (collectively, the &quot;Services&quot;),
+          including the services which are offered through (i) our website
+          located at www.21PSTEM.org and www.MathematicalThinking.org and (ii)
+          third party providers.{' '}
         </p>
         <div className={classes.Content}>
           <h3>1. Our Services</h3>
@@ -80,108 +80,118 @@ const Terms = () => {
             School or by the Student. “Student Data” is personal information
             that is directly related to an identifiable Student and may include
             “educational records” as defined by the Family Educational Rights
-            and Privacy Act (“FERPA”), 20 U.S.C. § 1232(g). Confidentiality.
-            21PSTEM agrees to treat Student Data as confidential and not to
-            share it with third parties other than as described in these Terms,
-            and in our Privacy Policy. Student Data Access. You authorize
-            21PSTEM to access or collect Student Data for the purpose of
-            providing the Service. In the U.S., 21PSTEM shall collect and
-            process Student Data as a School Official with a legitimate
-            educational interest pursuant to FERPA 34 CFR Part 99.31(a)(1). As
-            between the parties, the School or the Student owns and controls the
-            Student Data. 21PSTEM does not own or control, or license such
-            Student Data, except as to provide the Service and as described in
-            these Terms. Personal Information and Student Data Consents and
-            Authority. If you are School User, you represent and warrant that
-            you have provided appropriate disclosures to your School and to
-            parents regarding your sharing such Personal Information with
-            21PSTEM. Both Parties agree to uphold their obligations under the
-            Family Educational Rights and Privacy Act (“FERPA”), the Protection
-            of Pupil Rights Amendment (&quot;PPRA&quot;), and the Children’s
-            Online Privacy and Protection Act (“COPPA”) and applicable State
-            laws relating to student data privacy. 21PSTEM relies on each School
-            to obtain and provide appropriate consent and disclosures, if
-            necessary, for 21PSTEM to collect any Student Data, including the
-            collection of Student Data directly from students under 13, as
-            permitted under COPPA. You agree to comply with these Terms and all
-            laws and regulations governing the protection of personal
-            information, including children’s information, and the sharing of
-            student education records. Use of Student Data. By submitting or
-            providing us access to Student Data, you agree that 21PSTEM may use
-            the Student Data solely for the purposes of (i) providing the
-            Service, (ii) improving and developing our Service, (iii) enforcing
-            our rights under these Terms, and (iv) as permitted with the
-            School’s or the User’s consent. 21PSTEM shall not use Student Data
-            to engage in targeted advertising. Any data collected for research
-            purposes will be overseen by an Institutional Review Board (“IRB”)
-            and the collection of your data for approved research purposes will
-            be done as required by an IRB, often including User consent (and
-            assent from Minors with consent from a guardian). Use of Anonymized
-            Student Data. You agree that we may collect and use data derived
-            from Student Data for our own purposes, such as for product
-            development, research analytics, and marketing our Service, provided
-            that such data will be de-identified and/or aggregated to reasonably
-            avoid identification of a specific individual. Third-Party Service
-            Providers. You acknowledge and agree that 21PSTEM may provide access
-            to Student Data to our employees and service providers, which have a
-            legitimate need to access such information in order to provide their
-            services to us. We and our employees, affiliates, service providers,
-            or agents involved in the handling, transmittal, and processing of
-            Student Data will be required to maintain the confidentiality of
-            such data. Student Data Retention and Deletion Requests. Schools may
-            request that we delete Student Data in our possession at any time by
-            providing such a request in writing, except that 21PSTEM shall not
-            be required to delete content a Student shared to public areas of
-            the Service. We shall respond to the deletion request as soon as
-            possible, but in most instances within 45 days, other than for data
-            stored on backup tapes which shall be deleted in the ordinary course
-            of business. A Parent seeking to modify, correct, or delete personal
-            information in a Student Account that is connected to an active
-            School account will be instructed to contact the School to discuss
-            data deletion or modification. We are not required to delete data
-            that has been derived from Student Data so long as it has been
-            anonymized such that it does not reasonably identify an individual.
-            Data Breach Notification. We have implemented administrative,
-            physical and technical safeguards designed to secure Personal
-            Information, including Student Data, from unauthorized access,
-            disclosure and use. In the event we have a reasonable, good faith
-            belief that an unauthorized party has gained access to or been
-            disclosed Student Data (a “Security Event”), that we have collected
-            or received through the Service, we will promptly notify the School.
-            If, due to a Security Event which is caused by the acts or omissions
-            of 21PSTEM or its agents, a notification to an individual,
-            organization or government agency is required under applicable
-            privacy laws, the School shall be responsible for the timing,
-            content, and method of any such legally-required notice and
-            compliance with such laws and 21PSTEM shall indemnify the School for
-            costs related to legally-required notifications. With respect to any
-            Security Event which is not caused by the acts or omissions of
-            21PSTEM or its agents, 21PSTEM shall reasonably cooperate with
-            School’s investigation of the Security Event, as School requests, at
-            School’s reasonable expense. 21PSTEM shall be responsible for the
-            timing, content, cost and method of notice and compliance with such
-            laws as they relate to User accounts that are not associated with a
-            School account.
+            and Privacy Act (“FERPA”), 20 U.S.C. § 1232(g).
+            {<br />}
+            {<br />}
+            Confidentiality. 21PSTEM agrees to treat Student Data as
+            confidential and not to share it with third parties other than as
+            described in these Terms, and in our Privacy Policy.
+            {<br />}
+            {<br />}
+            Student Data Access. You authorize 21PSTEM to access or collect
+            Student Data for the purpose of providing the Service. In the U.S.,
+            21PSTEM shall collect and process Student Data as a School Official
+            with a legitimate educational interest pursuant to FERPA 34 CFR Part
+            99.31(a)(1). As between the parties, the School or the Student owns
+            and controls the Student Data. 21PSTEM does not own or control, or
+            license such Student Data, except as to provide the Service and as
+            described in these Terms. Personal Information and Student Data
+            Consents and Authority. If you are a School User, you represent and
+            warrant that you have provided appropriate disclosures to your
+            School and to parents regarding your sharing such Personal
+            Information with 21PSTEM. Both Parties agree to uphold their
+            obligations under the Family Educational Rights and Privacy Act
+            (“FERPA”), the Protection of Pupil Rights Amendment
+            (&quot;PPRA&quot;), and the Children’s Online Privacy and Protection
+            Act (“COPPA”) and applicable State laws relating to student data
+            privacy. 21PSTEM relies on each School to obtain and provide
+            appropriate consent and disclosures, if necessary, for 21PSTEM to
+            collect any Student Data, including the collection of Student Data
+            directly from students under 13, as permitted under COPPA. You agree
+            to comply with these Terms and all laws and regulations governing
+            the protection of personal information, including children’s
+            information, and the sharing of student education records.
+            {<br />}
+            {<br />}
+            Use of Student Data. By submitting or providing us access to Student
+            Data, you agree that 21PSTEM may use the Student Data solely for the
+            purposes of (i) providing the Service, (ii) improving and developing
+            our Service, (iii) enforcing our rights under these Terms, and (iv)
+            as permitted with the School’s or the User’s consent. 21PSTEM shall
+            not use Student Data to engage in targeted advertising. Any data
+            collected for research purposes will be overseen by an Institutional
+            Review Board (“IRB”) and the collection of your data for approved
+            research purposes will be done as required by an IRB, often
+            including User consent (and assent from Minors with consent from a
+            guardian). Use of Anonymized Student Data. You agree that we may
+            collect and use data derived from Student Data for our own purposes,
+            such as for product development, research analytics, and marketing
+            our Service, provided that such data will be de-identified and/or
+            aggregated to reasonably avoid identification of a specific
+            individual.
+            {<br />}
+            {<br />}
+            Third-Party Service Providers. You acknowledge and agree that
+            21PSTEM may provide access to Student Data to our employees and
+            service providers, which have a legitimate need to access such
+            information in order to provide their services to us. We and our
+            employees, affiliates, service providers, or agents involved in the
+            handling, transmittal, and processing of Student Data will be
+            required to maintain the confidentiality of such data. Student Data
+            Retention and Deletion Requests. Schools may request that we delete
+            Student Data in our possession at any time by providing such a
+            request in writing, except that 21PSTEM shall not be required to
+            delete content a Student shared to public areas of the Service. We
+            shall respond to the deletion request as soon as possible, but in
+            most instances within 45 days, other than for data stored on backup
+            tapes which shall be deleted in the ordinary course of business. A
+            Parent seeking to modify, correct, or delete personal information in
+            a Student Account that is connected to an active School account will
+            be instructed to contact the School to discuss data deletion or
+            modification. We are not required to delete data that has been
+            derived from Student Data so long as it has been anonymized such
+            that it does not reasonably identify an individual. Data Breach
+            Notification. We have implemented administrative, physical and
+            technical safeguards designed to secure Personal Information,
+            including Student Data, from unauthorized access, disclosure and
+            use. In the event we have a reasonable, good faith belief that an
+            unauthorized party has gained access to or been disclosed Student
+            Data (a “Security Event”), that we have collected or received
+            through the Service, we will promptly notify the School. If, due to
+            a Security Event which is caused by the acts or omissions of 21PSTEM
+            or its agents, a notification to an individual, organization or
+            government agency is required under applicable privacy laws, the
+            School shall be responsible for the timing, content, and method of
+            any such legally-required notice and compliance with such laws and
+            21PSTEM shall indemnify the School for costs related to
+            legally-required notifications. With respect to any Security Event
+            which is not caused by the acts or omissions of 21PSTEM or its
+            agents, 21PSTEM shall reasonably cooperate with School’s
+            investigation of the Security Event, as School requests, at School’s
+            reasonable expense. 21PSTEM shall be responsible for the timing,
+            content, cost and method of notice and compliance with such laws as
+            they relate to User accounts that are not associated with a School
+            account.
           </p>
         </div>
         <div className={classes.Content}>
           <h3>4. Your Responsibilities</h3>
           <p className={classes.Description}>
-            You agree:{<br />} a. that you are responsible for obtaining and
+            You agree:{<br />} (a) that you are responsible for obtaining and
             maintaining all equipment and services needed for access to and use
             of the 21PSTEM Services and for paying all charges related thereto;
             and
-            {<br />} b. not to use the 21PSTEM Services to: i. violate any third
-            party rights or any local, state, national, or international law or
-            regulation; ii. transmit or create any materials that are abusive,
-            harassing, tortious, defamatory, libelous, or invasive of
-            another&#39;s privacy; iii. transmit any material that contains
+            {<br />} (b) not to use the 21PSTEM Services to: (i) violate any
+            third party rights or any local, state, national, or international
+            law or regulation; (ii) transmit or create any materials that are
+            abusive, harassing, tortious, defamatory, libelous, or invasive of
+            another&#39;s privacy; (iii) transmit any material that contains
             adware, malware, spyware, software viruses, or any other computer
             code, files, or programs designed to interrupt, destroy, or limit
             the functionality of any computer software or hardware or
-            telecommunications equipment; iv. impersonate any person or entity,
+            telecommunications equipment; (iv) impersonate any person or entity,
             or otherwise misrepresent your affiliation with a person or entity;
-            or v. interfere with or disrupt the 21PSTEM Services or servers or
+            or (v) interfere with or disrupt the 21PSTEM Services or servers or
             networks connected to the 21PSTEM Services, or disobey any
             requirements, procedures, policies, or regulations of networks
             connected to the 21PSTEM Services.
@@ -195,6 +205,7 @@ const Terms = () => {
             use by you and your students in individual classes. 21PSTEM does,
             pursuant to a separate written agreement, permit certain third
             parties (y) to integrate with the 21PSTEM Services for commercial
+            use.
           </p>
         </div>
         <div className={classes.Content}>
@@ -264,8 +275,10 @@ const Terms = () => {
             user who uses the 21PSTEM Services in violation of copyright law. If
             you believe your copyright is being infringed by a user of the
             21PSTEM Services, please provide written notice of claims of
-            copyright infringement.
+            copyright infringement.{<br />}
+            Contact:{' '}
             <a href="mailto:support@21pstem.org">support@21pstem.org</a>
+            {', '}
             610-825-5644
           </p>
         </div>
@@ -276,7 +289,7 @@ const Terms = () => {
             21PSTEM concerning the 21PSTEM Services, 21PSTEM will be free to use
             such feedback without restriction. You understand and agree that the
             incorporation by 21PSTEM of your feedback into any of its products
-            or services does not grant you any proprietary rights therein.
+            or services does not grant you any proprietary rights thereto.
           </p>
         </div>
         <div className={classes.Content}>
@@ -308,7 +321,7 @@ const Terms = () => {
             21PSTEM may integrate with or provide links to certain third-party
             services (collectively, such third parties, “Linked Partners”). The
             Linked Partner services made available through the 21PSTEM Services
-            or the integration of the such sites and services with the 21PSTEM
+            or the integration of such sites and services with the 21PSTEM
             Services are for your convenience only and do not signify the
             endorsement by 21PSTEM of such Partner sites or services.
           </p>
@@ -320,7 +333,7 @@ const Terms = () => {
             sole risk. The 21PSTEM Services are provided on an “as is” and “as
             available” basis. 21PSTEM expressly disclaims all warranties of any
             kind, whether express or implied, with respect to the 21PSTEM
-            Services and all services provided by any of our partner (whether
+            Services and all services provided by any of our partners (whether
             API partners, linked partners, or otherwise), including, but not
             limited to, the implied warranties of merchantability, fitness for a
             particular use or purpose, and non-infringement. You acknowledge
@@ -354,7 +367,7 @@ const Terms = () => {
             limitations and disclaimers may not apply to you. To the extent that
             21PSTEM may not, as a matter of applicable law, disclaim any implied
             warranty or limit its liabilities, the scope and duration of such
-            warranty and the extent of 21PSTEM’ liability will be the minimum
+            warranty and the extent of 21PSTEM’s liability will be the minimum
             permitted under such applicable law.{' '}
           </p>
         </div>
@@ -369,7 +382,7 @@ const Terms = () => {
             using your account&#39;s) violation of these Terms. 21PSTEM reserves
             the right, at its own expense, to assume the exclusive defense and
             control of any matter otherwise subject to indemnification by you,
-            and in such case, you agree to cooperate with 21PSTEM’ defense of
+            and in such case, you agree to cooperate with 21PSTEM’s defense of
             such claim.
           </p>
         </div>
@@ -406,36 +419,38 @@ const Terms = () => {
             21PSTEM with respect to the subject matter hereof, and govern your
             use of the 21PSTEM Services, superseding any prior agreements or
             negotiations between you and 21PSTEM with respect to the subject
-            matter hereof. Governing Law. These Terms and the relationship
-            between you and 21PSTEM will be governed by the laws of the
-            Commonwealth of Pennsylvania. All lawsuits arising from or relating
-            to these Terms or your use of the 21PSTEM Services will be brought
-            in the Federal or State courts located in Pennsylvania and you
-            hereby irrevocably submit to the exclusive personal jurisdiction of
-            such courts for such purpose. Additional Terms. The failure of
-            21PSTEM to exercise or enforce any right or provision of these Terms
-            will not constitute a waiver of such right or provision. If any
-            provision of these Terms is found by a court of competent
-            jurisdiction to be invalid, you nevertheless agree that the court
-            should endeavor to give effect to the intentions of 21PSTEM and you
-            as reflected in the provision, and that the other provisions of
-            these Terms remain in full force and effect. You agree that
-            regardless of any statute or law to the contrary, any claim or cause
-            of action arising out of or related to use of the 21PSTEM Services
-            or these Terms must be filed within one (1) year after such claim or
-            cause of action arose or be forever barred. The section titles in
-            these Terms are for convenience only and have no legal or
-            contractual effect. These Terms will remain in full force and effect
-            notwithstanding any termination of your use of the 21PSTEM Services.
-            If access to the 21PSTEM Services is licensed to the United States
-            government or any agency thereof, then the 21PSTEM Services will be
-            deemed to be “commercial computer software” and “commercial computer
-            software documentation,” pursuant to DFARS Section 227.7202 and FAR
-            Section 12.212, respectively, as applicable. Any use, reproduction,
-            release, performance, display, or disclosure of the 21PSTEM Services
-            and any accompanying documentation by the U.S. Government will be
-            governed solely by these Terms and is prohibited except to the
-            extent expressly permitted by these Terms.
+            matter hereof. {<br />}
+            {<br />}Governing Law. These Terms and the relationship between you
+            and 21PSTEM will be governed by the laws of the Commonwealth of
+            Pennsylvania. All lawsuits arising from or relating to these Terms
+            or your use of the 21PSTEM Services will be brought in the Federal
+            or State courts located in Pennsylvania and you hereby irrevocably
+            submit to the exclusive personal jurisdiction of such courts for
+            such purpose. {<br />}
+            {<br />}Additional Terms. The failure of 21PSTEM to exercise or
+            enforce any right or provision of these Terms will not constitute a
+            waiver of such right or provision. If any provision of these Terms
+            is found by a court of competent jurisdiction to be invalid, you
+            nevertheless agree that the court should endeavor to give effect to
+            the intentions of 21PSTEM and you as reflected in the provision, and
+            that the other provisions of these Terms remain in full force and
+            effect. You agree that regardless of any statute or law to the
+            contrary, any claim or cause of action arising out of or related to
+            use of the 21PSTEM Services or these Terms must be filed within one
+            (1) year after such claim or cause of action arose or be forever
+            barred. The section titles in these Terms are for convenience only
+            and have no legal or contractual effect. These Terms will remain in
+            full force and effect notwithstanding any termination of your use of
+            the 21PSTEM Services. If access to the 21PSTEM Services is licensed
+            to the United States government or any agency thereof, then the
+            21PSTEM Services will be deemed to be “commercial computer software”
+            and “commercial computer software documentation,” pursuant to DFARS
+            Section 227.7202 and FAR Section 12.212, respectively, as
+            applicable. Any use, reproduction, release, performance, display, or
+            disclosure of the 21PSTEM Services and any accompanying
+            documentation by the U.S. Government will be governed solely by
+            these Terms and is prohibited except to the extent expressly
+            permitted by these Terms.
           </p>
         </div>
         <div className={classes.Content}>
@@ -523,34 +538,35 @@ const Terms = () => {
             a. Use. We use your Personal Data and Usage Data (together, “User
             Information”) to operate, maintain, and provide to you the features
             and functionality of the 21PSTEM Services and for related business
-            purposes. We may use your User Information to (a) improve the
+            purposes. We may use your User Information to (i) improve the
             quality and design of the 21PSTEM Services and to create new
             features and services by storing, tracking, and analyzing user
-            preferences; (b) remember information so that you will not have to
+            preferences; (ii) remember information so that you will not have to
             re-enter it during your visit or the next time you use the 21PSTEM
-            Services; (c) provide custom, personalized content and information;
-            (d) monitor aggregate metrics such as total number of visitors,
-            pages viewed, etc.; and (e) diagnose and fix technology problems and
-            otherwise plan for and enhance our Service. 21PSTEM may provide
-            personalized content and information to our users, including
+            Services; (iii) provide custom, personalized content and
+            information; (iv) monitor aggregate metrics such as total number of
+            visitors, pages viewed, etc.; and (v) diagnose and fix technology
+            problems and otherwise plan for and enhance our Service. 21PSTEM may
+            provide personalized content and information to our users, including
             teachers, school administration officials, and other users
             associated with Schools. However, 21PSTEM shall never use Student
             Data to engage in targeted advertising, nor shall 21PSTEM direct
             advertising to student users, nor shall 21PSTEM ever use any
             third-party advertising network on any 21PSTEM Service. As described
             in the Terms of Service, any data collected for research purposes
-            will be overseen by an and the collection of your data for approved
-            research purposes will be done as required by an IRB.{<br />} b.
-            Communications Preferences. We will not use your email address or
-            other Personally Identifiable Information to send you marketing
-            messages unless you provide your consent, or as part of a specific
-            program or feature for which you will have the ability to opt-out.
-            You can always opt-out of receiving promotional email from us by
-            clicking on the “unsubscribe” feature at the bottom of each email or
-            by adjusting your email subscription preferences in your settings.
-            We may, however, use your email address without further consent for
-            non-marketing or administrative purposes, such as notifying you of
-            important 21PSTEM Services changes or for customer service purposes.
+            will be overseen by an IRB and the collection of your data for
+            approved research purposes will be done as required by an IRB.
+            {<br />} b. Communications Preferences. We will not use your email
+            address or other Personally Identifiable Information to send you
+            marketing messages unless you provide your consent, or as part of a
+            specific program or feature for which you will have the ability to
+            opt-out. You can always opt-out of receiving promotional email from
+            us by clicking on the “unsubscribe” feature at the bottom of each
+            email or by adjusting your email subscription preferences in your
+            settings. We may, however, use your email address without further
+            consent for non-marketing or administrative purposes, such as
+            notifying you of important 21PSTEM Services changes or for customer
+            service purposes.
             {<br />} c. Retention of Data. Personal and Usage data is retained
             indefinitely by 21PSTEM. If you would like your personal information
             removed, or if you want to remove your name or comments from our
@@ -584,7 +600,7 @@ const Terms = () => {
             to assist government enforcement agencies, to protect the security
             or integrity of the 21PSTEM Services, and to protect the rights,
             property, or personal safety of 21PSTEM, Education Providers, our
-            users or third parties.{<br />} e. Sharing of Student Work. In some
+            users or third parties.{<br />} d. Sharing of Student Work. In some
             instances, Student Data, including, for example, student&#39;s
             response to a prompt, (collectively, &quot;Student Work&quot;) may
             be visible to other students in the same classroom. A teacher or
@@ -660,11 +676,16 @@ const Terms = () => {
           <p className={classes.Description}>
             Please feel free to contact us with any questions or comments about
             this Privacy Policy, your personal information, your consent, or
-            your opt-in or opt-out choices as follows: {<br />} 21PSTEM 375 East
-            Elm,
-            {<br />} Suite 215 Conshohocken, PA 19428 {<br />} Email:{' '}
-            <a href="mailto:support@21pstem.org">support@21pstem.org</a>{' '}
-            {<br />} Phone: 610-825-5644
+            your opt-in or opt-out choices as follows: {<br />}{' '}
+            <div className={classes.Address}>
+              <p>21PSTEM 375 East Elm,</p>
+              <p>Suite 215 Conshohocken, PA 19428 </p>{' '}
+              <p>
+                Email:{' '}
+                <a href="mailto:support@21pstem.org">support@21pstem.org</a>
+              </p>{' '}
+              <p> Phone: 610-825-5644</p>
+            </div>
           </p>
         </div>
         <div className={classes.Content}>

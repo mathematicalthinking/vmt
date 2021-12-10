@@ -93,10 +93,10 @@ class Homepage extends PureComponent {
   };
 
   render() {
-    const { history } = this.props;
+    const { history, user } = this.props;
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
-    const dateStamp = <p>Last updated: 11.06.2021, v.1.4.2</p>;
+    const dateStamp = <p>Last updated: 12.09.2021, v.1.5.1</p>;
     let pyretStatus = '';
     if (
       process.env.REACT_APP_PYRET_MODE &&
@@ -116,16 +116,18 @@ class Homepage extends PureComponent {
             <p className={classes.Blurb}>
               Collaborative Workspaces for Exploring the World of Math
             </p>
-            <div className={classes.WorkspaceButton}>
-              <Button
-                theme="Big"
-                click={() => {
-                  history.push('/classcode');
-                }}
-              >
-                Enter with a Class Code
-              </Button>
-            </div>
+            {!user._id && (
+              <div className={classes.WorkspaceButton}>
+                <Button
+                  theme="Big"
+                  click={() => {
+                    history.push('/classcode');
+                  }}
+                >
+                  Enter with a Class Code
+                </Button>
+              </div>
+            )}
             <div className={classes.WorkspaceButton}>
               <Button
                 theme="Big"
@@ -133,12 +135,12 @@ class Homepage extends PureComponent {
                   history.push('/login');
                 }}
               >
-                Login to VMT
+                {user._id ? 'Enter My VMT' : 'Login to VMT'}
               </Button>
             </div>
             <div className={classes.WorkspaceButton}>
               <Button theme="Big" click={this.createRoom}>
-                Try Out A Temp Room
+                {user._id ? 'Make A Temp Room' : 'Try Out A Temp Room'}
               </Button>
             </div>
           </section>

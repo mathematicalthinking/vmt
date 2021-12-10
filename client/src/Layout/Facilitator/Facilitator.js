@@ -4,7 +4,7 @@ import CustomLink from '../../Components/Navigation/CustomLink/CustomLink';
 import NewResource from '../../Containers/Create/NewResource/NewResource';
 import classes from './facilitator.css';
 
-class FacilitatorInstructions extends Component {
+class FacilitatorIntro extends Component {
   componentDidMount() {}
 
   render() {
@@ -75,4 +75,4 @@ class FacilitatorInstructions extends Component {
   }
 }
 
-export default FacilitatorInstructions;
+export default FacilitatorIntro;

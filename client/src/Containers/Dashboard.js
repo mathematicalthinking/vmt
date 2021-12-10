@@ -11,6 +11,7 @@ import ModalClasses from '../Components/UI/Modal/modal.css';
 
 const SKIP_VALUE = 20;
 class Dashboard extends Component {
+  _isMounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -34,6 +35,7 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     const { match, history } = this.props;
     const { resource } = match.params;
 
@@ -97,6 +99,13 @@ class Dashboard extends Component {
       });
     }
   }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+    this.debounceFetchData.cancel();
+    this.debouncedSetCriteria.cancel();
+  }
+
   // concat tells us whether we should concat to existing results or overwrite
   fetchData = (concat = false) => {
     const { skip } = this.state;
@@ -123,13 +132,15 @@ class Dashboard extends Component {
       const [items, totalCounts] = res.data.results;
 
       const moreAvailable = items.length >= SKIP_VALUE;
-      this.setState((prevState) => ({
-        visibleResources: concat
-          ? [...prevState.visibleResources].concat(items)
-          : items,
-        moreAvailable,
-        totalCounts,
-      }));
+      if (this._isMounted) {
+        this.setState((prevState) => ({
+          visibleResources: concat
+            ? [...prevState.visibleResources].concat(items)
+            : items,
+          moreAvailable,
+          totalCounts,
+        }));
+      }
     });
   };
 

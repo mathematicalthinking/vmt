@@ -10,7 +10,7 @@ import classes from './homeNav.css';
 
 const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
   let styles = classes.Nav;
-  if (page === '/about') {
+  if (page === '/about' || page === '/faq' || page === '/terms') {
     styles = classes.FixedGradientNav;
   } else if (isDark) {
     styles = classes.LightNav;
@@ -73,7 +73,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
             ) : null}
             <DropdownNavItem
-              name="Info"
+              name={<span>Info</span>}
               list={aboutList}
               mr={loggedIn ? 0 : 60}
             />

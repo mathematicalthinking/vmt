@@ -58,6 +58,11 @@
   font-size: 22px;
 }
 
+.Address > * {
+  font-size: 22px;
+  text-indent: 50px;
+}
+
 .Banner {
   display: flex; /* NEW, Spec - Firefox, Chrome, Opera */
 

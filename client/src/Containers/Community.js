@@ -8,6 +8,7 @@ import API from '../utils/apiRequests';
 
 const SKIP_VALUE = 20;
 class Community extends Component {
+  _isMounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -25,6 +26,7 @@ class Community extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     const { match } = this.props;
     const { resource } = match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
@@ -68,6 +70,13 @@ class Community extends Component {
       });
     }
   }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+    this.debounceFetchData.cancel();
+    this.debouncedSetCriteria.cancel();
+  }
+
   // concat tells us whether we should concat to existing results or overwrite
   fetchData = (concat = false) => {
     const { skip } = this.state;
@@ -92,12 +101,14 @@ class Community extends Component {
       updatedFilters
     ).then((res) => {
       const moreAvailable = res.data.results.length >= SKIP_VALUE;
-      this.setState((prevState) => ({
-        visibleResources: concat
-          ? [...prevState.visibleResources].concat(res.data.results)
-          : res.data.results,
-        moreAvailable,
-      }));
+      if (this._isMounted) {
+        this.setState((prevState) => ({
+          visibleResources: concat
+            ? [...prevState.visibleResources].concat(res.data.results)
+            : res.data.results,
+          moreAvailable,
+        }));
+      }
     });
   };
 

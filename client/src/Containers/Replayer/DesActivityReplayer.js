@@ -2,6 +2,7 @@ import React, { useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classes from './DesActivityReplayer.css';
 import { Player } from '../../external/js/api.full.es';
+import { fetchConfigData } from '../Workspace/Tools/DesActivityHelpers.es';
 
 const DesActivityReplayer = (props) => {
   const { index } = props;
@@ -12,17 +13,12 @@ const DesActivityReplayer = (props) => {
   //     event.preventDefault();
   //   }
   const initCalc = (data) => {
-    // eslint-disable-next-line no-console
-    console.log('Data: ', data);
     const playerOptions = {
       activityConfig: data,
       targetElement: calculatorRef.current,
     };
 
     calculatorInst.current = new Player(playerOptions);
-
-    // console.log('player', player);
-    // setActivityPlayer(player);
     // eslint-disable-next-line no-console
     console.log(
       'Desmos Activity Player initialized Version: ',
@@ -30,23 +26,6 @@ const DesActivityReplayer = (props) => {
       'Player instance: ',
       calculatorInst.current
     );
-  };
-
-  const fetchData = async () => {
-    const { tab } = props;
-    // window.addEventListener('keydown', allowKeypressCheck());
-    const code =
-      tab.desmosLink ||
-      // fallback to turtle time trials, used for demo
-      '5da9e2174769ea65a6413c93';
-    const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
-    // eslint-disable-next-line no-console
-    // console.log('adapted activity url: ', URL);
-    // calling Desmos to get activity config
-    const result = await fetch(URL, {
-      headers: { Accept: 'application/json' },
-    });
-    return result.json();
   };
 
   // handles the updates to the player
@@ -92,9 +71,9 @@ const DesActivityReplayer = (props) => {
   }
 
   useEffect(() => {
-    fetchData().then((data) => {
-      initCalc(data);
-      const { tab } = props;
+    const { tab } = props;
+    fetchConfigData(tab).then((data) => {
+      initCalc(data.config);
       props.setTabLoaded(tab._id);
     });
     return function() {
