@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import DatePicker from 'react-datepicker';
@@ -88,70 +88,72 @@ class AdminDashboard extends Component {
           <div className={classes.Filters}>
             {/* <i className={['fas fa-sliders-h', classes.FilterIcon].join(' ')} /> */}
             <InfoBox title="Time Period" icon={<i className="fas fa-filter" />}>
-              <div className={classes.FilterOpts}>
-                <RadioBtn
-                  data-testid="last-day"
-                  check={() => toggleFilter('last-day')}
-                  checked={dateRangePreset === 'day'}
-                  name="last-day"
-                >
-                  Last Day
-                </RadioBtn>
-                <RadioBtn
-                  data-testid="last-week"
-                  check={() => toggleFilter('last-week')}
-                  checked={dateRangePreset === 'week'}
-                  name="last-week"
-                >
-                  Last Week
-                </RadioBtn>
-                <RadioBtn
-                  data-testid="last-month"
-                  check={() => toggleFilter('last-month')}
-                  checked={dateRangePreset === 'month'}
-                  name="last-month"
-                >
-                  Last Month
-                </RadioBtn>
-                <RadioBtn
-                  data-testid="last-year"
-                  check={() => toggleFilter('last-year')}
-                  checked={dateRangePreset === 'year'}
-                  name="last-year"
-                >
-                  Last Year
-                </RadioBtn>
-                <RadioBtn
-                  data-testid="custom"
-                  check={() => toggleFilter('custom')}
-                  checked={dateRangePreset === 'custom'}
-                  name="custom"
-                >
-                  Custom
-                </RadioBtn>
-              </div>
-              {dateRangePreset === 'custom' ? (
-                <div className={classes.CustomDateInputs}>
-                  <div className={classes.CustomSinceDate}>
-                    <h3>Since Date</h3>
-                    <DatePicker
-                      selected={customSinceDate}
-                      onChange={setSinceDate}
-                      popperPlacement="bottom"
-                      shouldCloseOnSelect
-                    />
-                  </div>
-                  <div className={classes.CustomToDate}>
-                    <h3>To Date</h3>
-                    <DatePicker
-                      selected={customToDate}
-                      onChange={setToDate}
-                      popperPlacement="bottom"
-                      shouldCloseOnSelect
-                    />
-                  </div>
+              <Fragment>
+                <div className={classes.FilterOpts}>
+                  <RadioBtn
+                    data-testid="last-day"
+                    check={() => toggleFilter('last-day')}
+                    checked={dateRangePreset === 'day'}
+                    name="last-day"
+                  >
+                    Last Day
+                  </RadioBtn>
+                  <RadioBtn
+                    data-testid="last-week"
+                    check={() => toggleFilter('last-week')}
+                    checked={dateRangePreset === 'week'}
+                    name="last-week"
+                  >
+                    Last Week
+                  </RadioBtn>
+                  <RadioBtn
+                    data-testid="last-month"
+                    check={() => toggleFilter('last-month')}
+                    checked={dateRangePreset === 'month'}
+                    name="last-month"
+                  >
+                    Last Month
+                  </RadioBtn>
+                  <RadioBtn
+                    data-testid="last-year"
+                    check={() => toggleFilter('last-year')}
+                    checked={dateRangePreset === 'year'}
+                    name="last-year"
+                  >
+                    Last Year
+                  </RadioBtn>
+                  <RadioBtn
+                    data-testid="custom"
+                    check={() => toggleFilter('custom')}
+                    checked={dateRangePreset === 'custom'}
+                    name="custom"
+                  >
+                    Custom
+                  </RadioBtn>
                 </div>
-              ) : null}
+                {dateRangePreset === 'custom' ? (
+                  <div className={classes.CustomDateInputs}>
+                    <div className={classes.CustomSinceDate}>
+                      <h3>Since Date</h3>
+                      <DatePicker
+                        selected={customSinceDate}
+                        onChange={setSinceDate}
+                        popperPlacement="bottom"
+                        shouldCloseOnSelect
+                      />
+                    </div>
+                    <div className={classes.CustomToDate}>
+                      <h3>To Date</h3>
+                      <DatePicker
+                        selected={customToDate}
+                        onChange={setToDate}
+                        popperPlacement="bottom"
+                        shouldCloseOnSelect
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </Fragment>
             </InfoBox>
           </div>
         </div>

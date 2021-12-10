@@ -138,7 +138,11 @@ class Profile extends Component {
             <h3>Admins</h3>
             <div data-testid="admin-list">
               {admins.map((admin) => (
-                <Member info={admin} key={admin} />
+                <Member
+                  info={admin}
+                  key={admin._id}
+                  resourceName="application"
+                />
               ))}
             </div>
             <h3>Create Admins</h3>
@@ -199,6 +203,7 @@ class Profile extends Component {
     }
     return (
       <DashboardLayout
+        tabs={<span />}
         mainContent={mainContent}
         breadCrumbs={
           <BreadCrumbs crumbs={[{ title: 'Profile', link: '/profile' }]} />
@@ -208,7 +213,14 @@ class Profile extends Component {
             image={user.profilePic}
             name={
               <Error error={updateFail && updateKeys.indexOf('name') > -1}>
-                <EditText>{name}</EditText>
+                <EditText
+                  name="name"
+                  editing={false}
+                  inputType="title"
+                  change={() => {}}
+                >
+                  {name}
+                </EditText>
               </Error>
             }
             subTitle={`${user.firstName} ${user.lastName}`}

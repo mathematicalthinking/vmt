@@ -66,7 +66,7 @@ const Navbar = ({ user, location, toggleAdmin }) => {
           {user.isAdmin ? (
             <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
           ) : null}
-          <DropdownNavItem name="Info" list={aboutList} />
+          <DropdownNavItem name={<span>Info</span>} list={aboutList} />
 
           {user.loggedIn ? (
             <DropdownNavItem
