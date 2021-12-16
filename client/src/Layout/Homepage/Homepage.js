@@ -93,10 +93,18 @@ class Homepage extends PureComponent {
   };
 
   render() {
-    const { history } = this.props;
+    const { history, user } = this.props;
     const { error, pageLocation } = this.state;
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
-    const dateStamp = <p>Last updated: 10.09.2021, v.1.3.10</p>;
+    const dateStamp = <p>Last updated: 12.09.2021, v.1.5.1</p>;
+    let pyretStatus = '';
+    if (
+      process.env.REACT_APP_PYRET_MODE &&
+      process.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes'
+    ) {
+      pyretStatus = 'Pyret mode is enabled';
+    }
+
     const maintWindow =
       process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE || 'Sunday, 3-7pm EST';
     return (
@@ -108,16 +116,18 @@ class Homepage extends PureComponent {
             <p className={classes.Blurb}>
               Collaborative Workspaces for Exploring the World of Math
             </p>
-            <div className={classes.WorkspaceButton}>
-              <Button
-                theme="Big"
-                click={() => {
-                  history.push('/classcode');
-                }}
-              >
-                Enter with a Class Code
-              </Button>
-            </div>
+            {!user._id && (
+              <div className={classes.WorkspaceButton}>
+                <Button
+                  theme="Big"
+                  click={() => {
+                    history.push('/classcode');
+                  }}
+                >
+                  Enter with a Class Code
+                </Button>
+              </div>
+            )}
             <div className={classes.WorkspaceButton}>
               <Button
                 theme="Big"
@@ -125,12 +135,12 @@ class Homepage extends PureComponent {
                   history.push('/login');
                 }}
               >
-                Login to VMT
+                {user._id ? 'Enter My VMT' : 'Login to VMT'}
               </Button>
             </div>
             <div className={classes.WorkspaceButton}>
               <Button theme="Big" click={this.createRoom}>
-                Try Out A Temp Room
+                {user._id ? 'Make A Temp Room' : 'Try Out A Temp Room'}
               </Button>
             </div>
           </section>
@@ -142,6 +152,8 @@ class Homepage extends PureComponent {
               <a
                 className={classes.Link}
                 href="https://www.21pstem.org/mathematical-thinkers"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 21PSTEM.org
               </a>
@@ -170,11 +182,13 @@ class Homepage extends PureComponent {
               <a
                 className={classes.Link}
                 href="https://github.com/mathematicalthinking/vmt"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 open source
               </a>{' '}
               and currently in active development - You are viewing this
-              application in <b>{pageLocation}</b> mode.{' '}
+              application in <b>{pageLocation}</b> mode. {pyretStatus}
             </p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />

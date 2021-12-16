@@ -46,7 +46,7 @@ function ClassCode(props) {
         const { members } = res.data.result[0];
         return members;
       }),
-    { refreshInterval: 1000 }
+    { enabled: isResourceConf, refreshInterval: 1000 }
   );
 
   const members = isSuccess ? data : [];
@@ -145,9 +145,8 @@ function ClassCode(props) {
     if (currentMember.user.accountType === 'pending') {
       return (
         <div>
-          {`${
-            currentMember.user.username
-          } has not been claimed yet, continue to claim this account`}
+          {`${currentMember.user.username} has not been claimed yet, 
+          continue to claim this account`}
         </div>
       );
     }

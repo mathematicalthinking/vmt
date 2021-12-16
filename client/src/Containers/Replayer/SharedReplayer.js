@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { Button } from 'Components';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import ReplayerControls from './ReplayerControls';
 import DesmosReplayer from './DesmosReplayer';
@@ -75,6 +76,7 @@ class SharedReplayer extends Component {
       timeElapsed,
       stopTime,
     } = this.state;
+
     // Once we've fetched the room, build a log of all the events by combining all of the events from each tab
     // in chornological order
     // if (!encompass && prevProps.loading && !loading) {
@@ -469,6 +471,9 @@ class SharedReplayer extends Component {
       return (
         <Error fullPage>
           <h2>This room does not have any activity to replay yet</h2>
+          <Button theme="Danger" click={this.goBack}>
+            Go Back
+          </Button>
         </Error>
       );
     }

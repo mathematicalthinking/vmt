@@ -10,7 +10,7 @@ import classes from './homeNav.css';
 
 const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
   let styles = classes.Nav;
-  if (page === '/about') {
+  if (page === '/about' || page === '/faq' || page === '/terms') {
     styles = classes.FixedGradientNav;
   } else if (isDark) {
     styles = classes.LightNav;
@@ -20,10 +20,11 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
     ntf = true;
   }
 
-  const profileList = [
-    { name: 'Profile', link: '/myVMT/profile' },
-    { name: 'Logout', link: '/logout' },
-  ];
+  const profileList = [{ name: 'Profile', link: '/myVMT/profile' }];
+
+  if (loggedIn) {
+    profileList.push({ name: 'Logout', link: '/logout' });
+  }
 
   if (user.isAdmin) {
     profileList.splice(1, 0, {
@@ -56,7 +57,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
             ) : (
               <Aux>
-                <NavItem link="/login" name="Login" />
+                {/* <NavItem link="/login" name="Login" /> */}
                 <NavItem link="/signup" name="Signup" />
               </Aux>
             )}
@@ -71,7 +72,11 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
             {user.isAdmin ? (
               <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
             ) : null}
-            <DropdownNavItem name="Info" list={aboutList} />
+            <DropdownNavItem
+              name={<span>Info</span>}
+              list={aboutList}
+              mr={loggedIn ? 0 : 60}
+            />
             {loggedIn ? (
               <DropdownNavItem
                 name={

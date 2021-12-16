@@ -21,6 +21,7 @@ import {
   NotFound,
   Terms,
   Instructions,
+  FacilitatorInstructions,
   Faq,
   Contact,
 } from '../Layout';
@@ -80,7 +81,7 @@ class Home extends PureComponent {
           <Navbar fixed user={user} toggleAdmin={this.toggleAdmin} />
         ) : (
           <HomeNav
-            isDark={scrollPosition > 0.45}
+            isDark={scrollPosition > 0.2}
             page={location.pathname}
             user={user}
             toggleAdmin={this.toggleAdmin}
@@ -115,7 +116,13 @@ class Home extends PureComponent {
           <Switch>
             <Route exact path="/" render={() => <Homepage {...this.props} />} />
             <Route path="/about" component={About} />
+            <Route path="/instructions/participant" component={Instructions} />
+            <Route
+              path="/instructions/facilitator"
+              component={FacilitatorInstructions}
+            />
             <Route path="/instructions" component={Instructions} />
+
             <Route path="/terms" component={Terms} />
             <Route path="/faq" component={Faq} />
             <Route path="/contact" component={Contact} />

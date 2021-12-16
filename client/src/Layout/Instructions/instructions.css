@@ -26,12 +26,30 @@
   ); */
 }
 
+.Toggle {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.ToggleLable {
+  padding-left: 10px;
+}
+
 .BackgroundContainer {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+}
+
+.RoomDemo {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 56.25%;
+  margin: 25px 0;
 }
 
 .Background {
@@ -54,7 +72,27 @@
   font-size: 40px;
   width: 700px;
   text-align: center;
+  margin-bottom: 15px;
   /* z-index: 1000; */
+}
+
+.QuickLinks {
+  align-content: center;
+  margin-top: 30px;
+}
+
+.Header {
+  color: rgb(206, 238, 248);
+  text-align: center;
+  font-size: 36px;
+  margin-top: 75px;
+}
+
+.Intermediate {
+  margin-top: 20px;
+  text-align: center;
+  font-style: italic;
+  font-size: inherit;
 }
 
 .Sup {
@@ -68,7 +106,7 @@
 }
 
 .Content {
-  margin-top: 150px;
+  margin-top: 30px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -89,6 +127,24 @@
 .Link:hover {
   color: rgb(206, 238, 248);
 }
+.Links {
+  composes: Link;
+
+  margin: 20px;
+  font-size: 25px;
+}
+
+.List {
+  list-style: initial;
+  list-style-type: decimal;
+  margin: initial;
+  padding: 0 0 0 25px;
+}
+
+.ListItem {
+  display: list-item;
+}
+
 .Content:last-child {
   margin-bottom: 100px;
 }
@@ -96,5 +152,32 @@
 @media screen and (max-height: 650px) {
   .Container {
     padding-top: 60px;
+  }
+}
+
+@media print {
+  @page {
+    size: portrait;
+  }
+  body * {
+    visibility: hidden;
+    /* display: none; */
+  }
+  .NoPrint,
+  .NoPrint * {
+    /* visibility: hidden !important; */
+    display: none;
+  }
+  .PrintSection,
+  .PrintSection * {
+    visibility: visible;
+    /* display: block; */
+    color: #000;
+    background-color: #fff;
+  }
+  .PrintSection {
+    position: absolute;
+    left: 0;
+    top: 0;
   }
 }

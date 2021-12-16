@@ -29,10 +29,11 @@ const Navbar = ({ user, location, toggleAdmin }) => {
     { name: 'Contact', link: '/contact' },
   ];
 
-  const profileList = [
-    { name: 'Profile', link: '/myVMT/profile' },
-    { name: 'Logout', link: '/logout' },
-  ];
+  const profileList = [{ name: 'Profile', link: '/myVMT/profile' }];
+
+  if (user.loggedIn) {
+    profileList.push({ name: 'Logout', link: '/logout' });
+  }
 
   if (user.isAdmin) {
     profileList.splice(1, 0, {
@@ -65,18 +66,20 @@ const Navbar = ({ user, location, toggleAdmin }) => {
           {user.isAdmin ? (
             <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
           ) : null}
-          <DropdownNavItem name="Info" list={aboutList} />
+          <DropdownNavItem name={<span>Info</span>} list={aboutList} />
 
-          <DropdownNavItem
-            data-testid="avatar"
-            name={
-              <Avatar
-                username={user ? user.username : ''}
-                color={user.inAdminMode ? '#ffd549' : '#2d91f2'}
-              />
-            }
-            list={profileList}
-          />
+          {user.loggedIn ? (
+            <DropdownNavItem
+              data-testid="avatar"
+              name={
+                <Avatar
+                  username={user ? user.username : ''}
+                  color={user.inAdminMode ? '#ffd549' : '#2d91f2'}
+                />
+              }
+              list={profileList}
+            />
+          ) : null}
         </ul>
       </div>
     </nav>

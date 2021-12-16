@@ -104,6 +104,43 @@ class MyVMT extends Component {
       rooms: user.rooms.length,
       activities: user.activities.length,
     };
+    const resourceTypes = [
+      'rooms',
+      'courses',
+      'activities',
+      'templates',
+      'monitor',
+    ];
+    let bodyContent = (
+      <DashboardContent
+        userResources={
+          // simple ternary in case navigation beats props update
+          user[resource]
+            ? user[resource]
+                // eslint-disable-next-line react/destructuring-assignment
+                .map((id) => this.props[resource].byId[id])
+                .sort((a, b) => {
+                  return new Date(b.createdAt) - new Date(a.createdAt);
+                }) || []
+            : []
+        }
+        notifications={
+          resource === 'courses'
+            ? getUserNotifications(user, null, 'course')
+            : getUserNotifications(user, null, 'room')
+        }
+        user={user}
+        resource={resource}
+      />
+    );
+    // resource 404 error display
+    if (!resourceTypes.includes(resource)) {
+      bodyContent = (
+        <div>
+          Could not find &#39;{resource}&#39; as a resource, please check again!{' '}
+        </div>
+      );
+    }
     return (
       <DashboardLayout
         breadCrumbs={
@@ -124,28 +161,7 @@ class MyVMT extends Component {
             view={view}
           />
         }
-        mainContent={
-          <DashboardContent
-            userResources={
-              // simple ternary in case navigation beats props update
-              user[resource]
-                ? user[resource]
-                    // eslint-disable-next-line react/destructuring-assignment
-                    .map((id) => this.props[resource].byId[id])
-                    .sort((a, b) => {
-                      return new Date(b.createdAt) - new Date(a.createdAt);
-                    }) || []
-                : []
-            }
-            notifications={
-              resource === 'courses'
-                ? getUserNotifications(user, null, 'course')
-                : getUserNotifications(user, null, 'room')
-            }
-            user={user}
-            resource={resource}
-          />
-        }
+        mainContent={bodyContent}
         tabs={<TabList routingInfo={match} tabs={tabs} />}
       />
     );
