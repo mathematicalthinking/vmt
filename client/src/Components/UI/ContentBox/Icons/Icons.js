@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import ggbIcon from './geogebra.png';
 import dsmIcon from './desmos.png';
 import dsmActIcon from './desmosActivity.png';
+import pyretIcon from './pyretlogo.png';
 import bothIcon from './desmosandgeogebra.png';
 import ToolTip from '../../../ToolTip/ToolTip';
 import classes from './icons.css';
@@ -53,13 +54,23 @@ const Icons = ({ lock, listType, roomType, image }) => {
       </div>
     </ToolTip>
   );
+
+  const pyretImageAndToolTip = (
+    <ToolTip text="Pyret" delay={600}>
+      <div className={classes.Icon}>
+        <img width={28} src={pyretIcon} alt="pyret" />
+      </div>
+    </ToolTip>
+  );
   if (Array.isArray(roomType)) {
     let des = false;
     let ggb = false;
     let act = false;
+    let pyrt = false;
     roomType.forEach((rmType) => {
       if (rmType === 'desmos') des = true;
       else if (rmType === 'desmosActivity') act = true;
+      else if (rmType === 'pyret') pyrt = true;
       else ggb = true;
     });
     if (ggb && des) {
@@ -74,6 +85,8 @@ const Icons = ({ lock, listType, roomType, image }) => {
       roomTypeIcon = desImageAndToolTip;
     } else if (act) {
       roomTypeIcon = desActImageAndToolTip;
+    } else if (pyrt) {
+      roomTypeIcon = pyretImageAndToolTip;
     } else {
       roomTypeIcon = ggbImageAndToolTip;
     }
@@ -81,6 +94,8 @@ const Icons = ({ lock, listType, roomType, image }) => {
     roomTypeIcon = desImageAndToolTip;
   } else if (roomType === 'geogebra') {
     roomTypeIcon = ggbImageAndToolTip;
+  } else if (roomType === 'pyret') {
+    roomTypeIcon = pyretImageAndToolTip;
   }
   return (
     <Fragment>
