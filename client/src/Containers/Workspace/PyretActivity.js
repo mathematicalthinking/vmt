@@ -1,36 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
-
-function PyretAPI(iframeReference, onmessageHandler) {
-  const oldOnMessage = window.onmessage;
-  const handlers = {
-    onmessage: onmessageHandler,
-    postMessage,
-    setParams,
-  };
-
-  function postMessage(data) {
-    if (!iframeReference()) {
-      return;
-    }
-    iframeReference().contentWindow.postMessage(data, '*');
-  }
-  function setParams(params) {
-    console.log(params, iframeReference());
-    const pyretWindow = iframeReference();
-    pyretWindow.src += params;
-  }
-  window.onmessage = function(event) {
-    if (event.data.protocol !== 'pyret') {
-      console.log('Not a pyret');
-      if (typeof oldOnMessage === 'function') {
-        return oldOnMessage(event);
-      }
-    }
-    return handlers.onmessage(event.data);
-  };
-  return handlers;
-}
+import ControlWarningModal from './ControlWarningModal';
+import socket from '../../utils/sockets';
+import mongoIdGenerator from '../../utils/createMongoId';
+import API from '../../utils/apiRequests';
+import classes from './graph.css';
 
 const CodePyretOrg = (props) => {
   const [activityHistory, setActivityHistory] = useState({});
@@ -122,6 +96,7 @@ const CodePyretOrg = (props) => {
   }, [activityUpdates]);
 
   const handleResponseData = (updates) => {
+    console.log('Response data processing: ', updates);
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
     const currentState = {
@@ -262,24 +237,92 @@ const CodePyretOrg = (props) => {
   };
 
   useEffect(() => {
-    setFirstTabLoaded();
+    initializing = true;
+    initPlayer();
+    initializing = false;
+    return () => {
+      console.log('CPO activity ending');
+    };
   }, []);
-  console.log('Pyret is disabled. props: ');
-  return <div>Pyret Disabled</div>;
+
+  function _hasControl() {
+    return props.inControl === 'ME';
+  }
+  function _checkForControl(event) {
+    if (!_hasControl()) {
+      event.preventDefault();
+      setShowControlWarning(true);
+    }
+  }
+
+  const style = {
+    width: '100%',
+    height: '100%',
+    pointerEvents: !_hasControl() ? 'none' : 'auto',
+  };
+  const { inControl, user } = props;
+
+  return (
+    <Fragment>
+      <ControlWarningModal
+        showControlWarning={showControlWarning}
+        toggleControlWarning={() => {
+          setShowControlWarning(false);
+        }}
+        takeControl={() => {
+          props.toggleControl();
+          setShowControlWarning(false);
+        }}
+        inControl={inControl}
+        cancel={() => {
+          setShowControlWarning(false);
+        }}
+        inAdminMode={user.inAdminMode}
+      />
+
+      <div
+        className={classes.Activity}
+        onClickCapture={_checkForControl}
+        id="containerParent"
+        style={{
+          height: '890px', // @TODO this needs to be adjusted based on the editor instance.
+        }}
+      >
+        <div
+          ref={cpoDivWrapper}
+          // style={{ height: '100%' }}
+          id="container"
+          style={{
+            pointerEvents: !_hasControl() ? 'none' : 'auto',
+            height: '100%',
+            overflow: 'auto',
+          }}
+        >
+          <iframe
+            ref={cpoIframe}
+            style={style}
+            title="pyret"
+            src={iframeSrc} // "http://localhost:5000/editor"
+          />
+          ;
+        </div>
+      </div>
+    </Fragment>
+  );
 };
 
 CodePyretOrg.propTypes = {
-  // room: PropTypes.shape({}).isRequired,
-  // tab: PropTypes.shape({}).isRequired,
-  // user: PropTypes.shape({}).isRequired,
-  // myColor: PropTypes.string.isRequired,
-  // resetControlTimer: PropTypes.func.isRequired,
-  // updatedRoom: PropTypes.func.isRequired,
-  // toggleControl: PropTypes.func.isRequired,
+  room: PropTypes.shape({}).isRequired,
+  tab: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
+  myColor: PropTypes.string.isRequired,
+  resetControlTimer: PropTypes.func.isRequired,
+  updatedRoom: PropTypes.func.isRequired,
+  toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
-  // inControl: PropTypes.string.isRequired,
-  // addNtfToTabs: PropTypes.func.isRequired,
-  // addToLog: PropTypes.func.isRequired,
+  inControl: PropTypes.string.isRequired,
+  addNtfToTabs: PropTypes.func.isRequired,
+  addToLog: PropTypes.func.isRequired,
 };
 
 export default CodePyretOrg;
