@@ -114,21 +114,22 @@ const prepareVmtUser = (req, res, next) => {
   return User.findByIdAndUpdate(mtUserDetails.vmtUserId, update, { new: true })
     .lean()
     .exec()
-    .then((user) => {
+    .then(async (user) => {
       if (user && (user.doForceLogout || user.isSuspended)) {
         // clear socketId, clear cookies
         ssoService.revokeRefreshToken(req.cookies[refreshCookie.name], user);
 
         const { socketId } = user;
-        sockets.io
-          .in(socketId)
-          .fetchSockets()
-          .then((socketList) => {
-            const socket = socketList[0];
-            if (socket) {
-              socket.emit('FORCED_LOGOUT');
-            }
-          });
+        const socket = (await sockets.io.in(socketId).fetchSockets())[0];
+        // sockets.io
+        //   .in(socketId)
+        //   .fetchSockets()
+        //   .then((socketList) => {
+        //     const socket = socketList[0];
+        if (socket) {
+          socket.emit('FORCED_LOGOUT');
+        }
+        // });
 
         clearAccessCookie(res);
         clearRefreshCookie(res);
