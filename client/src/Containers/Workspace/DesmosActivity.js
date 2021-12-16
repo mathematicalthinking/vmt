@@ -10,7 +10,7 @@ import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 // import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
-import { fetchConfigData } from './Tools/DesActivityHelpers.es';
+import { fetchConfigData } from './Tools/DesActivityHelpers';
 import Modal from '../../Components/UI/Modal/Modal';
 import API from '../../utils/apiRequests';
 
