@@ -145,15 +145,6 @@ module.exports = function() {
       socket.join(data.roomId);
       // console.log('user joined: ', data);
 
-      const socketsInRoom = await io.in(data.roomId).fetchSockets();
-      const usersInRoom = socketsInRoom.map((socket) => socket.user_id);
-
-      console.log(
-        `Socket manager for room ${data.roomId} is ${Array.from(
-          io.sockets.adapter.rooms.get(data.roomId)
-        )} and users are ${usersInRoom}`
-      );
-
       // update current users of this room
       const joinUserMembers = async () => {
         const message = {
@@ -200,16 +191,16 @@ module.exports = function() {
       leaveRoom(roomId, false, color, cb);
     });
 
-    socket.on('disconnecting', () => {
-      // if they're in a room we need to remove them
-      // console.log('socket id: ', socket.user_id);
-      // socket.rooms is a set, so first convert to an array
-      // const room = [...socket.rooms].pop(); // they can only be in one room so just grab the last one
-      // if (room && ObjectId.isValid(room)) {
-      //   socket.leave(room);
-      //   leaveRoom(room, true);
-      // }
-    });
+    // socket.on('disconnecting', () => {
+    //   // if they're in a room we need to remove them
+    //   // console.log('socket id: ', socket.user_id);
+    //   // socket.rooms is a set, so first convert to an array
+    //   const room = [...socket.rooms].pop(); // they can only be in one room so just grab the last one
+    //   if (room && ObjectId.isValid(room)) {
+    //     socket.leave(room);
+    //     leaveRoom(room, true);
+    //   }
+    // });
 
     socket.on('disconnect', (reason) => {
       console.log(
