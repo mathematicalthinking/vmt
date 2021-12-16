@@ -35,6 +35,14 @@ class ContentBox extends PureComponent {
       notifications > 0 ? (
         <Notification count={notifications} data-testid="content-box-ntf" />
       ) : null;
+    if (
+      roomType &&
+      roomType[0] === 'pyret' &&
+      process.env.REACT_APP_PYRET_MODE.toLowerCase() !== 'yes'
+    ) {
+      return null;
+    }
+
     return (
       <Aux>
         <Link
