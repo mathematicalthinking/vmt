@@ -171,6 +171,7 @@ module.exports = {
       if (body.ggbFiles) {
         ggbFiles = [...body.ggbFiles];
       }
+      // mathspace only exists when generated from a replayer state
       if (body.mathState) {
         existingTabs.forEach((tab, i, array) => {
           if (body.mathState[tab._id] && tab.tabType === 'geogebra') {
@@ -216,8 +217,14 @@ module.exports = {
                 ggbFile: tab.ggbFile,
                 currentState: tab.currentState,
                 startingPoint: tab.currentState,
-                startingPointBase64: tab.currentStateBase64,
-                currentStateBase64: tab.currentStateBase64,
+                startingPointBase64:
+                  tab.tabType === 'desmosActivity'
+                    ? tab.startingPointBase64
+                    : tab.currentStateBase64,
+                currentStateBase64:
+                  tab.tabType === 'desmosActivity'
+                    ? tab.startingPointBase64
+                    : tab.currentStateBase64,
                 desmosLink: tab.desmosLink,
                 tabType: tab.tabType,
               });
