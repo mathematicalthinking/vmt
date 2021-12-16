@@ -41,6 +41,7 @@ export { default as TrashModal } from './UI/Modal/TrashModal';
 export { default as Error } from './HOC/Error';
 export { default as ErrorToast } from './Error/ErrorToast';
 export { default as DemoBrowser } from './DemoBrowser/DemoBrowser';
+export { default as Iframe } from './Iframe/Iframe';
 export { default as ToolTip } from './ToolTip/ToolTip';
 export { default as Loading } from './Loading/Loading';
 export { default as InfoBox } from './InfoBox/InfoBox';
