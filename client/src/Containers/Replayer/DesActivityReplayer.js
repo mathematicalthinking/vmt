@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classes from './DesActivityReplayer.css';
-import { Player } from '../../external/js/api.full.es';
+// import { Player } from '../../external/js/api.full.es';
+import { fetchConfigData } from '../Workspace/Tools/DesActivityHelpers';
 
 const DesActivityReplayer = (props) => {
   const { index } = props;
@@ -11,42 +12,26 @@ const DesActivityReplayer = (props) => {
   //   function allowKeypressCheck(event) {
   //     event.preventDefault();
   //   }
-  const initCalc = (data) => {
-    // eslint-disable-next-line no-console
-    console.log('Data: ', data);
+  const initCalc = async (tab) => {
+    const { config, status } = await fetchConfigData(tab);
+
+    const { Player } = await import('../../external/js/api.full.es');
     const playerOptions = {
-      activityConfig: data,
+      activityConfig: config,
       targetElement: calculatorRef.current,
     };
 
     calculatorInst.current = new Player(playerOptions);
-
-    // console.log('player', player);
-    // setActivityPlayer(player);
     // eslint-disable-next-line no-console
     console.log(
       'Desmos Activity Player initialized Version: ',
       Player.version(),
       'Player instance: ',
-      calculatorInst.current
+      calculatorInst.current,
+      ' Config status: ',
+      status
     );
-  };
-
-  const fetchData = async () => {
-    const { tab } = props;
-    // window.addEventListener('keydown', allowKeypressCheck());
-    const code =
-      tab.desmosLink ||
-      // fallback to turtle time trials, used for demo
-      '5da9e2174769ea65a6413c93';
-    const URL = `https://teacher.desmos.com/activitybuilder/export/${code}`;
-    // eslint-disable-next-line no-console
-    // console.log('adapted activity url: ', URL);
-    // calling Desmos to get activity config
-    const result = await fetch(URL, {
-      headers: { Accept: 'application/json' },
-    });
-    return result.json();
+    props.setTabLoaded(tab._id);
   };
 
   // handles the updates to the player
@@ -92,11 +77,9 @@ const DesActivityReplayer = (props) => {
   }
 
   useEffect(() => {
-    fetchData().then((data) => {
-      initCalc(data);
-      const { tab } = props;
-      props.setTabLoaded(tab._id);
-    });
+    const { tab } = props;
+    initCalc(tab);
+
     return function() {
       if (calculatorInst.current) {
         calculatorInst.current.destroy();
