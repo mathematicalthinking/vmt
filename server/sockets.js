@@ -45,6 +45,13 @@ module.exports = function() {
   });
 
   io.sockets.on('connection', (socket) => {
+    io.sockets.adapter.on('join-room', (room, id) => {
+      console.log('join-room', room, id);
+      console.log('people in room', io.sockets.adapter.rooms.get(room));
+    });
+    io.sockets.adapter.on('leave-room', (room, id) =>
+      console.log('leave-room', room, id)
+    );
     console.log('socket connected: ', socket.id);
     socket.on('ping', (cb) => {
       if (typeof cb === 'function') cb();
@@ -130,13 +137,22 @@ module.exports = function() {
       // console.log('user with data: ', data.user);
       // console.log('from user: ', socket.user_id);
       // console.log(new Date());
-      socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
+      // socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
       socket.username = data.username;
       const promises = [];
       const user = { _id: data.userId, username: data.username };
 
       socket.join(data.roomId);
       // console.log('user joined: ', data);
+
+      const socketsInRoom = await io.in(data.roomId).fetchSockets();
+      const usersInRoom = socketsInRoom.map((socket) => socket.user_id);
+
+      console.log(
+        `Socket manager for room ${data.roomId} is ${Array.from(
+          io.sockets.adapter.rooms.get(data.roomId)
+        )} and users are ${usersInRoom}`
+      );
 
       // update current users of this room
       const joinUserMembers = async () => {
@@ -152,11 +168,10 @@ module.exports = function() {
         };
         promises.push(controllers.messages.post(message));
         promises.push(
-          controllers.rooms.addCurrentUsers(data.roomId, data.userId)
+          controllers.rooms.setCurrentUsers(data.roomId, usersInRoom)
         ); //
-        let results;
         try {
-          results = await Promise.all(promises);
+          const results = await Promise.all(promises);
           socket.to(data.roomId).emit('USER_JOINED', {
             currentMembers: results[1].currentMembers,
             message,
@@ -213,6 +228,7 @@ module.exports = function() {
         cb(null, 'NO USER');
         return;
       }
+      socket.user_id = _id;
       controllers.user
         .put(_id, { socketId: socket.id })
         .then(() => {
