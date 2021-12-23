@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Script from 'react-load-script';
 import classes from '../Workspace/graph.css';
+import { Button } from '../../Components';
 
 import { getEventXml } from './SharedReplayer.utils';
 import { isNonEmptyArray } from '../../utils/objects';
@@ -462,6 +463,43 @@ class GgbReplayer extends Component {
     const { tabId } = this.props;
     return (
       <Fragment>
+        <div
+          id="viewControls"
+          className={classes.ActivityNav}
+          style={{
+            pointerEvents: 'auto',
+          }}
+        >
+          <Button
+            theme="Small"
+            id="nav-left"
+            click={(e) => {
+              e.preventDefault();
+              this.ggbApplet.evalCommand('ZoomIn[.5]');
+              e.stopPropagation();
+            }}
+          >
+            Zoom -
+          </Button>
+          <span
+            title="Geogebra view controls"
+            id="show-screen"
+            className={classes.Title}
+          >
+            {/* <div>View controls</div> */}
+          </span>
+          <Button
+            theme="Small"
+            id="nav-right"
+            click={(e) => {
+              e.preventDefault();
+              this.ggbApplet.evalCommand('ZoomIn[2]');
+              e.stopPropagation();
+            }}
+          >
+            Zoom +
+          </Button>
+        </div>
         <Script
           url="https://cdn.geogebra.org/apps/deployggb.js"
           onLoad={this.onScriptLoad}
@@ -471,6 +509,18 @@ class GgbReplayer extends Component {
           id={`ggb-element${tabId}A`}
           ref={this.graph}
         />
+        {/* <button
+          type="button"
+          className={classes.Button}
+          onClick={(e) => {
+            e.preventDefault();
+            this.ggbApplet.evalCommand('ZoomIn[2]');
+            e.stopPropagation();
+          }}
+          data-testid="zoom-in"
+        >
+          Zoom In
+        </button> */}
       </Fragment>
     );
   }
