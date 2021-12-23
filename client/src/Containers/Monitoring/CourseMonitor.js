@@ -46,7 +46,7 @@ function CourseMonitor({ course }) {
     DETAILED: 'Detailed Chat',
   };
 
-  const [viewType, setViewType] = React.useState(constants.CHAT);
+  const [viewType, setViewType] = React.useState(constants.ATTENDANCE);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
 
   // Because "useQuery" is the equivalent of useState, do this
