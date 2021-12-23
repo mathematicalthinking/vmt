@@ -253,7 +253,7 @@ class Activity extends Component {
                 image={activity.image}
                 editing={editing}
                 name={
-                  <Error error={updateFail && updateKeys.indexOf('name')}>
+                  <Error error={updateFail && updateKeys.indexOf('name') > -1}>
                     <EditText
                       change={this.updateActivityInfo}
                       inputType="title"
@@ -266,7 +266,7 @@ class Activity extends Component {
                 }
                 subTitle={
                   <Error
-                    error={updateFail && updateKeys.indexOf('description')}
+                    error={updateFail && updateKeys.indexOf('description') > -1}
                   >
                     <EditText
                       change={this.updateActivityInfo}
