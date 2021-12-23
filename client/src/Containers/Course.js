@@ -428,7 +428,7 @@ class Course extends Component {
           <Error
             error={
               (updateFail && updateKeys.indexOf('entryCode') > -1) ||
-              errorMessage
+              !!errorMessage // convert to boolean
             }
           >
             <EditText
