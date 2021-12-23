@@ -26,9 +26,22 @@ const totalSocketconnections = new client.Gauge({
     if (sockets.io) this.set(sockets.io.engine.clientsCount);
   },
 });
-
 // Register the histogram
 register.registerMetric(totalSocketconnections);
+
+// const disconnectCount = new client.Counter({
+//   name: 'socket_disconnects',
+//   help: 'number of socket disconnects',
+// });
+// if (sockets.io) {
+//   sockets.io.on('connection', (socket) => {
+//     socket.on('disconnecting', () => {
+//       disconnectCount.inc();
+//     });
+//   });
+// }
+
+// register.registerMetric(disconnectCount);
 
 router.get('/', async (req, res) => {
   res.set('Content-Type', register.contentType);
