@@ -68,6 +68,7 @@ module.exports = {
       .populate({ path: 'members.user', select: 'username' })
       .populate({ path: 'currentMembers', select: 'username' })
       .populate({ path: 'course', select: 'name' })
+      .populate({ path: 'activity', select: 'name' })
       .populate({
         path: 'tabs',
         populate: {
