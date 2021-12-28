@@ -67,7 +67,18 @@ mongoose.connect(mongoURI, mongoOptions, (err) => {
 
 // MIDDLEWARE
 // Morgan configuration
-app.use(logger('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(logger('dev'));
+} else {
+  // only log errors on deployment
+  app.use(
+    logger('dev', {
+      skip: function(req, res) {
+        return res.statusCode < 400;
+      },
+    })
+  );
+}
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
 app.use(cookieParser());
