@@ -208,11 +208,19 @@ class Workspace extends Component {
   }
 
   componentWillUnmount() {
-    const { populatedRoom } = this.props;
-    const { myColor } = this.state;
+    const { populatedRoom, connectUpdatedRoom, user } = this.props;
+    const { myColor, currentMembers } = this.state;
     socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
+    connectUpdatedRoom(populatedRoom._id, {
+      currentMembers: currentMembers.filter((mem) => mem._id !== user._id),
+    });
     window.removeEventListener('resize', this.resizeHandler);
     window.removeEventListener('keypress', this.keyListener);
+    socket.removeAllListeners('USER_JOINED');
+    socket.removeAllListeners('CREATED_TAB');
+    socket.removeAllListeners('USER_LEFT');
+    socket.removeAllListeners('RELEASED_CONTROL');
+    socket.removeAllListeners('TOOK_CONTROL');
     if (this.controlTimer) {
       clearTimeout(this.controlTimer);
     }
@@ -331,28 +339,43 @@ class Workspace extends Component {
             // eslint-disable-next-line no-console
             console.log(err); // HOW SHOULD WE HANDLE THIS
           }
-          this.setState({
-            currentMembers: room.currentMembers,
-          });
+          this.setState(
+            {
+              currentMembers: room.currentMembers,
+            },
+            () =>
+              connectUpdatedRoom(populatedRoom._id, {
+                currentMembers: room.currentMembers,
+              })
+          );
           this.addToLog(message);
         });
       }
     }
 
     socket.on('USER_JOINED', (data) => {
-      this.setState({
-        currentMembers: data.currentMembers,
-      });
-      this.addToLog(data.message);
+      const { currentMembers, message } = data;
+      const { connectUpdatedRoom } = this.props;
+      this.setState(
+        {
+          currentMembers,
+        },
+        () => connectUpdatedRoom(populatedRoom._id, { currentMembers })
+      );
+      this.addToLog(message);
     });
 
     socket.on('USER_LEFT', (data) => {
+      const { connectUpdatedRoom } = this.props;
       let { controlledBy } = this.state;
+      const { currentMembers, message } = data;
       if (data.releasedControl) {
         controlledBy = null;
       }
-      this.setState({ controlledBy, currentMembers: data.currentMembers });
-      this.addToLog(data.message);
+      this.setState({ controlledBy, currentMembers }, () =>
+        connectUpdatedRoom(populatedRoom._id, { controlledBy, currentMembers })
+      );
+      this.addToLog(message);
     });
 
     socket.on('TOOK_CONTROL', (message) => {
