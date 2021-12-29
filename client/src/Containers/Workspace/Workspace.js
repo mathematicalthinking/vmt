@@ -302,7 +302,7 @@ class Workspace extends Component {
   };
 
   initializeListeners = () => {
-    const { temp, populatedRoom, user } = this.props;
+    const { temp, populatedRoom, user, connectUpdatedRoom } = this.props;
     const { myColor } = this.state;
     socket.removeAllListeners('USER_JOINED');
     socket.removeAllListeners('CREATED_TAB');
@@ -355,7 +355,6 @@ class Workspace extends Component {
 
     socket.on('USER_JOINED', (data) => {
       const { currentMembers, message } = data;
-      const { connectUpdatedRoom } = this.props;
       this.setState(
         {
           currentMembers,
@@ -366,7 +365,6 @@ class Workspace extends Component {
     });
 
     socket.on('USER_LEFT', (data) => {
-      const { connectUpdatedRoom } = this.props;
       let { controlledBy } = this.state;
       const { currentMembers, message } = data;
       if (data.releasedControl) {
