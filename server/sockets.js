@@ -45,14 +45,14 @@ module.exports = function() {
   });
 
   io.sockets.on('connection', (socket) => {
-    io.sockets.adapter.on('join-room', (room, id) => {
-      console.log('join-room', room, id);
-      console.log('people in room', io.sockets.adapter.rooms.get(room));
-    });
-    io.sockets.adapter.on('leave-room', (room, id) =>
-      console.log('leave-room', room, id)
-    );
-    console.log('socket connected: ', socket.id);
+    // io.sockets.adapter.on('join-room', (room, id) => {
+    //   console.log('join-room', room, id);
+    //   console.log('people in room', io.sockets.adapter.rooms.get(room));
+    // });
+    // io.sockets.adapter.on('leave-room', (room, id) =>
+    //   console.log('leave-room', room, id)
+    // );
+    // console.log('socket connected: ', socket.id);
     socket.on('ping', (cb) => {
       if (typeof cb === 'function') cb();
     });
@@ -147,12 +147,6 @@ module.exports = function() {
 
       const socketsInRoom = await io.in(data.roomId).fetchSockets();
       const usersInRoom = socketsInRoom.map((socket) => socket.user_id);
-
-      console.log(
-        `Socket manager for room ${data.roomId} is ${Array.from(
-          io.sockets.adapter.rooms.get(data.roomId)
-        )} and users are ${usersInRoom}`
-      );
 
       // update current users of this room
       const joinUserMembers = async () => {
@@ -276,10 +270,6 @@ module.exports = function() {
     });
 
     socket.on('RELEASE_CONTROL', (data, callback) => {
-      // console.log('release control ', data);
-      // console.log('user with data: ', data.user);
-      // console.log('from user: ', socket.user_id);
-      // console.log(new Date());
       controllers.messages.post(data);
       controllers.rooms.put(data.room, { controlledBy: null });
       socket.to(data.room).emit('RELEASED_CONTROL', data);
@@ -351,9 +341,6 @@ module.exports = function() {
             controllers.rooms.put(room, { controlledBy: null });
           }
           message.save();
-          console.log(
-            `Current members from room: ${res.currentMembers} and usersInRoom are ${usersInRoom}`
-          );
           socket.to(room).emit('USER_LEFT', {
             currentMembers: res.currentMembers,
             releasedControl,
@@ -368,22 +355,25 @@ module.exports = function() {
         })
         .catch((err) => {
           if (socket.user) {
-            console.log('ERROR LEAVING ROOM ', room, ' user: ', socket.user_id);
+            console.log(
+              'ERROR LEAVING ROOM ',
+              room,
+              ' user: ',
+              socket.user_id,
+              ' socketid: ',
+              socket.id
+            );
           } else {
-            console.log('ERROR LEAVING ROOM ', room, ' user not found!');
+            console.log(
+              'ERROR LEAVING ROOM ',
+              room,
+              ' user not found',
+              ' socketid: ',
+              socket.id
+            );
           }
-          console.log('socketid: ', socket.id);
           if (cb) cb(null, err);
         });
     };
   });
 };
-
-// const parseXML = (xml) => {
-//   return new Promise((resolve, reject) => {
-//     parseString(xml, (err, result) => {
-//       if (err) return reject(err);
-//       return resolve(result);
-//     });
-//   });
-// };
