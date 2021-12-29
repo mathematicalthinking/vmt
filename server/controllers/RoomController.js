@@ -601,7 +601,7 @@ module.exports = {
       const query = { $set: { currentMembers: newCurrentUserIds } };
       db.Room.findByIdAndUpdate(roomId, query, { new: true })
         // .populate({ path: 'members.user', select: 'username' })
-        .select('currentMembers members')
+        .select('currentMembers members controlledBy')
         .then((room) => {
           room.populate(
             { path: 'currentMembers members.user', select: 'username' },
