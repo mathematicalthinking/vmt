@@ -227,6 +227,7 @@ class Workspace extends Component {
 
     const { cancelSnapshots } = this.state;
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
+    clearInterval(this.heartbeatInterval);
     this.clearHeartbeatTimer();
   }
 
@@ -414,7 +415,7 @@ class Workspace extends Component {
     // bad connection latency threshold
     const THRESHOLD = 100;
 
-    setInterval(() => {
+    this.heartbeatInterval = setInterval(() => {
       const start = Date.now();
       this.setHeartbeatTimer();
       // volatile, so the packet will be discarded if the socket is not connected
