@@ -10,8 +10,8 @@ function Room(props) {
   const { isSuccess, data } = usePopulatedRoom(room_id, false, {
     refetchInterval: 10000,
   });
-  let updatedRoom = {};
-  updatedRoom = isSuccess ? { ...room, ...data } : undefined;
+
+  const updatedRoom = isSuccess ? { ...room, ...data } : room;
 
   return <RoomLobby {...props} room={updatedRoom} />;
 }
