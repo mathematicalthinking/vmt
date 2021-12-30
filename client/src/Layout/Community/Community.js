@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 // import { CustomLink } from 'react-router-dom';
@@ -150,18 +150,30 @@ class Community extends Component {
               : 260,
           }}
         >
-          <BoxList
-            list={visibleResources}
-            resource={resource}
-            linkPath={linkPath}
-            linkSuffix={linkSuffix}
-            listType="public"
-          />
-          <div className={classes.LoadMore}>
-            <Button m={20} disabled={!moreAvailable} click={setSkip}>
-              load more results
-            </Button>
-          </div>
+          {/* Check to see if visibleResources is undef, which is the loading state */}
+          {visibleResources ? (
+            <Fragment>
+              <BoxList
+                list={visibleResources}
+                resource={resource}
+                linkPath={linkPath}
+                linkSuffix={linkSuffix}
+                listType="public"
+              />
+              <div className={classes.LoadMore}>
+                <Button m={20} disabled={!moreAvailable} click={setSkip}>
+                  load more results
+                </Button>
+              </div>
+            </Fragment>
+          ) : (
+            <div className={classes.Pending}>
+              Loading
+              <span className={classes.dot1}>.</span>
+              <span className={classes.dot2}>.</span>
+              <span className={classes.dot3}>.</span>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -170,7 +182,7 @@ class Community extends Component {
 
 Community.propTypes = {
   resource: PropTypes.string.isRequired,
-  visibleResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  visibleResources: PropTypes.arrayOf(PropTypes.shape({})),
   linkPath: PropTypes.string.isRequired,
   linkSuffix: PropTypes.string.isRequired,
   searchValue: PropTypes.string.isRequired,
@@ -182,6 +194,10 @@ Community.propTypes = {
   setSkip: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
   setCriteria: PropTypes.func.isRequired,
+};
+
+Community.defaultProps = {
+  visibleResources: undefined,
 };
 
 export default Community;
