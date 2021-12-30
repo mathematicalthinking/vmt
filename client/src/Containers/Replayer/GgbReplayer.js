@@ -446,7 +446,7 @@ class GgbReplayer extends Component {
         // the point moves too quickly and looks like its jumping to the final position
         setTimeout(
           async () => this.recursiveUpdateNew(copiedEvents, eventId),
-          0
+          65
         );
       }
     }
