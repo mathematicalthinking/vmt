@@ -12,9 +12,9 @@ class Community extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // start with no results to show loading state
-      visibleResources: undefined,
+      visibleResources: [],
       skip: 0,
+      loading: true,
       moreAvailable: true,
       searchText: this.getQueryParams().search || '',
     };
@@ -80,9 +80,8 @@ class Community extends Component {
 
   // concat tells us whether we should concat to existing results or overwrite
   fetchData = (concat = false) => {
-    // clear current results list as query has changed and show loading
     this.setState({
-      visibleResources: undefined,
+      loading: true,
     });
     const { skip } = this.state;
     const {
@@ -112,6 +111,7 @@ class Community extends Component {
             ? [...prevState.visibleResources].concat(res.data.results)
             : res.data.results,
           moreAvailable,
+          loading: false,
         }));
       }
     });
@@ -188,7 +188,7 @@ class Community extends Component {
 
   render() {
     const { match } = this.props;
-    const { visibleResources, moreAvailable, searchText } = this.state;
+    const { visibleResources, moreAvailable, searchText, loading } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
     let linkSuffix;
@@ -215,6 +215,7 @@ class Community extends Component {
         moreAvailable={moreAvailable}
         filters={filters}
         toggleFilter={this.toggleFilter}
+        loading={loading}
       />
     );
   }

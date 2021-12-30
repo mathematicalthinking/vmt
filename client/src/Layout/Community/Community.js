@@ -36,6 +36,7 @@ class Community extends Component {
       setCriteria,
       toggleFilter,
       searchValue,
+      loading,
     } = this.props;
     return (
       <div className={classes.Container}>
@@ -151,7 +152,14 @@ class Community extends Component {
           }}
         >
           {/* Check to see if visibleResources is undef, which is the loading state */}
-          {visibleResources ? (
+          {loading ? (
+            <div className={classes.Pending}>
+              Loading
+              <span className={classes.dot1}>.</span>
+              <span className={classes.dot2}>.</span>
+              <span className={classes.dot3}>.</span>
+            </div>
+          ) : (
             <Fragment>
               <BoxList
                 list={visibleResources}
@@ -166,13 +174,6 @@ class Community extends Component {
                 </Button>
               </div>
             </Fragment>
-          ) : (
-            <div className={classes.Pending}>
-              Loading
-              <span className={classes.dot1}>.</span>
-              <span className={classes.dot2}>.</span>
-              <span className={classes.dot3}>.</span>
-            </div>
           )}
         </div>
       </div>
@@ -194,10 +195,12 @@ Community.propTypes = {
   setSkip: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
   setCriteria: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
 };
 
 Community.defaultProps = {
   visibleResources: undefined,
+  loading: false,
 };
 
 export default Community;
