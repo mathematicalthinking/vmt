@@ -45,7 +45,12 @@ const disconnectCount = new client.Gauge({
   collect() {
     // Invoked when the registry collects its metrics' values.
     // This can be synchronous or it can return a promise/be an async function.
-    if (sockets.io) this.set(sockets.io.disconnectCount || 0);
+    if (sockets.io) {
+      const count =
+        (sockets.io.disconnectCount && sockets.io.disconnectCount['total']) ||
+        0;
+      this.set(count);
+    }
   },
 });
 
