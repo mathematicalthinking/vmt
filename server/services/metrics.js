@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 const client = require('prom-client');
-const socketInit = require('../socketInit');
+const sockets = require('../socketInit');
 
 // Create a Registry which registers the metrics
 const register = new client.Registry();
@@ -16,7 +16,6 @@ register.setDefaultLabels({
 // Enable the collection of default metrics
 client.collectDefaultMetrics({ register });
 
-const sockets = socketInit;
 const totalSocketconnections = new client.Gauge({
   name: 'socket_connections',
   help: 'current socket connections',
@@ -40,8 +39,17 @@ register.registerMetric(totalSocketconnections);
 //     });
 //   });
 // }
+const disconnectCount = new client.Gauge({
+  name: 'socket_disconnects',
+  help: 'number of socket disconnects',
+  collect() {
+    // Invoked when the registry collects its metrics' values.
+    // This can be synchronous or it can return a promise/be an async function.
+    if (sockets.io) this.set(sockets.io.disconnectCount || 0);
+  },
+});
 
-// register.registerMetric(disconnectCount);
+register.registerMetric(disconnectCount);
 
 router.get('/', async (req, res) => {
   res.set('Content-Type', register.contentType);

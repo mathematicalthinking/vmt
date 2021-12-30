@@ -195,6 +195,10 @@ module.exports = function() {
     });
 
     socket.on('disconnecting', (reason) => {
+      if (!io.disconnectCount) {
+        io.disconnectCount = 0;
+      }
+      io.disconnectCount++;
       console.log(
         'socket disconnect from user: ',
         socket.user_id,
