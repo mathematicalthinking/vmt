@@ -12,7 +12,8 @@ class Community extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      visibleResources: [],
+      // start with no results to show loading state
+      visibleResources: undefined,
       skip: 0,
       moreAvailable: true,
       searchText: this.getQueryParams().search || '',
@@ -27,8 +28,8 @@ class Community extends Component {
 
   componentDidMount() {
     this._isOkToLoadResults = true;
-    const { match } = this.props;
-    const { resource } = match.params;
+    // const { match } = this.props;
+    // const { resource } = match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
     // if there aren't fift result then we've probably only loaded the users
     // own courses. This is assuming that the database will have more than 50 courses and rooms
@@ -38,11 +39,11 @@ class Community extends Component {
     // }
     // else {
     // eslint-disable-next-line react/destructuring-assignment
-    const resourceList = this.props[`${resource}Arr`].map(
-      // eslint-disable-next-line react/destructuring-assignment
-      (id) => this.props[resource][id]
-    );
-    this.setState({ visibleResources: resourceList });
+    // const resourceList = this.props[`${resource}Arr`].map(
+    //   // eslint-disable-next-line react/destructuring-assignment
+    //   (id) => this.props[resource][id]
+    // );
+    // this.setState({ visibleResources: resourceList });
     // }
   }
 
@@ -79,6 +80,10 @@ class Community extends Component {
 
   // concat tells us whether we should concat to existing results or overwrite
   fetchData = (concat = false) => {
+    // clear current results list as query has changed and show loading
+    this.setState({
+      visibleResources: undefined,
+    });
     const { skip } = this.state;
     const {
       match: {
