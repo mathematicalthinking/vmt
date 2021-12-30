@@ -465,14 +465,16 @@ class GgbReplayer extends Component {
       <Fragment>
         <div
           id="viewControls"
-          className={classes.ActivityNav}
           style={{
             pointerEvents: 'auto',
+            opacity: '80%',
+            marginLeft: '10px',
+            maxHeight: '35px',
           }}
         >
           <Button
             theme="Small"
-            id="nav-left"
+            id="nav-zoom-out"
             click={(e) => {
               e.preventDefault();
               this.ggbApplet.evalCommand('ZoomIn[.5]');
@@ -481,16 +483,9 @@ class GgbReplayer extends Component {
           >
             Zoom -
           </Button>
-          <span
-            title="Geogebra view controls"
-            id="show-screen"
-            className={classes.Title}
-          >
-            {/* <div>View controls</div> */}
-          </span>
           <Button
             theme="Small"
-            id="nav-right"
+            id="nav-zoom-in"
             click={(e) => {
               e.preventDefault();
               this.ggbApplet.evalCommand('ZoomIn[2]');
@@ -498,6 +493,56 @@ class GgbReplayer extends Component {
             }}
           >
             Zoom +
+          </Button>
+          <span title="Geogebra zoom controls" className={classes.Title}>
+            {/* <div>View controls</div> */}
+          </span>
+          <Button
+            theme="Small"
+            id="nav-left"
+            click={(e) => {
+              e.preventDefault();
+              this.ggbApplet.evalCommand('Pan( 50, 0 )');
+              e.stopPropagation();
+            }}
+          >
+            Pan Left
+          </Button>
+          <Button
+            theme="Small"
+            id="nav-right"
+            click={(e) => {
+              e.preventDefault();
+              this.ggbApplet.evalCommand('Pan( -50, 0 )');
+              e.stopPropagation();
+            }}
+          >
+            Pan Right
+          </Button>
+          <span title="Geogebra pan controls" className={classes.Title}>
+            {/* <div>View controls</div> */}
+          </span>
+          <Button
+            theme="Small"
+            id="nav-up"
+            click={(e) => {
+              e.preventDefault();
+              this.ggbApplet.evalCommand('Pan( 0, -50 )');
+              e.stopPropagation();
+            }}
+          >
+            Pan Up
+          </Button>
+          <Button
+            theme="Small"
+            id="nav-down"
+            click={(e) => {
+              e.preventDefault();
+              this.ggbApplet.evalCommand('Pan( 0, 50 )');
+              e.stopPropagation();
+            }}
+          >
+            Pan Down
           </Button>
         </div>
         <Script
