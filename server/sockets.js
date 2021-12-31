@@ -201,11 +201,11 @@ module.exports = function() {
         };
       }
       io.disconnectCount['total']++;
-      if (!io.disconnectCount[socket.user_id]) {
-        io.disconnectCount[socket.user_id] = 0;
-      } else {
-        io.disconnectCount[socket.user_id]++;
-      }
+      // if (!io.disconnectCount[socket.user_id]) {
+      //   io.disconnectCount[socket.user_id] = 0;
+      // } else {
+      //   io.disconnectCount[socket.user_id]++;
+      // }
       console.log(
         'socket disconnect from user: ',
         socket.user_id,

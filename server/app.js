@@ -6,6 +6,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const promBundle = require('express-prom-bundle');
 require('dotenv').config();
 
 // REQUIRE FILES
@@ -66,6 +67,11 @@ mongoose.connect(mongoURI, mongoOptions, (err) => {
 });
 
 // MIDDLEWARE
+// COLLECT AND EXPOSE METRICS
+app.use('/metrics', metrics);
+const metricsMiddleware = promBundle({ includeMethod: true });
+app.use(metricsMiddleware);
+
 // Morgan configuration
 if (process.env.NODE_ENV === 'development') {
   app.use(logger('dev'));
@@ -95,9 +101,6 @@ app.use('/auth', auth);
 app.use('/api', api);
 app.use('/enc', enc);
 app.use('/admin', admin);
-
-// COLLECT AND EXPOSE METRICS
-app.use('/metrics', metrics);
 
 if (process.env.ENCOMPASS) {
   app.use(express.static(path.join(__dirname, '../client/encompassBuild')));
