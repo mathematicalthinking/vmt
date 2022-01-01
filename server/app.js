@@ -17,7 +17,7 @@ const desmos = require('./routes/desmos');
 const enc = require('./routes/enc');
 const admin = require('./routes/admin');
 const cors = require('./middleware/cors');
-const metrics = require('./services/metrics');
+const { router: metrics } = require('./services/metrics');
 
 const app = express();
 console.log('NODE_ENV=', process.env.NODE_ENV);

@@ -28,6 +28,18 @@ const totalSocketconnections = new client.Gauge({
 // Register the histogram
 register.registerMetric(totalSocketconnections);
 
+// const totalSocketevents = new client.Gauge({
+//   name: 'socket_events',
+//   help: 'total socket events',
+//   collect() {
+//     // Invoked when the registry collects its metrics' values.
+//     // This can be synchronous or it can return a promise/be an async function.
+//     if (sockets.io) this.set(sockets.io.eventCount);
+//   },
+// });
+// // Register the histogram
+// register.registerMetric(totalSocketevents);
+
 // const disconnectCount = new client.Counter({
 //   name: 'socket_disconnects',
 //   help: 'number of socket disconnects',
@@ -61,4 +73,6 @@ router.get('/', async (req, res) => {
   res.end(await register.metrics());
 });
 
-module.exports = router;
+module.exports = {
+  router,
+};
