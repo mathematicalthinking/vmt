@@ -6,6 +6,7 @@ const axios = require('axios');
 const socketInit = require('./socketInit');
 const controllers = require('./controllers');
 const Message = require('./models/Message');
+const { socketMetricInc } = require('./services/metrics');
 
 const url =
   process.env.BAD_DATA_URL || 'https://dweet.io/dweet/for/VMT-BAD-DATA';
@@ -45,6 +46,8 @@ module.exports = function() {
   });
 
   io.sockets.on('connection', (socket) => {
+    socketMetricInc('connect');
+
     // io.sockets.adapter.on('join-room', (room, id) => {
     //   console.log('join-room', room, id);
     //   console.log('people in room', io.sockets.adapter.rooms.get(room));
@@ -133,6 +136,8 @@ module.exports = function() {
     });
 
     socket.on('JOIN', async (data, cb) => {
+      socketMetricInc('roomjoin');
+
       // console.log('user joined: ', data.eventType);
       // console.log('user with data: ', data.user);
       // console.log('from user: ', socket.user_id);
@@ -187,6 +192,7 @@ module.exports = function() {
     });
 
     socket.on('LEAVE_ROOM', (roomId, color, cb) => {
+      socketMetricInc('roomleave');
       // console.log('user left room: ', roomId);
       // console.log('from user: ', socket.user_id);
       // console.log(new Date());
@@ -195,6 +201,7 @@ module.exports = function() {
     });
 
     socket.on('disconnecting', (reason) => {
+      socketMetricInc('disconnect');
       if (!io.disconnectCount) {
         io.disconnectCount = {
           total: 0,
@@ -219,6 +226,7 @@ module.exports = function() {
     });
 
     socket.on('SYNC_SOCKET', (_id, cb) => {
+      socketMetricInc('sync');
       if (!_id) {
         // console.log('unknown user connected: ', socket.id);
         cb(null, 'NO USER');
@@ -235,6 +243,8 @@ module.exports = function() {
     });
 
     socket.on('SEND_MESSAGE', (data, callback) => {
+      socketMetricInc('msgsend');
+
       recordData(constants.MESSAGE, data);
       const postData = { ...data };
       postData.user = postData.user._id;
@@ -252,10 +262,14 @@ module.exports = function() {
     });
 
     socket.on('PENDING_MESSAGE', (data) => {
+      socketMetricInc('msgpend');
+
       socket.broadcast.to(data.room).emit('PENDING_MESSAGE', { ...data });
     });
 
     socket.on('TAKE_CONTROL', async (data, callback) => {
+      socketMetricInc('controltake');
+
       // console.log('TAKE_CONTROL', data);
       // console.log('user with data: ', data.user);
       // console.log('from user: ', socket.user_id);
@@ -281,6 +295,8 @@ module.exports = function() {
     });
 
     socket.on('RELEASE_CONTROL', (data, callback) => {
+      socketMetricInc('controlrelease');
+
       controllers.messages.post(data);
       controllers.rooms.put(data.room, { controlledBy: null });
       socket.to(data.room).emit('RELEASED_CONTROL', data);
@@ -288,6 +304,8 @@ module.exports = function() {
     });
 
     socket.on('SEND_EVENT', async (data) => {
+      socketMetricInc('eventsend');
+
       recordData(constants.EVENT, data);
       try {
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
@@ -298,6 +316,8 @@ module.exports = function() {
     });
 
     socket.on('SWITCH_TAB', (data, callback) => {
+      socketMetricInc('tabswitch');
+
       controllers.messages
         .post(data)
         .then(() => {
@@ -310,6 +330,7 @@ module.exports = function() {
     });
 
     socket.on('NEW_TAB', (data, callback) => {
+      socketMetricInc('tabsnew');
       controllers.messages
         .post(data.message)
         .then(() => {
@@ -320,6 +341,7 @@ module.exports = function() {
     });
 
     socket.on('UPDATED_REFERENCES', (data) => {
+      socketMetricInc('refupdated');
       const { roomId, updatedEvents } = data;
       console.log('emitting updating refs', roomId, updatedEvents);
 
