@@ -68,9 +68,9 @@ mongoose.connect(mongoURI, mongoOptions, (err) => {
 
 // MIDDLEWARE
 // COLLECT AND EXPOSE METRICS
-app.use('/metrics', metrics);
 const metricsMiddleware = promBundle({ includeMethod: true });
 app.use(metricsMiddleware);
+app.use('/metrics', metrics);
 
 // Morgan configuration
 if (process.env.NODE_ENV === 'development') {

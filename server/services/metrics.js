@@ -14,7 +14,7 @@ register.setDefaultLabels({
 // const prefix = 'VMT_' + process.env.NODE_ENV + '_';
 
 // Enable the collection of default metrics
-client.collectDefaultMetrics({ register });
+client.collectDefaultMetrics();
 
 const totalSocketconnections = new client.Gauge({
   name: 'socket_connections',
