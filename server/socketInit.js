@@ -12,8 +12,8 @@ const options = {
     process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging'
   ),
   // path: '/socket.io',
-  // pingTimeout: 5000,
-  pingInterval: 25000,
+  pingTimeout: 7000,
+  pingInterval: 23000,
   // This defines how many bytes a single message can be, before closing the socket.
   maxHttpBufferSize: 1e8,
   cors: {
