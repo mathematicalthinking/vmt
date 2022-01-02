@@ -202,12 +202,12 @@ module.exports = function() {
 
     socket.on('disconnecting', (reason) => {
       socketMetricInc('disconnect');
-      if (!io.disconnectCount) {
-        io.disconnectCount = {
-          total: 0,
-        };
-      }
-      io.disconnectCount['total']++;
+      // if (!io.disconnectCount) {
+      //   io.disconnectCount = {
+      //     total: 0,
+      //   };
+      // }
+      // io.disconnectCount['total']++;
       // if (!io.disconnectCount[socket.user_id]) {
       //   io.disconnectCount[socket.user_id] = 0;
       // } else {
