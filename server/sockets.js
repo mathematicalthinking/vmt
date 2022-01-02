@@ -213,6 +213,17 @@ module.exports = function() {
       // } else {
       //   io.disconnectCount[socket.user_id]++;
       // }
+
+      if (reason.trim().toLowerCase() == 'ping timeout') {
+        const disconnectData = {
+          time: new Date.now(),
+          reason: reason,
+          socket: socket.id,
+          user: socket.user_id,
+          rooms: socket.rooms,
+        };
+        recordEventProblem(disconnectData);
+      }
       console.log(
         'socket disconnect from user: ',
         socket.user_id,
@@ -245,7 +256,7 @@ module.exports = function() {
     socket.on('SEND_MESSAGE', (data, callback) => {
       socketMetricInc('msgsend');
 
-      recordData(constants.MESSAGE, data);
+      // recordData(constants.MESSAGE, data);
       const postData = { ...data };
       postData.user = postData.user._id;
       controllers.messages
@@ -306,7 +317,7 @@ module.exports = function() {
     socket.on('SEND_EVENT', async (data) => {
       socketMetricInc('eventsend');
 
-      recordData(constants.EVENT, data);
+      // recordData(constants.EVENT, data);
       try {
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
         await controllers.events.post(data);
