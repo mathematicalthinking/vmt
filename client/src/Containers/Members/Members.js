@@ -18,7 +18,7 @@ import {
   removeRoomMember,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
-import Importer from '../../Components/Importer/Importer';
+import Importer from '../../Components/Importer/ImporterCopy';
 import SearchResults from './SearchResults';
 import classes from './members.css';
 
