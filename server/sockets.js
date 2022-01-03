@@ -214,10 +214,10 @@ module.exports = function() {
       //   io.disconnectCount[socket.user_id]++;
       // }
 
-      if (reason.trim().toLowerCase() == 'ping timeout') {
+      if (reason.trim().toLowerCase() === 'ping timeout') {
         const disconnectData = {
-          time: new Date.now(),
-          reason: reason,
+          time: Date.now(),
+          reason,
           socket: socket.id,
           user: socket.user_id,
           rooms: socket.rooms,
