@@ -4,7 +4,7 @@ import DataEditorModal from './DataEditorModal';
 import useDataValidator from './DataValidator';
 
 export default function DataViewer(props) {
-  const { data, onClose, onCancel, show } = props;
+  const { data, onClose, onCancel, show, columnConfig } = props;
   const [currentData, setCurrentData] = React.useState([]);
 
   React.useEffect(() => {
@@ -54,30 +54,8 @@ export default function DataViewer(props) {
   return (
     <DataEditorModal
       show={show}
-      data={validatedData}
-      columnConfig={[
-        { property: 'username', header: 'Username*' },
-        { property: 'email', header: 'Email' },
-        {
-          property: 'isGmail',
-          header: 'Require Login via Google with Email',
-          type: 'boolean',
-        },
-        { property: 'firstName', header: 'First Name*' },
-        {
-          property: 'lastName',
-          header: 'Last Name* (full, inital, or other)',
-        },
-        { property: 'organization', header: 'Affiliation' },
-        { property: 'identifier', header: 'Student or Org ID' },
-        { property: 'sponsor', header: 'Teacher VMT Username' },
-        {
-          property: 'comment',
-          header: 'Comments (* req)',
-          style: { color: 'red' },
-          readOnly: true,
-        },
-      ]}
+      data={validatedData.length > 0 ? validatedData : data} // a little nicety. Display something even if we haven't finished validating
+      columnConfig={columnConfig}
       highlights={validationErrors}
       rowConfig={rowConfig}
       onChanged={handleOnChanged}
@@ -89,12 +67,13 @@ export default function DataViewer(props) {
 }
 
 DataViewer.propTypes = {
-  data: PropTypes.shape({}),
+  data: PropTypes.arrayOf(PropTypes.shape({})),
   onClose: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   show: PropTypes.bool.isRequired,
+  columnConfig: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 DataViewer.defaultProps = {
-  data: {},
+  data: [],
 };

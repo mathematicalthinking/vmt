@@ -7,7 +7,7 @@ import classes from './importer.css';
 import DataViewer from './DataViewer';
 
 export default function Importer(props) {
-  // props will be user, onImport, onCancel
+  // props will be user, onImport
   const [showModal, setShowModal] = React.useState(false);
   const [importedData, setImportedData] = React.useState([]);
   const buttonRef = React.createRef();
@@ -57,6 +57,7 @@ export default function Importer(props) {
       })
     );
 
+    setShowModal(false);
     onImport(userObjects);
   };
 
@@ -67,6 +68,29 @@ export default function Importer(props) {
         data={importedData}
         onClose={createAndInviteMembers}
         onCancel={handleOnCancel}
+        columnConfig={[
+          { property: 'username', header: 'Username*' },
+          { property: 'email', header: 'Email' },
+          {
+            property: 'isGmail',
+            header: 'Require Login via Google with Email',
+            type: 'boolean',
+          },
+          { property: 'firstName', header: 'First Name*' },
+          {
+            property: 'lastName',
+            header: 'Last Name* (full, inital, or other)',
+          },
+          { property: 'organization', header: 'Affiliation' },
+          { property: 'identifier', header: 'Student or Org ID' },
+          { property: 'sponsor', header: 'Teacher VMT Username' },
+          {
+            property: 'comment',
+            header: 'Comments (* req)',
+            style: { color: 'red' },
+            readOnly: true,
+          },
+        ]}
       />
       <div className={classes.Instructions}>
         <i className="far fa-question-circle fa-2x" />
