@@ -3,7 +3,7 @@ import { CSVReader } from 'react-papaparse';
 import { suggestUniqueUsername, validateExistingField } from 'utils/validators';
 import { NavLink } from 'react-router-dom';
 import { Button } from 'Components';
-import ImportModal from './ImportModal';
+import DataEditorModal from './DataEditorModal';
 import ResolutionButton from './ResolutionButton';
 import classes from './importer.css';
 
@@ -328,7 +328,7 @@ export default function Importer(props) {
 
   const importModal = () => {
     return (
-      <ImportModal
+      <DataEditorModal
         show={showModal}
         data={importedData}
         columnConfig={[

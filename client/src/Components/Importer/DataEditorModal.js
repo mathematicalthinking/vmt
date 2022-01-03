@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ReactDataSheet from 'react-datasheet';
 import { BigModal as Modal, Button } from 'Components';
 import classes from 'react-datasheet/lib/react-datasheet.css';
-// import classes from './importModal.css';
+// import classes from './dataEditorModal.css';
 
 /* 
 
@@ -45,7 +45,7 @@ highlights is an array of objects, where each object represents a specific cell
   
 */
 
-export default function ImportModal(props) {
+export default function DataEditorModal(props) {
   const {
     show,
     data,
@@ -378,7 +378,7 @@ const DeleteButton = (props) => {
   );
 };
 
-ImportModal.propTypes = {
+DataEditorModal.propTypes = {
   show: PropTypes.bool.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   columnConfig: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
@@ -396,7 +396,7 @@ ImportModal.propTypes = {
   onDeleteRow: PropTypes.func,
 };
 
-ImportModal.defaultProps = {
+DataEditorModal.defaultProps = {
   highlights: [],
   rowConfig: [],
   onChanged: () => {},
