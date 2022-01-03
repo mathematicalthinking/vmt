@@ -387,6 +387,7 @@ class Course extends Component {
           <Members
             user={user}
             classList={course.members}
+            courseMembers={course.members} // there are tests in Members that depend on this prop
             owner={course.myRole === 'facilitator' || isAdmin}
             resourceType="course"
             resourceId={course._id}

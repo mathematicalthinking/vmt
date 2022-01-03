@@ -412,7 +412,7 @@ Members.propTypes = {
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
-  courseMembers: PropTypes.arrayOf({}),
+  courseMembers: PropTypes.arrayOf(PropTypes.shape({})),
   owner: PropTypes.bool.isRequired,
   parentResource: PropTypes.string,
   classList: PropTypes.arrayOf(PropTypes.shape({})),

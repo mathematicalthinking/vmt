@@ -8,6 +8,32 @@ export default function MemberViewer(props) {
   // props will be data, user, onSubmit
   const { data } = props;
   const [showModal, setShowModal] = React.useState(false);
+  const [userData, setUserData] = React.useState();
+
+  React.useEffect(() => {
+    (async () => {
+      const userObjects = await Promise.all(
+        data.map(async (user) => {
+          const existingUser = await validateExistingField(
+            'username',
+            user.username
+          );
+          const sponsor = await validateExistingField('_id', user.sponsor);
+          const sponsorName = (sponsor && sponsor.username) || '';
+
+          return !existingUser
+            ? null
+            : {
+                ...existingUser,
+                organization: existingUser.organization,
+                identifier: existingUser.identifier,
+                sponsor: sponsorName,
+              };
+        })
+      );
+      setUserData(userObjects);
+    })();
+  }, [data]);
 
   const handleClick = () => setShowModal(true);
 
@@ -45,7 +71,7 @@ export default function MemberViewer(props) {
     <Fragment>
       <DataViewer
         show={showModal}
-        data={data}
+        data={userData}
         onClose={handleOnClose}
         onCancel={handleOnCancel}
         columnConfig={[

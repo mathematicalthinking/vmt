@@ -3,8 +3,8 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ReactDataSheet from 'react-datasheet';
 import { BigModal as Modal, Button } from 'Components';
-import classes from 'react-datasheet/lib/react-datasheet.css';
-// import classes from './dataEditorModal.css';
+// import classes from 'react-datasheet/lib/react-datasheet.css';
+import classes from './dataEditorModal.css';
 
 /* 
 
@@ -273,7 +273,7 @@ export default function DataEditorModal(props) {
   return (
     <Modal show={show}>
       <span
-        className={classes['data-grid-container']}
+        // className={classes['data-grid-container']}
         style={{
           display: 'flex',
           flexDirection: 'column',
