@@ -194,9 +194,10 @@ module.exports = function() {
       );
     });
 
-    socket.on('SYNC_SOCKET', (_id, location, cb) => {
+    socket.on('SYNC_SOCKET', (_id, cb) => {
+      // check user state vs db state in case they were disconnected
+      // check if user is still in room and needs to resubscribe to sockets
       socketMetricInc('sync');
-      socketMetricInc(location);
       if (!_id) {
         // console.log('unknown user connected: ', socket.id);
         cb(null, 'NO USER');
