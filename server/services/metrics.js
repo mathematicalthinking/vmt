@@ -44,6 +44,15 @@ const socketMetricInc = (type) => {
   if (type === 'disconnect') {
     disconnectCount.inc();
   }
+  if (type === 'reconnect') {
+    reconnectCount.inc();
+  }
+  if (type === 'mounting') {
+    mountingCount.inc();
+  }
+  if (type === 'updating') {
+    updatingCount.inc();
+  }
   if (type === 'connect') {
     connectCount.inc();
   }
@@ -81,6 +90,24 @@ const socketMetricInc = (type) => {
     refUpdateCount.inc();
   }
 };
+
+const reconnectCount = new client.Counter({
+  name: 'socket_reconnects',
+  help: 'number of syncs due to socket reconnects',
+});
+register.registerMetric(reconnectCount);
+
+const mountingCount = new client.Counter({
+  name: 'component_mounts',
+  help: 'number of syncs due to component mount',
+});
+register.registerMetric(mountingCount);
+
+const updatingCount = new client.Counter({
+  name: 'component_updating',
+  help: 'number of syncs due to component updating',
+});
+register.registerMetric(updatingCount);
 
 const disconnectCount = new client.Counter({
   name: 'socket_disconnects',

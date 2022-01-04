@@ -41,7 +41,7 @@ class SocketProvider extends Component {
         connectGetUser(user._id);
       }
       console.log('Comp mounted and socket synced!');
-      this.syncSocket();
+      this.syncSocket('mounting');
       this.initializeListeners();
     } else if (
       !isForConfirmEmail &&
@@ -74,7 +74,7 @@ class SocketProvider extends Component {
     if (!prevProps.user.loggedIn && user.loggedIn) {
       connectClearError();
       console.log('Component updated and socket synced!');
-      this.syncSocket();
+      this.syncSocket('updating');
     }
     // Reinitialize listeners if store changes
     if (
@@ -93,20 +93,22 @@ class SocketProvider extends Component {
     socket.removeAllListeners();
   }
 
-  syncSocket = () => {
+  syncSocket = (location) => {
     const {
       connectUpdateUser,
-      user: { _id },
+      user: { _id, socketId },
     } = this.props;
-    socket.emit('SYNC_SOCKET', _id, (res, err) => {
-      if (err) {
-        console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
-        return;
-      }
-      console.log(res);
-      connectUpdateUser({ connected: true });
-      this.initializeListeners();
-    });
+    if (socketId !== socket.id) {
+      socket.emit('SYNC_SOCKET', _id, location, (res, err) => {
+        if (err) {
+          console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
+          return;
+        }
+        console.log(res);
+        connectUpdateUser({ connected: true });
+        this.initializeListeners();
+      });
+    }
   };
 
   showNtfToast = (ntfMessage) => {
@@ -186,7 +188,7 @@ class SocketProvider extends Component {
 
     socket.io.on('reconnect', () => {
       console.log('Reconnected and socket synced!');
-      this.syncSocket();
+      this.syncSocket('reconnect');
       // connectGetUser(user._id);
     });
 
