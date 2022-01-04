@@ -195,10 +195,18 @@ module.exports = function() {
     });
 
     socket.on('disconnecting', (reason) => {
-      if (!io.disconnectCount) {
-        io.disconnectCount = 0;
+      socketMetricInc('disconnect');
+
+      if (reason.trim().toLowerCase() === 'ping timeout') {
+        const disconnectData = {
+          time: Date.now(),
+          reason,
+          socket: socket.id,
+          user: socket.user_id,
+          rooms: socket.rooms,
+        };
+        recordEventProblem(disconnectData);
       }
-      io.disconnectCount++;
       console.log(
         'socket disconnect from user: ',
         socket.user_id,
