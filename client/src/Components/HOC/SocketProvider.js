@@ -96,17 +96,19 @@ class SocketProvider extends Component {
   syncSocket = () => {
     const {
       connectUpdateUser,
-      user: { _id },
+      user: { _id, sockedId },
     } = this.props;
-    socket.emit('SYNC_SOCKET', _id, (res, err) => {
-      if (err) {
-        console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
-        return;
-      }
-      console.log(res);
-      connectUpdateUser({ connected: true });
-      this.initializeListeners();
-    });
+    if (sockedId !== socket.id) {
+      socket.emit('SYNC_SOCKET', _id, (res, err) => {
+        if (err) {
+          console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
+          return;
+        }
+        console.log(res);
+        connectUpdateUser({ connected: true });
+        this.initializeListeners();
+      });
+    }
   };
 
   showNtfToast = (ntfMessage) => {
