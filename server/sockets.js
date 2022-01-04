@@ -14,26 +14,6 @@ const url =
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
 module.exports = function() {
   const { io } = socketInit;
-  const constants = { EVENT: 'event', MESSAGE: 'message' };
-  const timestamps = { [constants.EVENT]: {}, [constants.MESSAGE]: {} };
-
-  const recordEventProblem = (data) => {
-    axios.post(url, data);
-  };
-
-  const recordData = (type, data) => {
-    try {
-      if (
-        timestamps[type][data.user._id] &&
-        timestamps[type][data.user._id] > data.timestamp
-      ) {
-        data.type = type;
-        recordEventProblem(data);
-      } else timestamps[type][data.user._id] = data.timestamp;
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   io.use((socket, next) => {
     // const cookief = socket.handshake.headers.cookie;
@@ -202,17 +182,6 @@ module.exports = function() {
 
     socket.on('disconnecting', (reason) => {
       socketMetricInc('disconnect');
-
-      if (reason.trim().toLowerCase() === 'ping timeout') {
-        const disconnectData = {
-          time: Date.now(),
-          reason,
-          socket: socket.id,
-          user: socket.user_id,
-          rooms: socket.rooms,
-        };
-        recordEventProblem(disconnectData);
-      }
       console.log(
         'socket disconnect from user: ',
         socket.user_id,
@@ -238,15 +207,12 @@ module.exports = function() {
         .put(_id, { socketId: socket.id })
         .then(() => {
           cb(`User socketId updated to ${socket.id}`, null);
-          socket.emit('SOCKET_SYNCED');
         })
         .catch((err) => cb('Error found', err));
     });
 
     socket.on('SEND_MESSAGE', (data, callback) => {
       socketMetricInc('msgsend');
-
-      // recordData(constants.MESSAGE, data);
       const postData = { ...data };
       postData.user = postData.user._id;
       controllers.messages
@@ -306,8 +272,6 @@ module.exports = function() {
 
     socket.on('SEND_EVENT', async (data) => {
       socketMetricInc('eventsend');
-
-      // recordData(constants.EVENT, data);
       try {
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
         await controllers.events.post(data);
