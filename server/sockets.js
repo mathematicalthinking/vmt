@@ -225,8 +225,9 @@ module.exports = function() {
       );
     });
 
-    socket.on('SYNC_SOCKET', (_id, cb) => {
+    socket.on('SYNC_SOCKET', (_id, location, cb) => {
       socketMetricInc('sync');
+      socketMetricInc(location);
       if (!_id) {
         // console.log('unknown user connected: ', socket.id);
         cb(null, 'NO USER');
