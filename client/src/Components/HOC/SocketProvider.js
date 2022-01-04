@@ -96,17 +96,19 @@ class SocketProvider extends Component {
   syncSocket = () => {
     const {
       connectUpdateUser,
-      user: { _id },
+      user: { _id, socketId },
     } = this.props;
-    socket.emit('SYNC_SOCKET', _id, (res, err) => {
-      if (err) {
-        console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
-        return;
-      }
-      console.log(res);
-      connectUpdateUser({ connected: true });
-      this.initializeListeners();
-    });
+    if (socketId !== socket.id) {
+      socket.emit('SYNC_SOCKET', _id, (res, err) => {
+        if (err) {
+          console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
+          return;
+        }
+        console.log(res);
+        connectUpdateUser({ socketId: socket.id, connected: true });
+        this.initializeListeners();
+      });
+    }
   };
 
   showNtfToast = (ntfMessage) => {
@@ -136,6 +138,8 @@ class SocketProvider extends Component {
     } = this.props;
     socket.removeAllListeners('NEW_NOTIFICATION');
     socket.removeAllListeners('FORCED_LOGOUT');
+    socket.io.removeAllListeners('disconnect');
+    socket.io.removeAllListeners('reconnect');
 
     socket.on('NEW_NOTIFICATION', (data) => {
       const { notification, course, room } = data;
@@ -187,7 +191,7 @@ class SocketProvider extends Component {
     socket.io.on('reconnect', () => {
       console.log('Reconnected and socket synced!');
       this.syncSocket();
-      // connectGetUser(user._id);
+      connectGetUser(user._id);
     });
 
     socket.on('FORCED_LOGOUT', () => {
