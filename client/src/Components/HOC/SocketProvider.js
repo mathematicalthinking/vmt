@@ -105,7 +105,7 @@ class SocketProvider extends Component {
           return;
         }
         console.log(res);
-        connectUpdateUser({ connected: true });
+        connectUpdateUser({ socketId: socket.id, connected: true });
         this.initializeListeners();
       });
     }
