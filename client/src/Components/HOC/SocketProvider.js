@@ -96,10 +96,10 @@ class SocketProvider extends Component {
   syncSocket = (location) => {
     const {
       connectUpdateUser,
-      user: { _id, socketId },
+      user: { _id, sockedId },
     } = this.props;
-    if (socketId !== socket.id) {
-      socket.emit('SYNC_SOCKET', _id, location, (res, err) => {
+    if (sockedId !== socket.id) {
+      socket.emit('SYNC_SOCKET', _id, (res, err) => {
         if (err) {
           console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
           return;
