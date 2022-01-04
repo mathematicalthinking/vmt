@@ -51,13 +51,12 @@ export default function useDataValidator(initialData) {
 
     // 1. handle validating whether username/email exists, whether they are consistent, and the resolution thereof
     clearChoices(rowIndex);
-    const userFromUsername = await validateExistingField(
-      'username',
-      d.username
-    );
-    const userFromEmail = d.email
-      ? await validateExistingField('email', d.email)
-      : null;
+
+    const [userFromUsername, userFromEmail] = await Promise.all([
+      validateExistingField('username', d.username),
+      d.email ? await validateExistingField('email', d.email) : null,
+    ]);
+
     const isMatch =
       userFromUsername &&
       userFromEmail &&
@@ -86,26 +85,27 @@ export default function useDataValidator(initialData) {
     }
 
     // 2. handle duplicate email or usernames in the list
-    let emailDup = 0;
-    let usernameDup = 0;
-    validatedData.forEach((u) => {
-      if (u.username.toLowerCase() === d.username.toLowerCase()) {
-        usernameDup += 1;
-      }
-      if (!!u.email && u.email === d.email) {
-        emailDup += 1;
-      }
-    });
+    // NOTE: Now handled in validateData
+    // let emailDup = 0;
+    // let usernameDup = 0;
+    // validatedData.forEach((u) => {
+    //   if (u.username.toLowerCase() === d.username.toLowerCase()) {
+    //     usernameDup += 1;
+    //   }
+    //   if (!!u.email && u.email === d.email) {
+    //     emailDup += 1;
+    //   }
+    // });
 
-    if (emailDup > 1) {
-      d.comment += 'Email duplicated in list. ';
-      newValidationErrors.push({ rowIndex, property: 'email' });
-    }
+    // if (emailDup > 1) {
+    //   d.comment += 'Email duplicated in list. ';
+    //   newValidationErrors.push({ rowIndex, property: 'email' });
+    // }
 
-    if (usernameDup > 1) {
-      d.comment += 'Username duplicated in list. ';
-      newValidationErrors.push({ rowIndex, property: 'username' });
-    }
+    // if (usernameDup > 1) {
+    //   d.comment += 'Username duplicated in list. ';
+    //   newValidationErrors.push({ rowIndex, property: 'username' });
+    // }
 
     // 3. handle validating that new users must have first and last names specified
     if (isNewUser && (!d.firstName || !d.lastName)) {
@@ -159,18 +159,63 @@ export default function useDataValidator(initialData) {
         ? data.map(async (d, index) => validateDataRow(d, index))
         : rows.map(async (row) => validateDataRow(data[row], row))
     );
+
     // next, reconfigure the results of the above call so that we accumulate the data rows and errors
     // gathered above. newData will be an array of each row. For validationsErrors, because there can be
     // more than one error on each row, we have to use a spread operator in accumulation so that we
     // end up wth a simple array of errors.
-    const [newData, newErrors] = await validatedInfo.reduce(
+    const [
+      initialValidationData,
+      initialValidationErrors,
+    ] = await validatedInfo.reduce(
       ([accData, accErrors], [dataRow, rowErrors]) => [
         [...accData, dataRow],
         [...accErrors, ...rowErrors],
       ],
       [[], []]
     );
+
+    // Finally, check for any duplicate usernames or emails across all data
+    const [userNameData, userNameErrors] = _markRowsWithDuplicates(
+      initialValidationData,
+      'username',
+      'Username duplicated in list. '
+    );
+    const [newData, emailErrors] = _markRowsWithDuplicates(
+      userNameData,
+      'email',
+      'Email duplicated in list. '
+    );
+    const newErrors = [
+      ...initialValidationErrors,
+      ...userNameErrors,
+      ...emailErrors,
+    ];
+
     return [newData, newErrors];
+  };
+
+  const _markRowsWithDuplicates = (data, property, message) => {
+    const newData = [...data];
+    const rowsWithDuplicates = _rowsWithDuplicates(data, property);
+    const newErrors = rowsWithDuplicates.reduce((acc, rowIndex) => {
+      newData[rowIndex].comment += message;
+      return [...acc, { rowIndex, property }];
+    }, []);
+    return [newData, newErrors];
+  };
+
+  const _rowsWithDuplicates = (data, property) => {
+    const dupCount = data.reduce((acc, row, index) => {
+      const value = acc[row[property]] || [];
+      acc[row[property]] = [...value, index];
+      return acc;
+    }, {});
+    const duplicateRows = Object.values(dupCount).reduce(
+      (acc, rows) => (rows.length > 1 ? [...acc, ...rows] : acc),
+      []
+    );
+    return duplicateRows;
   };
 
   /**
