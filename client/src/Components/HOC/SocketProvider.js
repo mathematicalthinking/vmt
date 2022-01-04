@@ -138,6 +138,8 @@ class SocketProvider extends Component {
     } = this.props;
     socket.removeAllListeners('NEW_NOTIFICATION');
     socket.removeAllListeners('FORCED_LOGOUT');
+    socket.io.removeAllListeners('disconnect');
+    socket.io.removeAllListeners('reconnect');
 
     socket.on('NEW_NOTIFICATION', (data) => {
       const { notification, course, room } = data;
