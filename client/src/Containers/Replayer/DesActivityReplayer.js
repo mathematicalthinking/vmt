@@ -2,7 +2,7 @@ import React, { useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classes from './DesActivityReplayer.css';
 // import { Player } from '../../external/js/api.full.es';
-import { fetchConfigData } from '../Workspace/Tools/DesActivityHelpers.es';
+import { fetchConfigData } from '../Workspace/Tools/DesActivityHelpers';
 
 const DesActivityReplayer = (props) => {
   const { index } = props;

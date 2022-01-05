@@ -68,6 +68,7 @@ module.exports = {
       .populate({ path: 'members.user', select: 'username' })
       .populate({ path: 'currentMembers', select: 'username' })
       .populate({ path: 'course', select: 'name' })
+      .populate({ path: 'activity', select: 'name' })
       .populate({
         path: 'tabs',
         populate: {
@@ -593,6 +594,29 @@ module.exports = {
   },
 
   // SOCKET METHODS
+
+  setCurrentUsers: (roomId, newCurrentUserIds) => {
+    return new Promise(async (resolve, reject) => {
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
+      const query = { $set: { currentMembers: newCurrentUserIds } };
+      db.Room.findByIdAndUpdate(roomId, query, { new: true })
+        // .populate({ path: 'members.user', select: 'username' })
+        .select('currentMembers members controlledBy')
+        .then((room) => {
+          room.populate(
+            { path: 'currentMembers members.user', select: 'username' },
+            (err, poppedRoom) => {
+              if (err) {
+                reject(err);
+              }
+              resolve(poppedRoom);
+            }
+          );
+        })
+        .catch((err) => reject(err));
+    });
+  },
+
   addCurrentUsers: (roomId, newCurrentUserId, members) => {
     return new Promise(async (resolve, reject) => {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE

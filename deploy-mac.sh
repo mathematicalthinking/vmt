@@ -9,7 +9,7 @@ if [ -d "./client/encompassBuild" ]; then
 fi
 cd ./server
 npm run build-$1
-# npm run build-enc-$1
+npm run build-enc-$1
 cd ..
 if [ -d "./$1" ]; then
   rm -rf ./$1
@@ -28,10 +28,10 @@ echo "\e[1;33mfiles copied"
 cd ../$1
 mkdir client
 mkdir client/build
-# mkdir client/encompassBuild
+mkdir client/encompassBuild
 
 cp -r ../client/build/ client/build
-# cp -r ../client/encompassBuild/ client/encompassBuild
+cp -r ../client/encompassBuild/ client/encompassBuild
 
 echo -e "\e[1;33m Zipping...\e[0m"
 zip -r VMT-$1.zip .

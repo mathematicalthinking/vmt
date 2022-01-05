@@ -22,13 +22,23 @@ import classes from './selectionTable.css';
 export default function SelectionTable(props) {
   const { data, selections, onChange } = props;
   const tableData = data.map((datum) => {
-    const { _id, name, updatedAt, createdAt, currentMembers } = datum;
+    const {
+      _id,
+      name,
+      updatedAt,
+      createdAt,
+      currentMembers,
+      course,
+      activity,
+    } = datum;
     return {
       _id,
       name,
       updatedAt,
       createdAt,
       currentMembers: currentMembers && currentMembers.length,
+      courseName: course ? course.name : '',
+      templateName: activity ? activity.name : '',
     };
   });
 
@@ -91,6 +101,24 @@ export default function SelectionTable(props) {
           <th>
             <button
               type="button"
+              onClick={() => requestSort('courseName')}
+              className={classes[getClassNamesFor('courseName')]}
+            >
+              Course
+            </button>
+          </th>
+          <th>
+            <button
+              type="button"
+              onClick={() => requestSort('templateName')}
+              className={classes[getClassNamesFor('templateName')]}
+            >
+              Template
+            </button>
+          </th>
+          <th>
+            <button
+              type="button"
               onClick={() => requestSort('updatedAt')}
               className={classes[getClassNamesFor('updatedAt')]}
             >
@@ -122,6 +150,8 @@ export default function SelectionTable(props) {
             </td>
             <td>{item.name}</td>
             <td style={{ textAlign: 'center' }}>{item.currentMembers}</td>
+            <td>{item.courseName}</td>
+            <td>{item.templateName}</td>
             <td>{moment(item.updatedAt).format('LLL')}</td>
             <td>{moment(item.createdAt).format('LLL')}</td>
           </tr>

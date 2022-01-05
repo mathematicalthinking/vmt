@@ -6,6 +6,7 @@ const axios = require('axios');
 const socketInit = require('./socketInit');
 const controllers = require('./controllers');
 const Message = require('./models/Message');
+const { socketMetricInc } = require('./services/metrics');
 
 const url =
   process.env.BAD_DATA_URL || 'https://dweet.io/dweet/for/VMT-BAD-DATA';
@@ -13,26 +14,6 @@ const url =
 // const io = require('socket.io')(server, {wsEngine: 'ws'});
 module.exports = function() {
   const { io } = socketInit;
-  const constants = { EVENT: 'event', MESSAGE: 'message' };
-  const timestamps = { [constants.EVENT]: {}, [constants.MESSAGE]: {} };
-
-  const recordEventProblem = (data) => {
-    axios.post(url, data);
-  };
-
-  const recordData = (type, data) => {
-    try {
-      if (
-        timestamps[type][data.user._id] &&
-        timestamps[type][data.user._id] > data.timestamp
-      ) {
-        data.type = type;
-        recordEventProblem(data);
-      } else timestamps[type][data.user._id] = data.timestamp;
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   io.use((socket, next) => {
     // const cookief = socket.handshake.headers.cookie;
@@ -45,7 +26,16 @@ module.exports = function() {
   });
 
   io.sockets.on('connection', (socket) => {
-    console.log('socket connected: ', socket.id);
+    socketMetricInc('connect');
+
+    // io.sockets.adapter.on('join-room', (room, id) => {
+    //   console.log('join-room', room, id);
+    //   console.log('people in room', io.sockets.adapter.rooms.get(room));
+    // });
+    // io.sockets.adapter.on('leave-room', (room, id) =>
+    //   console.log('leave-room', room, id)
+    // );
+    // console.log('socket connected: ', socket.id);
     socket.on('ping', (cb) => {
       if (typeof cb === 'function') cb();
     });
@@ -126,17 +116,22 @@ module.exports = function() {
     });
 
     socket.on('JOIN', async (data, cb) => {
+      socketMetricInc('roomjoin');
+
       // console.log('user joined: ', data.eventType);
       // console.log('user with data: ', data.user);
       // console.log('from user: ', socket.user_id);
       // console.log(new Date());
-      socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
+      // socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
       socket.username = data.username;
       const promises = [];
       const user = { _id: data.userId, username: data.username };
 
       socket.join(data.roomId);
       // console.log('user joined: ', data);
+
+      const socketsInRoom = await io.in(data.roomId).fetchSockets();
+      const usersInRoom = socketsInRoom.map((socket) => socket.user_id);
 
       // update current users of this room
       const joinUserMembers = async () => {
@@ -152,11 +147,10 @@ module.exports = function() {
         };
         promises.push(controllers.messages.post(message));
         promises.push(
-          controllers.rooms.addCurrentUsers(data.roomId, data.userId)
+          controllers.rooms.setCurrentUsers(data.roomId, usersInRoom)
         ); //
-        let results;
         try {
-          results = await Promise.all(promises);
+          const results = await Promise.all(promises);
           socket.to(data.roomId).emit('USER_JOINED', {
             currentMembers: results[1].currentMembers,
             message,
@@ -178,6 +172,7 @@ module.exports = function() {
     });
 
     socket.on('LEAVE_ROOM', (roomId, color, cb) => {
+      socketMetricInc('roomleave');
       // console.log('user left room: ', roomId);
       // console.log('from user: ', socket.user_id);
       // console.log(new Date());
@@ -185,45 +180,40 @@ module.exports = function() {
       leaveRoom(roomId, false, color, cb);
     });
 
-    socket.on('disconnecting', () => {
-      // if they're in a room we need to remove them
-      // console.log('socket id: ', socket.user_id);
-      // socket.rooms is a set, so first convert to an array
-      // const room = [...socket.rooms].pop(); // they can only be in one room so just grab the last one
-      // if (room && ObjectId.isValid(room)) {
-      //   socket.leave(room);
-      //   leaveRoom(room, true);
-      // }
-    });
-
-    socket.on('disconnect', (reason) => {
+    socket.on('disconnecting', (reason) => {
+      socketMetricInc('disconnect');
       console.log(
         'socket disconnect from user: ',
         socket.user_id,
         ', ',
         new Date(),
         ', due to: ',
-        reason
+        reason,
+        ', from rooms',
+        socket.rooms
       );
     });
 
     socket.on('SYNC_SOCKET', (_id, cb) => {
+      // check user state vs db state in case they were disconnected
+      // check if user is still in room and needs to resubscribe to sockets
+      socketMetricInc('sync');
       if (!_id) {
         // console.log('unknown user connected: ', socket.id);
         cb(null, 'NO USER');
         return;
       }
+      socket.user_id = _id;
       controllers.user
         .put(_id, { socketId: socket.id })
         .then(() => {
           cb(`User socketId updated to ${socket.id}`, null);
-          socket.emit('SOCKET_SYNCED');
         })
         .catch((err) => cb('Error found', err));
     });
 
     socket.on('SEND_MESSAGE', (data, callback) => {
-      recordData(constants.MESSAGE, data);
+      socketMetricInc('msgsend');
       const postData = { ...data };
       postData.user = postData.user._id;
       controllers.messages
@@ -240,10 +230,14 @@ module.exports = function() {
     });
 
     socket.on('PENDING_MESSAGE', (data) => {
+      socketMetricInc('msgpend');
+
       socket.broadcast.to(data.room).emit('PENDING_MESSAGE', { ...data });
     });
 
     socket.on('TAKE_CONTROL', async (data, callback) => {
+      socketMetricInc('controltake');
+
       // console.log('TAKE_CONTROL', data);
       // console.log('user with data: ', data.user);
       // console.log('from user: ', socket.user_id);
@@ -269,10 +263,8 @@ module.exports = function() {
     });
 
     socket.on('RELEASE_CONTROL', (data, callback) => {
-      // console.log('release control ', data);
-      // console.log('user with data: ', data.user);
-      // console.log('from user: ', socket.user_id);
-      // console.log(new Date());
+      socketMetricInc('controlrelease');
+
       controllers.messages.post(data);
       controllers.rooms.put(data.room, { controlledBy: null });
       socket.to(data.room).emit('RELEASED_CONTROL', data);
@@ -280,7 +272,7 @@ module.exports = function() {
     });
 
     socket.on('SEND_EVENT', async (data) => {
-      recordData(constants.EVENT, data);
+      socketMetricInc('eventsend');
       try {
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
         await controllers.events.post(data);
@@ -290,6 +282,8 @@ module.exports = function() {
     });
 
     socket.on('SWITCH_TAB', (data, callback) => {
+      socketMetricInc('tabswitch');
+
       controllers.messages
         .post(data)
         .then(() => {
@@ -302,6 +296,7 @@ module.exports = function() {
     });
 
     socket.on('NEW_TAB', (data, callback) => {
+      socketMetricInc('tabsnew');
       controllers.messages
         .post(data.message)
         .then(() => {
@@ -312,6 +307,7 @@ module.exports = function() {
     });
 
     socket.on('UPDATED_REFERENCES', (data) => {
+      socketMetricInc('refupdated');
       const { roomId, updatedEvents } = data;
       console.log('emitting updating refs', roomId, updatedEvents);
 
@@ -320,49 +316,40 @@ module.exports = function() {
         .emit('RECEIVED_UPDATED_REFERENCES', updatedEvents);
     });
 
-    const leaveRoom = function(room, wasDisconnected, color, cb) {
+    const leaveRoom = async (room, wasDisconnected, color, cb) => {
+      const socketsInRoom = await io.in(room).fetchSockets();
+      const usersInRoom = socketsInRoom.map((socket) => socket.user_id);
       controllers.rooms
-        .removeCurrentUsers(room, socket.user_id)
+        .setCurrentUsers(room, usersInRoom)
         .then((res) => {
-          let removedMember = {};
-          if (res && res.currentMembers) {
-            const currentMembers = res.currentMembers.filter((member) => {
-              if (socket.user_id.toString() === member._id.toString()) {
-                removedMember = member;
-                return false;
-              }
-              return true;
-            });
-            const message = new Message({
-              color,
-              room,
-              user: { _id: removedMember._id, username: 'VMTBot' },
-              text: wasDisconnected
-                ? `${removedMember.username} was disconnected from the room`
-                : `${removedMember.username} left the room`,
-              messageType: 'LEFT_ROOM',
-              autogenerated: true,
-              timestamp: new Date().getTime(),
-            });
-            let releasedControl = false;
-            // parse to string because it is an objectId
-            if (
-              res.controlledBy &&
-              res.controlledBy.toString() === socket.user_id
-            ) {
-              controllers.rooms.put(room, { controlledBy: null });
-              releasedControl = true;
-            }
-            message.save();
-            socket
-              .to(room)
-              .emit('USER_LEFT', { currentMembers, releasedControl, message });
-            // delete socket.rooms;
-            // This function can be invoked by the LEAVE_ROOM handler or by disconnecting...in the case of disconnecting
-            // there is no callback because
-            if (cb) {
-              cb('exited!', null);
-            }
+          const message = new Message({
+            color,
+            room,
+            user: { _id: socket.user_id, username: 'VMTBot' },
+            text: wasDisconnected
+              ? `${socket.username} was disconnected from the room`
+              : `${socket.username} left the room`,
+            messageType: 'LEFT_ROOM',
+            autogenerated: true,
+            timestamp: new Date().getTime(),
+          });
+          const releasedControl =
+            res.controlledBy && res.controlledBy.toString() === socket.user_id;
+          // parse to string because it is an objectId
+          if (releasedControl) {
+            controllers.rooms.put(room, { controlledBy: null });
+          }
+          message.save();
+          socket.to(room).emit('USER_LEFT', {
+            currentMembers: res.currentMembers,
+            releasedControl,
+            message,
+          });
+          // delete socket.rooms;
+          // This function can be invoked by the LEAVE_ROOM handler or by disconnecting...in the case of disconnecting
+          // there is no callback because
+          if (cb) {
+            cb('exited!', null);
           }
         })
         .catch((err) => {
@@ -371,23 +358,21 @@ module.exports = function() {
               'ERROR LEAVING ROOM ',
               room,
               ' user: ',
-              socket.user._id
+              socket.user_id,
+              ' socketid: ',
+              socket.id
             );
           } else {
-            console.log('ERROR LEAVING ROOM ', room, ' user not found!');
+            console.log(
+              'ERROR LEAVING ROOM ',
+              room,
+              ' user not found',
+              ' socketid: ',
+              socket.id
+            );
           }
-          console.log('socketid: ', socket.id);
           if (cb) cb(null, err);
         });
     };
   });
 };
-
-// const parseXML = (xml) => {
-//   return new Promise((resolve, reject) => {
-//     parseString(xml, (err, result) => {
-//       if (err) return reject(err);
-//       return resolve(result);
-//     });
-//   });
-// };

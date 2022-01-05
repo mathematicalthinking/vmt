@@ -6,7 +6,7 @@
 
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { NavItem, ToggleGroup, SimpleChat } from 'Components';
+import { NavItem, ToggleGroup, SimpleChat, CurrentMembers } from 'Components';
 import { usePopulatedRoom } from 'utils';
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
@@ -40,12 +40,13 @@ function CourseMonitor({ course }) {
     VIEW: 'View',
     CHAT: 'Chat',
     THUMBNAIL: 'Thumbnail',
+    ATTENDANCE: 'Attendance',
     GRAPH: 'Graph',
     SIMPLE: 'Simple Chat',
     DETAILED: 'Detailed Chat',
   };
 
-  const [viewType, setViewType] = React.useState(constants.CHAT);
+  const [viewType, setViewType] = React.useState(constants.ATTENDANCE);
   const [chatType, setChatType] = React.useState(constants.DETAILED);
 
   // Because "useQuery" is the equivalent of useState, do this
@@ -119,9 +120,36 @@ function CourseMonitor({ course }) {
           />
         );
       }
+      case constants.ATTENDANCE: {
+        const data = queryStates[id].isSuccess ? queryStates[id].data : null;
+        return (
+          <CurrentMembers
+            members={data ? data.members : []}
+            currentMembers={
+              data
+                ? _selectFirst([
+                    ...data.currentMembers,
+                    ...data.members.map((m) => m.user),
+                  ])
+                : []
+            }
+            activeMember={data ? data.currentMembers.map((m) => m._id) : []}
+            expanded
+            showTitle={false}
+          />
+        );
+      }
       default:
         return null;
     }
+  };
+
+  const _selectFirst = (list) => {
+    const values = list.reduce((acc, elt) => {
+      if (!acc[elt._id]) acc[elt._id] = elt;
+      return acc;
+    }, {});
+    return Object.values(values);
   };
 
   // @TODO VMT should have a standard way of displaying timestamps, perhaps in utilities. This function should be there.
@@ -142,7 +170,12 @@ function CourseMonitor({ course }) {
       <div className={classes.TogglesContainer}>
         <Fragment>
           <ToggleGroup
-            buttons={[constants.CHAT, constants.THUMBNAIL, constants.GRAPH]}
+            buttons={[
+              constants.ATTENDANCE,
+              constants.CHAT,
+              constants.THUMBNAIL,
+              constants.GRAPH,
+            ]}
             value={viewType}
             onChange={setViewType}
           />

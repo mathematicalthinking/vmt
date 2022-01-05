@@ -72,13 +72,13 @@ module.exports.getEncIssuerId = () => {
   const envName = process.env.NODE_ENV;
 
   if (envName === 'production') {
-    // return process.env.ENC_JWT_ISSUER_ID_PROD;
-    return `https://encompass.mathematicalthinking.org`;
+    return process.env.ENC_JWT_ISSUER_ID_PROD;
+    // return `https://encompass.mathematicalthinking.org`;
   }
 
   if (envName === 'staging') {
-    // return process.env.ENC_JWT_ISSUER_ID_STAGING;
-    return `https://enc-test.mathematicalthinking.org/`;
+    return process.env.ENC_JWT_ISSUER_ID_STAGING;
+    // return `https://enc-test.mathematicalthinking.org/`;
   }
 
   if (envName === 'test') {

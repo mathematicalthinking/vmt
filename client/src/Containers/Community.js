@@ -8,12 +8,13 @@ import API from '../utils/apiRequests';
 
 const SKIP_VALUE = 20;
 class Community extends Component {
-  _isMounted = false;
+  _isOkToLoadResults = false;
   constructor(props) {
     super(props);
     this.state = {
       visibleResources: [],
       skip: 0,
+      loading: true,
       moreAvailable: true,
       searchText: this.getQueryParams().search || '',
     };
@@ -26,9 +27,9 @@ class Community extends Component {
   }
 
   componentDidMount() {
-    this._isMounted = true;
-    const { match } = this.props;
-    const { resource } = match.params;
+    this._isOkToLoadResults = true;
+    // const { match } = this.props;
+    // const { resource } = match.params;
     // @TODO WHen should we refresh this data. Here we're saying:
     // if there aren't fift result then we've probably only loaded the users
     // own courses. This is assuming that the database will have more than 50 courses and rooms
@@ -38,11 +39,11 @@ class Community extends Component {
     // }
     // else {
     // eslint-disable-next-line react/destructuring-assignment
-    const resourceList = this.props[`${resource}Arr`].map(
-      // eslint-disable-next-line react/destructuring-assignment
-      (id) => this.props[resource][id]
-    );
-    this.setState({ visibleResources: resourceList });
+    // const resourceList = this.props[`${resource}Arr`].map(
+    //   // eslint-disable-next-line react/destructuring-assignment
+    //   (id) => this.props[resource][id]
+    // );
+    // this.setState({ visibleResources: resourceList });
     // }
   }
 
@@ -72,13 +73,16 @@ class Community extends Component {
   }
 
   componentWillUnmount() {
-    this._isMounted = false;
+    this._isOkToLoadResults = false;
     this.debounceFetchData.cancel();
     this.debouncedSetCriteria.cancel();
   }
 
   // concat tells us whether we should concat to existing results or overwrite
   fetchData = (concat = false) => {
+    this.setState({
+      loading: true,
+    });
     const { skip } = this.state;
     const {
       match: {
@@ -101,12 +105,13 @@ class Community extends Component {
       updatedFilters
     ).then((res) => {
       const moreAvailable = res.data.results.length >= SKIP_VALUE;
-      if (this._isMounted) {
+      if (this._isOkToLoadResults) {
         this.setState((prevState) => ({
           visibleResources: concat
             ? [...prevState.visibleResources].concat(res.data.results)
             : res.data.results,
           moreAvailable,
+          loading: false,
         }));
       }
     });
@@ -183,7 +188,7 @@ class Community extends Component {
 
   render() {
     const { match } = this.props;
-    const { visibleResources, moreAvailable, searchText } = this.state;
+    const { visibleResources, moreAvailable, searchText, loading } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
     let linkSuffix;
@@ -210,6 +215,7 @@ class Community extends Component {
         moreAvailable={moreAvailable}
         filters={filters}
         toggleFilter={this.toggleFilter}
+        loading={loading}
       />
     );
   }

@@ -11,7 +11,7 @@ import {
   // activityMetadataSchema,
   // screenMetadataSchema,
   // componentMetadataSchema,
-} from './Tools/DesActivityHelpers.es';
+} from './Tools/DesActivityHelpers';
 import API from '../../utils/apiRequests';
 
 const DesmosActivityEditor = (props) => {
@@ -115,8 +115,9 @@ const DesmosActivityEditor = (props) => {
     initEditor();
     initializing = false;
     return () => {
-      if (editorInst.current) {
-        if (!editorInst.current.isDestroyed()) editorInst.current.destroy();
+      if (editorInst.current && !editorInst.current.isDestroyed()) {
+        console.log('Editor instance unmounted!');
+        editorInst.current.destroy();
       }
     };
   }, []);

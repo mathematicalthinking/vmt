@@ -6,6 +6,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const promBundle = require('express-prom-bundle');
 require('dotenv').config();
 
 // REQUIRE FILES
@@ -16,7 +17,7 @@ const desmos = require('./routes/desmos');
 const enc = require('./routes/enc');
 const admin = require('./routes/admin');
 const cors = require('./middleware/cors');
-const metrics = require('./services/metrics');
+const { router: metrics } = require('./services/metrics');
 
 const app = express();
 console.log('NODE_ENV=', process.env.NODE_ENV);
@@ -66,8 +67,24 @@ mongoose.connect(mongoURI, mongoOptions, (err) => {
 });
 
 // MIDDLEWARE
+// COLLECT AND EXPOSE METRICS
+const metricsMiddleware = promBundle({ includeMethod: true });
+app.use(metricsMiddleware);
+app.use('/metrics', metrics);
+
 // Morgan configuration
-app.use(logger('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(logger('dev'));
+} else {
+  // only log errors on deployment
+  app.use(
+    logger('dev', {
+      skip: function(req, res) {
+        return res.statusCode < 400;
+      },
+    })
+  );
+}
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
 app.use(cookieParser());
@@ -84,9 +101,6 @@ app.use('/auth', auth);
 app.use('/api', api);
 app.use('/enc', enc);
 app.use('/admin', admin);
-
-// COLLECT AND EXPOSE METRICS
-app.use('/metrics', metrics);
 
 if (process.env.ENCOMPASS) {
   app.use(express.static(path.join(__dirname, '../client/encompassBuild')));
