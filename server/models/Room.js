@@ -117,7 +117,7 @@ Room.post('save', function(doc, next) {
         // const query = { $addToSet: { rooms: this._id } };
         // @TODO use notification schema
         let notification;
-        if (member.user !== this.creator) {
+        if (member.user.toString() !== this.creator.toString()) {
           notification = {
             notificationType: 'assignedNewRoom',
             resourceType: 'room',
