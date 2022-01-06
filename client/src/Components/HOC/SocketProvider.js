@@ -96,7 +96,7 @@ class SocketProvider extends Component {
   syncSocket = () => {
     const {
       connectUpdateUser,
-      user: { _id, sockedId },
+      user: { _id, socketId },
     } = this.props;
     if (socketId !== socket.id) {
       socket.emit('SYNC_SOCKET', _id, (res, err) => {
