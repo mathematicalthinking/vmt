@@ -11,18 +11,19 @@ const CodePyretOrg = (props) => {
   const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
   const [iframeSrc, setIframeSrc] = useState(
-    // 'https://localhost:5000/editor' or 'https://pyret-horizon.herokuapp.com/editor'
+    // 'http://localhost:5000/editor'
+    // 'http://localhost:5000/editor' or 'https://pyret-horizon.herokuapp.com/editor'
     process.env.REACT_APP_PYRET_URL
   );
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
   let pyret = null;
 
+  const oldOnMessage = window.onmessage;
   let receivingData = false;
   let initializing = false;
 
   function PyretAPI(iframeReference, onmessageHandler) {
-    const oldOnMessage = window.onmessage;
     const handlers = {
       onmessage: onmessageHandler,
       postMessage,
@@ -37,7 +38,7 @@ const CodePyretOrg = (props) => {
     function setParams(params) {
       console.log(params, iframeReference());
       // Test to see if this forces an iframe refresh
-      // setIframeSrc(`${process.env.REACT_APP_PYRET_URL}${params}`);
+      // setIframeSrc(`http://localhost:5000/editor${params}`);
       setIframeSrc(`${process.env.REACT_APP_PYRET_URL}${params}`);
       // const pyretWindow = iframeReference();
       // pyretWindow.src += params;
@@ -241,9 +242,7 @@ const CodePyretOrg = (props) => {
     initPlayer();
     initializing = false;
     return () => {
-      window.onmessage = function(event) {
-        return event;
-      };
+      window.onmessage = oldOnMessage;
       socket.removeAllListeners('RECEIVE_EVENT');
       console.log('CPO activity ending - clean up listeners');
     };
