@@ -241,7 +241,11 @@ const CodePyretOrg = (props) => {
     initPlayer();
     initializing = false;
     return () => {
-      console.log('CPO activity ending');
+      window.onmessage = function(event) {
+        return event;
+      };
+      socket.removeAllListeners('RECEIVE_EVENT');
+      console.log('CPO activity ending - clean up listeners');
     };
   }, []);
 
