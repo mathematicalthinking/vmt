@@ -69,7 +69,7 @@ window.navigator.serviceWorker.addEventListener('controllerchange', function() {
   window.location.reload();
 });
 function promptUserToRefresh(reg) {
-  // this is just an example
+  // TODO: this is just an example for test
   // don't use window.confirm in real life; it's terrible
   if (window.confirm('New version available! OK to refresh?')) {
     reg.waiting.postMessage('skipWaiting');

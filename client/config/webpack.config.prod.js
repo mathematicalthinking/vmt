@@ -327,8 +327,14 @@ module.exports = {
       // about it being stale, and the cache-busting can be skipped.
       dontCacheBustUrlsMatching: /\.\w{8}\./,
       filename: 'service-worker.js',
+      importScripts: [
+        // * legacy supported
+        // [chunkhash] is not supported for this usage
+        // This is transformed to new object syntax:
+        // { filename: '/my/public/path/some-known-script-path.js' }
+        './serviceWorkerScript.js',
+      ],
       logger(message) {
-        if (message.data === 'skipWaiting') return skipWaiting();
         if (message.indexOf('Total precache size is') === 0) {
           // This message occurs for every build and is a bit too noisy.
           return;
