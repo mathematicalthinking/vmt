@@ -326,6 +326,7 @@ describe('test community search and filter', function() {
     it('Clicking community tab should clear search text', function() {
       doSearch('reference');
       cy.getTestElement('community-search').should('have.value', 'reference');
+      cy.wait(1000); // give the UI some time to do the search and display results
       cy.getTestElement('nav-Community').click({ force: true });
       cy.getTestElement('community-search').should('have.value', '');
     });
