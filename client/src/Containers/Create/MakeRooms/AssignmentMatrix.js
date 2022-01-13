@@ -51,6 +51,8 @@ const AssignmentMatrix = (props) => {
     } else {
       roomList.splice(roomNum - rooms.length);
     }
+    console.log('Rooms ...', roomList);
+    select(roomList);
     setRooms(roomList);
   }, [roomNum]);
 

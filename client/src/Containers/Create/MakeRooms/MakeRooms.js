@@ -75,8 +75,8 @@ class MakeRooms extends Component {
   setParticipantNumber = (event) =>
     this.setState({ participantsPerRoom: event.target.value });
 
-  setRoomNumber = (event) => {
-    const number = +event.target.value;
+  setRoomNumber = (number) => {
+    // const number = +event.target.value;
     if (number === 0) this.setState({ roomNum: '' });
     if (number > 0 && number < 13) {
       this.setState({ roomNum: number, error: null });
@@ -166,6 +166,77 @@ class MakeRooms extends Component {
 
   updateParticipants = (selectionMatrix) => {
     this.setState({ roomDrafts: selectionMatrix });
+  };
+
+  shuffleParticipants = () => {
+    const { participants } = this.props;
+    const { participantsPerRoom, roomDrafts } = this.state;
+    const updatedParticipants = shuffle(participants);
+    const numRooms = Math.ceil(
+      updatedParticipants.length / participantsPerRoom
+    );
+    this.setRoomNumber(numRooms);
+    const randomRoom = () => {
+      // if (!participantsPerRoom) return 0;
+      const roomIndex = Math.floor(Math.random() * numRooms);
+      if (memberList[roomIndex].length < participantsPerRoom) {
+        return roomIndex;
+      }
+      randomRoom();
+      return 0;
+    };
+    // const checkUser = (roomId, user) => {
+    //   return rooms[roomId].members.findIndex((mem) => mem._id === user);
+    // };
+    const memberList = {};
+    for (let i = 0; i < numRooms; i++) {
+      memberList[i] = [];
+    }
+    updatedParticipants.forEach((mem) => {
+      const user = {
+        role: mem.role || 'participant',
+        _id: mem.user._id,
+      };
+      if (user.role !== 'facilitator') {
+        memberList[randomRoom()].push(user);
+      }
+    });
+    const roomsUpdate = [...roomDrafts];
+    for (let i = 0; i < numRooms; i++) {
+      roomsUpdate[i].members = [...roomsUpdate[i].members, ...memberList[i]];
+    }
+    console.log(
+      'members to assign: ',
+      updatedParticipants,
+      'New Room drafts: ',
+      roomsUpdate,
+      'member lists: ',
+      memberList
+    );
+
+    // const roomsToCreate = [];
+    // for (let i = 0; i < numRooms; i++) {
+    //   if (updatedParticipants.length < 1) break;
+    //   const currentRoom = { ...newRoom };
+    //   const members = updatedParticipants
+    //     .slice(0, participantsPerRoom)
+    //     .map((participant) => ({
+    //       user: participant.user._id,
+    //       role: 'participant',
+    //     }));
+    //   updatedParticipants.splice(0, participantsPerRoom);
+    //   if (updatedParticipants.length === 1)
+    //     members.push({
+    //       user: updatedParticipants[0].user._id,
+    //       role: 'participant',
+    //     });
+    //   members.push({ user: userId, role: 'facilitator' });
+    //   currentRoom.name = `${name} (CourseID:${course.slice(-5)}, room ${i +
+    //     1})`;
+    //   currentRoom.members = members;
+    //   roomsToCreate.push(currentRoom);
+    // }
+    // console.log('Random Room assignment rooms: ', roomsToCreate);
   };
 
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
@@ -343,6 +414,7 @@ class MakeRooms extends Component {
           setRandom={this.setRandom}
           setManual={this.setManual}
           setNumber={this.setNumber}
+          shuffleParticipants={this.shuffleParticipants}
           participantsPerRoom={participantsPerRoom}
           roomNum={roomNum}
           setRoomNumber={this.setRoomNumber}
