@@ -466,7 +466,7 @@ class GgbGraph extends Component {
       // scaleContainerClass: "graph",
       showToolBar: true,
       showMenuBar: true,
-      showAlgebraInput: false,
+      showAlgebraInput: tab.appName === 'geometry',
       language: 'en',
       useBrowserForJS: false,
       borderColor: '#ddd',
