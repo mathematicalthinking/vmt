@@ -138,6 +138,14 @@ class Community extends Component {
                   >
                     Desmos Activity
                   </RadioBtn>
+                  <RadioBtn
+                    data-testid="pyret-activity-filter"
+                    check={() => toggleFilter('pyret')}
+                    checked={filters.roomType === 'pyret'}
+                    name="PyretActivity"
+                  >
+                    Pyret
+                  </RadioBtn>
                 </div>
               </InfoBox>
             ) : null}
@@ -189,7 +197,13 @@ Community.propTypes = {
   searchValue: PropTypes.string.isRequired,
   filters: PropTypes.shape({
     privacySetting: PropTypes.oneOf(['public', 'private', 'all']),
-    roomType: PropTypes.oneOf(['geogebra', 'desmos', 'desmosActivity', 'all']),
+    roomType: PropTypes.oneOf([
+      'geogebra',
+      'desmos',
+      'desmosActivity',
+      'pyret',
+      'all',
+    ]),
   }).isRequired,
   toggleFilter: PropTypes.func.isRequired,
   setSkip: PropTypes.func.isRequired,

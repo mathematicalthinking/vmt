@@ -273,6 +273,7 @@ const DesmosActivity = (props) => {
     });
     initializing = false;
     return () => {
+      socket.removeAllListeners('RECEIVE_EVENT');
       if (calculatorInst.current) {
         if (unsub) calculatorInst.current.unsubscribeFromSync(unsub);
         if (!calculatorInst.current.isDestroyed())
