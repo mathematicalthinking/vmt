@@ -7,6 +7,7 @@
 
 // To learn more about the benefits of this model, read https://goo.gl/KwvDNy.
 // This link also includes instructions on opting out of this behavior.
+let refreshing;
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
@@ -22,31 +23,59 @@ function registerValidSW(swUrl) {
   window.navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
-      registration.onupdatefound = () => {
-        const installingWorker = registration.installing;
-        installingWorker.onstatechange = () => {
-          if (installingWorker.state === 'installed') {
-            if (window.navigator.serviceWorker.controller) {
-              // At this point, the old content will have been purged and
-              // the fresh content will have been added to the cache.
-              // It's the perfect time to display a "New content is
-              // available; please refresh." message in your web app.
-              console.log('New content is available refreshing...');
-              window.location.reload(true); // force the user to get our new updates
-            } else {
-              // At this point, everything has been precached.
-              // It's the perfect time to display a
-              // "Content is cached for offline use." message.
-              console.log('Content is cached for offline use.');
-            }
-          }
-        };
-      };
+      listenForWaitingServiceWorker(registration, promptUserToRefresh);
+      // registration.onupdatefound = () => {
+      //   const installingWorker = registration.installing;
+      //   installingWorker.onstatechange = () => {
+      //     if (installingWorker.state === 'installed') {
+      //       if (window.navigator.serviceWorker.controller) {
+      //         // At this point, the old content will have been purged and
+      //         // the fresh content will have been added to the cache.
+      //         // It's the perfect time to display a "New content is
+      //         // available; please refresh." message in your web app.
+      //         console.log('New content is available refreshing...');
+      //         window.location.reload(true); // force the user to get our new updates
+      //       } else {
+      //         // At this point, everything has been precached.
+      //         // It's the perfect time to display a
+      //         // "Content is cached for offline use." message.
+      //         console.log('Content is cached for offline use.');
+      //       }
+      //     }
+      //   };
+      // };
     })
     .catch((error) => {
       console.error('Error during service worker registration:', error);
     });
 }
+// Start dynamic prompt for refresh
+function listenForWaitingServiceWorker(reg, callback) {
+  function awaitStateChange() {
+    reg.installing.addEventListener('statechange', function() {
+      if (this.state === 'installed') callback(reg);
+    });
+  }
+  if (!reg) return;
+  if (reg.waiting) callback(reg);
+  if (reg.installing) awaitStateChange();
+  reg.addEventListener('updatefound', awaitStateChange);
+}
+
+// reload once when the new Service Worker starts activating
+window.navigator.serviceWorker.addEventListener('controllerchange', function() {
+  if (refreshing) return;
+  refreshing = true;
+  window.location.reload();
+});
+function promptUserToRefresh(reg) {
+  // TODO: this is just an example for test
+  // don't use window.confirm in real life; it's terrible
+  if (window.confirm('New version available! OK to refresh?')) {
+    reg.waiting.postMessage('skipWaiting');
+  }
+}
+// end dynamic prompt for refresh
 
 function checkValidServiceWorker(swUrl) {
   // Check if the service worker can be found. If it can't reload the page.
@@ -115,8 +144,8 @@ export default function register() {
 
 export function unregister() {
   if ('serviceWorker' in window.navigator) {
-    window.navigator.serviceWorker.ready.then((registration) => {
-      registration.unregister();
+    window.navigator.serviceWorker.getRegistration((registration) => {
+      if (registration) registration.unregister();
     });
   }
 }
