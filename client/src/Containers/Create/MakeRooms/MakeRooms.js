@@ -15,7 +15,7 @@ class MakeRooms extends Component {
     const { participants } = this.props;
     this.state = {
       isRandom: false,
-      participantsPerRoom: 2,
+      participantsPerRoom: 3,
       roomNum: 1,
       selectedParticipants: [],
       roomDrafts: [],
@@ -45,7 +45,16 @@ class MakeRooms extends Component {
     }
   };
 
-  setRandom = () => this.setState({ isRandom: true });
+  setRandom = () => {
+    const { participants } = this.props;
+    const { participantsPerRoom } = this.state;
+    this.setState({ isRandom: true }, () => {
+      const numRooms = Math.ceil(
+        this.filterFacilitators(participants).length / participantsPerRoom
+      );
+      this.setRoomNumber(numRooms);
+    });
+  };
 
   setManual = () => this.setState({ isRandom: false });
 
@@ -69,18 +78,32 @@ class MakeRooms extends Component {
     const { participants } = this.props;
     const { isRandom } = this.state;
     const participantsPerRoom = event.target.value.trim();
-    this.setState(
-      {
-        participantsPerRoom,
-        error: null,
-      },
-      () => {
-        if (isRandom) {
-          const numRooms = Math.ceil(participants.length / participantsPerRoom);
-          this.setRoomNumber(numRooms);
+    if (participantsPerRoom < 0) {
+      this.setState({
+        participantsPerRoom: 0,
+        error: 'Must have at least 1 participant per room',
+      });
+    } else if (participantsPerRoom > participants.length) {
+      this.setState({
+        participantsPerRoom: participants.length,
+        error: 'Maximum number of participants reached',
+      });
+    } else {
+      this.setState(
+        {
+          participantsPerRoom,
+          error: null,
+        },
+        () => {
+          if (isRandom) {
+            const numRooms = Math.ceil(
+              this.filterFacilitators(participants).length / participantsPerRoom
+            );
+            this.setRoomNumber(numRooms);
+          }
         }
-      }
-    );
+      );
+    }
   };
 
   setDate = (event) => {
@@ -198,27 +221,33 @@ class MakeRooms extends Component {
   shuffleParticipants = () => {
     const { participants } = this.props;
     const { participantsPerRoom, roomDrafts } = this.state;
-    const updatedParticipants = this.shuffleUserList(
-      this.restructureMemberlist(this.filterFacilitators(participants))
-    );
+    if (participantsPerRoom <= 0) {
+      this.setState({
+        error: 'Must have at least 1 participant per room',
+      });
+    } else {
+      const updatedParticipants = this.shuffleUserList(
+        this.restructureMemberlist(this.filterFacilitators(participants))
+      );
 
-    const numRooms = Math.ceil(
-      updatedParticipants.length / participantsPerRoom
-    );
+      const numRooms = Math.ceil(
+        updatedParticipants.length / participantsPerRoom
+      );
 
-    const roomsUpdate = this.resetParticipants([...roomDrafts]);
+      const roomsUpdate = this.resetParticipants([...roomDrafts]);
 
-    const partcipantsToAssign = [...updatedParticipants];
-    for (let i = 0; i < numRooms; i++) {
-      roomsUpdate[i].members = [
-        ...roomsUpdate[i].members,
-        ...partcipantsToAssign.splice(0, participantsPerRoom),
-      ];
+      const partcipantsToAssign = [...updatedParticipants];
+      for (let i = 0; i < numRooms; i++) {
+        roomsUpdate[i].members = [
+          ...roomsUpdate[i].members,
+          ...partcipantsToAssign.splice(0, participantsPerRoom),
+        ];
+      }
+
+      this.setState({
+        roomDrafts: roomsUpdate,
+      });
     }
-
-    this.setState({
-      roomDrafts: roomsUpdate,
-    });
   };
 
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
