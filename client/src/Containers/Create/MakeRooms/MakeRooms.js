@@ -56,7 +56,10 @@ class MakeRooms extends Component {
     });
   };
 
-  setManual = () => this.setState({ isRandom: false });
+  setManual = () =>
+    this.setState({ isRandom: false }, () => {
+      this.setRoomNumber(1);
+    });
 
   setParticipantNumber = (event) =>
     this.setState({ participantsPerRoom: event.target.value });
@@ -323,46 +326,6 @@ class MakeRooms extends Component {
     close();
     const { url } = match;
     history.push(`${url.slice(0, url.length - 7)}rooms`);
-    // } else if (
-    //   parseInt(participantsPerRoom, 10) <= 0 ||
-    //   Number.isNaN(parseInt(participantsPerRoom, 10))
-    // ) {
-    //   this.setState({
-    //     error: 'Please enter the number of participants per room',
-    //   });
-    // } else {
-    //   // Is Random assignment
-    //   // @TODO THIS COULD PROBABLY BE OPTIMIZED - currently broken
-    //   const updatedParticipants = shuffle(participants);
-    //   const numRooms = updatedParticipants.length / participantsPerRoom;
-    //   const roomsToCreate = [];
-    //   for (let i = 0; i < numRooms; i++) {
-    //     if (updatedParticipants.length < 1) break;
-    //     const currentRoom = { ...newRoom };
-    //     const members = updatedParticipants
-    //       .slice(0, participantsPerRoom)
-    //       .map((participant) => ({
-    //         user: participant.user._id,
-    //         role: 'participant',
-    //       }));
-    //     updatedParticipants.splice(0, participantsPerRoom);
-    //     if (updatedParticipants.length === 1)
-    //       members.push({
-    //         user: updatedParticipants[0].user._id,
-    //         role: 'participant',
-    //       });
-    //     members.push({ user: userId, role: 'facilitator' });
-    //     currentRoom.name = `${name} (CourseID:${course.slice(-5)}, room ${i +
-    //       1})`;
-    //     currentRoom.members = members;
-    //     roomsToCreate.push(currentRoom);
-    //   }
-    //   console.log('Random Room assignment rooms: ', roomsToCreate);
-    //   roomsToCreate.forEach((room) => connectCreateRoom(room));
-    //   close();
-    //   const { url } = match;
-    //   history.push(`${url.slice(0, url.length - 7)}rooms`);
-    // }
   };
 
   render() {
@@ -392,7 +355,7 @@ class MakeRooms extends Component {
         list={course ? remainingParticipants : selectedParticipants}
         selectedParticipants={selectedParticipants}
         select={this.updateParticipants}
-        roomNum={roomNum}
+        roomNum={parseInt(roomNum, 10)} // ensure a number is passed
         activity={activity}
         course={course}
         dueDate={dueDate}
@@ -427,25 +390,13 @@ class MakeRooms extends Component {
           setNumber={this.setNumber}
           shuffleParticipants={this.shuffleParticipants}
           participantsPerRoom={participantsPerRoom}
-          roomNum={roomNum}
+          roomNum={parseInt(roomNum, 10)} // ensure a number is passed
           setRoomNumber={this.setRoomNumber}
           setParticipantNumber={this.setParticipantNumber}
           isRandom={isRandom}
           error={error}
         />
       );
-      // } else {
-      //   CurrentStep = (
-      //     <Step2
-      //       activity={activity}
-      //       participantList={participantList}
-      //       userId={userId}
-      //       submit={this.submit}
-      //       select={this.selectParticipant}
-      //       selectedParticipants={selectedParticipants}
-      //     />
-      //   );
-      // }
     }
     const stepDisplays = [];
     for (let i = 0; i < 2; i++) {

@@ -98,30 +98,30 @@ const AssignmentMatrix = (props) => {
   return (
     <Fragment>
       <table className={classes.Table}>
-        {/* top row rooms list */}
-        <tr>
-          <th>Participants</th>
-          {rooms.map((room, i) => {
-            return (
-              <th
-                className={classes.roomsList}
-                key={`room-${i + 1}`}
-                id={`room-${i}`}
-              >
-                <TextInput
-                  light
-                  size={14}
-                  value={room.name}
-                  name={`roomName:${i}`}
-                  change={(event) => {
-                    modRoomName(event);
-                  }}
-                />
-              </th>
-            );
-          })}
-        </tr>
         <tbody>
+          {/* top row rooms list */}
+          <tr>
+            <th>Participants</th>
+            {rooms.map((room, i) => {
+              return (
+                <th
+                  className={classes.roomsList}
+                  key={`room-${i + 1}`}
+                  id={`room-${i}`}
+                >
+                  <TextInput
+                    light
+                    size={14}
+                    value={room.name}
+                    name={`roomName:${i}`}
+                    change={(event) => {
+                      modRoomName(event);
+                    }}
+                  />
+                </th>
+              );
+            })}
+          </tr>
           {list.map((participant, i) => {
             const rowClass = selectedParticipants.includes(participant)
               ? [classes.Participant, classes.Selected].join(' ')

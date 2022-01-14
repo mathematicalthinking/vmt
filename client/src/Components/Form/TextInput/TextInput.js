@@ -78,7 +78,7 @@ TextInput.propTypes = {
   change: PropTypes.func.isRequired,
   onKeyDown: PropTypes.func,
   value: PropTypes.string,
-  size: PropTypes.string,
+  size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   label: PropTypes.string,
 };
 
