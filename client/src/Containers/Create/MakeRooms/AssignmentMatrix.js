@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput } from 'Components';
 import classes from './makeRooms.css';
@@ -14,8 +14,9 @@ const AssignmentMatrix = (props) => {
     course,
     dueDate,
     userId,
+    rooms,
   } = props;
-  const [rooms, setRooms] = useState([]);
+  // const [rooms, setRooms] = useState([]);
   // const [userList, setUserList] = useState([]);
   const date = dueDate ? new Date(dueDate) : new Date();
   const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
@@ -53,7 +54,7 @@ const AssignmentMatrix = (props) => {
     }
     console.log('Rooms ...', roomList);
     select(roomList);
-    setRooms(roomList);
+    // setRooms(roomList);
   }, [roomNum]);
 
   const selectParticipant = (event, data) => {
@@ -71,7 +72,7 @@ const AssignmentMatrix = (props) => {
       if (index >= 0) {
         roomsUpdate[roomId].members.splice(index, 1);
       }
-      setRooms(roomsUpdate);
+      // setRooms(roomsUpdate);
       select(roomsUpdate);
     }
   };
@@ -80,7 +81,8 @@ const AssignmentMatrix = (props) => {
     const roomsUpdate = [...rooms];
     const roomId = event.target.id.split(':')[1];
     roomsUpdate[roomId].name = event.target.value;
-    setRooms(roomsUpdate);
+    // setRooms(roomsUpdate);
+    select(roomsUpdate);
   };
 
   const checkUser = (roomId, user) => {
@@ -89,6 +91,7 @@ const AssignmentMatrix = (props) => {
 
   return (
     <Fragment>
+      {console.log('Matrix Rooms: ', rooms)}
       <table className={classes.Table}>
         {/* top row rooms list */}
         <tr>
@@ -167,6 +170,7 @@ AssignmentMatrix.propTypes = {
   course: PropTypes.string,
   dueDate: PropTypes.instanceOf(Date),
   userId: PropTypes.string.isRequired,
+  rooms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AssignmentMatrix.defaultProps = {

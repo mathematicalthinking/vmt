@@ -37,7 +37,7 @@ class MakeRooms extends Component {
     const { participants } = this.props;
     this.state = {
       isRandom: false,
-      participantsPerRoom: 0,
+      participantsPerRoom: 2,
       roomNum: 1,
       selectedParticipants: [],
       roomDrafts: [],
@@ -77,21 +77,33 @@ class MakeRooms extends Component {
 
   setRoomNumber = (number) => {
     // const number = +event.target.value;
-    if (number === 0) this.setState({ roomNum: '' });
+    if (number === 0) this.setState({ roomNum: 0 });
     if (number > 0 && number < 13) {
       this.setState({ roomNum: number, error: null });
     } else {
       this.setState({
+        roomNum: 1,
         error: 'Please create between 1 and 12 rooms',
       });
     }
   };
 
   setNumber = (event) => {
-    this.setState({
-      participantsPerRoom: event.target.value.trim(),
-      error: null,
-    });
+    const { participants } = this.props;
+    const { isRandom } = this.state;
+    const participantsPerRoom = event.target.value.trim();
+    this.setState(
+      {
+        participantsPerRoom,
+        error: null,
+      },
+      () => {
+        if (isRandom) {
+          const numRooms = Math.ceil(participants.length / participantsPerRoom);
+          this.setRoomNumber(numRooms);
+        }
+      }
+    );
   };
 
   setDate = (event) => {
@@ -168,6 +180,15 @@ class MakeRooms extends Component {
     this.setState({ roomDrafts: selectionMatrix });
   };
 
+  resetParticipants = (roomsArray) => {
+    return roomsArray.map((roomArray) => {
+      const newMems = roomArray.members.filter(
+        (mem) => mem.role === 'facilitator'
+      );
+      return { ...roomArray, members: newMems };
+    });
+  };
+
   shuffleParticipants = () => {
     const { participants } = this.props;
     const { participantsPerRoom, roomDrafts } = this.state;
@@ -175,7 +196,7 @@ class MakeRooms extends Component {
     const numRooms = Math.ceil(
       updatedParticipants.length / participantsPerRoom
     );
-    this.setRoomNumber(numRooms);
+    // this.setRoomNumber(numRooms);
     const randomRoom = () => {
       // if (!participantsPerRoom) return 0;
       const roomIndex = Math.floor(Math.random() * numRooms);
@@ -201,17 +222,33 @@ class MakeRooms extends Component {
         memberList[randomRoom()].push(user);
       }
     });
-    const roomsUpdate = [...roomDrafts];
+    // const roomsUpdate = [...roomDrafts];
+    const roomsUpdate = this.resetParticipants([...roomDrafts]);
+    console.log(
+      'roomsUpdate copy: ',
+      roomsUpdate,
+      ' vs reset: ',
+      this.resetParticipants(roomsUpdate),
+      ' Rooms Draft: ',
+      roomDrafts
+    );
     for (let i = 0; i < numRooms; i++) {
       roomsUpdate[i].members = [...roomsUpdate[i].members, ...memberList[i]];
     }
-    console.log(
-      'members to assign: ',
-      updatedParticipants,
-      'New Room drafts: ',
-      roomsUpdate,
-      'member lists: ',
-      memberList
+    this.setState(
+      {
+        roomDrafts: roomsUpdate,
+      },
+      () => {
+        console.log(
+          'members to assign: ',
+          updatedParticipants,
+          'New Room drafts: ',
+          roomsUpdate,
+          'member lists: ',
+          memberList
+        );
+      }
     );
 
     // const roomsToCreate = [];
@@ -250,12 +287,10 @@ class MakeRooms extends Component {
       close,
       history,
       match,
-      participants,
     } = this.props;
-    const { dueDate, isRandom, roomDrafts, participantsPerRoom } = this.state;
+    const { dueDate, roomDrafts } = this.state;
     const {
       _id,
-      name,
       description,
       roomType,
       desmosLink,
@@ -277,83 +312,83 @@ class MakeRooms extends Component {
       image,
       tabs,
     };
-    if (!isRandom) {
-      // create a room with the selected participants
-      const roomsToCreate = [];
-      for (let i = 0; i < roomDrafts.length; i++) {
-        // const currentRoom = { ...roomDrafts[i] };
-        const currentRoom = { ...newRoom };
-        const members = roomDrafts[i].members.map((mem, index) => ({
-          user: course ? mem._id : mem,
-          role: mem.role,
-          color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
-        }));
-        if (!course) {
-          members.unshift({
-            user: userId,
-            role: 'facilitator',
-            color: COLOR_MAP[0],
-          });
-        }
-        currentRoom.members = members;
-        currentRoom.name = roomDrafts[i].name;
-        currentRoom.activity = roomDrafts[i].activity;
-        currentRoom.course = roomDrafts[i].course;
-        roomsToCreate.push(currentRoom);
+    // if (!isRandom) {
+    // create a room with the selected participants
+    const roomsToCreate = [];
+    for (let i = 0; i < roomDrafts.length; i++) {
+      // const currentRoom = { ...roomDrafts[i] };
+      const currentRoom = { ...newRoom };
+      const members = roomDrafts[i].members.map((mem, index) => ({
+        user: course ? mem._id : mem,
+        role: mem.role,
+        color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
+      }));
+      if (!course) {
+        members.unshift({
+          user: userId,
+          role: 'facilitator',
+          color: COLOR_MAP[0],
+        });
       }
-      if (roomDrafts.length === 0) {
-        // create a room with just the facilitator
-        const currentRoom = { ...newRoom };
-        const members = [];
-        members.push({ user: userId, role: 'facilitator' });
-        currentRoom.members = members;
-        currentRoom.name = `${activity.name} room copy`;
-        roomsToCreate.push(currentRoom);
-      }
-      roomsToCreate.forEach((room) => connectCreateRoom(room));
-      close();
-      const { url } = match;
-      history.push(`${url.slice(0, url.length - 7)}rooms`);
-    } else if (
-      parseInt(participantsPerRoom, 10) <= 0 ||
-      Number.isNaN(parseInt(participantsPerRoom, 10))
-    ) {
-      this.setState({
-        error: 'Please enter the number of participants per room',
-      });
-    } else {
-      // Is Random assignment
-      // @TODO THIS COULD PROBABLY BE OPTIMIZED - currently broken
-      const updatedParticipants = shuffle(participants);
-      const numRooms = updatedParticipants.length / participantsPerRoom;
-      const roomsToCreate = [];
-      for (let i = 0; i < numRooms; i++) {
-        if (updatedParticipants.length < 1) break;
-        const currentRoom = { ...newRoom };
-        const members = updatedParticipants
-          .slice(0, participantsPerRoom)
-          .map((participant) => ({
-            user: participant.user._id,
-            role: 'participant',
-          }));
-        updatedParticipants.splice(0, participantsPerRoom);
-        if (updatedParticipants.length === 1)
-          members.push({
-            user: updatedParticipants[0].user._id,
-            role: 'participant',
-          });
-        members.push({ user: userId, role: 'facilitator' });
-        currentRoom.name = `${name} (CourseID:${course.slice(-5)}, room ${i +
-          1})`;
-        currentRoom.members = members;
-        roomsToCreate.push(currentRoom);
-      }
-      console.log('Random Room assignment rooms: ', roomsToCreate);
-      roomsToCreate.forEach((room) => connectCreateRoom(room));
-      close();
-      const { url } = match;
-      history.push(`${url.slice(0, url.length - 7)}rooms`);
+      currentRoom.members = members;
+      currentRoom.name = roomDrafts[i].name;
+      currentRoom.activity = roomDrafts[i].activity;
+      currentRoom.course = roomDrafts[i].course;
+      roomsToCreate.push(currentRoom);
     }
+    if (roomDrafts.length === 0) {
+      // create a room with just the facilitator
+      const currentRoom = { ...newRoom };
+      const members = [];
+      members.push({ user: userId, role: 'facilitator' });
+      currentRoom.members = members;
+      currentRoom.name = `${activity.name} room copy`;
+      roomsToCreate.push(currentRoom);
+    }
+    roomsToCreate.forEach((room) => connectCreateRoom(room));
+    close();
+    const { url } = match;
+    history.push(`${url.slice(0, url.length - 7)}rooms`);
+    // } else if (
+    //   parseInt(participantsPerRoom, 10) <= 0 ||
+    //   Number.isNaN(parseInt(participantsPerRoom, 10))
+    // ) {
+    //   this.setState({
+    //     error: 'Please enter the number of participants per room',
+    //   });
+    // } else {
+    //   // Is Random assignment
+    //   // @TODO THIS COULD PROBABLY BE OPTIMIZED - currently broken
+    //   const updatedParticipants = shuffle(participants);
+    //   const numRooms = updatedParticipants.length / participantsPerRoom;
+    //   const roomsToCreate = [];
+    //   for (let i = 0; i < numRooms; i++) {
+    //     if (updatedParticipants.length < 1) break;
+    //     const currentRoom = { ...newRoom };
+    //     const members = updatedParticipants
+    //       .slice(0, participantsPerRoom)
+    //       .map((participant) => ({
+    //         user: participant.user._id,
+    //         role: 'participant',
+    //       }));
+    //     updatedParticipants.splice(0, participantsPerRoom);
+    //     if (updatedParticipants.length === 1)
+    //       members.push({
+    //         user: updatedParticipants[0].user._id,
+    //         role: 'participant',
+    //       });
+    //     members.push({ user: userId, role: 'facilitator' });
+    //     currentRoom.name = `${name} (CourseID:${course.slice(-5)}, room ${i +
+    //       1})`;
+    //     currentRoom.members = members;
+    //     roomsToCreate.push(currentRoom);
+    //   }
+    //   console.log('Random Room assignment rooms: ', roomsToCreate);
+    //   roomsToCreate.forEach((room) => connectCreateRoom(room));
+    //   close();
+    //   const { url } = match;
+    //   history.push(`${url.slice(0, url.length - 7)}rooms`);
+    // }
   };
 
   render() {
@@ -367,6 +402,7 @@ class MakeRooms extends Component {
       remainingParticipants,
       participantsPerRoom,
       error,
+      roomDrafts,
     } = this.state;
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
@@ -387,6 +423,7 @@ class MakeRooms extends Component {
         course={course}
         dueDate={dueDate}
         userId={userId}
+        rooms={roomDrafts}
       />
     );
 

@@ -39,6 +39,7 @@ class Step1Course extends Component {
               label="Number of participants per room"
               type="number"
               change={setNumber}
+              onKeyDown={setNumber}
               value={String(participantsPerRoom)} // TextInput expects values to be text (i.e., strings)
               name="participants"
             />{' '}
