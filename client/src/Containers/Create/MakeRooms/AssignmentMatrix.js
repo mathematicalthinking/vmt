@@ -52,6 +52,18 @@ const AssignmentMatrix = (props) => {
     select(roomList);
   }, [roomNum]);
 
+  const deleteRoom = (index) => {
+    let roomList = [...rooms];
+    roomList = roomList.filter((room) => room.roomIndex !== index);
+    roomList = roomList.map((room) => {
+      if (room.roomIndex < index) return room;
+      if (room.roomIndex > index)
+        return { ...room, roomIndex: room.roomIndex - 1 };
+      return null;
+    });
+    select(roomList);
+  };
+
   const selectParticipant = (event, data) => {
     const roomId = data.roomIndex;
     const user = {
@@ -148,6 +160,26 @@ const AssignmentMatrix = (props) => {
               </tr>
             );
           })}
+          <tr className={classes.Participant}>
+            <td key="room-delete-row">
+              <span>Delete Room?</span>
+            </td>
+            {rooms.map((room) => {
+              return (
+                <td key={`room-${room.roomIndex}-delete`}>
+                  <button
+                    type="button"
+                    id={`room-${room.roomIndex}-deleteBtn`}
+                    disabled={rooms.length <= 1}
+                    data-testid={`deleteRoom-${room.roomIndex + 1}`}
+                    onClick={() => deleteRoom(room.roomIndex)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              );
+            })}
+          </tr>
         </tbody>
       </table>
     </Fragment>
