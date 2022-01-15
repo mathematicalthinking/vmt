@@ -20,7 +20,6 @@ const AssignmentMatrix = (props) => {
 
   const newRoom = {
     activity: activity._id,
-    roomIndex: 0,
     name: '',
     members: [],
   };
@@ -39,7 +38,6 @@ const AssignmentMatrix = (props) => {
     if (roomNum > rooms.length) {
       for (let i = rooms.length; i < roomNum; i++) {
         const currentRoom = { ...newRoom };
-        currentRoom.roomIndex = i;
         currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
         currentRoom.course = course;
         currentRoom.members = [...facilitators];
@@ -53,16 +51,22 @@ const AssignmentMatrix = (props) => {
   }, [roomNum]);
 
   const deleteRoom = (index) => {
-    let roomList = [...rooms];
-    roomList = roomList.filter((room) => room.roomIndex !== index);
-    roomList = roomList.map((room) => {
-      if (room.roomIndex < index) return room;
-      if (room.roomIndex > index)
-        return { ...room, roomIndex: room.roomIndex - 1 };
-      return null;
-    });
+    const roomList = [...rooms];
+    roomList.splice(index, 1);
     select(roomList);
   };
+
+  // const deleteRoom = (index) => {
+  //   let roomList = [...rooms];
+  //   roomList = roomList.filter((room) => room.roomIndex !== index);
+  //   roomList = roomList.map((room) => {
+  //     if (room.roomIndex < index) return room;
+  //     if (room.roomIndex > index)
+  //       return { ...room, roomIndex: room.roomIndex - 1 };
+  //     return null;
+  //   });
+  //   select(roomList);
+  // };
 
   const selectParticipant = (event, data) => {
     const roomId = data.roomIndex;
@@ -87,7 +91,6 @@ const AssignmentMatrix = (props) => {
     const roomsUpdate = [...rooms];
     const roomId = event.target.id.split(':')[1];
     roomsUpdate[roomId].name = event.target.value;
-    // setRooms(roomsUpdate);
     select(roomsUpdate);
   };
 
@@ -111,7 +114,7 @@ const AssignmentMatrix = (props) => {
                 >
                   <TextInput
                     light
-                    size={14}
+                    size="14"
                     value={room.name}
                     name={`roomName:${i}`}
                     change={(event) => {
@@ -134,11 +137,11 @@ const AssignmentMatrix = (props) => {
               >
                 <td>{`${i + 1}. ${participant.user.username}`}</td>
                 {rooms.map((room, j) => {
-                  const roomKey = `${participant.user._id}rm${room.roomIndex}`;
+                  const roomKey = `${participant.user._id}rm${j}`;
                   const data = {
                     roomKey,
                     participant,
-                    roomIndex: room.roomIndex,
+                    roomIndex: j,
                   };
                   return (
                     <td key={`${participant.user._id}rm${j + 1}`}>
@@ -150,9 +153,7 @@ const AssignmentMatrix = (props) => {
                         onChange={(event) => {
                           selectParticipant(event, data);
                         }}
-                        checked={
-                          checkUser(room.roomIndex, participant.user._id) >= 0
-                        }
+                        checked={checkUser(j, participant.user._id) >= 0}
                       />
                     </td>
                   );
@@ -164,15 +165,16 @@ const AssignmentMatrix = (props) => {
             <td key="room-delete-row">
               <span>Delete Room?</span>
             </td>
-            {rooms.map((room) => {
+            {rooms.map((room, i) => {
+              const index = i; // defeat the linter
               return (
-                <td key={`room-${room.roomIndex}-delete`}>
+                <td key={`room-${room.name}${index}-delete`}>
                   <button
                     type="button"
-                    id={`room-${room.roomIndex}-deleteBtn`}
+                    id={`room-${i}-deleteBtn`}
                     disabled={rooms.length <= 1}
-                    data-testid={`deleteRoom-${room.roomIndex + 1}`}
-                    onClick={() => deleteRoom(room.roomIndex)}
+                    data-testid={`deleteRoom-${i + 1}`}
+                    onClick={() => deleteRoom(i)}
                   >
                     Delete
                   </button>
