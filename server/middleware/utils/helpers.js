@@ -12,7 +12,7 @@ const getUserRoleInRecord = (record, userId) => {
   }
 
   const userMemberObject = _.find(members, (obj) => {
-    return _.isEqual(userId, obj.user);
+    return _.isEqual(userId, obj.user._id);
   });
 
   return _.propertyOf(userMemberObject)('role');
