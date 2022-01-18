@@ -9,39 +9,16 @@ import { createRoom } from '../../../store/actions';
 import AssignmentMatrix from './AssignmentMatrix';
 import COLOR_MAP from '../../../utils/colorMap';
 
-// @TODO CONSIDER DOING THIS DIFFERENTLY
-const shuffle = (array) => {
-  const arrayCopy = [...array];
-  // const currentIndex = arrayCopy.length,
-  //   temporaryValue,
-  //   randomIndex;
-
-  // // While there remain elements to shuffle...
-  // while (0 !== currentIndex) {
-  //   // Pick a remaining element...
-  //   randomIndex = Math.floor(Math.random() * currentIndex);
-  //   currentIndex -= 1;
-
-  //   // And swap it with the current element.
-  //   temporaryValue = array[currentIndex];
-  //   arrayCopy[currentIndex] = array[randomIndex];
-  //   arrayCopy[randomIndex] = temporaryValue;
-  // }
-
-  return arrayCopy;
-};
-
 class MakeRooms extends Component {
   constructor(props) {
     super(props);
     const { participants } = this.props;
     this.state = {
       isRandom: false,
-      participantsPerRoom: 0,
+      participantsPerRoom: 3,
       roomNum: 1,
       selectedParticipants: [],
       roomDrafts: [],
-      // roomsCreated: 0,
       remainingParticipants: participants,
       dueDate: null,
       error: null,
@@ -68,30 +45,66 @@ class MakeRooms extends Component {
     }
   };
 
-  setRandom = () => this.setState({ isRandom: true });
+  setRandom = () => {
+    const { participants } = this.props;
+    const { participantsPerRoom } = this.state;
+    this.setState({ isRandom: true }, () => {
+      const numRooms = Math.ceil(
+        this.filterFacilitators(participants).length / participantsPerRoom
+      );
+      this.setRoomNumber(numRooms);
+    });
+  };
 
-  setManual = () => this.setState({ isRandom: false });
+  setManual = () =>
+    this.setState({ isRandom: false }, () => {
+      this.setRoomNumber(1);
+    });
 
   setParticipantNumber = (event) =>
     this.setState({ participantsPerRoom: event.target.value });
 
-  setRoomNumber = (event) => {
-    const number = +event.target.value;
-    if (number === 0) this.setState({ roomNum: '' });
-    if (number > 0 && number < 13) {
+  setRoomNumber = (number) => {
+    if (number >= 0 && number < 13) {
       this.setState({ roomNum: number, error: null });
     } else {
       this.setState({
+        // roomNum: 1,
         error: 'Please create between 1 and 12 rooms',
       });
     }
   };
 
   setNumber = (event) => {
-    this.setState({
-      participantsPerRoom: event.target.value.trim(),
-      error: null,
-    });
+    const { participants } = this.props;
+    const { isRandom } = this.state;
+    const participantsPerRoom = event.target.value.trim();
+    if (participantsPerRoom < 0) {
+      this.setState({
+        participantsPerRoom: 0,
+        error: 'Must have at least 1 participant per room',
+      });
+    } else if (participantsPerRoom > participants.length) {
+      this.setState({
+        participantsPerRoom: participants.length,
+        error: 'Maximum number of participants reached',
+      });
+    } else {
+      this.setState(
+        {
+          participantsPerRoom,
+          error: null,
+        },
+        () => {
+          if (isRandom) {
+            const numRooms = Math.ceil(
+              this.filterFacilitators(participants).length / participantsPerRoom
+            );
+            this.setRoomNumber(numRooms);
+          }
+        }
+      );
+    }
   };
 
   setDate = (event) => {
@@ -168,6 +181,76 @@ class MakeRooms extends Component {
     this.setState({ roomDrafts: selectionMatrix });
   };
 
+  resetParticipants = (roomsArray) => {
+    return roomsArray.map((roomArray) => {
+      const newMems = roomArray.members.filter(
+        (mem) => mem.role === 'facilitator'
+      );
+      return { ...roomArray, members: newMems };
+    });
+  };
+
+  shuffleUserList = (array) => {
+    // random number between 0 - array.length
+    // take first index and switch with random index
+    const arrayCopy = [...array];
+    arrayCopy.forEach((elem, index) => {
+      const randomIndex = Math.floor(Math.random() * array.length);
+      arrayCopy[index] = arrayCopy[randomIndex];
+      arrayCopy[randomIndex] = elem;
+    });
+    return arrayCopy;
+  };
+
+  filterFacilitators = (membersArray) => {
+    // return roomsArray.map((roomArray) => {
+    return membersArray.filter((mem) => mem.role !== 'facilitator');
+    // return { ...roomArray, members: newMems };
+    // });
+  };
+
+  restructureMemberlist = (list) => {
+    return list.map((mem) => {
+      const user = {
+        role: mem.role || 'participant',
+        _id: mem.user._id,
+      };
+      return user;
+    });
+  };
+
+  shuffleParticipants = () => {
+    const { participants } = this.props;
+    const { participantsPerRoom, roomDrafts } = this.state;
+    if (participantsPerRoom <= 0) {
+      this.setState({
+        error: 'Must have at least 1 participant per room',
+      });
+    } else {
+      const updatedParticipants = this.shuffleUserList(
+        this.restructureMemberlist(this.filterFacilitators(participants))
+      );
+
+      const numRooms = Math.ceil(
+        updatedParticipants.length / participantsPerRoom
+      );
+
+      const roomsUpdate = this.resetParticipants([...roomDrafts]);
+
+      const partcipantsToAssign = [...updatedParticipants];
+      for (let i = 0; i < numRooms; i++) {
+        roomsUpdate[i].members = [
+          ...roomsUpdate[i].members,
+          ...partcipantsToAssign.splice(0, participantsPerRoom),
+        ];
+      }
+
+      this.setState({
+        roomDrafts: roomsUpdate,
+      });
+    }
+  };
+
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
   // TO UTILIZE THAT FUNCTIONALITY
   submit = () => {
@@ -179,12 +262,10 @@ class MakeRooms extends Component {
       close,
       history,
       match,
-      participants,
     } = this.props;
-    const { dueDate, isRandom, roomDrafts, participantsPerRoom } = this.state;
+    const { dueDate, roomDrafts } = this.state;
     const {
       _id,
-      name,
       description,
       roomType,
       desmosLink,
@@ -206,83 +287,43 @@ class MakeRooms extends Component {
       image,
       tabs,
     };
-    if (!isRandom) {
-      // create a room with the selected participants
-      const roomsToCreate = [];
-      for (let i = 0; i < roomDrafts.length; i++) {
-        // const currentRoom = { ...roomDrafts[i] };
-        const currentRoom = { ...newRoom };
-        const members = roomDrafts[i].members.map((mem, index) => ({
-          user: course ? mem._id : mem,
-          role: mem.role,
-          color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
-        }));
-        if (!course) {
-          members.unshift({
-            user: userId,
-            role: 'facilitator',
-            color: COLOR_MAP[0],
-          });
-        }
-        currentRoom.members = members;
-        currentRoom.name = roomDrafts[i].name;
-        currentRoom.activity = roomDrafts[i].activity;
-        currentRoom.course = roomDrafts[i].course;
-        roomsToCreate.push(currentRoom);
+    // if (!isRandom) {
+    // create a room with the selected participants
+    const roomsToCreate = [];
+    for (let i = 0; i < roomDrafts.length; i++) {
+      // const currentRoom = { ...roomDrafts[i] };
+      const currentRoom = { ...newRoom };
+      const members = roomDrafts[i].members.map((mem, index) => ({
+        user: course ? mem._id : mem,
+        role: mem.role,
+        color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
+      }));
+      if (!course) {
+        members.unshift({
+          user: userId,
+          role: 'facilitator',
+          color: COLOR_MAP[0],
+        });
       }
-      if (roomDrafts.length === 0) {
-        // create a room with just the facilitator
-        const currentRoom = { ...newRoom };
-        const members = [];
-        members.push({ user: userId, role: 'facilitator' });
-        currentRoom.members = members;
-        currentRoom.name = `${activity.name} room copy`;
-        roomsToCreate.push(currentRoom);
-      }
-      roomsToCreate.forEach((room) => connectCreateRoom(room));
-      close();
-      const { url } = match;
-      history.push(`${url.slice(0, url.length - 7)}rooms`);
-    } else if (
-      parseInt(participantsPerRoom, 10) <= 0 ||
-      Number.isNaN(parseInt(participantsPerRoom, 10))
-    ) {
-      this.setState({
-        error: 'Please enter the number of participants per room',
-      });
-    } else {
-      // Is Random assignment
-      // @TODO THIS COULD PROBABLY BE OPTIMIZED - currently broken
-      const updatedParticipants = shuffle(participants);
-      const numRooms = updatedParticipants.length / participantsPerRoom;
-      const roomsToCreate = [];
-      for (let i = 0; i < numRooms; i++) {
-        if (updatedParticipants.length < 1) break;
-        const currentRoom = { ...newRoom };
-        const members = updatedParticipants
-          .slice(0, participantsPerRoom)
-          .map((participant) => ({
-            user: participant.user._id,
-            role: 'participant',
-          }));
-        updatedParticipants.splice(0, participantsPerRoom);
-        if (updatedParticipants.length === 1)
-          members.push({
-            user: updatedParticipants[0].user._id,
-            role: 'participant',
-          });
-        members.push({ user: userId, role: 'facilitator' });
-        currentRoom.name = `${name} (CourseID:${course.slice(-5)}, room ${i +
-          1})`;
-        currentRoom.members = members;
-        roomsToCreate.push(currentRoom);
-      }
-      console.log('Random Room assignment rooms: ', roomsToCreate);
-      roomsToCreate.forEach((room) => connectCreateRoom(room));
-      close();
-      const { url } = match;
-      history.push(`${url.slice(0, url.length - 7)}rooms`);
+      currentRoom.members = members;
+      currentRoom.name = roomDrafts[i].name;
+      currentRoom.activity = roomDrafts[i].activity;
+      currentRoom.course = roomDrafts[i].course;
+      roomsToCreate.push(currentRoom);
     }
+    if (roomDrafts.length === 0) {
+      // create a room with just the facilitator
+      const currentRoom = { ...newRoom };
+      const members = [];
+      members.push({ user: userId, role: 'facilitator' });
+      currentRoom.members = members;
+      currentRoom.name = `${activity.name} room copy`;
+      roomsToCreate.push(currentRoom);
+    }
+    roomsToCreate.forEach((room) => connectCreateRoom(room));
+    close();
+    const { url } = match;
+    history.push(`${url.slice(0, url.length - 7)}rooms`);
   };
 
   render() {
@@ -296,6 +337,7 @@ class MakeRooms extends Component {
       remainingParticipants,
       participantsPerRoom,
       error,
+      roomDrafts,
     } = this.state;
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
@@ -311,11 +353,12 @@ class MakeRooms extends Component {
         list={course ? remainingParticipants : selectedParticipants}
         selectedParticipants={selectedParticipants}
         select={this.updateParticipants}
-        roomNum={roomNum}
+        roomNum={parseInt(roomNum, 10)} // ensure a number is passed
         activity={activity}
         course={course}
         dueDate={dueDate}
         userId={userId}
+        rooms={roomDrafts}
       />
     );
 
@@ -343,26 +386,15 @@ class MakeRooms extends Component {
           setRandom={this.setRandom}
           setManual={this.setManual}
           setNumber={this.setNumber}
+          shuffleParticipants={this.shuffleParticipants}
           participantsPerRoom={participantsPerRoom}
-          roomNum={roomNum}
+          roomNum={parseInt(roomNum, 10)} // ensure a number is passed
           setRoomNumber={this.setRoomNumber}
           setParticipantNumber={this.setParticipantNumber}
           isRandom={isRandom}
           error={error}
         />
       );
-      // } else {
-      //   CurrentStep = (
-      //     <Step2
-      //       activity={activity}
-      //       participantList={participantList}
-      //       userId={userId}
-      //       submit={this.submit}
-      //       select={this.selectParticipant}
-      //       selectedParticipants={selectedParticipants}
-      //     />
-      //   );
-      // }
     }
     const stepDisplays = [];
     for (let i = 0; i < 2; i++) {

@@ -1,8 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput } from 'Components';
 import classes from './makeRooms.css';
-// import { Checkbox } from '../../../Components';
 
 const AssignmentMatrix = (props) => {
   const {
@@ -14,9 +13,8 @@ const AssignmentMatrix = (props) => {
     course,
     dueDate,
     userId,
+    rooms,
   } = props;
-  const [rooms, setRooms] = useState([]);
-  // const [userList, setUserList] = useState([]);
   const date = dueDate ? new Date(dueDate) : new Date();
   const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
 
@@ -28,7 +26,6 @@ const AssignmentMatrix = (props) => {
   };
 
   useEffect(() => {
-    // setRooms([]);
     const facilitators = [];
     list.forEach((user) => {
       if (user.role === 'facilitator') {
@@ -51,8 +48,21 @@ const AssignmentMatrix = (props) => {
     } else {
       roomList.splice(roomNum - rooms.length);
     }
-    setRooms(roomList);
+    console.log('Rooms ...', roomList);
+    select(roomList);
   }, [roomNum]);
+
+  const deleteRoom = (index) => {
+    let roomList = [...rooms];
+    roomList = roomList.filter((room) => room.roomIndex !== index);
+    roomList = roomList.map((room) => {
+      if (room.roomIndex < index) return room;
+      if (room.roomIndex > index)
+        return { ...room, roomIndex: room.roomIndex - 1 };
+      return null;
+    });
+    select(roomList);
+  };
 
   const selectParticipant = (event, data) => {
     const roomId = data.roomIndex;
@@ -69,7 +79,6 @@ const AssignmentMatrix = (props) => {
       if (index >= 0) {
         roomsUpdate[roomId].members.splice(index, 1);
       }
-      setRooms(roomsUpdate);
       select(roomsUpdate);
     }
   };
@@ -78,7 +87,8 @@ const AssignmentMatrix = (props) => {
     const roomsUpdate = [...rooms];
     const roomId = event.target.id.split(':')[1];
     roomsUpdate[roomId].name = event.target.value;
-    setRooms(roomsUpdate);
+    // setRooms(roomsUpdate);
+    select(roomsUpdate);
   };
 
   const checkUser = (roomId, user) => {
@@ -88,30 +98,30 @@ const AssignmentMatrix = (props) => {
   return (
     <Fragment>
       <table className={classes.Table}>
-        {/* top row rooms list */}
-        <tr>
-          <th>Participants</th>
-          {rooms.map((room, i) => {
-            return (
-              <th
-                className={classes.roomsList}
-                key={`room-${i + 1}`}
-                id={`room-${i}`}
-              >
-                <TextInput
-                  light
-                  size={14}
-                  value={room.name}
-                  name={`roomName:${i}`}
-                  change={(event) => {
-                    modRoomName(event);
-                  }}
-                />
-              </th>
-            );
-          })}
-        </tr>
         <tbody>
+          {/* top row rooms list */}
+          <tr>
+            <th>Participants</th>
+            {rooms.map((room, i) => {
+              return (
+                <th
+                  className={classes.roomsList}
+                  key={`room-${i + 1}`}
+                  id={`room-${i}`}
+                >
+                  <TextInput
+                    light
+                    size={14}
+                    value={room.name}
+                    name={`roomName:${i}`}
+                    change={(event) => {
+                      modRoomName(event);
+                    }}
+                  />
+                </th>
+              );
+            })}
+          </tr>
           {list.map((participant, i) => {
             const rowClass = selectedParticipants.includes(participant)
               ? [classes.Participant, classes.Selected].join(' ')
@@ -150,6 +160,26 @@ const AssignmentMatrix = (props) => {
               </tr>
             );
           })}
+          <tr className={classes.Participant}>
+            <td key="room-delete-row">
+              <span>Delete Room?</span>
+            </td>
+            {rooms.map((room) => {
+              return (
+                <td key={`room-${room.roomIndex}-delete`}>
+                  <button
+                    type="button"
+                    id={`room-${room.roomIndex}-deleteBtn`}
+                    disabled={rooms.length <= 1}
+                    data-testid={`deleteRoom-${room.roomIndex + 1}`}
+                    onClick={() => deleteRoom(room.roomIndex)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              );
+            })}
+          </tr>
         </tbody>
       </table>
     </Fragment>
@@ -165,12 +195,10 @@ AssignmentMatrix.propTypes = {
   course: PropTypes.string,
   dueDate: PropTypes.instanceOf(Date),
   userId: PropTypes.string.isRequired,
+  rooms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AssignmentMatrix.defaultProps = {
-  // error: null,
-  // isRandom: false,
-  // participantsPerRoom: 0,
   activity: null,
   course: '',
   roomNum: 1,

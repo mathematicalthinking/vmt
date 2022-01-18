@@ -85,25 +85,27 @@ class Profile extends Component {
   updateUser = async () => {
     const { connectUpdateUserInfo, user } = this.props;
     const { username } = this.state;
-    if (user.username !== username && user.email === user.username) {
-      const emailRegex = /\S+@\S+\.\S+/;
-      if (emailRegex.test(username)) {
-        this.setState({ editError: 'New username cannot be an email' });
+    // code to conditionally restrict username changes from email only
+    // if (user.username !== username && user.email === user.username) {
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (emailRegex.test(username)) {
+      this.setState({ editError: 'New username cannot be an email' });
+    } else {
+      const newUsername = await suggestUniqueUsername(username);
+      console.log('New: ', username, ' ... Suggested: ', newUsername);
+      if (newUsername !== username) {
+        this.setState({
+          editError: `Username not available, available suggestion: ${newUsername}`,
+        });
       } else {
-        const newUsername = await suggestUniqueUsername(username);
-        if (newUsername !== username) {
-          this.setState({
-            editError: `Username not available, available suggestion: ${newUsername}`,
-          });
-        } else {
-          connectUpdateUserInfo(user._id, { username });
-          this.setState({
-            editing: false,
-            editError: '',
-          });
-        }
+        connectUpdateUserInfo(user._id, { username });
+        this.setState({
+          editing: false,
+          editError: '',
+        });
       }
     }
+    // }
   };
 
   makeAdmin = (userId) => {
@@ -170,7 +172,8 @@ class Profile extends Component {
             change={this.updateUserInfo}
             inputType="text"
             name="username"
-            editing={user.email === user.username && editing}
+            // editing={user.email === user.username && editing}
+            editing={editing}
           >
             {username}
           </EditText>
