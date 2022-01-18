@@ -88,7 +88,9 @@ class Profile extends Component {
     // code to conditionally restrict username changes from email only
     // if (user.username !== username && user.email === user.username) {
     const emailRegex = /\S+@\S+\.\S+/;
-    if (emailRegex.test(username)) {
+    if (user.username === username) {
+      this.toggleEdit();
+    } else if (emailRegex.test(username)) {
       this.setState({ editError: 'New username cannot be an email' });
     } else {
       const newUsername = await suggestUniqueUsername(username);
@@ -172,8 +174,8 @@ class Profile extends Component {
             change={this.updateUserInfo}
             inputType="text"
             name="username"
-            // editing={user.email === user.username && editing}
-            editing={editing}
+            editing={user.email === user.username && editing}
+            // editing={editing}
           >
             {username}
           </EditText>
