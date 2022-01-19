@@ -344,9 +344,7 @@ function MonitoringView({
       {viewOrSelect === constants.SELECT ? (
         <ResourceTables
           // So that we quickly display the table: use the data in userResources until we have more recent live data
-          data={userResources.map((room) =>
-            queryStates[room._id].isSuccess ? queryStates[room._id].data : room
-          )}
+          data={userResources}
           resource="rooms"
           selections={selections}
           onChange={(newSelections) => {
