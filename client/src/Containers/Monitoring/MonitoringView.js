@@ -289,7 +289,7 @@ function MonitoringView({
 
   const _selectFirst = (list) => {
     const values = list.reduce((acc, elt) => {
-      if (!acc[elt._id]) acc[elt._id] = elt;
+      if (elt && !acc[elt._id]) acc[elt._id] = elt;
       return acc;
     }, {});
     return Object.values(values);
