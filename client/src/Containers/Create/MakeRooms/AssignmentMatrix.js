@@ -46,7 +46,6 @@ const AssignmentMatrix = (props) => {
     } else {
       roomList.splice(roomNum - rooms.length);
     }
-    console.log('Rooms ...', roomList);
     select(roomList);
   }, [roomNum]);
 
@@ -55,18 +54,6 @@ const AssignmentMatrix = (props) => {
     roomList.splice(index, 1);
     select(roomList);
   };
-
-  // const deleteRoom = (index) => {
-  //   let roomList = [...rooms];
-  //   roomList = roomList.filter((room) => room.roomIndex !== index);
-  //   roomList = roomList.map((room) => {
-  //     if (room.roomIndex < index) return room;
-  //     if (room.roomIndex > index)
-  //       return { ...room, roomIndex: room.roomIndex - 1 };
-  //     return null;
-  //   });
-  //   select(roomList);
-  // };
 
   const selectParticipant = (event, data) => {
     const roomId = data.roomIndex;

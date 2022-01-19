@@ -239,10 +239,12 @@ class MakeRooms extends Component {
 
       const partcipantsToAssign = [...updatedParticipants];
       for (let i = 0; i < numRooms; i++) {
-        roomsUpdate[i].members = [
-          ...roomsUpdate[i].members,
-          ...partcipantsToAssign.splice(0, participantsPerRoom),
-        ];
+        if (roomsUpdate[i]) {
+          roomsUpdate[i].members = [
+            ...roomsUpdate[i].members,
+            ...partcipantsToAssign.splice(0, participantsPerRoom),
+          ];
+        }
       }
 
       this.setState({
