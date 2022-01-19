@@ -1,6 +1,6 @@
 {
   "name": "vmt",
-  "version": "1.6.0",
+  "version": "1.6.5",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
@@ -17,11 +17,12 @@
     "build-enc-production": "cd ../client && node scripts/build.js production encompass",
     "build-enc-test": "cd ../client && node scripts/build.js test encompass",
     "test": "NODE_ENV=test REACT_APP_IS_TEST=true concurrently \"nodemon\" \"npm run client\" \"npm run cypress\"",
-    "test:pc": "\"SET NODE_ENV=test&& SET REACT_APP_IS_TEST=true&& concurrently nodemon \"npm run client\" \"npm run cypress\"",
+    "test:pc": "\"SET NODE_ENV=test&& SET REACT_APP_IS_TEST=true&& concurrently nodemon \"npm run client\" \"npm run cypress:pc\"",
     "testserver:pc": "\"SET NODE_ENV=test&& SET REACT_APP_IS_TEST=true&& concurrently nodemon \"npm run cypress\"",
     "prodTest": "NODE_ENV=production && node ./bin/www",
     "testEncompass": "NODE_ENV=production && ENCOMPASS=true && node ./bin/www",
     "cypress": "./node_modules/.bin/cypress open",
+    "cypress:pc": ".\\node_modules\\.bin\\cypress open",
     "cypress:run": "cypress run --browser electron",
     "prettier-watch": "onchange '**/*.js' -- prettier --write {{changed}}",
     "heroku-postbuild": "cd ../client && npm install && npm run build",

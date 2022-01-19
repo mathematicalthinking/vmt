@@ -62,7 +62,7 @@ class MakeRooms extends Component {
     });
 
   setParticipantNumber = (event) =>
-    this.setState({ participantsPerRoom: event.target.value });
+    this.setState({ participantsPerRoom: parseInt(event.target.value, 10) });
 
   setRoomNumber = (number) => {
     if (number >= 0 && number < 13) {
@@ -78,7 +78,7 @@ class MakeRooms extends Component {
   setNumber = (event) => {
     const { participants } = this.props;
     const { isRandom } = this.state;
-    const participantsPerRoom = event.target.value.trim();
+    const participantsPerRoom = parseInt(event.target.value.trim(), 10);
     if (participantsPerRoom < 0) {
       this.setState({
         participantsPerRoom: 0,
@@ -239,10 +239,12 @@ class MakeRooms extends Component {
 
       const partcipantsToAssign = [...updatedParticipants];
       for (let i = 0; i < numRooms; i++) {
-        roomsUpdate[i].members = [
-          ...roomsUpdate[i].members,
-          ...partcipantsToAssign.splice(0, participantsPerRoom),
-        ];
+        if (roomsUpdate[i]) {
+          roomsUpdate[i].members = [
+            ...roomsUpdate[i].members,
+            ...partcipantsToAssign.splice(0, participantsPerRoom),
+          ];
+        }
       }
 
       this.setState({
