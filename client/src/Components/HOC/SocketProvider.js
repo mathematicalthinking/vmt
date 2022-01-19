@@ -40,7 +40,6 @@ class SocketProvider extends Component {
       if (!isForConfirmEmail) {
         connectGetUser(user._id);
       }
-      console.log('Comp mounted and socket synced!');
       this.syncSocket();
       this.initializeListeners();
     } else if (
@@ -73,7 +72,6 @@ class SocketProvider extends Component {
     const { user, connectClearError, roomsArr, courses } = this.props;
     if (!prevProps.user.loggedIn && user.loggedIn) {
       connectClearError();
-      console.log('Component updated and socket synced!');
       this.syncSocket();
     }
     // Reinitialize listeners if store changes
@@ -189,7 +187,6 @@ class SocketProvider extends Component {
     });
 
     socket.io.on('reconnect', () => {
-      console.log('Reconnected and socket synced!');
       this.syncSocket();
       connectGetUser(user._id);
     });

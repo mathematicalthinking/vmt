@@ -116,7 +116,6 @@ const DesmosActivityEditor = (props) => {
     initializing = false;
     return () => {
       if (editorInst.current && !editorInst.current.isDestroyed()) {
-        console.log('Editor instance unmounted!');
         editorInst.current.destroy();
       }
     };
