@@ -122,7 +122,7 @@ module.exports = function() {
       // console.log('user with data: ', data.user);
       // console.log('from user: ', socket.user_id);
       // console.log(new Date());
-      // socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
+      socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
       socket.username = data.username;
       const promises = [];
       const user = { _id: data.userId, username: data.username };
@@ -131,7 +131,10 @@ module.exports = function() {
       // console.log('user joined: ', data);
 
       const socketsInRoom = await io.in(data.roomId).fetchSockets();
-      const usersInRoom = socketsInRoom.map((socket) => socket.user_id);
+      // filter the socket list to avoid pushing a 'null' users
+      const usersInRoom = socketsInRoom
+        .map((socket) => socket.user_id)
+        .filter((_id) => !!_id);
 
       // update current users of this room
       const joinUserMembers = async () => {
