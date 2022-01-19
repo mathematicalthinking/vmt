@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "1.6.0",
+  "version": "1.6.5",
   "private": true,
   "dependencies": {
     "autoprefixer": "7.1.6",
@@ -91,7 +91,7 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "node --max-old-space-size=3072 scripts/start.js",
     "build-production": "node scripts/build.js production",
     "build-staging": "node scripts/build.js staging",
     "test": "node scripts/test.js --env=jsdom"
