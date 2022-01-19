@@ -409,10 +409,13 @@ class Room extends Component {
       ];
       // @TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
-      if (course) {
+      if (course || (room && room.course && room.course._id)) {
+        // room.course might be an adequate check
+        const title = course ? course.name : room.course.name;
+        const _id = course ? course._id : room.course._id;
         crumbs.splice(1, 0, {
-          title: course.name,
-          link: `/myVMT/courses/${course._id}/rooms`,
+          title,
+          link: `/myVMT/courses/${_id}/rooms`,
         });
       }
       let mainContent;
