@@ -2,5 +2,6 @@
     "compilerOptions": {
       "baseUrl": "src"
     },
+    "exclude": ["**/external"],
     "include": ["src"]
   }
