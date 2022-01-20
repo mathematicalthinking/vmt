@@ -149,12 +149,12 @@ function MonitoringView({
     queryStates[room._id] = assignMyRole(
       usePopulatedRoom(
         room._id,
-        true,
+        viewOrSelect === constants.VIEW, // shouldbuildlog false on selection
         // Check for updates every 10 sec. If we are viewing rooms (i.e., Chat, Thumbnail, or Graph), then we need
         // to update only the currently selected rooms. If we are selecting rooms via the selection table, then we
         // should try to update all rooms so that the "current in room" column remains correct.
         {
-          refetchInterval: 15000, // 15 sec, @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+          refetchInterval: 10000, // 10 sec, @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
           staleTime: 300000, // 5min, @TODO also experiment with adjusting stale time to use cached data upon revisiting monitoring
           enabled:
             (savedState.current && savedState.current[room._id]) ||
