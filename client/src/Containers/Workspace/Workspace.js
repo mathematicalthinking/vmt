@@ -212,7 +212,9 @@ class Workspace extends Component {
     const { myColor, currentMembers } = this.state;
     socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
     connectUpdatedRoom(populatedRoom._id, {
-      currentMembers: currentMembers.filter((mem) => mem._id !== user._id),
+      currentMembers: currentMembers.filter(
+        (mem) => mem && user && mem._id !== user._id
+      ),
     });
     window.removeEventListener('resize', this.resizeHandler);
     window.removeEventListener('keypress', this.keyListener);

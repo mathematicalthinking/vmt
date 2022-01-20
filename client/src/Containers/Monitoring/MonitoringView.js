@@ -154,7 +154,8 @@ function MonitoringView({
         // to update only the currently selected rooms. If we are selecting rooms via the selection table, then we
         // should try to update all rooms so that the "current in room" column remains correct.
         {
-          refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+          refetchInterval: 15000, // 15 sec, @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+          staleTime: 300000, // 5min, @TODO also experiment with adjusting stale time to use cached data upon revisiting monitoring
           enabled:
             (savedState.current && savedState.current[room._id]) ||
             viewOrSelect === constants.SELECT,
@@ -289,7 +290,7 @@ function MonitoringView({
 
   const _selectFirst = (list) => {
     const values = list.reduce((acc, elt) => {
-      if (!acc[elt._id]) acc[elt._id] = elt;
+      if (elt && !acc[elt._id]) acc[elt._id] = elt;
       return acc;
     }, {});
     return Object.values(values);
@@ -344,9 +345,7 @@ function MonitoringView({
       {viewOrSelect === constants.SELECT ? (
         <ResourceTables
           // So that we quickly display the table: use the data in userResources until we have more recent live data
-          data={userResources.map((room) =>
-            queryStates[room._id].isSuccess ? queryStates[room._id].data : room
-          )}
+          data={userResources}
           resource="rooms"
           selections={selections}
           onChange={(newSelections) => {
