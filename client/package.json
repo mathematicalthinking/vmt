@@ -96,7 +96,7 @@
     "build-staging": "node scripts/build.js staging",
     "test": "node scripts/test.js --env=jsdom"
   },
-  "proxy": "http://localhost:3001",
+  "proxy": "http://localhost:3001/",
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,mjs}"
