@@ -213,9 +213,13 @@ const DesmosActivity = (props) => {
 
     if (tab.currentStateBase64 && tab.currentStateBase64 !== '{}') {
       // existing event data on tab
-      const { currentStateBase64 } = tab;
+      const { currentStateBase64, startingPointBase64 } = tab;
       const savedData = JSON.parse(currentStateBase64);
       playerOptions.responseData = savedData;
+      // in case we have data but no config, resave the configuration
+      if (!startingPointBase64 || startingPointBase64 === '{}') {
+        putState(config);
+      }
     } else {
       // first load or no events, save configuration
       putState(config);
