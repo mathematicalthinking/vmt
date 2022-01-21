@@ -17,7 +17,9 @@ import { exportCSV } from './stats.utils';
 import Filters from './Filters';
 
 const Stats = ({ roomId }) => {
-  const { isSuccess, data } = usePopulatedRoom(roomId, true);
+  const { isSuccess, data } = usePopulatedRoom(roomId, true, {
+    refetchInterval: 10000, // 10 sec, @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+  });
 
   const populatedRoom = isSuccess ? data : { log: [], name: 'Loading...' };
   const hasLog = populatedRoom.log && populatedRoom.log.length > 0;
