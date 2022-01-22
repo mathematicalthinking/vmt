@@ -67,7 +67,7 @@
   "devDependencies": {
     "concurrently": "^4.1.0",
     "cypress": "^7.5.0",
-    "cypress-file-upload": "^3.3.3",
+    "cypress-file-upload": "^5.0.8",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.2.0",
     "eslint-config-prettier": "^6.0.0",
