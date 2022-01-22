@@ -126,28 +126,11 @@ class Workspace extends Component {
 
     // Set up snapshots
 
-    // const roomId = populatedRoom._id;
-    // if (roomId && roomId !== '' && !temp) {
-    //   const {
-    //     elementRef,
-    //     takeSnapshot,
-    //     cancelSnaphots,
-    //     getSnapshot,
-    //   } = useSnapshots((newSnapshot) => {
-    //     const { connectUpdateRoom } = this.props;
-    //     console.log('Creating snap for ', roomId);
-    //     console.log(newSnapshot);
-    //     connectUpdateRoom(roomId, {
-    //       snapshot: newSnapshot,
-    //     });
-    //     populatedRoom.snapshot = newSnapshot; // not sure why connectUpdateRoom doesn't do this...
-    //   }, populatedRoom.snapshot || {});
-
     if (!temp) {
       const {
         elementRef,
         takeSnapshot,
-        cancelSnaphots,
+        cancelSnapshots,
         getSnapshot,
       } = useSnapshots((newSnapshot) => {
         const { currentTabId } = this.state;
@@ -161,7 +144,7 @@ class Workspace extends Component {
         {
           takeSnapshot,
           snapshotRef: elementRef,
-          cancelSnaphots,
+          cancelSnapshots,
           getSnapshot,
         },
         () => this._takeSnapshotIfNeeded()
@@ -209,7 +192,7 @@ class Workspace extends Component {
 
   componentWillUnmount() {
     const { populatedRoom, connectUpdatedRoom, user } = this.props;
-    const { myColor, currentMembers } = this.state;
+    const { myColor, currentMembers, cancelSnapshots } = this.state;
     socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
     connectUpdatedRoom(populatedRoom._id, {
       currentMembers: currentMembers.filter(
@@ -227,7 +210,6 @@ class Workspace extends Component {
       clearTimeout(this.controlTimer);
     }
 
-    const { cancelSnapshots } = this.state;
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
     clearInterval(this.heartbeatInterval);
     this.clearHeartbeatTimer();
