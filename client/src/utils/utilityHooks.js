@@ -6,6 +6,17 @@ import { useQuery } from 'react-query';
 import API from 'utils/apiRequests';
 import buildLog from 'utils/buildLog';
 
+/**
+ * Custom hook for sorting table data
+ * @param {array} items - The data array. Each element represents a row as an object, with the properties (keys) representing the table columns
+ * @param {object} [config = null] - Optional specification of an initial sorting of the form { key, direction }
+ * @returns {array} items - The data sorted by the requested column (key)
+ * @returns {object} sortConfig - The current sorting: { key, direction }
+ * @returns {function} requestSort - A function that takes a key and sorts the items accordingly
+ */
+
+// from https://www.smashingmagazine.com/2020/03/sortable-tables-react/
+
 export const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = React.useState(config);
 
@@ -41,20 +52,44 @@ export const useSortableData = (items, config = null) => {
   return { items: sortedItems, requestSort, sortConfig };
 };
 
-export function useSnapshots(callback, initialObject = {}) {
+/**
+ * Custom hook that implements taking and accessing screen snapshots. The hook supports maintaining multiple snapshots via what we will call a 'snapshotStore'. The
+ * snapshotStore is indexed by client-provided keys (anything that can be stringified) and keeps track of snapshots and their timestamps. Note that the snapshotStore is meant to be a black box
+ * (i.e., no guarantee of its structure or type), which is why we provide accessor functions.  The hook also provides a ref that must be placed on the DOM element to
+ * be 'photographed' as well as functions related to taking snapshots and accessing them. In the various functions, note that the hook can work in one of two
+ * modes: the snapshotStore is held by the client and provided to each function OR the hook maintains the snapshotStore itself.
+ * @param {function} callback - The function called when a successful snapshot is taken. Parameter is the updated snapshotStore.
+ * @param {object} [initialStore = {}] - Optional specification of an initial snapshotStore
+ * @returns {ref} elementRef - Ref that should be placed on the DOM element to be snapshot
+ * @returns {function} startSnapshots - Function that takes a key, an optional timeframe (default is 5s), and an optional snapshotStore.
+ * Takes a snapshot every timeframe milliseconds, calling the callback function with the provided snapshotStore updated with the new snapshot.
+ * @returns {function} takeSnapshot - Similar to startSnapshot (takes a key and optional snapshotStore), but takes a single snapshot. If no snapshotStore is provided,
+ * the hook maintains its own store.
+ * @returns {function} cancelSnapshots - Cleanup function that stops the startSnapshots timer as well as prevents any other snapshots from being taken.
+ * @returns {function} getSnapshot - Given a key and optional snapshotStore, returns the indexed snapshot. If no snapshotStore is provided, the hook keeps track
+ * of the snapshots internally.
+ * @returns {function} getTimestamp - Given a key and optional snapshotStore, returns the indexed timestamp (i.e., when the corresponding snapshot was taken) either
+ * from the provided snapshotStore or the one being maintained by the hook.
+ * @returns {function} getKeys - Given a snapshotStore, returns an array of keys. If no parameter is provided, returns the keys from the hook-maintained snapshotStore.
+ */
+
+// NOTE: There are console.log statements kept for debugging in case something goes wrong with snapshots (i.e., a snapshot doesn't show up for a user and we want to
+// quickly know why). These logs are kept because they only show up in the console if something is going wrong.
+
+export function useSnapshots(callback, initialStore = {}) {
   const timer = React.createRef();
   const cancelSnapshot = React.createRef();
   const elementRef = React.createRef();
   const referenceObject = React.createRef();
 
-  referenceObject.current = initialObject;
+  referenceObject.current = initialStore;
   cancelSnapshot.current = false;
 
-  const startSnapshots = (key, snapshotObj) => {
+  const startSnapshots = (key, milliseconds = 5000, snapshotObj) => {
     if (!timer.current) {
       timer.current = setInterval(() => {
         takeSnapshot(key, snapshotObj);
-      }, 5000);
+      }, milliseconds);
     }
   };
 
@@ -129,7 +164,7 @@ export function useSnapshots(callback, initialObject = {}) {
     { maxWait: 5000 }
   );
 
-  const cancelSnaphots = () => {
+  const cancelSnapshots = () => {
     if (timer.current) {
       clearInterval(timer.current);
       timer.current = null;
@@ -162,7 +197,7 @@ export function useSnapshots(callback, initialObject = {}) {
   return {
     elementRef,
     startSnapshots,
-    cancelSnaphots,
+    cancelSnapshots,
     getSnapshot,
     getTimestamp,
     takeSnapshot,
@@ -171,14 +206,14 @@ export function useSnapshots(callback, initialObject = {}) {
 }
 
 /**
- * A custom hook that uses react-query to pull room data from the DB
+ * Custom hook that uses react-query to pull room data from the DB
  * @param {string} roomID - The ID of the room
  * @param {boolean} [shouldBuildLog=false] - Whether we should build a log from the full set of room events
  * @param {object} [options={}] - See the docs for react-query's UseQuery for these options.
  */
 export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
   return useQuery(
-    roomId,
+    [roomId, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
     () =>
       API.getPopulatedById('rooms', roomId, false, shouldBuildLog).then(
         (res) => {
