@@ -8,9 +8,10 @@ export const fetchConfigData = async (tab) => {
   const configData = {};
   // Room condition
   if (tab.room) {
-    // if we have a starting config and saved data, return the config
+    // if we have a valid starting config and saved data, return the config
     if (
       tab.startingPointBase64 &&
+      tab.startingPointBase64 !== '{}' &&
       // Check to see if there is any activity
       tab.currentStateBase64
     ) {

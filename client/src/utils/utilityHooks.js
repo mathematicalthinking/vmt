@@ -178,7 +178,7 @@ export function useSnapshots(callback, initialObject = {}) {
  */
 export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
   return useQuery(
-    roomId,
+    [roomId, { shouldBuildLog }],
     () =>
       API.getPopulatedById('rooms', roomId, false, shouldBuildLog).then(
         (res) => {

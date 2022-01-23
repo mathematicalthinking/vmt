@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { TextInput, Button, ToggleGroup } from 'Components';
 import classes from './makeRooms.css';
-import { TextInput, Button } from '../../../Components';
 
 class Step1Course extends Component {
   render() {
@@ -22,15 +22,11 @@ class Step1Course extends Component {
     return (
       <div className={classes.Container}>
         <h2 className={classes.Title}>Assign To Rooms</h2>
-        <div className={classes.Button}>
-          <Button
-            m={5}
-            click={isRandom ? setManual : setRandom}
-            data-testid="random-assign"
-          >
-            {isRandom ? 'manual' : 'random'}
-          </Button>
-        </div>
+        <ToggleGroup
+          buttons={['Manual', 'Random']}
+          value={isRandom ? 'Random' : 'Manual'}
+          onChange={isRandom ? setManual : setRandom}
+        />
         {isRandom ? (
           <div className={classes.SubContainer}>
             <div className={classes.Error}>{error || ''}</div>
