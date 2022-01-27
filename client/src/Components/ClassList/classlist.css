@@ -1,0 +1,43 @@
+:import('../../colors.css') {
+  gray: backgroundGray;
+  blue: blue;
+  red: red;
+  lightShadow: lightShadow;
+}
+
+.THead {
+  border-bottom: 2px solid white;
+  padding: 5px;
+  font-size: 130%;
+}
+
+.ParticipantList {
+  margin: 20px 0 10px 0;
+  /* display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+    overflow-y: scroll;
+    background: #f8f8f8; */
+  border: 1px solid #ddd;
+  padding: 5px;
+  /* min-height: 200px; */
+}
+
+.Participant {
+  height: 40px;
+  /* color: black;
+    padding: 7px;
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid #ddd; */
+}
+
+.InSession {
+  height: 40px;
+  color: darkgray;
+}
+
+.Participant:hover {
+  color: blue;
+  cursor: pointer;
+}

@@ -27,16 +27,23 @@ class ReplayerControls extends Component {
   }
 
   next = () => {
-    const { log, index, duration, goToTime } = this.props;
+    const { log, index, duration, goToTime, playing } = this.props;
     const percent = log[index + 1].relTime / duration;
-
-    goToTime(percent);
+    if (playing) {
+      goToTime(percent + 0.05, true);
+    } else {
+      goToTime(percent);
+    }
   };
 
   back = () => {
-    const { log, index, duration, goToTime } = this.props;
+    const { log, index, duration, goToTime, playing } = this.props;
     const percent = log[index - 1].relTime / duration;
-    goToTime(percent);
+    if (playing) {
+      goToTime(percent - 0.05, true);
+    } else {
+      goToTime(percent);
+    }
   };
 
   first = () => {
@@ -60,7 +67,7 @@ class ReplayerControls extends Component {
     if (!mouseOverControls) {
       this.hideControlsTimer = setTimeout(
         () => this.setState({ showControls: false }),
-        1500
+        1750
       );
     }
   };
@@ -80,6 +87,16 @@ class ReplayerControls extends Component {
       <i className="fas fa-pause" />
     ) : (
       <i className="fas fa-play" />
+    );
+    const backwardButton = playing ? (
+      <i className="fas fa-backward" />
+    ) : (
+      <i className="fas fa-step-backward" />
+    );
+    const forwardButton = playing ? (
+      <i className="fas fa-forward" />
+    ) : (
+      <i className="fas fa-step-forward" />
     );
     return (
       <div
@@ -106,7 +123,7 @@ class ReplayerControls extends Component {
               className={classes.Button}
               type="button"
             >
-              <i className="fas fa-backward" />
+              {backwardButton}
             </button>
             <button
               className={classes.Button}
@@ -121,7 +138,7 @@ class ReplayerControls extends Component {
               className={classes.Button}
               type="button"
             >
-              <i className="fas fa-forward" />
+              {forwardButton}
             </button>
             <button
               disabled={index === log.length - 1}

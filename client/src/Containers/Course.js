@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import find from 'lodash/find';
+import { API } from 'utils';
+import CourseMonitor from './Monitoring/CourseMonitor';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
 import getUserNotifications from '../utils/notifications';
@@ -30,9 +32,10 @@ import Access from './Access';
 
 class Course extends Component {
   initialTabs = [
-    { name: 'Activities' },
     { name: 'Rooms' },
     { name: 'Members' },
+    { name: 'Activities' },
+    { name: 'Preview' },
   ];
 
   constructor(props) {
@@ -40,7 +43,12 @@ class Course extends Component {
     const { course } = this.props;
     this.state = {
       guestMode: true,
-      tabs: [{ name: 'Activities' }, { name: 'Rooms' }, { name: 'Members' }],
+      tabs: [
+        { name: 'Rooms' },
+        { name: 'Members' },
+        { name: 'Activities' },
+        { name: 'Preview' },
+      ],
       firstView: false,
       editing: false,
       invited: false,
@@ -50,6 +58,7 @@ class Course extends Component {
       privacySetting: course ? course.privacySetting : null,
       trashing: false,
       isAdmin: false,
+      errorMessage: '',
     };
   }
   // SO we can reset the tabs easily
@@ -237,6 +246,7 @@ class Course extends Component {
       privacySetting: course.privacySetting,
       entryCode: course.entryCode,
       instruction: course.instructions,
+      errorMessage: '',
     }));
   };
 
@@ -255,16 +265,37 @@ class Course extends Component {
       privacySetting,
     } = this.state;
     const body = { entryCode, name, details, description, privacySetting };
+
     // only send the fields that have changed
     Object.keys(body).forEach((key) => {
       if (body[key] === course[key]) {
         delete body[key];
       }
     });
-    connectUpdateCourse(course._id, body);
-    this.setState({
-      editing: false,
-    });
+    if (body.entryCode) {
+      // basic validation for unique code
+      API.getWithCode('courses', body.entryCode)
+        .then((res) => {
+          if (res.data.result.length > 0) {
+            this.setState({ errorMessage: 'Invalid Entry Code!' });
+          } else {
+            connectUpdateCourse(course._id, body);
+            this.setState({
+              editing: false,
+            });
+            this.setState({ errorMessage: '' });
+          }
+        })
+        .catch((err) => {
+          this.setState({ errorMessage: err.response.data.errorMessage });
+          console.log('API err: ', err);
+        });
+    } else {
+      connectUpdateCourse(course._id, body);
+      this.setState({
+        editing: false,
+      });
+    }
   };
 
   clearFirstViewNtf = () => {
@@ -309,18 +340,22 @@ class Course extends Component {
       trashing,
       tabs,
       invited,
+      errorMessage,
     } = this.state;
     if (course && !guestMode) {
       const { resource } = match.params;
       let myRooms;
       if (resource === 'rooms') {
-        myRooms = course.rooms.filter((room) => {
-          let included = false;
-          room.members.forEach((member) => {
-            if (member.user._id === user._id) included = true;
+        // allow course facilitators to see all rooms
+        if (course.myRole !== 'facilitator') {
+          myRooms = course.rooms.filter((room) => {
+            let included = false;
+            room.members.forEach((member) => {
+              if (member.user._id === user._id) included = true;
+            });
+            return included;
           });
-          return included;
-        });
+        }
       }
       // let contentData = {
       //   resource,
@@ -360,7 +395,8 @@ class Course extends Component {
             }
           />
         );
-      }
+      } else if (resource === 'preview')
+        mainContent = <CourseMonitor course={course} />;
       // Updatekeys = the keys that we failed to update
       const { updateFail, updateKeys } = loading;
 
@@ -389,7 +425,12 @@ class Course extends Component {
 
       if (course.myRole === 'facilitator') {
         additionalDetails.code = (
-          <Error error={updateFail && updateKeys.indexOf('entryCode') > -1}>
+          <Error
+            error={
+              (updateFail && updateKeys.indexOf('entryCode') > -1) ||
+              !!errorMessage // convert to boolean
+            }
+          >
             <EditText
               change={this.updateCourseInfo}
               inputType="text"
@@ -398,6 +439,7 @@ class Course extends Component {
             >
               {entryCode}
             </EditText>
+            {errorMessage}
           </Error>
         );
       }
@@ -412,7 +454,7 @@ class Course extends Component {
                   { title: 'My VMT', link: '/myVMT/courses' },
                   {
                     title: course.name,
-                    link: `/myVMT/courses/${course._id}/activities/`,
+                    link: `/myVMT/courses/${course._id}/rooms`,
                   },
                 ]}
                 notifications={user.notifications}
@@ -601,13 +643,37 @@ Course.defaultProps = {
   notifications: null,
 };
 
+const combineResources = (resources) => {
+  // eslint-disable-next-line no-return-assign
+  const obj = resources.reduce((acc, res) => {
+    acc[res._id] = res;
+    return acc;
+  }, {});
+  return [...Object.values(obj)];
+};
 const mapStateToProps = (store, ownProps) => {
   // eslint-disable-next-line camelcase
   const { course_id } = ownProps.match.params;
+  const localCourse = store.courses.byId[course_id]
+    ? populateResource(store, 'courses', course_id, ['activities', 'rooms'])
+    : null;
+  // Ownprops.course is the course from the db given by withPopulatedCourse. It has all the activities and rooms in the course; the localCourse
+  // only has the resources that the user has access to.
   return {
-    course: store.courses.byId[course_id]
-      ? populateResource(store, 'courses', course_id, ['activities', 'rooms'])
-      : null,
+    course:
+      localCourse && localCourse.myRole === 'facilitator'
+        ? {
+            ...localCourse,
+            activities: combineResources([
+              ...ownProps.course.activities,
+              ...localCourse.activities,
+            ]),
+            rooms: combineResources([
+              ...ownProps.course.rooms,
+              ...localCourse.rooms,
+            ]),
+          }
+        : localCourse,
     activities: store.activities.allIds,
     rooms: store.rooms.allIds,
     user: store.user,

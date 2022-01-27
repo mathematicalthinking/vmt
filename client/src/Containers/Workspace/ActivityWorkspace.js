@@ -11,8 +11,9 @@ import {
 import { Modal, Loading } from '../../Components';
 import {
   DesmosActivityGraph,
-  DesmosActivity,
+  DesmosActivityEditor,
   GgbActivityGraph,
+  CodePyretOrg,
   Tabs,
   RoomInfo,
   ActivityTools,
@@ -124,7 +125,7 @@ class ActivityWorkspace extends Component {
         }
         if (tab.tabType === 'desmosActivity') {
           return (
-            <DesmosActivity
+            <DesmosActivityEditor
               key={tab._id}
               tab={tab}
               activity={activity}
@@ -136,6 +137,21 @@ class ActivityWorkspace extends Component {
             />
           );
         }
+        if (tab.tabType === 'pyret') {
+          return (
+            <CodePyretOrg
+              key={tab._id}
+              tab={tab}
+              activity={activity}
+              role={role}
+              currentTab={currentTabId || initialTabId}
+              updateActivityTab={connectUpdateActivityTab}
+              setFirstTabLoaded={this.setFirstTabLoaded}
+              isFirstTabLoaded={isFirstTabLoaded}
+            />
+          );
+        }
+        console.log('Building a geogebra thing');
         return (
           <GgbActivityGraph
             activity={activity}
@@ -174,13 +190,14 @@ class ActivityWorkspace extends Component {
             tabs={tabs}
             roomName={activity.name} // THIS IS NO GOOD...WE SHOULD CHANGE THE ROOM ATTR TO RESOURCE THAT CAN ACCEPT EITHER A ROOM OR AN ACTIVITY
             user={user}
-            role={role} // oh shit role is taken...its for a11y  stuff
+            role={role} // oh sh*t role is taken...its for a11y  stuff
             currentTabId={currentTabId || initialTabId}
             bottomRight={
               <ActivityTools
                 owner={role === 'facilitator'}
                 goBack={this.goBack}
                 copy={this.addToMyActivities}
+                tabs={activity.tabs}
               />
             }
             bottomLeft={

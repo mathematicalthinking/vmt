@@ -69,7 +69,7 @@ function createResource(details) {
     cy.contains(name).should('exist');
   } else if (existingActivityNames) {
     cy.get('button')
-      .contains('copy existing activities')
+      .contains('use existing template')
       .click();
     existingActivityNames.forEach((name) => {
       cy.getTestElement(`${name}-checkbox`).click();
@@ -212,28 +212,28 @@ describe('create each type of resource', function() {
     });
   });
 
-  it('creates a public ggb activity', function() {
+  it('creates a public ggb template', function() {
     const { name, description } = activity;
-    createResource({ resourceType: 'activity', name, description });
+    createResource({ resourceType: 'template', name, description });
   });
 
-  it('creates a private ggb activity', function() {
+  it('creates a private ggb template', function() {
     const { name, description } = activity;
     createResource({
-      resourceType: 'activity',
+      resourceType: 'template',
       name: `${name} private`,
       description,
       privacy: 'private',
     });
   });
 
-  it('creates a room from 1 activity', function() {
+  it('creates a room from 1 template', function() {
     const existingActivityNames = ['ACTIVITY 2'];
     const name = 'public room from activity 2';
     createResource({ resourceType: 'room', name, existingActivityNames });
   });
 
-  it('creates a room from multiple activities', function() {
+  it('creates a room from multiple templates', function() {
     const name = 'room from 3 activities';
     const existingActivityNames = [
       'ACTIVITY 2',
@@ -248,13 +248,13 @@ describe('create each type of resource', function() {
     });
   });
 
-  it('creates an activity from an existing activity', function() {
+  it('creates a template from an existing template', function() {
     const existingActivityNames = ['ACTIVITY 2'];
     const name = 'public activity from activity 2';
-    createResource({ resourceType: 'activity', name, existingActivityNames });
+    createResource({ resourceType: 'template', name, existingActivityNames });
   });
 
-  it('creates an activity from multiple activities', function() {
+  it('creates an template from multiple activities', function() {
     const name = 'activity from 3 activities';
     const existingActivityNames = [
       'ACTIVITY 2',
@@ -262,23 +262,26 @@ describe('create each type of resource', function() {
       'stand-alone-activity',
     ];
     createResource({
-      resourceType: 'activity',
+      resourceType: 'template',
       name,
       existingActivityNames,
       numTabs: 3,
     });
   });
 
-  it('creates a course activity', function() {
+  it('creates a course template', function() {
     cy.getTestElement('tab')
       .contains('Courses')
       .click();
     cy.getTestElement('content-box-course 1').click();
     cy.url().should('include', '/myVMT/courses');
+    cy.getTestElement('tab')
+      .contains('Templates')
+      .click();
     cy.url().should('include', '/activities');
 
     createResource({
-      resourceType: 'activity',
+      resourceType: 'template',
       name: course.activity.name,
       description: course.activity.description,
     });

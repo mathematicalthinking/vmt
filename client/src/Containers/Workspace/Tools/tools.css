@@ -26,11 +26,13 @@ all share. we are repeating styles in each of those copmnents  */
 }
 
 .Title {
+  width: 100%;
   padding: 8px 0 8px 10px;
   border-bottom: 1px solid #ddd;
   background-color: rgb(245, 245, 245);
   border-radius: 3px 3px 0 0;
   color: black;
+  text-align: center;
   font-size: 17px;
   letter-spacing: 1.12px;
 }
@@ -56,7 +58,7 @@ all share. we are repeating styles in each of those copmnents  */
 .ReferenceWindow {
   /* height: 100%; */
   margin: 3px 0;
-  padding: 2px;
+  /* padding: 2px; */
   display: flex;
   justify-content: space-between;
   box-shadow: lightShadow;
@@ -100,7 +102,7 @@ all share. we are repeating styles in each of those copmnents  */
 
 .Controls {
   display: flex;
-  margin-top: 10px;
+  margin: 5px 0;
 }
 
 .MousePointer {

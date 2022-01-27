@@ -1,4 +1,4 @@
-# Virtual Math Teams (VMT)[![Build Status](https://travis-ci.org/mathematicalthinking/vmt.svg?branch=master)](https://travis-ci.org/mathematicalthinking/vmt) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+# Virtual Math Teams (VMT)[![Build Status](https://travis-ci.org/mathematicalthinking/vmt.svg?branch=main)](https://travis-ci.org/mathematicalthinking/vmt) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 Virtual Math Teams (VMT) provides a collaboration infrastructure for visual math and geometry tools, such as Geogebra and Desmos. To provide this infrastructure, this version uses React.js and Redux.js, express and sockets.io. see 'Installation' below.
 
@@ -25,13 +25,13 @@ To provide the colloaboration infrastructure, this application uses a combinatio
  If you wish to run VMT separately, then you just need to remove the existing auth routes (`server/routes/auth`) and middleware (`server/middleware/mt-auth`) and put in your own system. There are also routes used solely by EnCOMPASS that could be removed (`server/routes/enc`).
 
 
-1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/master/docs/gitForkRepo.md))
+1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/main/docs/gitForkRepo.md))
 1. `$ cd vmt/server && npm install`
 1. `$ cd ../client && npm install`
 1. `$ cd ..`
 1. `$ cp .env.example .env`
 1. Make sure you have mongodb installed. [instructions here](https://docs.mongodb.com/manual/installation/)
-1. From anywhere on your computer run `$ mongod` then cd back to the vmt/ and...
+1. From anywhere on your computer run `$ mongod --dbpath <some-new-dir-for-db>` where `<some-new-dir-for-db>` is a directory for MongoDB data then cd back to the vmt/ and...
 1. `$ npm run dev` This will start the react development server on port 3000 and the express server on 3001 **N.B., you'll need to have nodemon and concurrently installed** these are included in the dev dependencies but you may need to install them globally. `$ npm i -g nodemon concurrently`
 1. We utilize [prettier](https://prettier.io/) for formatting.
 
@@ -44,15 +44,15 @@ This can only be done by the core contributors.
 
 ## Contributions and Git Rebase Workflow
 
-1. `git checkout master`
-1. `git pull --rebase upstream master`
-1. `git push origin master`
+1. `git checkout main`
+1. `git pull --rebase upstream main`
+1. `git push origin main`
 1. `git checkout -b feature-branch`
 1. `git add/git commit` (on feature branch)
    - To close an issue, add 'closed #[github issue number]' to commit message
-1. `git pull --rebase upstream master` (on feature branch)
+1. `git pull --rebase upstream main` (on feature branch)
 1. `git push origin feature-branch`
-1. Submit pull request (your feature branch to upstream master)
+1. Submit pull request (your feature branch to upstream main)
 
 ### More Work to do (Pull Request not accepted)
 
@@ -60,13 +60,13 @@ This can only be done by the core contributors.
 
 ### Pull Request Accepted?
 
-1. `git checkout master`
-1. `git pull --rebase upstream master`
-1. `git push origin master`
+1. `git checkout main`
+1. `git pull --rebase upstream main`
+1. `git push origin main`
 
 ### Totally done
 
-1. `git checkout master`
+1. `git checkout main`
 1. `git branch -d feature-branch`
 
 ### Troubleshooting

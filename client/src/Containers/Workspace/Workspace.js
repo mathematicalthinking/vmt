@@ -20,6 +20,7 @@ import {
   GgbGraph,
   DesmosGraph,
   DesmosActivity,
+  CodePyretOrg,
   Chat,
   Tabs,
   Tools,
@@ -207,18 +208,28 @@ class Workspace extends Component {
   }
 
   componentWillUnmount() {
-    const { populatedRoom } = this.props;
-    const { myColor } = this.state;
+    const { populatedRoom, connectUpdatedRoom, user } = this.props;
+    const { myColor, currentMembers } = this.state;
     socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
+    connectUpdatedRoom(populatedRoom._id, {
+      currentMembers: currentMembers.filter(
+        (mem) => mem && user && mem._id !== user._id
+      ),
+    });
     window.removeEventListener('resize', this.resizeHandler);
     window.removeEventListener('keypress', this.keyListener);
+    socket.removeAllListeners('USER_JOINED');
+    socket.removeAllListeners('CREATED_TAB');
+    socket.removeAllListeners('USER_LEFT');
+    socket.removeAllListeners('RELEASED_CONTROL');
+    socket.removeAllListeners('TOOK_CONTROL');
     if (this.controlTimer) {
       clearTimeout(this.controlTimer);
     }
 
-    socket.off('pong');
     const { cancelSnapshots } = this.state;
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
+    clearInterval(this.heartbeatInterval);
     this.clearHeartbeatTimer();
   }
 
@@ -259,11 +270,17 @@ class Workspace extends Component {
   };
 
   handleScreenChange = (screenNum) => {
-    // set screen in state
-    this.setState({ currentScreen: screenNum }, () => {
-      // takeSnap if needed
-      this._takeSnapshotIfNeeded();
-    });
+    // Only do something if the currentTab is a DesmosActivity
+    const { currentTabId, tabs } = this.state;
+    const currentTab = tabs.find((tab) => tab._id === currentTabId);
+
+    if (currentTab && currentTab.tabType !== 'desmosActivity') {
+      // set screen in state
+      this.setState({ currentScreen: screenNum }, () => {
+        // takeSnap if needed
+        this._takeSnapshotIfNeeded();
+      });
+    }
   };
 
   /** ******************** */
@@ -288,7 +305,7 @@ class Workspace extends Component {
   };
 
   initializeListeners = () => {
-    const { temp, populatedRoom, user } = this.props;
+    const { temp, populatedRoom, user, connectUpdatedRoom } = this.props;
     const { myColor } = this.state;
     socket.removeAllListeners('USER_JOINED');
     socket.removeAllListeners('CREATED_TAB');
@@ -325,28 +342,41 @@ class Workspace extends Component {
             // eslint-disable-next-line no-console
             console.log(err); // HOW SHOULD WE HANDLE THIS
           }
-          this.setState({
-            currentMembers: room.currentMembers,
-          });
+          this.setState(
+            {
+              currentMembers: room.currentMembers,
+            },
+            () =>
+              connectUpdatedRoom(populatedRoom._id, {
+                currentMembers: room.currentMembers,
+              })
+          );
           this.addToLog(message);
         });
       }
     }
 
     socket.on('USER_JOINED', (data) => {
-      this.setState({
-        currentMembers: data.currentMembers,
-      });
-      this.addToLog(data.message);
+      const { currentMembers, message } = data;
+      this.setState(
+        {
+          currentMembers,
+        },
+        () => connectUpdatedRoom(populatedRoom._id, { currentMembers })
+      );
+      this.addToLog(message);
     });
 
     socket.on('USER_LEFT', (data) => {
       let { controlledBy } = this.state;
+      const { currentMembers, message } = data;
       if (data.releasedControl) {
         controlledBy = null;
       }
-      this.setState({ controlledBy, currentMembers: data.currentMembers });
-      this.addToLog(data.message);
+      this.setState({ controlledBy, currentMembers }, () =>
+        connectUpdatedRoom(populatedRoom._id, { controlledBy, currentMembers })
+      );
+      this.addToLog(message);
     });
 
     socket.on('TOOK_CONTROL', (message) => {
@@ -387,12 +417,30 @@ class Workspace extends Component {
     // bad connection latency threshold
     const THRESHOLD = 100;
 
-    socket.on('pong', (latency) => {
+    this.heartbeatInterval = setInterval(() => {
+      const start = Date.now();
       this.setHeartbeatTimer();
-      if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
-      else this.setState({ connectionStatus: 'Good' });
-      console.log('Heartbeat<3 latency: ', latency);
-    });
+      // volatile, so the packet will be discarded if the socket is not connected
+      // PROBLEM: using volatile can hide the fact that the user is disconnected. (was "socket.volatile.emit...")
+      if (socket.connected) {
+        socket.emit('ping', () => {
+          const latency = Date.now() - start;
+          if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
+          else this.setState({ connectionStatus: 'Good' });
+          console.log('Heartbeat<3 latency: ', latency);
+        });
+      } else {
+        // not connected
+        this.setState({ connectionStatus: 'Error' });
+      }
+    }, 5000);
+
+    // socket.on('pong', (latency) => {
+    //   this.setHeartbeatTimer();
+    //   if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
+    //   else this.setState({ connectionStatus: 'Good' });
+    //   console.log('Heartbeat<3 latency: ', latency);
+    // });
   };
 
   setHeartbeatTimer = () => {
@@ -436,7 +484,7 @@ class Workspace extends Component {
     const data = {
       _id: mongoIdGenerator(),
       user: { _id: user._id, username: 'VMTBot' },
-      text: `${user.username} swtiched to ${
+      text: `${user.username} switched to ${
         tabs.filter((t) => t._id === id)[0].name
       }`,
       autogenerated: true,
@@ -566,6 +614,7 @@ class Workspace extends Component {
     clearTimeout(this.controlTimer);
     this.controlTimer = setTimeout(() => {
       this.toggleControl();
+      // one minute control timer
     }, 60 * 1000);
   };
 
@@ -1017,6 +1066,29 @@ class Workspace extends Component {
             updateUserSettings={connectUpdateUserSettings}
             addToLog={this.addToLog}
             onScreenChange={this.handleScreenChange}
+          />
+        );
+      }
+      if (tab.tabType === 'pyret') {
+        return (
+          <CodePyretOrg
+            key={tab._id}
+            room={populatedRoom}
+            user={user}
+            resetControlTimer={this.resetControlTimer}
+            currentTabId={currentTabId}
+            updateRoomTab={connectUpdateRoomTab}
+            tab={tab}
+            inControl={inControl}
+            myColor={myColor}
+            toggleControl={this.toggleControl}
+            updatedRoom={connectUpdatedRoom}
+            addNtfToTabs={this.addNtfToTabs}
+            isFirstTabLoaded={isFirstTabLoaded}
+            setFirstTabLoaded={this.setFirstTabLoaded}
+            referencing={referencing}
+            updateUserSettings={connectUpdateUserSettings}
+            addToLog={this.addToLog}
           />
         );
       }

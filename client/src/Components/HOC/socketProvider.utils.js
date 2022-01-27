@@ -6,7 +6,9 @@ export default (notification, course, room, myResources) => {
   if (type === 'requestAccess') {
     const { username } = notification.fromUser;
     message = `${username} is requesting to join ${resource} ${
-      myResources[`${resource}s`][notification.resourceId].name
+      myResources[`${resource}s`][notification.resourceId]
+        ? myResources[`${resource}s`][notification.resourceId].name
+        : '<name not found>'
     }`;
   } else if (type === 'grantedAccess') {
     message = `your request to join ${resource} ${
@@ -15,7 +17,9 @@ export default (notification, course, room, myResources) => {
   } else if (type === 'newMember') {
     const { username } = notification.fromUser;
     message = `${username} joined ${resource} ${
-      myResources[`${resource}s`][notification.resourceId].name
+      myResources[`${resource}s`][notification.resourceId]
+        ? myResources[`${resource}s`][notification.resourceId].name
+        : '<name not found>'
     } `;
   } else if (type === 'invitation') {
     message = `you have been invited you to join ${resource} ${

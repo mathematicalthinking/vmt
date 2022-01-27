@@ -1,4 +1,4 @@
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   blue: blue;
   lightestShadow: lightestShadow;
 }
@@ -6,6 +6,7 @@
   /* margin-bottom: 5px; */
   display: flex;
   align-items: center;
+  margin-left: 1px;
 }
 
 .UserInfo a {

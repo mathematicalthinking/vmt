@@ -116,7 +116,7 @@
   flex: 0.1 0 auto;
 } */
 
-@media screen and (max-width: 775px) {
+@media screen and (max-width: 875px) {
   .LogoShort {
     display: block;
     margin-left: 25px;

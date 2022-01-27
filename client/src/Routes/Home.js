@@ -6,6 +6,7 @@ import {
   Homepage,
   Login,
   Signup,
+  ClassCode,
   Community,
   Logout,
   Profile,
@@ -14,7 +15,16 @@ import {
   ConfirmEmail,
   Unconfirmed,
 } from '../Containers';
-import { Confirmation, About } from '../Layout';
+import {
+  Confirmation,
+  About,
+  NotFound,
+  Terms,
+  Instructions,
+  FacilitatorInstructions,
+  Faq,
+  Contact,
+} from '../Layout';
 import classes from './main.css';
 import Aux from '../Components/HOC/Auxil';
 import OauthReturn from '../Components/HOC/OauthReturn';
@@ -51,6 +61,11 @@ class Home extends PureComponent {
     return window.matchMedia('only screen and (max-width: 760px)').matches;
   };
 
+  isWeekend = () => {
+    const today = new Date();
+    return !(today.getDay() % 6);
+  };
+
   closeModal = () => {
     this.setState({ errorMsgSeen: true });
   };
@@ -66,21 +81,31 @@ class Home extends PureComponent {
           <Navbar fixed user={user} toggleAdmin={this.toggleAdmin} />
         ) : (
           <HomeNav
-            isDark={scrollPosition > 0.45}
+            isDark={scrollPosition > 0.2}
             page={location.pathname}
             user={user}
             toggleAdmin={this.toggleAdmin}
           />
         )}
         <Modal
-          show={this.isMobile() && !errorMsgSeen}
+          show={(this.isWeekend() || this.isMobile()) && !errorMsgSeen}
           closeModal={this.closeModal}
-          height={120}
-          width={150}
+          height={400}
+          width={300}
         >
           {'Welcome to Virtual Math Teams! '}
+          <hr />
+          {this.isMobile()
+            ? 'This Math experience is best viewed on a larger computer screen.'
+            : null}
           <br />
-          {'This Math experience is best viewed on a larger computer screen'}
+          {this.isWeekend()
+            ? `VMT is in development and may undergo regular weekend maintenance${
+                process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE
+                  ? ` on ${process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE}`
+                  : ''
+              }, please contact if uptime is needed.`
+            : null}
         </Modal>
         <div
           className={classes.Container}
@@ -91,10 +116,21 @@ class Home extends PureComponent {
           <Switch>
             <Route exact path="/" render={() => <Homepage {...this.props} />} />
             <Route path="/about" component={About} />
+            <Route path="/instructions/participant" component={Instructions} />
+            <Route
+              path="/instructions/facilitator"
+              component={FacilitatorInstructions}
+            />
+            <Route path="/instructions" component={Instructions} />
+
+            <Route path="/terms" component={Terms} />
+            <Route path="/faq" component={Faq} />
+            <Route path="/contact" component={Contact} />
             <Route path="/community/:resource" component={Community} />
             <Route exact path="/logout" component={Logout} />
             <Route path="/login" component={Login} />
             <Route path="/signup" component={Signup} />
+            <Route path="/classcode" component={ClassCode} />
 
             <Route path="/confirmation" component={Confirmation} />
             <Route path="/profile" component={Profile} />
@@ -103,16 +139,14 @@ class Home extends PureComponent {
             <Route path="/confirmEmail/:token?" component={ConfirmEmail} />
             <Route path="/unconfirmed" component={Unconfirmed} />
             <Route path="/oauth/return" component={OauthReturn} />
+            <Route path="/*" component={NotFound} />
           </Switch>
         </div>
       </Aux>
     );
   }
 }
-
-export default connect(
-  (state) => ({ user: state.user }),
-  {
-    connectUpdateUser: updateUser,
-  }
-)(Home);
+// prettier-ignore
+export default connect((state) => ({ user: state.user }), {
+  connectUpdateUser: updateUser,
+})(Home);

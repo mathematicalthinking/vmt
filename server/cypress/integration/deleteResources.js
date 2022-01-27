@@ -26,21 +26,21 @@ describe('Delete resource', function() {
 
   it('deletes a stand alone activity', function() {
     cy.getTestElement('tab')
-      .contains('Activities')
+      .contains('Templates')
       .click();
     cy.getTestElement("content-box-Deanna's stand alone activity").click();
-    cy.getTestElement('edit-activity').click();
-    cy.getTestElement('trash-activity').click();
+    cy.getTestElement('edit-template').click();
+    cy.getTestElement('trash-template').click();
     cy.getTestElement('confirm-trash').click();
     cy.getTestElement('tab')
-      .contains('Activities')
+      .contains('Templates')
       .click();
     cy.contains("Deanna's stand alone room").should('not.exist');
   });
 
   it('deletes a course and all of its resources', function() {
     cy.getTestElement('tab')
-      .contains('Activities')
+      .contains('Templates')
       .click();
     cy.getTestElement("content-box-Deanna's course 1 activity").should('exist');
     cy.getTestElement('tab')
@@ -56,7 +56,7 @@ describe('Delete resource', function() {
     cy.getTestElement('confirm-trash-children').click();
     cy.contains("Deanna's course 1").should('not.exist');
     cy.getTestElement('tab')
-      .contains('Activities')
+      .contains('Templates')
       .click();
     cy.contains("Deanna's course 1 activity").should('not.exist');
     cy.getTestElement('tab')
@@ -67,7 +67,7 @@ describe('Delete resource', function() {
 
   it('deletes a course but saves all of its resources', function() {
     cy.getTestElement('tab')
-      .contains('Activities')
+      .contains('Templates')
       .click();
     cy.getTestElement("content-box-Deanna's course 2 activity").should('exist');
     cy.getTestElement('tab')
@@ -83,7 +83,7 @@ describe('Delete resource', function() {
     cy.getTestElement('confirm-trash').click();
     cy.contains("Deanna's course 2").should('not.exist');
     cy.getTestElement('tab')
-      .contains('Activities')
+      .contains('Templates')
       .click();
     cy.contains("Deanna's course 2 activity").should('exist');
     cy.getTestElement('tab')

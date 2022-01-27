@@ -35,6 +35,14 @@ class ContentBox extends PureComponent {
       notifications > 0 ? (
         <Notification count={notifications} data-testid="content-box-ntf" />
       ) : null;
+    if (
+      roomType &&
+      roomType[0] === 'pyret' &&
+      process.env.REACT_APP_PYRET_MODE.toLowerCase() !== 'yes'
+    ) {
+      return null;
+    }
+
     return (
       <Aux>
         <Link
@@ -79,6 +87,9 @@ class ContentBox extends PureComponent {
                       Facilitators:{' '}
                       {details.facilitators.map((facilitator) => facilitator)}
                     </div>
+                  ) : null}
+                  {details.sinceUpdated ? (
+                    <div>Updated: {details.sinceUpdated} ago</div>
                   ) : null}
                   {details.creator ? `Creator: ${details.creator}` : null}
                   {details.entryCode ? (

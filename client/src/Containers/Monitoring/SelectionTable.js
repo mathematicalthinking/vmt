@@ -11,19 +11,34 @@ import classes from './selectionTable.css';
  * Implements a table that allows for selecting / deselecting of each row and for sorting based on columns.  Right now, the implementation
  * is specfic to the type of room data I want to show (from MontoringView), but this should be a generic component.
  *
+ * @TODO - SelectionTable is hard-wired for a specific structure of the data prop. That is, this knowledge is used
+ * in initialization, toggleAll, and in rendering. Instead, we should provide SelectionTable with a config prop that specifies
+ * which properties to pull out of data and how to display them (column headings). That would make SelectionTable more of a
+ * generic component.
+ *
  * Adapted from https://www.smashingmagazine.com/2020/03/sortable-tables-react/
  */
 
 export default function SelectionTable(props) {
   const { data, selections, onChange } = props;
   const tableData = data.map((datum) => {
-    const { _id, name, updatedAt, createdAt, currentMembers } = datum;
+    const {
+      _id,
+      name,
+      updatedAt,
+      createdAt,
+      currentMembers,
+      course,
+      activity,
+    } = datum;
     return {
       _id,
       name,
       updatedAt,
       createdAt,
       currentMembers: currentMembers && currentMembers.length,
+      courseName: course ? course.name : '',
+      templateName: activity ? activity.name : '',
     };
   });
 
@@ -42,7 +57,12 @@ export default function SelectionTable(props) {
     const newValue = !toggleAll;
     const newSelections = {};
     Object.keys(selections).forEach((id) => {
-      newSelections[id] = newValue;
+      // only toggle those selections that are part of the given data. We need this because sometimes a selectionTable
+      // could be given a set of selections that are a superset of its data. Alternatively, we could be more careful
+      // in parents to ensure that selections and data are in sync (I'm talking to you, ResourceTables.)
+      if (data.some((d) => d._id === id)) {
+        newSelections[id] = newValue;
+      }
     });
     setToggleAll(newValue);
     onChange(newSelections);
@@ -81,6 +101,24 @@ export default function SelectionTable(props) {
           <th>
             <button
               type="button"
+              onClick={() => requestSort('courseName')}
+              className={classes[getClassNamesFor('courseName')]}
+            >
+              Course
+            </button>
+          </th>
+          <th>
+            <button
+              type="button"
+              onClick={() => requestSort('templateName')}
+              className={classes[getClassNamesFor('templateName')]}
+            >
+              Template
+            </button>
+          </th>
+          <th>
+            <button
+              type="button"
               onClick={() => requestSort('updatedAt')}
               className={classes[getClassNamesFor('updatedAt')]}
             >
@@ -112,6 +150,8 @@ export default function SelectionTable(props) {
             </td>
             <td>{item.name}</td>
             <td style={{ textAlign: 'center' }}>{item.currentMembers}</td>
+            <td>{item.courseName}</td>
+            <td>{item.templateName}</td>
             <td>{moment(item.updatedAt).format('LLL')}</td>
             <td>{moment(item.createdAt).format('LLL')}</td>
           </tr>

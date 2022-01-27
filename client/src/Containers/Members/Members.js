@@ -3,8 +3,10 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Member, Search, Modal, Button, InfoBox } from 'Components';
+import Slider from 'Components/UI/Button/Slider';
 import COLOR_MAP from 'utils/colorMap';
-import API from '../../utils/apiRequests';
+import API from 'utils/apiRequests';
 import {
   grantAccess,
   updateCourseMembers,
@@ -14,9 +16,9 @@ import {
   clearNotification,
   removeCourseMember,
   removeRoomMember,
-} from '../../store/actions';
-import { getAllUsersInStore } from '../../store/reducers';
-import { Member, Search, Modal, Button, InfoBox } from '../../Components';
+} from 'store/actions';
+import { getAllUsersInStore } from 'store/reducers';
+import Importer from '../../Components/Importer/Importer';
 import SearchResults from './SearchResults';
 import classes from './members.css';
 
@@ -30,6 +32,7 @@ class Members extends PureComponent {
       confirmingInvitation: false,
       userId: null,
       username: null,
+      isCourseOnly: false,
     };
   }
 
@@ -69,7 +72,10 @@ class Members extends PureComponent {
     } = this.props;
     const color = COLOR_MAP[classList.length];
     if (resourceType === 'course') {
-      connectInviteToCourse(resourceId, id, username);
+      // Don't invite someone if they are already in the course
+      const alreadyInCourse =
+        courseMembers && courseMembers.find((mem) => mem.user._id === id);
+      if (!alreadyInCourse) connectInviteToCourse(resourceId, id, username);
     } else if (courseMembers) {
       const inCourse = courseMembers.filter(
         (member) => member.user._id === id
@@ -77,7 +83,7 @@ class Members extends PureComponent {
       if (!inCourse) {
         confirmingInvitation = true;
       } else {
-        connectInviteToRoom(resourceId, id, username, color, {});
+        connectInviteToRoom(resourceId, id, username, color, {}); // @TODO **WHY** do we invite a user if they are already in the course?!?
       }
     } else {
       connectInviteToRoom(resourceId, id, username, color);
@@ -125,7 +131,7 @@ class Members extends PureComponent {
   };
   /**
    * @method changeRole
-   * @param  {Object} info - member obj { color, _id, role, {_id: username}}
+   * @param  {Object} info - member obj { color, _id, role, {_id, username}}
    */
 
   changeRole = (info) => {
@@ -148,13 +154,23 @@ class Members extends PureComponent {
 
   // Consider finding a way to NOT duplicate this in MakeRooms and also now in Profile
   search = (text) => {
-    const { classList } = this.props;
+    const { classList, courseMembers } = this.props;
+    const { isCourseOnly } = this.state;
     if (text.length > 0) {
-      API.search('user', text, classList.map((member) => member.user._id))
+      // prettier-ignore
+      API.search(
+        'user',
+        text,
+        classList.map((member) => member.user._id)
+      )
         .then((res) => {
-          const searchResults = res.data.results.filter(
-            (user) => user.accountType !== 'temp'
-          );
+          const searchResults = res.data.results.filter((user) => {
+            if (user.accountType === 'temp') return false;
+            if (isCourseOnly) {
+              return courseMembers.some((mem) => mem.user._id === user._id);
+            }
+            return true;
+          });
           this.setState({ searchResults, searchText: text });
         })
         .catch((err) => {
@@ -166,11 +182,29 @@ class Members extends PureComponent {
     }
   };
 
+  /* Handler for the Import component */
+  handleImport = (userObjects) => {
+    Promise.all(
+      userObjects.map(async (user) =>
+        user._id
+          ? API.put('user', user._id, user).then(() => {
+              return user;
+            })
+          : API.post('user', user).then((res) => {
+              return res.data.result;
+            })
+      )
+    ).then((newUsers) =>
+      newUsers.forEach((user) => this.inviteMember(user._id, user.username))
+    );
+  };
+
   render() {
     const {
       classList,
       notifications,
       owner,
+      user,
       resourceType,
       resourceId,
       courseMembers,
@@ -182,7 +216,9 @@ class Members extends PureComponent {
       username,
       searchResults,
       searchText,
+      isCourseOnly,
     } = this.state;
+
     let joinRequests = <p>There are no new requests to join</p>;
     if (owner && notifications.length >= 1) {
       joinRequests = notifications
@@ -211,7 +247,6 @@ class Members extends PureComponent {
     }
     const filteredClassList = [];
     const guestList = [];
-    // console.log("Class list: ", classList);
     classList.forEach((member) => {
       if (member.role === 'guest') {
         guestList.push(member);
@@ -229,6 +264,7 @@ class Members extends PureComponent {
         }
         return false;
       });
+
       return owner ? (
         <Member
           changeRole={this.changeRole}
@@ -264,32 +300,80 @@ class Members extends PureComponent {
     });
     return (
       <div className={classes.Container}>
-        {
-          <Modal
-            show={confirmingInvitation}
-            closeModal={() => this.setState({ confirmingInvitation: false })}
-          >
-            <div>
-              {username} is not in this course...you can still add them to this
-              room and they will be added to the course as a guest
-            </div>
-            <div>
-              <Button m={5} click={this.confirmInvitation}>
-                Add To Room
-              </Button>
-              <Button
-                theme="Cancel"
-                m={5}
-                click={() => {
-                  this.setState({ confirmingInvitation: false });
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </Modal>
-        }
+        <Modal
+          show={confirmingInvitation}
+          closeModal={() => this.setState({ confirmingInvitation: false })}
+        >
+          <div>
+            {username} is not in this course...you can still add them to this
+            room and they will be added to the course as a guest
+          </div>
+          <div>
+            <Button m={5} click={this.confirmInvitation}>
+              Add To Room
+            </Button>
+            <Button
+              theme="Cancel"
+              m={5}
+              click={() => {
+                this.setState({ confirmingInvitation: false });
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </Modal>
         <div>
+          {owner ? (
+            <InfoBox
+              title="Add Participants"
+              icon={<i className="fas fa-user-plus" />}
+              rightIcons={
+                resourceType === 'course' ? (
+                  <Importer user={user} onImport={this.handleImport} />
+                ) : null
+              }
+            >
+              <Fragment>
+                <Search
+                  data-testid="member-search"
+                  _search={this.search}
+                  placeholder="search existing VMT users by username or email address"
+                />
+                {searchResults.length > 0 ? (
+                  <SearchResults
+                    searchText={searchText}
+                    usersSearched={searchResults}
+                    inviteMember={this.inviteMember}
+                  />
+                ) : null}
+                {resourceType === 'room' && courseMembers ? (
+                  <div className={classes.ToggleContainer}>
+                    <Slider
+                      data-testid="search-toggle"
+                      action={() => {
+                        this.setState(
+                          (prevState) => ({
+                            isCourseOnly: !prevState.isCourseOnly,
+                          }),
+                          () => {
+                            this.search(searchText);
+                          }
+                        );
+                      }}
+                      isOn={isCourseOnly}
+                      name="isCourseOnly"
+                    />
+                    <span className={classes.Email}>
+                      {isCourseOnly
+                        ? ' Toggle to Search all VMT users '
+                        : ' Toggle to Search only for course members '}
+                    </span>
+                  </div>
+                ) : null}
+              </Fragment>
+            </InfoBox>
+          ) : null}
           {owner ? (
             <InfoBox
               title="New Requests to Join"
@@ -308,30 +392,6 @@ class Members extends PureComponent {
                 : `There are no guests in this ${resourceType}`}
             </div>
           </InfoBox>
-          {owner ? (
-            <InfoBox
-              title="Add New Participants"
-              icon={<i className="fas fa-user-plus" />}
-            >
-              <Fragment>
-                <Search
-                  data-testid="member-search"
-                  _search={this.search}
-                  placeholder="search by username or email address"
-                />
-                {searchResults.length > 0 ? (
-                  <SearchResults
-                    searchText={searchText}
-                    usersSearched={searchResults}
-                    inviteMember={this.inviteMember}
-                  />
-                ) : null}
-                {resourceType === 'room' && courseMembers ? (
-                  <div>Add participants from this course</div>
-                ) : null}
-              </Fragment>
-            </InfoBox>
-          ) : null}
         </div>
       </div>
     );
@@ -340,6 +400,7 @@ class Members extends PureComponent {
 
 Members.propTypes = {
   searchedUsers: PropTypes.arrayOf(PropTypes.shape({})),
+  user: PropTypes.shape({}).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
@@ -364,6 +425,7 @@ Members.defaultProps = {
   notifications: null,
   parentResource: null,
 };
+
 const mapStateToProps = (state, ownProps) => {
   // STart the search results populated with people already in the store
   const usersToExclude = ownProps.classList.map((member) => member.user._id);
@@ -375,19 +437,18 @@ const mapStateToProps = (state, ownProps) => {
       _id: id,
       username: usernames[i],
     })),
+    user: state.user,
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectGrantAccess: grantAccess,
-    connectUpdateCourseMembers: updateCourseMembers,
-    connectUpdateRoomMembers: updateRoomMembers,
-    connectInviteToCourse: inviteToCourse,
-    connectInviteToRoom: inviteToRoom,
-    connectClearNotification: clearNotification,
-    connectRemoveRoomMember: removeRoomMember,
-    connectRemoveCourseMember: removeCourseMember,
-  }
-)(Members);
+// prettier-ignore
+export default connect(mapStateToProps, {
+  connectGrantAccess: grantAccess,
+  connectUpdateCourseMembers: updateCourseMembers,
+  connectUpdateRoomMembers: updateRoomMembers,
+  connectInviteToCourse: inviteToCourse,
+  connectInviteToRoom: inviteToRoom,
+  connectClearNotification: clearNotification,
+  connectRemoveRoomMember: removeRoomMember,
+  connectRemoveCourseMember: removeCourseMember,
+})(Members);

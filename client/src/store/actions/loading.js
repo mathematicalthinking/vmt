@@ -19,6 +19,14 @@ export const fail = (errorMessage) => {
   };
 };
 
+// seeing if I can reuse the action type.
+export const multiFail = (messages) => {
+  return {
+    type: actionTypes.FAIL,
+    error: messages,
+  };
+};
+
 export const accessSuccess = () => {
   return {
     type: actionTypes.ACCESS_SUCCESS,

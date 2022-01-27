@@ -17,3 +17,6 @@ backup.zip
 Icon
 
 .DS_Store
+client/.env
+client/.env_pyret
+server/.env_pyret

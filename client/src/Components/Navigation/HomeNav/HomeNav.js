@@ -10,7 +10,7 @@ import classes from './homeNav.css';
 
 const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
   let styles = classes.Nav;
-  if (page === '/about') {
+  if (page === '/about' || page === '/faq' || page === '/terms') {
     styles = classes.FixedGradientNav;
   } else if (isDark) {
     styles = classes.LightNav;
@@ -20,17 +20,25 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
     ntf = true;
   }
 
-  const list = [
-    { name: 'Profile', link: '/myVMT/profile' },
-    { name: 'Logout', link: '/logout' },
-  ];
+  const profileList = [{ name: 'Profile', link: '/myVMT/profile' }];
+
+  if (loggedIn) {
+    profileList.push({ name: 'Logout', link: '/logout' });
+  }
 
   if (user.isAdmin) {
-    list.splice(1, 0, {
+    profileList.splice(1, 0, {
       name: 'Admin Mode',
       sliderDetails: { isOn: user.inAdminMode, onClick: toggleAdmin },
     });
   }
+
+  const aboutList = [
+    { name: 'About', link: '/about' },
+    { name: 'Instructions', link: '/instructions' },
+    { name: 'FAQ', link: '/faq' },
+    { name: 'Contact', link: '/contact' },
+  ];
   return (
     <nav className={styles}>
       <div className={classes.NavContainer}>
@@ -49,7 +57,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
             ) : (
               <Aux>
-                <NavItem link="/login" name="Login" />
+                {/* <NavItem link="/login" name="Login" /> */}
                 <NavItem link="/signup" name="Signup" />
               </Aux>
             )}
@@ -64,7 +72,11 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
             {user.isAdmin ? (
               <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
             ) : null}
-            <NavItem link="/about" name="About" />
+            <DropdownNavItem
+              name={<span>Info</span>}
+              list={aboutList}
+              mr={loggedIn ? 0 : 60}
+            />
             {loggedIn ? (
               <DropdownNavItem
                 name={
@@ -73,7 +85,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
                     color={user.inAdminMode ? '#ffd549' : '#2d91f2'}
                   />
                 }
-                list={list}
+                list={profileList}
               />
             ) : null}
           </ul>
@@ -99,8 +111,5 @@ Navbar.defaultProps = {
 const mapStateToProps = (store) => ({
   loggedIn: store.user.loggedIn,
 });
-
-export default connect(
-  mapStateToProps,
-  null
-)(Navbar);
+// prettier-ignore
+export default connect(mapStateToProps, null)(Navbar);

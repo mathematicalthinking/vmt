@@ -89,7 +89,7 @@ export function useSnapshots(callback, initialObject = {}) {
 
   const takeSnapshot = debounce(
     (key, snapshotObj) => {
-      console.log('starting snapshot for', key);
+      // console.log('starting snapshot for', key);
       if (!elementRef.current) {
         console.log('no elementRef');
         return;
@@ -178,7 +178,7 @@ export function useSnapshots(callback, initialObject = {}) {
  */
 export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
   return useQuery(
-    roomId,
+    [roomId, { shouldBuildLog }],
     () =>
       API.getPopulatedById('rooms', roomId, false, shouldBuildLog).then(
         (res) => {

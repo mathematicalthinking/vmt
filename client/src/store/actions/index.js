@@ -1,6 +1,7 @@
 export {
   login,
   signup,
+  codeLogin,
   getUser,
   gotUser,
   updateUser,

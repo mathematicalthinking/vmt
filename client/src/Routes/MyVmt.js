@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import withPopulatedCourse from 'utils/withPopulatedCourse';
 import Navbar from '../Components/Navigation/Navbar';
 import {
   MyVMT,
@@ -17,28 +18,29 @@ import {
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
 import { PrivateRoute, ErrorToast } from '../Components';
-import { Confirmation, FacilitatorInstructions } from '../Layout';
+import { Confirmation, FacilitatorIntro } from '../Layout';
 import ErrorBoundary from '../ErrorBoundary';
 import { updateUser } from '../store/actions/user';
 
 const pages = [
-  { path: '/facilitator', component: FacilitatorInstructions },
+  { path: '/', component: MyVMT },
+  { path: '/facilitator', component: FacilitatorIntro },
   { path: '/profile', component: Profile },
   { path: '/:resource', component: MyVMT },
   {
     path: '/courses/:course_id/:resource',
-    component: Course,
-    redirectPath: '/signup',
+    component: withPopulatedCourse(Course), // provide the course from the DB to allow facilitators to see all resources
+    redirectPath: '/classcode',
   },
   {
     path: '/courses/:course_id/activities/:activity_id/:resource',
     component: Activity,
-    redirectPath: '/signup',
+    redirectPath: '/classcode',
   },
   {
     path: '/courses/:course_id/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/signup',
+    redirectPath: '/classcode',
   },
   {
     path: '/rooms/:room_id/:resource',
@@ -115,7 +117,7 @@ class MyVmt extends Component {
             path="*"
             component={
               () => <div>Error</div>
-              // ^ @TODO 404 page
+              // ^ @TODO 404 page ...will never hit due to resource wildcard
             }
           />
         </Switch>

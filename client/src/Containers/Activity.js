@@ -253,7 +253,7 @@ class Activity extends Component {
                 image={activity.image}
                 editing={editing}
                 name={
-                  <Error error={updateFail && updateKeys.indexOf('name')}>
+                  <Error error={updateFail && updateKeys.indexOf('name') > -1}>
                     <EditText
                       change={this.updateActivityInfo}
                       inputType="title"
@@ -266,7 +266,7 @@ class Activity extends Component {
                 }
                 subTitle={
                   <Error
-                    error={updateFail && updateKeys.indexOf('description')}
+                    error={updateFail && updateKeys.indexOf('description') > -1}
                   >
                     <EditText
                       change={this.updateActivityInfo}
@@ -345,7 +345,7 @@ class Activity extends Component {
         </Aux>
       );
     }
-    if (!activity) return <div>Loading</div>;
+    // if (!activity) return <div>Loading</div>;
 
     // cannot access
     return (
@@ -357,8 +357,14 @@ class Activity extends Component {
         resourceId={match.params.activity_id}
         userId={user._id}
         username={user.username}
-        privacySetting={activity.privacySetting}
-        owners={[activity.creator]}
+        privacySetting={activity ? activity.privacySetting : 'private'}
+        owners={
+          activity && activity.members
+            ? activity.members
+                .filter((member) => member.role.toLowerCase() === 'facilitator')
+                .map((member) => member.user)
+            : []
+        }
       />
     );
   }
@@ -389,12 +395,17 @@ Activity.defaultProps = {
 const mapStateToProps = (state, ownProps) => {
   // eslint-disable-next-line camelcase
   const { activity_id, course_id } = ownProps.match.params;
+  const activity = state.activities.byId[activity_id];
   return {
-    activity: state.activities.byId[activity_id],
+    activity,
     populatedActivity: state.activities.byId[activity_id]
       ? populateResource(state, 'activities', activity_id, ['rooms'])
       : {},
-    course: state.courses.byId[course_id],
+    course:
+      state.courses.byId[course_id] ||
+      (activity && activity.course
+        ? state.courses.byId[activity.course]
+        : null),
     rooms: state.rooms.byId,
     userId: state.user._id,
     user: state.user,

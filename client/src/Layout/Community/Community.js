@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 // import { CustomLink } from 'react-router-dom';
@@ -36,6 +36,7 @@ class Community extends Component {
       setCriteria,
       toggleFilter,
       searchValue,
+      loading,
     } = this.props;
     return (
       <div className={classes.Container}>
@@ -137,6 +138,16 @@ class Community extends Component {
                   >
                     Desmos Activity
                   </RadioBtn>
+                  {process.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (
+                    <RadioBtn
+                      data-testid="pyret-activity-filter"
+                      check={() => toggleFilter('pyret')}
+                      checked={filters.roomType === 'pyret'}
+                      name="PyretActivity"
+                    >
+                      Pyret
+                    </RadioBtn>
+                  )}
                 </div>
               </InfoBox>
             ) : null}
@@ -150,18 +161,30 @@ class Community extends Component {
               : 260,
           }}
         >
-          <BoxList
-            list={visibleResources}
-            resource={resource}
-            linkPath={linkPath}
-            linkSuffix={linkSuffix}
-            listType="public"
-          />
-          <div className={classes.LoadMore}>
-            <Button m={20} disabled={!moreAvailable} click={setSkip}>
-              load more results
-            </Button>
-          </div>
+          {/* Check to see if visibleResources is undef, which is the loading state */}
+          {loading ? (
+            <div className={classes.Pending}>
+              Loading
+              <span className={classes.dot1}>.</span>
+              <span className={classes.dot2}>.</span>
+              <span className={classes.dot3}>.</span>
+            </div>
+          ) : (
+            <Fragment>
+              <BoxList
+                list={visibleResources}
+                resource={resource}
+                linkPath={linkPath}
+                linkSuffix={linkSuffix}
+                listType="public"
+              />
+              <div className={classes.LoadMore}>
+                <Button m={20} disabled={!moreAvailable} click={setSkip}>
+                  load more results
+                </Button>
+              </div>
+            </Fragment>
+          )}
         </div>
       </div>
     );
@@ -170,18 +193,30 @@ class Community extends Component {
 
 Community.propTypes = {
   resource: PropTypes.string.isRequired,
-  visibleResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  visibleResources: PropTypes.arrayOf(PropTypes.shape({})),
   linkPath: PropTypes.string.isRequired,
   linkSuffix: PropTypes.string.isRequired,
   searchValue: PropTypes.string.isRequired,
   filters: PropTypes.shape({
     privacySetting: PropTypes.oneOf(['public', 'private', 'all']),
-    roomType: PropTypes.oneOf(['geogebra', 'desmos', 'desmosActivity', 'all']),
+    roomType: PropTypes.oneOf([
+      'geogebra',
+      'desmos',
+      'desmosActivity',
+      'pyret',
+      'all',
+    ]),
   }).isRequired,
   toggleFilter: PropTypes.func.isRequired,
   setSkip: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
   setCriteria: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+};
+
+Community.defaultProps = {
+  visibleResources: undefined,
+  loading: false,
 };
 
 export default Community;

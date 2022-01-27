@@ -9,7 +9,6 @@ export default {
   login: (username, password) => {
     return axios.post('/auth/login', { username, password });
   },
-
   googleLogin: (username, password) => {
     return axios.get('/auth/googleAuth', { username, password });
   },

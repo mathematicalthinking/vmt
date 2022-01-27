@@ -71,7 +71,6 @@ const CreationModal = (props) => {
         },
       ];
     }
-    console.log(`New stuff being created: `, resourceBody);
     updateFn(resourceBody);
     setIsCreatingActivity(false);
     history.push(`/myVMT/${myVMTEndPt}`);
