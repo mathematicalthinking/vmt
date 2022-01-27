@@ -14,7 +14,7 @@ class MakeRooms extends Component {
     super(props);
     const { participants } = this.props;
     this.state = {
-      isRandom: false,
+      isRandom: true,
       participantsPerRoom: 3,
       roomNum: 1,
       selectedParticipants: [],
