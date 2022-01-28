@@ -14,7 +14,7 @@ class MakeRooms extends Component {
     super(props);
     const { participants } = this.props;
     this.state = {
-      isRandom: false,
+      isRandom: true,
       participantsPerRoom: 3,
       roomNum: 1,
       selectedParticipants: [],
@@ -46,8 +46,11 @@ class MakeRooms extends Component {
   };
 
   setRandom = () => {
-    const { participants } = this.props;
-    const { participantsPerRoom } = this.state;
+    // const { participants } = this.props;
+    const {
+      selectedParticipants: participants,
+      participantsPerRoom,
+    } = this.state;
     this.setState({ isRandom: true }, () => {
       const numRooms = Math.ceil(
         this.filterFacilitators(participants).length / participantsPerRoom
@@ -76,8 +79,8 @@ class MakeRooms extends Component {
   };
 
   setNumber = (event) => {
-    const { participants } = this.props;
-    const { isRandom } = this.state;
+    // const { participants } = this.props;
+    const { selectedParticipants: participants, isRandom } = this.state;
     const participantsPerRoom = parseInt(event.target.value.trim(), 10);
     if (participantsPerRoom < 0) {
       this.setState({
@@ -220,8 +223,12 @@ class MakeRooms extends Component {
   };
 
   shuffleParticipants = () => {
-    const { participants } = this.props;
-    const { participantsPerRoom, roomDrafts } = this.state;
+    // const { participants } = this.props;
+    const {
+      selectedParticipants: participants,
+      participantsPerRoom,
+      roomDrafts,
+    } = this.state;
     if (participantsPerRoom <= 0) {
       this.setState({
         error: 'Must have at least 1 participant per room',
@@ -382,7 +389,6 @@ class MakeRooms extends Component {
       CurrentStep = (
         <Step2Course
           activity={activity}
-          participantList={participantList}
           assignmentMatrix={assignmentMatrix}
           submit={this.submit}
           setRandom={this.setRandom}
