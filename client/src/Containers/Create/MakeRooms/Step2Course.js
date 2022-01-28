@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { TextInput, Button, ToggleGroup } from 'Components';
 import classes from './makeRooms.css';
 
-class Step1Course extends Component {
+class Step2Course extends Component {
   render() {
     const {
       // participantList,
@@ -23,7 +23,7 @@ class Step1Course extends Component {
       <div className={classes.Container}>
         <h2 className={classes.Title}>Assign To Rooms</h2>
         <ToggleGroup
-          buttons={['Manual', 'Random']}
+          buttons={['Random', 'Manual']}
           value={isRandom ? 'Random' : 'Manual'}
           onChange={isRandom ? setManual : setRandom}
         />
@@ -78,7 +78,7 @@ class Step1Course extends Component {
   }
 }
 
-Step1Course.propTypes = {
+Step2Course.propTypes = {
   assignmentMatrix: PropTypes.element.isRequired,
   participantsPerRoom: PropTypes.number,
   roomNum: PropTypes.number,
@@ -92,7 +92,7 @@ Step1Course.propTypes = {
   submit: PropTypes.func.isRequired,
 };
 
-Step1Course.defaultProps = {
+Step2Course.defaultProps = {
   error: null,
   isRandom: false,
   participantsPerRoom: 0,
@@ -103,4 +103,4 @@ Step1Course.defaultProps = {
   shuffleParticipants: () => {},
 };
 
-export default Step1Course;
+export default Step2Course;
