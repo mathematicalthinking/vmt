@@ -559,7 +559,7 @@ class Chat extends Component {
                   // title={`Connection: ${connectionStatus}`}
                 />
                 <div className={classes.StatusText}>
-                  {user.connected ? '' : 'Disconnected!'}
+                  {socket.connected ? '' : 'Disconnected!'}
                 </div>
                 <div className={classes.TooltipContent}>
                   {!socket.connected ? (
