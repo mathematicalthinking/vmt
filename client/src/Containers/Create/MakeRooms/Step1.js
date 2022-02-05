@@ -12,38 +12,8 @@ class Step1 extends Component {
   state = {
     searchResults: [],
     searchText: '',
-    currentParticipants: [],
+    currentParticipants: [...this.props.participants],
   };
-
-  // componentDidUpdate(prevProps, prevState) {
-  //   const { selectedParticipants } = this.props;
-  //   const { searchResults } = prevState;
-  //   // Add users to the selected list so we can persist them after we start a new a search
-  //   // Perhpas this would be a good time to deriveStateFromProps since...that's what we're doing
-  //   // this seems bad actualy...we're duplicating parent state here...we ashould just rename this local state
-  //   // parent state = paritcipants we're confirmed are being adding to the room. this component's state = staging
-  //   if (prevProps.selectedParticipants.length < selectedParticipants.length) {
-  //     const selectedUser = searchResults.filter((user) =>
-  //       selectedParticipants.find((userId) => user._id.toString() === userId)
-  //     );
-  //     this.setState((previousState) => ({
-  //       nominatedParticipants: previousState.nominatedParticipants.concat(
-  //         selectedUser
-  //       ),
-  //     }));
-  //     // Remove users who have been de-selected
-  //   } else if (
-  //     prevProps.selectedParticipants.length > selectedParticipants.length
-  //   ) {
-  //     this.setState((previousState) => ({
-  //       nominatedParticipants: previousState.nominatedParticipants.filter(
-  //         (user) => {
-  //           return selectedParticipants.find((userId) => user._id === userId);
-  //         }
-  //       ),
-  //     }));
-  //   }
-  // }
 
   search = (text) => {
     const { userId } = this.props;
@@ -52,7 +22,7 @@ class Step1 extends Component {
       API.search(
         'user',
         text,
-        [userId].concat(currentParticipants.map((p) => p._id)) // Exclude myself and already selected members from th search
+        [userId].concat(currentParticipants.map((p) => p.user._id)) // Exclude myself and already selected members from th search
       )
         .then((res) => {
           const searchResults = res.data.results.filter(
@@ -73,13 +43,20 @@ class Step1 extends Component {
       searchResults: prevState.searchResults.filter((user) => user._id !== _id),
       currentParticipants: [
         ...prevState.currentParticipants,
-        { _id, username },
+        { user: { _id, username } },
       ],
     }));
   };
 
+  goNext = () => {
+    const { setParticipants, nextStep } = this.props;
+    const { currentParticipants } = this.state;
+    setParticipants(currentParticipants);
+    nextStep();
+  };
+
   render() {
-    const { dueDate, setDueDate, nextStep, course } = this.props;
+    const { dueDate, setDueDate, course } = this.props;
     const { currentParticipants, searchText, searchResults } = this.state;
 
     return (
@@ -111,17 +88,17 @@ class Step1 extends Component {
             data-testid="members"
             style={{ overflowY: 'scroll', maxHeight: '300px' }}
           >
-            {currentParticipants.map((user) => (
+            {currentParticipants.map((member) => (
               <Member
-                info={{ user: { _id: user._id, username: user.username } }}
-                key={user._id}
+                info={member}
+                key={member.user._id}
                 resourceName="template"
               />
             ))}
           </div>
         </InfoBox>
         <div className={classes.ModalButton}>
-          <Button m={5} click={nextStep} data-testid="next-step-assign">
+          <Button m={5} click={this.goNext} data-testid="next-step-assign">
             Next
           </Button>
         </div>
@@ -136,6 +113,8 @@ Step1.propTypes = {
   nextStep: PropTypes.func.isRequired,
   userId: PropTypes.string.isRequired,
   course: PropTypes.string,
+  participants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  setParticipants: PropTypes.func.isRequired,
 };
 
 Step1.defaultProps = {
