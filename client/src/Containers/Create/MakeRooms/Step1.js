@@ -62,45 +62,47 @@ class Step1 extends Component {
     return (
       <div className={classes.Container}>
         <DueDate dueDate={dueDate} selectDate={setDueDate} />
-        {!course && (
-          <InfoBox
-            title="Add Participants"
-            icon={<i className="fas fa-user-plus" />}
-          >
-            <Fragment>
-              <Search
-                data-testid="member-search"
-                _search={this.search}
-                placeholder="search existing VMT users by username or email address"
-              />
-              {searchResults.length > 0 ? (
-                <SearchResults
-                  searchText={searchText}
-                  usersSearched={searchResults}
-                  inviteMember={this.addParticipant}
+        <div className={classes.SubContainer}>
+          {!course && (
+            <InfoBox
+              title="Add Participants"
+              icon={<i className="fas fa-user-plus" />}
+            >
+              <Fragment>
+                <Search
+                  data-testid="member-search"
+                  _search={this.search}
+                  placeholder="search existing VMT users by username or email address"
                 />
-              ) : null}
-            </Fragment>
+                {searchResults.length > 0 ? (
+                  <SearchResults
+                    searchText={searchText}
+                    usersSearched={searchResults}
+                    inviteMember={this.addParticipant}
+                  />
+                ) : null}
+              </Fragment>
+            </InfoBox>
+          )}
+          <InfoBox title="Participants" icon={<i className="fas fa-users" />}>
+            <div
+              data-testid="members"
+              style={{ overflowY: 'scroll', maxHeight: '300px' }}
+            >
+              {currentParticipants.map((member) => (
+                <Member
+                  info={member}
+                  key={member.user._id}
+                  resourceName="template"
+                />
+              ))}
+            </div>
           </InfoBox>
-        )}
-        <InfoBox title="Participants" icon={<i className="fas fa-users" />}>
-          <div
-            data-testid="members"
-            style={{ overflowY: 'scroll', maxHeight: '300px' }}
-          >
-            {currentParticipants.map((member) => (
-              <Member
-                info={member}
-                key={member.user._id}
-                resourceName="template"
-              />
-            ))}
-          </div>
-        </InfoBox>
-        <div className={classes.ModalButton}>
-          <Button m={5} click={this.goNext} data-testid="next-step-assign">
-            Next
-          </Button>
+          {/* <div className={classes.ModalButton}>
+            <Button m={5} click={this.goNext} data-testid="next-step-assign">
+              Next
+            </Button>
+          </div> */}
         </div>
       </div>
     );

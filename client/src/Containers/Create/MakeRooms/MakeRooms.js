@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Aux, BigModal } from 'Components';
+import { BigModal } from 'Components';
+import Carousel from 'Components/UI/Carousel/Carousel';
 import { Step1, Step2Course } from './index';
-import createClasses from '../create.css';
 import { createRoom } from '../../../store/actions';
 import AssignmentMatrix from './AssignmentMatrix';
 import COLOR_MAP from '../../../utils/colorMap';
@@ -338,7 +338,6 @@ class MakeRooms extends Component {
   render() {
     const { activity, course, userId, close } = this.props;
     const {
-      step,
       dueDate,
       isRandom,
       selectedParticipants,
@@ -363,58 +362,88 @@ class MakeRooms extends Component {
       />
     );
 
-    let CurrentStep = (
-      <Step1
-        dueDate={dueDate}
-        participants={selectedParticipants}
-        setDueDate={this.setDate}
-        nextStep={this.nextStep}
-        userId={userId}
-        select={this.selectParticipant}
-        course={course}
-        setParticipants={(participants) =>
-          this.setState({ selectedParticipants: participants })
-        }
-      />
-    );
+    // let CurrentStep = (
+    //   <Step1
+    //     dueDate={dueDate}
+    //     participants={selectedParticipants}
+    //     setDueDate={this.setDate}
+    //     nextStep={this.nextStep}
+    //     userId={userId}
+    //     select={this.selectParticipant}
+    //     course={course}
+    //     setParticipants={(participants) =>
+    //       this.setState({ selectedParticipants: participants })
+    //     }
+    //   />
+    // );
 
-    if (step === 1) {
-      // if (course) {
-      CurrentStep = (
-        <Step2Course
-          activity={activity}
-          participantList={selectedParticipants}
-          assignmentMatrix={assignmentMatrix}
-          submit={this.submit}
-          setRandom={this.setRandom}
-          setManual={this.setManual}
-          setNumber={this.setNumber}
-          shuffleParticipants={this.shuffleParticipants}
-          participantsPerRoom={participantsPerRoom}
-          roomNum={parseInt(roomNum, 10)} // ensure a number is passed
-          setRoomNumber={this.setRoomNumber}
-          setParticipantNumber={this.setParticipantNumber}
-          isRandom={isRandom}
-          error={error}
-        />
-      );
-    }
-    const stepDisplays = [];
-    for (let i = 0; i < 2; i++) {
-      stepDisplays.push(
-        <div
-          key={`step-${i}`}
-          className={[
-            createClasses.Step,
-            i <= step ? createClasses.CompletedStep : null,
-          ].join(' ')}
-        />
-      );
-    }
+    // if (step === 1) {
+    //   // if (course) {
+    //   CurrentStep = (
+    //     <Step2Course
+    //       activity={activity}
+    //       participantList={selectedParticipants}
+    //       assignmentMatrix={assignmentMatrix}
+    //       submit={this.submit}
+    //       setRandom={this.setRandom}
+    //       setManual={this.setManual}
+    //       setNumber={this.setNumber}
+    //       shuffleParticipants={this.shuffleParticipants}
+    //       participantsPerRoom={participantsPerRoom}
+    //       roomNum={parseInt(roomNum, 10)} // ensure a number is passed
+    //       setRoomNumber={this.setRoomNumber}
+    //       setParticipantNumber={this.setParticipantNumber}
+    //       isRandom={isRandom}
+    //       error={error}
+    //     />
+    //   );
+    // }
+    // const stepDisplays = [];
+    // for (let i = 0; i < 2; i++) {
+    //   stepDisplays.push(
+    //     <div
+    //       key={`step-${i}`}
+    //       className={[
+    //         createClasses.Step,
+    //         i <= step ? createClasses.CompletedStep : null,
+    //       ].join(' ')}
+    //     />
+    //   );
+    // }
 
     return (
       <BigModal show closeModal={close} height={course ? '' : '65%'}>
-        <Aux>
+        <Carousel noNext={[2]}>
+          <Step1
+            dueDate={dueDate}
+            participants={selectedParticipants}
+            setDueDate={this.setDate}
+            nextStep={this.nextStep}
+            userId={userId}
+            select={this.selectParticipant}
+            course={course}
+            setParticipants={(participants) =>
+              this.setState({ selectedParticipants: participants })
+            }
+          />
+          <Step2Course
+            activity={activity}
+            participantList={selectedParticipants}
+            assignmentMatrix={assignmentMatrix}
+            submit={this.submit}
+            setRandom={this.setRandom}
+            setManual={this.setManual}
+            setNumber={this.setNumber}
+            shuffleParticipants={this.shuffleParticipants}
+            participantsPerRoom={participantsPerRoom}
+            roomNum={parseInt(roomNum, 10)} // ensure a number is passed
+            setRoomNumber={this.setRoomNumber}
+            setParticipantNumber={this.setParticipantNumber}
+            isRandom={isRandom}
+            error={error}
+          />
+        </Carousel>
+        {/* <Aux>
           {step > 0 ? (
             <i
               onClick={this.prevStep}
@@ -430,7 +459,7 @@ class MakeRooms extends Component {
           <div className={createClasses.StepDisplayContainer}>
             {stepDisplays}
           </div>
-        </Aux>
+        </Aux> */}
       </BigModal>
     );
   }
