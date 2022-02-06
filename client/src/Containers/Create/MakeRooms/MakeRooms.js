@@ -17,7 +17,7 @@ class MakeRooms extends Component {
       isRandom: true,
       participantsPerRoom: 3,
       roomNum: 1,
-      selectedParticipants: [],
+      selectedParticipants: participants,
       roomDrafts: [],
       remainingParticipants: participants,
       dueDate: null,
@@ -147,11 +147,27 @@ class MakeRooms extends Component {
       return updatedSelectedParticipants;
     };
 
-    this.setState((previousState) => ({
-      selectedParticipants: _updateParticipantList(
-        previousState.selectedParticipants
-      ),
-    }));
+    this.setState(
+      (previousState) => ({
+        selectedParticipants: _updateParticipantList(
+          previousState.selectedParticipants
+        ),
+      }),
+      () => {
+        const {
+          isRandom,
+          participantsPerRoom,
+          selectedParticipants,
+        } = this.state;
+        if (isRandom) {
+          const numRooms = Math.ceil(
+            this.filterFacilitators(selectedParticipants).length /
+              participantsPerRoom
+          );
+          this.setRoomNumber(numRooms);
+        }
+      }
+    );
     // Else add them
   };
 
@@ -173,11 +189,27 @@ class MakeRooms extends Component {
       return updatedParticpants;
     };
 
-    this.setState((previousState) => ({
-      selectedParticipants: _updateParticipantsList(
-        previousState.selectedParticipants
-      ),
-    }));
+    this.setState(
+      (previousState) => ({
+        selectedParticipants: _updateParticipantsList(
+          previousState.selectedParticipants
+        ),
+      }),
+      () => {
+        const {
+          isRandom,
+          participantsPerRoom,
+          selectedParticipants,
+        } = this.state;
+        if (isRandom) {
+          const numRooms = Math.ceil(
+            this.filterFacilitators(selectedParticipants).length /
+              participantsPerRoom
+          );
+          this.setRoomNumber(numRooms);
+        }
+      }
+    );
   };
 
   updateParticipants = (selectionMatrix) => {
@@ -442,7 +474,7 @@ class MakeRooms extends Component {
 }
 
 MakeRooms.propTypes = {
-  participants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  participants: PropTypes.arrayOf(PropTypes.shape({})),
   activity: PropTypes.shape({}).isRequired,
   userId: PropTypes.string.isRequired,
   course: PropTypes.string,
@@ -454,6 +486,7 @@ MakeRooms.propTypes = {
 
 MakeRooms.defaultProps = {
   course: null,
+  participants: [],
 };
 const mapDispatchToProps = (dispatch) => ({
   connectCreateRoom: (room) => dispatch(createRoom(room)),
