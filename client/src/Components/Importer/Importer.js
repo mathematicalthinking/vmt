@@ -326,6 +326,19 @@ export default function Importer(props) {
     onImport(userObjects);
   };
 
+  const transformHeader = (header) => {
+    switch (header.toLowerCase()) {
+      case 'isgmail':
+        return 'isGmail';
+      case 'firstname':
+        return 'firstName';
+      case 'lastname':
+        return 'lastName';
+      default:
+        return header.toLowerCase();
+    }
+  };
+
   const importModal = () => {
     return (
       <ImportModal
@@ -390,7 +403,11 @@ export default function Importer(props) {
         ref={buttonRef}
         onFileLoad={handleOnFileLoad}
         onError={handleOnError}
-        config={{ header: true, skipEmptyLines: true }}
+        config={{
+          header: true,
+          skipEmptyLines: true,
+          transformHeader,
+        }}
         noProgressBar
         noDrag
       >
