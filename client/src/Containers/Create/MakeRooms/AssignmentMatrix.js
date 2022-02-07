@@ -91,15 +91,16 @@ const AssignmentMatrix = (props) => {
         <tbody>
           {/* top row rooms list */}
           <tr>
-            <th>Participants</th>
+            <th className={classes.LockedColumn}>Participants</th>
             {rooms.map((room, i) => {
               return (
                 <th
-                  className={classes.roomsList}
+                  className={classes.RoomsList}
                   key={`room-${i + 1}`}
                   id={`room-${i}`}
                 >
                   <TextInput
+                    type="textarea"
                     light
                     size="14"
                     value={room.name}
@@ -122,7 +123,9 @@ const AssignmentMatrix = (props) => {
                 key={participant.user._id}
                 id={participant.user._id}
               >
-                <td>{`${i + 1}. ${participant.user.username}`}</td>
+                <td className={classes.LockedColumn}>
+                  {`${i + 1}. ${participant.user.username}`}
+                </td>
                 {rooms.map((room, j) => {
                   const roomKey = `${participant.user._id}rm${j}`;
                   const data = {

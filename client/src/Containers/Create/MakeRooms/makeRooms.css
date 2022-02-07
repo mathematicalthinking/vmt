@@ -80,7 +80,18 @@
   height: 20px;
 }
 
-.roomsList {
+.RoomsList {
   margin: 0px 2px;
-  padding-right: 6px;
+  padding: 10px;
+}
+
+.LockedColumn {
+  /* Background color */
+  background-color: #ddd;
+  /* Stick to the left */
+  left: 0;
+  position: sticky;
+
+  /* Displayed on top of other rows when scrolling */
+  z-index: 9999;
 }
