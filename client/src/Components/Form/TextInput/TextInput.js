@@ -57,6 +57,7 @@ class TextInput extends Component {
           overflow: 'hidden',
           resize: 'none',
           height: 'auto',
+          minWidth: '8.125rem',
         }}
         // eslint-disable-next-line react/destructuring-assignment
         data-testid={this.props['data-testid'] || null}

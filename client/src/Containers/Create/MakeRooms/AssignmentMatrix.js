@@ -152,7 +152,7 @@ const AssignmentMatrix = (props) => {
             );
           })}
           <tr className={classes.Participant}>
-            <td key="room-delete-row">
+            <td key="room-delete-row" className={classes.LockedColumn}>
               <span>Delete Room?</span>
             </td>
             {rooms.map((room, i) => {
