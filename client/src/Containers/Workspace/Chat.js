@@ -159,12 +159,12 @@ class Chat extends Component {
     } = this.props;
     const { newMessage, isDictated } = this.state;
     this.sendPending(false);
-    if (!user.connected) {
-      // eslint-disable-next-line no-alert
-      window.alert(
-        'you have disconnected from the server. Check your internet connect and try refreshing the page'
-      );
-    }
+    // if (!user.connected) {
+    //   // eslint-disable-next-line no-alert
+    //   window.alert(
+    //     'you have disconnected from the server. Check your internet connect and try refreshing the page'
+    //   );
+    // }
     if (newMessage.length === 0) return;
     let messageText = newMessage;
     if (isDictated) messageText = `🎙 ${newMessage}`;
