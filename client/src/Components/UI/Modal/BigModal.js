@@ -13,7 +13,7 @@ import classes from './bigModal.css';
 
 const BigModal = ({ show, closeModal, message, children, height, testId }) => (
   <Fragment>
-    <Backdrop show={show} clicked={closeModal} />
+    <Backdrop show={show} />
     <div
       className={classes.Modal}
       data-testid={testId}
