@@ -7,11 +7,12 @@
 /client/build
 .vscode
 /server/.env
+/client/.env
 /production/
 /staging/
 /client/encompassBuild
 /server/node_modules
-backup.zip
+*.zip
 /geogebra/
 Icon
 

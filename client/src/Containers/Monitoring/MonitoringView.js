@@ -1,9 +1,4 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable react/jsx-indent */
-/* eslint-disable react/no-unused-prop-types */
 /* eslint-disable no-unused-vars */
-/* eslint-disable jsx-a11y/label-has-associated-control */
-
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -460,10 +455,6 @@ const DropdownMenu = (props) => {
 };
 
 MonitoringView.propTypes = {
-  // @TODO clean up so only specify what we need
-  resource: PropTypes.string.isRequired,
-  parentResource: PropTypes.string,
-  parentResourceId: PropTypes.string,
   user: PropTypes.shape({}).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
@@ -472,8 +463,6 @@ MonitoringView.propTypes = {
 };
 
 MonitoringView.defaultProps = {
-  parentResource: null,
-  parentResourceId: null,
   storedSelections: {},
 };
 
