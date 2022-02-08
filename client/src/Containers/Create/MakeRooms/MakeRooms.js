@@ -28,6 +28,16 @@ class MakeRooms extends Component {
 
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
+
+    const { selectedParticipants, isRandom, participantsPerRoom } = this.state;
+
+    if (isRandom) {
+      const numRooms = Math.ceil(
+        this.filterFacilitators(selectedParticipants).length /
+          participantsPerRoom
+      );
+      this.setRoomNumber(numRooms);
+    }
   }
 
   componentWillUnmount() {
