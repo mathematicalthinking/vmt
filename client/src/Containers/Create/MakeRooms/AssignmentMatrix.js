@@ -86,7 +86,7 @@ const AssignmentMatrix = (props) => {
   };
 
   return (
-    <Fragment>
+    <div className={classes.AssignmentMatrix}>
       <table className={classes.Table}>
         <tbody>
           {/* top row rooms list */}
@@ -174,7 +174,7 @@ const AssignmentMatrix = (props) => {
           </tr>
         </tbody>
       </table>
-    </Fragment>
+    </div>
   );
 };
 
