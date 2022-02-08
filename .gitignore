@@ -12,7 +12,7 @@
 /staging/
 /client/encompassBuild
 /server/node_modules
-backup.zip
+*.zip
 /geogebra/
 Icon
 
