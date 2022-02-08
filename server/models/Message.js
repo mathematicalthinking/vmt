@@ -44,6 +44,7 @@ const Message = new mongoose.Schema({
 // Add this message to the room's chat
 Message.pre('save', async function() {
   if (this.isNew) {
+    this.timestamp = new Date().getTime();
     // @TODO CHANGIN controlledBY HERE IS TERRRRIBLLE!!!!! THIS SHOULD ALL BE DONE SOMEWHERE ELSE WHERE ITS LESS OF A SIDE EFFECT
     if (this.messageType === 'TOOK_CONTROL') {
       try {
