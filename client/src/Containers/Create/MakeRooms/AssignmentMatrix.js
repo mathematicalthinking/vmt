@@ -88,9 +88,8 @@ const AssignmentMatrix = (props) => {
   return (
     <div className={classes.AssignmentMatrix}>
       <table className={classes.Table}>
-        <tbody>
-          {/* top row rooms list */}
-          <tr>
+        <thead>
+          <tr className={classes.LockedRow}>
             <th className={classes.LockedColumn}>Participants</th>
             {rooms.map((room, i) => {
               return (
@@ -113,6 +112,9 @@ const AssignmentMatrix = (props) => {
               );
             })}
           </tr>
+        </thead>
+        <tbody>
+          {/* top row rooms list */}
           {list.map((participant, i) => {
             const rowClass = selectedParticipants.includes(participant)
               ? [classes.Participant, classes.Selected].join(' ')
@@ -134,7 +136,10 @@ const AssignmentMatrix = (props) => {
                     roomIndex: j,
                   };
                   return (
-                    <td key={`${participant.user._id}rm${j + 1}`}>
+                    <td
+                      key={`${participant.user._id}rm${j + 1}`}
+                      className={classes.Checkbox}
+                    >
                       <input
                         type="checkbox"
                         id={roomKey}
@@ -151,7 +156,7 @@ const AssignmentMatrix = (props) => {
               </tr>
             );
           })}
-          <tr className={classes.Participant}>
+          <tr className={`${classes.Participant} ${classes.Locked}`}>
             <td key="room-delete-row" className={classes.LockedColumn}>
               <span>Delete Room?</span>
             </td>

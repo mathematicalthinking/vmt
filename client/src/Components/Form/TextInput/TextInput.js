@@ -13,6 +13,10 @@ class TextInput extends Component {
     if (focus) {
       this.textInput.current.focus();
     }
+
+    this.textInput.current.style.height = `${
+      this.textInput.current.scrollHeight
+    }px`;
   }
 
   componentDidUpdate() {
@@ -50,7 +54,12 @@ class TextInput extends Component {
         name={name}
         value={value}
         placeholder={placeholder}
-        onChange={change}
+        onChange={(event) => {
+          change(event);
+          this.textInput.current.style.height = `${
+            this.textInput.current.scrollHeight
+          }px`;
+        }}
         onKeyDown={onKeyDown}
         style={{
           fontSize: size,

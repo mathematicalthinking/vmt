@@ -114,6 +114,10 @@
   display: flex;
   flex-flow: column;
   align-items: center;
+  /* the date-picker input box border-top was invisible */
+  /* because of a transform: translateY issue */
+  /* the following line fixes that */
+  transform-style: preserve-3d;
 }
 
 .DatePicker {

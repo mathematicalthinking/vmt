@@ -93,9 +93,33 @@
   position: sticky;
 
   /* Displayed on top of other rows when scrolling */
+  z-index: 9990;
+}
+
+.LockedRow {
+  background-color: #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+}
+
+.LockedBottom {
+  background-color: #ddd;
+  position: sticky;
+  bottom: 0;
   z-index: 9999;
 }
 
 .AssignmentMatrix {
-    overflow: scroll;    
+  height: 25rem;
+  overflow: auto;
+}
+
+.AssignmentMatrix th {
+  position: sticky;
+  top: 0;
+}
+
+.Checkbox {
+  text-align: center;
 }
