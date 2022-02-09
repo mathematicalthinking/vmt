@@ -88,9 +88,8 @@ const AssignmentMatrix = (props) => {
   return (
     <div className={classes.AssignmentMatrix}>
       <table className={classes.Table}>
-        <tbody>
-          {/* top row rooms list */}
-          <tr>
+        <thead>
+          <tr className={classes.LockedRow}>
             <th className={classes.LockedColumn}>Participants</th>
             {rooms.map((room, i) => {
               return (
@@ -113,6 +112,9 @@ const AssignmentMatrix = (props) => {
               );
             })}
           </tr>
+        </thead>
+        <tbody>
+          {/* top row rooms list */}
           {list.map((participant, i) => {
             const rowClass = selectedParticipants.includes(participant)
               ? [classes.Participant, classes.Selected].join(' ')
