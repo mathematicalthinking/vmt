@@ -136,7 +136,10 @@ const AssignmentMatrix = (props) => {
                     roomIndex: j,
                   };
                   return (
-                    <td key={`${participant.user._id}rm${j + 1}`}>
+                    <td
+                      key={`${participant.user._id}rm${j + 1}`}
+                      className={classes.Checkbox}
+                    >
                       <input
                         type="checkbox"
                         id={roomKey}
@@ -153,7 +156,7 @@ const AssignmentMatrix = (props) => {
               </tr>
             );
           })}
-          <tr className={classes.Participant}>
+          <tr className={`${classes.Participant} ${classes.Locked}`}>
             <td key="room-delete-row" className={classes.LockedColumn}>
               <span>Delete Room?</span>
             </td>
