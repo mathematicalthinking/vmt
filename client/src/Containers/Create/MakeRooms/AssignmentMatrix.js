@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput } from 'Components';
 import classes from './makeRooms.css';
@@ -89,7 +89,7 @@ const AssignmentMatrix = (props) => {
     <div className={classes.AssignmentMatrix}>
       <table className={classes.Table}>
         <thead>
-          <tr className={classes.LockedRow}>
+          <tr className={classes.LockedTop}>
             <th className={classes.LockedColumn}>Participants</th>
             {rooms.map((room, i) => {
               return (
@@ -138,7 +138,7 @@ const AssignmentMatrix = (props) => {
                   return (
                     <td
                       key={`${participant.user._id}rm${j + 1}`}
-                      className={classes.Checkbox}
+                      className={classes.CellAction}
                     >
                       <input
                         type="checkbox"
@@ -156,14 +156,17 @@ const AssignmentMatrix = (props) => {
               </tr>
             );
           })}
-          <tr className={`${classes.Participant} ${classes.Locked}`}>
+          <tr className={`${classes.Participant} ${classes.LockedBottom}`}>
             <td key="room-delete-row" className={classes.LockedColumn}>
               <span>Delete Room?</span>
             </td>
             {rooms.map((room, i) => {
               const index = i; // defeat the linter
               return (
-                <td key={`room-${room.name}${index}-delete`}>
+                <td
+                  key={`room-${room.name}${index}-delete`}
+                  className={classes.CellAction}
+                >
                   <button
                     type="button"
                     id={`room-${i}-deleteBtn`}
