@@ -6,8 +6,7 @@
   flex-flow: column;
   width: 100%;
   align-items: center;
-  justify-content: flex-start;
-  height: auto;
+  height: 100%;
   padding: 20px;
 }
 
@@ -73,6 +72,7 @@
 
 .Table {
   vertical-align: middle;
+  border-right: 10px solid #ddd;
 }
 
 .Error {
@@ -96,7 +96,7 @@
   z-index: 9990;
 }
 
-.LockedRow {
+.LockedTop {
   background-color: #ddd;
   position: sticky;
   top: 0;
@@ -111,15 +111,31 @@
 }
 
 .AssignmentMatrix {
-  height: 25rem;
+  max-height: 60vh;
   overflow: auto;
+  width: 100%;
 }
 
-.AssignmentMatrix th {
-  position: sticky;
-  top: 0;
+.AssignmentMatrix::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+.AssignmentMatrix::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: blue;
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
-.Checkbox {
+.AssignmentMatrix::-webkit-scrollbar:horizontal {
+  -webkit-appearance: none;
+  height: 7px;
+}
+.AssignmentMatrix::-webkit-scrollbar-thumb:horizontal {
+  border-radius: 4px;
+  background-color: blue;
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.CellAction {
   text-align: center;
 }
