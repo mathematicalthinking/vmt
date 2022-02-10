@@ -319,11 +319,15 @@ class Workspace extends Component {
         }
       }
       if (!user.inAdminMode) {
-        socket.emit('JOIN', sendData, ({ room, message }, err) => {
+        socket.emit('JOIN', sendData, (data, err) => {
           if (err) {
             // eslint-disable-next-line no-console
+            console.log('Error joining room');
             console.log(err); // HOW SHOULD WE HANDLE THIS
+            this.goBack();
+            return;
           }
+          const { room, message } = data;
           this.setState(
             {
               currentMembers: room.currentMembers,

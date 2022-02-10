@@ -27,9 +27,9 @@ class Step2Course extends Component {
           value={isRandom ? 'Random' : 'Manual'}
           onChange={isRandom ? setManual : setRandom}
         />
-        {isRandom ? (
-          <div className={classes.SubContainer}>
-            <div className={classes.Error}>{error || ''}</div>
+        <div className={classes.SubContainer}>
+          <div className={classes.Error}>{error || ''}</div>
+          {isRandom ? (
             <TextInput
               light
               label="Number of participants per room"
@@ -38,13 +38,8 @@ class Step2Course extends Component {
               onKeyDown={setNumber}
               value={String(participantsPerRoom)} // TextInput expects values to be text (i.e., strings)
               name="participants"
-            />{' '}
-            <div> {assignmentMatrix}</div>
-          </div>
-        ) : (
-          // manual assignment display
-          <div className={classes.SubContainer}>
-            <div className={classes.Error}>{error || ''}</div>
+            />
+          ) : (
             <TextInput
               light
               label="Number of rooms to create"
@@ -53,10 +48,9 @@ class Step2Course extends Component {
               value={String(roomNum)}
               name="rooms"
             />
-            {/* <div className={classes.ParticipantList}>{participantList}</div> */}
-            <div> {assignmentMatrix}</div>
-          </div>
-        )}
+          )}
+        </div>
+        {assignmentMatrix}
         <div className={classes.Button}>
           {isRandom ? (
             <Button

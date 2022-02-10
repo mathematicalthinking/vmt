@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput } from 'Components';
 import classes from './makeRooms.css';
@@ -86,20 +86,20 @@ const AssignmentMatrix = (props) => {
   };
 
   return (
-    <Fragment>
+    <div className={classes.AssignmentMatrix}>
       <table className={classes.Table}>
-        <tbody>
-          {/* top row rooms list */}
-          <tr>
-            <th>Participants</th>
+        <thead>
+          <tr className={classes.LockedTop}>
+            <th className={classes.LockedColumn}>Participants</th>
             {rooms.map((room, i) => {
               return (
                 <th
-                  className={classes.roomsList}
+                  className={classes.RoomsList}
                   key={`room-${i + 1}`}
                   id={`room-${i}`}
                 >
                   <TextInput
+                    type="textarea"
                     light
                     size="14"
                     value={room.name}
@@ -112,6 +112,9 @@ const AssignmentMatrix = (props) => {
               );
             })}
           </tr>
+        </thead>
+        <tbody>
+          {/* top row rooms list */}
           {list.map((participant, i) => {
             const rowClass = selectedParticipants.includes(participant)
               ? [classes.Participant, classes.Selected].join(' ')
@@ -122,7 +125,9 @@ const AssignmentMatrix = (props) => {
                 key={participant.user._id}
                 id={participant.user._id}
               >
-                <td>{`${i + 1}. ${participant.user.username}`}</td>
+                <td className={classes.LockedColumn}>
+                  {`${i + 1}. ${participant.user.username}`}
+                </td>
                 {rooms.map((room, j) => {
                   const roomKey = `${participant.user._id}rm${j}`;
                   const data = {
@@ -131,7 +136,10 @@ const AssignmentMatrix = (props) => {
                     roomIndex: j,
                   };
                   return (
-                    <td key={`${participant.user._id}rm${j + 1}`}>
+                    <td
+                      key={`${participant.user._id}rm${j + 1}`}
+                      className={classes.CellAction}
+                    >
                       <input
                         type="checkbox"
                         id={roomKey}
@@ -148,14 +156,17 @@ const AssignmentMatrix = (props) => {
               </tr>
             );
           })}
-          <tr className={classes.Participant}>
-            <td key="room-delete-row">
+          <tr className={`${classes.Participant} ${classes.LockedBottom}`}>
+            <td key="room-delete-row" className={classes.LockedColumn}>
               <span>Delete Room?</span>
             </td>
             {rooms.map((room, i) => {
               const index = i; // defeat the linter
               return (
-                <td key={`room-${room.name}${index}-delete`}>
+                <td
+                  key={`room-${room.name}${index}-delete`}
+                  className={classes.CellAction}
+                >
                   <button
                     type="button"
                     id={`room-${i}-deleteBtn`}
@@ -171,7 +182,7 @@ const AssignmentMatrix = (props) => {
           </tr>
         </tbody>
       </table>
-    </Fragment>
+    </div>
   );
 };
 

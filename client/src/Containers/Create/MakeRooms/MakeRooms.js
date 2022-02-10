@@ -17,9 +17,10 @@ class MakeRooms extends Component {
       isRandom: true,
       participantsPerRoom: 3,
       roomNum: 1,
-      selectedParticipants: participants,
+      selectedParticipants: [...participants].sort((a) =>
+        a.role === 'facilitator' ? 1 : -1
+      ),
       roomDrafts: [],
-      remainingParticipants: participants,
       dueDate: null,
       error: null,
       step: 0,
@@ -28,6 +29,16 @@ class MakeRooms extends Component {
 
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
+
+    const { selectedParticipants, isRandom, participantsPerRoom } = this.state;
+
+    if (isRandom) {
+      const numRooms = Math.ceil(
+        this.filterFacilitators(selectedParticipants).length /
+          participantsPerRoom
+      );
+      this.setRoomNumber(numRooms);
+    }
   }
 
   componentWillUnmount() {
@@ -139,7 +150,6 @@ class MakeRooms extends Component {
         updatedSelectedParticipants = selectedParticipants.filter(
           (participant) => participant !== newParticipant
         );
-        // updatedRemainingParticipants.push()
         // if the user is not already selected, add them to selected and remove from remaining
       } else {
         updatedSelectedParticipants.push(newParticipant);
@@ -181,7 +191,6 @@ class MakeRooms extends Component {
         updatedParticpants = selectedParticipants.filter(
           (participant) => participant !== user
         );
-        // updatedRemainingParticipants.push()
         // if the user is not already selected, add them to selected and remove from remaining
       } else {
         updatedParticpants.push(user);
@@ -375,7 +384,6 @@ class MakeRooms extends Component {
       isRandom,
       selectedParticipants,
       roomNum,
-      remainingParticipants,
       participantsPerRoom,
       error,
       roomDrafts,
@@ -384,15 +392,17 @@ class MakeRooms extends Component {
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     const participantList = (
       <ParticipantList
-        list={course ? remainingParticipants : selectedParticipants}
+        list={selectedParticipants}
         selectedParticipants={selectedParticipants}
         select={this.setParticipants}
       />
     );
     const assignmentMatrix = (
       <AssignmentMatrix
-        list={course ? remainingParticipants : selectedParticipants}
-        selectedParticipants={selectedParticipants}
+        list={selectedParticipants}
+        selectedParticipants={selectedParticipants.filter(
+          (mem) => mem.role === 'facilitator'
+        )}
         select={this.updateParticipants}
         roomNum={parseInt(roomNum, 10)} // ensure a number is passed
         activity={activity}
@@ -450,7 +460,7 @@ class MakeRooms extends Component {
     }
 
     return (
-      <BigModal show closeModal={close} height={course ? '' : '65%'}>
+      <BigModal show closeModal={close}>
         <Aux>
           {step > 0 ? (
             <i

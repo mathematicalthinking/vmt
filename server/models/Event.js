@@ -52,6 +52,7 @@ const Event = new mongoose.Schema({
 Event.pre('save', async function() {
   // tabs[this.tabIndex].events.push(this._id)
   try {
+    this.timestamp = new Date().getTime();
     await Tab.findByIdAndUpdate(this.tab, { $addToSet: { events: this._id } });
   } catch (err) {
     console.error(err);

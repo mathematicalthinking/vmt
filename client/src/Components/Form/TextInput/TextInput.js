@@ -13,6 +13,10 @@ class TextInput extends Component {
     if (focus) {
       this.textInput.current.focus();
     }
+
+    this.textInput.current.style.height = `${
+      this.textInput.current.scrollHeight
+    }px`;
   }
 
   componentDidUpdate() {
@@ -41,7 +45,33 @@ class TextInput extends Component {
     if (type === 'password') {
       derivedAutoComplete = 'current-password';
     }
-    return (
+    return type === 'textarea' ? (
+      <textarea
+        ref={this.textInput}
+        autoComplete={derivedAutoComplete}
+        className={styles.Input}
+        id={name}
+        name={name}
+        value={value}
+        placeholder={placeholder}
+        onChange={(event) => {
+          change(event);
+          this.textInput.current.style.height = `${
+            this.textInput.current.scrollHeight
+          }px`;
+        }}
+        onKeyDown={onKeyDown}
+        style={{
+          fontSize: size,
+          overflow: 'hidden',
+          resize: 'none',
+          height: 'auto',
+          minWidth: '8.125rem',
+        }}
+        // eslint-disable-next-line react/destructuring-assignment
+        data-testid={this.props['data-testid'] || null}
+      />
+    ) : (
       <div className={styles.Container} style={{ width }}>
         <input
           ref={this.textInput}
