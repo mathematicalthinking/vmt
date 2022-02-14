@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { TextInput } from 'Components';
+// import { TextInput } from 'Components';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
@@ -74,12 +74,12 @@ const AssignmentMatrix = (props) => {
     }
   };
 
-  const modRoomName = (event) => {
-    const roomsUpdate = [...rooms];
-    const roomId = event.target.id.split(':')[1];
-    roomsUpdate[roomId].name = event.target.value;
-    select(roomsUpdate);
-  };
+//   const modRoomName = (event) => {
+//     const roomsUpdate = [...rooms];
+//     const roomId = event.target.id.split(':')[1];
+//     roomsUpdate[roomId].name = event.target.value;
+//     select(roomsUpdate);
+//   };
 
   const checkUser = (roomId, user) => {
     return rooms[roomId].members.findIndex((mem) => mem._id === user);
@@ -98,7 +98,8 @@ const AssignmentMatrix = (props) => {
                   key={`room-${i + 1}`}
                   id={`room-${i}`}
                 >
-                  <TextInput
+                  {i + 1}
+                  {/* <TextInput
                     type="textarea"
                     light
                     size="14"
@@ -107,7 +108,7 @@ const AssignmentMatrix = (props) => {
                     change={(event) => {
                       modRoomName(event);
                     }}
-                  />
+                  /> */}
                 </th>
               );
             })}

@@ -12,11 +12,12 @@ import COLOR_MAP from '../../../utils/colorMap';
 class MakeRooms extends Component {
   constructor(props) {
     super(props);
-    const { participants } = this.props;
+    const { participants, activity } = this.props;
     this.state = {
       isRandom: true,
       participantsPerRoom: 3,
       roomNum: 1,
+      roomName: activity.name || '',
       selectedParticipants: [...participants].sort((a) =>
         a.role === 'facilitator' ? 1 : -1
       ),
@@ -79,12 +80,23 @@ class MakeRooms extends Component {
     this.setState({ participantsPerRoom: parseInt(event.target.value, 10) });
 
   setRoomNumber = (number) => {
-    if (number >= 0 && number < 13) {
+    if (number > 0) {
       this.setState({ roomNum: number, error: null });
     } else {
       this.setState({
-        // roomNum: 1,
-        error: 'Please create between 1 and 12 rooms',
+        roomNum: 1,
+        error: 'Please create at least 1 room',
+      });
+    }
+  };
+
+  setRoomName = (newRoomName) => {
+    if (newRoomName.length > 0) {
+      this.setState({ roomName: newRoomName, error: '' });
+    } else {
+      this.setState({
+        roomName: '',
+        error: 'Please provide a room name',
       });
     }
   };
@@ -93,9 +105,9 @@ class MakeRooms extends Component {
     // const { participants } = this.props;
     const { selectedParticipants: participants, isRandom } = this.state;
     const participantsPerRoom = parseInt(event.target.value.trim(), 10);
-    if (participantsPerRoom < 0) {
+    if (participantsPerRoom < 1) {
       this.setState({
-        participantsPerRoom: 0,
+        participantsPerRoom: 1,
         error: 'Must have at least 1 participant per room',
       });
     } else if (participantsPerRoom > participants.length) {
@@ -270,7 +282,7 @@ class MakeRooms extends Component {
       participantsPerRoom,
       roomDrafts,
     } = this.state;
-    if (participantsPerRoom <= 0) {
+    if (participantsPerRoom < 1) {
       this.setState({
         error: 'Must have at least 1 participant per room',
       });
@@ -313,7 +325,7 @@ class MakeRooms extends Component {
       history,
       match,
     } = this.props;
-    const { dueDate, roomDrafts } = this.state;
+    const { dueDate, roomDrafts, roomName } = this.state;
     const {
       _id,
       description,
@@ -340,6 +352,8 @@ class MakeRooms extends Component {
     // if (!isRandom) {
     // create a room with the selected participants
     const roomsToCreate = [];
+    const date = dueDate ? new Date(dueDate) : new Date();
+    const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
     for (let i = 0; i < roomDrafts.length; i++) {
       // const currentRoom = { ...roomDrafts[i] };
       const currentRoom = { ...newRoom };
@@ -356,7 +370,8 @@ class MakeRooms extends Component {
         });
       }
       currentRoom.members = members;
-      currentRoom.name = roomDrafts[i].name;
+      //   currentRoom.name = roomDrafts[i].name;
+      currentRoom.name = `${roomName} (${dateStamp}): ${i + 1}`;
       currentRoom.activity = roomDrafts[i].activity;
       currentRoom.course = roomDrafts[i].course;
       roomsToCreate.push(currentRoom);
@@ -367,7 +382,8 @@ class MakeRooms extends Component {
       const members = [];
       members.push({ user: userId, role: 'facilitator' });
       currentRoom.members = members;
-      currentRoom.name = `${activity.name} room copy`;
+      // //   currentRoom.name = `${activity.name} room copy`;
+      currentRoom.name = `${roomName} (${dateStamp})`;
       roomsToCreate.push(currentRoom);
     }
     roomsToCreate.forEach((room) => connectCreateRoom(room));
@@ -384,6 +400,7 @@ class MakeRooms extends Component {
       isRandom,
       selectedParticipants,
       roomNum,
+      roomName,
       participantsPerRoom,
       error,
       roomDrafts,
@@ -439,7 +456,9 @@ class MakeRooms extends Component {
           shuffleParticipants={this.shuffleParticipants}
           participantsPerRoom={participantsPerRoom}
           roomNum={parseInt(roomNum, 10)} // ensure a number is passed
+          roomName={roomName}
           setRoomNumber={this.setRoomNumber}
+          setRoomName={this.setRoomName}
           setParticipantNumber={this.setParticipantNumber}
           isRandom={isRandom}
           error={error}

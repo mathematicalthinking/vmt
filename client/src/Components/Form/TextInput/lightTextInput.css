@@ -6,7 +6,8 @@
 .Container {
   display: flex;
   flex-flow: column;
-  margin-top: 10px;
+  /* removed m-t to align TextInputs in step2course */
+  /* margin-top: 10px; */
   font-size: 18px;
   width: 100%;
 }

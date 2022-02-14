@@ -24,7 +24,8 @@
 
 .SubContainer {
   display: flex;
-  flex-flow: column;
+  flex-direction: row;
+  /* flex-flow: column; */
   width: 100%;
 }
 
@@ -78,11 +79,15 @@
 .Error {
   color: red;
   height: 20px;
+  /* margin: centers error messages b/t TextInputs in Step2Course */
+  margin: auto;
 }
 
 .RoomsList {
   margin: 0px 2px;
   padding: 10px;
+  /* center the room number in the table in AssignmentMatrix */
+  text-align: center;
 }
 
 .LockedColumn {
@@ -94,6 +99,8 @@
 
   /* Displayed on top of other rows when scrolling */
   z-index: 9990;
+  /* reduce column size w/Participants' names */
+  width: 150px;
 }
 
 .LockedTop {
@@ -138,4 +145,19 @@
 
 .CellAction {
   text-align: center;
+  padding: 0.5rem 0.125rem; /* 0.125 rem = 2px */
+  /* Steve wants the horizontal padding to be 
+    cut down to a minimum. The problem is AssignmentMatrix has
+    width:100%, which enlarges the cell padding dynamically
+    more than 2px
+  */
+}
+
+.RevertName {
+    height: 1rem;
+    padding: 1rem 0 0 1rem;
+}
+
+.RevertName:hover {
+  cursor: pointer;
 }
