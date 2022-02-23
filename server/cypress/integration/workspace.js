@@ -99,8 +99,8 @@ describe('Workspace/replayer', function() {
   });
   it('prevents tool selection without taking control', function() {
     checkAwareness('jl_picard joined room 1');
-    cy.getTestElement('take-control').click();
-    cy.getTestElement('release-control').click();
+    cy.getTestElement('control-button').click(); // take control
+    cy.getTestElement('control-button').click(); // release control
     cy.get(':nth-child(5) > .toolbar_button > .gwt-Image').click();
     cy.getTestElement('control-warning').should('be.visible');
     cy.getTestElement('cancel').click();
@@ -109,7 +109,7 @@ describe('Workspace/replayer', function() {
       .should('have.length', 3); // no longer emitting event for selecting move tool after taking control
   });
   it('allows tool selection after taking control', function() {
-    cy.getTestElement('take-control').click();
+    cy.getTestElement('control-button').click(); // take control
 
     checkAwareness('jl_picard took control');
 
