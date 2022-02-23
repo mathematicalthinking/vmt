@@ -4,23 +4,6 @@ import { TextInput, Button, ToggleGroup } from 'Components';
 import classes from './makeRooms.css';
 
 class Step2Course extends Component {
-  // THE FOLLOWING COMMENTED SECTION IS AN ATTEMPT TO AUTO SHUFFLE PARTICIPANTS
-  //   constructor(props) {
-  //     super(props);
-  //     this.state = { shouldShuffle: true };
-  //   }
-
-  //   componentDidUpdate() {
-  //     const { shouldShuffle } = this.state;
-  //     const { isRandom, shuffleParticipants } = this.props;
-  //     if (isRandom && shouldShuffle) {
-  //       shuffleParticipants();
-  //       this.setState({ shouldShuffle: false });
-  //     } else if (!isRandom && !shouldShuffle) {
-  //       this.setState({ shouldShuffle: true });
-  //     }
-  //   }
-
   constructor(props) {
     super(props);
     const { roomName } = this.props;
