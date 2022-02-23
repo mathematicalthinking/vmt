@@ -134,7 +134,12 @@ class Step2Course extends Component {
           ) : (
             ''
           )}
-          <Button m={5} click={submit} data-testid="assign-rooms">
+          <Button
+            m={5}
+            click={submit}
+            data-testid="assign-rooms"
+            disabled={roomName === ''}
+          >
             assign
           </Button>
         </div>

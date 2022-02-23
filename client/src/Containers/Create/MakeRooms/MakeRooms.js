@@ -58,7 +58,6 @@ class MakeRooms extends Component {
   };
 
   setRandom = () => {
-    // const { participants } = this.props;
     const {
       selectedParticipants: participants,
       participantsPerRoom,
@@ -81,18 +80,17 @@ class MakeRooms extends Component {
 
   setRoomNumber = (number) => {
     if (number > 0) {
-      this.setState({ roomNum: number, error: null });
+      this.setState({ roomNum: number });
     } else {
       this.setState({
         roomNum: 1,
-        error: 'Please create at least 1 room',
       });
     }
   };
 
   setRoomName = (newRoomName) => {
     if (newRoomName.length > 0) {
-      this.setState({ roomName: newRoomName, error: '' });
+      this.setState({ roomName: newRoomName });
     } else {
       this.setState({
         roomName: '',
@@ -102,24 +100,20 @@ class MakeRooms extends Component {
   };
 
   setNumber = (event) => {
-    // const { participants } = this.props;
     const { selectedParticipants: participants, isRandom } = this.state;
     const participantsPerRoom = parseInt(event.target.value.trim(), 10);
     if (participantsPerRoom < 1) {
       this.setState({
         participantsPerRoom: 1,
-        error: 'Must have at least 1 participant per room',
       });
     } else if (participantsPerRoom > participants.length) {
       this.setState({
         participantsPerRoom: participants.length,
-        error: 'Maximum number of participants reached',
       });
     } else {
       this.setState(
         {
           participantsPerRoom,
-          error: null,
         },
         () => {
           if (isRandom) {
@@ -259,10 +253,7 @@ class MakeRooms extends Component {
   };
 
   filterFacilitators = (membersArray) => {
-    // return roomsArray.map((roomArray) => {
     return membersArray.filter((mem) => mem.role !== 'facilitator');
-    // return { ...roomArray, members: newMems };
-    // });
   };
 
   restructureMemberlist = (list) => {
@@ -276,41 +267,35 @@ class MakeRooms extends Component {
   };
 
   shuffleParticipants = () => {
-    // const { participants } = this.props;
     const {
       selectedParticipants: participants,
       participantsPerRoom,
       roomDrafts,
     } = this.state;
-    if (participantsPerRoom < 1) {
-      this.setState({
-        error: 'Must have at least 1 participant per room',
-      });
-    } else {
-      const updatedParticipants = this.shuffleUserList(
-        this.restructureMemberlist(this.filterFacilitators(participants))
-      );
 
-      const numRooms = Math.ceil(
-        updatedParticipants.length / participantsPerRoom
-      );
+    const updatedParticipants = this.shuffleUserList(
+      this.restructureMemberlist(this.filterFacilitators(participants))
+    );
 
-      const roomsUpdate = this.resetParticipants([...roomDrafts]);
+    const numRooms = Math.ceil(
+      updatedParticipants.length / participantsPerRoom
+    );
 
-      const partcipantsToAssign = [...updatedParticipants];
-      for (let i = 0; i < numRooms; i++) {
-        if (roomsUpdate[i]) {
-          roomsUpdate[i].members = [
-            ...roomsUpdate[i].members,
-            ...partcipantsToAssign.splice(0, participantsPerRoom),
-          ];
-        }
+    const roomsUpdate = this.resetParticipants([...roomDrafts]);
+
+    const partcipantsToAssign = [...updatedParticipants];
+    for (let i = 0; i < numRooms; i++) {
+      if (roomsUpdate[i]) {
+        roomsUpdate[i].members = [
+          ...roomsUpdate[i].members,
+          ...partcipantsToAssign.splice(0, participantsPerRoom),
+        ];
       }
-
-      this.setState({
-        roomDrafts: roomsUpdate,
-      });
     }
+
+    this.setState({
+      roomDrafts: roomsUpdate,
+    });
   };
 
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
