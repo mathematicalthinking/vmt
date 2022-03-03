@@ -17,7 +17,7 @@ class MakeRooms extends Component {
       isRandom: true,
       participantsPerRoom: 3,
       roomNum: 1,
-      roomName: activity.name || '',
+      roomName: `${activity.name} (${new Date().toLocaleDateString()})`,
       selectedParticipants: [...participants].sort((a) =>
         a.role === 'facilitator' ? 1 : -1
       ),
@@ -128,7 +128,13 @@ class MakeRooms extends Component {
   };
 
   setDate = (event) => {
-    this.setState({ dueDate: event });
+    const { activity } = this.props;
+    const date = event && event !== '' ? new Date(event) : new Date();
+    const dateStamp = date.toLocaleDateString();
+    this.setState({
+      dueDate: event,
+      roomName: `${activity.name} (${dateStamp})`,
+    });
   };
 
   nextStep = () => {
@@ -337,8 +343,6 @@ class MakeRooms extends Component {
     // if (!isRandom) {
     // create a room with the selected participants
     const roomsToCreate = [];
-    const date = dueDate ? new Date(dueDate) : new Date();
-    const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
     for (let i = 0; i < roomDrafts.length; i++) {
       // const currentRoom = { ...roomDrafts[i] };
       const currentRoom = { ...newRoom };
@@ -356,7 +360,7 @@ class MakeRooms extends Component {
       }
       currentRoom.members = members;
       //   currentRoom.name = roomDrafts[i].name;
-      currentRoom.name = `${roomName} (${dateStamp}): ${i + 1}`;
+      currentRoom.name = `${roomName}: ${i + 1}`;
       currentRoom.activity = roomDrafts[i].activity;
       currentRoom.course = roomDrafts[i].course;
       roomsToCreate.push(currentRoom);
@@ -368,7 +372,7 @@ class MakeRooms extends Component {
       members.push({ user: userId, role: 'facilitator' });
       currentRoom.members = members;
       // //   currentRoom.name = `${activity.name} room copy`;
-      currentRoom.name = `${roomName} (${dateStamp})`;
+      currentRoom.name = `${roomName}`;
       roomsToCreate.push(currentRoom);
     }
     roomsToCreate.forEach((room) => connectCreateRoom(room));
