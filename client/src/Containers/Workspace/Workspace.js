@@ -193,12 +193,18 @@ class Workspace extends Component {
   componentWillUnmount() {
     const { populatedRoom, connectUpdatedRoom, user } = this.props;
     const { myColor, currentMembers, cancelSnapshots } = this.state;
-    socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
-    connectUpdatedRoom(populatedRoom._id, {
-      currentMembers: currentMembers.filter(
-        (mem) => mem && user && mem._id !== user._id
-      ),
-    });
+    // don't generate a LEAVE message if the user is an admin
+    if (!user.isAdmin) {
+      socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
+      // Below updates the Redux store, removing the current user from the list of people in the room (currentMembers).
+      // However, this might not be needed as the socket updates the DB with the current members. The next time this info is needed, in
+      // some type of monitor or when this person reenters the room, that info will be pulled from the DB.
+      connectUpdatedRoom(populatedRoom._id, {
+        currentMembers: currentMembers.filter(
+          (mem) => mem && user && mem._id !== user._id
+        ),
+      });
+    }
     window.removeEventListener('resize', this.resizeHandler);
     window.removeEventListener('keypress', this.keyListener);
     socket.removeAllListeners('USER_JOINED');
