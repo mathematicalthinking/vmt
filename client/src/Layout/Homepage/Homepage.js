@@ -99,8 +99,8 @@ class Homepage extends PureComponent {
     const dateStamp = (
       <p>
         {`Last updated: ${new Date(
-          '03/06/2022'
-        ).toLocaleDateString()}, v.1.6.13`}
+          '03/14/2022'
+        ).toLocaleDateString()}, v.1.6.13-WSP`}
       </p>
     );
     let pyretStatus = '';
@@ -194,7 +194,7 @@ class Homepage extends PureComponent {
                 open source
               </a>{' '}
               and currently in active development - You are viewing this
-              application in <b>{pageLocation}</b> mode. {pyretStatus}
+              application in <b>{pageLocation}</b> mode. Web Sketchpad (WSP) is in DRAFT integration. {pyretStatus}
             </p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />

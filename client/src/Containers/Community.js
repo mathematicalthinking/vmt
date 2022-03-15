@@ -141,7 +141,8 @@ class Community extends Component {
       filter === 'desmos' ||
       filter === 'geogebra' ||
       filter === 'desmosActivity' ||
-      filter === 'pyret'
+      filter === 'pyret' ||
+      filter === 'wsp'
     ) {
       filters.roomType = filter;
     } else if (filter === 'all-roomType') {

@@ -99,10 +99,10 @@ class RoomOpts extends Component {
         </Aux>
       );
     }
-    if (roomType === 'pyret') {
+    if (roomType === 'pyret' || roomType === 'wsp') {
       return (
         <Aux>
-          <p>Pyret Activity Configuration:</p>
+          <p>Activity Configuration:</p>
           <p>Do nothing at all for now</p>
         </Aux>
       );

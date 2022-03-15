@@ -148,6 +148,14 @@ class Community extends Component {
                       Pyret
                     </RadioBtn>
                   )}
+                     <RadioBtn
+                    data-testid="wsp-filter"
+                    check={() => toggleFilter('wsp')}
+                    checked={filters.roomType === 'wsp'}
+                    name="wsp"
+                  >
+                    Web Sketchpad
+                  </RadioBtn>
                 </div>
               </InfoBox>
             ) : null}
@@ -204,6 +212,7 @@ Community.propTypes = {
       'desmos',
       'desmosActivity',
       'pyret',
+      'wsp',
       'all',
     ]),
   }).isRequired,

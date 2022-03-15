@@ -40,6 +40,13 @@ const Step2New = (props) => {
             Pyret Activity
           </RadioBtn>
         ) : null}
+           <RadioBtn
+          name="wsp"
+          checked={roomType === 'wsp'}
+          check={setRoomType}
+        >
+          Web Sketchpad
+        </RadioBtn>
       </div>
     </Aux>
   );
