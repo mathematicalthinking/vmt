@@ -24,7 +24,7 @@ echo "made $1 directory"
 cd ./server
 cp -r ./bin ./config ./constants ./controllers ./db_migration ./middleware ./models ./routes ./services ../$1/vmt/server
 echo "\e[1;33m server copied to $1"
-cp app.js package.json socketInit.js sockets.js ../$1/vmt/server
+cp app.js package.json package-lock.json socketInit.js sockets.js ../$1/vmt/server
 cp .env ../$1/vmt
 echo "\e[1;33mfiles copied"
 cd ../$1/vmt
@@ -36,10 +36,16 @@ cp -r ../../client/build client/
 cp -r ../../client/encompassBuild client/
 
 cd ..
-echo -e "\e[1;33m Zipping...\e[0m"
-zip -r VMT-$1.zip .
+if [[ "$1" == "production" ]]
+  then
+    mv vmt current
+    zip -er VMT-$1.zip .
+  else
+    zip -r VMT-$1.zip .
+fi
+
 mv VMT-$1.zip ..
-echo -e "\e[1;33m Copying zipped directory...\e[0m"
+#echo -e "\e[1;33m Copying zipped directory...\e[0m"
 # scp ./VMT-$1.zip "$1"@mathematicalthinking.org:/tmp/
 # echo -e "\e[1;31m You're not done yet!\e[0m"
 # echo -e "\e[1;35m run the following commands to complete the demployment proces"
