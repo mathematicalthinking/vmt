@@ -7,7 +7,8 @@
 	font-size: 16px;
 	box-sizing: border-box;
   width: max-content;
-  z-index: 2; // stay above the resize button
+  z-index: 2; 
+   /* stay above the resize button */
 }
 
 #widget * {
@@ -580,12 +581,12 @@
 }
 
 .page_prevBtn {
-	background-image: url("left-pointer.png");
+	background-image: url("./left-pointer.png");
 	opacity: 0.4;
 }
 
 .page_nextBtn {
-	background-image: url("right-pointer.png");
+	background-image: url("./right-pointer.png");
 }
 
 .page_popup {
@@ -768,5 +769,5 @@ input.util-popup-button:focus {
   float: left;
   padding: 7px 5px 0;
   height: 16px;
-  content: url("wsp-logo.png");
+  content: url("./wsp-logo.png");
 }

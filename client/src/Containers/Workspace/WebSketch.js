@@ -1,17 +1,58 @@
+
 import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import WSPIframe from './Tools/WSPIframe'
+import Script from 'react-load-script';
 import testConfig from './Tools/WSPAssets/test.json'
+import loadExternals from './Tools/WSPLoader';
 import classes from './graph.css';
+
+const externals = [
+    // {
+    //     id: 'jquery',
+    //     type: 'js',
+    //     file: './WSPAssets/jquery-2.1.0.min'  
+    // },
+    {
+        id: 'wspscript',
+        type: 'js',
+        file: './WSPAssets/wsp.js'
+    },
+    {
+        id: 'wsprunner',
+        type: 'js',
+        file: './WSPAssets/wsp-runner.js'
+    },
+    {
+        id: 'widgetcss',
+        type: 'css',
+        file: './WSPAssets/widgets/widgets.css'
+    },
+    {
+        id: 'widgetsjs',
+        type: 'js',
+        file: './WSPAssets/widgets/widgets.js'
+    },
+
+]
 
 const WebSketch = (props) => {
     let initializing = false;
-    // const wspIframe = useRef();
+    const wspSketch = useRef();
     const wspDivWrapper = useRef();
+    const options = {
+        "data-sourceDocument": testConfig
+    }
 
     useEffect(() => {
         initializing = true;
-        props.setFirstTabLoaded();
+
+        // $el.WSP("loadSketch", options)
+
+        // props.setFirstTabLoaded();
+        externals.forEach( ext => {
+            loadExternals(ext)
+        })
+        
         initializing = false;
         return () => {
             // socket.removeAllListeners('RECEIVE_EVENT');
@@ -26,47 +67,37 @@ const WebSketch = (props) => {
     };
 
     return (
-        <Fragment>
-
-            <div
-                className={classes.Activity}
-                // onClickCapture={_checkForControl}
-                id="containerParent"
-                style={{
-                    height: '890px', // @TODO this needs to be adjusted based on the editor instance.
-                }}
-            >
-                <div
-                    ref={wspDivWrapper}
-                    // style={{ height: '100%' }}
-                    id="container"
-                    style={{
-                        // pointerEvents: !_hasControl() ? 'none' : 'auto',
-                        height: '100%',
-                        overflow: 'auto',
+            <Fragment>
+                {!window.jQuery ? (
+                    <Script 
+                url="https://code.jquery.com/jquery-2.2.4.min.js"
+                integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+                crossorigin="anonymous"
+                onLoad={() => {
+                    const { setFirstTabLoaded } = props;
+                 
+                        setFirstTabLoaded();
+                
+                }
+            }
+           /> ) : (console.log('jQuery found')) }
+                 {/* {externals.map((ext) => {
+                    return ( <Script
+                    url= {ext.file}
+                    onLoad={() => {
+                        console.log('Loaded ', ext.id)
                     }}
+                    attributes={{ id: ext.id }}
+                    /> )
+                })} */}
+                <div
+                    className={classes.Graph}
+                    id="sketch1"
+                    ref={wspSketch}
                 >
-                    <WSPIframe 
-                        style={style}
-                        title="wsp">
-                        <div className="sketch_container">
-                            <div className="sketch_canvas" id="sketch" data-url={testConfig}>
-                                Loading...
-                            </div>
-                            <div className="buttonPane">
-                            </div>
-                        </div>
-                    </WSPIframe>
-                    {/* <iframe
-            ref={wspIframe}
-            style={style}
-            title="wsp"
-            src={iframeSrc}
-          /> */}
-                    ;
+                    WSP THINGAMABOB HERE
                 </div>
-            </div>
-        </Fragment>
+            </Fragment>
     );
 };
 
