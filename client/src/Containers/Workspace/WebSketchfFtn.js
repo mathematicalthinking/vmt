@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery'
-import testConfig from './Tools/WSPAssets/test.json'
+import testConfig from './Tools/test.json'
 import classes from './graph.css';
 
 const WebSketch = (props) => {

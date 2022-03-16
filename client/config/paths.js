@@ -55,4 +55,8 @@ module.exports = {
   appExtModules: resolveApp('src/external'),
   publicUrl: getPublicUrl(resolveApp('package.json')),
   servedPath: getServedPath(resolveApp('package.json')),
+  wspjs: resolveApp('src/Containers/Workspace/Tools/WSPAssets/wsp.js'),
+  wsprunner: resolveApp('src/Containers/Workspace/Tools/WSPAssets/wsp-runner.js'),
+  wspwidgetcss: resolveApp('src/Containers/Workspace/ToolsWSPAssets/widgets/widgets.css'),
+  wspwidgetjs: resolveApp('/src/Containers/Workspace/Tools/WSPAssets/widgets/widgets.js')
 };

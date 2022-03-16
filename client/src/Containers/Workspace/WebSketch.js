@@ -2,12 +2,12 @@
 import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Script from 'react-load-script';
-import testConfig from './Tools/WSPAssets/test.json'
+import testConfig from './Tools/test.json'
 import loadExternals from './Tools/WSPLoader';
 import classes from './graph.css';
 // import wspjs from './Tools/WSPAssets/wsp'
 
-
+// TODO - refactor: split to relfect order, then simplify callback
 const externals = [
     // {
     //     id: 'jquery',
@@ -17,22 +17,31 @@ const externals = [
     {
         id: 'wspscript',
         type: 'js',
-        url: './Tools/WSPAssets/wsp'
+        url: '/WSPAssets/wsp.js',
+        onLoad: () => {
+            const remaining = externals.slice(1)
+            remaining.forEach((ext) => {
+                loadExternals(ext)
+            })
+        }
     },
     {
         id: 'wsprunner',
         type: 'js',
-        url: '/Users/azook/Documents/Contract/21PSTEM/code/vmt/client/src/Containers/Workspace/Tools/WSPAssets/wsp-runner.js'
+        url: '/WSPAssets/wsp-runner.js',
+        onLoad: () => {
+            loadSketch()
+        }
     },
     {
         id: 'widgetcss',
         type: 'css',
-        url: '/Users/azook/Documents/Contract/21PSTEM/code/vmt/client/src/Containers/Workspace/Tools/WSPAssets/widgets/widgets.css'
+        url: '/WSPAssets/widgets/widgets.css'
     },
     {
         id: 'widgetsjs',
         type: 'js',
-        url: '/Users/azook/Documents/Contract/21PSTEM/code/vmt/client/src/Containers/Workspace/Tools/WSPAssets/widgets/widgets.js'
+        url: '/WSPAssets/widgets/widgets.js'
     },
     // {
     //     id: 'desTest',
@@ -42,6 +51,17 @@ const externals = [
 
 ]
 
+const loadSketch = () => {
+    const $ = window.jQuery;
+    if (!$) {
+        console.warn('No jQuerious');
+    return
+    }
+    $('#sketch').WSP("loadSketch", {
+        "data-sourceDocument": testConfig
+    })
+}
+
 const WebSketch = (props) => {
     let initializing = false;
     const wspSketch = useRef();
@@ -49,21 +69,14 @@ const WebSketch = (props) => {
     const options = {
         "data-sourceDocument": testConfig
     }
-
+    const { setFirstTabLoaded } = props;
+                 
     useEffect(() => {
         initializing = true;
-        // index.js
 
-        // attempt to add directly to global
-// const GSP = {};
-// window.GSP = GSP; // use this if the object needs to be global
-        // $el.WSP("loadSketch", options)
+        loadExternals(externals[0])
+        setFirstTabLoaded();
 
-        // props.setFirstTabLoaded();
-        externals.forEach( ext => {
-            loadExternals(ext)
-        })
-        
         initializing = false;
         return () => {
             // socket.removeAllListeners('RECEIVE_EVENT');
@@ -85,29 +98,12 @@ const WebSketch = (props) => {
                 integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
                 crossorigin="anonymous"
                 onLoad={() => {
-                    const { setFirstTabLoaded } = props;
-                 
-                        setFirstTabLoaded();
-                
+                   console.log("jQuery loaded!")
                 }
             }
            /> ) : (console.log('jQuery found')) }
-                 {/* {externals.map((ext) => {
-                    return ( <Script
-                    url= {ext.url}
-                    onLoad={() => {
-                        console.log('Loaded ', ext.id)
-                    }}
-                    attributes={{ id: ext.id }}
-                    /> )
-                })} */}
-                <div
-                    className={classes.Graph}
-                    id="sketch1"
-                    ref={wspSketch}
-                >
-                    WSP THINGAMABOB HERE
-                </div>
+                     {/* <div className='sketch_canvas' id='sketch1' data-url='./Tools/test.json'>Loading...</div> */}
+                    <div id='sketch'></div>
             </Fragment>
     );
 };

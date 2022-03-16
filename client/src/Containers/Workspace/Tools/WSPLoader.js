@@ -22,6 +22,7 @@ const loadExternals = ext => {
                 script.type="text/javascript";
                 // script.charset="utf-8";
                 script.onload = () => {
+                    if (ext.onLoad) ext.onLoad();
                     console.log('Loaded!: ', ext.id)
                 };
                 document.body.appendChild(script);
