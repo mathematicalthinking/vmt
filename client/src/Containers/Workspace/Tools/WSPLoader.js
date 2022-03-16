@@ -17,7 +17,7 @@ const loadExternals = ext => {
         } else {
             if (ext.type === 'js') {
                 const script = document.createElement('script');
-                script.src = ext.file;
+                script.src = ext.url;
                 script.id = ext.id;
                 script.type="text/javascript";
                 // script.charset="utf-8";
@@ -30,7 +30,7 @@ const loadExternals = ext => {
                 const link = document.createElement('link');
                 link.rel = 'stylesheet';
                 link.type = 'text/css';
-                link.href = ext.file;
+                link.href = ext.url;
                 link.id = ext.id;
                 link.onload = () => {
                     console.log('Loaded!: ', ext.id)

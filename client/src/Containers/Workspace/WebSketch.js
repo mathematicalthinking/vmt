@@ -5,33 +5,40 @@ import Script from 'react-load-script';
 import testConfig from './Tools/WSPAssets/test.json'
 import loadExternals from './Tools/WSPLoader';
 import classes from './graph.css';
+// import wspjs from './Tools/WSPAssets/wsp'
+
 
 const externals = [
     // {
     //     id: 'jquery',
     //     type: 'js',
-    //     file: './WSPAssets/jquery-2.1.0.min'  
+    //     url: './WSPAssets/jquery-2.1.0.min'  
     // },
     {
         id: 'wspscript',
         type: 'js',
-        file: './WSPAssets/wsp.js'
+        url: './Tools/WSPAssets/wsp'
     },
     {
         id: 'wsprunner',
         type: 'js',
-        file: './WSPAssets/wsp-runner.js'
+        url: '/Users/azook/Documents/Contract/21PSTEM/code/vmt/client/src/Containers/Workspace/Tools/WSPAssets/wsp-runner.js'
     },
     {
         id: 'widgetcss',
         type: 'css',
-        file: './WSPAssets/widgets/widgets.css'
+        url: '/Users/azook/Documents/Contract/21PSTEM/code/vmt/client/src/Containers/Workspace/Tools/WSPAssets/widgets/widgets.css'
     },
     {
         id: 'widgetsjs',
         type: 'js',
-        file: './WSPAssets/widgets/widgets.js'
+        url: '/Users/azook/Documents/Contract/21PSTEM/code/vmt/client/src/Containers/Workspace/Tools/WSPAssets/widgets/widgets.js'
     },
+    // {
+    //     id: 'desTest',
+    //     type: 'js',
+    //     url: 'https://www.desmos.com/api/v1.5/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6'
+    // }
 
 ]
 
@@ -45,7 +52,11 @@ const WebSketch = (props) => {
 
     useEffect(() => {
         initializing = true;
+        // index.js
 
+        // attempt to add directly to global
+// const GSP = {};
+// window.GSP = GSP; // use this if the object needs to be global
         // $el.WSP("loadSketch", options)
 
         // props.setFirstTabLoaded();
@@ -83,7 +94,7 @@ const WebSketch = (props) => {
            /> ) : (console.log('jQuery found')) }
                  {/* {externals.map((ext) => {
                     return ( <Script
-                    url= {ext.file}
+                    url= {ext.url}
                     onLoad={() => {
                         console.log('Loaded ', ext.id)
                     }}
