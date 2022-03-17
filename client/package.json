@@ -42,7 +42,6 @@
     "html2canvas": "0.5.0-beta4",
     "human-readable-ids": "^1.0.4",
     "jest": "20.0.4",
-    "jquery": "^3.6.0",
     "lodash": "^4.17.21",
     "moment": "^2.22.2",
     "object-assign": "4.1.1",

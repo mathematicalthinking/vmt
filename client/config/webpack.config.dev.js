@@ -87,7 +87,6 @@ module.exports = {
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
       'react-native': 'react-native-web',
-      // WSP: path.resolve(__dirname, 'src/Containers/Workspace/Tools/WSPAssets/'), // vmt/client/src/Containers/Workspace/Tools/WSPAssets
     },
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -207,33 +206,6 @@ module.exports = {
               name: 'static/media/[name].[hash:8].[ext]',
             },
           },
-          // Draft WSP Asset loader
-          {
-            test: /\.js$/,
-            // test: /^[^\/]+\/WSPAssets\/?(?:[^\/]+\/?)*$/gm
-            include: [ paths.wspjs ],
-            //   // /\.(js|jsx|mjs)$/, /\.json$/, /\.css$/,
-            //   // will include any paths relative to the current directory starting with `app/styles`
-            //   // e.g. `app/styles.css`, `app/styles/styles.css`, `app/stylesheet.css`
-            //   path.resolve(__dirname, '*/Workspace/Tools/WSPAssets/'),
-            // ],
-            loader: require.resolve('file-loader'),
-            options: {
-              name: 'static/assets/[name].[ext]',
-            //   name(resourcePath, resourceQuery) {
-            //     // `resourcePath` - `/absolute/path/to/file.js`
-            //     // `resourceQuery` - `?foo=bar`
-    
-            //     if (process.env.NODE_ENV === 'development') {
-            //       return 'static/assets/[path][name].[ext]';
-            //     }
-    
-            //     return 'static/assets/[contenthash]WSP.[ext]';
-            //   },
-            //   // publicPath: 'static/assets',
-
-            },
-          }
         ],
       },
       // ** STOP ** Are you adding a new loader?
