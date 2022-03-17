@@ -7,6 +7,9 @@ import WSPLoader from './Tools/WSPLoader';
 
 const WebSketch = (props) => {
     let initializing = false;
+    let $sketch = null;  // the jquery object for the server's sketch_canvas HTML element
+    let sketchDoc = null;    // The WSP document in which the websketch lives.
+    let sketch = null;       // The websketch itself, which we'll keep in sync with the server websketch.
     const wspSketch = useRef();
     const { setFirstTabLoaded } = props;
 
@@ -21,6 +24,19 @@ const WebSketch = (props) => {
         };
     }, []);
 
+    // sketch event helpers
+      function moveGobj(attr) {
+        // A point moved: Find the object in the other sketch with the same id, and move it
+        // to the same location. Don't send the entire gobj, as it may have circular references
+        // (to children that refer to their parents) and thus cannot be stringified.
+        let gobj = attr.target;
+        let gobjInfo = {id: gobj.id, loc: gobj.geom.loc};
+        console.log({
+          action: "moveGobj",
+          data: JSON.stringify(gobjInfo, null, 2),
+        });
+      }
+
     const loadSketch = () => {
         const $ = window.jQuery;
         if (!$) {
@@ -31,9 +47,17 @@ const WebSketch = (props) => {
             "data-sourceDocument": testConfig,
             onLoad: function (metadata) {
                 console.log("Loading: ", metadata);
+                $sketch = $("#sketch");
                 setFirstTabLoaded();
             }
         })
+        const data = $sketch.data("document")
+        console.log('Found data: ', data)
+        sketchDoc = data;
+        sketch = data.focusPage;
+        
+        let points = sketch.sQuery('Point[constraint="Free"]');
+        points.on("update", moveGobj);
     }
 
     return (
