@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import Select from 'react-select'
+import Select from 'react-select';
 import PropTypes from 'prop-types';
 import { useSortableData } from 'utils';
 import BoxList from '../../BoxList/BoxList';
@@ -216,14 +216,14 @@ export default ResourceList;
 const SortUI = ({ keys, sortFn }) => {
   // const upArrow = <i className="fas fa-solid fa-sort-up" />
   // const downArrow = <i className="fas fa-solid fa-sort-down" />
-  const upArrow = <i className="fas fa-solid fa-arrow-up" />
-  const downArrow = <i class="fas fa-solid fa-arrow-down"></i>
+  const upArrow = <i className="fas fa-solid fa-arrow-up" />;
+  const downArrow = <i className="fas fa-solid fa-arrow-down" />;
   const [arrow, setArrow] = useState(downArrow);
   const [sortKey, setSortKey] = useState();
   const [sortDirection, setSortDirection] = useState('down');
 
   const handleArrowClick = () => {
-    setSortDirection(prevDir => prevDir === 'up' ? 'down' : 'up')
+    setSortDirection((prevDir) => (prevDir === 'up' ? 'down' : 'up'));
     setArrow(sortDirection === 'up' ? downArrow : upArrow);
     if (sortKey) sortFn(sortKey);
   };
@@ -237,24 +237,23 @@ const SortUI = ({ keys, sortFn }) => {
     <div>
       <label htmlFor="sortTable" className={classes.Label}>
         Sort By:
-
-        <Select          
+        <Select
           placeholder="Select..."
           className={classes.Select}
           name="sortUI"
-          id="sortTable"          
+          id="sortTable"
           onChange={(selectedOption) => {
             sortFn(selectedOption.value);
             setSortKey(selectedOption.value);
             setArrow(downArrow);
-            setSortDirection('down')
+            setSortDirection('down');
           }}
-          defaultValue={{label: keys[0].name, value: keys[0].property}}
-          options={keys.map(key => ({
+          defaultValue={{ label: keys[0].name, value: keys[0].property }}
+          options={keys.map((key) => ({
             value: key.property,
             label: key.name,
           }))}
-          />
+        />
         <span onClick={handleArrowClick}>{arrow}</span>
       </label>
     </div>

@@ -917,23 +917,21 @@ class Workspace extends Component {
     });
   };
 
-  resetRoom = (populatedRoom) => {
+  resetRoom = () => {
     const { resetRoom } = this.props;
     resetRoom().then(() => {
+      const { populatedRoom } = this.props;
       this.setState({
         controlledBy:
           populatedRoom && populatedRoom.controlledBy
             ? populatedRoom.controlledBy
             : null,
-        currentMembers: populatedRoom && populatedRoom.currentMembers
+        currentMembers:
+          populatedRoom && populatedRoom.currentMembers
             ? populatedRoom.currentMembers
             : null,
-        tabs: populatedRoom && populatedRoom.tabs
-            ? populatedRoom.tabs
-            : null,
-        log: populatedRoom && populatedRoom.log
-            ? populatedRoom.log
-            : null,
+        tabs: populatedRoom && populatedRoom.tabs ? populatedRoom.tabs : null,
+        log: populatedRoom && populatedRoom.log ? populatedRoom.log : null,
       });
     });
   };
@@ -1035,7 +1033,6 @@ class Workspace extends Component {
         createActivity={this.beginCreatingActivity}
         connectionStatus={connectionStatus}
         resetRoom={this.resetRoom}
-        populatedRoom={populatedRoom}
       />
     );
     const graphs = currentTabs.map((tab) => {

@@ -305,12 +305,12 @@ module.exports = function() {
     };
 
     socket.on('RESET_ROOM', async (roomId) => {
-      const users = await usersInRoom(data.roomId);
+      const users = await usersInRoom(roomId);
       controllers.rooms.setCurrentUsers(roomId, users).then((res) => {
         const releasedControl =
           res.controlledBy && !users.includes(res.controlledBy.toString()); // parse to string because it is an objectId
         if (releasedControl) {
-          controllers.rooms.put(room, { controlledBy: null });
+          controllers.rooms.put(roomId, { controlledBy: null });
         }
       });
     });

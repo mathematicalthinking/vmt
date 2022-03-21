@@ -9,6 +9,7 @@ function withPopulatedRoom(WrappedComponent) {
   class PopulatedRoom extends Component {
     state = {
       loading: true,
+      populatedRoom: {},
     };
 
     componentDidMount() {
@@ -17,14 +18,13 @@ function withPopulatedRoom(WrappedComponent) {
       // give a fn to workspace that does the fetch and resets w/populatedRoom on btn click
       API.getPopulatedById('rooms', match.params.room_id, false, true)
         .then((res) => {
-          this.populatedRoom = res.data.result;
-          this.populatedRoom.log = buildLog(
-            this.populatedRoom.tabs,
-            this.populatedRoom.chat
-          );
-          if (!this.cancelFetch) this.setState({ loading: false });
+          const populatedRoom = res.data.result;
+          populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
+          if (!this.cancelFetch)
+            this.setState({ loading: false, populatedRoom });
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error(err);
           console.log(
             'we should probably just go back to the previous page? maybe display the error'
           );
@@ -43,36 +43,34 @@ function withPopulatedRoom(WrappedComponent) {
     // try making populatedRoom state and reset the state, right now now it's this
 
     syncRooms = async () => {
-      console.log(`SYNC ROOMS CONTROLLED BY: ${this.populatedRoom.controlledBy}`)
       this.cancelFetch = false;
-      const { match } = this.props;
-      API.getPopulatedById('rooms', match.params.room_id, false, true)
-      .then((res) => {
-        this.populatedRoom = res.data.result;
-        this.populatedRoom.log = buildLog(
-          this.populatedRoom.tabs,
-          this.populatedRoom.chat
-        );
-        socket.emit('RESET_ROOM', this.populatedRoom._id);        
-        if (!this.cancelFetch) this.setState({ loading: false });
-      })
-      .catch(() => {
-        console.log(
-          'we should probably just go back to the previous page? maybe display the error'
-        );
-      });
-    }
+      const { populatedRoom: oldRoom } = this.state;
+      return API.getPopulatedById('rooms', oldRoom._id, false, true)
+        .then((res) => {
+          const populatedRoom = res.data.result;
+          populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
+          socket.emit('RESET_ROOM', populatedRoom._id);
+          if (!this.cancelFetch)
+            this.setState({ loading: false, populatedRoom });
+        })
+        .catch((err) => {
+          console.error(err);
+          console.log(
+            'we should probably just go back to the previous page? maybe display the error'
+          );
+        });
+    };
 
     render() {
       const { history } = this.props;
-      const { loading } = this.state;
+      const { loading, populatedRoom } = this.state;
       if (loading) {
         return <Loading message="Fetching your room..." />;
       }
 
       return (
         <WrappedComponent
-          populatedRoom={this.populatedRoom}
+          populatedRoom={populatedRoom}
           history={history}
           resetRoom={this.syncRooms}
         />
