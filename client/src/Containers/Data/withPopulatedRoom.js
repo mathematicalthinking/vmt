@@ -33,6 +33,27 @@ function withPopulatedRoom(WrappedComponent) {
     componentWillUnmount() {
       this.cancelFetch = true;
     }
+
+    // fn for a button in Workspace to sync room data
+    syncRooms = () => {
+      this.cancelFetch = false;
+      const { match } = this.props;
+      API.getPopulatedById('rooms', match.params.room_id, false, true)
+      .then((res) => {
+        this.populatedRoom = res.data.result;
+        this.populatedRoom.log = buildLog(
+          this.populatedRoom.tabs,
+          this.populatedRoom.chat
+        );
+        if (!this.cancelFetch) this.setState({ loading: false });
+      })
+      .catch(() => {
+        console.log(
+          'we should probably just go back to the previous page? maybe display the error'
+        );
+      });
+    }
+
     render() {
       const { history } = this.props;
       const { loading } = this.state;
@@ -44,6 +65,7 @@ function withPopulatedRoom(WrappedComponent) {
         <WrappedComponent
           populatedRoom={this.populatedRoom}
           history={history}
+          resetRoom={this.syncRooms}
         />
       );
     }
