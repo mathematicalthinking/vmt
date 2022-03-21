@@ -1,59 +1,55 @@
-/* eslint-disable react/no-did-update-set-state */
-import React, { Component, Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import Select from 'react-select'
 import PropTypes from 'prop-types';
+import { useSortableData } from 'utils';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
-import classes from './resourceList.css';
 import Search from '../../../Components/Search/Search';
-// CONSIDER RENAMING TO DASHBOARDCONTENT
-class ResourceList extends Component {
-  state = {
-    participantList: [],
-    facilitatorList: [],
-  };
+import classes from './resourceList.css';
 
-  componentDidMount() {
-    const { userResources } = this.props;
-    const { facilitatorList, participantList } = this.sortUserResources(
+const ResourceList = ({
+  resource,
+  parentResource,
+  parentResourceId,
+  user,
+  userResources,
+  notifications,
+}) => {
+  const [fList, setFacilitatorList] = useState([]);
+  const [pList, setParticipantList] = useState([]);
+
+  // componentDidMount
+  useEffect(() => {
+    const { facilitatorList, participantList } = sortUserResources(
       userResources
     );
-    this.setState({
-      facilitatorList,
-      participantList,
-    });
-  }
+    setFacilitatorList(facilitatorList);
+    setParticipantList(participantList);
+  }, []);
 
-  componentDidUpdate(prevProps) {
-    const { userResources } = this.props;
-    if (prevProps.userResources !== userResources) {
-      const { facilitatorList, participantList } = this.sortUserResources(
-        userResources
-      );
-      this.setState({
-        facilitatorList,
-        participantList,
-      });
-    }
-  }
-
-  search = (criteria) => {
-    const { userResources } = this.props;
-    let { facilitatorList, participantList } = this.sortUserResources(
+  // componentDidUpdate
+  useEffect(() => {
+    const { facilitatorList, participantList } = sortUserResources(
       userResources
     );
-    facilitatorList = facilitatorList.filter((resource) => {
-      return resource.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
+    setFacilitatorList(facilitatorList);
+    setParticipantList(participantList);
+  }, [userResources]);
+
+  // TODO FIX `search` &  `sortUserResources`
+  const search = (criteria) => {
+    let { facilitatorList, participantList } = sortUserResources(userResources);
+    facilitatorList = facilitatorList.filter((res) => {
+      return res.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
     });
-    participantList = participantList.filter((resource) => {
-      return resource.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
+    participantList = participantList.filter((res) => {
+      return res.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
     });
-    this.setState({
-      facilitatorList,
-      participantList,
-    });
+    setFacilitatorList(facilitatorList);
+    setParticipantList(participantList);
   };
 
-  sortUserResources = (resources) => {
+  const sortUserResources = (resources) => {
     const facilitatorList = [];
     const participantList = [];
     if (resources) {
@@ -73,90 +69,71 @@ class ResourceList extends Component {
     };
   };
 
-  render() {
-    const {
-      resource,
-      parentResource,
-      parentResourceId,
-      user,
-      notifications,
-    } = this.props;
-    const { facilitatorList, participantList } = this.state;
-    let linkPath = `/myVMT/${resource}/`;
-    let linkSuffix;
-    if (resource === 'courses') {
-      linkSuffix = '/rooms';
-    } else {
-      linkSuffix = '/details';
-    }
-    let displayResource = resource[0].toUpperCase() + resource.slice(1);
-    if (displayResource === 'Activities') displayResource = 'Templates';
-    if (parentResource === 'courses') {
-      linkPath = `/myVMT/${parentResource}/${parentResourceId}/${resource}/`;
-      linkSuffix = '/details';
-    }
+  // copied from render before return
+  let linkPath = `/myVMT/${resource}/`;
+  let linkSuffix;
+  if (resource === 'courses') {
+    linkSuffix = '/rooms';
+  } else {
+    linkSuffix = '/details';
+  }
+  let displayResource = resource[0].toUpperCase() + resource.slice(1);
+  if (displayResource === 'Activities') displayResource = 'Templates';
+  if (parentResource === 'courses') {
+    linkPath = `/myVMT/${parentResource}/${parentResourceId}/${resource}/`;
+    linkSuffix = '/details';
+  }
 
-    let create;
-    if (parentResource !== 'activities' && user.accountType === 'facilitator') {
-      // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
-      create = (
-        <NewResource
-          resource={resource}
-          courseId={parentResource === 'courses' ? parentResourceId : null}
-        />
-      );
-    }
-    /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
-     * I feel like we are checking roles...which requires looping through the resources members each time.
-     */
+  let create;
+  if (parentResource !== 'activities' && user.accountType === 'facilitator') {
+    // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
+    create = (
+      <NewResource
+        resource={resource}
+        courseId={parentResource === 'courses' ? parentResourceId : null}
+      />
+    );
+  }
+  /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
+   * I feel like we are checking roles...which requires looping through the resources members each time.
+   */
 
-    return (
-      <div>
-        {/* @TODO don't show create optinos for participants */}
-        <div className={classes.Controls}>
-          <div className={classes.Search}>
-            <Search _search={this.search} data-testid="search" />
-          </div>
-          {create}
+  // Use useSortableData hook to enable user-controlled sorts
+  const initialConfig = { key: 'updatedAt', direction: 'descending' };
+  const {
+    items: facilitatorItems,
+    requestSort: facilitatorRequestSort,
+  } = useSortableData(fList, initialConfig);
+  const {
+    items: participantItems,
+    requestSort: participantRequestSort,
+  } = useSortableData(pList, initialConfig);
+  const keys = [
+    { property: 'updatedAt', name: 'Last Updated' },
+    { property: 'name', name: 'Name' },
+    { property: 'createdAt', name: 'Created Date' },
+    { property: 'dueDate', name: 'Due Date' },
+  ];
+
+  return (
+    <div>
+      {/* @TODO don't show create optinos for participants */}
+      <div className={classes.Controls}>
+        <div className={classes.Search}>
+          <Search _search={search} data-testid="search" />
         </div>
-        {facilitatorList.length > 0 && participantList.length > 0 ? (
-          <div className={classes.Row}>
-            <div className={classes.Col}>
-              <h2 className={classes.ResourceHeader}>
-                {displayResource} I Manage
-              </h2>
-              <BoxList
-                list={facilitatorList}
-                linkPath={linkPath}
-                linkSuffix={linkSuffix}
-                notifications={notifications}
-                resource={resource}
-                listType="private"
-                parentResourec={parentResource}
-                // draggable
-              />
-            </div>
-            <div className={classes.Col}>
-              <h2 className={classes.ResourceHeader}>
-                {displayResource} I&#39;m a member of
-              </h2>
-              <BoxList
-                list={participantList}
-                linkPath={linkPath}
-                linkSuffix={linkSuffix}
-                notifications={notifications}
-                resource={resource}
-                listType="private"
-                parentResourec={parentResource}
-                // draggable
-              />
-            </div>
-          </div>
-        ) : (
-          <Fragment>
-            <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
+        {create}
+      </div>
+      {fList.length > 0 && pList.length > 0 ? (
+        <div className={classes.Row}>
+          <div className={classes.Col}>
+            <h2 className={classes.ResourceHeader}>
+              {displayResource} I Manage
+            </h2>
+            <SortUI keys={keys} sortFn={facilitatorRequestSort} />
+
             <BoxList
-              list={facilitatorList.concat(participantList)}
+              list={facilitatorItems}
               linkPath={linkPath}
               linkSuffix={linkSuffix}
               notifications={notifications}
@@ -165,12 +142,56 @@ class ResourceList extends Component {
               parentResourec={parentResource}
               // draggable
             />
-          </Fragment>
-        )}
-      </div>
-    );
-  }
-}
+          </div>
+          <div className={classes.Col}>
+            <h2 className={classes.ResourceHeader}>
+              {displayResource} I&#39;m a member of
+            </h2>
+            <SortUI keys={keys} sortFn={participantRequestSort} />
+            <BoxList
+              list={participantItems}
+              linkPath={linkPath}
+              linkSuffix={linkSuffix}
+              notifications={notifications}
+              resource={resource}
+              listType="private"
+              parentResourec={parentResource}
+              // draggable
+            />
+          </div>
+        </div>
+      ) : (
+        <Fragment>
+          {fList.length > 0 || displayResource === 'Templates' ? (
+            <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
+          ) : (
+            <h2 className={classes.ResourceHeader}>
+              {displayResource} I&#39;m a member of
+            </h2>
+          )}
+          <SortUI
+            keys={keys}
+            sortFn={
+              fList.length > 0 || displayResource !== 'Templates'
+                ? facilitatorRequestSort
+                : participantRequestSort
+            }
+          />
+          <BoxList
+            list={facilitatorItems.concat(participantItems)}
+            linkPath={linkPath}
+            linkSuffix={linkSuffix}
+            notifications={notifications}
+            resource={resource}
+            listType="private"
+            parentResourec={parentResource}
+            // draggable
+          />
+        </Fragment>
+      )}
+    </div>
+  );
+};
 
 ResourceList.propTypes = {
   resource: PropTypes.string.isRequired,
@@ -187,3 +208,60 @@ ResourceList.defaultProps = {
 };
 
 export default ResourceList;
+
+/**
+ * Component to Set and Show the Sort Arrow (ascending = '↑', descending = '↓')
+ */
+
+const SortUI = ({ keys, sortFn }) => {
+  // const upArrow = <i className="fas fa-solid fa-sort-up" />
+  // const downArrow = <i className="fas fa-solid fa-sort-down" />
+  const upArrow = <i className="fas fa-solid fa-arrow-up" />
+  const downArrow = <i class="fas fa-solid fa-arrow-down"></i>
+  const [arrow, setArrow] = useState(downArrow);
+  const [sortKey, setSortKey] = useState();
+  const [sortDirection, setSortDirection] = useState('down');
+
+  const handleArrowClick = () => {
+    setSortDirection(prevDir => prevDir === 'up' ? 'down' : 'up')
+    setArrow(sortDirection === 'up' ? downArrow : upArrow);
+    if (sortKey) sortFn(sortKey);
+  };
+
+  useEffect(() => {
+    sortFn(keys[0].property);
+    setSortKey(keys[0].property);
+  }, []);
+
+  return (
+    <div>
+      <label htmlFor="sortTable" className={classes.Label}>
+        Sort By:
+
+        <Select          
+          placeholder="Select..."
+          className={classes.Select}
+          name="sortUI"
+          id="sortTable"          
+          onChange={(selectedOption) => {
+            sortFn(selectedOption.value);
+            setSortKey(selectedOption.value);
+            setArrow(downArrow);
+            setSortDirection('down')
+          }}
+          defaultValue={{label: keys[0].name, value: keys[0].property}}
+          options={keys.map(key => ({
+            value: key.property,
+            label: key.name,
+          }))}
+          />
+        <span onClick={handleArrowClick}>{arrow}</span>
+      </label>
+    </div>
+  );
+};
+
+SortUI.propTypes = {
+  keys: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  sortFn: PropTypes.func.isRequired,
+};
