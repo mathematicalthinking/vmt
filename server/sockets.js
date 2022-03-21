@@ -245,11 +245,12 @@ module.exports = function() {
       callback(null, {});
     });
 
-    socket.on('SEND_EVENT', async (data) => {
+    socket.on('SEND_EVENT', async (data, callback) => {
       socketMetricInc('eventsend');
       try {
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
         await controllers.events.post(data);
+        callback();
       } catch (err) {
         console.log('ERROR SENDING EVENT: ', err);
       }

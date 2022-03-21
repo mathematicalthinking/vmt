@@ -419,7 +419,7 @@ class Workspace extends Component {
           const latency = Date.now() - start;
           if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
           else this.setState({ connectionStatus: 'Good' });
-          console.log('Heartbeat<3 latency: ', latency);
+          // console.log('Heartbeat<3 latency: ', latency);
         });
       } else {
         // not connected

@@ -13,6 +13,7 @@ function withPopulatedRoom(WrappedComponent) {
     componentDidMount() {
       this.cancelFetch = false;
       const { match } = this.props;
+      // give a fn to workspace that does the fetch and resets w/populatedRoom on btn click
       API.getPopulatedById('rooms', match.params.room_id, false, true)
         .then((res) => {
           this.populatedRoom = res.data.result;
