@@ -396,6 +396,8 @@ class Chat extends Component {
       createActivity,
       pendingUsers,
       connectionStatus,
+      resetRoom,
+      populatedRoom,
     } = this.props;
     const {
       highlightedMessage,
@@ -451,6 +453,21 @@ class Chat extends Component {
                 </button>
               </div>
             ) : null}
+
+              <div className={DropdownMenuClasses.DropdownItem}>
+                <button
+                  type="button"
+                  className={classes.Button}
+                  onClick={(e) => {
+                    resetRoom(populatedRoom);
+                    e.stopPropagation();
+                  }}
+                  data-testid="open-replayer"
+                >
+                  Reset Room
+                </button>
+              </div>
+
             {!socket.connected ? (
               <div className={DropdownMenuClasses.DropdownItem}>
                 <button
@@ -736,6 +753,8 @@ Chat.propTypes = {
   pendingUsers: PropTypes.shape({}),
   connectionStatus: PropTypes.string,
   changingIndex: PropTypes.bool,
+  resetRoom: PropTypes.func,
+  populatedRoom: PropTypes.shape({}),
 };
 
 Chat.defaultProps = {
@@ -764,6 +783,8 @@ Chat.defaultProps = {
   pendingUsers: null,
   connectionStatus: 'None',
   changingIndex: false,
+  resetRoom: () => {},
+  populatedRoom: null
 };
 
 export default Chat;

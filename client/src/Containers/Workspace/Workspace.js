@@ -917,6 +917,27 @@ class Workspace extends Component {
     });
   };
 
+  resetRoom = (populatedRoom) => {
+    const { resetRoom } = this.props;
+    resetRoom().then(() => {
+      this.setState({
+        controlledBy:
+          populatedRoom && populatedRoom.controlledBy
+            ? populatedRoom.controlledBy
+            : null,
+        currentMembers: populatedRoom && populatedRoom.currentMembers
+            ? populatedRoom.currentMembers
+            : null,
+        tabs: populatedRoom && populatedRoom.tabs
+            ? populatedRoom.tabs
+            : null,
+        log: populatedRoom && populatedRoom.log
+            ? populatedRoom.log
+            : null,
+      });
+    });
+  };
+
   render() {
     const {
       populatedRoom,
@@ -929,6 +950,7 @@ class Workspace extends Component {
       connectUpdateRoomTab,
       tempCurrentMembers,
       connectUpdateUserSettings,
+      // resetRoom,
     } = this.props;
     const {
       tabs: currentTabs,
@@ -1012,6 +1034,8 @@ class Workspace extends Component {
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
         connectionStatus={connectionStatus}
+        resetRoom={this.resetRoom}
+        populatedRoom={populatedRoom}
       />
     );
     const graphs = currentTabs.map((tab) => {
@@ -1236,6 +1260,7 @@ Workspace.propTypes = {
   connectUpdateRoomTab: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectUpdateUserSettings: PropTypes.func.isRequired,
+  resetRoom: PropTypes.func,
 };
 
 Workspace.defaultProps = {
@@ -1244,6 +1269,7 @@ Workspace.defaultProps = {
   lastMessage: null,
   save: null,
   temp: false,
+  resetRoom: () => {},
 };
 const mapStateToProps = (state, ownProps) => {
   return {

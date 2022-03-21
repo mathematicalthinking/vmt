@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { socket } from 'utils';
 import API from '../../utils/apiRequests';
 import buildLog from '../../utils/buildLog';
 import Loading from '../../Components/Loading/Loading';
@@ -35,7 +36,14 @@ function withPopulatedRoom(WrappedComponent) {
     }
 
     // fn for a button in Workspace to sync room data
-    syncRooms = () => {
+    // create a new socket message to reset the room
+    // make sure connections are happening
+    // is populatedRoom updating?
+    // is socket receiving the message? / is it getting called?
+    // try making populatedRoom state and reset the state, right now now it's this
+
+    syncRooms = async () => {
+      console.log(`SYNC ROOMS CONTROLLED BY: ${this.populatedRoom.controlledBy}`)
       this.cancelFetch = false;
       const { match } = this.props;
       API.getPopulatedById('rooms', match.params.room_id, false, true)
@@ -45,6 +53,7 @@ function withPopulatedRoom(WrappedComponent) {
           this.populatedRoom.tabs,
           this.populatedRoom.chat
         );
+        socket.emit('RESET_ROOM', this.populatedRoom._id);        
         if (!this.cancelFetch) this.setState({ loading: false });
       })
       .catch(() => {
