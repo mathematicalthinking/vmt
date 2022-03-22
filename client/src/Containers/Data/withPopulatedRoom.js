@@ -45,11 +45,11 @@ function withPopulatedRoom(WrappedComponent) {
     syncRooms = async () => {
       this.cancelFetch = false;
       const { populatedRoom: oldRoom } = this.state;
+      socket.emit('RESET_ROOM', oldRoom._id);
       return API.getPopulatedById('rooms', oldRoom._id, false, true)
         .then((res) => {
           const populatedRoom = res.data.result;
           populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
-          socket.emit('RESET_ROOM', populatedRoom._id);
           if (!this.cancelFetch)
             this.setState({ loading: false, populatedRoom });
         })
