@@ -99,8 +99,8 @@ class Homepage extends PureComponent {
     const dateStamp = (
       <p>
         {`Last updated: ${new Date(
-          '03/06/2022'
-        ).toLocaleDateString()}, v.1.6.13`}
+          process.env.REACT_APP_BUILD_DATE || '07/24/2022'
+        ).toLocaleDateString()}, ${process.env.REACT_APP_VERSION}`}
       </p>
     );
     let pyretStatus = '';
