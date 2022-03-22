@@ -461,9 +461,9 @@ class Chat extends Component {
                   resetRoom();
                   e.stopPropagation();
                 }}
-                data-testid="open-replayer"
+                data-testid="force-sync"
               >
-                Reset Room
+                Force Sync
               </button>
             </div>
 
@@ -782,7 +782,6 @@ Chat.defaultProps = {
   connectionStatus: 'None',
   changingIndex: false,
   resetRoom: () => {},
-  populatedRoom: null,
 };
 
 export default Chat;

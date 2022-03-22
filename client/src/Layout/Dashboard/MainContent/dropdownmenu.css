@@ -31,6 +31,7 @@
 
 .DropdownItem {
   margin: 8px 0;
+  align-self: center;
 }
 
 .Container:hover .DropdownContent {
