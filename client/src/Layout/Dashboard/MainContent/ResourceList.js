@@ -130,7 +130,9 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I Manage
             </h2>
-            <SortUI keys={keys} sortFn={facilitatorRequestSort} />
+            {facilitatorItems.length > 1 && (
+              <SortUI keys={keys} sortFn={facilitatorRequestSort} />
+            )}
 
             <BoxList
               list={facilitatorItems}
@@ -147,7 +149,9 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I&#39;m a member of
             </h2>
-            <SortUI keys={keys} sortFn={participantRequestSort} />
+            {participantItems.length > 1 && (
+              <SortUI keys={keys} sortFn={participantRequestSort} />
+            )}
             <BoxList
               list={participantItems}
               linkPath={linkPath}
@@ -169,14 +173,16 @@ const ResourceList = ({
               {displayResource} I&#39;m a member of
             </h2>
           )}
-          <SortUI
-            keys={keys}
-            sortFn={
-              fList.length > 0 || displayResource !== 'Templates'
-                ? facilitatorRequestSort
-                : participantRequestSort
-            }
-          />
+          {(facilitatorItems.length > 1 || participantItems.length > 1) && (
+            <SortUI
+              keys={keys}
+              sortFn={
+                fList.length > 0 || displayResource !== 'Templates'
+                  ? facilitatorRequestSort
+                  : participantRequestSort
+              }
+            />
+          )}
           <BoxList
             list={facilitatorItems.concat(participantItems)}
             linkPath={linkPath}

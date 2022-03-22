@@ -9,7 +9,7 @@ import Notification from '../../Notification/Notification';
 
 class ContentBox extends PureComponent {
   state = {
-    expanded: true,
+    expanded: false,
   };
 
   toggleExpand = (event) => {
@@ -89,20 +89,20 @@ class ContentBox extends PureComponent {
                   ) : null}
                   {details.sinceUpdated ? (
                     <div>Updated: {details.sinceUpdated} ago</div>
-                    ) : null}
+                  ) : null}
                   {details.createdAt ? (
                     <div>Created: {details.createdAt}</div>
-                    ): null}
+                  ) : null}
                   {details.dueDate ? (
                     <div>Due Date: {details.dueDate}</div>
-                    ): null}
+                  ) : null}
                   {details.creator ? `Creator: ${details.creator}` : null}
                   {details.entryCode ? (
                     <div>Entry Code: {details.entryCode}</div>
-                    ) : null}
+                  ) : null}
                   {details.description ? (
                     <div>Description: {details.description}</div>
-                    ): null}
+                  ) : null}
                 </div>
               ) : null}
             </div>
