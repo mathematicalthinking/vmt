@@ -75,6 +75,7 @@
 .Content {
   flex-grow: 4;
   flex-flow: column;
+  overflow-y: auto;
 }
 
 .Expanded {
@@ -85,7 +86,7 @@
 .Icons {
   display: flex;
   width: 95px;
-  flex-justify-content: space-between;
+  flex-justify-content: space-between;      /* ??????? */
   align-items: center;
   margin-right: 10px;
   color: #666;
