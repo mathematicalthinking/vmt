@@ -138,8 +138,8 @@ const DesmosActivity = (props) => {
       // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {
-        console.log(`USER: ${user.username} NEW DATA:`)
-        console.log(newData)
+        // console.log(`USER: ${user.username} NEW DATA:`);
+        // console.log(newData);
       });
       resetControlTimer();
       if (!currentState.transient) putState();
@@ -153,7 +153,7 @@ const DesmosActivity = (props) => {
 
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
-      console.log('Socket: Received data: ', data);
+      // console.log('Socket: Received data: ', data);
       addToLog(data);
       const { room } = props;
       receivingData = true;
