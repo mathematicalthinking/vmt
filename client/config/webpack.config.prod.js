@@ -328,6 +328,8 @@ module.exports = {
       navigateFallbackWhitelist: [/^(?!\/__).*/],
       // Don't precache sourcemaps (they're large) and build asset manifest:
       globIgnores: ['*.map', 'asset-manifest.json'],
+      // When we deploy a new version, we want to activate the new service worker immediately, not requiring users to actively refresh the previously
+      // cached service worker (previous deployment). See https://developers.google.com/web/tools/workbox/guides/generate-complete-sw
       skipWaiting: true,
       clientsClaim: true,
     }),
