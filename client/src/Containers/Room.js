@@ -8,7 +8,7 @@ function Room(props) {
   const { match, room } = props;
   const { room_id } = match.params;
   const { isSuccess, data } = usePopulatedRoom(room_id, false, {
-    refetchInterval: 10000,
+    refetchInterval: 500,
   });
 
   const updatedRoom = isSuccess ? { ...room, ...data } : room;
