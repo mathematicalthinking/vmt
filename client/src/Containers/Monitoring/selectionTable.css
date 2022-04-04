@@ -24,8 +24,6 @@ thead button {
   margin-right: 5px;
 }
 
-/* not sure why below doesn't work */
-
 .ascending::after {
   content: '↑';
   display: inline-block;

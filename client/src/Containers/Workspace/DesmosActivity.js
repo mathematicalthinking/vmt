@@ -102,6 +102,8 @@ const DesmosActivity = (props) => {
   }, [transientUpdates]);
 
   // Event listener callback on the persistent Activity instance
+  // upates gives opaque event object which is passed to the analysis engine
+  // analysis engine responds with a query response object
   const handleResponseData = (updates, type) => {
     const transient = type === 'transient';
     if (initializing) return;
@@ -135,7 +137,10 @@ const DesmosActivity = (props) => {
       };
       // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
       props.addToLog(newData);
-      socket.emit('SEND_EVENT', newData, () => {});
+      socket.emit('SEND_EVENT', newData, () => {
+        // console.log(`USER: ${user.username} NEW DATA:`);
+        // console.log(newData);
+      });
       resetControlTimer();
       if (!currentState.transient) putState();
     }

@@ -245,11 +245,12 @@ module.exports = function() {
       callback(null, {});
     });
 
-    socket.on('SEND_EVENT', async (data) => {
+    socket.on('SEND_EVENT', async (data, callback) => {
       socketMetricInc('eventsend');
       try {
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
         await controllers.events.post(data);
+        callback();
       } catch (err) {
         console.log('ERROR SENDING EVENT: ', err);
       }
@@ -302,6 +303,17 @@ module.exports = function() {
         .map((socket) => socket.user_id)
         .filter((_id) => !!_id); // ocassionally we get null socket.user_ids. Filter these out.
     };
+
+    socket.on('RESET_ROOM', async (roomId) => {
+      const users = await usersInRoom(roomId);
+      controllers.rooms.setCurrentUsers(roomId, users).then((res) => {
+        const releasedControl =
+          res.controlledBy && !users.includes(res.controlledBy.toString()); // parse to string because it is an objectId
+        if (releasedControl) {
+          controllers.rooms.put(roomId, { controlledBy: null });
+        }
+      });
+    });
 
     const leaveRoom = async (room, users, color, cb) => {
       controllers.rooms

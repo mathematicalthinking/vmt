@@ -396,6 +396,7 @@ class Chat extends Component {
       createActivity,
       pendingUsers,
       connectionStatus,
+      resetRoom,
     } = this.props;
     const {
       highlightedMessage,
@@ -451,6 +452,21 @@ class Chat extends Component {
                 </button>
               </div>
             ) : null}
+
+            <div className={DropdownMenuClasses.DropdownItem}>
+              <button
+                type="button"
+                className={classes.Button}
+                onClick={(e) => {
+                  resetRoom();
+                  e.stopPropagation();
+                }}
+                data-testid="force-sync"
+              >
+                Force Sync
+              </button>
+            </div>
+
             {!socket.connected ? (
               <div className={DropdownMenuClasses.DropdownItem}>
                 <button
@@ -736,6 +752,7 @@ Chat.propTypes = {
   pendingUsers: PropTypes.shape({}),
   connectionStatus: PropTypes.string,
   changingIndex: PropTypes.bool,
+  resetRoom: PropTypes.func,
 };
 
 Chat.defaultProps = {
@@ -764,6 +781,7 @@ Chat.defaultProps = {
   pendingUsers: null,
   connectionStatus: 'None',
   changingIndex: false,
+  resetRoom: () => {},
 };
 
 export default Chat;
