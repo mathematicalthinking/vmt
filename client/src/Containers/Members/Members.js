@@ -37,11 +37,15 @@ class Members extends PureComponent {
     };
   }
 
+
+  // When a Member is added to a Classlist, 
+  // Remove them from the temporaryExclusion list.
+  // See Room.js: if the refresh rate is too long,
+  // Members could have been added to a Classlist multiple times
   componentDidUpdate(prevProps) {
     const { classList } = this.props;
     const { temporaryExclusion } = this.state;
     const classIds = classList.map((member) => member.user && member.user._id);
-    // [{_id, username, xxx}, {_id, username, xxx}, ...]
 
     const newExclusion = temporaryExclusion.filter(
       (id) => !classIds.includes(id)
@@ -49,18 +53,6 @@ class Members extends PureComponent {
     if (temporaryExclusion.length !== newExclusion.length)
       this.setState({ temporaryExclusion: newExclusion });
   }
-  // componentDidUpdate(prevProps) {
-  //   const { classList } = this.props;
-  //   // fill in colors for members not yet pulled from store
-  //   if (prevProps.classList.length !== classList.length) {
-  //     console.log('Updating classlist: ', classList);
-  //     classList.forEach((mem) => {
-  //       if (!mem.color) {
-  //         mem.color = COLOR_MAP[classList.length || 0];
-  //       }
-  //     });
-  //   }
-  // }
 
   componentWillUnmount() {
     const { notifications, connectClearNotification } = this.props;
