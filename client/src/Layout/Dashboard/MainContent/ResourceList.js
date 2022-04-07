@@ -14,29 +14,61 @@ const ResourceList = ({
   user,
   userResources,
   notifications,
+  resourceState,
+  setResourceState,
 }) => {
+  const initialConfig = {
+    key: 'updatedAt',
+    direction: 'descending',
+  };
   const [fList, setFacilitatorList] = useState([]);
   const [pList, setParticipantList] = useState([]);
 
-  // componentDidMount
-  useEffect(() => {
-    const { facilitatorList, participantList } = sortUserResources(
-      userResources
-    );
-    setFacilitatorList(facilitatorList);
-    setParticipantList(participantList);
-  }, []);
+  // Use useSortableData hook to enable user-controlled sorting
+  const {
+    items: facilitatorItems,
+    resetSort: facilitatorRequestSort,
+    sortConfig: facilitatorSortConfig,
+  } = useSortableData(fList, resourceState.facilitatorConfig || initialConfig);
 
-  // componentDidUpdate
+  const {
+    items: participantItems,
+    resetSort: participantRequestSort,
+    sortConfig: participantSortConfig,
+  } = useSortableData(pList, resourceState.participantConfig || initialConfig);
+
+  const keys = [
+    { property: 'updatedAt', name: 'Last Updated' },
+    { property: 'name', name: 'Name' },
+    { property: 'createdAt', name: 'Created Date' },
+    { property: 'dueDate', name: 'Due Date' },
+  ];
+
   useEffect(() => {
     const { facilitatorList, participantList } = sortUserResources(
       userResources
     );
+
     setFacilitatorList(facilitatorList);
     setParticipantList(participantList);
+
+    const { key: facilitatorKey, direction: facilitatorDirection } =
+      resourceState.facilitatorConfig || initialConfig;
+
+    const { key: participantKey, direction: participantDirection } =
+      resourceState.participantConfig || initialConfig;
+
+    facilitatorRequestSort(facilitatorKey, facilitatorDirection);
+    participantRequestSort(participantKey, participantDirection);
   }, [userResources]);
 
-  // TODO FIX `search` &  `sortUserResources`
+  useEffect(() => {
+    setResourceState({
+      facilitatorConfig: facilitatorSortConfig,
+      participantConfig: participantSortConfig,
+    });
+  }, [facilitatorSortConfig, participantSortConfig]);
+
   const search = (criteria) => {
     let { facilitatorList, participantList } = sortUserResources(userResources);
     facilitatorList = facilitatorList.filter((res) => {
@@ -69,7 +101,6 @@ const ResourceList = ({
     };
   };
 
-  // copied from render before return
   let linkPath = `/myVMT/${resource}/`;
   let linkSuffix;
   if (resource === 'courses') {
@@ -98,23 +129,6 @@ const ResourceList = ({
    * I feel like we are checking roles...which requires looping through the resources members each time.
    */
 
-  // Use useSortableData hook to enable user-controlled sorts
-  const initialConfig = { key: 'updatedAt', direction: 'ascending' };
-  const {
-    items: facilitatorItems,
-    requestSort: facilitatorRequestSort,
-  } = useSortableData(fList, initialConfig);
-  const {
-    items: participantItems,
-    requestSort: participantRequestSort,
-  } = useSortableData(pList, initialConfig);
-  const keys = [
-    { property: 'updatedAt', name: 'Last Updated' },
-    { property: 'name', name: 'Name' },
-    { property: 'createdAt', name: 'Created Date' },
-    { property: 'dueDate', name: 'Due Date' },
-  ];
-
   return (
     <div>
       {/* @TODO don't show create optinos for participants */}
@@ -131,7 +145,11 @@ const ResourceList = ({
               {displayResource} I Manage
             </h2>
             {facilitatorItems.length > 1 && (
-              <SortUI keys={keys} sortFn={facilitatorRequestSort} />
+              <SortUI
+                keys={keys}
+                sortFn={facilitatorRequestSort}
+                sortConfig={resourceState.facilitatorConfig || initialConfig}
+              />
             )}
 
             <BoxList
@@ -150,7 +168,11 @@ const ResourceList = ({
               {displayResource} I&#39;m a member of
             </h2>
             {participantItems.length > 1 && (
-              <SortUI keys={keys} sortFn={participantRequestSort} />
+              <SortUI
+                keys={keys}
+                sortFn={participantRequestSort}
+                sortConfig={resourceState.participantConfig || initialConfig}
+              />
             )}
             <BoxList
               list={participantItems}
@@ -181,6 +203,11 @@ const ResourceList = ({
                   ? facilitatorRequestSort
                   : participantRequestSort
               }
+              sortConfig={
+                fList.length > 0 || displayResource !== 'Templates'
+                  ? resourceState.facilitatorConfig || initialConfig
+                  : resourceState.participantConfig || initialConfig
+              }
             />
           )}
           <BoxList
@@ -206,39 +233,28 @@ ResourceList.propTypes = {
   user: PropTypes.shape({}).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  resourceState: PropTypes.shape({}),
+  setResourceState: PropTypes.func,
 };
 
 ResourceList.defaultProps = {
   parentResource: null,
   parentResourceId: null,
+  resourceState: {},
+  setResourceState: () => {},
 };
 
 export default ResourceList;
 
-/**
- * Component to Set and Show the Sort Arrow (ascending = '↑', descending = '↓')
- */
-
-const SortUI = ({ keys, sortFn }) => {
-  // const upArrow = <i className="fas fa-solid fa-sort-up" />
-  // const downArrow = <i className="fas fa-solid fa-sort-down" />
+// Currently, SortUI is only used within ResourceList. Hence, why it's here.
+const SortUI = ({ keys, sortFn, sortConfig }) => {
   const upArrow = <i className="fas fa-solid fa-arrow-up" />;
   const downArrow = <i className="fas fa-solid fa-arrow-down" />;
-  const [arrow, setArrow] = useState(downArrow);
-  const [sortKey, setSortKey] = useState();
-  const [sortDirection, setSortDirection] = useState('down');
 
-  const handleArrowClick = () => {
-    setSortDirection((prevDir) => (prevDir === 'up' ? 'down' : 'up'));
-    setArrow(sortDirection === 'up' ? downArrow : upArrow);
-    if (sortKey) sortFn(sortKey);
+  const keyName = (defaultName) => {
+    const matchingKey = keys.find((key) => key.property === sortConfig.key);
+    return matchingKey ? matchingKey.name : defaultName;
   };
-
-  useEffect(() => {
-    sortFn(keys[0].property);
-    setSortKey(keys[0].property);
-  }, []);
-
   return (
     <div>
       <label htmlFor="sortTable" className={classes.Label}>
@@ -249,21 +265,35 @@ const SortUI = ({ keys, sortFn }) => {
           name="sortUI"
           id="sortTable"
           onChange={(selectedOption) => {
-            sortFn(selectedOption.value);
-            setSortKey(selectedOption.value);
-            setArrow(downArrow);
-            setSortDirection('down');
+            sortFn(selectedOption.value, sortConfig.direction);
           }}
-          defaultValue={{ label: keys[0].name, value: keys[0].property }}
+          value={{
+            label: keyName(keys[0].name),
+            value: sortConfig.key || keys[0].property,
+          }}
           options={keys.map((key) => ({
             value: key.property,
             label: key.name,
           }))}
         />
-        <span onClick={handleArrowClick}>{arrow}</span>
+        <span onClick={() => sortFn(sortConfig.key)}>
+          {sortConfig.direction === 'descending' ? downArrow : upArrow}
+        </span>
       </label>
     </div>
   );
+};
+
+SortUI.propTypes = {
+  keys: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  sortFn: PropTypes.func.isRequired,
+  sortConfig: PropTypes.shape({
+    key: PropTypes.string,
+    direction: PropTypes.string,
+  }),
+};
+SortUI.defaultProps = {
+  sortConfig: {},
 };
 
 SortUI.propTypes = {
