@@ -99,7 +99,7 @@ const ResourceList = ({
    */
 
   // Use useSortableData hook to enable user-controlled sorts
-  const initialConfig = { key: 'updatedAt', direction: 'descending' };
+  const initialConfig = { key: 'updatedAt', direction: 'ascending' };
   const {
     items: facilitatorItems,
     requestSort: facilitatorRequestSort,
@@ -130,9 +130,9 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I Manage
             </h2>
-            {/* {facilitatorItems.length > 1 && (
+            {facilitatorItems.length > 1 && (
               <SortUI keys={keys} sortFn={facilitatorRequestSort} />
-            )} */}
+            )}
 
             <BoxList
               list={facilitatorItems}
@@ -149,9 +149,9 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I&#39;m a member of
             </h2>
-            {/* {participantItems.length > 1 && (
+            {participantItems.length > 1 && (
               <SortUI keys={keys} sortFn={participantRequestSort} />
-            )} */}
+            )}
             <BoxList
               list={participantItems}
               linkPath={linkPath}
@@ -173,7 +173,7 @@ const ResourceList = ({
               {displayResource} I&#39;m a member of
             </h2>
           )}
-          {/* {(facilitatorItems.length > 1 || participantItems.length > 1) && (
+          {(facilitatorItems.length > 1 || participantItems.length > 1) && (
             <SortUI
               keys={keys}
               sortFn={
@@ -182,7 +182,7 @@ const ResourceList = ({
                   : participantRequestSort
               }
             />
-          )} */}
+          )}
           <BoxList
             list={facilitatorItems.concat(participantItems)}
             linkPath={linkPath}
@@ -224,13 +224,13 @@ const SortUI = ({ keys, sortFn }) => {
   // const downArrow = <i className="fas fa-solid fa-sort-down" />
   const upArrow = <i className="fas fa-solid fa-arrow-up" />;
   const downArrow = <i className="fas fa-solid fa-arrow-down" />;
-  const [arrow, setArrow] = useState(upArrow);
+  const [arrow, setArrow] = useState(downArrow);
   const [sortKey, setSortKey] = useState();
   const [sortDirection, setSortDirection] = useState('down');
 
   const handleArrowClick = () => {
     setSortDirection((prevDir) => (prevDir === 'up' ? 'down' : 'up'));
-    setArrow(sortDirection === 'up' ? upArrow : downArrow);
+    setArrow(sortDirection === 'up' ? downArrow : upArrow);
     if (sortKey) sortFn(sortKey);
   };
 
