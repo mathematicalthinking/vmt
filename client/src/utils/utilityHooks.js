@@ -49,7 +49,12 @@ export const useSortableData = (items, config = null) => {
     setSortConfig({ key, direction });
   };
 
-  return { items: sortedItems, requestSort, sortConfig };
+  const resetSort = (key, direction) => {
+    if (key && direction) setSortConfig({ key, direction });
+    else if (key && !direction) requestSort(key);
+  };
+
+  return { items: sortedItems, requestSort, sortConfig, resetSort };
 };
 
 /**
