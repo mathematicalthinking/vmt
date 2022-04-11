@@ -324,7 +324,8 @@ const DesmosActivity = (props) => {
   function _checkForControl(event) {
     // check if user is not in control and intercept event
     if (!_hasControl()) {
-      event.preventDefault();
+      // event.preventDefault();
+      // event.stopPropagation();
       setShowControlWarning(true);
       // return;
     }
@@ -343,7 +344,6 @@ const DesmosActivity = (props) => {
   return (
     <Fragment>
       <Modal show={!!showConfigError} closeModal={handleOnErrorClick}>
-        {' '}
         {showConfigError}
       </Modal>
       <ControlWarningModal
@@ -361,23 +361,7 @@ const DesmosActivity = (props) => {
         }}
         inAdminMode={user ? user.inAdminMode : false}
       />
-      {/* @TODO None of the needed props are received right now
-      <CheckboxModal
-        show={showRefWarning}
-        infoMessage={refWarningMsg}
-        closeModal={closeRefWarning}
-        isChecked={doPreventFutureRefWarnings}
-        checkboxDataId="ref-warning"
-        onSelect={togglePreventRefWarning}
-      /> */}
-      <div
-        id="activityNavigation"
-        className={classes.ActivityNav}
-        onClickCapture={_checkForControl}
-        style={{
-          pointerEvents: !_hasControl() ? 'none' : 'auto',
-        }}
-      >
+      <div id="activityNavigation" className={classes.ActivityNav}>
         {_hasControl() && backBtn && (
           <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
             Prev
@@ -399,23 +383,19 @@ const DesmosActivity = (props) => {
           </Button>
         )}
       </div>
-      <div
-        className={classes.Activity}
-        onClickCapture={_checkForControl}
-        id="calculatorParent"
-        style={{
-          height: '890px', // @TODO this needs to be adjusted based on the Player instance.
-        }}
-      >
-        <div
-          className={classes.Graph}
-          id="calculator"
-          ref={calculatorRef}
-          style={{
-            overflow: 'auto',
-            pointerEvents: !_hasControl() ? 'none' : 'auto',
-          }}
-        />
+      <div className={classes.Activity}>
+        <div className={classes.Graph} id="calculator" ref={calculatorRef} />
+        {!_hasControl() && (
+          <div
+            className={classes.Control}
+            onClickCapture={_checkForControl}
+            onClick={_checkForControl}
+            onKeyPress={_checkForControl}
+            tabIndex="-1"
+            id="calculatorParent"
+            role="button"
+          />
+        )}
       </div>
     </Fragment>
   );
