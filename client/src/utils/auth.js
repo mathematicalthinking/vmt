@@ -9,6 +9,12 @@ export default {
   login: (username, password) => {
     return axios.post('/auth/login', { username, password });
   },
+  signupSpecial: (user) => {
+    return axios.post('/auth/signupSpecial', user);
+  },
+  loginSpecial: (username) => {
+    return axios.post('/auth/loginSpecial', { username });
+  },
   googleLogin: (username, password) => {
     return axios.get('/auth/googleAuth', { username, password });
   },

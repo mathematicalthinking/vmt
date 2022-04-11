@@ -103,14 +103,21 @@ export const clearNotification = (ntfId) => {
   };
 };
 
-export const signup = (body) => {
+/**
+ * Signup and Login now accept a 'special' flag. This flag
+ * tells the server that the user is being allowed to signup or login without
+ * a password. The server will then create the user (signup) or connect with
+ * the default password specified in the server/.env file.
+ */
+export const signup = (body, special = false) => {
   // room is optional -- if we're siging up someone in a temp room
+  const signupFn = special ? AUTH.signupSpecial : AUTH.signup;
   return (dispatch) => {
     // if (room) {
     //   // dispatch(updateRoomMembers(room, {user:{username: body.username, _id: body._id}, role: 'facilitator'}))
     // }
     dispatch(loading.start());
-    AUTH.signup(body)
+    signupFn(body)
       .then((res) => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
@@ -157,10 +164,11 @@ export const signupMultiple = (bodies) => {
   };
 };
 
-export const login = (username, password) => {
+export const login = (username, password, special = false) => {
+  const loginFn = special ? AUTH.loginSpecial : AUTH.login;
   return (dispatch) => {
     dispatch(loading.start());
-    AUTH.login(username, password)
+    loginFn(username, password)
       .then((res) => {
         if (res.data.errorMessage) {
           return dispatch(loading.fail(res.data.errorMessage));
