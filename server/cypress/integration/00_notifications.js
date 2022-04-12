@@ -119,15 +119,18 @@ describe('test notifications and access to resources', function() {
       .contains('Courses')
       .click({ force: true });
     cy.getTestElement('content-box-course 2').click({ force: true });
-    cy.getTestElement('content-box-ACTIVITY 2').click({ force: true });
+    cy.getTestElement('tab')
+      .contains('Templates')
+      .click({ force: true });
+    cy.contains('ACTIVITY 2').click({ force: true }); // we use contains because the name format might change (e.g., include different date formats or room numbers)
     cy.getTestElement('assign').click({ force: true });
     cy.getTestElement('next-step-assign').click({ force: true });
-    cy.getTestElement('checkbox3-1').click({ force: true });
+    cy.getTestElement('checkbox2-1').click({ force: true });
     cy.getTestElement('assign-rooms').click({ force: true });
     cy.getTestElement('tab')
       .contains('Rooms')
       .click({ force: true });
-    cy.getTestElement('content-box-ACTIVITY 2').should('exist');
+    cy.contains('ACTIVITY 2').should('exist');
     cy.logout();
   });
 
