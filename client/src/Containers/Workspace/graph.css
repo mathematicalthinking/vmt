@@ -16,7 +16,7 @@
 
 .Control {
   height: 100%;
-  width: 100%;
+  /* width: 100%; */ /* We calculate the width based on the Graph element to account for vertical scrollbar */
   position: absolute;
   /* background-color: rgba(0,0,0,0.5) */
 }

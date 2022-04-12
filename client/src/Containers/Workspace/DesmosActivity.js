@@ -321,7 +321,7 @@ const DesmosActivity = (props) => {
   }
 
   // @TODO this could be selectively handled depending what div is clicked
-  function _checkForControl(event) {
+  function _checkForControl() {
     // check if user is not in control and intercept event
     if (!_hasControl()) {
       // event.preventDefault();
@@ -330,6 +330,27 @@ const DesmosActivity = (props) => {
       // return;
     }
   }
+
+  const _calculatorWidth = () => {
+    const defaultWidth = calculatorRef.current
+      ? calculatorRef.current.clientWidth - 16
+      : '100%';
+    /**
+     * The class dcg-student-screen is documented in https://github.com/desmosinc/21pstem-desmos-api-builds/tree/march-2022-rebase/css#screen-1.
+     * Unfortunately, there are potentially three divs with that class -- before, current, and after. 'Current' is always not hidden. Thus, there
+     * are three ways to get the correct element: has the current-screen class, the dcg-student-screen that isn't hidden,or the dcg-student-screen marked
+     * with the current-screen class. We use the third approach because it uses a documented class and, right now, reliably identifies what we want:
+     * the current screen (rather than 'the screen not hidden,' which is semantically indirect).
+     */
+    const elements = document.querySelectorAll(
+      // '.current-screen'
+      // '.dcg-student-screen[aria-hidden=false]'
+      '.dcg-student-screen.current-screen'
+    );
+    if (elements.length === 0) return defaultWidth;
+    const currentScreen = elements[0];
+    return currentScreen.clientWidth || defaultWidth;
+  };
 
   const {
     inControl,
@@ -388,12 +409,13 @@ const DesmosActivity = (props) => {
         {!_hasControl() && (
           <div
             className={classes.Control}
-            onClickCapture={_checkForControl}
             onClick={_checkForControl}
             onKeyPress={_checkForControl}
             tabIndex="-1"
-            id="calculatorParent"
             role="button"
+            style={{
+              width: _calculatorWidth() || '100%',
+            }}
           />
         )}
       </div>
