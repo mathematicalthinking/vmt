@@ -159,7 +159,8 @@ describe('test notifications and access to resources', function() {
     cy.getTestElement('content-box-ntf')
       .contains('1')
       .should('exist');
-    cy.getTestElement('content-box-ACTIVITY 2').click({ force: true });
+      cy.contains('ACTIVITY 2').click({ force: true })
+    // cy.getTestElement('content-box-ACTIVITY 2').click({ force: true });
     cy.getTestElement('explore-room').click({ force: true });
     cy.getTestElement('crumb').contains('My VMT');
     cy.getTestElement('tab-ntf').should('not.exist');
