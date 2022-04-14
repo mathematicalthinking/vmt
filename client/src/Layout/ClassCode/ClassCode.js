@@ -109,7 +109,7 @@ function ClassCode(props) {
         email: memberToConf.user.email || '',
         firstName: memberToConf.user.firstName,
         lastName: memberToConf.user.lastName,
-        password: process.env.REACT_APP_VMT_LOGIN_DEFAULT,
+        // password: process.env.REACT_APP_VMT_LOGIN_DEFAULT,
         rooms: memberToConf.user.rooms,
         courses: memberToConf.user.courses,
         username: memberToConf.user.username,
@@ -117,11 +117,13 @@ function ClassCode(props) {
       };
 
       // console.log('signing up user: ', userToConvert);
-      signup(userToConvert);
+      signup(userToConvert, true); // 'true' indicates that the user will not be required to login with a password.
     } else if (!memberToConf.user.isGmail) {
       login(
         memberToConf.user.username,
-        process.env.REACT_APP_VMT_LOGIN_DEFAULT
+        'dummy',
+        true // flag indicating that the user may login without a password.
+        // process.env.REACT_APP_VMT_LOGIN_DEFAULT
       );
     } else {
       history.push('/login');
