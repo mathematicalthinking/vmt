@@ -138,29 +138,28 @@ describe('test notifications and access to resources', function() {
     cy.login(user3);
     cy.getTestElement('tab-ntf')
       .contains('1')
-      .should('exist');
+      .should('exist'); // ntf on Courses
     cy.getTestElement('tab')
       .contains('Courses')
       .click({ force: true });
     cy.getTestElement('tab-ntf')
       .contains('1')
-      .should('exist');
+      .should('exist'); // ntf on courses
     cy.getTestElement('content-box-ntf')
       .contains('1')
-      .should('exist');
+      .should('exist'); // ntf on course 2
     cy.getTestElement('content-box-course 2').click({ force: true });
     cy.getTestElement('tab-ntf')
       .contains('1')
-      .should('exist');
-    cy.getTestElement('tab-ntf')
-      .contains('1')
-      .click({ force: true });
-    cy.getTestElement('content-box-ACTIVITY 2').should('exist');
+      .should('exist'); // ntf on Members, but DON'T CLICK ON IT. Takes you to the Room Members page.
+    // cy.getTestElement('tab-ntf')
+    //   .contains('1')
+    //   .click({ force: true });
+    // cy.getTestElement('content-box-ACTIVITY 2').should('exist');
     cy.getTestElement('content-box-ntf')
       .contains('1')
-      .should('exist');
-      cy.contains('ACTIVITY 2').click({ force: true })
-    // cy.getTestElement('content-box-ACTIVITY 2').click({ force: true });
+      .should('exist'); // ntf on Activity 2
+    cy.contains('ACTIVITY 2').click({ force: true });
     cy.getTestElement('explore-room').click({ force: true });
     cy.getTestElement('crumb').contains('My VMT');
     cy.getTestElement('tab-ntf').should('not.exist');
