@@ -314,12 +314,6 @@ class Chat extends Component {
     return found.reference || reference;
   };
 
-  createActivity = () => {
-    const { createActivity } = this.props;
-    // this.setState({ settings: false });
-    createActivity();
-  };
-
   toggleChatPicker = () => {
     this.setState((prevState) => ({
       isChatPicker: !prevState.isChatPicker,
