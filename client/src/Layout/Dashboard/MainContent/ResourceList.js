@@ -275,6 +275,7 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
             value: key.property,
             label: key.name,
           }))}
+          isSearchable={false}
         />
         <span onClick={() => sortFn(sortConfig.key)}>
           {sortConfig.direction === 'descending' ? downArrow : upArrow}
