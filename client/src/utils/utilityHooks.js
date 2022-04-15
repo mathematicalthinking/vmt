@@ -25,7 +25,10 @@ export const useSortableData = (items, config = null) => {
     let sortableItems = [...items];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
-        if (a[sortConfig.key].toLowerCase() < b[sortConfig.key].toLowerCase()) {
+        if (
+          a[sortConfig.key].toString().toLowerCase() <
+          b[sortConfig.key].toString().toLowerCase()
+        ) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
         if (a[sortConfig.key] > b[sortConfig.key]) {
