@@ -13,8 +13,9 @@ const CodePyretOrg = (props) => {
   const [iframeSrc, setIframeSrc] = useState(
     // 'http://localhost:5000/editor'
     // 'http://localhost:5000/editor' or 'https://pyret-horizon.herokuapp.com/editor'
-    process.env.REACT_APP_PYRET_URL
+    `${process.env.REACT_APP_PYRET_URL}#warnOnExit=false&headerStyle=small`
   );
+  const { inControl, user } = props;
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
   let pyret = null;
@@ -23,6 +24,7 @@ const CodePyretOrg = (props) => {
   let receivingData = false;
   let initializing = false;
 
+  // Pyret instance constructor
   function PyretAPI(iframeReference, onmessageHandler) {
     const handlers = {
       onmessage: onmessageHandler,
@@ -37,15 +39,9 @@ const CodePyretOrg = (props) => {
     }
     function setParams(params) {
       console.log(params, iframeReference());
-      // Test to see if this forces an iframe refresh
+      // source made stateful forces an iframe refresh
       // setIframeSrc(`http://localhost:5000/editor${params}`);
       setIframeSrc(`${process.env.REACT_APP_PYRET_URL}${params}`);
-      // const pyretWindow = iframeReference();
-      // pyretWindow.src += params;
-      // forcing iFrame reload with random param
-      // const rand = Math.floor(Math.random() * 1000000 + 1);
-      // eslint-disable-next-line
-      // pyretWindow.src += '?uid=' + rand + params;
     }
     window.onmessage = function(event) {
       if (event.data.protocol !== 'pyret') {
@@ -64,6 +60,7 @@ const CodePyretOrg = (props) => {
   }
 
   // Janky copied code by Joe that needs revisiting
+  // basic function is to build and save and event history
   const putState = () => {
     const { tab } = props;
     const { _id } = tab;
@@ -85,11 +82,13 @@ const CodePyretOrg = (props) => {
     });
   };
 
+  // TODO: can we parse activity descriptions from Pyret?
   const buildDescription = (username, updates) => {
     console.log('Building description of', updates);
     return `${username} updated the program`;
   };
 
+  // checks for control before applying/communicating changes
   useEffect(() => {
     if (_hasControl()) {
       handleResponseData(activityUpdates);
@@ -213,9 +212,11 @@ const CodePyretOrg = (props) => {
       // prettier-ignore
       let contents = hasSaved ? savedData.data[0].currentState.editorContents : '';
       contents = encodeURIComponent(contents);
-      pyret.setParams(`#warnOnExit=false&editorContents=${contents}`);
+      pyret.setParams(
+        `#warnOnExit=false&headerStyle=small&editorContents=${contents}`
+      );
       // #warnOnExit=false&editorContents=use%20context%20essentials2021%0A%0Ax%20%3D%205%0A%0Ax%0A
-      /*
+      /*  also add param: &headerStyle=small
       pyret.postMessage({
         protocol: 'pyret',
         data: {
@@ -251,6 +252,7 @@ const CodePyretOrg = (props) => {
   function _hasControl() {
     return props.inControl === 'ME';
   }
+
   function _checkForControl(event) {
     if (!_hasControl()) {
       event.preventDefault();
@@ -263,7 +265,6 @@ const CodePyretOrg = (props) => {
     height: '100%',
     pointerEvents: !_hasControl() ? 'none' : 'auto',
   };
-  const { inControl, user } = props;
 
   return (
     <Fragment>
