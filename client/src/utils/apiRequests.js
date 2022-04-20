@@ -1,16 +1,6 @@
 import axios from 'axios';
 
-let baseURL = process.env.REACT_APP_SERVER_URL_PRODUCTION;
-if (process.env.REACT_APP_STAGING) {
-  baseURL = process.env.REACT_APP_SERVER_URL_STAGING;
-} else if (
-  process.env.REACT_APP_DEV ||
-  process.env.NODE_ENV === 'development' ||
-  process.env.NODE_ENV === 'test' ||
-  process.env.REACT_APP_TEST
-) {
-  baseURL = process.env.REACT_APP_SERVER_URL_DEV;
-}
+const baseURL = window.env.REACT_APP_SERVER_URL;
 
 // console.log('server url: ', baseURL);
 const api = axios.create({ baseURL });

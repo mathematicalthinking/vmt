@@ -1,34 +1,9 @@
 export const getRedirectUrl = () => {
-  const env = process.env.NODE_ENV;
-  const isStaging = process.env.REACT_APP_STAGING === 'true';
-
-  if (isStaging) {
-    return process.env.REACT_APP_SERVER_URL_STAGING;
-  }
-
-  if (env === 'production') {
-    return process.env.REACT_APP_SERVER_URL_PRODUCTION;
-  }
-
-  return process.env.REACT_APP_SERVER_URL_DEV;
+  return window.env.REACT_APP_SERVER_URL;
 };
 
 export const getMtSsoUrl = () => {
-  const env = process.env.NODE_ENV;
-  const isStaging = process.env.REACT_APP_STAGING === 'true';
-
-  if (isStaging) {
-    return process.env.REACT_APP_MT_LOGIN_URL_STAGING;
-  }
-
-  if (env === 'production') {
-    return process.env.REACT_APP_MT_LOGIN_URL_PRODUCTION;
-  }
-
-  if (process.env.REACT_APP_IS_TEST === 'true') {
-    return process.env.REACT_APP_MT_LOGIN_URL_TEST;
-  }
-  return process.env.REACT_APP_MT_LOGIN_URL_DEV;
+  return window.env.REACT_APP_MT_LOGIN_URL;
 };
 
 export const getGoogleUrl = () => {
