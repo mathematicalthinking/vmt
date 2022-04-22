@@ -194,7 +194,8 @@ class Homepage extends PureComponent {
                 open source
               </a>{' '}
               and currently in active development - You are viewing this
-              application in <b>{pageLocation}</b> mode. {pyretStatus}
+              application in <b>{pageLocation}</b> mode. On the dev-sandbox-{' '}
+              {pyretStatus}
             </p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />
