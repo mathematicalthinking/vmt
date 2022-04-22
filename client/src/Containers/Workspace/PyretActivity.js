@@ -18,7 +18,7 @@ const CodePyretOrg = (props) => {
   const { inControl, user, isFirstTabLoaded } = props;
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
-  let pyret = null;
+  let pyret = useRef(null);
 
   const oldOnMessage = window.onmessage;
   let receivingData = false;
@@ -97,16 +97,14 @@ const CodePyretOrg = (props) => {
 
   // communicating to Pyret Editor about control state
   useEffect(() => {
-    console.log('In control: ', inControl);
-    console.log('Props-1stTabLoaded: ', isFirstTabLoaded);
-    if (isFirstTabLoaded && pyret) {
+    if (isFirstTabLoaded && pyret.current) {
       // states: ['gainControl', 'loseControl']
       // VMT states: ['ME', 'NONE', 'OTHER']
       if (inControl === 'ME') {
-        pyret.postMessage({ type: 'gainControl' });
+        pyret.current.postMessage({ type: 'gainControl' });
         console.log('gained Control!');
       } else {
-        pyret.postMessage({ type: 'loseControl' });
+        pyret.current.postMessage({ type: 'loseControl' });
         console.log('lost Control!');
       }
     }
@@ -155,7 +153,7 @@ const CodePyretOrg = (props) => {
     // let newState = JSON.parse(stateData);
     if (stateData) {
       const newState = stateData;
-      pyret.postMessage(newState.data);
+      pyret.current.postMessage(newState.data);
     }
   }
 
@@ -216,7 +214,7 @@ const CodePyretOrg = (props) => {
       updateSavedData(data);
     };
 
-    pyret = PyretAPI(function() {
+    pyret.current = PyretAPI(function() {
       return cpoIframe.current;
     }, onMessage);
 
@@ -229,7 +227,7 @@ const CodePyretOrg = (props) => {
       // prettier-ignore
       let contents = hasSaved ? savedData.data[0].currentState.editorContents : '';
       contents = encodeURIComponent(contents);
-      pyret.setParams(
+      pyret.current.setParams(
         `#warnOnExit=false&headerStyle=small&editorContents=${contents}`
       );
       // #warnOnExit=false&editorContents=use%20context%20essentials2021%0A%0Ax%20%3D%205%0A%0Ax%0A
@@ -251,7 +249,7 @@ const CodePyretOrg = (props) => {
         to: { line: 0, ch: 0 },
         text: ['Startup'],
       };
-      pyret.postMessage({ type: 'change', change });
+      pyret.current.postMessage({ type: 'change', change });
     };
   };
 
