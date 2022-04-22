@@ -41,7 +41,21 @@ if (process.env.NODE_ENV === 'test') {
   secret = process.env.MT_USER_JWT_SECRET;
 }
 
+const addDefaultPassword = (req) => ({
+  ...req,
+  body: { ...req.body, password: process.env.VMT_LOGIN_DEFAULT },
+});
+
+// login by using the default password (used in client/ClassCode.js)
+router.post('/loginSpecial', async (req, res) => {
+  return login(addDefaultPassword(req), res);
+});
+
 router.post('/login', async (req, res) => {
+  return login(req, res);
+});
+
+const login = async (req, res) => {
   try {
     const { message, accessToken, refreshToken } = await ssoService.login(
       req.body
@@ -80,9 +94,19 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     return errors.sendError.InternalError(null, res);
   }
+};
+
+// signing up by using the default password (used in client/ClassCode.js).
+// i.e., for users created by the Import facility
+router.post('/signupSpecial', async (req, res) => {
+  return signup(addDefaultPassword(req), res);
 });
 
 router.post('/signup', async (req, res) => {
+  return signup(req, res);
+});
+
+const signup = async (req, res) => {
   try {
     const { message, accessToken, refreshToken } = await ssoService.signup(
       req.body
@@ -135,7 +159,7 @@ router.post('/signup', async (req, res) => {
     console.log('err signup', err);
     return errors.sendError.InternalError(null, res);
   }
-});
+};
 
 router.post('/logout/:userId', (req, res) => {
   User.findByIdAndUpdate(req.params.userId, { socketId: null })

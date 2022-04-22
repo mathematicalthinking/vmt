@@ -102,6 +102,8 @@ const DesmosActivity = (props) => {
   }, [transientUpdates]);
 
   // Event listener callback on the persistent Activity instance
+  // upates gives opaque event object which is passed to the analysis engine
+  // analysis engine responds with a query response object
   const handleResponseData = (updates, type) => {
     const transient = type === 'transient';
     if (initializing) return;
@@ -135,7 +137,10 @@ const DesmosActivity = (props) => {
       };
       // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
       props.addToLog(newData);
-      socket.emit('SEND_EVENT', newData, () => {});
+      socket.emit('SEND_EVENT', newData, () => {
+        // console.log(`USER: ${user.username} NEW DATA:`);
+        // console.log(newData);
+      });
       resetControlTimer();
       if (!currentState.transient) putState();
     }
@@ -316,14 +321,36 @@ const DesmosActivity = (props) => {
   }
 
   // @TODO this could be selectively handled depending what div is clicked
-  function _checkForControl(event) {
+  function _checkForControl() {
     // check if user is not in control and intercept event
     if (!_hasControl()) {
-      event.preventDefault();
+      // event.preventDefault();
+      // event.stopPropagation();
       setShowControlWarning(true);
       // return;
     }
   }
+
+  const _calculatorWidth = () => {
+    const defaultWidth = calculatorRef.current
+      ? calculatorRef.current.clientWidth - 16
+      : '100%';
+    /**
+     * The class dcg-student-screen is documented in https://github.com/desmosinc/21pstem-desmos-api-builds/tree/march-2022-rebase/css#screen-1.
+     * Unfortunately, there are potentially three divs with that class -- before, current, and after. 'Current' is always not hidden. Thus, there
+     * are three ways to get the correct element: has the current-screen class, the dcg-student-screen that isn't hidden,or the dcg-student-screen marked
+     * with the current-screen class. We use the third approach because it uses a documented class and, right now, reliably identifies what we want:
+     * the current screen (rather than 'the screen not hidden,' which is semantically indirect).
+     */
+    const elements = document.querySelectorAll(
+      // '.current-screen'
+      // '.dcg-student-screen[aria-hidden=false]'
+      '.dcg-student-screen.current-screen'
+    );
+    if (elements.length === 0) return defaultWidth;
+    const currentScreen = elements[0];
+    return currentScreen.clientWidth || defaultWidth;
+  };
 
   const {
     inControl,
@@ -338,7 +365,6 @@ const DesmosActivity = (props) => {
   return (
     <Fragment>
       <Modal show={!!showConfigError} closeModal={handleOnErrorClick}>
-        {' '}
         {showConfigError}
       </Modal>
       <ControlWarningModal
@@ -356,23 +382,7 @@ const DesmosActivity = (props) => {
         }}
         inAdminMode={user ? user.inAdminMode : false}
       />
-      {/* @TODO None of the needed props are received right now
-      <CheckboxModal
-        show={showRefWarning}
-        infoMessage={refWarningMsg}
-        closeModal={closeRefWarning}
-        isChecked={doPreventFutureRefWarnings}
-        checkboxDataId="ref-warning"
-        onSelect={togglePreventRefWarning}
-      /> */}
-      <div
-        id="activityNavigation"
-        className={classes.ActivityNav}
-        onClickCapture={_checkForControl}
-        style={{
-          pointerEvents: !_hasControl() ? 'none' : 'auto',
-        }}
-      >
+      <div id="activityNavigation" className={classes.ActivityNav}>
         {_hasControl() && backBtn && (
           <Button theme="Small" id="nav-left" click={() => navigateBy(-1)}>
             Prev
@@ -394,23 +404,20 @@ const DesmosActivity = (props) => {
           </Button>
         )}
       </div>
-      <div
-        className={classes.Activity}
-        onClickCapture={_checkForControl}
-        id="calculatorParent"
-        style={{
-          height: '890px', // @TODO this needs to be adjusted based on the Player instance.
-        }}
-      >
-        <div
-          className={classes.Graph}
-          id="calculator"
-          ref={calculatorRef}
-          style={{
-            overflow: 'auto',
-            pointerEvents: !_hasControl() ? 'none' : 'auto',
-          }}
-        />
+      <div className={classes.Activity}>
+        <div className={classes.Graph} id="calculator" ref={calculatorRef} />
+        {!_hasControl() && (
+          <div
+            className={classes.Control}
+            onClick={_checkForControl}
+            onKeyPress={_checkForControl}
+            tabIndex="-1"
+            role="button"
+            style={{
+              width: _calculatorWidth() || '100%',
+            }}
+          />
+        )}
       </div>
     </Fragment>
   );

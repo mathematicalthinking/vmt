@@ -42,13 +42,15 @@ const boxList = (props) => {
       if (item) {
         let details = {
           description: item.description,
+          createdAt: item.createdAt ? item.createdAt.split('T')[0].toLocaleString() : '',
+          dueDate: item.dueDate,
           facilitators: item.members
-            ? item.members
-                .filter((member) => member.role === 'facilitator')
-                .map(
-                  (member, x, arr) =>
-                    `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
-                )
+          ? item.members
+          .filter((member) => member.role === 'facilitator')
+          .map(
+            (member, x, arr) =>
+            `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
+            )
             : [],
           sinceUpdated: timeDiff(item.updatedAt),
         };
@@ -65,9 +67,7 @@ const boxList = (props) => {
               }
             });
           }
-          details = {
-            entryCode: item.entryCode,
-          };
+          details.entryCode = item.entryCode
         } else if (item.creator) {
           details.creator = item.creator.username;
         }

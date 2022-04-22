@@ -14,6 +14,7 @@
 
 .ResourceHeader {
   margin-bottom: 20px;
+  font-weight: bold;
 }
 
 .Row {
@@ -43,4 +44,15 @@
     margin-right: 0;
     border-right: 0;
   }
+}
+
+.Label {
+  font-weight: lighter; /* contrast font weight with .Select */
+}
+
+.Select {
+  display: inline-block;
+  width: 16rem;
+  margin: 0 1rem;
+  font-weight: normal !important; /* !important to be normal font weight here */
 }

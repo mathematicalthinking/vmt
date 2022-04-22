@@ -39,6 +39,7 @@ class TextInput extends Component {
       value,
       size,
       label,
+      title,
     } = this.props;
     const styles = light ? lightClasses : classes;
     let derivedAutoComplete = autoComplete || type;
@@ -54,6 +55,7 @@ class TextInput extends Component {
         name={name}
         value={value}
         placeholder={placeholder}
+        title={title}
         onChange={(event) => {
           change(event);
           this.textInput.current.style.height = `${
@@ -84,12 +86,13 @@ class TextInput extends Component {
           onChange={change}
           onKeyDown={onKeyDown}
           value={value}
+          title={title}
           style={{ fontSize: size }}
           // eslint-disable-next-line react/destructuring-assignment
           data-testid={this.props['data-testid'] || null}
         />
         {label ? (
-          <label className={styles.Label} htmlFor={name}>
+          <label className={styles.Label} htmlFor={name} title={title}>
             {label}
           </label>
         ) : null}
@@ -110,6 +113,7 @@ TextInput.propTypes = {
   value: PropTypes.string,
   size: PropTypes.string,
   label: PropTypes.string,
+  title: PropTypes.string,
 };
 
 TextInput.defaultProps = {
@@ -122,6 +126,7 @@ TextInput.defaultProps = {
   size: null,
   light: false,
   value: undefined,
+  title: undefined,
 };
 
 export default TextInput;

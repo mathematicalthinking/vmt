@@ -33,21 +33,26 @@ class Members extends PureComponent {
       userId: null,
       username: null,
       isCourseOnly: false,
+      temporaryExclusion: [], // array of user ids to temporarily exclude from search results
     };
   }
 
-  // componentDidUpdate(prevProps) {
-  //   const { classList } = this.props;
-  //   // fill in colors for members not yet pulled from store
-  //   if (prevProps.classList.length !== classList.length) {
-  //     console.log('Updating classlist: ', classList);
-  //     classList.forEach((mem) => {
-  //       if (!mem.color) {
-  //         mem.color = COLOR_MAP[classList.length || 0];
-  //       }
-  //     });
-  //   }
-  // }
+
+  // When a Member is added to a Classlist, 
+  // Remove them from the temporaryExclusion list.
+  // See Room.js: if the refresh rate is too long,
+  // Members could have been added to a Classlist multiple times
+  componentDidUpdate(prevProps) {
+    const { classList } = this.props;
+    const { temporaryExclusion } = this.state;
+    const classIds = classList.map((member) => member.user && member.user._id);
+
+    const newExclusion = temporaryExclusion.filter(
+      (id) => !classIds.includes(id)
+    );
+    if (temporaryExclusion.length !== newExclusion.length)
+      this.setState({ temporaryExclusion: newExclusion });
+  }
 
   componentWillUnmount() {
     const { notifications, connectClearNotification } = this.props;
@@ -94,6 +99,7 @@ class Members extends PureComponent {
       searchResults: prevState.searchResults.filter((user) => user._id !== id),
       username: confirmingInvitation ? username : null,
       userId: confirmingInvitation ? id : null,
+      temporaryExclusion: [...prevState.temporaryExclusion, id],
     }));
   };
 
@@ -155,13 +161,13 @@ class Members extends PureComponent {
   // Consider finding a way to NOT duplicate this in MakeRooms and also now in Profile
   search = (text) => {
     const { classList, courseMembers } = this.props;
-    const { isCourseOnly } = this.state;
+    const { isCourseOnly, temporaryExclusion } = this.state;
     if (text.length > 0) {
       // prettier-ignore
       API.search(
         'user',
         text,
-        classList.map((member) => member.user._id)
+        classList.map((member) => member.user._id).concat(temporaryExclusion)
       )
         .then((res) => {
           const searchResults = res.data.results.filter((user) => {

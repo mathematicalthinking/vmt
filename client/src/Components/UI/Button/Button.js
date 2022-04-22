@@ -7,7 +7,7 @@ const Button = (props) => {
   // let styles = [classes.Button]
   let styles = classes[theme];
   if (disabled) {
-    styles = classes.Disabled;
+    styles = [classes[theme], classes.Disabled].join(' ');
   }
   return (
     // eslint-disable-next-line react/button-has-type

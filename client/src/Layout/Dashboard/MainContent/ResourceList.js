@@ -1,59 +1,87 @@
-/* eslint-disable react/no-did-update-set-state */
-import React, { Component, Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import Select from 'react-select';
 import PropTypes from 'prop-types';
+import { useSortableData } from 'utils';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
-import classes from './resourceList.css';
 import Search from '../../../Components/Search/Search';
-// CONSIDER RENAMING TO DASHBOARDCONTENT
-class ResourceList extends Component {
-  state = {
-    participantList: [],
-    facilitatorList: [],
-  };
+import classes from './resourceList.css';
 
-  componentDidMount() {
-    const { userResources } = this.props;
-    const { facilitatorList, participantList } = this.sortUserResources(
+const ResourceList = ({
+  resource,
+  parentResource,
+  parentResourceId,
+  user,
+  userResources,
+  notifications,
+  resourceState,
+  setResourceState,
+}) => {
+  const initialConfig = {
+    key: 'updatedAt',
+    direction: 'descending',
+  };
+  const [fList, setFacilitatorList] = useState([]);
+  const [pList, setParticipantList] = useState([]);
+
+  // Use useSortableData hook to enable user-controlled sorting
+  const {
+    items: facilitatorItems,
+    resetSort: facilitatorRequestSort,
+    sortConfig: facilitatorSortConfig,
+  } = useSortableData(fList, resourceState.facilitatorConfig || initialConfig);
+
+  const {
+    items: participantItems,
+    resetSort: participantRequestSort,
+    sortConfig: participantSortConfig,
+  } = useSortableData(pList, resourceState.participantConfig || initialConfig);
+
+  const keys = [
+    { property: 'updatedAt', name: 'Last Updated' },
+    { property: 'name', name: 'Name' },
+    { property: 'createdAt', name: 'Created Date' },
+    { property: 'dueDate', name: 'Due Date' },
+  ];
+
+  useEffect(() => {
+    const { facilitatorList, participantList } = sortUserResources(
       userResources
     );
-    this.setState({
-      facilitatorList,
-      participantList,
-    });
-  }
 
-  componentDidUpdate(prevProps) {
-    const { userResources } = this.props;
-    if (prevProps.userResources !== userResources) {
-      const { facilitatorList, participantList } = this.sortUserResources(
-        userResources
-      );
-      this.setState({
-        facilitatorList,
-        participantList,
-      });
-    }
-  }
+    setFacilitatorList(facilitatorList);
+    setParticipantList(participantList);
 
-  search = (criteria) => {
-    const { userResources } = this.props;
-    let { facilitatorList, participantList } = this.sortUserResources(
-      userResources
-    );
-    facilitatorList = facilitatorList.filter((resource) => {
-      return resource.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
+    const { key: facilitatorKey, direction: facilitatorDirection } =
+      resourceState.facilitatorConfig || initialConfig;
+
+    const { key: participantKey, direction: participantDirection } =
+      resourceState.participantConfig || initialConfig;
+
+    facilitatorRequestSort(facilitatorKey, facilitatorDirection);
+    participantRequestSort(participantKey, participantDirection);
+  }, [userResources]);
+
+  useEffect(() => {
+    setResourceState({
+      facilitatorConfig: facilitatorSortConfig,
+      participantConfig: participantSortConfig,
     });
-    participantList = participantList.filter((resource) => {
-      return resource.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
+  }, [facilitatorSortConfig, participantSortConfig]);
+
+  const search = (criteria) => {
+    let { facilitatorList, participantList } = sortUserResources(userResources);
+    facilitatorList = facilitatorList.filter((res) => {
+      return res.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
     });
-    this.setState({
-      facilitatorList,
-      participantList,
+    participantList = participantList.filter((res) => {
+      return res.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
     });
+    setFacilitatorList(facilitatorList);
+    setParticipantList(participantList);
   };
 
-  sortUserResources = (resources) => {
+  const sortUserResources = (resources) => {
     const facilitatorList = [];
     const participantList = [];
     if (resources) {
@@ -73,90 +101,59 @@ class ResourceList extends Component {
     };
   };
 
-  render() {
-    const {
-      resource,
-      parentResource,
-      parentResourceId,
-      user,
-      notifications,
-    } = this.props;
-    const { facilitatorList, participantList } = this.state;
-    let linkPath = `/myVMT/${resource}/`;
-    let linkSuffix;
-    if (resource === 'courses') {
-      linkSuffix = '/rooms';
-    } else {
-      linkSuffix = '/details';
-    }
-    let displayResource = resource[0].toUpperCase() + resource.slice(1);
-    if (displayResource === 'Activities') displayResource = 'Templates';
-    if (parentResource === 'courses') {
-      linkPath = `/myVMT/${parentResource}/${parentResourceId}/${resource}/`;
-      linkSuffix = '/details';
-    }
+  let linkPath = `/myVMT/${resource}/`;
+  let linkSuffix;
+  if (resource === 'courses') {
+    linkSuffix = '/rooms';
+  } else {
+    linkSuffix = '/details';
+  }
+  let displayResource = resource[0].toUpperCase() + resource.slice(1);
+  if (displayResource === 'Activities') displayResource = 'Templates';
+  if (parentResource === 'courses') {
+    linkPath = `/myVMT/${parentResource}/${parentResourceId}/${resource}/`;
+    linkSuffix = '/details';
+  }
 
-    let create;
-    if (parentResource !== 'activities' && user.accountType === 'facilitator') {
-      // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
-      create = (
-        <NewResource
-          resource={resource}
-          courseId={parentResource === 'courses' ? parentResourceId : null}
-        />
-      );
-    }
-    /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
-     * I feel like we are checking roles...which requires looping through the resources members each time.
-     */
+  let create;
+  if (parentResource !== 'activities' && user.accountType === 'facilitator') {
+    // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
+    create = (
+      <NewResource
+        resource={resource}
+        courseId={parentResource === 'courses' ? parentResourceId : null}
+      />
+    );
+  }
+  /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
+   * I feel like we are checking roles...which requires looping through the resources members each time.
+   */
 
-    return (
-      <div>
-        {/* @TODO don't show create optinos for participants */}
-        <div className={classes.Controls}>
-          <div className={classes.Search}>
-            <Search _search={this.search} data-testid="search" />
-          </div>
-          {create}
+  return (
+    <div>
+      {/* @TODO don't show create optinos for participants */}
+      <div className={classes.Controls}>
+        <div className={classes.Search}>
+          <Search _search={search} data-testid="search" />
         </div>
-        {facilitatorList.length > 0 && participantList.length > 0 ? (
-          <div className={classes.Row}>
-            <div className={classes.Col}>
-              <h2 className={classes.ResourceHeader}>
-                {displayResource} I Manage
-              </h2>
-              <BoxList
-                list={facilitatorList}
-                linkPath={linkPath}
-                linkSuffix={linkSuffix}
-                notifications={notifications}
-                resource={resource}
-                listType="private"
-                parentResourec={parentResource}
-                // draggable
+        {create}
+      </div>
+      {fList.length > 0 && pList.length > 0 ? (
+        <div className={classes.Row}>
+          <div className={classes.Col}>
+            <h2 className={classes.ResourceHeader}>
+              {displayResource} I Manage
+            </h2>
+            {facilitatorItems.length > 1 && (
+              <SortUI
+                keys={keys}
+                sortFn={facilitatorRequestSort}
+                sortConfig={resourceState.facilitatorConfig || initialConfig}
               />
-            </div>
-            <div className={classes.Col}>
-              <h2 className={classes.ResourceHeader}>
-                {displayResource} I&#39;m a member of
-              </h2>
-              <BoxList
-                list={participantList}
-                linkPath={linkPath}
-                linkSuffix={linkSuffix}
-                notifications={notifications}
-                resource={resource}
-                listType="private"
-                parentResourec={parentResource}
-                // draggable
-              />
-            </div>
-          </div>
-        ) : (
-          <Fragment>
-            <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
+            )}
+
             <BoxList
-              list={facilitatorList.concat(participantList)}
+              list={facilitatorItems}
               linkPath={linkPath}
               linkSuffix={linkSuffix}
               notifications={notifications}
@@ -165,12 +162,69 @@ class ResourceList extends Component {
               parentResourec={parentResource}
               // draggable
             />
-          </Fragment>
-        )}
-      </div>
-    );
-  }
-}
+          </div>
+          <div className={classes.Col}>
+            <h2 className={classes.ResourceHeader}>
+              {displayResource} I&#39;m a member of
+            </h2>
+            {participantItems.length > 1 && (
+              <SortUI
+                keys={keys}
+                sortFn={participantRequestSort}
+                sortConfig={resourceState.participantConfig || initialConfig}
+              />
+            )}
+            <BoxList
+              list={participantItems}
+              linkPath={linkPath}
+              linkSuffix={linkSuffix}
+              notifications={notifications}
+              resource={resource}
+              listType="private"
+              parentResourec={parentResource}
+              // draggable
+            />
+          </div>
+        </div>
+      ) : (
+        <Fragment>
+          {fList.length > 0 || displayResource === 'Templates' ? (
+            <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
+          ) : (
+            <h2 className={classes.ResourceHeader}>
+              {displayResource} I&#39;m a member of
+            </h2>
+          )}
+          {(facilitatorItems.length > 1 || participantItems.length > 1) && (
+            <SortUI
+              keys={keys}
+              sortFn={
+                fList.length > 0 || displayResource !== 'Templates'
+                  ? facilitatorRequestSort
+                  : participantRequestSort
+              }
+              sortConfig={
+                fList.length > 0 || displayResource !== 'Templates'
+                  ? resourceState.facilitatorConfig || initialConfig
+                  : resourceState.participantConfig || initialConfig
+              }
+            />
+          )}
+          <BoxList
+            list={facilitatorItems.concat(participantItems)}
+            linkPath={linkPath}
+            linkSuffix={linkSuffix}
+            notifications={notifications}
+            resource={resource}
+            listType="private"
+            parentResourec={parentResource}
+            // draggable
+          />
+        </Fragment>
+      )}
+    </div>
+  );
+};
 
 ResourceList.propTypes = {
   resource: PropTypes.string.isRequired,
@@ -179,11 +233,71 @@ ResourceList.propTypes = {
   user: PropTypes.shape({}).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  resourceState: PropTypes.shape({}),
+  setResourceState: PropTypes.func,
 };
 
 ResourceList.defaultProps = {
   parentResource: null,
   parentResourceId: null,
+  resourceState: {},
+  setResourceState: () => {},
 };
 
 export default ResourceList;
+
+// Currently, SortUI is only used within ResourceList. Hence, why it's here.
+const SortUI = ({ keys, sortFn, sortConfig }) => {
+  const upArrow = <i className="fas fa-solid fa-arrow-up" />;
+  const downArrow = <i className="fas fa-solid fa-arrow-down" />;
+
+  const keyName = (defaultName) => {
+    const matchingKey = keys.find((key) => key.property === sortConfig.key);
+    return matchingKey ? matchingKey.name : defaultName;
+  };
+  return (
+    <div>
+      <label htmlFor="sortTable" className={classes.Label}>
+        Sort By:
+        <Select
+          placeholder="Select..."
+          className={classes.Select}
+          name="sortUI"
+          id="sortTable"
+          onChange={(selectedOption) => {
+            sortFn(selectedOption.value, sortConfig.direction);
+          }}
+          value={{
+            label: keyName(keys[0].name),
+            value: sortConfig.key || keys[0].property,
+          }}
+          options={keys.map((key) => ({
+            value: key.property,
+            label: key.name,
+          }))}
+          isSearchable={false}
+        />
+        <span onClick={() => sortFn(sortConfig.key)}>
+          {sortConfig.direction === 'descending' ? downArrow : upArrow}
+        </span>
+      </label>
+    </div>
+  );
+};
+
+SortUI.propTypes = {
+  keys: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  sortFn: PropTypes.func.isRequired,
+  sortConfig: PropTypes.shape({
+    key: PropTypes.string,
+    direction: PropTypes.string,
+  }),
+};
+SortUI.defaultProps = {
+  sortConfig: {},
+};
+
+SortUI.propTypes = {
+  keys: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  sortFn: PropTypes.func.isRequired,
+};

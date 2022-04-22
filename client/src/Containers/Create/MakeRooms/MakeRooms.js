@@ -12,11 +12,12 @@ import COLOR_MAP from '../../../utils/colorMap';
 class MakeRooms extends Component {
   constructor(props) {
     super(props);
-    const { participants } = this.props;
+    const { participants, activity } = this.props;
     this.state = {
       isRandom: true,
       participantsPerRoom: 3,
       roomNum: 1,
+      roomName: `${activity.name} (${new Date().toLocaleDateString()})`,
       selectedParticipants: [...participants].sort((a) =>
         a.role === 'facilitator' ? 1 : -1
       ),
@@ -57,7 +58,6 @@ class MakeRooms extends Component {
   };
 
   setRandom = () => {
-    // const { participants } = this.props;
     const {
       selectedParticipants: participants,
       participantsPerRoom,
@@ -79,35 +79,41 @@ class MakeRooms extends Component {
     this.setState({ participantsPerRoom: parseInt(event.target.value, 10) });
 
   setRoomNumber = (number) => {
-    if (number >= 0 && number < 13) {
-      this.setState({ roomNum: number, error: null });
+    if (number > 0) {
+      this.setState({ roomNum: number });
     } else {
       this.setState({
-        // roomNum: 1,
-        error: 'Please create between 1 and 12 rooms',
+        roomNum: 1,
+      });
+    }
+  };
+
+  setRoomName = (newRoomName) => {
+    if (newRoomName.length > 0) {
+      this.setState({ roomName: newRoomName });
+    } else {
+      this.setState({
+        roomName: '',
+        error: 'Please provide a room name',
       });
     }
   };
 
   setNumber = (event) => {
-    // const { participants } = this.props;
     const { selectedParticipants: participants, isRandom } = this.state;
     const participantsPerRoom = parseInt(event.target.value.trim(), 10);
-    if (participantsPerRoom < 0) {
+    if (participantsPerRoom < 1) {
       this.setState({
-        participantsPerRoom: 0,
-        error: 'Must have at least 1 participant per room',
+        participantsPerRoom: 1,
       });
     } else if (participantsPerRoom > participants.length) {
       this.setState({
         participantsPerRoom: participants.length,
-        error: 'Maximum number of participants reached',
       });
     } else {
       this.setState(
         {
           participantsPerRoom,
-          error: null,
         },
         () => {
           if (isRandom) {
@@ -122,7 +128,13 @@ class MakeRooms extends Component {
   };
 
   setDate = (event) => {
-    this.setState({ dueDate: event });
+    const { activity } = this.props;
+    const date = event && event !== '' ? new Date(event) : new Date();
+    const dateStamp = date.toLocaleDateString();
+    this.setState({
+      dueDate: event,
+      roomName: `${activity.name} (${dateStamp})`,
+    });
   };
 
   nextStep = () => {
@@ -247,10 +259,7 @@ class MakeRooms extends Component {
   };
 
   filterFacilitators = (membersArray) => {
-    // return roomsArray.map((roomArray) => {
     return membersArray.filter((mem) => mem.role !== 'facilitator');
-    // return { ...roomArray, members: newMems };
-    // });
   };
 
   restructureMemberlist = (list) => {
@@ -264,41 +273,35 @@ class MakeRooms extends Component {
   };
 
   shuffleParticipants = () => {
-    // const { participants } = this.props;
     const {
       selectedParticipants: participants,
       participantsPerRoom,
       roomDrafts,
     } = this.state;
-    if (participantsPerRoom <= 0) {
-      this.setState({
-        error: 'Must have at least 1 participant per room',
-      });
-    } else {
-      const updatedParticipants = this.shuffleUserList(
-        this.restructureMemberlist(this.filterFacilitators(participants))
-      );
 
-      const numRooms = Math.ceil(
-        updatedParticipants.length / participantsPerRoom
-      );
+    const updatedParticipants = this.shuffleUserList(
+      this.restructureMemberlist(this.filterFacilitators(participants))
+    );
 
-      const roomsUpdate = this.resetParticipants([...roomDrafts]);
+    const numRooms = Math.ceil(
+      updatedParticipants.length / participantsPerRoom
+    );
 
-      const partcipantsToAssign = [...updatedParticipants];
-      for (let i = 0; i < numRooms; i++) {
-        if (roomsUpdate[i]) {
-          roomsUpdate[i].members = [
-            ...roomsUpdate[i].members,
-            ...partcipantsToAssign.splice(0, participantsPerRoom),
-          ];
-        }
+    const roomsUpdate = this.resetParticipants([...roomDrafts]);
+
+    const partcipantsToAssign = [...updatedParticipants];
+    for (let i = 0; i < numRooms; i++) {
+      if (roomsUpdate[i]) {
+        roomsUpdate[i].members = [
+          ...roomsUpdate[i].members,
+          ...partcipantsToAssign.splice(0, participantsPerRoom),
+        ];
       }
-
-      this.setState({
-        roomDrafts: roomsUpdate,
-      });
     }
+
+    this.setState({
+      roomDrafts: roomsUpdate,
+    });
   };
 
   // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
@@ -313,7 +316,7 @@ class MakeRooms extends Component {
       history,
       match,
     } = this.props;
-    const { dueDate, roomDrafts } = this.state;
+    const { dueDate, roomDrafts, roomName } = this.state;
     const {
       _id,
       description,
@@ -356,7 +359,8 @@ class MakeRooms extends Component {
         });
       }
       currentRoom.members = members;
-      currentRoom.name = roomDrafts[i].name;
+      //   currentRoom.name = roomDrafts[i].name;
+      currentRoom.name = `${roomName}: ${i + 1}`;
       currentRoom.activity = roomDrafts[i].activity;
       currentRoom.course = roomDrafts[i].course;
       roomsToCreate.push(currentRoom);
@@ -367,7 +371,8 @@ class MakeRooms extends Component {
       const members = [];
       members.push({ user: userId, role: 'facilitator' });
       currentRoom.members = members;
-      currentRoom.name = `${activity.name} room copy`;
+      // //   currentRoom.name = `${activity.name} room copy`;
+      currentRoom.name = `${roomName}`;
       roomsToCreate.push(currentRoom);
     }
     roomsToCreate.forEach((room) => connectCreateRoom(room));
@@ -384,6 +389,7 @@ class MakeRooms extends Component {
       isRandom,
       selectedParticipants,
       roomNum,
+      roomName,
       participantsPerRoom,
       error,
       roomDrafts,
@@ -439,7 +445,9 @@ class MakeRooms extends Component {
           shuffleParticipants={this.shuffleParticipants}
           participantsPerRoom={participantsPerRoom}
           roomNum={parseInt(roomNum, 10)} // ensure a number is passed
+          roomName={roomName}
           setRoomNumber={this.setRoomNumber}
+          setRoomName={this.setRoomName}
           setParticipantNumber={this.setParticipantNumber}
           isRandom={isRandom}
           error={error}
