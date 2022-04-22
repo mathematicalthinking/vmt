@@ -73,7 +73,7 @@ const schemaHasProperty = (schema, property) => {
   return _.has(schema, `paths.${property}`);
 };
 const setSsoCookie = (res, encodedToken) => {
-  const doSetSecure = process.env.SSO_COOKIE_DOMAIN !== 'localhost';
+  const doSetSecure = !process.env.SSO_COOKIE_DOMAIN.includes('localhost');
 
   const options = {
     httpOnly: true,
@@ -89,7 +89,7 @@ const setSsoCookie = (res, encodedToken) => {
 };
 
 const setSsoRefreshCookie = (res, encodedToken) => {
-  const doSetSecure = process.env.SSO_COOKIE_DOMAIN !== 'localhost';
+  const doSetSecure = !process.env.SSO_COOKIE_DOMAIN.includes('localhost');
 
   const options = { httpOnly: true, secure: doSetSecure };
   if (doSetSecure) {
@@ -112,7 +112,7 @@ const verifyJwt = (token, key, options) => {
 };
 
 const clearAccessCookie = (res) => {
-  const isSecure = process.env.SSO_COOKIE_DOMAIN !== 'localhost';
+  const isSecure = !process.env.SSO_COOKIE_DOMAIN.includes('localhost');
   const domain = process.env.SSO_COOKIE_DOMAIN;
   const options = { domain, httpOnly: true, secure: isSecure };
 
@@ -120,7 +120,7 @@ const clearAccessCookie = (res) => {
 };
 
 const clearRefreshCookie = (res) => {
-  const isSecure = process.env.SSO_COOKIE_DOMAIN !== 'localhost';
+  const isSecure = !process.env.SSO_COOKIE_DOMAIN.includes('localhost');
   const domain = process.env.SSO_COOKIE_DOMAIN;
 
   const options = { domain, httpOnly: true, secure: isSecure };
