@@ -20,3 +20,9 @@ Icon
 client/.env
 client/.env_pyret
 server/.env_pyret
+server/.env_base
+server/.env_devLocal
+server/.env_prod
+server/.env_staging
+server/.env_testLocal
+server/.env_testServer

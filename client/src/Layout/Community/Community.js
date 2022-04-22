@@ -138,7 +138,7 @@ class Community extends Component {
                   >
                     Desmos Activity
                   </RadioBtn>
-                  {process.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (
+                  {window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (
                     <RadioBtn
                       data-testid="pyret-activity-filter"
                       check={() => toggleFilter('pyret')}

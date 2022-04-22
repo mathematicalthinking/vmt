@@ -22,40 +22,21 @@ const { router: metrics } = require('./services/metrics');
 const app = express();
 console.log('NODE_ENV=', process.env.NODE_ENV);
 // SETUP DATABASE & SESSION
-let mongoURI;
-let mongoOptions = { useNewUrlParser: true, poolSize: 10 };
-if (process.env.NODE_ENV === 'development') {
-  mongoURI = process.env.MONGO_DEV_URI;
-} else if (process.env.TRAVIS) {
-  mongoURI = process.env.MONGO_TEST_URI;
-} else if (process.env.NODE_ENV === 'production') {
-  mongoURI = process.env.MONGO_PROD_URI;
+
+const mongoURI = process.env.MONGO_URI;
+const isSecure = !mongoURI.includes('localhost');
+const mongoOptions = { useNewUrlParser: true, poolSize: 10 };
+if (isSecure) {
   mongoOptions = {
     ...mongoOptions,
     ssl: true,
     sslValidate: true,
-    user: process.env.MONGO_PROD_USER,
-    pass: process.env.MONGO_PROD_PASS,
-    sslKey: fs.readFileSync(process.env.MONGO_PROD_SSL_KEY_DIR),
-    sslCert: fs.readFileSync(process.env.MONGO_PROD_SSL_CERT_DIR),
-    authSource: process.env.MONGO_PROD_AUTHDB,
-  };
-} else if (process.env.NODE_ENV === 'staging') {
-  mongoURI = process.env.MONGO_STAGING_URI;
-  if (process.env.YES_TO_MONGO_STAGE_SSL.toLowerCase() === 'yes') {
-    mongoOptions = {
-      ...mongoOptions,
-      ssl: true,
-      sslValidate: true,
-      user: process.env.MONGO_STAGING_USER,
-      pass: process.env.MONGO_STAGING_PASS,
-      sslKey: fs.readFileSync(process.env.MONGO_STAGING_SSL_KEY_DIR),
-      sslCert: fs.readFileSync(process.env.MONGO_STAGING_SSL_CERT_DIR),
-      authSource: process.env.MONGO_STAGING_AUTHDB,
-    };
+    user: process.env.MONGO_USER,
+    pass: process.env.MONGO_PASS,
+    sslKey: fs.readFileSync(process.env.MONGO_SSL_KEY_DIR),
+    sslCert:fs.readFileSync(process.env.MONGO_SSL_CERT_DIR),
+    authSource: process.env.MONGO_AUTHDB,
   }
-} else if (process.env.NODE_ENV === 'test') {
-  mongoURI = process.env.MONGO_TEST_URI;
 }
 
 mongoose.connect(mongoURI, mongoOptions, (err) => {
@@ -102,6 +83,18 @@ app.use('/api', api);
 app.use('/enc', enc);
 app.use('/admin', admin);
 
+// @TODO Look through
+app.use('/env.js', (req, res) => {
+  const commands = Object.keys(process.env).reduce(
+    (acc, curr) =>
+      curr.includes('REACT_APP_')
+        ? acc.concat(`window.env.${curr}="${process.env[curr]}";`)
+        : acc,
+    `window.env={};`
+  );
+  res.send(commands);
+});
+
 if (process.env.ENCOMPASS) {
   app.use(express.static(path.join(__dirname, '../client/encompassBuild')));
 } else if (
@@ -120,7 +113,10 @@ app.get('/*', (req, res) => {
     process.env.NODE_ENV === 'production' ||
     process.env.NODE_ENV === 'staging'
   ) {
-    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+    res.locals({ config2: 'stuff' });
+    res.sendFile(path.join(__dirname, '../client/build/index.html'), {
+      config: JSON.stringify('config stuff'),
+    });
   }
 });
 

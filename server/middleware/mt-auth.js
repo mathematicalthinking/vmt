@@ -8,12 +8,7 @@ const {
 } = require('./utils/request');
 const User = require('../models/User');
 
-let secret;
-if (process.env.NODE_ENV === 'test') {
-  secret = process.env.MT_USER_JWT_SECRET_TEST;
-} else {
-  secret = process.env.MT_USER_JWT_SECRET;
-}
+const secret = process.env.MT_USER_JWT_SECRET;
 
 const { accessCookie, refreshCookie } = require('../constants/sso');
 
