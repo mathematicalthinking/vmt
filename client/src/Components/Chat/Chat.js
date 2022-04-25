@@ -91,7 +91,12 @@ class Chat extends Component {
       // create a ref for the new element
       if (log.length) {
         const ts = new Date(log[log.length - 1].timestamp);
-        this[`message-${log[log.length - 1]._id}`] = React.createRef();
+        // we might have several new messages to add to the log
+        // make sure that we have references to all of them
+        log.forEach((message) => {
+          if (!this[`message-${message._id}`])
+            this[`message-${message._id}`] = React.createRef();
+        });
         this.setState({ lastTimestamp: ts.toTimeString().split(' ')[0] });
       }
       if (this.nearBottom()) this.scrollToBottom();
@@ -466,8 +471,8 @@ class Chat extends Component {
                 <DropdownMenu
                   goToReplayer={goToReplayer}
                   createActivity={createActivity}
-                  resetRoom={resetRoom}
-                />{' '}
+                  resetRoom={() => resetRoom(user)}
+                /> 
               </div>
             ) : null}
             Chat

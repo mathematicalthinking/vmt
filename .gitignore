@@ -18,6 +18,8 @@ Icon
 
 .DS_Store
 client/.env
+client/.env_new
+client/old.client.env
 client/.env_pyret
 server/.env_pyret
 server/.env_base
