@@ -31,12 +31,15 @@ const CreationModal = (props) => {
   const createNewActivityOrRoom = () => {
     const copy = { ...populatedRoom };
     const { connectCreateActivity, connectCreateRoom } = props;
-    const newRoomType = copy.tabs
-      .reduce(
-        (acc, curr) =>
-          acc.includes(curr.tabType) ? acc : acc.concat(curr.tabType),
-        []
-      )
+
+    const newRoomType = selectedTabIdsToCopy
+      .reduce((acc, curr) => {
+        const i = copy.tabs.findIndex(tab => tab._id === curr);
+        const tab = copy.tabs[i];
+        if (tab && tab._id === curr) {
+          return acc.includes(tab.tabType) ? acc : acc.concat(tab.tabType);
+        }
+      }, [])
       .join('/');
 
     _updateError();
@@ -46,7 +49,6 @@ const CreationModal = (props) => {
     const pluralResource =
       newResourceType === 'activity' ? 'activities' : 'rooms';
     const resourceBody = {
-      // one possible place to include room type
       creator: user._id,
       name: newName,
       selectedTabIds: selectedTabIdsToCopy,
@@ -56,7 +58,6 @@ const CreationModal = (props) => {
       sourceRooms: [populatedRoom._id],
       mathState,
       image: formatImageUrl(newName, pluralResource),
-      // roomType: copy.tabs[0].tabType,
       roomType: newRoomType,
     };
 
