@@ -27,7 +27,7 @@ const initialState = {
   // rooms: [],
   creating: false, // true will open modal and start creation process
   copying: false,
-  ggb: true,
+  ggb: false,
   step: 0, // step of the creation process
   name: '',
   description: '',
@@ -81,7 +81,7 @@ class NewResourceContainer extends Component {
   // @TODO move this somewhere it can be shared with Containsers/Workspace/NewTabForm
   // maybe it makes sense to move newTabForm Here because its creating something
   uploadGgbFiles = () => {
-    const { ggbFiles } = this.state;
+    const { ggbFiles, ggb } = this.state;
     const files = ggbFiles;
     if (typeof files !== 'object' || files.length < 1) {
       return Promise.resolve({
@@ -96,6 +96,8 @@ class NewResourceContainer extends Component {
     for (const f of files) {
       formData.append('ggbFiles', f);
     }
+    console.log('Handling a ggb file: ', ggb);
+    if (!ggb) return API.uploadWspFiles(formData);
     return API.uploadGgbFiles(formData);
   };
 
@@ -140,9 +142,18 @@ class NewResourceContainer extends Component {
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
     }
+    if (roomType === 'geogebra') {
+      this.setState({ ggb: true });
+    }
     return this.uploadGgbFiles().then((results) => {
+      console.log('Upload files: ', results);
       if (results && results.data) {
+        // must modify the controller before updating property names in model
+        // if (ggb) {
         newResource.ggbFiles = results.data.result;
+        // } else {
+        //   newResource.configFiles = results.data.result;
+        // }
       }
       switch (resource) {
         case 'courses':

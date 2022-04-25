@@ -164,6 +164,9 @@ export default {
   uploadGgbFiles: (formData) => {
     return api.post(`/api/upload/ggb`, formData);
   },
+  uploadWspFiles: (formData) => {
+    return api.post(`/api/upload/wsp`, formData);
+  },
   getRecentActivity: (resource, criteria, skip, filters) => {
     const { since, to } = filters;
     const params = criteria ? { criteria, skip } : { skip };

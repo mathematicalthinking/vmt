@@ -1,7 +1,6 @@
-
 import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import testConfig from './Tools/test.json'
+import testConfig from './Tools/test.json';
 import WSPLoader from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
 import mongoIdGenerator from '../../utils/createMongoId';
@@ -10,65 +9,62 @@ import ControlWarningModal from './ControlWarningModal';
 import classes from './graph.css';
 
 const WebSketch = (props) => {
-    const [showControlWarning, setShowControlWarning] = useState(false);
-    const [activityUpdates, setActivityUpdates] = useState();
+  const [showControlWarning, setShowControlWarning] = useState(false);
+  const [activityUpdates, setActivityUpdates] = useState();
 
-    let initializing = false;
-    let receivingData = false;
+  let initializing = false;
+  let receivingData = false;
 
-    let $sketch = null;  // the jquery object for the server's sketch_canvas HTML element
-    let sketchDoc = null;    // The WSP document in which the websketch lives.
-    let sketch = null;       // The websketch itself, which we'll keep in sync with the server websketch.
-    const wspSketch = useRef();
-    const { setFirstTabLoaded } = props;
+  let $sketch = null; // the jquery object for the server's sketch_canvas HTML element
+  let sketchDoc = null; // The WSP document in which the websketch lives.
+  let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
+  const wspSketch = useRef();
+  const { setFirstTabLoaded } = props;
 
-    useEffect(() => {
-        initializing = true;
-        // load required files and then the sketch when ready
-        WSPLoader(loadSketch)
-        initializing = false;
-        return () => {
-            socket.removeAllListeners('RECEIVE_EVENT');
-            console.log('WSP activity ending - clean up listeners');
-        };
-    }, []);
+  useEffect(() => {
+    initializing = true;
+    // load required files and then the sketch when ready
+    WSPLoader(loadSketch);
+    initializing = false;
+    return () => {
+      socket.removeAllListeners('RECEIVE_EVENT');
+      console.log('WSP activity ending - clean up listeners');
+    };
+  }, []);
 
-     // Handle new Events
+  // Handle new Events
   useEffect(() => {
     if (props.inControl === 'ME') {
-        moveGobj(activityUpdates);
+      moveGobj(activityUpdates);
     }
   }, [activityUpdates]);
 
   const buildDescription = (username, updates) => {
     // TODO: build helper to parse WSP event types and event data to plain text
-    let actionText = 'interacted with the Activity'
+    let actionText = 'interacted with the Activity';
     let actionDetailText = '';
     if (updates.action === 'moveGobj') {
-        actionText = 'moved a point'
+      actionText = 'moved a point';
     }
     if (updates.data) {
-        actionDetailText = updates.data
+      actionDetailText = updates.data;
     }
     return `${username} ${actionText} ${actionDetailText}`;
   };
 
-// handles a change event when user is in control
+  // handles a change event when user is in control
   const handleEventData = (updates, type) => {
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
 
     if (!receivingData) {
-      const description = buildDescription(
-        user.username,
-        updates
-      );
+      const description = buildDescription(user.username, updates);
       const currentStateString = JSON.stringify(updates);
       const newData = {
         _id: mongoIdGenerator(),
         room: room._id,
         tab: tab._id,
-        currentState: currentStateString, 
+        currentState: currentStateString,
         color: myColor,
         user: {
           _id: user._id,
@@ -77,7 +73,7 @@ const WebSketch = (props) => {
         timestamp: new Date().getTime(),
         description,
       };
-      console.log('Data to send: ', newData)
+      console.log('Data to send: ', newData);
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
       resetControlTimer();
@@ -86,7 +82,7 @@ const WebSketch = (props) => {
     receivingData = false;
   };
 
-   // handles incoming events
+  // handles incoming events
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog, temp } = props;
@@ -107,7 +103,7 @@ const WebSketch = (props) => {
         if (!temp) updatedRoom(room._id, { tabs: updatedTabs });
         // updatedRoom(room._id, { tabs: updatedTabs });
         const updatesState = JSON.parse(data.currentState);
-        moveGobj(updatesState)
+        moveGobj(updatesState);
       } else {
         addNtfToTabs(data.tab);
         receivingData = false;
@@ -115,66 +111,70 @@ const WebSketch = (props) => {
     });
   }
 
-    const updateHandler = (attr) => {
-        setActivityUpdates(attr)
+  const updateHandler = (attr) => {
+    setActivityUpdates(attr);
+  };
+
+  // sketch event helpers
+  function moveGobj(attr) {
+    // A point moved: Find the object in the other sketch with the same id, and move it
+    // to the same location. Don't send the entire gobj, as it may have circular references
+    // (to children that refer to their parents) and thus cannot be stringified.
+
+    if (_hasControl()) {
+      const gobj = attr.target;
+      const gobjInfo = { id: gobj.id, loc: gobj.geom.loc };
+      const gobjData = JSON.stringify(gobjInfo, null, 2);
+      // console.log({
+      //   action: "moveGobj",
+      //   data: gobjData,
+      // });
+
+      handleEventData(gobjInfo);
+    } else {
+      let selector = `#${attr.id}`;
+      // console.log("Selector: ", selector, " sQuery? ", !!sketch.sQuery);
+      let destGobj = sketch.sQuery(selector)[0];
+      destGobj.geom.loc = GSP.GeometricPoint(attr.loc);
+      destGobj.invalidateGeom();
     }
+  }
 
-    // sketch event helpers
-      function moveGobj(attr) {
-        // A point moved: Find the object in the other sketch with the same id, and move it
-        // to the same location. Don't send the entire gobj, as it may have circular references
-        // (to children that refer to their parents) and thus cannot be stringified.
-
-        if (_hasControl()) {
-            const gobj = attr.target;
-            const gobjInfo = {id: gobj.id, loc: gobj.geom.loc};
-            const gobjData = JSON.stringify(gobjInfo, null, 2)
-            // console.log({
-            //   action: "moveGobj",
-            //   data: gobjData,
-            // });
-
-            handleEventData(gobjInfo)
-        } else {
-            let selector = `#${attr.id}`;
-            // console.log("Selector: ", selector, " sQuery? ", !!sketch.sQuery);
-            let destGobj = sketch.sQuery(selector)[0];
-            destGobj.geom.loc = GSP.GeometricPoint(attr.loc);
-            destGobj.invalidateGeom();
-        }
-      }
-
-    const loadSketch = () => {
-        const $ = window.jQuery;
-        if (!$) {
-            console.warn('No jQuerious');
-            return
-        }
-        $('#sketch').WSP("loadSketch", {
-            "data-sourceDocument": testConfig,
-            onLoad: function (metadata) {
-                console.log("Loading: ", metadata);
-                $sketch = $("#sketch");
-                setFirstTabLoaded();
-                initializeListeners();
-            }
-        })
-        const data = $sketch.data("document")
-        console.log('Found data: ', data)
-        sketchDoc = data;
-        sketch = data.focusPage;
-        
-        let points = sketch.sQuery('Point[constraint="Free"]');
-        points.on("update", updateHandler);
+  const loadSketch = () => {
+    const { tab } = props;
+    const config = tab.ggbFile
+      ? JSON.parse(Buffer.from(tab.ggbFile, 'base64'))
+      : testConfig;
+    const $ = window.jQuery;
+    if (!$) {
+      console.warn('No jQuerious');
+      return;
     }
+    $('#sketch').WSP('loadSketch', {
+      'data-sourceDocument': config,
+      onLoad: function(metadata) {
+        console.log('Loading: ', metadata);
+        $sketch = $('#sketch');
+        setFirstTabLoaded();
+        initializeListeners();
+      },
+    });
+    const data = $sketch.data('document');
+    console.log('Found data: ', data);
+    sketchDoc = data;
+    sketch = data.focusPage;
 
-    // interaction helpers
+    let points = sketch.sQuery('Point[constraint="Free"]');
+    points.on('update', updateHandler);
+  };
 
-    function _hasControl() {
-        return props.inControl === 'ME';
-      }
+  // interaction helpers
 
-      // @TODO this could be selectively handled depending what div is clicked
+  function _hasControl() {
+    return props.inControl === 'ME';
+  }
+
+  // @TODO this could be selectively handled depending what div is clicked
   function _checkForControl(event) {
     // check if user is not in control and intercept event
     if (!_hasControl()) {
@@ -183,7 +183,6 @@ const WebSketch = (props) => {
       // return;
     }
   }
-
 
   const {
     inControl,
@@ -195,10 +194,9 @@ const WebSketch = (props) => {
     // doPreventFutureRefWarnings,
     // togglePreventRefWarning,
   } = props;
-    return (
-        
-        <Fragment>
-                  <ControlWarningModal
+  return (
+    <Fragment>
+      <ControlWarningModal
         showControlWarning={showControlWarning}
         toggleControlWarning={() => {
           setShowControlWarning(false);
@@ -213,7 +211,7 @@ const WebSketch = (props) => {
         }}
         inAdminMode={user ? user.inAdminMode : false}
       />
-            <div
+      <div
         className={classes.Activity}
         onClickCapture={_checkForControl}
         id="calculatorParent"
@@ -231,24 +229,22 @@ const WebSketch = (props) => {
           }}
         />
       </div>
-        </Fragment>
-    );
+    </Fragment>
+  );
 };
 
-
-
 WebSketch.propTypes = {
-    room: PropTypes.shape({}).isRequired,
-    tab: PropTypes.shape({}).isRequired,
-    user: PropTypes.shape({}).isRequired,
-    myColor: PropTypes.string.isRequired,
-    resetControlTimer: PropTypes.func.isRequired,
-    updatedRoom: PropTypes.func.isRequired,
-    toggleControl: PropTypes.func.isRequired,
-    setFirstTabLoaded: PropTypes.func.isRequired,
-    inControl: PropTypes.string.isRequired,
-    addNtfToTabs: PropTypes.func.isRequired,
-    addToLog: PropTypes.func.isRequired,
+  room: PropTypes.shape({}).isRequired,
+  tab: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
+  myColor: PropTypes.string.isRequired,
+  resetControlTimer: PropTypes.func.isRequired,
+  updatedRoom: PropTypes.func.isRequired,
+  toggleControl: PropTypes.func.isRequired,
+  setFirstTabLoaded: PropTypes.func.isRequired,
+  inControl: PropTypes.string.isRequired,
+  addNtfToTabs: PropTypes.func.isRequired,
+  addToLog: PropTypes.func.isRequired,
 };
 
 export default WebSketch;
