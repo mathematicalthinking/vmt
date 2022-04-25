@@ -346,10 +346,13 @@ class Room extends Component {
       });
       let roomType;
       if (ggb && (desmos || desmosActivity)) roomType = 'GeoGebra/Desmos';
+      else if (desmos && desmosActivity) roomType = 'Desmos/Desmos Activity';
       else if (ggb) roomType = 'GeoGebra';
       else if (desmos) roomType = 'Desmos';
       else if (pyret) roomType = 'Pyret';
       else roomType = 'Desmos Activity';
+
+      // make component which accepts each tab & makes the appropriate icon
 
       const { updateFail, updateKeys } = loading;
 
