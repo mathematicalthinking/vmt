@@ -158,16 +158,6 @@ class Workspace extends Component {
     // @TODO populatedRoom.controlledBy is ALWAYS null! Should use
     // controlledBy in the state instead.
     const { populatedRoom, user, temp, lastMessage } = this.props;
-    if (
-      prevProps.populatedRoom.controlledBy === null &&
-      populatedRoom.controlledBy !== null &&
-      populatedRoom.controlledBy !== user._id
-    ) {
-      //   socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
-      //     this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-      //     // this.setState({activeMember: ''})
-      //   })
-    }
 
     if (!socket.connected && populatedRoom.controlledBy === user._id) {
       const auto = true;
@@ -184,10 +174,19 @@ class Workspace extends Component {
       this.goBack();
     }
 
-    // this._takeSnapshotIfNeeded(); // likely too CPU intensive and noticible by user.
-
-    // const { takeSnapshot } = this.state;
-    // if (prevProps.controlledBy === user._id) takeSnapshot();
+    // test did populatedRoom change?
+    // if so, do we need to update state?
+    const oldRoom = prevProps.populatedRoom;
+    const propsDifference = this.findRoomDifference(oldRoom, populatedRoom);
+    if (propsDifference) {
+      const stateDifference = this.findRoomDifference(
+        this.state,
+        populatedRoom
+      );
+      if (stateDifference) {
+        this.setState(stateDifference);
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -917,23 +916,43 @@ class Workspace extends Component {
     });
   };
 
-  resetRoom = () => {
-    const { resetRoom } = this.props;
-    resetRoom().then(() => {
-      const { populatedRoom } = this.props;
-      this.setState({
-        controlledBy:
-          populatedRoom && populatedRoom.controlledBy
-            ? populatedRoom.controlledBy
-            : null,
-        currentMembers:
-          populatedRoom && populatedRoom.currentMembers
-            ? populatedRoom.currentMembers
-            : null,
-        tabs: populatedRoom && populatedRoom.tabs ? populatedRoom.tabs : null,
-        log: populatedRoom && populatedRoom.log ? populatedRoom.log : null,
-      });
-    });
+  /**
+   * @method findRoomDifference
+   * @param oldRoom
+   * @param newRoom
+   * @returns false if no differences, else a new state object with the differences
+   */
+  findRoomDifference = (oldRoom, newRoom) => {
+    const results = {};
+
+    if (
+      (oldRoom.tabs || newRoom.tabs) &&
+      (oldRoom.tabs && oldRoom.tabs.length) !==
+        (newRoom.tabs && newRoom.tabs.length)
+    ) {
+      results.tabs = newRoom.tabs;
+    }
+
+    if (
+      (oldRoom.log || newRoom.log) &&
+      (oldRoom.log && oldRoom.log.length) !==
+        (newRoom.log && newRoom.log.length)
+    ) {
+      results.log = newRoom.log;
+    }
+
+    if (oldRoom.controlledBy !== newRoom.controlledBy) {
+      results.controlledBy = newRoom.controlledBy;
+    }
+
+    if (
+      JSON.stringify(oldRoom.currentMembers) !==
+      JSON.stringify(newRoom.currentMembers)
+    ) {
+      results.currentMembers = newRoom.currentMembers;
+    }
+
+    return Object.keys(results).length !== 0 ? results : false;
   };
 
   render() {
@@ -948,7 +967,7 @@ class Workspace extends Component {
       connectUpdateRoomTab,
       tempCurrentMembers,
       connectUpdateUserSettings,
-      // resetRoom,
+      resetRoom,
     } = this.props;
     const {
       tabs: currentTabs,
@@ -1032,7 +1051,7 @@ class Workspace extends Component {
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
         connectionStatus={connectionStatus}
-        resetRoom={this.resetRoom}
+        resetRoom={resetRoom}
       />
     );
     const graphs = currentTabs.map((tab) => {
