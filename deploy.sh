@@ -26,7 +26,7 @@ cp -r ./bin ./config ./constants ./controllers ./db_migration ./middleware ./mod
 echo "\e[1;33m server copied to $1"
 cp app.js package.json package-lock.json socketInit.js sockets.js ../$1/vmt/server
 # Now that we've moved to Docker, we use this script only when deploying to vmt-test (the test server)
-cp .env_testserver ../$1/vmt/.env
+cp .env_testServer ../$1/vmt/.env
 echo "\e[1;33mfiles copied"
 cd ../$1/vmt
 mkdir client
