@@ -184,6 +184,8 @@ class Workspace extends Component {
         populatedRoom
       );
       if (stateDifference) {
+        // We are being very careful to update the state only if completely necessary, so this setState is warranted
+        // eslint-disable-next-line react/no-did-update-set-state
         this.setState(stateDifference);
       }
     }
