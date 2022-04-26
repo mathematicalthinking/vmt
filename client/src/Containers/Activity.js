@@ -46,11 +46,21 @@ class Activity extends Component {
       instructions: activity ? activity.instructions : null,
       privacySetting: activity ? activity.privacySetting : null,
       canAccess: false,
+      roomType: '',
     };
   }
 
   componentDidMount() {
     const { activity, connectGetCurrentActivity, match } = this.props;
+
+    const newRoomType = activity.tabs
+      .reduce((acc, curr) => {
+        return acc.includes(curr.tabType) ? acc : acc.concat(curr.tabType);
+      }, [])
+      .join(' / ');
+
+    this.setState({ roomType: newRoomType });
+
     if (!activity) {
       connectGetCurrentActivity(match.params.activity_id); // WHY ARE WE DOING THIS??
     } else {
@@ -167,11 +177,14 @@ class Activity extends Component {
       tabs,
       trashing,
       canAccess,
+      roomType,
     } = this.state;
     if (activity && canAccess) {
       const { resource } = match.params;
+
+      const keyword = roomType.includes('/') ? 'types' : 'type';
       const additionalDetails = {
-        type: activity.roomType,
+        [keyword]: roomType,
         privacy: (
           <Error
             error={updateFail && updateKeys.indexOf('privacySetting') > -1}

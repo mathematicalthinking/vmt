@@ -32,17 +32,7 @@ const CreationModal = (props) => {
     const copy = { ...populatedRoom };
     const { connectCreateActivity, connectCreateRoom } = props;
 
-    const newRoomType = selectedTabIdsToCopy
-      .reduce((acc, curr) => {
-        const i = copy.tabs.findIndex(tab => tab._id === curr);
-        const tab = copy.tabs[i];
-        if (tab && tab._id === curr) {
-          return acc.includes(tab.tabType) ? acc : acc.concat(tab.tabType);
-        }
-      }, [])
-      .join('/');
-
-    _updateError();
+     _updateError();
     if (createActivityError) return;
 
     const { description, privacySetting, instructions } = copy;
@@ -58,7 +48,6 @@ const CreationModal = (props) => {
       sourceRooms: [populatedRoom._id],
       mathState,
       image: formatImageUrl(newName, pluralResource),
-      roomType: newRoomType,
     };
 
     if (privacySetting === 'private') {

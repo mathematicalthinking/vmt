@@ -65,6 +65,7 @@ class Room extends Component {
       privacySetting: room ? room.privacySetting : null,
       trashing: false,
       isAdmin: false,
+      roomType: '',
     };
   }
 
@@ -113,6 +114,14 @@ class Room extends Component {
     } else {
       this.fetchRoom();
     }
+
+    const newRoomType = room.tabs
+      .reduce((acc, curr) => {
+        return acc.includes(curr.tabType) ? acc : acc.concat(curr.tabType);
+      }, [])
+      .join(' / ');
+
+    this.setState({ roomType: newRoomType });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -330,32 +339,16 @@ class Room extends Component {
       firstView,
       name,
       trashing,
+      roomType,
     } = this.state;
     if (room && room.tabs && !guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       const dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
-      let ggb = false;
-      let desmos = false;
-      let desmosActivity = false;
-      let pyret = false;
-      room.tabs.forEach((tab) => {
-        if (tab.tabType === 'geogebra') ggb = true;
-        else if (tab.tabType === 'desmos') desmos = true;
-        else if (tab.tabType === 'desmosActivity') desmosActivity = true;
-        else if (tab.tabType === 'pyret') pyret = true;
-      });
-      let roomType;
-      if (ggb && (desmos || desmosActivity)) roomType = 'GeoGebra/Desmos';
-      else if (desmos && desmosActivity) roomType = 'Desmos/Desmos Activity';
-      else if (ggb) roomType = 'GeoGebra';
-      else if (desmos) roomType = 'Desmos';
-      else if (pyret) roomType = 'Pyret';
-      else roomType = 'Desmos Activity';
 
       // make component which accepts each tab & makes the appropriate icon
 
       const { updateFail, updateKeys } = loading;
-
+      const keyword = roomType.includes('/') ? 'types' : 'type';
       const additionalDetails = {
         [dueDateText]: (
           <Error error={updateFail && updateKeys.indexOf('dueDate') > -1}>
@@ -369,7 +362,7 @@ class Room extends Component {
             </EditText>
           </Error>
         ),
-        type: roomType,
+        [keyword]: roomType,
         privacy: (
           <Error
             error={updateFail && updateKeys.indexOf('privacySetting') > -1}
