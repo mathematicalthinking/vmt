@@ -472,7 +472,7 @@ class Chat extends Component {
                   goToReplayer={goToReplayer}
                   createActivity={createActivity}
                   resetRoom={() => resetRoom(user)}
-                /> 
+                />
               </div>
             ) : null}
             Chat

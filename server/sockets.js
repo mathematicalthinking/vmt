@@ -292,8 +292,6 @@ module.exports = function() {
     });
 
     socket.on('RESET_ROOM', async (roomId, user) => {
-      const room = await killZombies(roomId);
-
       const message = new Message({
         user: { _id: user._id, username: 'VMTBot' },
         room: roomId,
@@ -306,6 +304,9 @@ module.exports = function() {
 
       message.save();
       socket.to(roomId).emit('RECEIVE_MESSAGE', message);
+
+      await killZombies(roomId);
+
       // only emit message to user who did the reset
       socket.emit('RESET_COMPLETE');
     });
