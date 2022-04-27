@@ -27,6 +27,7 @@ import {
 import { populateResource } from '../store/reducers';
 import Access from './Access';
 import TemplatePreview from './Monitoring/TemplatePreview';
+import getResourceTabTypes from 'utils/getResourceTabTypes';
 
 class Activity extends Component {
   constructor(props) {
@@ -47,19 +48,18 @@ class Activity extends Component {
       privacySetting: activity ? activity.privacySetting : null,
       canAccess: false,
       roomType: '',
+      isPlural: false,
     };
   }
 
   componentDidMount() {
     const { activity, connectGetCurrentActivity, match } = this.props;
 
-    const newRoomType = activity.tabs
-      .reduce((acc, curr) => {
-        return acc.includes(curr.tabType) ? acc : acc.concat(curr.tabType);
-      }, [])
-      .join(' / ');
-
-    this.setState({ roomType: newRoomType });
+    if (activity && activity.tabs) {
+      const tabsInRoom = activity.tabs.map((tab) => tab.tabType);
+      const { tabTypes, isPlural } = getResourceTabTypes(tabsInRoom);
+      this.setState({ roomType: tabTypes, isPlural });
+    }
 
     if (!activity) {
       connectGetCurrentActivity(match.params.activity_id); // WHY ARE WE DOING THIS??
@@ -178,11 +178,12 @@ class Activity extends Component {
       trashing,
       canAccess,
       roomType,
+      isPlural,
     } = this.state;
     if (activity && canAccess) {
       const { resource } = match.params;
 
-      const keyword = roomType.includes('/') ? 'types' : 'type';
+      const keyword = isPlural ? 'types' : 'type';
       const additionalDetails = {
         [keyword]: roomType,
         privacy: (

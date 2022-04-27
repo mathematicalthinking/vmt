@@ -34,6 +34,7 @@
   font-size: 26px;
   font-weight: 600;
   margin: 10px 0 5px 0;
+  text-align: center;
 }
 
 .spSecondary {
@@ -41,10 +42,10 @@
   color: #666;
   margin-bottom: 15px;
   font-weight: 300;
+  text-align: center;
 }
 
-.spAdditional {
-  padding: 15px 0;
+.spAdditional {  
   border-top: 1px solid lightBorder;
   border-bottom: 1px solid lightBorder;
 }
@@ -116,6 +117,7 @@
   box-shadow: lightestShadow;
   border: 1px solid #ddd;
   background: white;
+  width: 50%;
 }
 
 .Details {
@@ -128,7 +130,7 @@
 
 .KeyContainer {
   margin: 10px 0;
-  padding: 0 2px;
+  padding: 10px 2px;
 }
 
 .KeyName {
@@ -142,6 +144,9 @@
   font-weight: 400;
   float: right;
   color: #666;
+  text-transform: capitalize;
+  text-align: right;
+  max-width: 70%;
   /* border: 1px solid blue; */
 }
 

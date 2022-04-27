@@ -6,11 +6,26 @@ import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
 import Expand from './expand';
 import Notification from '../../Notification/Notification';
+import getResourceTabTypes from 'utils/getResourceTabTypes';
 
 class ContentBox extends PureComponent {
   state = {
     expanded: false,
+    typeKeyword: 'Tab Type',
+    tabTypes: '',
   };
+
+  componentDidMount() {
+    const { roomType } = this.props;
+
+    if (roomType) {
+      const { tabTypes, isPlural } = getResourceTabTypes(
+        roomType
+      );
+      const tempTypeKeyword = isPlural ? 'Tab Types' : 'Tab Type';
+      this.setState({ typeKeyword: tempTypeKeyword, tabTypes });
+    }
+  }
 
   toggleExpand = (event) => {
     event.preventDefault();
@@ -30,7 +45,7 @@ class ContentBox extends PureComponent {
       locked,
       details,
     } = this.props;
-    const { expanded } = this.state;
+    const { expanded, tabTypes, typeKeyword } = this.state;
     const notificationElements =
       notifications > 0 ? (
         <Notification count={notifications} data-testid="content-box-ntf" />
@@ -102,6 +117,11 @@ class ContentBox extends PureComponent {
                   ) : null}
                   {details.description ? (
                     <div>Description: {details.description}</div>
+                  ) : null}
+                  {tabTypes && tabTypes.length ? (
+                    <div className={classes.TabTypes}>
+                      {typeKeyword}: {tabTypes}
+                    </div>
                   ) : null}
                 </div>
               ) : null}
