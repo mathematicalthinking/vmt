@@ -7,9 +7,7 @@ import RoomLobby from './RoomLobby';
 function Room(props) {
   const { match, room } = props;
   const { room_id } = match.params;
-  const { isSuccess, data } = usePopulatedRoom(room_id, false, {
-    refetchInterval: 500,
-  });
+  const { isSuccess, data } = usePopulatedRoom(room_id, false);
 
   const updatedRoom = isSuccess ? { ...room, ...data } : room;
 
