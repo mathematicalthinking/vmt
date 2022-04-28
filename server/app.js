@@ -25,7 +25,7 @@ console.log('NODE_ENV=', process.env.NODE_ENV);
 
 const mongoURI = process.env.MONGO_URI;
 const isSecure = !mongoURI.includes('localhost');
-const mongoOptions = { useNewUrlParser: true, poolSize: 10 };
+let mongoOptions = { useNewUrlParser: true, poolSize: 10 };
 if (isSecure) {
   mongoOptions = {
     ...mongoOptions,
