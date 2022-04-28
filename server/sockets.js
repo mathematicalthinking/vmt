@@ -250,7 +250,7 @@ module.exports = function() {
       try {
         socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
         await controllers.events.post(data);
-        callback();
+        if (callback) callback();
       } catch (err) {
         console.log('ERROR SENDING EVENT: ', err);
       }
