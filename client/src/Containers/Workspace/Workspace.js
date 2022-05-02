@@ -158,8 +158,11 @@ class Workspace extends Component {
     // @TODO populatedRoom.controlledBy is ALWAYS null! Should use
     // controlledBy in the state instead.
     const { populatedRoom, user, temp, lastMessage } = this.props;
+    const { controlledBy } = this.state;
 
-    if (!socket.connected && populatedRoom.controlledBy === user._id) {
+    // If we are no longer connected, but in control of the room, then release control (locally).
+    // Control will be released by the server when the disconnection is detected (see server/sockets.js>killZombies)
+    if (!socket.connected && controlledBy === user._id) {
       const auto = true;
       this.toggleControl(null, auto);
     }

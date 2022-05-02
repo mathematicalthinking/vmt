@@ -138,16 +138,17 @@ class Community extends Component {
                   >
                     Desmos Activity
                   </RadioBtn>
-                  {window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (
-                    <RadioBtn
-                      data-testid="pyret-activity-filter"
-                      check={() => toggleFilter('pyret')}
-                      checked={filters.roomType === 'pyret'}
-                      name="PyretActivity"
-                    >
-                      Pyret
-                    </RadioBtn>
-                  )}
+                  {window.env.REACT_APP_PYRET_MODE &&
+                    window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (
+                      <RadioBtn
+                        data-testid="pyret-activity-filter"
+                        check={() => toggleFilter('pyret')}
+                        checked={filters.roomType === 'pyret'}
+                        name="PyretActivity"
+                      >
+                        Pyret
+                      </RadioBtn>
+                    )}
                 </div>
               </InfoBox>
             ) : null}

@@ -53,6 +53,7 @@ class ContentBox extends PureComponent {
     if (
       roomType &&
       roomType[0] === 'pyret' &&
+      window.env.REACT_APP_PYRET_MODE &&
       window.env.REACT_APP_PYRET_MODE.toLowerCase() !== 'yes'
     ) {
       return null;
