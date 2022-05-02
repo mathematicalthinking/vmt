@@ -38,6 +38,7 @@ import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
 import Access from './Access';
 import RoomPreview from './Monitoring/RoomPreview';
+import getResourceTabTypes from 'utils/getResourceTabTypes';
 
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
@@ -66,6 +67,7 @@ class Room extends Component {
       trashing: false,
       isAdmin: false,
       roomType: '',
+      isPlural: false,
     };
   }
 
@@ -115,13 +117,11 @@ class Room extends Component {
       this.fetchRoom();
     }
 
-    const newRoomType = room.tabs
-      .reduce((acc, curr) => {
-        return acc.includes(curr.tabType) ? acc : acc.concat(curr.tabType);
-      }, [])
-      .join(' / ');
-
-    this.setState({ roomType: newRoomType });
+    if (room && room.tabs) {
+      const tabTypes = room.tabs.map((tab) => tab.tabType);
+      const { tabTypes: roomType, isPlural } = getResourceTabTypes(tabTypes);
+      this.setState({ roomType, isPlural });
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -340,6 +340,7 @@ class Room extends Component {
       name,
       trashing,
       roomType,
+      isPlural,
     } = this.state;
     if (room && room.tabs && !guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
@@ -348,7 +349,7 @@ class Room extends Component {
       // make component which accepts each tab & makes the appropriate icon
 
       const { updateFail, updateKeys } = loading;
-      const keyword = roomType.includes('/') ? 'types' : 'type';
+      const keyword = isPlural ? 'types' : 'type';
       const additionalDetails = {
         [dueDateText]: (
           <Error error={updateFail && updateKeys.indexOf('dueDate') > -1}>
