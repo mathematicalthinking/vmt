@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getUser } from '../../store/actions';
 import SmallLoading from '../Loading/SmallLoading';
@@ -12,14 +12,15 @@ class OauthReturn extends Component {
   }
 
   render() {
-    const { loggedIn, errorMessage, loading } = this.props;
-
+    const { loggedIn, errorMessage, loading, location } = this.props;
     if (loggedIn) {
       return <Redirect to="/myVMT/rooms" />;
     }
 
-    if (errorMessage) {
-      return <Redirect to="/login" />;
+    if (errorMessage) {  
+      // oauth return might receive an error from mt-sso that stops the login
+      // make sure to pass it along
+      return <Redirect to={`/login/${location.search}`} />;
     }
 
     return <Fragment>{loading ? <SmallLoading /> : null}</Fragment>;
@@ -46,9 +47,10 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectGetUser: getUser,
-  }
-)(OauthReturn);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    {
+      connectGetUser: getUser,
+    }
+  )(OauthReturn));
