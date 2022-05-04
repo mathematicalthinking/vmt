@@ -111,7 +111,7 @@ class RoomOpts extends Component {
                 id="file"
                 // multiple
                 name="wspFile"
-                accept=".json,.gsp"
+                accept=".json"
                 onChange={setGgbFile}
               />
             </div>

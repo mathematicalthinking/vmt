@@ -27,7 +27,7 @@ const wspFileFilter = (req, file, next) => {
   const originalName = _.propertyOf(file)('originalname');
   let isWsp;
   if (_.isString(originalName)) {
-    isWsp = originalName.endsWith('.gsp') || originalName.endsWith('.json');
+    isWsp = originalName.endsWith('.json');
   }
 
   if (isWsp) {
