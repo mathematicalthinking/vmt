@@ -65,7 +65,6 @@
     "react-papaparse": "^3.17.1",
     "react-query": "^3.13.12",
     "react-redux": "^5.0.7",
-    "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "react-router-hash-link": "^2.4.3",
     "react-select": "^4.3.1",
