@@ -93,7 +93,7 @@ app.use('/env.js', (req, res) => {
         : acc,
     `window.env={};`
   );
-  res.setHeader('Context-Type', 'application/javascript');
+  res.setHeader('Content-Type', 'application/javascript');
   res.send(commands);
 });
 
