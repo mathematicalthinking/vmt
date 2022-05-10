@@ -144,7 +144,7 @@
   font-weight: 400;
   float: right;
   color: #666;
-  text-transform: capitalize;
+  /* text-transform: capitalize; */
   text-align: right;
   max-width: 70%;
   /* border: 1px solid blue; */

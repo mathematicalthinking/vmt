@@ -89,10 +89,11 @@ app.use('/env.js', (req, res) => {
   const commands = Object.keys(process.env).reduce(
     (acc, curr) =>
       curr.includes('REACT_APP_')
-        ? acc.concat(`window.env.${curr}="${process.env[curr]}";`)
+        ? acc.concat(`window.env.${curr}='${process.env[curr]}';`)
         : acc,
     `window.env={};`
   );
+  res.setHeader('Content-Type', 'application/javascript');
   res.send(commands);
 });
 
@@ -114,10 +115,7 @@ app.get('/*', (req, res) => {
     process.env.NODE_ENV === 'production' ||
     process.env.NODE_ENV === 'staging'
   ) {
-    res.locals({ config2: 'stuff' });
-    res.sendFile(path.join(__dirname, '../client/build/index.html'), {
-      config: JSON.stringify('config stuff'),
-    });
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
   }
 });
 

@@ -29,7 +29,7 @@ If you wish to run VMT separately, then you just need to remove the existing aut
 1. `$ cd vmt/server && npm install`
 1. `$ cd ../client && npm install`
 1. `$ cd ..`
-1. `$ cp .env.example .env` Note that the client .env contains very little and will soon be deprecated. Instead, client environment variables are provided by the server. In the server .env file, prefix client variables with REACT*APP*. They will be available in the client code via window.env.REACT_APP_XXX (global variables).
+1. `$ cp .env.example .env` Note that the client .env contains very little and will soon be deprecated. Instead, client environment variables are provided by the server. In the server .env file, prefix client variables with REACT_APP_. They will be available in the client code via window.env.REACT_APP_XXX (global variables).
 1. Make sure you have mongodb installed. [instructions here](https://docs.mongodb.com/manual/installation/)
 1. From anywhere on your computer run `$ mongod --dbpath <some-new-dir-for-db>` where `<some-new-dir-for-db>` is a directory for MongoDB data then cd back to the vmt/ and...
 1. `$ npm run dev` This will start the react development server on port 3000 and the express server on 3001 **N.B., you'll need to have nodemon and concurrently installed** these are included in the dev dependencies but you may need to install them globally. `$ npm i -g nodemon concurrently`
