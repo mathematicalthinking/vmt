@@ -325,7 +325,7 @@ const DesmosActivity = (props) => {
     // check if user is not in control and intercept event
     if (!_hasControl()) {
       // event.preventDefault();
-      // event.stopPropagation();
+      event.stopPropagation();
       setShowControlWarning(true);
       // return;
     }
