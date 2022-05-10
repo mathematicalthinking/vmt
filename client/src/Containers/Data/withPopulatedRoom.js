@@ -58,6 +58,22 @@ function withPopulatedRoom(WrappedComponent) {
         });
     }
 
+    // used to get aliased or un-aliased members
+    // use getCurrentMembers in lieu of populatedRoom.currentMembers
+    // every time we set Workspace's state, use this function
+    getCurrentMembers() {
+      // return members based on alias mode
+    }
+    
+    // do necessary dispatches to Redux store
+    // if necessary convert currentMembers to aliased members
+    // used anytime we update current members in Redux store
+    // use this function every connectUpdateRoom is called in Workspace
+    // be mindful of USER_LEFT -> controlledBy
+    setCurrentMembers(currentMembers = {}) {
+
+    }
+
     render() {
       const { history } = this.props;
       const { loading, populatedRoom } = this.state;
