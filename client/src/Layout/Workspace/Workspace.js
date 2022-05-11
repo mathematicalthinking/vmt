@@ -213,8 +213,14 @@ WorkspaceLayout.propTypes = {
   bottomRight: PropTypes.element.isRequired, // rename to tools
   bottomLeft: PropTypes.element.isRequired,
   currentMembers: PropTypes.element,
-  referFromCoords: PropTypes.shape({}),
-  referToCoords: PropTypes.shape({}),
+  referFromCoords: PropTypes.shape({
+    top: PropTypes.number,
+    left: PropTypes.number,
+  }),
+  referToCoords: PropTypes.shape({
+    top: PropTypes.number,
+    left: PropTypes.number,
+  }),
   graphs: PropTypes.arrayOf(PropTypes.element).isRequired,
   replayer: PropTypes.bool,
   currentTabId: PropTypes.string.isRequired,
@@ -234,10 +240,7 @@ WorkspaceLayout.propTypes = {
   referToEl: PropTypes.shape({
     elementType: PropTypes.string.isRequired,
   }),
-  snapshotRef: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.shape({ current: PropTypes.any }),
-  ]),
+  snapshotRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({})]),
 };
 
 WorkspaceLayout.defaultProps = {
