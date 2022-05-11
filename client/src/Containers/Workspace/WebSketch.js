@@ -11,6 +11,7 @@ import classes from './graph.css';
 const WebSketch = (props) => {
   const [showControlWarning, setShowControlWarning] = useState(false);
   const [activityUpdates, setActivityUpdates] = useState();
+  const [activityMessage, setActivityMessage] = useState('');
 
   const moveDelay = 1000 / 30; // divisor is the frame rate
 
@@ -249,23 +250,20 @@ const WebSketch = (props) => {
     // duration is unlimited if not specified
     console.log(`Notify: ${text}, duration: ${optionalDuration}`);
     // let $notifyDiv = $('#notify');
-    // if (text) {
-    //   $notifyDiv[0].innerText = text;
-    //   $notifyDiv.show();
-    //   if (optionalDuration) {
-    //     setTimeout (
-    //       function () { // only hide the notification if it's the same text as was set.
-    //         if ($notifyDiv[0].innerText === text) {
-    //           notify('');
-    //         }
-    //       },
-    //       optionalDuration
-    //     );
-    //   }
-    // } else {
-    //   $notifyDiv.hide();
-    //   $notifyDiv[0].innerText = '';
-    // }
+    if (text) {
+      setActivityMessage(text);
+      if (optionalDuration) {
+        setTimeout(() => {
+          console.log('Setting timeout for : ', optionalDuration);
+          // only hide the notification if it's the same text as was set.
+          // if (activityMessage === text) {
+          setActivityMessage('');
+          // }
+        }, optionalDuration);
+      }
+    } else {
+      setActivityMessage('');
+    }
   };
 
   const sendMoveMessage = (gobjInfo) => {
@@ -376,6 +374,9 @@ const WebSketch = (props) => {
         }}
         inAdminMode={user ? user.inAdminMode : false}
       />
+      {activityMessage && (
+        <div className={classes.Toast}>{activityMessage}</div>
+      )}
       <div
         className={classes.Activity}
         onClickCapture={_checkForControl}
