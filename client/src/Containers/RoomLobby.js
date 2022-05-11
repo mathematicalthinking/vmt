@@ -338,17 +338,20 @@ class Room extends Component {
       let desmos = false;
       let desmosActivity = false;
       let pyret = false;
+      let wsp = false;
       room.tabs.forEach((tab) => {
         if (tab.tabType === 'geogebra') ggb = true;
         else if (tab.tabType === 'desmos') desmos = true;
         else if (tab.tabType === 'desmosActivity') desmosActivity = true;
         else if (tab.tabType === 'pyret') pyret = true;
+        else if (tab.tabType === 'wsp') wsp = true;
       });
       let roomType;
       if (ggb && (desmos || desmosActivity)) roomType = 'GeoGebra/Desmos';
       else if (ggb) roomType = 'GeoGebra';
       else if (desmos) roomType = 'Desmos';
       else if (pyret) roomType = 'Pyret';
+      else if (wsp) roomType = 'Web Sketchpad';
       else roomType = 'Desmos Activity';
 
       const { updateFail, updateKeys } = loading;

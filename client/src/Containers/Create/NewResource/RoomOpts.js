@@ -99,10 +99,30 @@ class RoomOpts extends Component {
         </Aux>
       );
     }
+    if (roomType === 'wsp') {
+      return (
+        <div className={classes.RoomOpts}>
+          <p>Upload a Web SketchPad File</p>
+          <div>
+            <div className={classes.Container}>
+              {' '}
+              <input
+                type="file"
+                id="file"
+                // multiple
+                name="wspFile"
+                accept=".json"
+                onChange={setGgbFile}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
     if (roomType === 'pyret') {
       return (
         <Aux>
-          <p>Pyret Activity Configuration:</p>
+          <p>Activity Configuration:</p>
           <p>Do nothing at all for now</p>
         </Aux>
       );

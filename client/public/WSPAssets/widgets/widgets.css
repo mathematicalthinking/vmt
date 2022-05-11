@@ -1,0 +1,773 @@
+#widget {
+	position:absolute;
+	display: flex;
+  flex-wrap: nowrap;
+	touch-action: none;
+	line-height: normal;
+	font-size: 16px;
+	box-sizing: border-box;
+  width: max-content;
+  z-index: 2; 
+   /* stay above the resize button */
+}
+
+#widget * {
+	box-sizing: border-box;
+}
+
+.widget_controlWidth {
+		width:30px;
+}
+
+#widget_colorPane {
+	width: 256px;
+}
+
+#widget_colorGrid {
+	width: 244px;
+}
+
+#widget_control {
+	float:left;
+	text-align: left;
+	position:relative;
+	margin:0;
+	padding: 0;
+	border: 1px solid;
+  border-bottom: 2px solid black;
+  background-color: #eee;
+	height:109px;
+	cursor: move;
+	z-index: 1;
+	line-height: 16px;
+}
+
+.widget_handle {
+  position: relative;
+  top: -10px;
+  margin-bottom:-10px;
+  left: -1px;
+  height: 10px;
+  width: 30px;
+  border: 1px solid black;
+  border-radius: 5px 5px 0 0;
+  border-collapse:collapse;
+  left: -1px;
+  margin-bottom: -10px;
+  background: repeating-linear-gradient( 50deg, #bbb, #eee 1px, #eee 1px, #bbb 2px );
+}
+
+
+/* For chrome & safari, browser-generated focus is ugly; replace it with a box-shadow. */
+#widget_control button {
+  outline: 0;
+  padding-top: 1px;
+}
+#widget_control button:focus{
+  box-shadow: 0 0 0 3px lightblue;
+}
+
+
+/* Tooltip container */
+.widgettip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.widgettip .widgettiptext {
+  visibility: hidden;
+  background-color: #ddd;
+  color: #444;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  width: 110px;
+  top: -5px;
+  left: 105%;
+  position: absolute;
+  z-index: 1;
+}
+
+/* Show the widgettip text when you mouse over the widgettip container */
+.widgettip:hover .widgettiptext {
+  visibility: visible;
+}
+
+.widgettip .widgettiptext::after { /* Add an arrow */
+  content: " ";
+  position: absolute;
+  top: 50%;  /* At the top of the widgettip */
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #ddd transparent transparent;
+}
+
+.widget_controlButton {
+  width: 28px;
+  height: 21px;
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  border-collapse: collapse;
+  /*border-radius: 4px;*/
+  left: 0px;
+	padding: 0;
+	margin: 0 auto;
+	cursor: pointer;
+  background-color: white;
+}
+
+.widget_controlButton.widget_active {
+  background-color: #ffff80;
+}
+
+.widget_controlIcon {
+	width: 16px;
+}
+
+#widget_lineStyleSelector {
+	width: 50px;
+}
+
+#widget_colorSelector {
+	height:26px;
+	width:26px;
+	border:1px solid;
+	top: 2px;
+	left: 28px;
+	display: none;
+ }
+
+.widget_colorIcon {
+	height: 18px;
+	padding-bottom:5px;
+}
+
+.wDismissPane {
+	width: 34px;
+	z-index: 0;
+}
+
+#wStylePane {
+	display:none;
+}
+
+.widgetPane {
+	float:left;
+	position:relative;
+	margin:0;
+	margin-left:-1px;
+	padding:5px;
+	padding-top: 0px;
+	border: 1px solid;
+	height:109px;
+	background-color:#eeeeee;
+	z-index: 1;
+	display: block;
+	cursor: move;
+}
+
+.widget_pointPaneWidth {
+	width:31px;
+}
+
+.widget_pointImgWidth {
+	width: 21px;
+}
+.widget_lineStyleWidth {
+	width:154px;
+}
+
+#widget_lineStylePane {
+	width:164px;
+}
+
+.clearfix::after, .button_area::after, div.util-popup-button::after {
+  /*  Use clearfix for any element that needs "clear: both".
+   *  Always clear after button_area and util dialog confirm/cancel button groups
+   *  This version from https://css-tricks.com/snippets/css/clear-fix/ */
+  content: "";
+  visibility: hidden; 
+  display: block; 
+  height: 0;
+  clear: both;
+}
+
+.style_paneCheckbox {
+	padding:5px;
+	padding-right:0;
+	width:17px;
+	cursor: pointer;
+}
+
+.style_paneBackground {
+	position:absolute;
+	top:20px;
+	left:5px;
+	height:78px;
+	background-color:#ffffff;
+	z-index:2;
+}
+
+.style_paneContent {
+	position:absolute;
+	top:20px;
+	left:5px;
+	height:81px;
+	z-index:4; 
+}
+
+.style_paneSelector {
+	position:absolute;
+	background-color:#ddf;
+	height:19px;
+	width:19px;
+	left:6px;
+	z-index:3;
+	display:none;
+}
+
+.widget_color_column {
+	position:absolute;
+	width:27px;
+	height:78px;
+}
+
+.widget_color_column>div {
+	position:relative;
+	margin: 5px;
+	width:20px;
+	height:20px;
+	z-index:4;
+	border: 1px solid black; 
+}
+
+/* Define the colors for the color widget */
+.block0a {background-color: #ffffff;}
+.block0b {background-color: #c0c0c0;}
+.block0c {background-color: #000000;}
+.block1a {background-color: #ff0000;}
+.block1b {background-color: #d85656;}
+.block1c {background-color: #7f0000;}
+.block2a {background-color: #ff7f00;}
+.block2b {background-color: #c0854a;}
+.block2c {background-color: #7f3f00;}
+.block3a {background-color: #ffff00;}
+.block3b {background-color: #d8d856;}
+.block3c {background-color: #7f7f00;}
+.block4a {background-color: #00ff00;}
+.block4b {background-color: #56d856;}
+.block4c {background-color: #007f00;}
+.block5a {background-color: #00ffff;}
+.block5b {background-color: #56d8d8;}
+.block5c {background-color: #007f7f;}
+.block6a {background-color: #0000ff;}
+.block6b {background-color: #5656d8;}
+.block6c {background-color: #00007f;}
+.block7a {background-color: #7f00ff;}
+.block7b {background-color: #8a66d9;}
+.block7c {background-color: #3f007f;}
+.block8a {background-color: #ff00ff;}
+.block8b {background-color: #d856d8;}
+.block8c {background-color: #7f007f;}
+
+/* Label Pane styles */
+#wLabelPane {
+	display:none;
+  min-width: 304px;
+}
+
+#wLabelEditText {
+	padding: 2px;
+	width: 256px;
+  margin: 2px 0;
+}
+
+#wLabelEditText:disabled {
+  background-color: #eee;
+}
+
+#wLabelEditLabel:disabled {
+  color: gray;
+}
+
+#wShowLabelButton {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.wLabelControls {
+	font-size: 14px;
+	padding-top: 5px;
+  min-width: 270px;
+  text-align: left;
+	z-index: 2;	/* to be in front of dismissPane */
+}
+
+.wDismissButton {
+	position:relative;
+	width: 24px;
+	cursor: pointer;
+}
+
+.confirm_button {
+	top: 19px;
+}
+
+.cancel_button {
+	top: 35px;
+}
+
+.labelCombo {
+	position:relative;
+	background-color:white;
+	border:solid grey 1px;
+	height:19px;
+  float:left;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.labelCombo select {
+	position:absolute;
+	top:0px;
+	left:0px;
+	border:none;
+	margin:0;
+}
+
+.labelCombo input {
+	position:absolute;
+	top:0px;
+	left:0px;
+	padding:1px;
+	border:none;
+}
+
+.labelCombo select:focus, .labelCombo input:focus {
+	outline:none;
+}
+
+.labelSizeCombo {
+	width:48px;
+}
+
+.labelSizeCombo select {
+	width: 48px;
+}
+
+.labelSizeCombo input {
+	width:32px;
+}
+
+.labelFontCombo {
+	width: 176px;
+}
+
+.labelFontCombo select {
+	width: 176px;
+	font-size: 12px;
+}
+
+.labelFontCombo input {
+	width: 160px;
+}
+
+/* The char dropdown container */
+.wCharDropdown {
+	position: relative;
+	width: 18px;
+  float: left;
+	z-index:4;
+}
+
+/* Char dropdown button */
+.wCharDropdown .wCharDropbtn {
+  font: inherit; /* Important for vertical align on mobile phones */
+  margin: 0; /* Important for vertical align on mobile phones */
+	text-align: center;
+	width: 16px;
+	border: thin solid gray;
+	box-shadow: 1px 1px 1px #888;
+	font-size: 13px;
+}
+
+/* Char dropdown content (hidden by default) */
+.wCharDropdownContent {
+  display: none;
+  position: absolute;
+	border: 1px solid black;
+	padding: 3px 0px;
+	background-color: #fff;
+	width: 80px;
+	font-size: 16px;
+	top: 0px;
+}
+
+/* Show the dropdown menu on hover */
+.wCharDropdown:hover .wCharDropdownContent {
+  display: block;
+}
+
+/* Create three equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 33%;
+  padding: 0;
+	line-height: 19px;
+}
+
+/* Style links inside the columns */
+.column div {
+  float: none;
+  color: black;
+  padding: 0;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+}
+
+/* Add a background color on hover */
+.column div:hover {
+  background-color: #ddd;
+}
+
+.wNameOrigin2 {
+	font-size: 14px;
+	padding-top: 18px;
+	line-height: 34px;
+}
+
+.wNameOrigin3 {
+	font-size: 14px;
+	padding-top: 8px;
+	line-height: 30px;
+}
+
+.wNameOrigin4 {
+	font-size: 14px;
+	padding-top: 5px;
+	line-height: 24px;
+}
+
+.wLabelRadios {
+	width:96px;
+	float: left;
+}
+
+.wPrompt {
+	font-size: 16px;
+	font-weight: 200;
+  text-align: left;
+	display: none;
+  line-height: 32px;
+  padding:4px 12px 0px 12px;}
+
+#wLabelPrompt {
+  display: none;
+}
+
+/* Trace Pane styles */
+#wTracePane {
+	display:none;
+  min-width: 192px;
+}
+
+.wTraceControls {
+	line-height: 22px;
+}
+
+.wTraceControls button {
+	margin-top:8px;
+	font-size:14px;
+	font-family:serif;
+}
+
+#wEraseTraces {
+  margin-bottom: 2px;
+}
+
+#wVisIcon {
+  height: 16px;
+  vertical-align: middle;
+}
+
+/* The sketch_container includes the sketch itself and content immediately below it. */
+/* It's resized, when the sketch is loaded, to the width of the sketch. */
+/* Default content immediately below is a paragraph, a widget button, and the page controls. */
+/* The latter two must have place-holders in the html; otherwise they don't exist. */
+/* The widget_button is right of the paragraph because it may appear/disappear from page to page, */
+/* and we don't want the paragraph jumping back and forth when the user changes pages. */
+.sketch_canvas {
+	position: relative;
+  display: inline-block;  /* make sketch_canvas fit content */
+}
+.sketch_container {
+	border:2px solid black;
+  border-collapse: collapse;
+	display:inline-block;
+	position: relative;
+	box-sizing: border-box;
+  background-color: #fff;
+	font-size:14px;
+  /* Don't hide overflow, or the widget will be cropped if it's moved beyond the border */
+}
+.sketch_container .button_area {
+	font-size: 16px;
+  border-bottom: 1px solid black;
+  border-collapse: collapse;
+}
+.sketch_container .sketch_canvas {
+	border:none;
+  vertical-align: top;
+	border-bottom: 1px solid black;
+}
+.button_area p {
+	margin: 2px 8px;
+	float: left;
+}
+.sketch_container a {
+	cursor: pointer;
+}
+.widget_button, .reset_button {
+  margin: 4px 4px 0px 4px;
+	font-size: 14px;
+	background-color: #fff;
+	float:right;
+	cursor: pointer;
+}
+
+.widget_button_active, .reset_button {
+	background-color: #ddf;
+}
+
+#delete-confirm-modal .util-popup-content {
+  width: 300px;
+}
+
+#delete-confirm-modal .util-popup-legend {
+  text-align: center;
+}
+
+.page_buttons {
+	float:right;
+	font-family:"Times New Roman", serif;
+	font-size:18px;
+	line-height: 16px;
+	margin: 4px;
+  margin-top: 6px;
+	border:none;
+	cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  display: none;
+	}
+
+.page_buttons.page_buttonsActive {
+	border: 1px solid;
+	border-radius: 9px;
+	margin-right: 3px;
+  display: block;
+}
+
+.page_btn {
+	display: inline-block;
+	width: 26px;
+	background: no-repeat center/13px 13px;
+}
+
+.page_prevBtn {
+	background-image: url("./left-pointer.png");
+	opacity: 0.4;
+}
+
+.page_nextBtn {
+	background-image: url("./right-pointer.png");
+}
+
+.page_popup {
+	position:absolute;
+	line-height: 18px;
+	top: -80px;
+	left:-5px;
+	padding:2px;
+	border:1px solid;
+	margin-top: 1px;
+	z-index:1;
+	background-color:#fff;
+}
+
+/* For elements that toggle on and off when the sketch page switches.
+ * Use .page_toggle.page_3 for elements to appear on page 3.
+ */
+.page_toggle {
+	display: none;
+}
+
+div.page_toggle {
+	clear: both;
+	border-top: 1px solid black;
+}
+
+/* Utility Menu Styles */
+input + span {
+  padding-right: 0;
+}
+
+input:invalid+span:after {
+  position: absolute;
+	content: '✖';
+  padding-left: 5px;
+	padding-top: 2px;
+}
+
+input:valid+span:after {
+  position: absolute;
+  content: '✓';
+  padding-left: 6px;
+	padding-top: 2px;
+}
+
+.util-menu-item {
+	height:18px;
+	width:100%;
+	margin:0;
+	padding:3px 0;
+}
+
+.util-menu-content {
+    display: none;
+    position: absolute;
+		bottom: -3px;
+		left: -4px;
+		background-color: #f1f1f1;
+    border: 1px solid black;
+		font-size: 14px;
+    font-family: sans-serif;
+    z-index: 5;
+		text-align: left;
+    padding: 0 6px;
+    width: max-content;
+}
+
+.util-menu-content hr {
+  margin: 2px 0;
+}
+
+.util-menu-btn {
+	position: relative;
+	padding:2px;
+	border: 1px solid black;
+	height: 18px;
+	margin: 2px 2px 1px 2px;
+	float: left;
+}
+
+img.util-menu {
+	padding:0;
+	height: 18px;
+	width: 23px;
+}
+
+.util-popup {	/* Background for dialog */
+	display: none;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%; 
+	overflow: auto;
+	background-color: rgb(0,0,0);
+	background-color: rgba(0,0,0,0.2);
+}
+
+.util-popup-content {
+	background-color: #fefefe;
+	margin: 160px auto;
+	padding: 16px;
+	box-shadow: 5px 10px rgba(150,150,150,.7);
+	cursor: move;
+  border: 3px solid black;
+  border-radius: 10px;
+}
+
+#download-modal .util-popup-content {
+	width: 336px;
+}
+
+#upload-modal .util-popup-content {
+	width: 544px;
+}
+
+#file-name-input, #downloadLink {
+  display: none;
+}
+
+.util-popup-title {
+	margin: 0 auto;
+	text-align: center;
+	font-size: 24px;
+	line-height: normal;
+	font-weight: 400;
+	margin-bottom: 24px;
+}
+
+span.util-menu {
+	padding: 2px;
+}
+.util-popup-legend {
+	margin: 0;
+}
+
+#util-fname {
+	width:232px;
+	font-size: 16px;
+  border: 1px solid black;
+}
+
+.util-div-fname {
+	padding: 14px 0;
+}
+
+.validity {
+	width:16px;
+}
+
+div.util-popup-button {
+	padding: 3px 8px;
+}
+
+input.util-popup-button {
+	border-radius: 6px;
+	font-size: 16px;
+	padding: 0 16px;
+  margin-left: 15px;
+  margin-top: 10px;
+	float: right;
+	cursor: pointer;
+}
+
+input.util-popup-button:focus {
+	background-image: linear-gradient(#59a9fb, #045fff);
+	color:white;
+}
+
+#saveOK:disabled {
+	background-image: none;
+	color: gray;
+}
+
+/* Change color of dropdown links on hover */
+.util-menu-item:hover {background-color: #ddf}
+
+.wsp_logo {
+  float: left;
+  padding: 7px 5px 0;
+  height: 16px;
+  content: url("./wsp-logo.png");
+}
