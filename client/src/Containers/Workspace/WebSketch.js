@@ -186,11 +186,11 @@ const WebSketch = (props) => {
   // (to children that refer to their parents) and thus cannot
   // be stringifiedl.
   const moveGobj = (event) => {
-    console.log('Incontrol - ', props.inControl);
-    // if (props.inControl) {
-    const gobj = event.target;
-    const gobjInfoDat = { id: gobj.id, loc: gobj.geom.loc };
-    sendMoveMessage(gobjInfoDat);
+    if (event) {
+      const gobj = event.target;
+      const gobjInfoDat = { id: gobj.id, loc: gobj.geom.loc };
+      sendMoveMessage(gobjInfoDat);
+    }
     // } else {
     //   let selector = `#${attr.id}`;
     //   // console.log("Selector: ", selector, " sQuery? ", !!sketch.sQuery);
@@ -210,10 +210,12 @@ const WebSketch = (props) => {
     for (const id in moveList) {
       const newLoc = moveList[id];
       const destGobj = sketch.gobjList.gobjects[id];
-      const loc = destGobj.geom.loc;
-      loc.x = newLoc.x; // Avoid the need to create a new GSP.GeometricPoint
-      loc.y = newLoc.y;
-      destGobj.invalidateGeom();
+      if (destGobj) {
+        const loc = destGobj.geom.loc;
+        loc.x = newLoc.x; // Avoid the need to create a new GSP.GeometricPoint
+        loc.y = newLoc.y;
+        destGobj.invalidateGeom();
+      }
     }
   };
 
