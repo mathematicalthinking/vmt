@@ -8,15 +8,20 @@
   lightGray: lightGray;
 }
 
+.Activity {
+
+}
+
 .Graph {
   height: 100%;
   width: 100%;
-  /* z-index: 991; */
 }
 
-.Activity {
-  /* position: absolute; */
-  /* z-index: 990; */
+.Control {
+  height: 100%;
+  /* width: 100%; */ /* We calculate the width based on the Graph element to account for vertical scrollbar */
+  position: absolute;
+  /* background-color: rgba(0,0,0,0.5) */
 }
 
 .ControlWarning {

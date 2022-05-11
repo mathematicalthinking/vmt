@@ -25,10 +25,20 @@ export const useSortableData = (items, config = null) => {
     let sortableItems = [...items];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const first =
+          typeof a[sortConfig.key] === 'string'
+            ? a[sortConfig.key].toLowerCase()
+            : a[sortConfig.key];
+
+        const second =
+          typeof b[sortConfig.key] === 'string'
+            ? b[sortConfig.key].toLowerCase()
+            : b[sortConfig.key];
+
+        if (first < second) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (first > second) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
         return 0;
@@ -49,7 +59,12 @@ export const useSortableData = (items, config = null) => {
     setSortConfig({ key, direction });
   };
 
-  return { items: sortedItems, requestSort, sortConfig };
+  const resetSort = (key, direction) => {
+    if (key && direction) setSortConfig({ key, direction });
+    else if (key && !direction) requestSort(key);
+  };
+
+  return { items: sortedItems, requestSort, sortConfig, resetSort };
 };
 
 /**

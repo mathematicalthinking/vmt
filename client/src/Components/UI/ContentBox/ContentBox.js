@@ -81,7 +81,6 @@ class ContentBox extends PureComponent {
             <div className={classes.Content}>
               {details && expanded ? (
                 <div className={classes.Expanded}>
-                  <div>{details.description || ''}</div>
                   {details.facilitators && details.facilitators.length > 0 ? (
                     <div>
                       Facilitators:{' '}
@@ -91,9 +90,18 @@ class ContentBox extends PureComponent {
                   {details.sinceUpdated ? (
                     <div>Updated: {details.sinceUpdated} ago</div>
                   ) : null}
+                  {details.createdAt ? (
+                    <div>Created: {details.createdAt}</div>
+                  ) : null}
+                  {details.dueDate ? (
+                    <div>Due Date: {details.dueDate}</div>
+                  ) : null}
                   {details.creator ? `Creator: ${details.creator}` : null}
                   {details.entryCode ? (
                     <div>Entry Code: {details.entryCode}</div>
+                  ) : null}
+                  {details.description ? (
+                    <div>Description: {details.description}</div>
                   ) : null}
                 </div>
               ) : null}

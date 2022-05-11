@@ -314,18 +314,6 @@ class Chat extends Component {
     return found.reference || reference;
   };
 
-  createActivity = () => {
-    const { createActivity } = this.props;
-    // this.setState({ settings: false });
-    createActivity();
-  };
-
-  openReplayer = () => {
-    const { goToReplayer } = this.props;
-    // this.setState({ settings: false });
-    goToReplayer();
-  };
-
   toggleChatPicker = () => {
     this.setState((prevState) => ({
       isChatPicker: !prevState.isChatPicker,
@@ -396,6 +384,7 @@ class Chat extends Component {
       createActivity,
       pendingUsers,
       connectionStatus,
+      resetRoom,
     } = this.props;
     const {
       highlightedMessage,
@@ -405,70 +394,6 @@ class Chat extends Component {
       isListening,
       seenChatInstructions,
     } = this.state;
-    const DropdownMenu = () => {
-      return (
-        // eslint-disable-next-line
-        <div
-          className={DropdownMenuClasses.Container}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <i className="fas fa-bars" />
-
-          <div className={DropdownMenuClasses.DropdownContent}>
-            {goToReplayer ? (
-              <div className={DropdownMenuClasses.DropdownItem}>
-                <button
-                  type="button"
-                  className={classes.Button}
-                  onClick={(e) => {
-                    this.openReplayer();
-                    e.stopPropagation();
-                  }}
-                  data-testid="open-replayer"
-                >
-                  Open Replayer
-                  <span className={classes.ExternalLink}>
-                    <i className="fas fa-external-link-alt" />
-                  </span>
-                </button>
-              </div>
-            ) : null}
-            {createActivity ? (
-              <div className={DropdownMenuClasses.DropdownItem}>
-                <button
-                  type="button"
-                  className={classes.Button}
-                  onClick={(e) => {
-                    this.createActivity();
-                    e.stopPropagation();
-                  }}
-                  data-testid="create-workspace"
-                >
-                  Create Template
-                  {/* or Room */}
-                </button>
-              </div>
-            ) : null}
-            {!socket.connected ? (
-              <div className={DropdownMenuClasses.DropdownItem}>
-                <button
-                  type="button"
-                  className={classes.Button}
-                  onClick={() => {
-                    window.location.reload();
-                  }}
-                  data-testid="resync"
-                >
-                  Force Refresh
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      );
-    };
 
     let displayMessages = [];
     if (log) {
@@ -538,7 +463,11 @@ class Chat extends Component {
           >
             {!replayer ? (
               <div className={classes.DropdownContainer}>
-                <DropdownMenu />{' '}
+                <DropdownMenu
+                  goToReplayer={goToReplayer}
+                  createActivity={createActivity}
+                  resetRoom={resetRoom}
+                />{' '}
               </div>
             ) : null}
             Chat
@@ -736,6 +665,7 @@ Chat.propTypes = {
   pendingUsers: PropTypes.shape({}),
   connectionStatus: PropTypes.string,
   changingIndex: PropTypes.bool,
+  resetRoom: PropTypes.func,
 };
 
 Chat.defaultProps = {
@@ -764,6 +694,95 @@ Chat.defaultProps = {
   pendingUsers: null,
   connectionStatus: 'None',
   changingIndex: false,
+  resetRoom: () => {},
 };
 
 export default Chat;
+
+const DropdownMenu = (props) => {
+  const { goToReplayer, createActivity, resetRoom } = props;
+
+  return (
+    // eslint-disable-next-line
+    <div
+      className={DropdownMenuClasses.Container}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
+      <i className="fas fa-bars" />
+
+      <div className={DropdownMenuClasses.DropdownContent}>
+        {goToReplayer ? (
+          <div className={DropdownMenuClasses.DropdownItem}>
+            <button
+              type="button"
+              className={classes.Button}
+              onClick={(e) => {
+                goToReplayer();
+                e.stopPropagation();
+              }}
+              data-testid="open-replayer"
+            >
+              Open Replayer
+              <span className={classes.ExternalLink}>
+                <i className="fas fa-external-link-alt" />
+              </span>
+            </button>
+          </div>
+        ) : null}
+        {createActivity ? (
+          <div className={DropdownMenuClasses.DropdownItem}>
+            <button
+              type="button"
+              className={classes.Button}
+              onClick={(e) => {
+                createActivity();
+                e.stopPropagation();
+              }}
+              data-testid="create-workspace"
+            >
+              Create Template
+              {/* or Room */}
+            </button>
+          </div>
+        ) : null}
+
+        <div className={DropdownMenuClasses.DropdownItem}>
+          <button
+            type="button"
+            className={classes.Button}
+            onClick={(e) => {
+              resetRoom();
+              e.stopPropagation();
+            }}
+            data-testid="force-sync"
+          >
+            Force Sync
+          </button>
+        </div>
+
+        {!socket.connected ? (
+          <div className={DropdownMenuClasses.DropdownItem}>
+            <button
+              type="button"
+              className={classes.Button}
+              onClick={() => {
+                window.location.reload();
+              }}
+              data-testid="resync"
+            >
+              Force Refresh
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+};
+
+DropdownMenu.propTypes = {
+  goToReplayer: PropTypes.func.isRequired,
+  createActivity: PropTypes.func.isRequired,
+  resetRoom: PropTypes.func.isRequired,
+};

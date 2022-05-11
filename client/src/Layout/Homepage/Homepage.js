@@ -52,6 +52,9 @@ class Homepage extends PureComponent {
     if (url.split('.')[0] === 'https://vmt-test') {
       return 'staging';
     }
+    if (url.split('.')[0] === 'https://vmt-dev') {
+      return 'dev-sandbox';
+    }
     if (process.env.NODE_ENV === 'development') {
       return 'development';
     }
@@ -65,7 +68,7 @@ class Homepage extends PureComponent {
         win ? `: maintenance window is ${win}` : ''
       }, please contact if uptime is required.`;
     }
-    if (pageLocation === 'staging') {
+    if (pageLocation === 'staging' || pageLocation === 'dev-sandbox') {
       return 'Staging deployment may have unplanned maintenance, please notify if an uptime window is required.';
     }
     return null;
@@ -99,8 +102,8 @@ class Homepage extends PureComponent {
     const dateStamp = (
       <p>
         {`Last updated: ${new Date(
-          '03/14/2022'
-        ).toLocaleDateString()}, v.1.6.13-WSP`}
+          process.env.REACT_APP_BUILD_DATE || '07/24/2022'
+        ).toLocaleDateString()}, ${process.env.REACT_APP_VERSION}`}
       </p>
     );
     let pyretStatus = '';
@@ -194,7 +197,9 @@ class Homepage extends PureComponent {
                 open source
               </a>{' '}
               and currently in active development - You are viewing this
-              application in <b>{pageLocation}</b> mode. Web Sketchpad (WSP) is in DRAFT integration. {pyretStatus}
+              application in <b>{pageLocation}</b> mode. Web Sketchpad (WSP) is
+              in DRAFT integration. {pyretStatus}
+              {pyretStatus}
             </p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />

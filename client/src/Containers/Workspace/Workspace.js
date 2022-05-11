@@ -194,12 +194,18 @@ class Workspace extends Component {
   componentWillUnmount() {
     const { populatedRoom, connectUpdatedRoom, user } = this.props;
     const { myColor, currentMembers, cancelSnapshots } = this.state;
-    socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
-    connectUpdatedRoom(populatedRoom._id, {
-      currentMembers: currentMembers.filter(
-        (mem) => mem && user && mem._id !== user._id
-      ),
-    });
+    // don't generate a LEAVE message if the user is an admin
+    if (!user.inAdminMode) {
+      socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
+      // Below updates the Redux store, removing the current user from the list of people in the room (currentMembers).
+      // However, this might not be needed as the socket updates the DB with the current members. The next time this info is needed, in
+      // some type of monitor or when this person reenters the room, that info will be pulled from the DB.
+      connectUpdatedRoom(populatedRoom._id, {
+        currentMembers: currentMembers.filter(
+          (mem) => mem && user && mem._id !== user._id
+        ),
+      });
+    }
     window.removeEventListener('resize', this.resizeHandler);
     window.removeEventListener('keypress', this.keyListener);
     socket.removeAllListeners('USER_JOINED');
@@ -414,7 +420,7 @@ class Workspace extends Component {
           const latency = Date.now() - start;
           if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
           else this.setState({ connectionStatus: 'Good' });
-          console.log('Heartbeat<3 latency: ', latency);
+          // console.log('Heartbeat<3 latency: ', latency);
         });
       } else {
         // not connected
@@ -912,6 +918,25 @@ class Workspace extends Component {
     });
   };
 
+  resetRoom = () => {
+    const { resetRoom } = this.props;
+    resetRoom().then(() => {
+      const { populatedRoom } = this.props;
+      this.setState({
+        controlledBy:
+          populatedRoom && populatedRoom.controlledBy
+            ? populatedRoom.controlledBy
+            : null,
+        currentMembers:
+          populatedRoom && populatedRoom.currentMembers
+            ? populatedRoom.currentMembers
+            : null,
+        tabs: populatedRoom && populatedRoom.tabs ? populatedRoom.tabs : null,
+        log: populatedRoom && populatedRoom.log ? populatedRoom.log : null,
+      });
+    });
+  };
+
   render() {
     const {
       populatedRoom,
@@ -924,6 +949,7 @@ class Workspace extends Component {
       connectUpdateRoomTab,
       tempCurrentMembers,
       connectUpdateUserSettings,
+      // resetRoom,
     } = this.props;
     const {
       tabs: currentTabs,
@@ -1007,6 +1033,7 @@ class Workspace extends Component {
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
         connectionStatus={connectionStatus}
+        resetRoom={this.resetRoom}
       />
     );
     const graphs = currentTabs.map((tab) => {
@@ -1254,6 +1281,7 @@ Workspace.propTypes = {
   connectUpdateRoomTab: PropTypes.func.isRequired,
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectUpdateUserSettings: PropTypes.func.isRequired,
+  resetRoom: PropTypes.func,
 };
 
 Workspace.defaultProps = {
@@ -1262,6 +1290,7 @@ Workspace.defaultProps = {
   lastMessage: null,
   save: null,
   temp: false,
+  resetRoom: () => {},
 };
 const mapStateToProps = (state, ownProps) => {
   return {
