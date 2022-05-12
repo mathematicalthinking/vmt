@@ -23,6 +23,7 @@
   white-space: no-wrap;
   text-overflow: ellipsis; /* <-- this is not working */
   margin-left: -22px;
+  text-transform: capitalize;
 }
 
 .ToolTipText::after {

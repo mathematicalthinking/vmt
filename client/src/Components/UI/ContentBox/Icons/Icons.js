@@ -7,6 +7,7 @@ import pyretIcon from './pyretlogo.png';
 import bothIcon from './desmosandgeogebra.png';
 import ToolTip from '../../../ToolTip/ToolTip';
 import classes from './icons.css';
+import getResourceTabTypes from 'utils/getResourceTabTypes';
 
 const Icons = ({ lock, listType, roomType, image }) => {
   let lockIcon;
@@ -31,8 +32,10 @@ const Icons = ({ lock, listType, roomType, image }) => {
     );
   }
 
+  const { tabTypes: toolTipText } = getResourceTabTypes(roomType);
+
   const desImageAndToolTip = (
-    <ToolTip text="Desmos" delay={600}>
+    <ToolTip text={toolTipText} delay={600}>
       <div className={classes.Icon}>
         <img width={25} src={dsmIcon} alt="dsm" />
       </div>
@@ -40,7 +43,7 @@ const Icons = ({ lock, listType, roomType, image }) => {
   );
 
   const desActImageAndToolTip = (
-    <ToolTip text="DesmosActivity" delay={600}>
+    <ToolTip text={toolTipText} delay={600}>
       <div className={classes.Icon}>
         <img width={25} src={dsmActIcon} alt="dsm" />
       </div>
@@ -48,7 +51,7 @@ const Icons = ({ lock, listType, roomType, image }) => {
   );
 
   const ggbImageAndToolTip = (
-    <ToolTip text="GeoGebra" delay={600}>
+    <ToolTip text={toolTipText} delay={600}>
       <div className={classes.Icon}>
         <img width={28} src={ggbIcon} alt="ggb" />
       </div>
@@ -56,7 +59,7 @@ const Icons = ({ lock, listType, roomType, image }) => {
   );
 
   const pyretImageAndToolTip = (
-    <ToolTip text="Pyret" delay={600}>
+    <ToolTip text={toolTipText} delay={600}>
       <div className={classes.Icon}>
         <img width={28} src={pyretIcon} alt="pyret" />
       </div>
@@ -67,6 +70,7 @@ const Icons = ({ lock, listType, roomType, image }) => {
     let ggb = false;
     let act = false;
     let pyrt = false;
+
     roomType.forEach((rmType) => {
       if (rmType === 'desmos') des = true;
       else if (rmType === 'desmosActivity') act = true;
@@ -75,7 +79,7 @@ const Icons = ({ lock, listType, roomType, image }) => {
     });
     if (ggb && des) {
       roomTypeIcon = (
-        <ToolTip text="GeoGebra/Desmos" delay={600}>
+        <ToolTip text={toolTipText} delay={600}>
           <div className={classes.Icon}>
             <img width={25} src={bothIcon} alt="ggb" />
           </div>

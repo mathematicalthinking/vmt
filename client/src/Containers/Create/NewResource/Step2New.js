@@ -30,8 +30,8 @@ const Step2New = (props) => {
         >
           Desmos Activity
         </RadioBtn>
-        {process.env.REACT_APP_PYRET_MODE &&
-        process.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' ? (
+        {window.env.REACT_APP_PYRET_MODE &&
+        window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' ? (
           <RadioBtn
             name="pyret"
             checked={roomType === 'pyret'}

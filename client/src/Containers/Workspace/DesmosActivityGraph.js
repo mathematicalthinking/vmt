@@ -57,15 +57,17 @@ class DesmosActivityGraph extends Component {
   componentWillUnmount() {
     const { role, activity, tab, updateActivityTab } = this.props;
     // save on unmount
-    if (role === 'facilitator') {
-      updateActivityTab(activity._id, tab._id, {
-        currentState: JSON.stringify({
-          ...this.calculator.getState(),
-        }),
-      });
+    if (this.calculator) {
+      if (role === 'facilitator') {
+        updateActivityTab(activity._id, tab._id, {
+          currentState: JSON.stringify({
+            ...this.calculator.getState(),
+          }),
+        });
+      }
+      this.calculator.unobserveEvent('change');
+      this.calculator.destroy();
     }
-    this.calculator.unobserveEvent('change');
-    this.calculator.destroy();
   }
 
   onScriptLoad = () => {

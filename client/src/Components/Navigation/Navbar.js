@@ -22,6 +22,13 @@ const Navbar = ({ user, location, toggleAdmin }) => {
     styles = classes.Fixed;
   }
 
+  if (
+    location.pathname.includes('workspace') &&
+    location.pathname.includes('activity')
+  ) {
+    styles = classes.EditorNavContainer;
+  }
+
   const aboutList = [
     { name: 'About', link: '/about' },
     { name: 'Instructions', link: '/instructions' },

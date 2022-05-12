@@ -158,18 +158,11 @@ class Workspace extends Component {
     // @TODO populatedRoom.controlledBy is ALWAYS null! Should use
     // controlledBy in the state instead.
     const { populatedRoom, user, temp, lastMessage } = this.props;
-    if (
-      prevProps.populatedRoom.controlledBy === null &&
-      populatedRoom.controlledBy !== null &&
-      populatedRoom.controlledBy !== user._id
-    ) {
-      //   socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
-      //     this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-      //     // this.setState({activeMember: ''})
-      //   })
-    }
+    const { controlledBy } = this.state;
 
-    if (!socket.connected && populatedRoom.controlledBy === user._id) {
+    // If we are no longer connected, but in control of the room, then release control (locally).
+    // Control will be released by the server when the disconnection is detected (see server/sockets.js>killZombies)
+    if (!socket.connected && controlledBy === user._id) {
       const auto = true;
       this.toggleControl(null, auto);
     }
@@ -184,10 +177,21 @@ class Workspace extends Component {
       this.goBack();
     }
 
-    // this._takeSnapshotIfNeeded(); // likely too CPU intensive and noticible by user.
-
-    // const { takeSnapshot } = this.state;
-    // if (prevProps.controlledBy === user._id) takeSnapshot();
+    // test did populatedRoom change?
+    // if so, do we need to update state?
+    const oldRoom = prevProps.populatedRoom;
+    const propsDifference = this.findRoomDifference(oldRoom, populatedRoom);
+    if (propsDifference) {
+      const stateDifference = this.findRoomDifference(
+        this.state,
+        populatedRoom
+      );
+      if (stateDifference) {
+        // We are being very careful to update the state only if completely necessary, so this setState is warranted
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState(stateDifference);
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -642,17 +646,13 @@ class Workspace extends Component {
 
     if (referToEl.wasObjectDeleted) {
       // referenced object was removed
-      const msg = `The referenced object (${referToEl.elementType} ${
-        referToEl.element
-      }) was deleted.`;
+      const msg = `The referenced object (${referToEl.elementType} ${referToEl.element}) was deleted.`;
       window.alert(msg);
       return;
     }
 
     if (referToEl.wasObjectUpdated) {
-      const msg = `Caution! The referenced object (${referToEl.elementType} ${
-        referToEl.element
-      }) has been modified since the time of reference.`;
+      const msg = `Caution! The referenced object (${referToEl.elementType} ${referToEl.element}) has been modified since the time of reference.`;
       window.alert(msg);
     }
 
@@ -848,7 +848,7 @@ class Workspace extends Component {
     }
     let { instructions } = tab;
 
-    if (!instructions && (tabIndex === 0 && populatedRoom.instructions)) {
+    if (!instructions && tabIndex === 0 && populatedRoom.instructions) {
       ({ instructions } = populatedRoom);
     }
 
@@ -917,23 +917,43 @@ class Workspace extends Component {
     });
   };
 
-  resetRoom = () => {
-    const { resetRoom } = this.props;
-    resetRoom().then(() => {
-      const { populatedRoom } = this.props;
-      this.setState({
-        controlledBy:
-          populatedRoom && populatedRoom.controlledBy
-            ? populatedRoom.controlledBy
-            : null,
-        currentMembers:
-          populatedRoom && populatedRoom.currentMembers
-            ? populatedRoom.currentMembers
-            : null,
-        tabs: populatedRoom && populatedRoom.tabs ? populatedRoom.tabs : null,
-        log: populatedRoom && populatedRoom.log ? populatedRoom.log : null,
-      });
-    });
+  /**
+   * @method findRoomDifference
+   * @param oldRoom
+   * @param newRoom
+   * @returns false if no differences, else a new state object with the differences
+   */
+  findRoomDifference = (oldRoom, newRoom) => {
+    const results = {};
+
+    if (
+      (oldRoom.tabs || newRoom.tabs) &&
+      (oldRoom.tabs && oldRoom.tabs.length) !==
+        (newRoom.tabs && newRoom.tabs.length)
+    ) {
+      results.tabs = newRoom.tabs;
+    }
+
+    if (
+      (oldRoom.log || newRoom.log) &&
+      (oldRoom.log && oldRoom.log.length) !==
+        (newRoom.log && newRoom.log.length)
+    ) {
+      results.log = newRoom.log;
+    }
+
+    if (oldRoom.controlledBy !== newRoom.controlledBy) {
+      results.controlledBy = newRoom.controlledBy;
+    }
+
+    if (
+      JSON.stringify(oldRoom.currentMembers) !==
+      JSON.stringify(newRoom.currentMembers)
+    ) {
+      results.currentMembers = newRoom.currentMembers;
+    }
+
+    return Object.keys(results).length !== 0 ? results : false;
   };
 
   render() {
@@ -948,7 +968,7 @@ class Workspace extends Component {
       connectUpdateRoomTab,
       tempCurrentMembers,
       connectUpdateUserSettings,
-      // resetRoom,
+      resetRoom,
     } = this.props;
     const {
       tabs: currentTabs,
@@ -1032,7 +1052,7 @@ class Workspace extends Component {
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
         connectionStatus={connectionStatus}
-        resetRoom={this.resetRoom}
+        resetRoom={resetRoom}
       />
     );
     const graphs = currentTabs.map((tab) => {
@@ -1244,13 +1264,28 @@ class Workspace extends Component {
 }
 
 Workspace.propTypes = {
-  populatedRoom: PropTypes.shape({}).isRequired,
+  populatedRoom: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    instructions: PropTypes.string,
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    tabs: PropTypes.arrayOf(PropTypes.shape({ _id: PropTypes.string })),
+    log: PropTypes.arrayOf(PropTypes.shape({})),
+    controlledBy: PropTypes.string,
+    currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
+    settings: PropTypes.shape({ participantsCanCreateTabs: PropTypes.bool }),
+  }).isRequired,
   tempCurrentMembers: PropTypes.arrayOf(PropTypes.shape({})),
   tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
   lastMessage: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    _id: PropTypes.string,
+    isAdmin: PropTypes.bool,
+    inAdminMode: PropTypes.bool,
+    username: PropTypes.string,
+  }).isRequired,
   temp: PropTypes.bool,
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   save: PropTypes.func,
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
@@ -1275,15 +1310,12 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectUpdateUser: updateUser,
-    connectUpdateRoom: updateRoom,
-    connectUpdatedRoom: updatedRoom,
-    connectUpdatedRoomTab: updatedRoomTab,
-    connectUpdateRoomTab: updateRoomTab,
-    connectSetRoomStartingPoint: setRoomStartingPoint,
-    connectUpdateUserSettings: updateUserSettings,
-  }
-)(Workspace);
+export default connect(mapStateToProps, {
+  connectUpdateUser: updateUser,
+  connectUpdateRoom: updateRoom,
+  connectUpdatedRoom: updatedRoom,
+  connectUpdatedRoomTab: updatedRoomTab,
+  connectUpdateRoomTab: updateRoomTab,
+  connectSetRoomStartingPoint: setRoomStartingPoint,
+  connectUpdateUserSettings: updateUserSettings,
+})(Workspace);

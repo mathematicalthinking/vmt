@@ -92,7 +92,7 @@ const destroyHandler = (event) => {
   }
 };
 
-if (process.env.REACT_APP_ENCOMPASS) {
+if (window.env.REACT_APP_ENCOMPASS) {
   window.addEventListener('message', destroyHandler);
 }
 

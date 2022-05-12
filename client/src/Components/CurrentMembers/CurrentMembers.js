@@ -130,7 +130,7 @@ CurrentMembers.propTypes = {
   ).isRequired,
   members: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   activeMember: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.shape({})),
+    PropTypes.arrayOf(PropTypes.string),
     PropTypes.string,
   ]),
   expanded: PropTypes.bool.isRequired,
