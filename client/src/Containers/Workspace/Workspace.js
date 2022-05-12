@@ -646,17 +646,13 @@ class Workspace extends Component {
 
     if (referToEl.wasObjectDeleted) {
       // referenced object was removed
-      const msg = `The referenced object (${referToEl.elementType} ${
-        referToEl.element
-      }) was deleted.`;
+      const msg = `The referenced object (${referToEl.elementType} ${referToEl.element}) was deleted.`;
       window.alert(msg);
       return;
     }
 
     if (referToEl.wasObjectUpdated) {
-      const msg = `Caution! The referenced object (${referToEl.elementType} ${
-        referToEl.element
-      }) has been modified since the time of reference.`;
+      const msg = `Caution! The referenced object (${referToEl.elementType} ${referToEl.element}) has been modified since the time of reference.`;
       window.alert(msg);
     }
 
@@ -852,7 +848,7 @@ class Workspace extends Component {
     }
     let { instructions } = tab;
 
-    if (!instructions && (tabIndex === 0 && populatedRoom.instructions)) {
+    if (!instructions && tabIndex === 0 && populatedRoom.instructions) {
       ({ instructions } = populatedRoom);
     }
 
@@ -1268,13 +1264,28 @@ class Workspace extends Component {
 }
 
 Workspace.propTypes = {
-  populatedRoom: PropTypes.shape({}).isRequired,
+  populatedRoom: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    instructions: PropTypes.string,
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    tabs: PropTypes.arrayOf(PropTypes.shape({ _id: PropTypes.string })),
+    log: PropTypes.arrayOf(PropTypes.shape({})),
+    controlledBy: PropTypes.string,
+    currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
+    settings: PropTypes.shape({ participantsCanCreateTabs: PropTypes.bool }),
+  }).isRequired,
   tempCurrentMembers: PropTypes.arrayOf(PropTypes.shape({})),
   tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
   lastMessage: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    _id: PropTypes.string,
+    isAdmin: PropTypes.bool,
+    inAdminMode: PropTypes.bool,
+    username: PropTypes.string,
+  }).isRequired,
   temp: PropTypes.bool,
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   save: PropTypes.func,
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
@@ -1299,15 +1310,12 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectUpdateUser: updateUser,
-    connectUpdateRoom: updateRoom,
-    connectUpdatedRoom: updatedRoom,
-    connectUpdatedRoomTab: updatedRoomTab,
-    connectUpdateRoomTab: updateRoomTab,
-    connectSetRoomStartingPoint: setRoomStartingPoint,
-    connectUpdateUserSettings: updateUserSettings,
-  }
-)(Workspace);
+export default connect(mapStateToProps, {
+  connectUpdateUser: updateUser,
+  connectUpdateRoom: updateRoom,
+  connectUpdatedRoom: updatedRoom,
+  connectUpdatedRoomTab: updatedRoomTab,
+  connectUpdateRoomTab: updateRoomTab,
+  connectSetRoomStartingPoint: setRoomStartingPoint,
+  connectUpdateUserSettings: updateUserSettings,
+})(Workspace);
