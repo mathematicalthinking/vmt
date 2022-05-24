@@ -2,10 +2,10 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { Button, Modal } from 'Components';
+import GoogleLogin from 'Components/Form/Google/LoginButton';
 import { getUser } from '../../store/actions';
 import SmallLoading from '../Loading/SmallLoading';
-import { Button, Modal } from '../../Components';
-import GoogleLogin from '../../Components/Form/Google/LoginButton';
 
 class OauthReturn extends Component {
   state = { showModal: false };
@@ -29,7 +29,7 @@ class OauthReturn extends Component {
   }
 
   render() {
-    const { loggedIn, errorMessage, loading } = this.props;
+    const { loggedIn, errorMessage, loading, connectGetUser } = this.props;
     const { showModal } = this.state;
     if (showModal) {
       return (
@@ -71,6 +71,7 @@ OauthReturn.propTypes = {
   errorMessage: PropTypes.string,
   loading: PropTypes.bool,
   presumptiveEmailAddress: PropTypes.string,
+  selectedEmailAddress: PropTypes.string,
 };
 
 OauthReturn.defaultProps = {
@@ -78,6 +79,7 @@ OauthReturn.defaultProps = {
   errorMessage: null,
   loading: false,
   presumptiveEmailAddress: '',
+  selectedEmailAddress: '',
 };
 const mapStateToProps = (state) => {
   return {
@@ -89,8 +91,6 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default withRouter(
-  connect(mapStateToProps, {
-    connectGetUser: getUser,
-  })(OauthReturn)
-);
+export default connect(mapStateToProps, {
+  connectGetUser: getUser,
+})(OauthReturn);
