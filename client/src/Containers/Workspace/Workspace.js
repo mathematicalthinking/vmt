@@ -369,8 +369,11 @@ class Workspace extends Component {
       if (data.releasedControl) {
         controlledBy = null;
       }
-      this.setState({ controlledBy, currMems }, () =>
-        connectUpdatedRoom(populatedRoom._id, { controlledBy, currMems })
+      this.setState({ controlledBy, currentMembers: currMems }, () =>
+        connectUpdatedRoom(populatedRoom._id, {
+          controlledBy,
+          currentMembers: currMems,
+        })
       );
       this.addToLog(message);
     });
