@@ -84,23 +84,20 @@ function withPopulatedRoom(WrappedComponent) {
         .then((res) => {
           const populatedRoom = res.data.result;
           populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
-          // .map((el) => ({ ...el, user: this.adjustUser(el.user) }));
+
+          //@TODO: do we need to make sure current User has an alias?
+          const newLog = this.adjustLogUsers(
+            populatedRoom.log,
+            populatedRoom.settings,
+            populatedRoom.members
+          );
+          populatedRoom.log = newLog;
+
           if (!this.cancelFetch) {
             this.setState((prevState) => ({
               loading: false,
               populatedRoom: { ...prevState.populatedRoom, ...populatedRoom },
             }));
-
-            this.setState((prevState) => {
-              const oldLog = this.state.populatedRoom.log;
-              const newLog = oldLog.map((el) => ({ ...el, user: this.adjustUser(el.user) }));
-              console.log(newLog);
-              const newRoom = { ...prevState.populatedRoom };
-              newRoom.log = newLog;
-              return {
-                populatedRoom: { ...newRoom },
-              };
-            });
           }
         })
         .catch((err) => {
@@ -198,6 +195,25 @@ function withPopulatedRoom(WrappedComponent) {
         }
         return currentMember;
       });
+    }
+
+    adjustLogUsers(log, settings, members) {
+      if (!log.length) return log;
+
+      const shouldAliasUsername = settings.displayAliasedUsernames;
+
+      // if there's an alias put it in, else use the username
+      if (shouldAliasUsername) {
+        return log.map((currentLog) => {
+          const member = members.find(
+            (el) => el.user._id === currentLog.user._id
+          );
+          if (member.alias && member.alias.length > 0)
+            currentLog.user.username = member.alias;
+          else currentLog.user.username = member.user.username;
+          return currentLog;
+        });
+      } else return log;
     }
 
     render() {
