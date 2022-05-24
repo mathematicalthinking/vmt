@@ -160,7 +160,7 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { populatedRoom, temp, lastMessage } = this.props;
+    const { populatedRoom: currentRoom, temp, lastMessage } = this.props;
     const { user } = this.state;
 
     if (temp) {
@@ -176,6 +176,10 @@ class Workspace extends Component {
     // test did populatedRoom change?
     // if so, do we need to update state?
     const oldRoom = prevProps.populatedRoom;
+    const populatedRoom = {
+      ...currentRoom,
+      currentMembers: currentRoom.getCurrentMembers(),
+    };
     const propsDifference = this.findRoomDifference(oldRoom, populatedRoom);
     if (propsDifference) {
       const stateDifference = this.findRoomDifference(
@@ -185,6 +189,7 @@ class Workspace extends Component {
       if (stateDifference) {
         // We are being very careful to update the state only if completely necessary, so this setState is warranted
         // eslint-disable-next-line react/no-did-update-set-state
+        console.log(stateDifference);
         this.setState(stateDifference);
       }
     }
