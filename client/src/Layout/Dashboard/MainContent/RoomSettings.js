@@ -3,40 +3,88 @@ import PropTypes from 'prop-types';
 import classes from './roomSettings.css';
 import { RadioBtn } from '../../../Components';
 
+// @TODO Quite a lot of repeated code in this component. Suggest refactoring
+// to eliminate the repeats and make things more scalable (i.e., new room settings)
+
 class RoomSettings extends Component {
+  // To speed up the UI, the state of the radio buttons are kept locally. When
+  // they change, the redux store and DB are informed (via updateRoom())
+  state = {
+    createTabs: false,
+    aliases: false,
+  };
+
+  componentDidMount() {
+    const { settings } = this.props;
+    this.setState({
+      createTabs: settings.participantsCanCreateTabs,
+      aliases: settings.displayAliasedUsernames,
+    });
+  }
+
   toggleCreateTabs = () => {
     const { roomId, settings, updateRoom } = this.props;
-    const updatedSettings = { ...settings };
-    updatedSettings.participantsCanCreateTabs = !settings.participantsCanCreateTabs;
-    updateRoom(roomId, { settings: updatedSettings });
+    const { createTabs } = this.state;
+    updateRoom(roomId, {
+      settings: { ...settings, participantsCanCreateTabs: !createTabs },
+    });
+    this.setState({ createTabs: !createTabs });
   };
 
-  togglePerspective = () => {
+  toggleAliasedUsernames = () => {
     const { roomId, settings, updateRoom } = this.props;
-
-    const updatedSettings = { ...settings };
-    updatedSettings.participantsCanChangePerspective = !settings.participantsCanChangePerspective;
-    updateRoom(roomId, { settings: updatedSettings });
+    const { aliases } = this.state;
+    updateRoom(roomId, {
+      settings: { ...settings, displayAliasedUsernames: !aliases },
+    });
+    this.setState({ aliases: !aliases });
   };
+
+  // togglePerspective = () => {
+  //   const { roomId, settings, updateRoom } = this.props;
+
+  //   const updatedSettings = { ...settings };
+  //   updatedSettings.participantsCanChangePerspective = !settings.participantsCanChangePerspective;
+  //   updateRoom(roomId, { settings: updatedSettings });
+  // };
+
   render() {
-    const { settings, owner } = this.props;
+    const { owner } = this.props;
+    const { createTabs, aliases } = this.state;
     return owner ? (
       <div>
         <h2 className={classes.Heading}>Participants can create new Tabs</h2>
         <RadioBtn
           name="createTabs"
           check={this.toggleCreateTabs}
-          checked={settings.participantsCanCreateTabs === true}
+          checked={createTabs}
         >
           Yes
         </RadioBtn>
         <RadioBtn
           name="createTabs"
           check={this.toggleCreateTabs}
-          checked={settings.participantsCanCreateTabs === false}
+          checked={!createTabs}
         >
           No
         </RadioBtn>
+
+        <h2 className={classes.Heading}>Toggle Aliased Usernames</h2>
+        <RadioBtn
+          name="aliasedUsernames"
+          check={this.toggleAliasedUsernames}
+          checked={aliases}
+        >
+          Yes
+        </RadioBtn>
+        <RadioBtn
+          name="aliasedUsernames"
+          check={this.toggleAliasedUsernames}
+          checked={!aliases}
+        >
+          No
+        </RadioBtn>
+
         {/* Ggb perspective option set to disabled for now */}
         {/* <h2 className={classes.Heading}>
           Participants can change the perspective (GeoGebra)
@@ -67,7 +115,11 @@ class RoomSettings extends Component {
     ) : (
       <div>
         <h2 className={classes.Heading}>Participants can create new Tabs</h2>
-        <div>{settings.participantsCanCreateTabs ? 'Yes' : 'No'}</div>
+        <div>{createTabs ? 'Yes' : 'No'}</div>
+
+        <h2 className={classes.Heading}>Toggle Aliased Usernames</h2>
+        <div>{aliases ? 'Yes' : 'No'}</div>
+
         {/* <h2 className={classes.Heading}>
           Participants can change the Perspective (GeoGebra)
         </h2>
@@ -79,8 +131,14 @@ class RoomSettings extends Component {
 
 RoomSettings.propTypes = {
   roomId: PropTypes.string.isRequired,
-  settings: PropTypes.shape({}).isRequired,
+  settings: PropTypes.shape({
+    participantsCanCreateTabs: PropTypes.bool,
+    displayAliasedUsernames: PropTypes.bool,
+    participantsCanChangePerspective: PropTypes.bool,
+    controlByRoom: PropTypes.bool,
+  }).isRequired,
   owner: PropTypes.bool.isRequired,
   updateRoom: PropTypes.func.isRequired,
 };
+
 export default RoomSettings;

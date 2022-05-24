@@ -317,6 +317,16 @@ module.exports = function() {
       usersInRoom(roomId).then((users) => leaveRoom(roomId, users, color, cb));
     });
 
+    socket.on(
+      'UPDATE_CURRENT-MEMBERS',
+      async (roomId, updatedCurrentMembers) => {
+        const room = await controllers.room.setCurrentUsers(
+          roomId,
+          updatedCurrentMembers
+        ``);
+      }
+    );
+
     const killZombies = async (roomId) => {
       const roomInDb = await controllers.rooms.getPopulatedById(roomId, {
         events: false,
