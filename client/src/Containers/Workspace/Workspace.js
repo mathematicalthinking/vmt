@@ -356,7 +356,8 @@ class Workspace extends Component {
           // currentMembers: currentMembers,
           currentMembers: currMems,
         },
-        () => connectUpdatedRoom(populatedRoom._id, { currMems })
+        () =>
+          connectUpdatedRoom(populatedRoom._id, { currentMembers: currMems })
         // () => populatedRoom.setCurrentMembers(currentMembers)
       );
       this.addToLog(message);
