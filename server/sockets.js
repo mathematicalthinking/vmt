@@ -110,6 +110,21 @@ module.exports = function() {
       joinUser();
     });
 
+    socket.on('NEW_ALIAS', async ({ roomId, userId, alias }, cb) => {
+      const room = await controllers.rooms.getById(roomId);
+      if (!room) return;
+      const { members } = room;
+      const memberIndex = members.findIndex(
+        (mem) => mem.user._id.toString() === userId
+      );
+      if (memberIndex === -1 || members[memberIndex].alias) return; // this should never happen
+      members[memberIndex].alias = alias;
+
+      await controllers.rooms.put(roomId, { members });
+
+      if (cb) cb();
+    });
+
     socket.on('JOIN', async (data, cb) => {
       socketMetricInc('roomjoin');
 
@@ -150,6 +165,8 @@ module.exports = function() {
         socket.to(data.roomId).emit('USER_JOINED', {
           currentMembers: results[1].currentMembers,
           message,
+          username: data.username,
+          userId: data._id,
         });
         return cb({ room: results[1], message, user }, null);
       } catch (err) {

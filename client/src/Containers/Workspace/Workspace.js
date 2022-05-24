@@ -59,7 +59,6 @@ class Workspace extends Component {
       log: populatedRoom.log || [],
       myColor,
       controlledBy: populatedRoom.controlledBy,
-      activeMember: '',
       currentMembers: temp
         ? tempCurrentMembers
         : populatedRoom.getCurrentMembers(),
@@ -91,14 +90,11 @@ class Workspace extends Component {
       // Even on DesmosActivities, this won't be set if the person doesn't navigate before a snapshot is taken. THus, it's
       // important that the default is 0 (indicating the first screen)
       currentScreen: 0,
-      user: populatedRoom.adjustUser(user),
     };
   }
 
   componentDidMount() {
-    console.log('componentDidMount');
-    const { populatedRoom, temp, tempMembers, lastMessage } = this.props;
-    const { user } = this.state;
+    const { populatedRoom, temp, tempMembers, lastMessage, user } = this.props;
     // initialize a hash of events that have references that will be
     // updated every time a reference made
     // allows for quicker lookup when needing to check if objects
@@ -160,8 +156,7 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { populatedRoom: currentRoom, temp, lastMessage } = this.props;
-    const { user } = this.state;
+    const { populatedRoom: currentRoom, temp, lastMessage, user } = this.props;
 
     if (temp) {
       if (prevProps.lastMessage !== lastMessage) {
@@ -187,17 +182,18 @@ class Workspace extends Component {
         populatedRoom
       );
       if (stateDifference) {
-        // We are being very careful to update the state only if completely necessary, so this setState is warranted
+        // We are being very careful to update the state only if completely necessary, so this setState is warranted.
+        // Note that the pieces of populatedRoom (log, currentMembers, etc) are separate state variables in Workspace
+        // (it's almost as if Workspace's state object is an uber populatedRoom).
         // eslint-disable-next-line react/no-did-update-set-state
-        console.log(stateDifference);
         this.setState(stateDifference);
       }
     }
   }
 
   componentWillUnmount() {
-    const { populatedRoom, connectUpdatedRoom } = this.props;
-    const { myColor, cancelSnapshots, currentMembers, user } = this.state;
+    const { populatedRoom, connectUpdatedRoom, user } = this.props;
+    const { myColor, cancelSnapshots, currentMembers } = this.state;
     // don't generate a LEAVE message if the user is an admin
     if (!user.inAdminMode) {
       socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
@@ -298,8 +294,8 @@ class Workspace extends Component {
   };
 
   initializeListeners = () => {
-    const { temp, populatedRoom, connectUpdatedRoom } = this.props;
-    const { myColor, user } = this.state;
+    const { temp, populatedRoom, connectUpdatedRoom, user } = this.props;
+    const { myColor } = this.state;
     socket.removeAllListeners('USER_JOINED');
     socket.removeAllListeners('CREATED_TAB');
     socket.removeAllListeners('USER_LEFT');
@@ -484,8 +480,8 @@ class Workspace extends Component {
   };
 
   changeTab = (id) => {
-    const { populatedRoom } = this.props;
-    const { activityOnOtherTabs, myColor, tabs, user } = this.state;
+    const { populatedRoom, user } = this.props;
+    const { activityOnOtherTabs, myColor, tabs } = this.state;
     this.clearReference();
     const data = {
       _id: mongoIdGenerator(),
@@ -519,9 +515,8 @@ class Workspace extends Component {
   };
 
   toggleControl = (event, auto) => {
-    const { populatedRoom } = this.props;
-    const { controlledBy, user } = this.state;
-    const { myColor } = this.state;
+    const { populatedRoom, user } = this.props;
+    const { controlledBy, myColor } = this.state;
     if (!socket.connected && !auto) {
       // i.e. if the user clicked the button manually instead of controll being toggled programatically
       window.alert(
@@ -837,8 +832,8 @@ class Workspace extends Component {
   };
 
   handleInstructionsModal = () => {
-    const { currentTabId, tabs, user } = this.state;
-    const { populatedRoom } = this.props;
+    const { currentTabId, tabs } = this.state;
+    const { populatedRoom, user } = this.props;
 
     if (!user || !populatedRoom) {
       return;
@@ -978,9 +973,9 @@ class Workspace extends Component {
       tempCurrentMembers,
       connectUpdateUserSettings,
       resetRoom,
+      user,
     } = this.props;
     const {
-      user,
       tabs: currentTabs,
       currentMembers: activeMembers,
       log,
@@ -1019,7 +1014,11 @@ class Workspace extends Component {
       <CurrentMembers
         members={temp ? tempMembers : populatedRoom.members}
         // currentMembers={temp ? tempCurrentMembers : activeMembers}
-        currentMembers={temp ? tempCurrentMembers : activeMembers}
+        currentMembers={
+          temp
+            ? tempCurrentMembers
+            : populatedRoom.getCurrentMembers(activeMembers)
+        }
         activeMember={controlledBy}
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
@@ -1316,9 +1315,8 @@ Workspace.defaultProps = {
   temp: false,
   resetRoom: () => {},
 };
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   return {
-    user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
     loading: state.loading.loading,
   };
 };
