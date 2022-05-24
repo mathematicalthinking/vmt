@@ -85,7 +85,7 @@ function withPopulatedRoom(WrappedComponent) {
           const populatedRoom = res.data.result;
           populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
 
-          //@TODO: do we need to make sure current User has an alias?
+          // @TODO: do we need to make sure current User has an alias?
           const newLog = this.adjustLogUsers(
             populatedRoom.log,
             populatedRoom.settings,
@@ -197,6 +197,7 @@ function withPopulatedRoom(WrappedComponent) {
       });
     }
 
+    // eslint-disable-next-line class-methods-use-this
     adjustLogUsers(log, settings, members) {
       if (!log.length) return log;
 
@@ -213,7 +214,8 @@ function withPopulatedRoom(WrappedComponent) {
           else currentLog.user.username = member.user.username;
           return currentLog;
         });
-      } else return log;
+      }
+      return log;
     }
 
     render() {
