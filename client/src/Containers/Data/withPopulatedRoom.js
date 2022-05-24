@@ -84,11 +84,24 @@ function withPopulatedRoom(WrappedComponent) {
         .then((res) => {
           const populatedRoom = res.data.result;
           populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
-          if (!this.cancelFetch)
+          // .map((el) => ({ ...el, user: this.adjustUser(el.user) }));
+          if (!this.cancelFetch) {
             this.setState((prevState) => ({
               loading: false,
               populatedRoom: { ...prevState.populatedRoom, ...populatedRoom },
             }));
+
+            this.setState((prevState) => {
+              const oldLog = this.state.populatedRoom.log;
+              const newLog = oldLog.map((el) => ({ ...el, user: this.adjustUser(el.user) }));
+              console.log(newLog);
+              const newRoom = { ...prevState.populatedRoom };
+              newRoom.log = newLog;
+              return {
+                populatedRoom: { ...newRoom },
+              };
+            });
+          }
         })
         .catch((err) => {
           console.error(err);
