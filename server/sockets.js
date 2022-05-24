@@ -166,7 +166,7 @@ module.exports = function() {
           currentMembers: results[1].currentMembers,
           message,
           username: data.username,
-          userId: data._id,
+          userId: data.userId,
         });
         return cb({ room: results[1], message, user }, null);
       } catch (err) {

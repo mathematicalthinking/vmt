@@ -41,8 +41,6 @@ function withPopulatedRoom(WrappedComponent) {
     };
 
     initializeListeners() {
-      socket.removeAllListeners('RESET_COMPLETE');
-
       socket.on('RESET_COMPLETE', () => {
         const { populatedRoom } = this.state;
         this.fetchRoom(populatedRoom._id);
@@ -149,23 +147,15 @@ function withPopulatedRoom(WrappedComponent) {
           const newAlias = this.getUniqueAlias(members.map((mem) => mem.alias));
           this.changeMemberAlias(user._id, newAlias);
           usernameToReturn = newAlias;
-          console.log('about to emit new alias', newAlias);
-          socket.emit(
-            'NEW_ALIAS',
-            {
-              roomId: populatedRoom._id,
-              userId: user._id,
-              alias: newAlias,
-            },
-            () => {
-              console.log('new aliased');
-            }
-          );
+          socket.emit('NEW_ALIAS', {
+            roomId: populatedRoom._id,
+            userId: user._id,
+            alias: newAlias,
+          });
         }
       }
 
       userToReturn.username = usernameToReturn;
-      console.log(userToReturn);
       return userToReturn;
     }
 
@@ -187,7 +177,10 @@ function withPopulatedRoom(WrappedComponent) {
         const memberIndex = members.findIndex(
           (el) => el.user._id === currentMember._id
         );
-        if (shouldAliasUsernames || memberIndex < 0) {
+
+        if (memberIndex < 0) return currentMember;
+
+        if (shouldAliasUsernames) {
           currentMember.username =
             members[memberIndex].alias || currentMember.username;
         } else {
@@ -206,6 +199,8 @@ function withPopulatedRoom(WrappedComponent) {
       // if there's an alias put it in, else use the username
       if (shouldAliasUsername) {
         return log.map((currentLog) => {
+          // previously, NEW_TAB messages neglected to include a user field.
+          if (!currentLog.user) return currentLog;
           const member = members.find(
             (el) => el.user._id === currentLog.user._id
           );

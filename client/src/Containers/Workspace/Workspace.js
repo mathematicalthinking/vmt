@@ -296,13 +296,7 @@ class Workspace extends Component {
   initializeListeners = () => {
     const { temp, populatedRoom, connectUpdatedRoom, user } = this.props;
     const { myColor } = this.state;
-    socket.removeAllListeners('USER_JOINED');
-    socket.removeAllListeners('CREATED_TAB');
-    socket.removeAllListeners('USER_LEFT');
-    socket.removeAllListeners('RELEASED_CONTROL');
-    socket.removeAllListeners('TOOK_CONTROL');
 
-    // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     if (!temp) {
       const sendData = {
         _id: mongoIdGenerator(),
@@ -606,7 +600,9 @@ class Workspace extends Component {
 
   emitNewTab = (tabInfo) => {
     const { myColor } = this.state;
+    const { user } = this.props;
     tabInfo.message.color = myColor;
+    tabInfo.message.user = user; // every event should have a 'user' property!
     socket.emit('NEW_TAB', tabInfo, () => {
       this.addToLog(tabInfo.message);
     });
