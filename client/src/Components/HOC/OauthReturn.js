@@ -29,7 +29,13 @@ class OauthReturn extends Component {
   }
 
   render() {
-    const { loggedIn, errorMessage, loading, connectGetUser } = this.props;
+    const {
+      loggedIn,
+      errorMessage,
+      loading,
+      connectGetUser,
+      location,
+    } = this.props;
     const { showModal } = this.state;
     if (showModal) {
       return (
@@ -72,6 +78,7 @@ OauthReturn.propTypes = {
   loading: PropTypes.bool,
   presumptiveEmailAddress: PropTypes.string,
   selectedEmailAddress: PropTypes.string,
+  location: PropTypes.shape({ search: PropTypes.string }).isRequired,
 };
 
 OauthReturn.defaultProps = {
@@ -91,6 +98,8 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, {
-  connectGetUser: getUser,
-})(OauthReturn);
+export default withRouter(
+  connect(mapStateToProps, {
+    connectGetUser: getUser,
+  })(OauthReturn)
+);
