@@ -53,7 +53,7 @@ class RoomSettings extends Component {
     const { createTabs, aliases } = this.state;
     return owner ? (
       <div>
-        <h2 className={classes.Heading}>Participants can create new Tabs</h2>
+        <h2 className={classes.Heading}>Participants can create new tabs</h2>
         <RadioBtn
           name="createTabs"
           check={this.toggleCreateTabs}
@@ -69,7 +69,7 @@ class RoomSettings extends Component {
           No
         </RadioBtn>
 
-        <h2 className={classes.Heading}>Toggle Aliased Usernames</h2>
+        <h2 className={classes.Heading}>Use aliased usernames</h2>
         <RadioBtn
           name="aliasedUsernames"
           check={this.toggleAliasedUsernames}
@@ -114,10 +114,10 @@ class RoomSettings extends Component {
       </div>
     ) : (
       <div>
-        <h2 className={classes.Heading}>Participants can create new Tabs</h2>
+        <h2 className={classes.Heading}>Participants can create new tabs</h2>
         <div>{createTabs ? 'Yes' : 'No'}</div>
 
-        <h2 className={classes.Heading}>Toggle Aliased Usernames</h2>
+        <h2 className={classes.Heading}>Use aliased usernames</h2>
         <div>{aliases ? 'Yes' : 'No'}</div>
 
         {/* <h2 className={classes.Heading}>
