@@ -110,15 +110,30 @@ module.exports = function() {
       joinUser();
     });
 
-    socket.on('NEW_ALIAS', async ({ roomId, userId, alias }, cb) => {
+    // socket.on('NEW_ALIAS', async ({ roomId, userId, alias }, cb) => {
+    //   const room = await controllers.rooms.getById(roomId);
+    //   if (!room) return;
+    //   const { members } = room;
+    //   const memberIndex = members.findIndex(
+    //     (mem) => mem.user._id.toString() === userId
+    //   );
+    //   if (memberIndex === -1 || members[memberIndex].alias) return; // this should never happen
+    //   members[memberIndex].alias = alias;
+
+    //   await controllers.rooms.put(roomId, { members });
+
+    //   if (cb) cb();
+    // });
+
+    socket.on('UPDATE_MEMBER', async ({ roomId, updatedMember }, cb) => {
       const room = await controllers.rooms.getById(roomId);
       if (!room) return;
       const { members } = room;
       const memberIndex = members.findIndex(
-        (mem) => mem.user._id.toString() === userId
+        (mem) => mem.user._id.toString() === updatedMember.user._id
       );
-      if (memberIndex === -1 || members[memberIndex].alias) return; // this should never happen
-      members[memberIndex].alias = alias;
+      if (memberIndex === -1) return; // this should never happen
+      members[memberIndex] = updatedMember;
 
       await controllers.rooms.put(roomId, { members });
 
@@ -339,8 +354,6 @@ module.exports = function() {
         events: false,
       });
       const currMemsInDb = roomInDb.currentMembers;
-      const roomMemsInDb = roomInDb.members;
-      const displayAliases = roomInDb.settings.displayAliasedUsernames;
       const usersInSockets = await usersInRoom(roomId); // socket users
       const room = await controllers.rooms.setCurrentUsers(
         roomId,
@@ -356,7 +369,7 @@ module.exports = function() {
 
       if (differenceInUsers.length) {
         differenceInUsers.forEach((prevUser) => {
-          const username = getUsername(prevUser, roomMemsInDb, displayAliases);
+          const username = getUsername(prevUser, roomInDb);
           const message = new Message({
             room: roomId,
             user: { _id: prevUser._id, username: 'VMTBot' },
@@ -379,7 +392,7 @@ module.exports = function() {
       if (releasedControl) {
         // send message that room.controlledBy changed
         const prevUser = await controllers.user.getById(room.controlledBy);
-        const username = getUsername(prevUser, roomMemsInDb, displayAliases);
+        const username = getUsername(prevUser, roomInDb);
         const message = new Message({
           room: roomId,
           user: { _id: prevUser._id, username: 'VMTBot' },
@@ -396,15 +409,16 @@ module.exports = function() {
       return room;
     };
 
-    const getUsername = (currMember, allMembers, showAliases) => {
-      if (showAliases) {
-        // return alias from member in allMembers w/same userId as currMember
-        const user = allMembers.find(
-          (mem) => mem.user._id.toString() === currMember._id.toString()
-        );
-        return user.alias;
-      }
-      return currMember.username; // aliasing is turned off, return regular name
+    const getUsername = (currMember, room) => {
+      const allMembers = room.members || [];
+      const showAliases =
+        (room.settings && room.settings.displayAliasedUsernames) || false;
+      const member = allMembers.find(
+        (mem) => mem.user._id.toString() === currMember._id.toString()
+      );
+      if (!member) return currMember.username;
+
+      return showAliases ? member.alias : member.user.username;
     };
 
     const usersInRoom = async (roomId) => {

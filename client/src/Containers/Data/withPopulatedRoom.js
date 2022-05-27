@@ -146,11 +146,11 @@ function withPopulatedRoom(WrappedComponent) {
         } else {
           const newAlias = this.getUniqueAlias(members.map((mem) => mem.alias));
           this.changeMemberAlias(user._id, newAlias);
+          members[memberIndex].alias = newAlias;
           usernameToReturn = newAlias;
-          socket.emit('NEW_ALIAS', {
+          socket.emit('UPDATE_MEMBER', {
             roomId: populatedRoom._id,
-            userId: user._id,
-            alias: newAlias,
+            updatedMember: members[memberIndex],
           });
         }
       }
