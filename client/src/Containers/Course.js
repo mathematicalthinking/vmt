@@ -17,7 +17,11 @@ import {
   grantAccess,
   updateUser,
 } from '../store/actions';
-import { DashboardLayout, SidePanel, ResourceList } from '../Layout/Dashboard';
+import {
+  DashboardLayout,
+  SidePanel,
+  DashboardContent,
+} from '../Layout/Dashboard';
 import {
   Aux,
   Modal,
@@ -31,13 +35,6 @@ import {
 import Access from './Access';
 
 class Course extends Component {
-  initialTabs = [
-    { name: 'Rooms' },
-    { name: 'Members' },
-    { name: 'Activities' },
-    { name: 'Preview' },
-  ];
-
   constructor(props) {
     super(props);
     const { course } = this.props;
@@ -245,7 +242,6 @@ class Course extends Component {
       name: course.name,
       privacySetting: course.privacySetting,
       entryCode: course.entryCode,
-      instruction: course.instructions,
       errorMessage: '',
     }));
   };
@@ -371,7 +367,7 @@ class Course extends Component {
       let mainContent;
       if (resource === 'rooms' || resource === 'activities') {
         mainContent = (
-          <ResourceList
+          <DashboardContent
             userResources={myRooms || course[resource] || []}
             user={user}
             resource={resource}
@@ -623,11 +619,38 @@ class Course extends Component {
 }
 
 Course.propTypes = {
-  course: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
-  match: PropTypes.shape({}).isRequired,
+  course: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    description: PropTypes.string,
+    myRole: PropTypes.string,
+    instructions: PropTypes.string,
+    entryCode: PropTypes.string,
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+    activities: PropTypes.arrayOf(PropTypes.shape({})),
+    privacySetting: PropTypes.string,
+    creator: PropTypes.shape({}),
+    image: PropTypes.string,
+  }),
+  user: PropTypes.shape({
+    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+    courses: PropTypes.arrayOf(PropTypes.shape({})),
+    notifications: PropTypes.shape({}),
+    inAdminMode: PropTypes.bool,
+    _id: PropTypes.string,
+    username: PropTypes.string,
+    accountType: PropTypes.string,
+    firstName: PropTypes.string,
+  }).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      course_id: PropTypes.string,
+      resource: PropTypes.string,
+    }),
+  }).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   loading: PropTypes.bool.isRequired,
   connectGrantAccess: PropTypes.func.isRequired,
   connectRequestAccess: PropTypes.func.isRequired,
@@ -683,15 +706,12 @@ const mapStateToProps = (store, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectClearNotification: clearNotification,
-    connectRemoveCourseMember: removeCourseMember,
-    connectUpdateCourse: updateCourse,
-    connectGetCourse: getCourse,
-    connectRequestAccess: requestAccess,
-    connectGrantAccess: grantAccess,
-    connectUpdateUser: updateUser,
-  }
-)(Course);
+export default connect(mapStateToProps, {
+  connectClearNotification: clearNotification,
+  connectRemoveCourseMember: removeCourseMember,
+  connectUpdateCourse: updateCourse,
+  connectGetCourse: getCourse,
+  connectRequestAccess: requestAccess,
+  connectGrantAccess: grantAccess,
+  connectUpdateUser: updateUser,
+})(Course);
