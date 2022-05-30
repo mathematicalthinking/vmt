@@ -7,6 +7,7 @@ import {
   SidePanel,
   ActivityDetails,
   ResourceList,
+  DashboardContent,
 } from '../Layout/Dashboard';
 import {
   Aux,
@@ -242,7 +243,7 @@ class Activity extends Component {
 
       if (resource === 'rooms') {
         mainContent = (
-          <ResourceList
+          <DashboardContent
             userResources={activity.rooms.map((roomId) => rooms[roomId])}
             notifications={[]}
             user={user}

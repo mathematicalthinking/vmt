@@ -189,45 +189,63 @@ function CourseMonitor({ course }) {
         </Fragment>
       </div>
       <div className={classes.TileGroup}>
-        {course.rooms.map((room) => {
-          // for each of the rooms managed by a user, if that
-          // room is selected, display its title bar (title and menu) and
-          // then the particular view type.
-          return (
-            <div key={room._id} className={classes.Tile}>
-              <div className={classes.TileContainer}>
-                <div
-                  className={classes.Title}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'flex-start',
-                    alignItems: 'center',
-                    marginBottom: '5px',
-                  }}
-                >
-                  <DropdownMenu
-                    list={_makeMenu(room._id)}
-                    name={<i className="fas fa-bars" />}
-                  />
-                  {queryStates[room._id].isSuccess ? (
-                    <Fragment>
-                      {queryStates[room._id].data.name}
-                      <span className={classes.Timestamp}>
-                        updated:{' '}
-                        {_roomDateStamp(queryStates[room._id].data.updatedAt)}
-                      </span>
-                    </Fragment>
-                  ) : (
-                    'Loading...'
-                  )}
-                </div>
+        {course.rooms
+          .sort(
+            (a, b) =>
+              // Sort the rooms into reverse chronological order (most recently changed first)
+              // if you have an updatedAt date pulled from the datbase, use that; if not, use the date
+              // provided by the Redux store (i.e., the course prop).
+              new Date(
+                (queryStates[b._id].isSuccess &&
+                  queryStates[b._id].data.updatedAt) ||
+                  b.updatedAt
+              ) -
+              new Date(
+                (queryStates[a._id].isSuccess &&
+                  queryStates[a._id].data.updatedAt) ||
+                  a.updatedAt
+              )
+          )
+          .map((room) => {
+            // for each of the rooms managed by a user, if that
+            // room is selected, display its title bar (title and menu) and
+            // then the particular view type.
+            return (
+              <div key={room._id} className={classes.Tile}>
+                <div className={classes.TileContainer}>
+                  <div
+                    className={classes.Title}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                      marginBottom: '5px',
+                    }}
+                  >
+                    <DropdownMenu
+                      list={_makeMenu(room._id)}
+                      name={<i className="fas fa-bars" />}
+                    />
+                    {queryStates[room._id].isSuccess ? (
+                      <Fragment>
+                        {queryStates[room._id].data.name}
+                        <span className={classes.Timestamp}>
+                          updated:{' '}
+                          {_roomDateStamp(queryStates[room._id].data.updatedAt)}
+                        </span>
+                      </Fragment>
+                    ) : (
+                      'Loading...'
+                    )}
+                  </div>
 
-                {queryStates[room._id].isSuccess && _displayViewType(room._id)}
+                  {queryStates[room._id].isSuccess &&
+                    _displayViewType(room._id)}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </div>
   );
@@ -259,13 +277,15 @@ function ChartUpdater(props) {
 
 const DropdownMenu = (props) => {
   const { name, list } = props;
+  // eslint-disable-next-line react/prop-types
+  const firstLink = list[0].link;
   return (
     <li
       className={DropdownMenuClasses.Container}
       // eslint-disable-next-line react/destructuring-assignment
       data-testid={props['data-testid']}
     >
-      <NavItem link={list[0].link} name={name} />
+      <NavItem link={firstLink} name={name} />
       <div className={DropdownMenuClasses.DropdownContent}>
         {list.map((item) => {
           return (
@@ -280,7 +300,8 @@ const DropdownMenu = (props) => {
 };
 
 CourseMonitor.propTypes = {
-  course: PropTypes.shape({}).isRequired,
+  course: PropTypes.shape({ rooms: PropTypes.arrayOf(PropTypes.shape({})) })
+    .isRequired,
 };
 
 ChartUpdater.propTypes = {

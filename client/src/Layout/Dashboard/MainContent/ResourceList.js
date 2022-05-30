@@ -63,10 +63,11 @@ const ResourceList = ({
   }, [userResources]);
 
   useEffect(() => {
-    setResourceState({
-      facilitatorConfig: facilitatorSortConfig,
-      participantConfig: participantSortConfig,
-    });
+    if (setResourceState)
+      setResourceState({
+        facilitatorConfig: facilitatorSortConfig,
+        participantConfig: participantSortConfig,
+      });
   }, [facilitatorSortConfig, participantSortConfig]);
 
   const search = (criteria) => {
@@ -131,7 +132,7 @@ const ResourceList = ({
 
   return (
     <div>
-      {/* @TODO don't show create optinos for participants */}
+      {/* @TODO don't show create options for participants */}
       <div className={classes.Controls}>
         <div className={classes.Search}>
           <Search _search={search} data-testid="search" />
@@ -144,7 +145,7 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I Manage
             </h2>
-            {facilitatorItems.length > 1 && (
+            {facilitatorItems.length > 1 && setResourceState && (
               <SortUI
                 keys={keys}
                 sortFn={facilitatorRequestSort}
@@ -167,7 +168,7 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I&#39;m a member of
             </h2>
-            {participantItems.length > 1 && (
+            {participantItems.length > 1 && setResourceState && (
               <SortUI
                 keys={keys}
                 sortFn={participantRequestSort}
@@ -195,21 +196,22 @@ const ResourceList = ({
               {displayResource} I&#39;m a member of
             </h2>
           )}
-          {(facilitatorItems.length > 1 || participantItems.length > 1) && (
-            <SortUI
-              keys={keys}
-              sortFn={
-                fList.length > 0 || displayResource !== 'Templates'
-                  ? facilitatorRequestSort
-                  : participantRequestSort
-              }
-              sortConfig={
-                fList.length > 0 || displayResource !== 'Templates'
-                  ? resourceState.facilitatorConfig || initialConfig
-                  : resourceState.participantConfig || initialConfig
-              }
-            />
-          )}
+          {(facilitatorItems.length > 1 || participantItems.length > 1) &&
+            setResourceState && (
+              <SortUI
+                keys={keys}
+                sortFn={
+                  fList.length > 0 || displayResource === 'Templates'
+                    ? facilitatorRequestSort
+                    : participantRequestSort
+                }
+                sortConfig={
+                  fList.length > 0 || displayResource === 'Templates'
+                    ? resourceState.facilitatorConfig || initialConfig
+                    : resourceState.participantConfig || initialConfig
+                }
+              />
+            )}
           <BoxList
             list={facilitatorItems.concat(participantItems)}
             linkPath={linkPath}
@@ -230,10 +232,13 @@ ResourceList.propTypes = {
   resource: PropTypes.string.isRequired,
   parentResource: PropTypes.string,
   parentResourceId: PropTypes.string,
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({ accountType: PropTypes.string }).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  resourceState: PropTypes.shape({}),
+  resourceState: PropTypes.shape({
+    facilitatorConfig: PropTypes.shape({}),
+    participantConfig: PropTypes.shape({}),
+  }),
   setResourceState: PropTypes.func,
 };
 
@@ -241,7 +246,7 @@ ResourceList.defaultProps = {
   parentResource: null,
   parentResourceId: null,
   resourceState: {},
-  setResourceState: () => {},
+  setResourceState: null,
 };
 
 export default ResourceList;
@@ -268,7 +273,9 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
             sortFn(selectedOption.value, sortConfig.direction);
           }}
           value={{
+            // eslint-disable-next-line react/prop-types
             label: keyName(keys[0].name),
+            // eslint-disable-next-line react/prop-types
             value: sortConfig.key || keys[0].property,
           }}
           options={keys.map((key) => ({
@@ -277,7 +284,12 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
           }))}
           isSearchable={false}
         />
-        <span onClick={() => sortFn(sortConfig.key)}>
+        <span
+          onClick={() => sortFn(sortConfig.key)}
+          onKeyDown={() => sortFn(sortConfig.key)}
+          role="button"
+          tabIndex={-1}
+        >
           {sortConfig.direction === 'descending' ? downArrow : upArrow}
         </span>
       </label>
@@ -286,7 +298,9 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
 };
 
 SortUI.propTypes = {
-  keys: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  keys: PropTypes.arrayOf(
+    PropTypes.shape({ name: PropTypes.string, property: PropTypes.string })
+  ).isRequired,
   sortFn: PropTypes.func.isRequired,
   sortConfig: PropTypes.shape({
     key: PropTypes.string,

@@ -34,7 +34,7 @@ const privateRoute = ({
 };
 
 privateRoute.propTypes = {
-  component: PropTypes.func.isRequired,
+  component: PropTypes.elementType.isRequired,
   authed: PropTypes.bool,
   redirectPath: PropTypes.string,
   connectFail: PropTypes.func.isRequired,
@@ -45,7 +45,4 @@ privateRoute.defaultProps = {
   redirectPath: '/',
 };
 
-export default connect(
-  null,
-  { connectFail: fail }
-)(privateRoute);
+export default connect(null, { connectFail: fail })(privateRoute);
