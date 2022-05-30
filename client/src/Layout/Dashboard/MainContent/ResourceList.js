@@ -63,10 +63,11 @@ const ResourceList = ({
   }, [userResources]);
 
   useEffect(() => {
-    setResourceState({
-      facilitatorConfig: facilitatorSortConfig,
-      participantConfig: participantSortConfig,
-    });
+    if (setResourceState)
+      setResourceState({
+        facilitatorConfig: facilitatorSortConfig,
+        participantConfig: participantSortConfig,
+      });
   }, [facilitatorSortConfig, participantSortConfig]);
 
   const search = (criteria) => {

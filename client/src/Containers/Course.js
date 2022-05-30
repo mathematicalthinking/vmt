@@ -630,13 +630,19 @@ Course.propTypes = {
     rooms: PropTypes.arrayOf(PropTypes.shape({})),
     activities: PropTypes.arrayOf(PropTypes.shape({})),
     privacySetting: PropTypes.string,
-    creator: PropTypes.shape({}),
+    creator: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]),
     image: PropTypes.string,
   }),
   user: PropTypes.shape({
-    rooms: PropTypes.arrayOf(PropTypes.shape({})),
-    courses: PropTypes.arrayOf(PropTypes.shape({})),
-    notifications: PropTypes.shape({}),
+    rooms: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]) // This type represents that the values might be the _id or the populated object
+    ),
+    courses: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
+    notifications: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
     inAdminMode: PropTypes.bool,
     _id: PropTypes.string,
     username: PropTypes.string,
