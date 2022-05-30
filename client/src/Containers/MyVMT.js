@@ -171,9 +171,15 @@ class MyVMT extends Component {
 MyVMT.propTypes = {
   match: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({
-    courses: PropTypes.arrayOf(PropTypes.shape({})),
-    rooms: PropTypes.arrayOf(PropTypes.shape({})),
-    activities: PropTypes.arrayOf(PropTypes.shape({})),
+    courses: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]) // allows for an id or a populated object
+    ),
+    rooms: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
+    activities: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
   }).isRequired,
 };
 
