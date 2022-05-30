@@ -5,6 +5,7 @@ import React, { useEffect, useState, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { useQuery } from 'react-query';
+import { useDispatch } from 'react-redux';
 import { API } from 'utils';
 import {
   TextInput,
@@ -23,6 +24,7 @@ function ClassCode(props) {
   const [resource, setResource] = useState({});
   const [isResourceConf, setIsResourceConf] = useState(false);
   const [memberToConf, setMemberToConf] = useState({});
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const { clearError } = props;
@@ -257,9 +259,21 @@ function ClassCode(props) {
                   </Button>
                   {}
                   {isGoogleUser ? (
-                    <Fragment>
+                    <div
+                      onClick={() => {
+                        console.log(
+                          'send user email to redux store so that oauthreturn can check if it is the same email that was clicked on in google oauth'
+                        );
+                        dispatch({
+                          type: 'STORE_PRESUMPTIVE_GMAIL',
+                          payload: {
+                            presumptiveEmailAddress: memberToConf.user.email,
+                          },
+                        });
+                      }}
+                    >
                       Yes, log in with Google <GoogleLogin />{' '}
-                    </Fragment>
+                    </div>
                   ) : (
                     <Button m={10} click={handleLogin}>
                       Yes, let&apos;s go
