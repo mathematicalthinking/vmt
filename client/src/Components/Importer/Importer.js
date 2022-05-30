@@ -379,7 +379,7 @@ export default function Importer(props) {
 
   return (
     <Fragment>
-      {importModal()}
+      {showModal && importModal()}
       <div className={classes.Instructions}>
         <i className="far fa-question-circle fa-2x" />
         <div className={classes.TooltipContent}>
