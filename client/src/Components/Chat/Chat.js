@@ -575,7 +575,7 @@ class Chat extends Component {
                     <div className={classes.ChatButtons}>
                       <div
                         className={classes.Mic}
-                        key="qucikChat-ST"
+                        key="quickChat-ST"
                         title="Speech to text"
                         tabIndex={-3}
                         role="button"
