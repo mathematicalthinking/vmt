@@ -194,45 +194,50 @@ function TemplatePreview({ activity }) {
               />
             )}
           <div className={classes.TileGroup}>
-            {activity.rooms.map((roomId) => {
-              // for each of the rooms
-              // display its title bar (title and menu) and
-              // then the particular view type.
-              return (
-                <div key={roomId} className={classes.Tile}>
-                  <div className={classes.TileContainer}>
-                    <div
-                      className={classes.Title}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'flex-start',
-                        alignItems: 'center',
-                        marginBottom: '5px',
-                      }}
-                    >
-                      <DropdownMenu
-                        list={_makeMenu(roomId)}
-                        name={<i className="fas fa-bars" />}
-                      />
-                      {queryStates[roomId].isSuccess ? (
-                        <Fragment>
-                          {queryStates[roomId].data.name}
-                          <span className={classes.Timestamp}>
-                            updated:{' '}
-                            {_roomDateStamp(queryStates[roomId].data.updatedAt)}
-                          </span>
-                        </Fragment>
-                      ) : (
-                        'Loading...'
-                      )}
-                    </div>
+            {activity.rooms
+              .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+              .map((roomId) => {
+                // for each of the rooms
+                // display its title bar (title and menu) and
+                // then the particular view type.
+                return (
+                  <div key={roomId} className={classes.Tile}>
+                    <div className={classes.TileContainer}>
+                      <div
+                        className={classes.Title}
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'flex-start',
+                          alignItems: 'center',
+                          marginBottom: '5px',
+                        }}
+                      >
+                        <DropdownMenu
+                          list={_makeMenu(roomId)}
+                          name={<i className="fas fa-bars" />}
+                        />
+                        {queryStates[roomId].isSuccess ? (
+                          <Fragment>
+                            {queryStates[roomId].data.name}
+                            <span className={classes.Timestamp}>
+                              updated:{' '}
+                              {_roomDateStamp(
+                                queryStates[roomId].data.updatedAt
+                              )}
+                            </span>
+                          </Fragment>
+                        ) : (
+                          'Loading...'
+                        )}
+                      </div>
 
-                    {queryStates[roomId].isSuccess && _displayViewType(roomId)}
+                      {queryStates[roomId].isSuccess &&
+                        _displayViewType(roomId)}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </Fragment>
       )}
