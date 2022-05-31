@@ -48,6 +48,8 @@ class Workspace extends Component {
       }
     }
 
+    this.adminModeSwitched = false; // Needed if someone leaves a room by switching their admin mode
+
     this.state = {
       takeSnapshot: () => {},
       cancelSnapshots: () => {},
@@ -165,6 +167,7 @@ class Workspace extends Component {
     }
 
     if (prevProps.user.inAdminMode !== user.inAdminMode) {
+      this.adminModeSwitched = true; // used in componentWillUnmount
       this.goBack();
     }
 
@@ -194,8 +197,14 @@ class Workspace extends Component {
   componentWillUnmount() {
     const { populatedRoom, connectUpdatedRoom, user } = this.props;
     const { myColor, cancelSnapshots, currentMembers } = this.state;
-    // don't generate a LEAVE message if the user is an admin
-    if (!user.inAdminMode) {
+    // Only generate a LEAVE message (and remove the user from the currentMembers list) if:
+    // - the user is in admin mode and is leaving via the exit button (i.e., not from switching mode)
+    // - the user is leaving because they switched their admin mode on. They were in the room,
+    //   so they need to be removed from the currentMembers list.
+    if (
+      (!this.adminModeSwitched && !user.inAdminMode) ||
+      (this.adminModeSwitched && user.inAdminMode)
+    ) {
       socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
       // Below updates the Redux store, removing the current user from the list of people in the room (currentMembers).
       // However, this might not be needed as the socket updates the DB with the current members. The next time this info is needed, in
@@ -1062,7 +1071,10 @@ class Workspace extends Component {
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
         connectionStatus={connectionStatus}
-        resetRoom={resetRoom}
+        resetRoom={(...args) => {
+          // don't allow admins to do a force reset
+          if (!user.inAdminMode) resetRoom(...args);
+        }}
       />
     );
     const graphs = currentTabs.map((tab) => {
