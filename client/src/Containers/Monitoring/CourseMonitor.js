@@ -192,19 +192,8 @@ function CourseMonitor({ course }) {
         {course.rooms
           .sort(
             (a, b) =>
-              // Sort the rooms into reverse chronological order (most recently changed first)
-              // if you have an updatedAt date pulled from the datbase, use that; if not, use the date
-              // provided by the Redux store (i.e., the course prop).
-              new Date(
-                (queryStates[b._id].isSuccess &&
-                  queryStates[b._id].data.updatedAt) ||
-                  b.updatedAt
-              ) -
-              new Date(
-                (queryStates[a._id].isSuccess &&
-                  queryStates[a._id].data.updatedAt) ||
-                  a.updatedAt
-              )
+              // Sort the rooms into reverse chronological order (most recently changed first) as of when the course was loaded
+              new Date(b.updatedAt) - new Date(a.updatedAt)
           )
           .map((room) => {
             // for each of the rooms managed by a user, if that
