@@ -170,7 +170,17 @@ class MyVMT extends Component {
 
 MyVMT.propTypes = {
   match: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    courses: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]) // allows for an id or a populated object
+    ),
+    rooms: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
+    activities: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
+  }).isRequired,
 };
 
 // @NB THE LACK OF CAMEL CASE HERE IS INTENTIONAL AND ALLOWS US TO AVOID LOTS
@@ -185,13 +195,10 @@ const mapStateToProps = (store) => ({
   loading: store.loading.loading,
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    // getRooms,
-    // getActivities,
-    // getCourses,
-    // getUser,
-    // toggleJustLoggedIn,
-  }
-)(MyVMT);
+export default connect(mapStateToProps, {
+  // getRooms,
+  // getActivities,
+  // getCourses,
+  // getUser,
+  // toggleJustLoggedIn,
+})(MyVMT);

@@ -461,8 +461,8 @@ class Chat extends Component {
         >
           <div
             className={classes.Title}
-            onClick={this.toggleExpansion}
-            onKeyPress={this.toggleExpansion}
+            // onClick={this.toggleExpansion}
+            // onKeyPress={this.toggleExpansion}
             tabIndex="0"
             role="button"
           >
@@ -575,7 +575,7 @@ class Chat extends Component {
                     <div className={classes.ChatButtons}>
                       <div
                         className={classes.Mic}
-                        key="qucikChat-ST"
+                        key="quickChat-ST"
                         title="Speech to text"
                         tabIndex={-3}
                         role="button"
