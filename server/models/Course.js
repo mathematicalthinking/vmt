@@ -28,6 +28,7 @@ const Course = new mongoose.Schema(
     metadata: { type: Object },
     image: { type: String }, // URL
     isTrashed: { type: Boolean, default: false },
+    groupings: { type: Object, default: {} },
   },
   { timestamps: true }
 );

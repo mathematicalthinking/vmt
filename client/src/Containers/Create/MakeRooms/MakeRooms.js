@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Aux, BigModal } from 'Components';
+import { createRoom, updateCourse, updateActivity } from 'store/actions';
 import { Step1, Step2Course, ParticipantList } from './index';
 import createClasses from '../create.css';
-import { createRoom } from '../../../store/actions';
 import AssignmentMatrix from './AssignmentMatrix';
 import COLOR_MAP from '../../../utils/colorMap';
 
@@ -312,6 +312,8 @@ class MakeRooms extends Component {
       userId,
       course,
       connectCreateRoom,
+      connectUpdateCourse,
+      connectUpdateActivity,
       close,
       history,
       match,
@@ -327,10 +329,21 @@ class MakeRooms extends Component {
       instructions,
       tabs,
     } = activity;
+    const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
+    const groupId = `${_id}--${randomNum}`;
+
+    const updatedActivityGroupings = activity.groupings
+      ? { ...activity.groupings, [groupId]: {} }
+      : { [groupId]: {} };
+
+    const updatedCourseGroupings = course.groupings
+      ? { ...course.groupings, [groupId]: {} }
+      : { [groupId]: {} };
+
     const newRoom = {
       activity: _id,
       creator: userId,
-      course,
+      course: course ? course._id : null,
       description,
       roomType,
       desmosLink,
@@ -339,10 +352,11 @@ class MakeRooms extends Component {
       dueDate,
       image,
       tabs,
+      groupId,
     };
-    // if (!isRandom) {
-    // create a room with the selected participants
+
     const roomsToCreate = [];
+
     for (let i = 0; i < roomDrafts.length; i++) {
       // const currentRoom = { ...roomDrafts[i] };
       const currentRoom = { ...newRoom };
@@ -376,6 +390,9 @@ class MakeRooms extends Component {
       roomsToCreate.push(currentRoom);
     }
     roomsToCreate.forEach((room) => connectCreateRoom(room));
+    connectUpdateActivity(_id, { groupings: updatedActivityGroupings });
+    connectUpdateCourse(course._id, { groupings: updatedCourseGroupings });
+
     close();
     const { url } = match;
     history.push(`${url.slice(0, url.length - 7)}rooms`);
@@ -412,7 +429,7 @@ class MakeRooms extends Component {
         select={this.updateParticipants}
         roomNum={parseInt(roomNum, 10)} // ensure a number is passed
         activity={activity}
-        course={course}
+        courseId={course ? course._id : null}
         dueDate={dueDate}
         userId={userId}
         rooms={roomDrafts}
@@ -427,13 +444,12 @@ class MakeRooms extends Component {
         participantList={participantList}
         userId={userId}
         select={this.selectParticipant}
-        course={course}
+        courseId={course ? course._id : null}
         selectedParticipants={selectedParticipants}
       />
     );
 
     if (step === 1) {
-      // if (course) {
       CurrentStep = (
         <Step2Course
           activity={activity}
@@ -495,7 +511,7 @@ MakeRooms.propTypes = {
   participants: PropTypes.arrayOf(PropTypes.shape({})),
   activity: PropTypes.shape({}).isRequired,
   userId: PropTypes.string.isRequired,
-  course: PropTypes.string,
+  course: PropTypes.shape({}),
   close: PropTypes.func.isRequired,
   history: PropTypes.shape({}).isRequired,
   match: PropTypes.shape({}).isRequired,
@@ -506,13 +522,14 @@ MakeRooms.defaultProps = {
   course: null,
   participants: [],
 };
-const mapDispatchToProps = (dispatch) => ({
-  connectCreateRoom: (room) => dispatch(createRoom(room)),
-});
+// const mapDispatchToProps = (dispatch) => ({
+//   connectCreateRoom: (room) => dispatch(createRoom(room)),
+// });
 
 export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps
-  )(MakeRooms)
+  connect(null, {
+    connectCreateRoom: createRoom,
+    connectUpdateCourse: updateCourse,
+    connectUpdateActivity: updateActivity,
+  })(MakeRooms)
 );

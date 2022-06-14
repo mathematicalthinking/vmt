@@ -67,7 +67,7 @@ class ActivityDetails extends Component {
         {assigning ? (
           <MakeRooms
             activity={activity}
-            course={course ? course._id : null}
+            course={course ? course : null}
             userId={userId}
             close={() => {
               this.setState({ assigning: false });

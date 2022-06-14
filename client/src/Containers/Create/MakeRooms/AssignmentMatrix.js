@@ -10,7 +10,7 @@ const AssignmentMatrix = (props) => {
     select,
     roomNum,
     activity,
-    course,
+    courseId,
     dueDate,
     userId,
     rooms,
@@ -39,7 +39,7 @@ const AssignmentMatrix = (props) => {
       for (let i = rooms.length; i < roomNum; i++) {
         const currentRoom = { ...newRoom };
         currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
-        currentRoom.course = course;
+        currentRoom.course = courseId;
         currentRoom.members = [...facilitators];
         roomList = [...roomList, currentRoom];
       }
@@ -193,7 +193,7 @@ AssignmentMatrix.propTypes = {
   select: PropTypes.func.isRequired,
   roomNum: PropTypes.number,
   activity: PropTypes.shape({}),
-  course: PropTypes.string,
+  courseId: PropTypes.string,
   dueDate: PropTypes.instanceOf(Date),
   userId: PropTypes.string.isRequired,
   rooms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
@@ -201,7 +201,7 @@ AssignmentMatrix.propTypes = {
 
 AssignmentMatrix.defaultProps = {
   activity: null,
-  course: '',
+  courseId: '',
   roomNum: 1,
   dueDate: null,
 };
