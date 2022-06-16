@@ -81,6 +81,7 @@ const WebSketch = (props) => {
       socket.emit('SEND_EVENT', newData, () => {});
       resetControlTimer();
       // putState();  // save to db?
+      // use new json config with $('#sketch').data('document').getCurrentSpecObject()?
     }
     receivingData = false;
   };

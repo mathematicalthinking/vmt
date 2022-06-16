@@ -56,43 +56,43 @@ const WSPLoader = (callback) => {
       script.onload = () => {
         console.log('Loaded WSP-Runner... ');
         // finally load the widgets and fire the ready callback
-        loadWidgets();
         console.log('Core WSP assets loaded: Ready to create script!');
         callback();
+        loadWidgets();
       };
       document.body.appendChild(script);
     }
   };
 
   const loadWidgets = () => {
-    if (
-      document.getElementById('widgetsjs') &&
-      document.getElementById('widgetscss')
-    ) {
-      console.log('Widgets already loaded!');
-    } else {
-      const script1 = document.createElement('script');
-      script1.src = '/WSPAssets/widgets/jquery.tiny-draggable.js';
-      script1.id = 'tiny-draggable';
-      script1.type = 'text/javascript';
-      script1.onload = () => {
-        const script = document.createElement('script');
-        script.src = '/WSPAssets/widgets/widgets.js';
-        script.id = 'widgetsjs';
-        script.type = 'text/javascript';
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.type = 'text/css';
-        link.href = '/WSPAssets/widgets/widgets.css';
-        link.id = 'widgetscss';
-        link.onload = () => {
-          console.log('Loaded Widgets...');
-        };
-        document.body.appendChild(script).appendChild(link);
+    // if (
+    //   document.getElementById('widgetsjs') &&
+    //   document.getElementById('widgetscss')
+    // ) {
+    //   console.log('Widgets already loaded!');
+    // } else {
+    const script1 = document.createElement('script');
+    script1.src = '/WSPAssets/widgets/jquery.tiny-draggable.js';
+    script1.id = 'tiny-draggable';
+    script1.type = 'text/javascript';
+    script1.onload = () => {
+      const script = document.createElement('script');
+      script.src = '/WSPAssets/widgets/widgets.js';
+      script.id = 'widgetsjs';
+      script.type = 'text/javascript';
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = '/WSPAssets/widgets/widgets.css';
+      link.id = 'widgetscss';
+      link.onload = () => {
+        console.log('Loaded Widgets...');
       };
-      document.body.appendChild(script1);
-    }
+      document.body.appendChild(script).appendChild(link);
+    };
+    document.body.appendChild(script1);
   };
+  //   };
   // initiate load sequence
   loadJquery();
 };
