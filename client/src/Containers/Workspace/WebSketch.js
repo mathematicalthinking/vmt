@@ -380,22 +380,27 @@ const WebSketch = (props) => {
         <div className={classes.Toast}>{activityMessage}</div>
       )}
       <div
-        className={classes.Activity}
+        // className={classes.sketch_container}
+        className="sketch_container"
         onClickCapture={_checkForControl}
         id="calculatorParent"
-        style={{
-          height: '890px', // @TODO this needs to be adjusted based on the Player instance.
-        }}
+        // style={{
+        //   height: '890px', // @TODO this needs to be adjusted based on the Player instance.
+        // }}
       >
         <div
-          className={classes.Graph}
+          // className={classes.Graph}
+          className="sketch_canvas"
           id="sketch"
           ref={wspSketch}
-          style={{
-            overflow: 'auto',
-            pointerEvents: !_hasControl() ? 'none' : 'auto',
-          }}
+          // style={{
+          //   overflow: 'auto',
+          //   pointerEvents: !_hasControl() ? 'none' : 'auto',
+          // }}
         />
+        <div className="buttonPane">
+          <div className="page_buttons" />
+        </div>
       </div>
     </Fragment>
   );
