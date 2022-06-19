@@ -333,12 +333,12 @@ class MakeRooms extends Component {
     const groupId = `${_id}--${randomNum}`;
 
     const updatedActivityGroupings = activity.groupings
-      ? { ...activity.groupings, [groupId]: {} }
-      : { [groupId]: {} };
+      ? [...activity.groupings, { _id: groupId, activity: _id, rooms: [] }]
+      : [{ _id: groupId, activity: _id, rooms: [] }];
 
     const updatedCourseGroupings = course.groupings
-      ? { ...course.groupings, [groupId]: {} }
-      : { [groupId]: {} };
+      ? [...course.groupings, { _id: groupId, activity: _id, rooms: [] }]
+      : [{ _id: groupId, activity: _id, rooms: [] }];
 
     const newRoom = {
       activity: _id,

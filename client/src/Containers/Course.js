@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import find from 'lodash/find';
-import { API } from 'utils';
+import { API, validateGroupings } from 'utils';
 import CourseMonitor from './Monitoring/CourseMonitor';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
@@ -16,6 +16,7 @@ import {
   requestAccess,
   grantAccess,
   updateUser,
+  updatedCourse,
 } from '../store/actions';
 import {
   DashboardLayout,
@@ -67,8 +68,12 @@ class Course extends Component {
       match,
       connectClearNotification,
       connectGetCourse,
+      connectUpdateCourse
     } = this.props;
     if (course) {
+      if (course.groupings)
+        validateGroupings(course.groupings, course, connectUpdateCourse);
+
       // this.props.getCourse(course._id); // What information are we getting here
       // this.props.getUser(user._id);
       let firstView = false;
@@ -105,11 +110,21 @@ class Course extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { course, user, history, notifications, loading } = this.props;
+    const {
+      course,
+      user,
+      history,
+      notifications,
+      loading,
+      connectUpdateCourse,
+    } = this.props;
     // The user has removed themself from this course and thus its no longer in the store
     if (!course) {
       return;
     }
+    if (course.groupings)
+      validateGroupings(course.groupings, course, connectUpdateCourse);
+
     // If the user has been removed from this course go back to myVMT
     if (
       prevProps.user.courses.indexOf(course._id) > -1 &&

@@ -28,7 +28,7 @@ import {
 import { populateResource } from '../store/reducers';
 import Access from './Access';
 import TemplatePreview from './Monitoring/TemplatePreview';
-import getResourceTabTypes from 'utils/getResourceTabTypes';
+import { getResourceTabTypes, validateGroupings } from 'utils';
 
 class Activity extends Component {
   constructor(props) {
@@ -54,7 +54,13 @@ class Activity extends Component {
   }
 
   componentDidMount() {
-    const { activity, connectGetCurrentActivity, match } = this.props;
+    const {
+      activity,
+      connectGetCurrentActivity,
+      connectUpdateActivity,
+      match,
+      rooms,
+    } = this.props;
 
     if (activity && activity.tabs) {
       const tabsInRoom = activity.tabs.map((tab) => tab.tabType);
@@ -67,10 +73,17 @@ class Activity extends Component {
     } else {
       this.checkAccess();
     }
+
+    if (activity && activity.groupings)
+      validateGroupings(
+        activity.groupings,
+        { ...activity, rooms: Object.values(rooms) },
+        connectUpdateActivity
+      );
   }
 
   componentDidUpdate(prevProps) {
-    const { activity, loading, user } = this.props;
+    const { activity, loading, user, rooms, connectUpdateActivity } = this.props;
     if (!activity) {
       return;
     }
@@ -101,6 +114,13 @@ class Activity extends Component {
     if (prevProps.user.isAdmin !== user.isAdmin) {
       this.checkAccess();
     }
+
+    if (activity.groupings)
+      validateGroupings(
+        activity.groupings,
+        { ...activity, rooms: Object.values(rooms) },
+        connectUpdateActivity
+      );
   }
 
   toggleEdit = () => {
@@ -214,9 +234,7 @@ class Activity extends Component {
           },
           {
             title: `${activity.name}`,
-            link: `/myVMT/courses/${course._id}/activities/${
-              activity._id
-            }/details`,
+            link: `/myVMT/courses/${course._id}/activities/${activity._id}/details`,
           },
         ];
       } else {
@@ -430,13 +448,10 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectGetCourses: getCourses,
-    connectGetRooms: getRooms,
-    connectUpdateActivity: updateActivity,
-    connectGetActivities: getActivities,
-    connectGetCurrentActivity: getCurrentActivity,
-  }
-)(Activity);
+export default connect(mapStateToProps, {
+  connectGetCourses: getCourses,
+  connectGetRooms: getRooms,
+  connectUpdateActivity: updateActivity,
+  connectGetActivities: getActivities,
+  connectGetCurrentActivity: getCurrentActivity,
+})(Activity);

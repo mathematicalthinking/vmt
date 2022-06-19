@@ -7,6 +7,8 @@ export { default as createMongoId } from './createMongoId';
 export { loadState, saveState } from './localStorage';
 export { default as notifications } from './notifications';
 export { default as socket } from './sockets';
+export { default as validateGroupings } from './groupings';
+export { default as getResourceTabTypes } from './getResourceTabTypes';
 export {
   validateEmail,
   validateUsername,
