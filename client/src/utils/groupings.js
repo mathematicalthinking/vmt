@@ -15,7 +15,7 @@ const validateGroupings = (groupings, resource, updateResource) => {
   console.log('validateGroupings');
   let shouldDispatch = false;
   const updatedGroupings = [...resource.groupings];
-  if (!groupings) return;
+  if (!groupings || Object.keys(groupings).length === 0) return;
 
   groupings.forEach((grouping, i) => {
     if (grouping.rooms && grouping.rooms.length === 0) {
@@ -47,7 +47,7 @@ const updateGrouping = (resource, grouping) => {
   const roomsToGroup = rooms.filter((room) => {
     return room.groupId === groupingId;
   });
-  
+
   console.log('updatedGrouping after:');
   console.log(updatedGrouping);
   updatedGrouping.rooms = roomsToGroup;
