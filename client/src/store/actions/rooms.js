@@ -2,6 +2,8 @@ import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
 import * as loading from './loading';
+import { updateActivity } from './activities';
+import { updateCourse } from './courses';
 
 export const gotRooms = (rooms, isNewRoom) => ({
   type: actionTypes.GOT_ROOMS,
@@ -151,6 +153,9 @@ export const setRoomStartingPoint = (roomId) => {
   };
 };
 
+// Note: we only need to update Course, Activity, & User w/new room
+// in the Redux store, b/c on the server side, when a new room is created
+// this info is added to the db (see server/model/Room.js -> Room.post)
 export const createRoom = (body) => {
   return (dispatch) => {
     dispatch(loading.start());
@@ -387,5 +392,93 @@ export const updateMonitorSelections = (selections) => {
       type: actionTypes.UPDATE_MONITOR_SELECTIONS,
       monitorSelections: selections,
     });
+  };
+};
+
+export const createGroupings = (roomsToCreate, activity, course) => {
+  return (dispatch, getState) => {
+    const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
+    const groupId = `${activity._id}--${randomNum}`;
+
+    const updatedActivityGroupings = activity.groupings
+      ? [
+          ...activity.groupings,
+          {
+            _id: groupId,
+            activity: activity._id,
+            rooms: [],
+          },
+        ]
+      : [{ _id: groupId, activity: activity._id, rooms: [] }];
+
+    const updatedCourseGroupings = course.groupings
+      ? [
+          ...course.groupings,
+          {
+            _id: groupId,
+            activity: activity._id,
+            rooms: [],
+          },
+        ]
+      : [{ _id: groupId, activity: activity._id, rooms: [] }];
+
+    // add groupId to each room
+    roomsToCreate.forEach((room) => (room.groupId = groupId));
+
+    dispatch(loading.start());
+    const results = roomsToCreate.map((body) => API.post('rooms', body));
+    Promise.all(results)
+      .then((results) => {
+        results.forEach((res) => {
+          const { result } = res.data;
+          let shouldDispatchCourse = false;
+          let shouldDispatchActivity = false;
+
+          result.myRole = 'facilitator';
+          dispatch(createdRoom(result));
+          if (!result.tempRoom) {
+            if (result.course) {
+              // groupings
+              updatedCourseGroupings.forEach((courseGrouping) => {
+                if (result.groupId === courseGrouping._id) {
+                  courseGrouping.rooms.push(result._id);
+                  shouldDispatchCourse = true;
+                }
+              });
+              dispatch(addCourseRooms(result.course, [result._id]));
+            }
+            if (result.activity) {
+              // groupings
+              updatedActivityGroupings.forEach((activityGrouping) => {
+                if (result.groupId === activityGrouping._id) {
+                  activityGrouping.rooms.push(result._id);
+                  shouldDispatchActivity = true;
+                }
+              });
+              dispatch(addActivityRooms(result.activity, [result._id]));
+            }
+            dispatch(addUserRooms([result._id]));
+          }
+
+          if (shouldDispatchActivity) {
+            updateActivity(activity._id, { groupings: updatedActivityGroupings })(
+              dispatch,
+              getState
+            );
+          }
+          if (shouldDispatchCourse) {
+            updateCourse(course._id, {
+              groupings: updatedCourseGroupings,
+            })(dispatch, getState);
+          }
+
+          return dispatch(loading.success());
+        });
+      })
+      .catch((err) => {
+        console.log('err:');
+        console.log(err);
+        dispatch(loading.fail(err));
+      });
   };
 };

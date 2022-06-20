@@ -8,6 +8,7 @@ import { Step1, Step2Course, ParticipantList } from './index';
 import createClasses from '../create.css';
 import AssignmentMatrix from './AssignmentMatrix';
 import COLOR_MAP from '../../../utils/colorMap';
+import { createGroupings } from 'store/actions/rooms';
 
 class MakeRooms extends Component {
   constructor(props) {
@@ -311,9 +312,7 @@ class MakeRooms extends Component {
       activity,
       userId,
       course,
-      connectCreateRoom,
-      connectUpdateCourse,
-      connectUpdateActivity,
+      connectCreateGroupings,
       close,
       history,
       match,
@@ -329,30 +328,6 @@ class MakeRooms extends Component {
       instructions,
       tabs,
     } = activity;
-    const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
-    const groupId = `${_id}--${randomNum}`;
-
-    const updatedActivityGroupings = activity.groupings
-      ? [
-          ...activity.groupings,
-          {
-            _id: groupId,
-            activity: _id,
-            rooms: [...activity.groupings.rooms] || [],
-          },
-        ]
-      : [{ _id: groupId, activity: _id, rooms: [] }];
-
-    const updatedCourseGroupings = course.groupings
-      ? [
-          ...course.groupings,
-          {
-            _id: groupId,
-            activity: _id,
-            rooms: [...course.groupings.rooms] || [],
-          },
-        ]
-      : [{ _id: groupId, activity: _id, rooms: [] }];
 
     const newRoom = {
       activity: _id,
@@ -366,7 +341,6 @@ class MakeRooms extends Component {
       dueDate,
       image,
       tabs,
-      groupId,
     };
 
     const roomsToCreate = [];
@@ -403,9 +377,7 @@ class MakeRooms extends Component {
       currentRoom.name = `${roomName}`;
       roomsToCreate.push(currentRoom);
     }
-    roomsToCreate.forEach((room) => connectCreateRoom(room));
-    connectUpdateActivity(_id, { groupings: updatedActivityGroupings });
-    connectUpdateCourse(course._id, { groupings: updatedCourseGroupings });
+    connectCreateGroupings(roomsToCreate, activity, course)
 
     close();
     const { url } = match;
@@ -545,5 +517,6 @@ export default withRouter(
     connectCreateRoom: createRoom,
     connectUpdateCourse: updateCourse,
     connectUpdateActivity: updateActivity,
+    connectCreateGroupings: createGroupings,
   })(MakeRooms)
 );

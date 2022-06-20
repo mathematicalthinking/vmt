@@ -6,7 +6,6 @@ import {
   DashboardLayout,
   SidePanel,
   ActivityDetails,
-  ResourceList,
   DashboardContent,
 } from '../Layout/Dashboard';
 import {
@@ -28,7 +27,7 @@ import {
 import { populateResource } from '../store/reducers';
 import Access from './Access';
 import TemplatePreview from './Monitoring/TemplatePreview';
-import { getResourceTabTypes, validateGroupings } from 'utils';
+import { getResourceTabTypes } from 'utils';
 
 class Activity extends Component {
   constructor(props) {
@@ -57,9 +56,7 @@ class Activity extends Component {
     const {
       activity,
       connectGetCurrentActivity,
-      connectUpdateActivity,
       match,
-      rooms,
     } = this.props;
 
     if (activity && activity.tabs) {
@@ -73,17 +70,14 @@ class Activity extends Component {
     } else {
       this.checkAccess();
     }
-
-    if (activity && activity.groupings)
-      validateGroupings(
-        activity.groupings,
-        { ...activity, rooms: Object.values(rooms) },
-        connectUpdateActivity
-      );
   }
 
   componentDidUpdate(prevProps) {
-    const { activity, loading, user, rooms, connectUpdateActivity } = this.props;
+    const {
+      activity,
+      loading,
+      user,
+    } = this.props;
     if (!activity) {
       return;
     }
@@ -114,13 +108,6 @@ class Activity extends Component {
     if (prevProps.user.isAdmin !== user.isAdmin) {
       this.checkAccess();
     }
-
-    if (activity.groupings)
-      validateGroupings(
-        activity.groupings,
-        { ...activity, rooms: Object.values(rooms) },
-        connectUpdateActivity
-      );
   }
 
   toggleEdit = () => {

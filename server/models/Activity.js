@@ -34,7 +34,14 @@ const Activity = new mongoose.Schema(
     source: { type: ObjectId, ref: 'Activity' }, // If this was created from another activity
     // template: {type: ObjectId, ref: 'ActivityTemplate'},
     isTrashed: { type: Boolean, default: false },
-    groupings: { type: Object, default: {} },
+    groupings: [
+      {
+        _id: false,
+        activity: { type: ObjectId, ref: 'Activity' },
+        timestamp: { type: Number },
+        rooms: [{ type: ObjectId, ref: 'Room' }],
+      },
+    ],
   },
   { timestamps: true }
 );
