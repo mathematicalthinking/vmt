@@ -90,7 +90,7 @@ class MakeRooms extends Component {
 
   setRoomName = (newRoomName) => {
     if (newRoomName.length > 0) {
-      this.setState({ roomName: newRoomName });
+      this.setState({ roomName: newRoomName, error: null });
     } else {
       this.setState({
         roomName: '',
