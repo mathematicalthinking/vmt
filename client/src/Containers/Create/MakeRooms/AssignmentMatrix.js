@@ -13,7 +13,7 @@ const AssignmentMatrix = (props) => {
     courseId,
     dueDate,
     userId,
-    rooms,
+    roomDrafts,
   } = props;
   const date = dueDate ? new Date(dueDate) : new Date();
   const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
@@ -34,9 +34,9 @@ const AssignmentMatrix = (props) => {
         });
       }
     });
-    let roomList = [...rooms];
-    if (roomNum > rooms.length) {
-      for (let i = rooms.length; i < roomNum; i++) {
+    let roomList = [...roomDrafts];
+    if (roomNum > roomDrafts.length) {
+      for (let i = roomDrafts.length; i < roomNum; i++) {
         const currentRoom = { ...newRoom };
         currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
         currentRoom.course = courseId;
@@ -44,13 +44,13 @@ const AssignmentMatrix = (props) => {
         roomList = [...roomList, currentRoom];
       }
     } else {
-      roomList.splice(roomNum - rooms.length);
+      roomList.splice(roomNum - roomDrafts.length);
     }
     select(roomList);
   }, [roomNum]);
 
   const deleteRoom = (index) => {
-    const roomList = [...rooms];
+    const roomList = [...roomDrafts];
     roomList.splice(index, 1);
     select(roomList);
   };
@@ -62,7 +62,7 @@ const AssignmentMatrix = (props) => {
       _id: data.participant.user._id,
     };
     if (user._id && roomId >= 0) {
-      const roomsUpdate = [...rooms];
+      const roomsUpdate = [...roomDrafts];
       const index = checkUser(roomId, user._id);
       if (index < 0) {
         roomsUpdate[roomId].members.push({ ...user });
@@ -75,14 +75,14 @@ const AssignmentMatrix = (props) => {
   };
 
 //   const modRoomName = (event) => {
-//     const roomsUpdate = [...rooms];
+//     const roomsUpdate = [...roomDrafts];
 //     const roomId = event.target.id.split(':')[1];
 //     roomsUpdate[roomId].name = event.target.value;
 //     select(roomsUpdate);
 //   };
 
   const checkUser = (roomId, user) => {
-    return rooms[roomId].members.findIndex((mem) => mem._id === user);
+    return roomDrafts[roomId].members.findIndex((mem) => mem._id === user);
   };
 
   return (
@@ -91,7 +91,7 @@ const AssignmentMatrix = (props) => {
         <thead>
           <tr className={classes.LockedTop}>
             <th className={classes.LockedColumn}>Participants</th>
-            {rooms.map((room, i) => {
+            {roomDrafts.map((room, i) => {
               return (
                 <th
                   className={classes.RoomsList}
@@ -129,7 +129,7 @@ const AssignmentMatrix = (props) => {
                 <td className={classes.LockedColumn}>
                   {`${i + 1}. ${participant.user.username}`}
                 </td>
-                {rooms.map((room, j) => {
+                {roomDrafts.map((room, j) => {
                   const roomKey = `${participant.user._id}rm${j}`;
                   const data = {
                     roomKey,
@@ -161,7 +161,7 @@ const AssignmentMatrix = (props) => {
             <td key="room-delete-row" className={classes.LockedColumn}>
               <span>Delete Room?</span>
             </td>
-            {rooms.map((room, i) => {
+            {roomDrafts.map((room, i) => {
               const index = i; // defeat the linter
               return (
                 <td
@@ -171,7 +171,7 @@ const AssignmentMatrix = (props) => {
                   <button
                     type="button"
                     id={`room-${i}-deleteBtn`}
-                    disabled={rooms.length <= 1}
+                    disabled={roomDrafts.length <= 1}
                     data-testid={`deleteRoom-${i + 1}`}
                     onClick={() => deleteRoom(i)}
                   >
@@ -196,7 +196,7 @@ AssignmentMatrix.propTypes = {
   courseId: PropTypes.string,
   dueDate: PropTypes.instanceOf(Date),
   userId: PropTypes.string.isRequired,
-  rooms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  roomDrafts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AssignmentMatrix.defaultProps = {
