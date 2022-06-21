@@ -26,6 +26,7 @@ class ActivityDetails extends Component {
       update,
       editing,
       userId,
+      rooms,
     } = this.props;
     const { assigning } = this.state;
     return (
@@ -72,7 +73,8 @@ class ActivityDetails extends Component {
             close={() => {
               this.setState({ assigning: false });
             }}
-            participants={course ? course.members : []}
+            participants={course ? course.members  : []}
+            rooms={rooms}
           />
         ) : null}
       </Aux>
@@ -89,6 +91,7 @@ ActivityDetails.propTypes = {
   update: PropTypes.func.isRequired,
   course: PropTypes.shape({}),
   loading: PropTypes.bool,
+  rooms: PropTypes.shape({}).isRequired,
 };
 
 ActivityDetails.defaultProps = {

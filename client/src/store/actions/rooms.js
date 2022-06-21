@@ -399,6 +399,8 @@ export const createGroupings = (roomsToCreate, activity, course) => {
   return (dispatch, getState) => {
     const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
     const groupId = `${activity._id}--${randomNum}`;
+    
+    const timestamp = Date.now();
 
     const updatedActivityGroupings = activity.groupings
       ? [
@@ -406,6 +408,7 @@ export const createGroupings = (roomsToCreate, activity, course) => {
           {
             _id: groupId,
             activity: activity._id,
+            timestamp,
             rooms: [],
           },
         ]
@@ -417,6 +420,7 @@ export const createGroupings = (roomsToCreate, activity, course) => {
           {
             _id: groupId,
             activity: activity._id,
+            timestamp,
             rooms: [],
           },
         ]
@@ -461,10 +465,9 @@ export const createGroupings = (roomsToCreate, activity, course) => {
           }
 
           if (shouldDispatchActivity) {
-            updateActivity(activity._id, { groupings: updatedActivityGroupings })(
-              dispatch,
-              getState
-            );
+            updateActivity(activity._id, {
+              groupings: updatedActivityGroupings,
+            })(dispatch, getState);
           }
           if (shouldDispatchCourse) {
             updateCourse(course._id, {
@@ -476,8 +479,6 @@ export const createGroupings = (roomsToCreate, activity, course) => {
         });
       })
       .catch((err) => {
-        console.log('err:');
-        console.log(err);
         dispatch(loading.fail(err));
       });
   };

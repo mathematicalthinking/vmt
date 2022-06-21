@@ -9,6 +9,7 @@ import createClasses from '../create.css';
 import AssignmentMatrix from './AssignmentMatrix';
 import COLOR_MAP from '../../../utils/colorMap';
 import { createGroupings } from 'store/actions/rooms';
+import { createPreviousAssignments } from '../../../utils/groupings';
 
 class MakeRooms extends Component {
   constructor(props) {
@@ -26,13 +27,25 @@ class MakeRooms extends Component {
       dueDate: null,
       error: null,
       step: 0,
+      // previousAssignment is a list of Activity-Room-Member objects
+      // this is used in Step2Course & AssignmentMatrix
+      // to reuse previously assigned activities
+      previousAssignments: createPreviousAssignments(
+        props.course.groupings,
+        props.rooms,
+        props.activity.name
+      ),
     };
   }
 
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
 
-    const { selectedParticipants, isRandom, participantsPerRoom } = this.state;
+    const {
+      selectedParticipants,
+      isRandom,
+      participantsPerRoom,
+    } = this.state;
 
     if (isRandom) {
       const numRooms = Math.ceil(
@@ -377,15 +390,14 @@ class MakeRooms extends Component {
       currentRoom.name = `${roomName}`;
       roomsToCreate.push(currentRoom);
     }
-    connectCreateGroupings(roomsToCreate, activity, course)
-
+    connectCreateGroupings(roomsToCreate, activity, course);
     close();
     const { url } = match;
     history.push(`${url.slice(0, url.length - 7)}rooms`);
   };
 
   render() {
-    const { activity, course, userId, close } = this.props;
+    const { activity, course, userId, close, rooms } = this.props;
     const {
       step,
       dueDate,
@@ -418,7 +430,7 @@ class MakeRooms extends Component {
         courseId={course ? course._id : null}
         dueDate={dueDate}
         userId={userId}
-        rooms={roomDrafts}
+        roomDrafts={roomDrafts}
       />
     );
 
@@ -453,6 +465,7 @@ class MakeRooms extends Component {
           setParticipantNumber={this.setParticipantNumber}
           isRandom={isRandom}
           error={error}
+          rooms={rooms}
         />
       );
     }
@@ -502,6 +515,7 @@ MakeRooms.propTypes = {
   history: PropTypes.shape({}).isRequired,
   match: PropTypes.shape({}).isRequired,
   connectCreateRoom: PropTypes.func.isRequired,
+  rooms: PropTypes.shape({}).isRequired,
 };
 
 MakeRooms.defaultProps = {

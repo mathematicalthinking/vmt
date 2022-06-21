@@ -243,6 +243,7 @@ class Activity extends Component {
           course={course}
           loading={loading}
           canAccess={canAccess}
+          rooms={rooms}
         />
       );
 
