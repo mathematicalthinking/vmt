@@ -22,28 +22,32 @@ rooms:
     }
 */
 
-export const createPreviousAssignments = (groupings, rooms, assignmentName) => {
+export const createPreviousAssignments = (groupings, rooms) => {
 
-  if (!groupings || !rooms || !assignmentName) return [];
+  if (!groupings || !rooms) return [];
   
-  const previousAssignments = groupings.map((grouping) => {
+  const previousAssignments = groupings.map((grouping, i) => {
     const date = new Date(grouping.timestamp).toLocaleString()
-    const name = `${assignmentName} ${date}`;
+    const name = `${i+1}: ${grouping.activityName} ${date}`;
     const roomDrafts = grouping.rooms.map((roomId) => {
       const room = rooms[roomId];
+      // the following line is here b/c we don't remove rooms from 
+      // groupings when rooms are deleted, which means 
+      // the grouping contains room ids that aren't in the actuall list of rooms
+      if (!room) return [];
       const roomDraft = {
-        acivity: room.acivity,
+        activity: room.activity,
         members: room.members,
         name: room.name,
         course: room.course,
       };
+      
+
       return roomDraft;
     });
     
     return { name, roomDrafts};
   });
 
-  console.log('previousAssignments from groupings.js:');
-  console.log(previousAssignments);
   return previousAssignments;
 };

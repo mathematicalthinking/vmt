@@ -162,17 +162,7 @@ export const createRoom = (body) => {
     API.post('rooms', body)
       .then((res) => {
         const { result } = res.data;
-        result.myRole = 'facilitator';
-        dispatch(createdRoom(result));
-        if (!body.tempRoom) {
-          if (body.course) {
-            dispatch(addCourseRooms(body.course, [result._id]));
-          }
-          if (body.activity) {
-            dispatch(addActivityRooms(body.activity, [result._id]));
-          }
-          dispatch(addUserRooms([result._id]));
-        }
+        dispatchNewRoom(result, dispatch);
         return dispatch(loading.success());
       })
       .catch((err) => {
@@ -180,6 +170,62 @@ export const createRoom = (body) => {
       });
   };
 };
+
+export const createGrouping = (roomsToCreate, activity, course) => {
+  return (dispatch, getState) => {
+    const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
+    const groupId = `${activity._id}--${randomNum}`;
+    const timestamp = Date.now();
+
+    // add groupId to each room
+    roomsToCreate.forEach((room) => (room.groupId = groupId));
+
+    dispatch(loading.start());
+    const results = roomsToCreate.map((body) => API.post('rooms', body));
+    Promise.all(results)
+      .then((results) => {
+        results.forEach(({ data: { result: room } }) => {
+          dispatchNewRoom(room, dispatch);
+        });
+        const newRoomIds = results.map(
+          ({ data: { result: room } }) => room._id
+        );
+        const newGrouping = {
+          _id: groupId,
+          activity: activity._id,
+          activityName: activity.name,
+          timestamp,
+          rooms: newRoomIds,
+        };
+
+        updateActivity(activity._id, {
+          groupings: [...activity.groupings, newGrouping],
+        })(dispatch, getState);
+
+        if (activity.course) {
+          updateCourse(course._id, {
+            groupings: [...course.groupings, newGrouping],
+          })(dispatch, getState);
+        }
+
+        return dispatch(loading.success());
+      })
+      .catch((err) => {
+        dispatch(loading.fail(err));
+      });
+  };
+};
+
+function dispatchNewRoom(room, dispatch) {
+  room.myRole = 'facilitator';
+  dispatch(createdRoom(room));
+
+  if (!room.tempRoom) {
+    if (room.course) dispatch(addCourseRooms(room.course, [room._id]));
+    if (room.activity) dispatch(addActivityRooms(room.activity, [room._id]));
+    dispatch(addUserRooms([room._id]));
+  }
+}
 
 export const createRoomFromActivity = (
   activityId,
@@ -392,94 +438,5 @@ export const updateMonitorSelections = (selections) => {
       type: actionTypes.UPDATE_MONITOR_SELECTIONS,
       monitorSelections: selections,
     });
-  };
-};
-
-export const createGroupings = (roomsToCreate, activity, course) => {
-  return (dispatch, getState) => {
-    const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
-    const groupId = `${activity._id}--${randomNum}`;
-    
-    const timestamp = Date.now();
-
-    const updatedActivityGroupings = activity.groupings
-      ? [
-          ...activity.groupings,
-          {
-            _id: groupId,
-            activity: activity._id,
-            timestamp,
-            rooms: [],
-          },
-        ]
-      : [{ _id: groupId, activity: activity._id, rooms: [] }];
-
-    const updatedCourseGroupings = course.groupings
-      ? [
-          ...course.groupings,
-          {
-            _id: groupId,
-            activity: activity._id,
-            timestamp,
-            rooms: [],
-          },
-        ]
-      : [{ _id: groupId, activity: activity._id, rooms: [] }];
-
-    // add groupId to each room
-    roomsToCreate.forEach((room) => (room.groupId = groupId));
-
-    dispatch(loading.start());
-    const results = roomsToCreate.map((body) => API.post('rooms', body));
-    Promise.all(results)
-      .then((results) => {
-        results.forEach((res) => {
-          const { result } = res.data;
-          let shouldDispatchCourse = false;
-          let shouldDispatchActivity = false;
-
-          result.myRole = 'facilitator';
-          dispatch(createdRoom(result));
-          if (!result.tempRoom) {
-            if (result.course) {
-              // groupings
-              updatedCourseGroupings.forEach((courseGrouping) => {
-                if (result.groupId === courseGrouping._id) {
-                  courseGrouping.rooms.push(result._id);
-                  shouldDispatchCourse = true;
-                }
-              });
-              dispatch(addCourseRooms(result.course, [result._id]));
-            }
-            if (result.activity) {
-              // groupings
-              updatedActivityGroupings.forEach((activityGrouping) => {
-                if (result.groupId === activityGrouping._id) {
-                  activityGrouping.rooms.push(result._id);
-                  shouldDispatchActivity = true;
-                }
-              });
-              dispatch(addActivityRooms(result.activity, [result._id]));
-            }
-            dispatch(addUserRooms([result._id]));
-          }
-
-          if (shouldDispatchActivity) {
-            updateActivity(activity._id, {
-              groupings: updatedActivityGroupings,
-            })(dispatch, getState);
-          }
-          if (shouldDispatchCourse) {
-            updateCourse(course._id, {
-              groupings: updatedCourseGroupings,
-            })(dispatch, getState);
-          }
-
-          return dispatch(loading.success());
-        });
-      })
-      .catch((err) => {
-        dispatch(loading.fail(err));
-      });
   };
 };
