@@ -79,8 +79,8 @@
 .Error {
   color: red;
   height: 20px;
-  /* margin: centers error messages b/t TextInputs in Step2Course */
-  margin: auto;
+  /* margin: auto; */
+  width: 300px;
 }
 
 .RoomsList {
@@ -160,4 +160,16 @@
 
 .RevertName:hover {
   cursor: pointer;
+}
+
+.Select {
+  height: 20px;
+  margin: auto;
+  z-index: 10000;
+}
+
+.TopSection {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
 }
