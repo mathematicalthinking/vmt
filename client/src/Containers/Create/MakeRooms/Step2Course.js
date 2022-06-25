@@ -63,20 +63,26 @@ class Step2Course extends Component {
 
     const handleSelectChange = (selectedOption) => {
       // subtract # of facilitators
-      const numberOfParticipants = selectedOption.value[0].members.length;
-      select(selectedOption.value);
+      const room1Members = selectedOption.value[0].members;
+      const nonFacilitators = room1Members.filter(
+        (mem) => mem.role !== 'facilitator'
+      );
+      const numberOfParticipants = nonFacilitators.length;
       this.setState(
         {
           selectName: selectedOption.label,
+        },
+        () => {
+          setNumber(numberOfParticipants);
+          select(selectedOption.value);
         }
-        // () => setNumber(numberOfParticipants)
       );
     };
 
     const handleParticipantsPerRoomChange = (event) => {
       const numberOfParticipants = parseInt(event.target.value.trim(), 10);
       setNumber(numberOfParticipants);
-      // resetAssignmentSelection()
+      resetAssignmentSelection()
     };
 
     const handleShuffleClick = () => {

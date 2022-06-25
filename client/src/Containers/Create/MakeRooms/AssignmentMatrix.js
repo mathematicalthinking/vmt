@@ -35,9 +35,9 @@ const AssignmentMatrix = (props) => {
         currentRoom.members = [...facilitators];
         roomList = [...roomList, currentRoom];
       }
-    } else {
+    } else if (roomNum !== roomDrafts.length) {
       roomList.splice(roomNum - roomDrafts.length);
-    }
+    } 
     select(roomList);
   }, [roomNum]);
 
