@@ -6,7 +6,7 @@ import classes from './makeRooms.css';
 const AssignmentMatrix = (props) => {
   const {
     list,
-    selectedParticipants,
+    requiredParticipants,
     select,
     roomNum,
     activity,
@@ -25,15 +25,7 @@ const AssignmentMatrix = (props) => {
   };
 
   useEffect(() => {
-    const facilitators = [];
-    list.forEach((user) => {
-      if (user.role === 'facilitator') {
-        facilitators.push({
-          role: user.role,
-          _id: user.user._id,
-        });
-      }
-    });
+    const facilitators = list.filter((member) => member.role === 'facilitator');
     let roomList = [...roomDrafts];
     if (roomNum > roomDrafts.length) {
       for (let i = roomDrafts.length; i < roomNum; i++) {
@@ -56,33 +48,29 @@ const AssignmentMatrix = (props) => {
   };
 
   const selectParticipant = (event, data) => {
-    const roomId = data.roomIndex;
+    const roomIndex = data.roomIndex;
     const user = {
       role: data.participant.role || 'participant',
       _id: data.participant.user._id,
+      user: data.participant.user,
     };
-    if (user._id && roomId >= 0) {
+    if (user._id && roomIndex >= 0) {
       const roomsUpdate = [...roomDrafts];
-      const index = checkUser(roomId, user._id);
+      const index = checkUser(roomIndex, user);
       if (index < 0) {
-        roomsUpdate[roomId].members.push({ ...user });
+        roomsUpdate[roomIndex].members.push({ ...user });
       }
       if (index >= 0) {
-        roomsUpdate[roomId].members.splice(index, 1);
+        roomsUpdate[roomIndex].members.splice(index, 1);
       }
       select(roomsUpdate);
     }
   };
 
-//   const modRoomName = (event) => {
-//     const roomsUpdate = [...roomDrafts];
-//     const roomId = event.target.id.split(':')[1];
-//     roomsUpdate[roomId].name = event.target.value;
-//     select(roomsUpdate);
-//   };
-
-  const checkUser = (roomId, user) => {
-    return roomDrafts[roomId].members.findIndex((mem) => mem._id === user);
+  const checkUser = (roomIndex, user) => {
+    return roomDrafts[roomIndex].members.findIndex(
+      (mem) => mem.user._id === user._id
+    );
   };
 
   return (
@@ -117,7 +105,9 @@ const AssignmentMatrix = (props) => {
         <tbody>
           {/* top row rooms list */}
           {list.map((participant, i) => {
-            const rowClass = selectedParticipants.includes(participant)
+            const rowClass = requiredParticipants.some(
+              ({ user }) => user.username === participant.user.username
+            )
               ? [classes.Participant, classes.Selected].join(' ')
               : classes.Participant;
             return (
@@ -149,7 +139,7 @@ const AssignmentMatrix = (props) => {
                         onChange={(event) => {
                           selectParticipant(event, data);
                         }}
-                        checked={checkUser(j, participant.user._id) >= 0}
+                        checked={checkUser(j, participant.user) >= 0}
                       />
                     </td>
                   );
@@ -189,7 +179,7 @@ const AssignmentMatrix = (props) => {
 
 AssignmentMatrix.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
   roomNum: PropTypes.number,
   activity: PropTypes.shape({}),

@@ -8,7 +8,7 @@ import { Step1, Step2Course, ParticipantList } from './index';
 import createClasses from '../create.css';
 import AssignmentMatrix from './AssignmentMatrix';
 import COLOR_MAP from '../../../utils/colorMap';
-import { createGroupings } from 'store/actions/rooms';
+import { createGrouping } from 'store/actions/rooms';
 import { createPreviousAssignments } from '../../../utils/groupings';
 
 class MakeRooms extends Component {
@@ -20,7 +20,7 @@ class MakeRooms extends Component {
       participantsPerRoom: 3,
       roomNum: 1,
       roomName: `${activity.name} (${new Date().toLocaleDateString()})`,
-      selectedParticipants: [...participants].sort((a) =>
+      requiredParticipants: [...participants].sort((a) =>
         a.role === 'facilitator' ? 1 : -1
       ),
       roomDrafts: [],
@@ -32,8 +32,7 @@ class MakeRooms extends Component {
       // to reuse previously assigned activities
       previousAssignments: createPreviousAssignments(
         props.course.groupings,
-        props.rooms,
-        props.activity.name
+        props.rooms
       ),
     };
   }
@@ -42,14 +41,14 @@ class MakeRooms extends Component {
     window.addEventListener('keypress', this.onKeyPress);
 
     const {
-      selectedParticipants,
+      requiredParticipants,
       isRandom,
       participantsPerRoom,
     } = this.state;
 
     if (isRandom) {
       const numRooms = Math.ceil(
-        this.filterFacilitators(selectedParticipants).length /
+        this.filterFacilitators(requiredParticipants).length /
           participantsPerRoom
       );
       this.setRoomNumber(numRooms);
@@ -73,7 +72,7 @@ class MakeRooms extends Component {
 
   setRandom = () => {
     const {
-      selectedParticipants: participants,
+      requiredParticipants: participants,
       participantsPerRoom,
     } = this.state;
     this.setState({ isRandom: true }, () => {
@@ -113,9 +112,10 @@ class MakeRooms extends Component {
     }
   };
 
-  setNumber = (event) => {
-    const { selectedParticipants: participants, isRandom } = this.state;
-    const participantsPerRoom = parseInt(event.target.value.trim(), 10);
+  setNumber = (numberOfParticipants) => {
+    const { requiredParticipants: participants, isRandom } = this.state;
+    const participantsPerRoom = numberOfParticipants;
+
     if (participantsPerRoom < 1) {
       this.setState({
         participantsPerRoom: 1,
@@ -164,40 +164,40 @@ class MakeRooms extends Component {
   };
 
   selectParticipant = (event, userId) => {
-    const _updateParticipantList = (selectedParticipants) => {
+    const _updateParticipantList = (requiredParticipants) => {
       const newParticipant = userId;
-      let updatedSelectedParticipants = [...selectedParticipants];
+      let updatedRequiredParticipants = [...requiredParticipants];
       // if user is already selected, remove them from the selected list
       if (
-        selectedParticipants.some((mem) => {
+        requiredParticipants.some((mem) => {
           return mem.user._id === newParticipant.user._id;
         })
       ) {
-        updatedSelectedParticipants = selectedParticipants.filter(
+        updatedRequiredParticipants = requiredParticipants.filter(
           (participant) => participant !== newParticipant
         );
         // if the user is not already selected, add them to selected and remove from remaining
       } else {
-        updatedSelectedParticipants.push(newParticipant);
+        updatedRequiredParticipants.push(newParticipant);
       }
-      return updatedSelectedParticipants;
+      return updatedRequiredParticipants;
     };
 
     this.setState(
       (previousState) => ({
-        selectedParticipants: _updateParticipantList(
-          previousState.selectedParticipants
+        requiredParticipants: _updateParticipantList(
+          previousState.requiredParticipants
         ),
       }),
       () => {
         const {
           isRandom,
           participantsPerRoom,
-          selectedParticipants,
+          requiredParticipants,
         } = this.state;
         if (isRandom) {
           const numRooms = Math.ceil(
-            this.filterFacilitators(selectedParticipants).length /
+            this.filterFacilitators(requiredParticipants).length /
               participantsPerRoom
           );
           this.setRoomNumber(numRooms);
@@ -208,13 +208,13 @@ class MakeRooms extends Component {
   };
 
   setParticipants = (event, user) => {
-    const _updateParticipantsList = (selectedParticipants) => {
-      let updatedParticpants = [...selectedParticipants];
+    const _updateParticipantsList = (requiredParticipants) => {
+      let updatedParticpants = [...requiredParticipants];
       if (
-        selectedParticipants.findIndex((userObj) => userObj.id === user._id) >
+        requiredParticipants.findIndex((userObj) => userObj.id === user._id) >
         -1
       ) {
-        updatedParticpants = selectedParticipants.filter(
+        updatedParticpants = requiredParticipants.filter(
           (participant) => participant !== user
         );
         // if the user is not already selected, add them to selected and remove from remaining
@@ -226,19 +226,19 @@ class MakeRooms extends Component {
 
     this.setState(
       (previousState) => ({
-        selectedParticipants: _updateParticipantsList(
-          previousState.selectedParticipants
+        requiredParticipants: _updateParticipantsList(
+          previousState.requiredParticipants
         ),
       }),
       () => {
         const {
           isRandom,
           participantsPerRoom,
-          selectedParticipants,
+          requiredParticipants: requiredParticipants,
         } = this.state;
         if (isRandom) {
           const numRooms = Math.ceil(
-            this.filterFacilitators(selectedParticipants).length /
+            this.filterFacilitators(requiredParticipants).length /
               participantsPerRoom
           );
           this.setRoomNumber(numRooms);
@@ -281,6 +281,7 @@ class MakeRooms extends Component {
       const user = {
         role: mem.role || 'participant',
         _id: mem.user._id,
+        user: mem.user,
       };
       return user;
     });
@@ -288,7 +289,7 @@ class MakeRooms extends Component {
 
   shuffleParticipants = () => {
     const {
-      selectedParticipants: participants,
+      requiredParticipants: participants,
       participantsPerRoom,
       roomDrafts,
     } = this.state;
@@ -325,7 +326,7 @@ class MakeRooms extends Component {
       activity,
       userId,
       course,
-      connectCreateGroupings,
+      connectCreateGrouping,
       close,
       history,
       match,
@@ -362,7 +363,7 @@ class MakeRooms extends Component {
       // const currentRoom = { ...roomDrafts[i] };
       const currentRoom = { ...newRoom };
       const members = roomDrafts[i].members.map((mem, index) => ({
-        user: course ? mem._id : mem,
+        user: course ? mem.user._id : mem.user,
         role: mem.role,
         color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
       }));
@@ -390,7 +391,7 @@ class MakeRooms extends Component {
       currentRoom.name = `${roomName}`;
       roomsToCreate.push(currentRoom);
     }
-    connectCreateGroupings(roomsToCreate, activity, course);
+    connectCreateGrouping(roomsToCreate, activity, course);
     close();
     const { url } = match;
     history.push(`${url.slice(0, url.length - 7)}rooms`);
@@ -402,26 +403,28 @@ class MakeRooms extends Component {
       step,
       dueDate,
       isRandom,
-      selectedParticipants,
+      requiredParticipants,
       roomNum,
       roomName,
       participantsPerRoom,
       error,
       roomDrafts,
+      previousAssignments,
     } = this.state;
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     const participantList = (
       <ParticipantList
-        list={selectedParticipants}
-        selectedParticipants={selectedParticipants}
+        list={requiredParticipants}
+        requiredParticipants={requiredParticipants}
         select={this.setParticipants}
       />
     );
     const assignmentMatrix = (
       <AssignmentMatrix
-        list={selectedParticipants}
-        selectedParticipants={selectedParticipants.filter(
+        list={requiredParticipants}
+        requiredParticipants={requiredParticipants.filter(
+          // required people
           (mem) => mem.role === 'facilitator'
         )}
         select={this.updateParticipants}
@@ -443,7 +446,7 @@ class MakeRooms extends Component {
         userId={userId}
         select={this.selectParticipant}
         courseId={course ? course._id : null}
-        selectedParticipants={selectedParticipants}
+        requiredParticipants={requiredParticipants}
       />
     );
 
@@ -466,6 +469,8 @@ class MakeRooms extends Component {
           isRandom={isRandom}
           error={error}
           rooms={rooms}
+          previousAssignments={previousAssignments}
+          select={this.updateParticipants}
         />
       );
     }
@@ -531,6 +536,6 @@ export default withRouter(
     connectCreateRoom: createRoom,
     connectUpdateCourse: updateCourse,
     connectUpdateActivity: updateActivity,
-    connectCreateGroupings: createGroupings,
+    connectCreateGrouping: createGrouping,
   })(MakeRooms)
 );

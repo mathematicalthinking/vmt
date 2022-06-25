@@ -5,11 +5,11 @@ import classes from './makeRooms.css';
 
 class ParticipantList extends Component {
   render() {
-    const { list, selectedParticipants, select } = this.props;
+    const { list, requiredParticipants, select } = this.props;
     return !list || list.length === 0
       ? 'there are no users to display yet'
       : list.map((participant, i) => {
-          const rowClass = selectedParticipants.some(
+          const rowClass = requiredParticipants.some(
             (u) => u.user._id === participant.user._id
           )
             ? [classes.Participant, classes.Selected].join(' ')
@@ -26,7 +26,7 @@ class ParticipantList extends Component {
                 onChange={(event) => {
                   select(event, participant);
                 }}
-                checked={selectedParticipants.some(
+                checked={requiredParticipants.some(
                   (u) => u.user._id === participant.user._id
                 )}
               />
@@ -39,7 +39,7 @@ class ParticipantList extends Component {
                 change={select}
                 dataId={participant.user._id}
                 checked={
-                  selectedParticipants.indexOf(participant.user._id) > -1
+                  requiredParticipants.indexOf(participant.user._id) > -1
                 }
               >
                 {`${i + 1}. ${participant.user.username}`}
@@ -52,7 +52,7 @@ class ParticipantList extends Component {
 
 ParticipantList.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
 };
 export default ParticipantList;
