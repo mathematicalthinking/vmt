@@ -211,7 +211,7 @@ Step2Course.propTypes = {
   setManual: PropTypes.func,
   shuffleParticipants: PropTypes.func,
   submit: PropTypes.func.isRequired,
-  previousAssignments: PropTypes.array.isRequired,
+  previousAssignments: PropTypes.array,
   select: PropTypes.func.isRequired,
 };
 
@@ -220,6 +220,7 @@ Step2Course.defaultProps = {
   isRandom: false,
   participantsPerRoom: 0,
   roomNum: 1,
+  previousAssignments: [],
   setRoomNumber: () => {},
   setRandom: () => {},
   setManual: () => {},
