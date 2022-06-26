@@ -20,7 +20,7 @@ class MakeRooms extends Component {
       participantsPerRoom: 3,
       roomNum: 1,
       roomName: `${activity.name} (${new Date().toLocaleDateString()})`,
-      requiredParticipants: [...participants].sort((a) =>
+      selectedParticipants: [...participants].sort((a) =>
         a.role === 'facilitator' ? 1 : -1
       ),
       roomDrafts: [],
@@ -41,14 +41,14 @@ class MakeRooms extends Component {
     window.addEventListener('keypress', this.onKeyPress);
 
     const {
-      requiredParticipants,
+      selectedParticipants,
       isRandom,
       participantsPerRoom,
     } = this.state;
 
     if (isRandom) {
       const numRooms = Math.ceil(
-        this.filterFacilitators(requiredParticipants).length /
+        this.filterFacilitators(selectedParticipants).length /
           participantsPerRoom
       );
       this.setRoomNumber(numRooms);
@@ -72,7 +72,7 @@ class MakeRooms extends Component {
 
   setRandom = () => {
     const {
-      requiredParticipants: participants,
+      selectedParticipants: participants,
       participantsPerRoom,
     } = this.state;
     this.setState({ isRandom: true }, () => {
@@ -113,7 +113,7 @@ class MakeRooms extends Component {
   };
 
   setNumber = (numberOfParticipants) => {
-    const { requiredParticipants: participants, isRandom } = this.state;
+    const { selectedParticipants: participants, isRandom } = this.state;
     const participantsPerRoom = numberOfParticipants;
 
     if (participantsPerRoom < 1) {
@@ -164,40 +164,40 @@ class MakeRooms extends Component {
   };
 
   selectParticipant = (event, userId) => {
-    const _updateParticipantList = (requiredParticipants) => {
+    const _updateParticipantList = (selectedParticipants) => {
       const newParticipant = userId;
-      let updatedRequiredParticipants = [...requiredParticipants];
+      let updatedSelectedParticipants = [...selectedParticipants];
       // if user is already selected, remove them from the selected list
       if (
-        requiredParticipants.some((mem) => {
+        selectedParticipants.some((mem) => {
           return mem.user._id === newParticipant.user._id;
         })
       ) {
-        updatedRequiredParticipants = requiredParticipants.filter(
+        updatedSelectedParticipants = selectedParticipants.filter(
           (participant) => participant !== newParticipant
         );
         // if the user is not already selected, add them to selected and remove from remaining
       } else {
-        updatedRequiredParticipants.push(newParticipant);
+        updatedSelectedParticipants.push(newParticipant);
       }
-      return updatedRequiredParticipants;
+      return updatedSelectedParticipants;
     };
 
     this.setState(
       (previousState) => ({
-        requiredParticipants: _updateParticipantList(
-          previousState.requiredParticipants
+        selectedParticipants: _updateParticipantList(
+          previousState.selectedParticipants
         ),
       }),
       () => {
         const {
           isRandom,
           participantsPerRoom,
-          requiredParticipants,
+          selectedParticipants,
         } = this.state;
         if (isRandom) {
           const numRooms = Math.ceil(
-            this.filterFacilitators(requiredParticipants).length /
+            this.filterFacilitators(selectedParticipants).length /
               participantsPerRoom
           );
           this.setRoomNumber(numRooms);
@@ -208,13 +208,13 @@ class MakeRooms extends Component {
   };
 
   setParticipants = (event, user) => {
-    const _updateParticipantsList = (requiredParticipants) => {
-      let updatedParticpants = [...requiredParticipants];
+    const _updateParticipantsList = (selectedParticipants) => {
+      let updatedParticpants = [...selectedParticipants];
       if (
-        requiredParticipants.findIndex((userObj) => userObj.id === user._id) >
+        selectedParticipants.findIndex((userObj) => userObj.id === user._id) >
         -1
       ) {
-        updatedParticpants = requiredParticipants.filter(
+        updatedParticpants = selectedParticipants.filter(
           (participant) => participant !== user
         );
         // if the user is not already selected, add them to selected and remove from remaining
@@ -226,19 +226,19 @@ class MakeRooms extends Component {
 
     this.setState(
       (previousState) => ({
-        requiredParticipants: _updateParticipantsList(
-          previousState.requiredParticipants
+        selectedParticipants: _updateParticipantsList(
+          previousState.selectedParticipants
         ),
       }),
       () => {
         const {
           isRandom,
           participantsPerRoom,
-          requiredParticipants: requiredParticipants,
+          selectedParticipants,
         } = this.state;
         if (isRandom) {
           const numRooms = Math.ceil(
-            this.filterFacilitators(requiredParticipants).length /
+            this.filterFacilitators(selectedParticipants).length /
               participantsPerRoom
           );
           this.setRoomNumber(numRooms);
@@ -289,7 +289,7 @@ class MakeRooms extends Component {
 
   shuffleParticipants = () => {
     const {
-      requiredParticipants: participants,
+      selectedParticipants: participants,
       participantsPerRoom,
       roomDrafts,
     } = this.state;
@@ -403,7 +403,7 @@ class MakeRooms extends Component {
       step,
       dueDate,
       isRandom,
-      requiredParticipants,
+      selectedParticipants,
       roomNum,
       roomName,
       participantsPerRoom,
@@ -415,15 +415,15 @@ class MakeRooms extends Component {
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
     const participantList = (
       <ParticipantList
-        list={requiredParticipants}
-        requiredParticipants={requiredParticipants}
+        list={selectedParticipants}
+        selectedParticipants={selectedParticipants}
         select={this.setParticipants}
       />
     );
     const assignmentMatrix = (
       <AssignmentMatrix
-        list={requiredParticipants}
-        requiredParticipants={requiredParticipants.filter(
+        list={selectedParticipants}
+        requiredParticipants={selectedParticipants.filter(
           // required people
           (mem) => mem.role === 'facilitator'
         )}
@@ -446,7 +446,7 @@ class MakeRooms extends Component {
         userId={userId}
         select={this.selectParticipant}
         courseId={course ? course._id : null}
-        requiredParticipants={requiredParticipants}
+        selectedParticipants={selectedParticipants}
       />
     );
 

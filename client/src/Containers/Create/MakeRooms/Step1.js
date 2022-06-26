@@ -11,19 +11,19 @@ import API from '../../../utils/apiRequests';
 class Step1 extends Component {
   state = {
     searchResults: [],
-    nominatedParticipants: [], // nominated as opposed to requiredParticipants (which we get from props) when we
+    nominatedParticipants: [], // nominated as opposed to selectedParticipants (which we get from props) when we
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const { requiredParticipants } = this.props;
+    const { selectedParticipants } = this.props;
     const { searchResults } = prevState;
     // Add users to the selected list so we can persist them after we start a new a search
     // Perhpas this would be a good time to deriveStateFromProps since...that's what we're doing
     // this seems bad actualy...we're duplicating parent state here...we ashould just rename this local state
     // parent state = paritcipants we're confirmed are being adding to the room. this component's state = staging
-    if (prevProps.requiredParticipants.length < requiredParticipants.length) {
+    if (prevProps.selectedParticipants.length < selectedParticipants.length) {
       const selectedUser = searchResults.filter((user) =>
-        requiredParticipants.find((userId) => user._id.toString() === userId)
+        selectedParticipants.find((userId) => user._id.toString() === userId)
       );
       this.setState((previousState) => ({
         nominatedParticipants: previousState.nominatedParticipants.concat(
@@ -32,12 +32,12 @@ class Step1 extends Component {
       }));
       // Remove users who have been de-selected
     } else if (
-      prevProps.requiredParticipants.length > requiredParticipants.length
+      prevProps.selectedParticipants.length > selectedParticipants.length
     ) {
       this.setState((previousState) => ({
         nominatedParticipants: previousState.nominatedParticipants.filter(
           (user) => {
-            return requiredParticipants.find((userId) => user._id === userId);
+            return selectedParticipants.find((userId) => user._id === userId);
           }
         ),
       }));
@@ -45,12 +45,12 @@ class Step1 extends Component {
   }
 
   search = (text) => {
-    const { requiredParticipants, userId } = this.props;
+    const { selectedParticipants, userId } = this.props;
     if (text.length > 0) {
       API.search(
         'user',
         text,
-        [userId].concat(requiredParticipants.map((p) => p.user._id)) // Exclude myself and already selected members from th search
+        [userId].concat(selectedParticipants.map((p) => p.user._id)) // Exclude myself and already selected members from th search
       )
         .then((res) => {
           const searchResults = res.data.results.filter(
@@ -71,7 +71,7 @@ class Step1 extends Component {
       setDueDate,
       nextStep,
       courseId,
-      requiredParticipants,
+      selectedParticipants,
       select,
     } = this.props;
     const { nominatedParticipants, searchResults } = this.state;
@@ -94,8 +94,8 @@ class Step1 extends Component {
           <Fragment>
             <h2 className={classes.Title}>Selected Participants</h2>
             <ParticipantList
-              list={requiredParticipants}
-              requiredParticipants={requiredParticipants}
+              list={selectedParticipants}
+              selectedParticipants={selectedParticipants}
               select={select}
             />
           </Fragment>
@@ -114,7 +114,7 @@ class Step1 extends Component {
             <div className={classes.ParticipantList}>
               <ParticipantList
                 list={list}
-                requiredParticipants={requiredParticipants}
+                selectedParticipants={selectedParticipants}
                 select={select}
               />
             </div>
@@ -135,7 +135,7 @@ Step1.propTypes = {
   setDueDate: PropTypes.func.isRequired,
   nextStep: PropTypes.func.isRequired,
   userId: PropTypes.string.isRequired,
-  requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
   courseId: PropTypes.string,
 };
