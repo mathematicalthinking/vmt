@@ -41,6 +41,38 @@ class Step2Course extends Component {
     );
   };
 
+  restoreNameClick = () => {
+    const { setRoomName } = this.props;
+    const { defaultRoomName } = this.state;
+    setRoomName(defaultRoomName);
+  };
+
+  restoreNameKeyDown = (event) => {
+    const { defaultRoomName } = this.state;
+    event.preventDefault();
+    // 13 === "Enter" || 32 === "Space"
+    if (event.keyCode === 13 || event.keyCode === 32) {
+      setRoomName(defaultRoomName);
+    }
+  };
+
+  resetAssignmentSelection = () => {
+    this.setState({ selectName: 'Previous Assignments' });
+  };
+
+  handleParticipantsPerRoomChange = (event) => {
+    const { setNumber } = this.props;
+    const numberOfParticipants = parseInt(event.target.value.trim(), 10);
+    setNumber(numberOfParticipants);
+    this.resetAssignmentSelection();
+  };
+
+  handleShuffleClick = () => {
+    const { shuffleParticipants } = this.props;
+    this.resetAssignmentSelection();
+    shuffleParticipants();
+  };
+
   render() {
     const {
       activity,
@@ -73,34 +105,6 @@ class Step2Course extends Component {
       : new Date();
     const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
 
-    const restoreNameClick = () => {
-      setRoomName(defaultRoomName);
-    };
-
-    const restoreNameKeyDown = (event) => {
-      event.preventDefault();
-      // 13 === "Enter" || 32 === "Space"
-      if (event.keyCode === 13 || event.keyCode === 32) {
-        setRoomName(defaultRoomName);
-      }
-    };
-
-    const resetAssignmentSelection = () => {
-      this.setState({ selectName: 'Previous Assignments' });
-    };
-
-    const handleParticipantsPerRoomChange = (event) => {
-      const numberOfParticipants = parseInt(event.target.value.trim(), 10);
-      setNumber(numberOfParticipants);
-      resetAssignmentSelection();
-    };
-
-    const handleShuffleClick = () => {
-      const { shuffleParticipants } = this.props;
-      resetAssignmentSelection();
-      shuffleParticipants();
-    };
-
     return (
       <div className={classes.Container}>
         <h2 className={classes.Title}>Assign To Rooms</h2>
@@ -120,8 +124,8 @@ class Step2Course extends Component {
               light
               label="Number of participants per room"
               type="number"
-              change={handleParticipantsPerRoomChange}
-              onKeyDown={handleParticipantsPerRoomChange}
+              change={this.handleParticipantsPerRoomChange}
+              onKeyDown={this.handleParticipantsPerRoomChange}
               value={String(participantsPerRoom)} // TextInput expects values to be text (i.e., strings)
               name="participants"
               width="275px"
@@ -175,8 +179,8 @@ class Step2Course extends Component {
           {showRevertButton && (
             <i
               className={`fas fa-undo ${classes.RevertName}`}
-              onClick={() => restoreNameClick()}
-              onKeyDown={(event) => restoreNameKeyDown(event)}
+              onClick={() => this.restoreNameClick()}
+              onKeyDown={(event) => this.restoreNameKeyDown(event)}
               role="button"
               tabIndex={0}
             />
@@ -188,7 +192,7 @@ class Step2Course extends Component {
           {isRandom ? (
             <Button
               m={5}
-              click={handleShuffleClick}
+              click={this.handleShuffleClick}
               data-testid="random-shuffle"
             >
               Shuffle
