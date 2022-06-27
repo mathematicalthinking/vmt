@@ -11,8 +11,35 @@ class Step2Course extends Component {
     this.state = {
       defaultRoomName: roomName,
       selectName: 'Previous Assignments',
+      confirmButtonName: props.inEditMode ? 'Confirm Edit' : 'Assign',
     };
   }
+
+  componentDidMount() {
+    const { selectedAssignment, select } = this.props;
+    if (selectedAssignment) {
+      this.handleSelectChange(selectedAssignment);
+    }
+  }
+
+  handleSelectChange = (selectedOption) => {
+    // subtract # of facilitators
+    const { setNumber, select } = this.props;
+    const room1Members = selectedOption.value[0].members;
+    const nonFacilitators = room1Members.filter(
+      (mem) => mem.role !== 'facilitator'
+    );
+    const numberOfParticipants = nonFacilitators.length;
+    this.setState(
+      {
+        selectName: selectedOption.label,
+      },
+      () => {
+        setNumber(numberOfParticipants);
+        select(selectedOption.value);
+      }
+    );
+  };
 
   render() {
     const {
@@ -32,9 +59,10 @@ class Step2Course extends Component {
       submit,
       previousAssignments,
       select,
+      selectedAssignment,
     } = this.props;
 
-    const { defaultRoomName, selectName } = this.state;
+    const { defaultRoomName, selectName, confirmButtonName } = this.state;
 
     // show revert button if roomName differs from defaultRoomName
     // if the names differ, show the button
@@ -61,28 +89,10 @@ class Step2Course extends Component {
       this.setState({ selectName: 'Previous Assignments' });
     };
 
-    const handleSelectChange = (selectedOption) => {
-      // subtract # of facilitators
-      const room1Members = selectedOption.value[0].members;
-      const nonFacilitators = room1Members.filter(
-        (mem) => mem.role !== 'facilitator'
-      );
-      const numberOfParticipants = nonFacilitators.length;
-      this.setState(
-        {
-          selectName: selectedOption.label,
-        },
-        () => {
-          setNumber(numberOfParticipants);
-          select(selectedOption.value);
-        }
-      );
-    };
-
     const handleParticipantsPerRoomChange = (event) => {
       const numberOfParticipants = parseInt(event.target.value.trim(), 10);
       setNumber(numberOfParticipants);
-      resetAssignmentSelection()
+      resetAssignmentSelection();
     };
 
     const handleShuffleClick = () => {
@@ -131,17 +141,21 @@ class Step2Course extends Component {
             <Select
               placeholder={selectName}
               className={classes.Select}
-              value={{
-                label: selectName,
-                value: null,
-              }}
+              value={
+                selectedAssignment
+                  ? selectedAssignment
+                  : {
+                      label: selectName,
+                      value: null,
+                    }
+              }
               options={previousAssignments.map((assignment) => ({
                 label: assignment.name,
                 value: assignment.roomDrafts,
               }))}
               isSearchable={false}
               onChange={(selectedOption) => {
-                handleSelectChange(selectedOption);
+                this.handleSelectChange(selectedOption);
               }}
             />
           ) : (
@@ -188,7 +202,7 @@ class Step2Course extends Component {
             data-testid="assign-rooms"
             disabled={roomName === ''}
           >
-            assign
+            {confirmButtonName}
           </Button>
         </div>
       </div>
@@ -213,6 +227,7 @@ Step2Course.propTypes = {
   submit: PropTypes.func.isRequired,
   previousAssignments: PropTypes.array,
   select: PropTypes.func.isRequired,
+  inEditMode: PropTypes.bool,
 };
 
 Step2Course.defaultProps = {
@@ -225,6 +240,7 @@ Step2Course.defaultProps = {
   setRandom: () => {},
   setManual: () => {},
   shuffleParticipants: () => {},
+  inEditMode: false,
 };
 
 export default Step2Course;

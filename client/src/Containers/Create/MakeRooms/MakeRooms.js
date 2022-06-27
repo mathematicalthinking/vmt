@@ -40,11 +40,7 @@ class MakeRooms extends Component {
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
 
-    const {
-      selectedParticipants,
-      isRandom,
-      participantsPerRoom,
-    } = this.state;
+    const { selectedParticipants, isRandom, participantsPerRoom } = this.state;
 
     if (isRandom) {
       const numRooms = Math.ceil(
@@ -398,7 +394,15 @@ class MakeRooms extends Component {
   };
 
   render() {
-    const { activity, course, userId, close, rooms } = this.props;
+    const {
+      activity,
+      course,
+      userId,
+      close,
+      rooms,
+      inEditMode,
+      selectedAssignment,
+    } = this.props;
     const {
       step,
       dueDate,
@@ -471,6 +475,8 @@ class MakeRooms extends Component {
           rooms={rooms}
           previousAssignments={previousAssignments}
           select={this.updateParticipants}
+          inEditMode={inEditMode}
+          selectedAssignment={selectedAssignment}
         />
       );
     }
@@ -521,11 +527,15 @@ MakeRooms.propTypes = {
   match: PropTypes.shape({}).isRequired,
   connectCreateRoom: PropTypes.func.isRequired,
   rooms: PropTypes.shape({}).isRequired,
+  inEditMode: PropTypes.bool,
+  selectedAssignment: PropTypes.shape({}),
 };
 
 MakeRooms.defaultProps = {
   course: null,
   participants: [],
+  inEditMode: false,
+  selectedAssignment: null,
 };
 // const mapDispatchToProps = (dispatch) => ({
 //   connectCreateRoom: (room) => dispatch(createRoom(room)),

@@ -3,14 +3,25 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import Select from 'react-select';
 import { Aux, Button, EditText, Error } from '../../../Components';
 import MakeRooms from '../../../Containers/Create/MakeRooms/MakeRooms';
+import { createPreviousAssignments } from 'utils/groupings';
 import classes from './activityDetails.css';
 
 class ActivityDetails extends Component {
-  state = {
-    assigning: false,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      assigning: false,
+      inEditMode: false,
+      previousAssignments: createPreviousAssignments(
+        props.course.groupings,
+        props.rooms
+      ),
+      selectedAssignment: null,
+    };
+  }
 
   viewActivity = () => {
     const { history, activity } = this.props;
@@ -28,7 +39,12 @@ class ActivityDetails extends Component {
       userId,
       rooms,
     } = this.props;
-    const { assigning } = this.state;
+    const {
+      assigning,
+      inEditMode,
+      previousAssignments,
+      selectedAssignment,
+    } = this.state;
     return (
       <Aux>
         <div>
@@ -57,12 +73,31 @@ class ActivityDetails extends Component {
             <Button
               m={5}
               click={() => {
-                this.setState({ assigning: true });
+                this.setState({
+                  assigning: true,
+                  selectedAssignment: null,
+                  inEditMode: false,
+                });
               }}
               data-testid="assign"
             >
               Assign Template
             </Button>
+            <Select
+              placeholder="Edit Member Room Assignments"
+              isSearchable={false}
+              options={previousAssignments.map((assignment) => ({
+                label: assignment.name,
+                value: assignment.roomDrafts,
+              }))}
+              onChange={(selectedOption) => {
+                this.setState({
+                  assigning: true,
+                  inEditMode: true,
+                  selectedAssignment: selectedOption,
+                });
+              }}
+            />
           </div>
         </div>
         {assigning ? (
@@ -73,8 +108,10 @@ class ActivityDetails extends Component {
             close={() => {
               this.setState({ assigning: false });
             }}
-            participants={course ? course.members  : []}
+            participants={course ? course.members : []}
             rooms={rooms}
+            inEditMode={inEditMode}
+            selectedAssignment={selectedAssignment}
           />
         ) : null}
       </Aux>
