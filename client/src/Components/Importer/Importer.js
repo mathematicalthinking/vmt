@@ -1,6 +1,11 @@
 import React, { Fragment } from 'react';
 import { CSVReader } from 'react-papaparse';
-import { suggestUniqueUsername, validateExistingField } from 'utils/validators';
+import {
+  suggestUniqueUsername,
+  validateEmail,
+  validateUsername,
+  validateExistingField,
+} from 'utils/validators';
 import { NavLink } from 'react-router-dom';
 import { Button } from 'Components';
 import ImportModal from './ImportModal';
@@ -104,10 +109,11 @@ export default function Importer(props) {
    * by email (only if the emailalready exists), in which case the username for that email is filled in, (c) create a new user.
    * In case (c), if the username exists a new one is suggested. If the email exists, we clear it out (new user will have no
    * email).
-   * 2. Duplicate usernames or emails in the import list.
-   * 3. If a new user, first and last names must be there.
-   * 4. If a sponsor is given, it must be an existing user.
-   * 5. If an email is blank, this cannot be a gmail account.
+   * 2. Usernames and emails are structured as per the validation patterns
+   * 3. Duplicate usernames or emails in the import list.
+   * 4. If a new user, first and last names must be there.
+   * 5. If a sponsor is given, it must be an existing user.
+   * 6. If an email is blank, this cannot be a gmail account.
    */
   const validateDataRow = async (dataRow, rowIndex) => {
     // initialization, including default username if needed
@@ -162,7 +168,30 @@ export default function Importer(props) {
       });
     }
 
-    // 2. handle duplicate email or usernames in the list
+    // 2. handle validating the structure of usernames and emails
+    const [emailResults, usernameResults] = await Promise.all([
+      // if no email, don't generate an error
+      validateEmail(d.email || 'dummy@dummy.com'),
+      validateUsername(d.username),
+    ]);
+
+    // eslint-disable-next-line no-unused-vars
+    const [emailError, validatedEmail] = emailResults;
+
+    // eslint-disable-next-line no-unused-vars
+    const [usernameError, validatedUsername] = usernameResults;
+
+    if (emailError) {
+      d.comment += 'Email is incorrectly formatted or has illegal characters. ';
+      newValidationErrors.push({ rowIndex, property: 'email' });
+    }
+
+    if (usernameError) {
+      d.comment += 'Username has illegal characters or is too long. ';
+      newValidationErrors.push({ rowIndex, property: 'username' });
+    }
+
+    // 3. handle duplicate email or usernames in the list
     let emailDup = 0;
     let usernameDup = 0;
     importedData.forEach((u) => {
@@ -184,7 +213,7 @@ export default function Importer(props) {
       newValidationErrors.push({ rowIndex, property: 'username' });
     }
 
-    // 3. handle validating that new users must have first and last names specified
+    // 4. handle validating that new users must have first and last names specified
     if (isNewUser && (!d.firstName || !d.lastName)) {
       d.comment += 'First and last names are required. ';
       if (!d.firstName)
@@ -193,7 +222,7 @@ export default function Importer(props) {
         newValidationErrors.push({ rowIndex, property: 'lastName' });
     }
 
-    // 4. handle validating that any specified sponsors must be existing users
+    // 5. handle validating that any specified sponsors must be existing users
     if (d.sponsor && d.sponsor !== '') {
       const { _id: sponsor_id } = await validateExistingField(
         'username',
@@ -210,7 +239,7 @@ export default function Importer(props) {
       }
     }
 
-    // 5. handle validating that a blank email cannot be a gmail account
+    // 6. handle validating that a blank email cannot be a gmail account
     if (d.email === '' && d.isGmail) {
       d.comment += 'Google login may only be used if an email is specified. ';
       newValidationErrors.push(
