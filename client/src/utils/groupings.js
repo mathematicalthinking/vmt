@@ -40,6 +40,7 @@ export const createPreviousAssignments = (groupings, rooms) => {
         members: room.members,
         name: room.name,
         course: room.course,
+        room: room._id,
       };
       
 

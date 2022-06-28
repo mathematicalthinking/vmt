@@ -14,6 +14,7 @@ const AssignmentMatrix = (props) => {
     dueDate,
     userId,
     roomDrafts,
+    canDeleteRooms,
   } = props;
   const date = dueDate ? new Date(dueDate) : new Date();
   const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
@@ -37,7 +38,7 @@ const AssignmentMatrix = (props) => {
       }
     } else if (roomNum !== roomDrafts.length) {
       roomList.splice(roomNum - roomDrafts.length);
-    } 
+    }
     select(roomList);
   }, [roomNum]);
 
@@ -147,30 +148,32 @@ const AssignmentMatrix = (props) => {
               </tr>
             );
           })}
-          <tr className={`${classes.Participant} ${classes.LockedBottom}`}>
-            <td key="room-delete-row" className={classes.LockedColumn}>
-              <span>Delete Room?</span>
-            </td>
-            {roomDrafts.map((room, i) => {
-              const index = i; // defeat the linter
-              return (
-                <td
-                  key={`room-${room.name}${index}-delete`}
-                  className={classes.CellAction}
-                >
-                  <button
-                    type="button"
-                    id={`room-${i}-deleteBtn`}
-                    disabled={roomDrafts.length <= 1}
-                    data-testid={`deleteRoom-${i + 1}`}
-                    onClick={() => deleteRoom(i)}
+          {canDeleteRooms && (
+            <tr className={`${classes.Participant} ${classes.LockedBottom}`}>
+              <td key="room-delete-row" className={classes.LockedColumn}>
+                <span>Delete Room?</span>
+              </td>
+              {roomDrafts.map((room, i) => {
+                const index = i; // defeat the linter
+                return (
+                  <td
+                    key={`room-${room.name}${index}-delete`}
+                    className={classes.CellAction}
                   >
-                    Delete
-                  </button>
-                </td>
-              );
-            })}
-          </tr>
+                    <button
+                      type="button"
+                      id={`room-${i}-deleteBtn`}
+                      disabled={roomDrafts.length <= 1}
+                      data-testid={`deleteRoom-${i + 1}`}
+                      onClick={() => deleteRoom(i)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                );
+              })}
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
@@ -187,6 +190,7 @@ AssignmentMatrix.propTypes = {
   dueDate: PropTypes.instanceOf(Date),
   userId: PropTypes.string.isRequired,
   roomDrafts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  canDeleteRooms: PropTypes.bool,
 };
 
 AssignmentMatrix.defaultProps = {
@@ -194,6 +198,7 @@ AssignmentMatrix.defaultProps = {
   courseId: '',
   roomNum: 1,
   dueDate: null,
+  canDeleteRooms: true,
 };
 
 export default AssignmentMatrix;

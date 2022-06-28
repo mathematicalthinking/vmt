@@ -6,6 +6,7 @@ import { withRouter } from 'react-router-dom';
 import Select from 'react-select';
 import { Aux, Button, EditText, Error } from '../../../Components';
 import MakeRooms from '../../../Containers/Create/MakeRooms/MakeRooms';
+import EditRooms from 'Containers/Create/MakeRooms/EditRooms';
 import { createPreviousAssignments } from 'utils/groupings';
 import classes from './activityDetails.css';
 
@@ -83,36 +84,51 @@ class ActivityDetails extends Component {
             >
               Assign Template
             </Button>
-            <Select
-              placeholder="Edit Member Room Assignments"
-              isSearchable={false}
-              options={previousAssignments.map((assignment) => ({
-                label: assignment.name,
-                value: assignment.roomDrafts,
-              }))}
-              onChange={(selectedOption) => {
-                this.setState({
-                  assigning: true,
-                  inEditMode: true,
-                  selectedAssignment: selectedOption,
-                });
-              }}
-            />
+            {previousAssignments && previousAssignments.length ? (
+              <Select
+                placeholder="Edit Member Room Assignments"
+                isSearchable={false}
+                options={previousAssignments.map((assignment) => ({
+                  label: assignment.name,
+                  value: assignment.roomDrafts,
+                }))}
+                onChange={(selectedOption) => {
+                  this.setState({
+                    assigning: true,
+                    inEditMode: true,
+                    selectedAssignment: selectedOption,
+                  });
+                }}
+              />
+            ) : null}
           </div>
         </div>
+
         {assigning ? (
-          <MakeRooms
-            activity={activity}
-            course={course ? course : null}
-            userId={userId}
-            close={() => {
-              this.setState({ assigning: false });
-            }}
-            participants={course ? course.members : []}
-            rooms={rooms}
-            inEditMode={inEditMode}
-            selectedAssignment={selectedAssignment}
-          />
+          inEditMode ? (
+            <EditRooms
+              activity={activity}
+              selectedAssignment={selectedAssignment}
+              userId={userId}
+              close={() => {
+                this.setState({ assigning: false });
+              }}
+              course={course ? course : null}
+            />
+          ) : (
+            <MakeRooms
+              activity={activity}
+              course={course ? course : null}
+              userId={userId}
+              close={() => {
+                this.setState({ assigning: false });
+              }}
+              participants={course ? course.members : []}
+              rooms={rooms}
+              inEditMode={inEditMode}
+              selectedAssignment={selectedAssignment}
+            />
+          )
         ) : null}
       </Aux>
     );
