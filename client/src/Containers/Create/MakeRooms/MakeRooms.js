@@ -4,9 +4,8 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Aux, BigModal } from 'Components';
 import { createRoom, updateCourse, updateActivity } from 'store/actions';
-import { Step1, Step2Course, ParticipantList } from './index';
+import { Step1, Step2Course, ParticipantList, AssignmentMatrix } from './index';
 import createClasses from '../create.css';
-import AssignmentMatrix from './AssignmentMatrix';
 import COLOR_MAP from '../../../utils/colorMap';
 import { createGrouping } from 'store/actions/rooms';
 import { createPreviousAssignments } from '../../../utils/groupings';
@@ -400,8 +399,6 @@ class MakeRooms extends Component {
       userId,
       close,
       rooms,
-      inEditMode,
-      selectedAssignment,
     } = this.props;
     const {
       step,
@@ -475,8 +472,6 @@ class MakeRooms extends Component {
           rooms={rooms}
           previousAssignments={previousAssignments}
           select={this.updateParticipants}
-          inEditMode={inEditMode}
-          selectedAssignment={selectedAssignment}
         />
       );
     }
@@ -527,15 +522,11 @@ MakeRooms.propTypes = {
   match: PropTypes.shape({}).isRequired,
   connectCreateRoom: PropTypes.func.isRequired,
   rooms: PropTypes.shape({}).isRequired,
-  inEditMode: PropTypes.bool,
-  selectedAssignment: PropTypes.shape({}),
 };
 
 MakeRooms.defaultProps = {
   course: null,
   participants: [],
-  inEditMode: false,
-  selectedAssignment: null,
 };
 // const mapDispatchToProps = (dispatch) => ({
 //   connectCreateRoom: (room) => dispatch(createRoom(room)),

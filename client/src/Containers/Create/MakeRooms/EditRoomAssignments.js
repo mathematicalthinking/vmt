@@ -24,23 +24,12 @@ class EditRoomAssignments extends Component {
 
   render() {
     const {
-      activity,
       assignmentMatrix,
       error,
-      isRandom,
-      participantsPerRoom,
-      roomNum,
       roomName,
       setNumber,
-      setRoomNumber,
       setRoomName,
-      setRandom,
-      setManual,
-      shuffleParticipants,
       submit,
-      previousAssignments,
-      select,
-      selectedAssignment,
       close
     } = this.props;
 
