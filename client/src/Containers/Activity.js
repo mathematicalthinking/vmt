@@ -53,11 +53,7 @@ class Activity extends Component {
   }
 
   componentDidMount() {
-    const {
-      activity,
-      connectGetCurrentActivity,
-      match,
-    } = this.props;
+    const { activity, connectGetCurrentActivity, match } = this.props;
 
     if (activity && activity.tabs) {
       const tabsInRoom = activity.tabs.map((tab) => tab.tabType);
@@ -73,11 +69,7 @@ class Activity extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {
-      activity,
-      loading,
-      user,
-    } = this.props;
+    const { activity, loading, user } = this.props;
     if (!activity) {
       return;
     }
@@ -161,6 +153,11 @@ class Activity extends Component {
 
     this.setState({ owner: canEdit, canAccess });
   }
+
+  viewActivity = () => {
+    const { history, activity } = this.props;
+    history.push(`/myVMT/workspace/${activity._id}/activity`);
+  };
 
   render() {
     const {
@@ -345,6 +342,17 @@ class Activity extends Component {
                       ) : null}
                     </Aux>
                   ) : null
+                }
+                buttons={
+                  <div>
+                    <Button
+                      m={5}
+                      click={this.viewActivity}
+                      data-testid="view-activity"
+                    >
+                      Enter
+                    </Button>
+                  </div>
                 }
               />
             }
