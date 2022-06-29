@@ -33,3 +33,28 @@ textarea {
 .EditButtons {
   display: flex;
 }
+
+.AssignContainer {
+  display: flex;
+  align-items: center;
+}
+
+.NewAssignmentsContainer {
+  display: flex;
+  align-items: center;
+  margin-right: 5rem;
+}
+
+.EditAssignmentsContainer {
+  display: flex;
+  align-items: center;
+}
+
+.AssignText {
+  font-weight: 600;
+  margin-right: 1rem;
+}
+
+.Select { 
+  min-width: 285px;
+}
