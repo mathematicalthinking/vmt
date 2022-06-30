@@ -389,7 +389,9 @@ class MakeRooms extends Component {
     connectCreateGrouping(roomsToCreate, activity, course);
     close();
     const { url } = match;
-    history.push(`${url.slice(0, url.length - 7)}rooms`);
+    // delete the word 'assign' and replace it with 'rooms'
+    const indexOfLastSlash = url.lastIndexOf('/')
+    history.push(`${url.slice(0, indexOfLastSlash + 1)}rooms`);
   };
 
   render() {

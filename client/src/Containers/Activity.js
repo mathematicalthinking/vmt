@@ -36,10 +36,9 @@ class Activity extends Component {
     this.state = {
       owner: false,
       tabs: [
-        { name: 'Details' },
+        { name: 'Assign' },
         { name: 'Rooms' },
         { name: 'Preview' },
-        { name: 'Settings' },
       ],
       editing: false,
       name: activity ? activity.name : null,
@@ -218,13 +217,13 @@ class Activity extends Component {
           },
           {
             title: `${activity.name}`,
-            link: `/myVMT/courses/${course._id}/activities/${activity._id}/details`,
+            link: `/myVMT/courses/${course._id}/activities/${activity._id}/assign`,
           },
         ];
       } else {
         crumbs.push({
           title: `${activity.name}`,
-          link: `/myVMT/activities/${activity._id}/details`,
+          link: `/myVMT/activities/${activity._id}/assign`,
         });
       }
 
