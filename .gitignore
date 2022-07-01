@@ -14,6 +14,7 @@ node_modules
 .env_staging
 .env_testLocal
 .env_testServer
+**/.env*
 
 # ignore items associated with client builds
 client/build
