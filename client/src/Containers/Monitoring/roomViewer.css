@@ -1,0 +1,65 @@
+:import('../../colors.css') {
+    blue: blue;
+    blueHover: blueHover;
+    gray: backgroundGray;
+    coldGray: coldGray;
+    darkGray: darkGray;
+    lightGray: lightGray;
+    lightBorder: lightBorder;
+    background: mainBackground;
+    scrollBackground: scrollBackground;
+    scrollBar: scrollBar;
+    red: red;
+    darkBorder: darkBorder;
+    hoverBackground: hoverBackground2;
+    lightShadow: lightestShadow;
+  }
+  
+  .Container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    justify-content: space-between;  
+    }
+
+  .Thumbnails {
+    width: 75%;
+    height: 95%;
+    margin-right: 10px;
+  }
+
+  .Aside {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+  }
+
+  .ChatSection {
+    min-height: 75%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .Chat {
+    flex-grow: 2;
+    border-radius: 3px;
+    box-shadow: lightShadow;
+  }
+
+  .AttendanceSection {
+    border-radius: 3px;
+    box-shadow: lightShadow;
+  }
+
+  
+  .Title {
+    padding: 8px 0;
+    border-bottom: 1px solid lightBorder;
+    background-color: coldGray;
+    border-radius: 3px 3px 0 0;
+    color: darkGray;
+    font-size: 17px;
+    letter-spacing: 1.12px;
+    cursor: pointer;
+  }
+  
