@@ -5,6 +5,10 @@ import classes from './checkbox.css';
 
 const Checkbox = (props) => {
   const { children, dataId, id, checked, change, style } = props;
+  // Previously, the id used to be either the provided id or children. The problem was if we had several checkboxes in the DOM with the same
+  // label (i.e., children), then there might be more than one DOM element with the same id, which is bad.
+  // Instead, we give each input a distinct id if one isn't given.
+  const eltId = id || Math.random().toString();
   return (
     <div
       className={classes.checkbox}
@@ -13,14 +17,14 @@ const Checkbox = (props) => {
     >
       <input
         type="checkbox"
-        id={id || children}
+        id={eltId}
         userid={dataId}
         onChange={(event) => {
           change(event, dataId);
         }}
         checked={checked}
       />
-      <label htmlFor={id || children}>{children}</label>
+      <label htmlFor={eltId}>{children}</label>
     </div>
   );
 };
