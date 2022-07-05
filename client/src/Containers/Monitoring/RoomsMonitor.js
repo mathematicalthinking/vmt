@@ -97,8 +97,7 @@ function RoomsMonitor({ populatedRooms, tabIndex, screenIndex }) {
         return quickChat === id ? (
           <QuickChat
             isSimplified={chatType === constants.SIMPLE}
-            roomId={id}
-            log={populatedRooms[id].chat || []}
+            populatedRoom={populatedRooms[id]}
           />
         ) : (
           <SimpleChat
