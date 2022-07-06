@@ -6,9 +6,21 @@ import { withRouter } from 'react-router-dom';
 import Select from 'react-select';
 import { Aux, Button, EditText, Error } from '../../../Components';
 import MakeRooms from '../../../Containers/Create/MakeRooms/MakeRooms';
+import NewMakeRooms from 'Containers/Create/MakeRooms/NewMakeRooms';
 import EditRooms from 'Containers/Create/MakeRooms/EditRooms';
 import { createPreviousAssignments } from 'utils/groupings';
 import classes from './activityDetails.css';
+
+const constants = {
+  defaultNewAssignmentsValue: {
+    label: 'Create New',
+    value: [],
+  },
+  defaultEditAssignmentsValue: {
+    label: 'Edit Existing Room Assignments',
+    value: [],
+  },
+};
 
 class ActivityDetails extends Component {
   constructor(props) {
@@ -16,12 +28,14 @@ class ActivityDetails extends Component {
     this.state = {
       assigning: false,
       inEditMode: false,
-      previousAssignments: createPreviousAssignments(
-        props.course.groupings,
-        props.rooms
-      ),
+      previousAssignments:
+        props.course && props.course.groupings
+          ? createPreviousAssignments(props.course.groupings, props.rooms)
+          : [],
       selectedAssignment: null,
       editableRoomAssignOptions: [], // prevAssignemnts w/current activity._id
+      newAssignmentsValue: constants.defaultNewAssignmentsValue,
+      editAssignmentsValue: constants.defaultEditAssignmentsValue,
     };
   }
 
@@ -34,15 +48,22 @@ class ActivityDetails extends Component {
       (assignment) => activity._id === assignment.roomDrafts[0].activity
     );
 
-    const createNew = { name: 'Assign Rooms From Scratch', value: null };
+    const createNew = { name: 'Assign Rooms From Scratch', roomDrafts: [] };
     previousAssignments.unshift(createNew);
-
     this.setState({ editableRoomAssignOptions, previousAssignments });
   }
 
   viewActivity = () => {
     const { history, activity } = this.props;
     history.push(`/myVMT/workspace/${activity._id}/activity`);
+  };
+
+  close = () => {
+    this.setState({
+      assigning: false,
+      newAssignmentsValue: constants.defaultNewAssignmentsValue,
+      editAssignmentsValue: constants.defaultEditAssignmentsValue,
+    });
   };
 
   render() {
@@ -62,6 +83,8 @@ class ActivityDetails extends Component {
       previousAssignments,
       selectedAssignment,
       editableRoomAssignOptions,
+      newAssignmentsValue,
+      editAssignmentsValue,
     } = this.state;
 
     return (
@@ -105,22 +128,15 @@ class ActivityDetails extends Component {
 
           <div className={classes.AssignContainer}>
             <div className={classes.NewAssignmentsContainer}>
-              <span className={classes.AssignText}>New:</span>
+              <label
+                className={classes.AssignText}
+                htmlFor="NewAssignmentsContainer"
+              >
+                New:
+              </label>
               <Select
+                inputId="NewAssignmentsContainer"
                 className={classes.Select}
-                placeholder={
-                  previousAssignments.length > 1
-                    ? 'Create New Or Use Existing'
-                    : 'Create New'
-                }
-                value={{
-                  label:
-                    previousAssignments.length > 1
-                      ? 'Create New Or Use Existing'
-                      : 'Create New',
-                  value: null,
-                }}
-
                 isSearchable={false}
                 options={previousAssignments.map((assignment) => ({
                   label: assignment.name,
@@ -131,18 +147,28 @@ class ActivityDetails extends Component {
                     assigning: true,
                     inEditMode: false,
                     selectedAssignment: selectedOption,
+                    newAssignmentsValue: {
+                      ...selectedOption,
+                    },
+                    editAssignmentsValue: constants.defaultEditAssignmentsValue,
                   });
                 }}
+                value={newAssignmentsValue}
               />
             </div>
 
             {editableRoomAssignOptions && editableRoomAssignOptions.length ? (
               <div className={classes.EditAssignmentsContainer}>
-                <span className={classes.AssignText}>Edit:</span>
+                <label
+                  className={classes.AssignText}
+                  htmlFor="EditAssignmentsContainer"
+                >
+                  Edit:
+                </label>
                 <Select
+                  inputId="EditAssignmentsContainer"
                   className={classes.Select}
-                  placeholder="Edit Existing Room Assignments"
-                  value={{label: "Edit Existing Room Assignments", value: null}}
+                  value={editAssignmentsValue}
                   isSearchable={false}
                   options={editableRoomAssignOptions.map((assignment) => ({
                     label: assignment.name,
@@ -153,6 +179,8 @@ class ActivityDetails extends Component {
                       assigning: true,
                       inEditMode: true,
                       selectedAssignment: selectedOption,
+                      editAssignmentsValue: { ...selectedOption },
+                      newAssignmentsValue: constants.defaultNewAssignmentsValue,
                     });
                   }}
                 />
@@ -163,16 +191,27 @@ class ActivityDetails extends Component {
           {/* </div> */}
         </div>
 
-        {assigning && !inEditMode ? (
+        {/* standalone template --> open this to allow member assignment */}
+        {assigning && !course && !inEditMode ? (
           <MakeRooms
             activity={activity}
             course={course ? course : null}
             userId={userId}
-            close={() => {
-              this.setState({ assigning: false });
-            }}
+            close={this.close}
             participants={course ? course.members : []}
             rooms={rooms}
+          />
+        ) : null}
+
+        {assigning && course && !inEditMode ? (
+          <NewMakeRooms
+            activity={activity}
+            course={course ? course : null}
+            userId={userId}
+            close={this.close}
+            participants={course ? course.members : []}
+            rooms={rooms}
+            selectedAssignment={selectedAssignment}
           />
         ) : null}
 
@@ -181,9 +220,7 @@ class ActivityDetails extends Component {
             activity={activity}
             selectedAssignment={selectedAssignment}
             userId={userId}
-            close={() => {
-              this.setState({ assigning: false });
-            }}
+            close={this.close}
             course={course ? course : null}
           />
         ) : null}

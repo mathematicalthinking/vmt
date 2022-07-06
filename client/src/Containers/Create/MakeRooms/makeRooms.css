@@ -8,6 +8,7 @@
   align-items: center;
   height: 100%;
   padding: 20px;
+  z-index: 0;
 }
 
 .Title {
@@ -25,6 +26,7 @@
 .SubContainer {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   /* flex-flow: column; */
   width: 100%;
 }
@@ -98,7 +100,7 @@
   position: sticky;
 
   /* Displayed on top of other rows when scrolling */
-  z-index: 9990;
+  /* z-index: 9990; */
   /* reduce column size w/Participants' names */
   width: 150px;
 }
@@ -107,18 +109,24 @@
   background-color: #ddd;
   position: sticky;
   top: 0;
-  z-index: 9999;
+  /* z-index: 9999;    */
 }
 
 .LockedBottom {
   background-color: #ddd;
   position: sticky;
   bottom: 0;
-  z-index: 9999;
+  border-top: 2px solid black;
+  /* z-index: 9999; */
+}
+
+.LockedBottom:hover {
+  background-color: #ddd !important;
+  color: black;
 }
 
 .AssignmentMatrix {
-  max-height: 60vh;
+  height: 60vh;
   overflow: auto;
   width: 100%;
 }
@@ -162,14 +170,29 @@
   cursor: pointer;
 }
 
-.Select {
-  height: 20px;
-  margin: auto;
-  z-index: 10000;
-}
 
 .TopSection {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+}
+
+.BottomButtons {
+  padding-bottom: 5px;
+  border-bottom: 2px solid black;
+  width: 100%;
+  text-align: center;
+}
+
+.minus {
+  padding: 5px
+}
+
+.plus {
+  padding: 5px;
+}
+
+.minus:hover, .plus:hover {
+  color: #999;
+  cursor: pointer;
 }

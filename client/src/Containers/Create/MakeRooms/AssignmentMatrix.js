@@ -151,7 +151,7 @@ const AssignmentMatrix = (props) => {
           {canDeleteRooms && (
             <tr className={`${classes.Participant} ${classes.LockedBottom}`}>
               <td key="room-delete-row" className={classes.LockedColumn}>
-                <span>Delete Room?</span>
+                <span>Add / Delete?</span>
               </td>
               {roomDrafts.map((room, i) => {
                 const index = i; // defeat the linter
@@ -160,7 +160,7 @@ const AssignmentMatrix = (props) => {
                     key={`room-${room.name}${index}-delete`}
                     className={classes.CellAction}
                   >
-                    <button
+                    {/* <button
                       type="button"
                       id={`room-${i}-deleteBtn`}
                       disabled={roomDrafts.length <= 1}
@@ -168,7 +168,17 @@ const AssignmentMatrix = (props) => {
                       onClick={() => deleteRoom(i)}
                     >
                       Delete
-                    </button>
+                    </button> */}
+
+                    <i className={`fas fa-solid fa-plus ${classes.plus}`} />
+
+                    <i
+                      className={`fas fa-solid fa-minus ${classes.minus}`}
+                      id={`room-${i}-deleteBtn`}
+                      disabled={roomDrafts.length <= 1}
+                      data-testid={`deleteRoom-${i + 1}`}
+                      onClick={() => deleteRoom(i)}
+                    />
                   </td>
                 );
               })}
