@@ -29,10 +29,10 @@ class MakeRooms extends Component {
       // previousAssignment is a list of Activity-Room-Member objects
       // this is used in Step2Course & AssignmentMatrix
       // to reuse previously assigned activities
-      previousAssignments: createPreviousAssignments(
-        props.course.groupings,
-        props.rooms
-      ),
+      // previousAssignments: createPreviousAssignments(
+      //   props.course.groupings,
+      //   props.rooms
+      // ),
     };
   }
 
@@ -412,7 +412,7 @@ class MakeRooms extends Component {
       participantsPerRoom,
       error,
       roomDrafts,
-      previousAssignments,
+      // previousAssignments,
     } = this.state;
     // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
     // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
@@ -472,7 +472,7 @@ class MakeRooms extends Component {
           isRandom={isRandom}
           error={error}
           rooms={rooms}
-          previousAssignments={previousAssignments}
+          // previousAssignments={previousAssignments}
           select={this.updateParticipants}
         />
       );

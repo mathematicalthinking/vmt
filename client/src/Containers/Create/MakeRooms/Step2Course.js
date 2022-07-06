@@ -11,7 +11,6 @@ class Step2Course extends Component {
     this.state = {
       defaultRoomName: roomName,
       selectName: 'Previous Assignments',
-      confirmButtonName: props.inEditMode ? 'Confirm Edit' : 'Assign',
     };
   }
 
@@ -202,7 +201,7 @@ class Step2Course extends Component {
             data-testid="assign-rooms"
             disabled={roomName === ''}
           >
-            {confirmButtonName}
+            Assign
           </Button>
         </div>
       </div>

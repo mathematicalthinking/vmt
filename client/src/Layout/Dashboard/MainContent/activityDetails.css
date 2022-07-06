@@ -57,4 +57,5 @@ textarea {
 
 .Select { 
   min-width: 285px;
+  z-index: 100;
 }
