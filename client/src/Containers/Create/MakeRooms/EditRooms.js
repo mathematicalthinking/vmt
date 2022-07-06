@@ -1,53 +1,42 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import { updateRoomMembers } from 'store/actions';
+import React, { useState, useEffect } from 'react';
+import { useHistory } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { updateRoom } from 'store/actions';
 import { AssignmentMatrix, EditRoomAssignments } from './index';
 
-class EditRooms extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      roomDrafts: props.selectedAssignment.value,
-      participants: [],
-      roomNum: props.selectedAssignment.value.length,
-    };
-  }
+const EditRooms = (props) => {
+  const { activity, course, selectedAssignment, userId, close } = props;
+  const dispatch = useDispatch();
+  const history = useHistory();
 
-  componentDidMount() {
-    const { roomDrafts } = this.state;
-    const { selectedAssignment } = this.props;
-    console.log('roomDrafts:');
-    console.log(roomDrafts);
-    console.log('selectedAssignment:');
-    console.log(selectedAssignment);
+  const [roomDrafts, setRoomDrafts] = useState(selectedAssignment.value);
+  const [participants, setParticipants] = useState([]);
+  const [roomNum, setRoomNum] = useState(selectedAssignment.value.length);
+  const [dueDate, setDueDate] = useState('');
+  const [aliasMode, setAliasMode] = useState(false);
+  const [roomName, setRoomName] = useState(selectedAssignment.label);
 
-    const membersObj = {};
+  useEffect(() => {
+    // derive participants from members within roomDrafts
+    const participantsObj = {};
     roomDrafts.forEach((room) => {
       room.members.forEach((mem) => {
-        if (!membersObj[mem.user._id]) membersObj[mem.user._id] = mem;
+        if (!participantsObj[mem.user._id]) participantsObj[mem.user._id] = mem;
       });
     });
-    console.log('membersObj:');
-    console.log(membersObj);
 
-    const members = Object.values(membersObj).map((mem) => mem);
-    console.log('members:');
-    console.log(members);
+    const updatedParticipants = Object.values(participantsObj).map(
+      (mem) => mem
+    );
 
-    this.setState({ participants: members });
-  }
+    setParticipants(updatedParticipants);
+  }, []);
 
-  updateParticipants = (selectionMatrix) => {
-    this.setState({ roomDrafts: selectionMatrix });
+  const updateParticipants = (selectionMatrix) => {
+    setRoomDrafts(selectionMatrix);
   };
 
-  editPreviousAssignment = () => {
-    const { connectUpdateRoomMembers, selectedAssignment, close } = this.props;
-
-    const { roomDrafts } = this.state;
-
+  const editPreviousAssignment = () => {
     /**
      * If there are new room ids in the updatedAssignment that weren't
      * in the previousAssignment w/the same id as updatedAssignmnet,
@@ -59,7 +48,7 @@ class EditRooms extends Component {
      * deleted rooms
      *
      * If the only change is which members are in which room, call
-     * connectUpdateRoomMembers for each roomId and pass in the updatedMembers
+     * dispatch updateRoom for each roomId and pass in the updatedMembers
      *
      * Activity._id & Course._id are found in the roomDrafts object of
      * the updatedAssignment
@@ -71,71 +60,53 @@ class EditRooms extends Component {
         color: mem.color,
         user: mem.user,
       }));
-      connectUpdateRoomMembers(oldRoomDraft.room, membersToUpdate);
+
+      const body = {
+        members: membersToUpdate,
+        settings: { displayAliasedUsernames: aliasMode },
+        dueDate: dueDate,
+        name: `${roomName}: ${i + 1}`,
+      };
+      dispatch(updateRoom(oldRoomDraft.room, body));
     });
     close();
+    const { pathname: url } = history.location;
+    // delete the word 'assign' and replace it with 'rooms'
+    const indexOfLastSlash = url.lastIndexOf('/');
+    history.push(`${url.slice(0, indexOfLastSlash + 1)}rooms`);
   };
-  render() {
-    const {
-      activity,
-      course,
-      previousAssignments,
-      selectedAssignment,
-      userId,
-      close
-    } = this.props;
-    const { participants, roomDrafts, roomNum } = this.state;
 
-    const assignmentMatrix = (
-      <AssignmentMatrix
-        list={participants}
-        requiredParticipants={participants.filter(
-          // required people
-          (mem) => mem.role === 'facilitator'
-        )}
-        select={this.updateParticipants}
-        roomNum={parseInt(roomNum, 10)} // ensure a number is passed
-        activity={activity}
-        courseId={course ? course._id : null}
-        userId={userId}
-        roomDrafts={roomDrafts}
-      />
-    );
+  const assignmentMatrix = (
+    <AssignmentMatrix
+      list={participants}
+      requiredParticipants={participants.filter(
+        // required people
+        (mem) => mem.role === 'facilitator'
+      )}
+      select={updateParticipants}
+      roomNum={parseInt(roomNum, 10)} // ensure a number is passed
+      activity={activity}
+      courseId={course ? course._id : null}
+      userId={userId}
+      roomDrafts={roomDrafts}
+      canDeleteRooms={false}
+    />
+  );
 
-    return (
-        <EditRoomAssignments
-          activity={activity}
-          assignmentMatrix={assignmentMatrix}
-          submit={this.editPreviousAssignment}
-        //   setNumber={this.setNumber}
-          roomNum={parseInt(roomNum, 10)} // ensure a number is passed
-        //   roomName={roomName}
-          setRoomName={this.setRoomName}
-          setParticipantNumber={this.setParticipantNumber}
-        //   rooms={rooms}
-          previousAssignments={previousAssignments}
-          selectedAssignment={selectedAssignment}
-          close={close}
-        />
-    //   <div>hi</div>
-    );
-  }
-}
-
-EditRooms.propTypes = {
-  activity: PropTypes.shape({}).isRequired,
-  course: PropTypes.shape({}),
-  selectedAssignment: PropTypes.shape({}).isRequired,
-  userId: PropTypes.string.isRequired,
-  close: PropTypes.func.isRequired,
+  return (
+    <EditRoomAssignments
+      assignmentMatrix={assignmentMatrix}
+      selectedAssignment={selectedAssignment}
+      aliasMode={aliasMode}
+      setAliasMode={setAliasMode}
+      dueDate={dueDate}
+      setDueDate={setDueDate}
+      roomName={roomName}
+      setRoomName={setRoomName}
+      submit={editPreviousAssignment}
+      close={close}
+    />
+  );
 };
 
-EditRooms.defaultProps = {
-  course: null,
-};
-
-export default withRouter(
-  connect(null, {
-    connectUpdateRoomMembers: updateRoomMembers,
-  })(EditRooms)
-);
+export default EditRooms;

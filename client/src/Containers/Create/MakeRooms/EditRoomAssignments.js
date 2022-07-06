@@ -1,89 +1,102 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select';
-import { TextInput, Button } from 'Components';
+import React, { useState, useEffect } from 'react';
+import { TextInput, Button, Checkbox } from 'Components';
 import classes from './makeRooms.css';
 
-class EditRoomAssignments extends Component {
-  constructor(props) {
-    super(props);
-    const { roomName } = this.props;
-    this.state = {
-      defaultRoomName: roomName,
-      selectName: 'Previous Assignments',
-      confirmButtonName: props.inEditMode ? 'Confirm Edit' : 'Assign',
-    };
-  }
+const EditRoomAssignments = (props) => {
+  const {
+    assignmentMatrix,
+    selectedAssignment,
+    aliasMode,
+    setAliasMode,
+    dueDate,
+    setDueDate,
+    roomName,
+    setRoomName,
+    submit,
+    close
+  } = props;
 
-  componentDidMount() {
-    // const { selectedAssignment, select } = this.props;
-    // if (selectedAssignment) {
-    //   this.handleSelectChange(selectedAssignment);
-    // }
-  }
+  const [defaultRoomName, setDefaultRoomName] = useState(
+    selectedAssignment.label
+  );
+  // const [roomName, setRoomName] = useState(selectedAssignment.label);
+  const [showRevertButton, setShowRevertButton] = useState(
+    'Previous Assignments'
+  );
+  const [selectName, setSelectName] = useState(false);
 
-  render() {
-    const {
-      assignmentMatrix,
-      error,
-      roomName,
-      setNumber,
-      setRoomName,
-      submit,
-      close
-    } = this.props;
+  useEffect(() => {
+    // check if revert to defaultRoomName button needs to be displayed
+    setShowRevertButton(roomName !== defaultRoomName);
+  }, [roomName]);
 
-    const { defaultRoomName, selectName, confirmButtonName } = this.state;
-
-    // show revert button if roomName differs from defaultRoomName
-    // if the names differ, show the button
-    const showRevertButton = defaultRoomName !== roomName;
-
-    const date = assignmentMatrix.dueDate
-      ? new Date(assignmentMatrix.dueDate)
-      : new Date();
-    const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
-
-    const restoreNameClick = () => {
+  const restoreNameClick = () => setRoomName(defaultRoomName);
+  const restoreNameKeyDown = (event) => {
+    const { defaultRoomName } = this.state;
+    event.preventDefault();
+    // 13 === "Enter" || 32 === "Space"
+    if (event.keyCode === 13 || event.keyCode === 32) {
       setRoomName(defaultRoomName);
-    };
+    }
+  };
 
-    const restoreNameKeyDown = (event) => {
-      event.preventDefault();
-      // 13 === "Enter" || 32 === "Space"
-      if (event.keyCode === 13 || event.keyCode === 32) {
-        setRoomName(defaultRoomName);
-      }
-    };
+  const date = assignmentMatrix.dueDate
+    ? new Date(assignmentMatrix.dueDate)
+    : new Date();
+  const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
 
-    const resetAssignmentSelection = () => {
-      this.setState({ selectName: 'Previous Assignments' });
-    };
+  return (
+    <div className={classes.Container}>
+      <div className={classes.SubContainer}>
+        <Checkbox
+          light
+          name="aliasUsernames"
+          dataId="aliasUsernames"
+          style={{ width: '175px' }}
+          change={() => setAliasMode(!aliasMode)}
+          checked={aliasMode}
+        >
+          Alias Usernames?
+        </Checkbox>
 
-    const handleParticipantsPerRoomChange = (event) => {
-      const numberOfParticipants = parseInt(event.target.value.trim(), 10);
-      setNumber(numberOfParticipants);
-      resetAssignmentSelection();
-    };
+        <TextInput
+          light
+          label="Due Date (Optional)"
+          type="date"
+          name="dueDate"
+          width="175px"
+          change={(e) => setDueDate(e.target.value)}
+          value={dueDate}
+        />
 
-    const handleShuffleClick = () => {
-      const { shuffleParticipants } = this.props;
-      resetAssignmentSelection();
-      shuffleParticipants();
-    };
+        {/* New room name input */}
+        <TextInput
+          light
+          label="Prefix for room names (editable)"
+          type="text"
+          name="roomName"
+          width="300px"
+          change={(event) => setRoomName(event.target.value)}
+          value={roomName}
+          title={`e.g. "${roomName} (${dateStamp}): 1"`}
+        />
+        {showRevertButton && (
+          <i
+            className={`fas fa-undo ${classes.RevertName}`}
+            onClick={() => restoreNameClick()}
+            onKeyDown={(event) => restoreNameKeyDown(event)}
+            role="button"
+            tabIndex={0}
+          />
+        )}
+        {/* onKeyDown, role, & tabIndex are all included for eslint errs */}
+      </div>
 
-    return (
-      <div className={classes.Container}>
-        <h2 className={classes.Title}>Edit Members Per Room</h2>
- 
-        {assignmentMatrix}
+      {assignmentMatrix}
+
+      <div className={classes.BottomButtons}>
         <div className={classes.Button}>
-          <Button
-            m={5}
-            click={close}
-            data-testid="assign-rooms"
-            disabled={roomName === ''}
-          >
+          <Button m={5} click={close} data-testid="assign-rooms">
             Cancel
           </Button>
           <Button
@@ -96,28 +109,8 @@ class EditRoomAssignments extends Component {
           </Button>
         </div>
       </div>
-    );
-  }
-}
-
-EditRoomAssignments.propTypes = {
-  activity: PropTypes.shape({}).isRequired,
-  assignmentMatrix: PropTypes.element.isRequired,
-  error: PropTypes.string,
-  roomNum: PropTypes.number,
-//   roomName: PropTypes.string.isRequired,
-//   setNumber: PropTypes.func.isRequired,
-//   setRoomName: PropTypes.func.isRequired,
-  submit: PropTypes.func.isRequired,
-  previousAssignments: PropTypes.array,
-  selectedAssignment: PropTypes.shape({}).isRequired,
-};
-
-EditRoomAssignments.defaultProps = {
-  error: null,
-  isRandom: false,
-  roomNum: 1,
-  previousAssignments: [],
+    </div>
+  );
 };
 
 export default EditRoomAssignments;
