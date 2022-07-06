@@ -9,12 +9,15 @@ const AssignmentMatrix = (props) => {
     requiredParticipants,
     select,
     roomNum,
+    setRoomNum,
     activity,
     courseId,
     dueDate,
     userId,
     roomDrafts,
     canDeleteRooms,
+    aliasMode,
+    roomName,
   } = props;
   const date = dueDate ? new Date(dueDate) : new Date();
   const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
@@ -43,8 +46,41 @@ const AssignmentMatrix = (props) => {
   }, [roomNum]);
 
   const deleteRoom = (index) => {
+    if (roomDrafts.length <= 1) return;
     const roomList = [...roomDrafts];
     roomList.splice(index, 1);
+    for (let i = index; i < roomList.length; i++) {
+      roomList[i].name = `${roomName}: ${i + 1}`;
+    }
+    setRoomNum(roomList.length);
+    select(roomList);
+  };
+
+  const addRoom = (index) => {
+    if (roomDrafts.length >= list.length) return;
+    const roomList = [...roomDrafts];
+    const newRoom = {
+      activity: activity._id,
+      description: activity.description,
+      roomType: activity.roomType,
+      desmosLink: activity.desmosLink,
+      ggbFile: activity.ggbFile,
+      instructions: activity.instructions,
+      image: activity.image,
+      tabs: activity.tabs,
+      creator: userId,
+      course: courseId,
+      dueDate,
+      settings: { displayAliasedUsernames: aliasMode },
+      name: `${roomName}: ${index + 1}`,
+      members: list.filter((member) => member.role === 'facilitator'),
+    };
+
+    for (let i = index; i < roomList.length; i++) {
+      roomList[i].name = `${roomName}: ${i + 2}`;
+    }
+    roomList.splice(index, 0, newRoom);
+    setRoomNum(roomList.length);
     select(roomList);
   };
 
@@ -79,7 +115,13 @@ const AssignmentMatrix = (props) => {
       <table className={classes.Table}>
         <thead>
           <tr className={classes.LockedTop}>
-            <th className={classes.LockedColumn}>Participants</th>
+            <th className={classes.LockedColumn}>
+              Participants{' '}
+              <i
+                className={`fas fa-solid fa-plus ${classes.plus}`}
+                title="Add Participants"
+              />
+            </th>
             {roomDrafts.map((room, i) => {
               return (
                 <th
@@ -160,18 +202,13 @@ const AssignmentMatrix = (props) => {
                     key={`room-${room.name}${index}-delete`}
                     className={classes.CellAction}
                   >
-                    {/* <button
-                      type="button"
-                      id={`room-${i}-deleteBtn`}
-                      disabled={roomDrafts.length <= 1}
-                      data-testid={`deleteRoom-${i + 1}`}
-                      onClick={() => deleteRoom(i)}
-                    >
-                      Delete
-                    </button> */}
-
-                    <i className={`fas fa-solid fa-plus ${classes.plus}`} />
-
+                    <i
+                      className={`fas fa-solid fa-plus ${classes.plus}`}
+                      id={`room-${i}-addBtn`}
+                      disabled={roomDrafts.length >= list.length}
+                      data-testid={`addRoom-${i + 1}`}
+                      onClick={() => addRoom(i)}
+                    />
                     <i
                       className={`fas fa-solid fa-minus ${classes.minus}`}
                       id={`room-${i}-deleteBtn`}

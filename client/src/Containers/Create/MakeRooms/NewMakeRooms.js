@@ -31,13 +31,20 @@ const NewMakeRooms = (props) => {
   const [roomName, setRoomName] = useState(
     `${activity.name} (${new Date().toLocaleDateString()})`
   );
-  const [roomNum, setRoomNum] = useState(1);
+  const [roomNum, setRoomNum] = useState(Math.ceil(participants.length / 3));
   const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
   const [selectedParticipants, setSelectedParticipants] = useState(
     [...participants].sort((a) => (a.role === 'facilitator' ? 1 : -1))
   );
   const [roomDrafts, setRoomDrafts] = useState([]);
   const [revertRoomNums, setReverRoomNums] = useState(false);
+
+  useEffect(() => {
+    const numRooms = Math.ceil(
+      filterFacilitators(selectedParticipants).length / participantsPerRoom
+    );
+    setRoomNum(numRooms);
+  }, []);
 
   useEffect(() => {
     if (
@@ -62,6 +69,14 @@ const NewMakeRooms = (props) => {
       setReverRoomNums(false);
     }
   }, [participantsPerRoom]);
+
+  useEffect(() => {
+    const numRooms = Math.ceil(
+      filterFacilitators(selectedParticipants).length / roomNum
+    );
+
+    setParticipantsPerRoom(numRooms);
+  }, [roomNum]);
 
   /**
    * FUNTIONS NEEDED:
@@ -179,10 +194,6 @@ const NewMakeRooms = (props) => {
     } else {
       setReverRoomNums(true);
       setParticipantsPerRoom(numberOfParticipants);
-      // const numRooms = Math.ceil(
-      //   filterFacilitators(selectedParticipants).length / numberOfParticipants
-      // );
-      // setRoomNumber(numRooms);
     }
   };
 
@@ -274,11 +285,14 @@ const NewMakeRooms = (props) => {
       )}
       select={updateParticipants}
       roomNum={parseInt(roomNum, 10)} // ensure a number is passed
+      setRoomNum={setRoomNum}
       activity={activity}
       courseId={course ? course._id : null}
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms={true}
+      aliasMode={aliasMode}
+      roomName={roomName}
     />
   );
 
