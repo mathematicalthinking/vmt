@@ -59,3 +59,32 @@ textarea {
   min-width: 285px;
   z-index: 100;
 }
+
+.Instructions {
+  background-color: white;
+  border-radius: 50%;
+  margin: 5px 25px;
+  position: relative;
+}
+
+.TooltipContent {
+  display: none;
+  position: absolute;
+  padding: 10px;
+  /* left: auto;
+  right: 65px; */
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: #2d91f2;
+  color: white;
+  border: 2px solid #ddd;
+  min-width: 250px;
+  /* width: max-content; */
+  max-width: 85%;
+  transition: 0.2s;
+}
+
+.Instructions:hover .TooltipContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
