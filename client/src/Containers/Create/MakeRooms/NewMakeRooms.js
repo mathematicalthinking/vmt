@@ -44,6 +44,7 @@ const NewMakeRooms = (props) => {
       filterFacilitators(selectedParticipants).length / participantsPerRoom
     );
     setRoomNum(numRooms);
+
   }, []);
 
   useEffect(() => {

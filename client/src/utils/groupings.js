@@ -26,6 +26,7 @@ export const createPreviousAssignments = (groupings, rooms) => {
   if (!groupings || !rooms) return [];
 
   const previousAssignments = groupings.map((grouping, i) => {
+    const _id = grouping._id;
     const date = new Date(grouping.timestamp).toLocaleString();
     const name = `${i + 1}: ${grouping.activityName} ${date}`;
     let dueDate;
@@ -63,7 +64,7 @@ export const createPreviousAssignments = (groupings, rooms) => {
       return roomDraft;
     });
 
-    return { name, roomDrafts, dueDate, aliasMode };
+    return { name, roomDrafts, dueDate, aliasMode, _id };
   });
 
   return previousAssignments;

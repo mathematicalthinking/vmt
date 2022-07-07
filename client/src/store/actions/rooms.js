@@ -216,6 +216,37 @@ export const createGrouping = (roomsToCreate, activity, course) => {
   };
 };
 
+export const updateGroupings = (course, activity, groupingId, newName) => {
+  const timestamp = Date.now();
+  const activityGroupingsIndex = activity.groupings.findIndex(
+    (grouping) => grouping._id === groupingId
+  );
+  const courseGroupingsIndex = course.groupings.findIndex(
+    (grouping) => grouping._id === groupingId
+  );
+
+  const updatedGrouping = {
+    ...activity.groupings[activityGroupingsIndex],
+    activityName: newName,
+    timestamp,
+  };
+
+  const newCourseGroupings = [...course.groupings];
+  newCourseGroupings[courseGroupingsIndex] = updatedGrouping;
+
+  const newActivityGroupings = [...activity.groupings];
+  newActivityGroupings[activityGroupingsIndex] = updatedGrouping;
+
+  return (dispatch, getState) => {
+    updateActivity(activity._id, {
+      groupings: newActivityGroupings,
+    })(dispatch, getState);
+    updateCourse(course._id, {
+      groupings: newCourseGroupings,
+    })(dispatch, getState);
+  };
+};
+
 function dispatchNewRoom(room, dispatch) {
   room.myRole = 'facilitator';
   dispatch(createdRoom(room));

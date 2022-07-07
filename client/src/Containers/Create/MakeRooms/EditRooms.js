@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { updateRoom } from 'store/actions';
+import { updateGroupings } from 'store/actions/rooms';
 import { AssignmentMatrix, EditRoomAssignments } from './index';
 
 const EditRooms = (props) => {
@@ -33,8 +34,16 @@ const EditRooms = (props) => {
       (mem) => mem
     );
 
-    updateParticipants(newRoomDrafts)
+    updateParticipants(newRoomDrafts);
     setParticipants(updatedParticipants);
+
+    // sorting facilitators like below reverses the order that rooms are displayed
+    // ex: if there's 3 rooms, room 3 members are displayed on top of the table,
+    //     room 1 members are displayed at the bottom of the table
+    // setParticipants(
+    //   [...updatedParticipants].sort((a) => (a.role === 'facilitator' ? 1 : -1))
+    // );
+
     setDueDate(selectedAssignment.dueDate || '');
     setAliasMode(selectedAssignment.aliasMode);
     setRoomName(selectedAssignment.label);
@@ -78,6 +87,11 @@ const EditRooms = (props) => {
       };
       dispatch(updateRoom(oldRoomDraft.room, body));
     });
+
+    // if roomName has changed, update the grouping in the store/db
+    if (roomName !== defaultRoomName) {
+      dispatch(updateGroupings(course, activity, selectedAssignment._id, roomName))
+    }
     close();
     const { pathname: url } = history.location;
     // delete the word 'assign' and replace it with 'rooms'

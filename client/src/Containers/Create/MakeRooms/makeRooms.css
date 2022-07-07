@@ -62,7 +62,8 @@
   justify-content: center;
 }
 .Button {
-  bottom: 20px;
+  display: flex;
+  justify-content: space-around;
 }
 
 .Selected {
@@ -181,7 +182,6 @@
   padding-bottom: 5px;
   border-bottom: 2px solid black;
   width: 100%;
-  text-align: center;
 }
 
 .minus {
