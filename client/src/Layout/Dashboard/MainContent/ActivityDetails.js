@@ -13,11 +13,11 @@ import classes from './activityDetails.css';
 
 const constants = {
   defaultNewAssignmentsValue: {
-    label: 'Create New',
+    label: 'Make or Reuse Groupings',
     value: [],
   },
   defaultEditAssignmentsValue: {
-    label: 'Edit Existing Room Assignments',
+    label: 'Change Room Assignments',
     value: [],
   },
 };
@@ -48,7 +48,7 @@ class ActivityDetails extends Component {
       (assignment) => activity._id === assignment.roomDrafts[0].activity
     );
 
-    const createNew = { name: 'Assign Rooms From Scratch', roomDrafts: [] };
+    const createNew = { name: 'Create New Grouping', roomDrafts: [] };
     previousAssignments.unshift(createNew);
     this.setState({ editableRoomAssignOptions, previousAssignments });
   }
@@ -132,7 +132,7 @@ class ActivityDetails extends Component {
                 className={classes.AssignText}
                 htmlFor="NewAssignmentsContainer"
               >
-                New:
+                Create:
               </label>
               <Select
                 inputId="NewAssignmentsContainer"
