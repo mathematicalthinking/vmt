@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { updateRoom } from 'store/actions';
 import { AssignmentMatrix, EditRoomAssignments } from './index';
@@ -15,11 +15,15 @@ const EditRooms = (props) => {
   const [dueDate, setDueDate] = useState(selectedAssignment.dueDate || '');
   const [aliasMode, setAliasMode] = useState(selectedAssignment.aliasMode);
   const [roomName, setRoomName] = useState(selectedAssignment.label);
+  const [defaultRoomName, setDefaultRoomName] = useState(
+    selectedAssignment.label
+  );
 
   useEffect(() => {
     // derive participants from members within roomDrafts
     const participantsObj = {};
-    roomDrafts.forEach((room) => {
+    const newRoomDrafts = selectedAssignment.value;
+    newRoomDrafts.forEach((room) => {
       room.members.forEach((mem) => {
         if (!participantsObj[mem.user._id]) participantsObj[mem.user._id] = mem;
       });
@@ -29,8 +33,13 @@ const EditRooms = (props) => {
       (mem) => mem
     );
 
+    updateParticipants(newRoomDrafts)
     setParticipants(updatedParticipants);
-  }, []);
+    setDueDate(selectedAssignment.dueDate || '');
+    setAliasMode(selectedAssignment.aliasMode);
+    setRoomName(selectedAssignment.label);
+    setDefaultRoomName(selectedAssignment.label);
+  }, [selectedAssignment]);
 
   const updateParticipants = (selectionMatrix) => {
     setRoomDrafts(selectionMatrix);
@@ -101,6 +110,7 @@ const EditRooms = (props) => {
       setAliasMode={setAliasMode}
       dueDate={dueDate}
       setDueDate={setDueDate}
+      defaultRoomName={defaultRoomName}
       roomName={roomName}
       setRoomName={setRoomName}
       submit={editPreviousAssignment}

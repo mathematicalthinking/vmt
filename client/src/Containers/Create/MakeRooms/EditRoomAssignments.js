@@ -10,15 +10,16 @@ const EditRoomAssignments = (props) => {
     setAliasMode,
     dueDate,
     setDueDate,
+    defaultRoomName,
     roomName,
     setRoomName,
     submit,
     close
   } = props;
 
-  const [defaultRoomName, setDefaultRoomName] = useState(
-    selectedAssignment.label
-  );
+  // const [defaultRoomName, setDefaultRoomName] = useState(
+  //   selectedAssignment.label
+  // );
   // const [roomName, setRoomName] = useState(selectedAssignment.label);
   const [showRevertButton, setShowRevertButton] = useState(
     'Previous Assignments'
