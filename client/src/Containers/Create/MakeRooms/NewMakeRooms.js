@@ -25,8 +25,8 @@ const NewMakeRooms = (props) => {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const [dueDate, setDueDate] = useState('');
-  const [aliasMode, setAliasMode] = useState(false);
+  const [dueDate, setDueDate] = useState(selectedAssignment.dueDate || '');
+  const [aliasMode, setAliasMode] = useState(selectedAssignment.aliasMode);
   const [error, setError] = useState(null);
   const [roomName, setRoomName] = useState(
     `${activity.name} (${new Date().toLocaleDateString()})`
@@ -58,6 +58,9 @@ const NewMakeRooms = (props) => {
       );
       setRoomNum(numRooms);
     }
+
+    setAliasMode(selectedAssignment.aliasMode)
+    setDueDate(selectedAssignment.dueDate || "")
   }, [selectedAssignment]);
 
   useEffect(() => {

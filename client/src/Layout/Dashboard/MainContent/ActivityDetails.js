@@ -139,6 +139,8 @@ class ActivityDetails extends Component {
                 className={classes.Select}
                 isSearchable={false}
                 options={previousAssignments.map((assignment) => ({
+                  aliasMode: assignment.aliasMode,
+                  dueDate: assignment.dueDate,
                   label: assignment.name,
                   value: assignment.roomDrafts,
                 }))}
@@ -171,6 +173,8 @@ class ActivityDetails extends Component {
                   value={editAssignmentsValue}
                   isSearchable={false}
                   options={editableRoomAssignOptions.map((assignment) => ({
+                    aliasMode: assignment.aliasMode,
+                    dueDate: assignment.dueDate,
                     label: assignment.name,
                     value: assignment.roomDrafts,
                   }))}

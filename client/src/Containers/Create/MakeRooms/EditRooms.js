@@ -12,8 +12,8 @@ const EditRooms = (props) => {
   const [roomDrafts, setRoomDrafts] = useState(selectedAssignment.value);
   const [participants, setParticipants] = useState([]);
   const [roomNum, setRoomNum] = useState(selectedAssignment.value.length);
-  const [dueDate, setDueDate] = useState('');
-  const [aliasMode, setAliasMode] = useState(false);
+  const [dueDate, setDueDate] = useState(selectedAssignment.dueDate || '');
+  const [aliasMode, setAliasMode] = useState(selectedAssignment.aliasMode);
   const [roomName, setRoomName] = useState(selectedAssignment.label);
 
   useEffect(() => {
