@@ -70,6 +70,7 @@ textarea {
 .TooltipContent {
   display: none;
   position: absolute;
+  margin-top: 2rem;
   padding: 10px;
   /* left: auto;
   right: 65px; */

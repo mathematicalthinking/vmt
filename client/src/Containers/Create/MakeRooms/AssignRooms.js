@@ -98,7 +98,7 @@ const AssignRooms = (props) => {
           dataId="aliasUsernames"
           style={{ width: '175px' }}
           change={() => setAliasMode(!aliasMode)}
-          checked={aliasMode}
+          checked={aliasMode || false}
         >
           Alias Usernames?
         </Checkbox>
@@ -138,14 +138,6 @@ const AssignRooms = (props) => {
       {assignmentMatrix}
       <div className={classes.BottomButtons}>
         <div className={classes.Button}>
-          <Button
-            m={5}
-            click={close} // change the react-select back to defaulValues
-            data-testid="assign-rooms"
-            disabled={roomName === ''}
-          >
-            Cancel
-          </Button>
           <Button m={5} click={handleShuffleClick} data-testid="random-shuffle">
             Shuffle
           </Button>
@@ -156,6 +148,14 @@ const AssignRooms = (props) => {
             disabled={roomName === ''}
           >
             Clear
+          </Button>
+          <Button
+            m={5}
+            click={close} // change the react-select back to defaulValues
+            data-testid="assign-rooms"
+            disabled={roomName === ''}
+          >
+            Cancel
           </Button>
           <Button
             m={5}

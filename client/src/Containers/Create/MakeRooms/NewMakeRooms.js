@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import {
-  createRoom,
-  updateCourse,
-  updateActivity,
-  createGrouping,
-} from 'store/actions';
+import { createGrouping } from 'store/actions';
 import { AssignmentMatrix, AssignRooms } from './index';
 import COLOR_MAP from '../../../utils/colorMap';
 
@@ -44,7 +39,6 @@ const NewMakeRooms = (props) => {
       filterFacilitators(selectedParticipants).length / participantsPerRoom
     );
     setRoomNum(numRooms);
-
   }, []);
 
   useEffect(() => {
@@ -60,8 +54,8 @@ const NewMakeRooms = (props) => {
       setRoomNum(numRooms);
     }
 
-    setAliasMode(selectedAssignment.aliasMode)
-    setDueDate(selectedAssignment.dueDate || "")
+    setAliasMode(selectedAssignment.aliasMode);
+    setDueDate(selectedAssignment.dueDate || '');
   }, [selectedAssignment]);
 
   useEffect(() => {

@@ -196,3 +196,29 @@
   color: #999;
   cursor: pointer;
 }
+
+.AddParticipants {
+  height: 350px;
+  width: 310px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.NewParticipants {
+  height: 350px;
+  width: 310px;
+  overflow-y: auto;
+}
+
+.ParticipantsContainer {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  z-index: 0;
+}

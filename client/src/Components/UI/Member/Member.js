@@ -58,6 +58,7 @@ class Member extends PureComponent {
       rejectAccess,
       notification,
       resourceName,
+      canRemove,
     } = this.props;
     const { editing, trashing } = this.state;
     const username = info.user ? info.user.username : info.username;
@@ -65,10 +66,26 @@ class Member extends PureComponent {
 
     return (
       <div data-testid={`member-${username}`}>
-        <div className={classes.Container}>
-          <div className={classes.Avatar}>
-            <Avatar username={username} color={info.color} />
-          </div>
+        <div
+          className={`${
+            canRemove ? classes.CanRemoveContainer : classes.Container
+          }`}
+        >
+          {canRemove ? (
+            <div className={`${classes.CanRemove}`}>
+              <div className={classes.FlexRow}>
+                <Avatar username={username} color={info.color} />
+                <span className={classes.Email}>{info.user.email}</span>
+              </div>
+              <Button m={5} click={rejectAccess} theme="Danger">
+                <i className="fas fa-trash-alt" />
+              </Button>
+            </div>
+          ) : (
+            <div className={classes.Avatar}>
+              <Avatar username={username} color={info.color} />
+            </div>
+          )}
           {notification ? (
             <div className={classes.Notification} data-testid="member-ntf">
               new member
@@ -179,6 +196,8 @@ Member.propTypes = {
   rejectAccess: PropTypes.func,
   notification: PropTypes.bool,
   resourceName: PropTypes.string.isRequired,
+  canRemove: PropTypes.bool,
+  removeFn: PropTypes.func,
 };
 
 Member.defaultProps = {
@@ -188,6 +207,8 @@ Member.defaultProps = {
   removeMember: null,
   grantAccess: null,
   rejectAccess: null,
+  canRemove: false,
+  removeFn: null,
 };
 
 export default Member;
