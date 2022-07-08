@@ -11,6 +11,7 @@ import classes from './makeRooms.css';
 const NewStep1 = (props) => {
   const { participants, userId, courseId } = props;
 
+  const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [currentParticipants, setCurrentParticipants] = useState([
@@ -28,10 +29,11 @@ const NewStep1 = (props) => {
           .concat(newParticipants.map((p) => p.user._id)) // Exclude myself and already selected members from th search
       )
         .then((res) => {
-          const newSearchResults = res.data.results.filter(
-            (user) => user.accountType !== 'temp'
-          );
+          const newSearchResults = res.data.results
+            .filter((user) => user.accountType !== 'temp')
+            .sort((a, b) => a.username.localeCompare(b.username));
 
+          setInitialSearchResults(newSearchResults);
           setSearchResults(newSearchResults);
           setSearchText(text);
         })
@@ -45,30 +47,32 @@ const NewStep1 = (props) => {
   };
 
   const addParticipant = (_id, username, email) => {
-    // setNewParticipants((prevState) => ({
-    //     ...prevState,
-    //     {user: { _id, username }}
-    // }))
-
     setNewParticipants((prevState) => [
       ...prevState,
       { user: { _id, username, email } },
     ]);
 
-    // console.log(searchResults);
-
-    setSearchResults((prevState) => {
-      console.log(prevState);
-      const newResults = prevState.filter((user) => user._id !== _id);
-      console.log(newResults);
-      return newResults;
-      //   return prevState.filter((user) => user._id !== _id)
-    });
+    setSearchResults((prevState) =>
+      prevState.filter((user) => user._id !== _id)
+    );
   };
 
-  const goNext = () => {
-    setParticipants(currentParticipants);
-    nextStep();
+  const removeMember = (mem) => {
+    setNewParticipants((prevState) =>
+      prevState.filter(({ user }) => user._id !== mem.user._id)
+    );
+
+    // add mem back to the search results list?
+    for (const user of initialSearchResults) {
+      if (user._id === mem.user._id) {
+        setSearchResults((prevState) =>
+          [...prevState, user].sort((a, b) =>
+            a.username.localeCompare(b.username)
+          )
+        );
+        break;
+      }
+    }
   };
 
   return (
@@ -107,7 +111,7 @@ const NewStep1 = (props) => {
                 key={member.user._id}
                 resourceName="template"
                 canRemove={true}
-                rejectAccess={() => console.log(member)}
+                rejectAccess={() => removeMember(member)}
               />
               // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
             ))}
@@ -115,7 +119,7 @@ const NewStep1 = (props) => {
         </InfoBox>
       )}
       <div className={classes.ModalButton}>
-        <Button m={5} click={goNext} data-testid="next-step-assign">
+        <Button m={5} click={() => {}} data-testid="next-step-assign">
           Add Participants
         </Button>
       </div>
