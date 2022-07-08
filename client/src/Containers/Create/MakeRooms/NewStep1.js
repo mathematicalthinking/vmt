@@ -50,9 +50,10 @@ const NewStep1 = (props) => {
     //     {user: { _id, username }}
     // }))
 
-    setNewParticipants((prevState) => {
-      [...prevState, { user: { _id, username, email } }];
-    });
+    setNewParticipants((prevState) => [
+      ...prevState,
+      { user: { _id, username, email } },
+    ]);
 
     // console.log(searchResults);
 
