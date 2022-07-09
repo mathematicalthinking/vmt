@@ -20,8 +20,8 @@ const NewMakeRooms = (props) => {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const [dueDate, setDueDate] = useState(selectedAssignment.dueDate || '');
-  const [aliasMode, setAliasMode] = useState(selectedAssignment.aliasMode);
+  const [dueDate, setDueDate] = useState('');
+  const [aliasMode, setAliasMode] = useState(false);
   const [error, setError] = useState(null);
   const [roomName, setRoomName] = useState(
     `${activity.name} (${new Date().toLocaleDateString()})`
@@ -34,23 +34,27 @@ const NewMakeRooms = (props) => {
 
   useEffect(() => {
     setSelectedParticipants(sortParticipants(participants));
+    if (selectedAssignment) {
+      setAliasMode(selectedAssignment);
+      setDueDate(selectedAssignment.dueDate || '');
+    }
   }, []);
 
   useEffect(() => {
     if (
+      selectedAssignment &&
       Array.isArray(selectedAssignment.value) &&
       selectedAssignment.value.length
     ) {
       setRoomNum(selectedAssignment.value.length);
+      setAliasMode(selectedAssignment.aliasMode);
+      setDueDate(selectedAssignment.dueDate || '');
     } else {
       const numRooms = Math.ceil(
         filterFacilitators(selectedParticipants).length / participantsPerRoom
       );
       setRoomNum(numRooms);
     }
-
-    setAliasMode(selectedAssignment.aliasMode);
-    setDueDate(selectedAssignment.dueDate || '');
   }, [selectedAssignment]);
 
   useEffect(() => {

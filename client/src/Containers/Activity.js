@@ -35,11 +35,7 @@ class Activity extends Component {
     const { activity } = this.props;
     this.state = {
       owner: false,
-      tabs: [
-        { name: 'Assign' },
-        { name: 'Rooms' },
-        { name: 'Preview' },
-      ],
+      tabs: [{ name: 'Assign' }, { name: 'Rooms' }, { name: 'Preview' }],
       editing: false,
       name: activity ? activity.name : null,
       description: activity ? activity.description : null,
@@ -240,6 +236,10 @@ class Activity extends Component {
           loading={loading}
           canAccess={canAccess}
           rooms={rooms}
+          user={{
+            role: 'facilitator',
+            user: { _id: user._id, username: user.username },
+          }}
         />
       );
 

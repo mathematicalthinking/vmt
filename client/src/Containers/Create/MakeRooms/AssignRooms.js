@@ -30,6 +30,7 @@ const AssignRooms = (props) => {
 
   useEffect(() => {
     if (
+      selectedAssignment &&
       selectedAssignment.value &&
       selectedAssignment.value[0] &&
       selectedAssignment.value[0].members

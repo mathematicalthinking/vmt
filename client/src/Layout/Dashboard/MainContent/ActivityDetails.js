@@ -4,8 +4,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import Select from 'react-select';
-import { Aux, Button, EditText, Error } from '../../../Components';
-import MakeRooms from '../../../Containers/Create/MakeRooms/MakeRooms';
+import { Aux, Error } from '../../../Components';
 import NewMakeRooms from 'Containers/Create/MakeRooms/NewMakeRooms';
 import EditRooms from 'Containers/Create/MakeRooms/EditRooms';
 import { createPreviousAssignments } from 'utils/groupings';
@@ -76,6 +75,7 @@ class ActivityDetails extends Component {
       editing,
       userId,
       rooms,
+      user,
     } = this.props;
     const {
       assigning,
@@ -206,14 +206,14 @@ class ActivityDetails extends Component {
           {/* </div> */}
         </div>
 
-        {/* standalone template --> open this to allow member assignment */}
+        {/* standalone template */}
         {assigning && !course && !inEditMode ? (
-          <MakeRooms
+          <NewMakeRooms
             activity={activity}
             course={course ? course : null}
             userId={userId}
             close={this.close}
-            participants={course ? course.members : []}
+            participants={course ? course.members : [user]}
             rooms={rooms}
           />
         ) : null}
@@ -254,6 +254,7 @@ ActivityDetails.propTypes = {
   course: PropTypes.shape({}),
   loading: PropTypes.bool,
   rooms: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
 };
 
 ActivityDetails.defaultProps = {
