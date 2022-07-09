@@ -7,6 +7,7 @@ import classes from './makeRooms.css';
 const AssignmentMatrix = (props) => {
   const {
     list,
+    updateList,
     requiredParticipants,
     select,
     roomNum,
@@ -19,6 +20,7 @@ const AssignmentMatrix = (props) => {
     canDeleteRooms,
     aliasMode,
     roomName,
+    sortParticipants,
   } = props;
 
   const [showModal, setShowModal] = useState(false)
@@ -120,9 +122,12 @@ const AssignmentMatrix = (props) => {
         <Aux>
           <NewStep1
             participants={list}
+            updateList={updateList}
             userId={userId}
             // select={this.selectParticipant}
             courseId={courseId}
+            close={() => setShowModal(false)}
+            sortParticipants={sortParticipants}
             // selectedParticipants={selectedParticipants}
           />
         </Aux>

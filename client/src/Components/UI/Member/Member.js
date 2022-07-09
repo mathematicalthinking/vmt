@@ -75,7 +75,9 @@ class Member extends PureComponent {
             <div className={`${classes.CanRemove}`}>
               <div className={classes.FlexRow}>
                 <Avatar username={username} color={info.color} />
-                <span className={classes.Email}>{info.user.email}</span>
+                {info.user.email && (
+                  <span className={classes.Email}>{info.user.email}</span>
+                )}
               </div>
               <Button m={5} click={rejectAccess} theme="Danger">
                 <i className="fas fa-trash-alt" />
@@ -107,7 +109,8 @@ class Member extends PureComponent {
                 </Button>
               </Fragment>
             ) : null}
-            {editing ? (
+            {/* don't display role if called from NewStep1 */}
+            {editing && !canRemove ? (
               <div className={classes.DropDownContainer}>
                 <div className={classes.DropDown}>
                   <RoleDropdown
@@ -123,7 +126,7 @@ class Member extends PureComponent {
                 </div>
               </div>
             ) : (
-              <div className={classes.Role}>{info.role}</div>
+              !canRemove && <div className={classes.Role}>{info.role}</div>
             )}
             {editing ? (
               <div

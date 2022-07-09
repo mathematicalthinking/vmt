@@ -1,15 +1,26 @@
 /* eslint-disable no-console */
 /* eslint-disable react/no-did-update-set-state */
 import React, { useState, Fragment } from 'react';
+import { useDispatch } from 'react-redux';
 // import PropTypes from 'prop-types';
 import SearchResults from 'Containers/Members/SearchResults';
 import API from 'utils/apiRequests';
 import { Button, InfoBox, Search, Member } from 'Components';
+import { updateCourseMembers } from 'store/actions';
 import ParticipantList from './ParticipantList';
 import classes from './makeRooms.css';
 
 const NewStep1 = (props) => {
-  const { participants, userId, courseId } = props;
+  const {
+    participants,
+    userId,
+    courseId,
+    updateList,
+    close,
+    sortParticipants,
+  } = props;
+
+  const dispatch = useDispatch();
 
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -49,7 +60,7 @@ const NewStep1 = (props) => {
   const addParticipant = (_id, username, email) => {
     setNewParticipants((prevState) => [
       ...prevState,
-      { user: { _id, username, email } },
+      { role: 'participant', user: { _id, username } },
     ]);
 
     setSearchResults((prevState) =>
@@ -73,6 +84,27 @@ const NewStep1 = (props) => {
         break;
       }
     }
+  };
+
+  const submit = () => {
+    const facilitators = participants.filter(
+      (mem) => mem.role === 'facilitator'
+    );
+    const prevParticipants = participants.filter(
+      (mem) => mem.role === 'participant'
+    );
+    const newList = [...prevParticipants, ...newParticipants]
+      .sort((a, b) => a.user.username.localeCompare(b.user.username))
+      .concat(facilitators);
+
+    updateList(newList);
+
+    if (courseId) {
+      dispatch(
+        updateCourseMembers(courseId, newList)
+      );
+    }
+    close();
   };
 
   return (
@@ -119,7 +151,7 @@ const NewStep1 = (props) => {
         </InfoBox>
       )}
       <div className={classes.ModalButton}>
-        <Button m={5} click={() => {}} data-testid="next-step-assign">
+        <Button m={5} click={submit} data-testid="next-step-assign">
           Add Participants
         </Button>
       </div>

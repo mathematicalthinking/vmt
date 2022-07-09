@@ -28,17 +28,12 @@ const NewMakeRooms = (props) => {
   );
   const [roomNum, setRoomNum] = useState(Math.ceil(participants.length / 3));
   const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
-  const [selectedParticipants, setSelectedParticipants] = useState(
-    [...participants].sort((a) => (a.role === 'facilitator' ? 1 : -1))
-  );
+  const [selectedParticipants, setSelectedParticipants] = useState([]);
   const [roomDrafts, setRoomDrafts] = useState([]);
   const [revertRoomNums, setReverRoomNums] = useState(false);
 
   useEffect(() => {
-    const numRooms = Math.ceil(
-      filterFacilitators(selectedParticipants).length / participantsPerRoom
-    );
-    setRoomNum(numRooms);
+    setSelectedParticipants(sortParticipants(participants));
   }, []);
 
   useEffect(() => {
@@ -72,9 +67,16 @@ const NewMakeRooms = (props) => {
     const numRooms = Math.ceil(
       filterFacilitators(selectedParticipants).length / roomNum
     );
-
     setParticipantsPerRoom(numRooms);
   }, [roomNum]);
+
+  useEffect(() => {
+    const divisor = participantsPerRoom ? participantsPerRoom : 3;
+    const numRooms = Math.ceil(
+      filterFacilitators(selectedParticipants).length / divisor
+    );
+    setRoomNum(numRooms);
+  }, [selectedParticipants]);
 
   /**
    * FUNTIONS NEEDED:
@@ -151,6 +153,17 @@ const NewMakeRooms = (props) => {
       );
       return { ...roomArray, members: newMems };
     });
+  };
+
+  const sortParticipants = (list) => {
+    const facilitators = list
+      .filter((mem) => mem.role === 'facilitator')
+      .sort((a, b) => a.user.username.localeCompare(b.user.username));
+    const prevParticipants = list.filter((mem) => mem.role === 'participant');
+
+    return prevParticipants
+      .sort((a, b) => a.user.username.localeCompare(b.user.username))
+      .concat(facilitators);
   };
 
   const restructureMemberlist = (list) => {
@@ -278,6 +291,7 @@ const NewMakeRooms = (props) => {
   const assignmentMatrix = (
     <AssignmentMatrix
       list={selectedParticipants}
+      updateList={setSelectedParticipants}
       requiredParticipants={selectedParticipants.filter(
         (mem) => mem.role === 'facilitator'
       )}
@@ -291,6 +305,7 @@ const NewMakeRooms = (props) => {
       canDeleteRooms={true}
       aliasMode={aliasMode}
       roomName={roomName}
+      sortParticipants={sortParticipants}
     />
   );
 
