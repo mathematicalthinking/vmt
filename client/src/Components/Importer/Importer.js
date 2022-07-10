@@ -345,7 +345,7 @@ export default function Importer(props) {
           { property: 'firstName', header: 'First Name*' },
           {
             property: 'lastName',
-            header: 'Last Name* (full, inital, or other)',
+            header: 'Last Name* (full, initial, or other)',
           },
           { property: 'organization', header: 'Affiliation' },
           { property: 'identifier', header: 'Student or Org ID' },
