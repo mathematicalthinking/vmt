@@ -71,7 +71,8 @@ const NewMakeRooms = (props) => {
     const numRooms = Math.ceil(
       filterFacilitators(selectedParticipants).length / roomNum
     );
-    setParticipantsPerRoom(numRooms);
+    if (!numRooms) setParticipantsPerRoom(1);
+    else setParticipantsPerRoom(numRooms);
   }, [roomNum]);
 
   useEffect(() => {
@@ -79,7 +80,8 @@ const NewMakeRooms = (props) => {
     const numRooms = Math.ceil(
       filterFacilitators(selectedParticipants).length / divisor
     );
-    setRoomNum(numRooms);
+    if (!numRooms) setRoomNum(1);
+    else setRoomNum(numRooms);
   }, [selectedParticipants]);
 
   /**
@@ -100,7 +102,7 @@ const NewMakeRooms = (props) => {
     // reset to default numbers of participantsPerRoom & roomNum
     if (revertParticipantsPerRoom) {
       setReverRoomNums(true);
-      setParticipantsPerRoom(3);
+      // setNumber(facilitators.length);
     }
 
     const newRoom = {
@@ -109,7 +111,7 @@ const NewMakeRooms = (props) => {
       name: '',
       members: [],
     };
-    const facilitators = selectedParticipants.filter(
+    const facilitators = participants.filter(
       (member) => member.role === 'facilitator'
     );
     const date = dueDate ? new Date(dueDate) : new Date();
