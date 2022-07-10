@@ -180,70 +180,61 @@ export default function ImportModal(props) {
     return rowAction ? rowAction.action && rowAction.action() : false;
   };
 
-  const _sheetRenderer = (givenProps) => (
-    <table style={{ marginBottom: '10px', marginTop: '20px', width: '100%' }}>
-      <thead>
-        <tr>
-          {_getHeaders().map((col, index) => (
-            <th key={col} style={{ padding: '10px', textAlign: 'center' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                }}
-              >
-                {col}
-                {_isBoolean(index) && (
-                  <input
-                    style={{ margin: '5px auto' }}
-                    type="checkbox"
-                    checked={_isAllChecked(index)}
-                    onChange={() => _handleAllChecked(index)}
-                  />
-                )}
-              </div>
-            </th>
-          ))}
-          {(canDeleteRow || _hasActions()) && (
-            <th style={{ padding: '10px', textAlign: 'center' }}>Actions</th>
-          )}
-        </tr>
-      </thead>
-      <tbody>{givenProps.children}</tbody>
-    </table>
-  );
+  const _sheetRenderer = (givenProps) => {
+    const { children } = givenProps;
+    return (
+      <table style={{ marginBottom: '10px', marginTop: '20px', width: '100%' }}>
+        <thead>
+          <tr>
+            {_getHeaders().map((col, index) => (
+              <th key={col} style={{ padding: '10px', textAlign: 'center' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  {col}
+                  {_isBoolean(index) && (
+                    <input
+                      style={{ margin: '5px auto' }}
+                      type="checkbox"
+                      checked={_isAllChecked(index)}
+                      onChange={() => _handleAllChecked(index)}
+                    />
+                  )}
+                </div>
+              </th>
+            ))}
+            {(canDeleteRow || _hasActions()) && (
+              <th style={{ padding: '10px', textAlign: 'center' }}>Actions</th>
+            )}
+          </tr>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
+    );
+  };
 
   const _rowRenderer = (ps) => {
+    const { children, row } = ps;
     return (
       <tr>
-        {ps.children}
+        {children}
         <td className="action-cell">
-          {canDeleteRow && (
-            <DeleteButton onClick={() => _handleDelete(ps.row)} />
-          )}
-          {_rowAction(ps.row) || null}
+          {canDeleteRow && <DeleteButton onClick={() => _handleDelete(row)} />}
+          {_rowAction(row) || null}
         </td>
       </tr>
     );
   };
 
   const _cellRenderer = (ps) => {
-    const {
-      cell,
-      row,
-      col,
-      as,
-      columns,
-      attributesRenderer,
-      selected,
-      editing,
-      updated,
-      ...rest
-    } = ps;
+    const { cell, row, col, children } = ps;
     return (
       <td
-        {...rest}
+        {...ps}
         style={
           _isHighlighted(row, col)
             ? { ...cell.style, border: '2px solid red' }
@@ -259,7 +250,7 @@ export default function ImportModal(props) {
             }
           />
         ) : (
-          ps.children
+          children
         )}
       </td>
     );
@@ -375,7 +366,9 @@ const DeleteButton = (props) => {
 ImportModal.propTypes = {
   show: PropTypes.bool.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  columnConfig: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  columnConfig: PropTypes.arrayOf(
+    PropTypes.shape({ property: PropTypes.string, type: PropTypes.string })
+  ).isRequired,
   rowConfig: PropTypes.arrayOf(
     PropTypes.shape({
       rowIndex: PropTypes.number.isRequired,
