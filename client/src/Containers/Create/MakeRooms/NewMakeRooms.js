@@ -35,7 +35,7 @@ const NewMakeRooms = (props) => {
   useEffect(() => {
     setSelectedParticipants(sortParticipants(participants));
     if (selectedAssignment) {
-      setAliasMode(selectedAssignment);
+      setAliasMode(selectedAssignment.aliasMode || false);
       setDueDate(selectedAssignment.dueDate || '');
     }
   }, []);

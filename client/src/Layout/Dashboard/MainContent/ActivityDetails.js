@@ -158,6 +158,21 @@ class ActivityDetails extends Component {
                 }}
                 value={newAssignmentsValue}
               />
+              <div className={classes.Instructions}>
+                <i
+                  className={`far fa-question-circle fa-2x ${classes.QuestionMark}`}
+                />
+                <div className={classes.TooltipContent}>
+                  <p>
+                    "Make or Reuse Groupings" allows you to assign members to
+                    rooms. "Alias Usernames" will randomize usernames for
+                    members when they are in a room. "Change Room Assignments"
+                    allows you to change which member is in which room as well
+                    as editing the room name, due date, and whether to display
+                    the member's usernames as aliases.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {editableRoomAssignOptions && editableRoomAssignOptions.length ? (
@@ -190,17 +205,23 @@ class ActivityDetails extends Component {
                     });
                   }}
                 />
+                <div className={classes.Instructions}>
+                  <i
+                    className={`far fa-question-circle fa-2x ${classes.QuestionMark}`}
+                  />
+                  <div className={classes.TooltipContent}>
+                    <p>
+                      "Make or Reuse Groupings" allows you to assign members to
+                      rooms. "Alias Usernames" will randomize usernames for
+                      members when they are in a room. "Change Room Assignments"
+                      allows you to change which member is in which room as well
+                      as editing the room name, due date, and whether to display
+                      the member's usernames as aliases.
+                    </p>
+                  </div>
+                </div>
               </div>
             ) : null}
-
-            <div className={classes.Instructions}>
-              <i className="far fa-question-circle fa-2x" />
-              <div className={classes.TooltipContent}>
-                <p>
-                  "Make or Reuse Groupings" allows you to assign members to rooms. "Alias Usernames" will randomize usernames for members when they are in a room. "Change Room Assignments" allows you to change which member is in which room as well as editing the room name, due date, and whether to display the member's usernames as aliases.
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* </div> */}
