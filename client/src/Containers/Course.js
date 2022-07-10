@@ -312,6 +312,17 @@ class Course extends Component {
     connectRemoveCourseMember(course._id, user._id);
   };
 
+  sortParticipants = (list) => {
+    const facilitators = list
+      .filter((mem) => mem.role === 'facilitator')
+      .sort((a, b) => a.user.username.localeCompare(b.user.username));
+    const prevParticipants = list.filter((mem) => mem.role === 'participant');
+
+    return prevParticipants
+      .sort((a, b) => a.user.username.localeCompare(b.user.username))
+      .concat(facilitators);
+  };
+
   render() {
     const {
       course,
@@ -382,7 +393,7 @@ class Course extends Component {
         mainContent = (
           <Members
             user={user}
-            classList={course.members}
+            classList={this.sortParticipants(course.members)}
             owner={course.myRole === 'facilitator' || isAdmin}
             resourceType="course"
             resourceId={course._id}
