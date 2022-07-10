@@ -1,16 +1,10 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { CSVReader } from 'react-papaparse';
-import {
-  suggestUniqueUsername,
-  validateEmail,
-  validateUsername,
-  findMatchingUsers,
-} from 'utils';
+import { validateEmail, validateUsername, findMatchingUsers } from 'utils';
 import { NavLink } from 'react-router-dom';
 import { Button } from 'Components';
 import ImportModal from './ImportModal';
-import ResolutionButton from './ResolutionButton';
 import classes from './importer.css';
 
 export default function Importer(props) {
@@ -19,8 +13,6 @@ export default function Importer(props) {
   const [importedData, setImportedData] = React.useState([]);
   const [validationErrors, setValidationErrors] = React.useState([]);
   const [sponsors, setSponsors] = React.useState({});
-  const [rowConfig, setRowConfig] = React.useState([]);
-  const [resolveSelections, setResolveSelections] = React.useState({});
   const buttonRef = React.createRef();
   const [cachedData, setCachedData] = React.useState([]);
 
@@ -154,13 +146,8 @@ export default function Importer(props) {
     if (d.email) {
       d.email = d.email.toLowerCase().trim();
     }
-    setResolveSelections((prevSelections) => {
-      prevSelections[rowIndex] = null;
-      return prevSelections;
-    });
 
     // 1. handle validating whether username/email exists, whether they are consistent, and the resolution thereof
-    clearChoices(rowIndex);
     const userFromUsername = await validateExistingField(
       'username',
       d.username
@@ -169,30 +156,23 @@ export default function Importer(props) {
       ? await validateExistingField('email', d.email)
       : null;
     const isMatch =
-      userFromUsername &&
-      userFromEmail &&
-      userFromUsername._id === userFromEmail._id;
+      (userFromUsername &&
+        userFromEmail &&
+        userFromUsername._id === userFromEmail._id) ||
+      (userFromUsername && userFromUsername.email === d.email);
     const isNewUser = !userFromEmail && !userFromUsername;
 
     if (!isMatch && !isNewUser) {
-      d.comment += 'Username-email mismatch. ';
       newValidationErrors.push(
         { rowIndex, property: 'username' },
         { rowIndex, property: 'email' }
       );
-      suggestUniqueUsername(d.username).then((name) => {
-        const newUser = {
-          username: name,
-          email: userFromEmail ? '<enter an email>' : d.email,
-        };
-        const choices = {
-          newUser,
-          userFromUsername,
-          userFromEmail,
-          original: { ...d },
-        };
-        setupChoices(choices, rowIndex);
-      });
+      if (userFromUsername)
+        d.comment += `Existing user ${d.username} should have email ${
+          userFromUsername.email !== '' ? userFromUsername.email : '<blank>'
+        }. `;
+      if (userFromEmail)
+        d.comment += `Existing email ${d.email} should be for user ${userFromEmail.username}. `;
     }
 
     // 2. handle validating the structure of usernames and emails
@@ -306,55 +286,6 @@ export default function Importer(props) {
     return [validatedData, newErrors];
   };
 
-  /**
-   * The user needs to resolve a mismatch between username and email. Update rowConfig to place a ResolutionButton at that
-   * row, containing the buttons needed (some combination of username, email, new user). As each selection is made, update
-   * the data so that appropriate usernames and emails are shown.  NOTE: only change username and email; don't change any
-   * other data in the row.
-   *
-   * Note: We have to keep the resolution state here because the package used by ImportModal unmounts and remounts elements
-   * on each refresh. @TODO: Switch to another package for rendering an editable table.
-   */
-
-  const setupChoices = (choices, rowIndex) => {
-    const action = () => (
-      <ResolutionButton
-        usernameChoice={choices.userFromUsername || null}
-        emailChoice={choices.userFromEmail || null}
-        newUserChoice={choices.newUser || null}
-        selection={() => resolveSelections[rowIndex] || null}
-        onSelect={(choice) => {
-          if (!choice) {
-            choice = {
-              username: choices.original.username,
-              email: choices.original.email,
-            };
-          }
-          setImportedData((prevState) => {
-            const newData = [...prevState];
-            newData[rowIndex].username = choice.username;
-            newData[rowIndex].email = choice.email;
-            return newData;
-          });
-          setResolveSelections((prevState) => ({
-            ...prevState,
-            [rowIndex]: choice,
-          }));
-        }}
-      />
-    );
-    setRowConfig((prevState) => [...prevState, { rowIndex, action }]);
-  };
-
-  // Remove any buttons from the previous validation
-  const clearChoices = (rowIndex) => {
-    setRowConfig((prevState) =>
-      prevState
-        ? prevState.filter((config) => config.rowIndex !== rowIndex)
-        : []
-    );
-  };
-
   const createAndInviteMembers = async () => {
     const { user: creator, onImport } = props;
     const userObjects = await Promise.all(
@@ -424,7 +355,6 @@ export default function Importer(props) {
           },
         ]}
         highlights={validationErrors}
-        rowConfig={rowConfig}
         onChanged={handleOnChanged}
         onSubmit={handleOnSubmit}
         onCancel={handleOnCancel}
