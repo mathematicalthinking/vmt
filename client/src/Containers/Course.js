@@ -507,7 +507,7 @@ class Course extends Component {
                         onKeyPress={this.toggleEdit}
                       >
                         <span>
-                          Edit Course <i className="fas fa-edit" />
+                          Edit Info <i className="fas fa-edit" />
                         </span>
                       </div>
                       {editing ? (

@@ -310,7 +310,7 @@ class Activity extends Component {
                         onKeyPress={this.toggleEdit}
                         tabIndex="-1"
                       >
-                        Edit Template <i className="fas fa-edit" />
+                        Edit Info <i className="fas fa-edit" />
                       </div>
                       {editing ? (
                         // @TODO this should be a resuable component
@@ -349,7 +349,7 @@ class Activity extends Component {
                       click={this.viewActivity}
                       data-testid="view-activity"
                     >
-                      Enter
+                      Edit Template
                     </Button>
                   </div>
                 }
