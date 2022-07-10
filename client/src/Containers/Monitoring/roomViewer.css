@@ -18,30 +18,30 @@
   .Container {
     display: flex;
     flex-direction: row;
-    height: 100%;
-    justify-content: space-between;  
+    justify-content: space-between; 
+    text-align: left; 
+    height: 90vh;
     }
-
+    
   .Thumbnails {
     width: 75%;
-    height: 95%;
+    overflow: scroll;
     margin-right: 10px;
   }
 
   .Aside {
-    display: flex;
-    flex-direction: column;
-    width: 30%;
+    /* display: flex;
+    flex-direction: column; */
   }
 
   .ChatSection {
-    min-height: 75%;
-    display: flex;
-    flex-direction: column;
+    /* display: flex;
+    flex-direction: column; */
   }
-
+  
   .Chat {
-    flex-grow: 2;
+    overflow-y: scroll;
+    height: 50vh;
     border-radius: 3px;
     box-shadow: lightShadow;
   }
@@ -49,6 +49,8 @@
   .AttendanceSection {
     border-radius: 3px;
     box-shadow: lightShadow;
+    overflow-y: scroll;
+    height: 30vh;
   }
 
   
