@@ -35,6 +35,8 @@ class ActivityDetails extends Component {
       editableRoomAssignOptions: [], // prevAssignemnts w/current activity._id
       newAssignmentsValue: constants.defaultNewAssignmentsValue,
       editAssignmentsValue: constants.defaultEditAssignmentsValue,
+      showCreateSelect: true,
+      showEditSelect: true,
     };
   }
 
@@ -62,6 +64,8 @@ class ActivityDetails extends Component {
       assigning: false,
       newAssignmentsValue: constants.defaultNewAssignmentsValue,
       editAssignmentsValue: constants.defaultEditAssignmentsValue,
+      showCreateSelect: true,
+      showEditSelect: true,
     });
   };
 
@@ -85,6 +89,8 @@ class ActivityDetails extends Component {
       editableRoomAssignOptions,
       newAssignmentsValue,
       editAssignmentsValue,
+      showCreateSelect,
+      showEditSelect,
     } = this.state;
 
     return (
@@ -127,55 +133,61 @@ class ActivityDetails extends Component {
             </Button> */}
 
           <div className={classes.AssignContainer}>
-            <div className={classes.NewAssignmentsContainer}>
-              <label
-                className={classes.AssignText}
-                htmlFor="NewAssignmentsContainer"
-              >
-                Create:
-              </label>
-              <Select
-                inputId="NewAssignmentsContainer"
-                className={classes.Select}
-                isSearchable={false}
-                options={previousAssignments.map((assignment) => ({
-                  _id: assignment._id,
-                  aliasMode: assignment.aliasMode,
-                  dueDate: assignment.dueDate,
-                  label: assignment.name,
-                  value: assignment.roomDrafts,
-                }))}
-                onChange={(selectedOption) => {
-                  this.setState({
-                    assigning: true,
-                    inEditMode: false,
-                    selectedAssignment: selectedOption,
-                    newAssignmentsValue: {
-                      ...selectedOption,
-                    },
-                    editAssignmentsValue: constants.defaultEditAssignmentsValue,
-                  });
-                }}
-                value={newAssignmentsValue}
-              />
-              <div className={classes.Instructions}>
-                <i
-                  className={`far fa-question-circle fa-2x ${classes.QuestionMark}`}
+            {showCreateSelect && (
+              <div className={classes.NewAssignmentsContainer}>
+                <label
+                  className={classes.AssignText}
+                  htmlFor="NewAssignmentsContainer"
+                >
+                  Create:
+                </label>
+                <Select
+                  inputId="NewAssignmentsContainer"
+                  className={classes.Select}
+                  isSearchable={false}
+                  options={previousAssignments.map((assignment) => ({
+                    _id: assignment._id,
+                    aliasMode: assignment.aliasMode,
+                    dueDate: assignment.dueDate,
+                    label: assignment.name,
+                    value: assignment.roomDrafts,
+                  }))}
+                  onChange={(selectedOption) => {
+                    this.setState({
+                      assigning: true,
+                      inEditMode: false,
+                      selectedAssignment: selectedOption,
+                      newAssignmentsValue: {
+                        ...selectedOption,
+                      },
+                      editAssignmentsValue:
+                        constants.defaultEditAssignmentsValue,
+                      showEditSelect: false,
+                    });
+                  }}
+                  value={newAssignmentsValue}
                 />
-                <div className={classes.TooltipContent}>
-                  <p>
-                    "Make or Reuse Groupings" allows you to assign members to
-                    rooms. "Alias Usernames" will randomize usernames for
-                    members when they are in a room. "Change Room Assignments"
-                    allows you to change which member is in which room as well
-                    as editing the room name, due date, and whether to display
-                    the member's usernames as aliases.
-                  </p>
+                <div className={classes.Instructions}>
+                  <i
+                    className={`far fa-question-circle fa-2x ${classes.QuestionMark}`}
+                  />
+                  <div className={classes.TooltipContent}>
+                    <p>
+                      "Make or Reuse Groupings" allows you to assign members to
+                      rooms. "Alias Usernames" will randomize usernames for
+                      members when they are in a room. "Change Room Assignments"
+                      allows you to change which member is in which room as well
+                      as editing the room name, due date, and whether to display
+                      the member's usernames as aliases.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {editableRoomAssignOptions && editableRoomAssignOptions.length ? (
+            {editableRoomAssignOptions &&
+            editableRoomAssignOptions.length &&
+            showEditSelect ? (
               <div className={classes.EditAssignmentsContainer}>
                 <label
                   className={classes.AssignText}
@@ -202,6 +214,7 @@ class ActivityDetails extends Component {
                       selectedAssignment: selectedOption,
                       editAssignmentsValue: { ...selectedOption },
                       newAssignmentsValue: constants.defaultNewAssignmentsValue,
+                      showCreateSelect: false,
                     });
                   }}
                 />
