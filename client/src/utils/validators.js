@@ -100,17 +100,3 @@ export const validateExistingField = async (field, value) => {
     })
     .catch((err) => console.error(err));
 };
-
-export const suggestUniqueUsername = (username) => {
-  const uniqueName = validateExistingField('username', username)
-    .then((isExisting) => {
-      return !isExisting
-        ? username
-        : suggestUniqueUsername(username + Math.floor(Math.random() * 1000));
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-  return uniqueName;
-};

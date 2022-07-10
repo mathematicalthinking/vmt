@@ -1,11 +1,12 @@
 import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
 import { CSVReader } from 'react-papaparse';
 import {
   suggestUniqueUsername,
   validateEmail,
   validateUsername,
-  validateExistingField,
-} from 'utils/validators';
+  findMatchingUsers,
+} from 'utils';
 import { NavLink } from 'react-router-dom';
 import { Button } from 'Components';
 import ImportModal from './ImportModal';
@@ -21,6 +22,30 @@ export default function Importer(props) {
   const [rowConfig, setRowConfig] = React.useState([]);
   const [resolveSelections, setResolveSelections] = React.useState({});
   const buttonRef = React.createRef();
+  const [cachedData, setCachedData] = React.useState([]);
+
+  const validateExistingField = (field, value) => {
+    return Promise.resolve(cachedData.find((elt) => elt[field] === value)); // using a Promise to minimize code changes for now
+  };
+
+  const allValues = (field, data) =>
+    data
+      .map((elt) =>
+        typeof elt[field] === 'string' ? elt[field].toLowerCase() : elt[field]
+      )
+      .filter((val) => val && val !== '');
+
+  const preCacheData = async (data) => {
+    const usernames = Array.from(
+      new Set(allValues('username', data).concat(allValues('sponsor', data)))
+    );
+    const emails = Array.from(new Set(allValues('email', data)));
+    const results = await findMatchingUsers(
+      ['username', 'email'],
+      [...usernames, ...emails]
+    );
+    setCachedData(results || []);
+  };
 
   const handleOpenDialog = (e) => {
     // Note that the ref is set async, so it might be null at some point
@@ -33,6 +58,7 @@ export default function Importer(props) {
     const extractedData = data
       .map((d) => d.data)
       .filter((d) => Object.values(d).some((val) => val !== '')); // ignore any blank lines
+    await preCacheData(extractedData); // @TODO THis is a side-effect so probably should be handled via a useEffect
     const [newData, newErrors] = await validateData(extractedData);
     setShowModal(true);
     setImportedData(newData);
@@ -86,8 +112,9 @@ export default function Importer(props) {
 
   // Called when the user clicks on 'Submit' in the modal. Revalidate all the data. If there are any issues, update the data
   // and highligt any relevant cells. If no issues, update the data, create any new users, and invite them to the course.
-  const handleOnSubmit = (data) => {
+  const handleOnSubmit = async (data) => {
     if (validationErrors.length > 0) {
+      await preCacheData(data);
       validateData(data).then(([newData, newValidationErrors]) => {
         setImportedData(newData);
         setValidationErrors(newValidationErrors);
@@ -224,10 +251,10 @@ export default function Importer(props) {
 
     // 5. handle validating that any specified sponsors must be existing users
     if (d.sponsor && d.sponsor !== '') {
-      const { _id: sponsor_id } = await validateExistingField(
+      const { _id: sponsor_id } = (await validateExistingField(
         'username',
         d.sponsor
-      );
+      )) || { _id: undefined };
       if (sponsor_id)
         setSponsors((prevState) => ({
           ...prevState.sponsors,
@@ -446,3 +473,8 @@ export default function Importer(props) {
     </Fragment>
   );
 }
+
+Importer.propTypes = {
+  user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
+  onImport: PropTypes.func.isRequired,
+};
