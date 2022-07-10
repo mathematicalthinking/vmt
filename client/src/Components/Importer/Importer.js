@@ -14,10 +14,13 @@ export default function Importer(props) {
   const [validationErrors, setValidationErrors] = React.useState([]);
   const [sponsors, setSponsors] = React.useState({});
   const buttonRef = React.createRef();
-  const [cachedData, setCachedData] = React.useState([]);
+  // Interestingly enough, when I made cachedData a state variable, it didn't update in time for the validation.
+  const cachedData = React.useRef([]);
 
   const validateExistingField = (field, value) => {
-    return Promise.resolve(cachedData.find((elt) => elt[field] === value)); // using a Promise to minimize code changes for now
+    return Promise.resolve(
+      cachedData.current.find((elt) => elt[field] === value)
+    ); // using a Promise to minimize code changes for now
   };
 
   const allValues = (field, data) =>
@@ -36,7 +39,7 @@ export default function Importer(props) {
       ['username', 'email'],
       [...usernames, ...emails]
     );
-    setCachedData(results || []);
+    cachedData.current = results || [];
   };
 
   const handleOpenDialog = (e) => {
@@ -50,7 +53,6 @@ export default function Importer(props) {
     const extractedData = data
       .map((d) => d.data)
       .filter((d) => Object.values(d).some((val) => val !== '')); // ignore any blank lines
-    await preCacheData(extractedData); // @TODO THis is a side-effect so probably should be handled via a useEffect
     const [newData, newErrors] = await validateData(extractedData);
     setShowModal(true);
     setImportedData(newData);
@@ -106,7 +108,6 @@ export default function Importer(props) {
   // and highligt any relevant cells. If no issues, update the data, create any new users, and invite them to the course.
   const handleOnSubmit = async (data) => {
     if (validationErrors.length > 0) {
-      await preCacheData(data);
       validateData(data).then(([newData, newValidationErrors]) => {
         setImportedData(newData);
         setValidationErrors(newValidationErrors);
@@ -168,11 +169,11 @@ export default function Importer(props) {
         { rowIndex, property: 'email' }
       );
       if (userFromUsername)
-        d.comment += `Existing user ${d.username} should have email ${
+        d.comment += `* Existing user ${d.username} should have email ${
           userFromUsername.email !== '' ? userFromUsername.email : '<blank>'
-        }. `;
+        }\n`;
       if (userFromEmail)
-        d.comment += `Existing email ${d.email} should be for user ${userFromEmail.username}. `;
+        d.comment += `* Existing email ${d.email} should be for user ${userFromEmail.username}\n`;
     }
 
     // 2. handle validating the structure of usernames and emails
@@ -189,12 +190,13 @@ export default function Importer(props) {
     const [usernameError, validatedUsername] = usernameResults;
 
     if (emailError) {
-      d.comment += 'Email is incorrectly formatted or has illegal characters. ';
+      d.comment +=
+        '* Email is incorrectly formatted or has illegal characters\n';
       newValidationErrors.push({ rowIndex, property: 'email' });
     }
 
     if (usernameError) {
-      d.comment += 'Username has illegal characters or is too long. ';
+      d.comment += '* Username has illegal characters or is too long\n ';
       newValidationErrors.push({ rowIndex, property: 'username' });
     }
 
@@ -211,18 +213,18 @@ export default function Importer(props) {
     });
 
     if (emailDup > 1) {
-      d.comment += 'Email duplicated in list. ';
+      d.comment += '* Email duplicated in list\n';
       newValidationErrors.push({ rowIndex, property: 'email' });
     }
 
     if (usernameDup > 1) {
-      d.comment += 'Username duplicated in list. ';
+      d.comment += '* Username duplicated in list\n';
       newValidationErrors.push({ rowIndex, property: 'username' });
     }
 
     // 4. handle validating that new users must have first and last names specified
     if (isNewUser && (!d.firstName || !d.lastName)) {
-      d.comment += 'First and last names are required. ';
+      d.comment += '* First and last names are required\n ';
       if (!d.firstName)
         newValidationErrors.push({ rowIndex, property: 'firstName' });
       if (!d.lastName)
@@ -241,14 +243,14 @@ export default function Importer(props) {
           [d.username]: sponsor_id,
         }));
       else {
-        d.comment += 'No such sponsor username. ';
+        d.comment += "* Sponsor's username does not exist\n";
         newValidationErrors.push({ rowIndex, property: 'sponsor' });
       }
     }
 
     // 6. handle validating that a blank email cannot be a gmail account
     if (d.email === '' && d.isGmail) {
-      d.comment += 'Google login may only be used if an email is specified. ';
+      d.comment += '* Google login may only be used if an email is specified\n';
       newValidationErrors.push(
         { rowIndex, property: 'email' },
         { rowIndex, property: 'isGmail' }
@@ -266,6 +268,7 @@ export default function Importer(props) {
   //
   // The rows argument is optional. If not given, goes through all data
   const validateData = async (data, rows) => {
+    await preCacheData(data);
     // first check for validation issues on all requested rows of the provided data, in parallel.
     const validatedInfo = await Promise.all(
       rows === undefined
@@ -350,7 +353,7 @@ export default function Importer(props) {
           {
             property: 'comment',
             header: 'Comments (* req)',
-            style: { color: 'red' },
+            style: { color: 'red', textAlign: 'left', whiteSpace: 'pre-wrap' },
             readOnly: true,
           },
         ]}
