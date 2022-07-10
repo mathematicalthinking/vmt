@@ -101,16 +101,22 @@
   position: sticky;
 
   /* Displayed on top of other rows when scrolling */
-  /* z-index: 9990; */
+  z-index: 90;
   /* reduce column size w/Participants' names */
   width: 150px;
+}
+
+.Caption {
+  padding: 0.5em;
+  font-size: 1.5rem;
+  position: sticky;
 }
 
 .LockedTop {
   background-color: #ddd;
   position: sticky;
   top: 0;
-  /* z-index: 9999;    */
+  z-index: 100;   
 }
 
 .LockedBottom {
@@ -163,14 +169,13 @@
 }
 
 .RevertName {
-    height: 1rem;
-    padding: 1rem 0 0 1rem;
+  height: 1rem;
+  padding: 1rem 0 0 1rem;
 }
 
 .RevertName:hover {
   cursor: pointer;
 }
-
 
 .TopSection {
   width: 100%;
@@ -185,14 +190,15 @@
 }
 
 .minus {
-  padding: 5px
+  padding: 5px;
 }
 
 .plus {
   padding: 5px;
 }
 
-.minus:hover, .plus:hover {
+.minus:hover,
+.plus:hover {
   color: #999;
   cursor: pointer;
 }

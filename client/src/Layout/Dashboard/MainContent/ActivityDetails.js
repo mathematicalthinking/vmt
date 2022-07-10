@@ -49,7 +49,7 @@ class ActivityDetails extends Component {
       (assignment) => activity._id === assignment.roomDrafts[0].activity
     );
 
-    const createNew = { name: 'Create New Grouping', roomDrafts: [] };
+    const createNew = { name: 'New Grouping', roomDrafts: [] };
     previousAssignments.unshift(createNew);
     this.setState({ editableRoomAssignOptions, previousAssignments });
   }

@@ -23,7 +23,7 @@ const AssignmentMatrix = (props) => {
     sortParticipants,
   } = props;
 
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
 
   const date = dueDate ? new Date(dueDate) : new Date();
   const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
@@ -118,7 +118,12 @@ const AssignmentMatrix = (props) => {
 
   const handleAddParticipants = () => {
     return (
-      <BigModal show={showModal} closeModal={() => {setShowModal(false)}}>
+      <BigModal
+        show={showModal}
+        closeModal={() => {
+          setShowModal(false);
+        }}
+      >
         <Aux>
           <NewStep1
             participants={list}
@@ -140,6 +145,7 @@ const AssignmentMatrix = (props) => {
       {showModal && handleAddParticipants()}
       <div className={classes.AssignmentMatrix}>
         <table className={classes.Table}>
+          <caption className={classes.Caption}>Number of Rooms</caption>
           <thead>
             <tr className={classes.LockedTop}>
               <th className={classes.LockedColumn}>
