@@ -1,8 +1,11 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-console */
 import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import testConfig from './Tools/test.json';
 import WSPLoader from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
+import API from '../../utils/apiRequests';
 import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 
@@ -56,6 +59,33 @@ const WebSketch = (props) => {
     return `${username} ${actionText} ${actionDetailText}`;
   };
 
+  const putState = () => {
+    const { tab, temp, updateRoomTab, room } = props;
+    const { _id } = tab;
+    console.log('Sketch? ', !!$sketch, ' document: ', !!sketchDoc);
+    if (sketchDoc) {
+      // grab current state-event list
+      // json returned from $('#sketch').data('document').getCurrentSpecObject()
+      let responseData = sketchDoc.getCurrentSpecObject();
+      console.log('Response data: ', responseData);
+
+      // start creating a string-based object to update the tab
+      const updateObject = {
+        currentStateBase64: JSON.stringify(responseData),
+      };
+      // get and add the current screen
+      // if (calculatorInst.current) {
+      //   updateObject.currentScreen = getCurrentScreen();
+      // }
+      API.put('tabs', _id, updateObject)
+        .then(() => (temp ? {} : updateRoomTab(room._id, _id, updateObject)))
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
+    }
+  };
+
   // handles a change event when user is in control
   const handleEventData = (updates, type) => {
     if (initializing) return;
@@ -80,7 +110,7 @@ const WebSketch = (props) => {
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
       resetControlTimer();
-      // putState();  // save to db?
+      putState(); // save to db?
       // use new json config with $('#sketch').data('document').getCurrentSpecObject()?
     }
     receivingData = false;
@@ -309,13 +339,18 @@ const WebSketch = (props) => {
 
   const loadSketch = () => {
     const { tab } = props;
-    const config = tab.ggbFile
+    let config = tab.ggbFile
       ? JSON.parse(Buffer.from(tab.ggbFile, 'base64'))
       : testConfig;
     const $ = window.jQuery;
     if (!$) {
       console.warn('No jQuerious');
       return;
+    }
+    if (tab.currentStateBase64 && tab.currentStateBase64 !== '{}') {
+      // existing event data on tab
+      const { currentStateBase64 } = tab;
+      config = JSON.parse(currentStateBase64);
     }
     $('#sketch').WSP('loadSketch', {
       'data-sourceDocument': config,
