@@ -26,8 +26,8 @@ const NewMakeRooms = (props) => {
   const [roomName, setRoomName] = useState(
     `${activity.name} (${new Date().toLocaleDateString()})`
   );
-  const [roomNum, setRoomNum] = useState(Math.ceil(participants.length / 3));
-  const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
+  const [roomNum, _setRoomNum] = useState(Math.ceil(participants.length / 3));
+  const [participantsPerRoom, _setParticipantsPerRoom] = useState(3);
   const [selectedParticipants, setSelectedParticipants] = useState([]);
   const [roomDrafts, setRoomDrafts] = useState([]);
   const [revertRoomNums, setReverRoomNums] = useState(false);
@@ -57,31 +57,29 @@ const NewMakeRooms = (props) => {
     }
   }, [selectedAssignment]);
 
-  useEffect(() => {
-    if (revertRoomNums) {
-      const numRooms = Math.ceil(
-        filterFacilitators(selectedParticipants).length / participantsPerRoom
-      );
-      setRoomNum(numRooms);
-      setReverRoomNums(false);
-    }
-  }, [participantsPerRoom]);
+  // useEffect(() => {
+  //   if (revertRoomNums) {
+  //     const numRooms = Math.ceil(
+  //       filterFacilitators(selectedParticipants).length / participantsPerRoom
+  //     );
+  //      setRoomNum(numRooms);
+  //     setReverRoomNums(false);
+  //   }
+  // }, [participantsPerRoom]);
 
-  useEffect(() => {
-    const numRooms = Math.ceil(
-      filterFacilitators(selectedParticipants).length / roomNum
-    );
-    if (!numRooms) setParticipantsPerRoom(1);
-    else setParticipantsPerRoom(numRooms);
-  }, [roomNum]);
+  // useEffect(() => {
+  //   const numRooms = Math.ceil(
+  //     filterFacilitators(selectedParticipants).length / roomNum
+  //   );
+  //    setParticipantsPerRoom(numRooms);
+  // }, [roomNum]);
 
   useEffect(() => {
     const divisor = participantsPerRoom ? participantsPerRoom : 3;
     const numRooms = Math.ceil(
       filterFacilitators(selectedParticipants).length / divisor
     );
-    if (!numRooms) setRoomNum(1);
-    else setRoomNum(numRooms);
+    setRoomNum(numRooms);
   }, [selectedParticipants]);
 
   /**
@@ -97,6 +95,20 @@ const NewMakeRooms = (props) => {
    * addMember / selectParticipant -> ??? ->
    * what will this look like ???
    */
+
+  const setParticipantsPerRoom = (num) => {
+    if (num == 0 || isNaN(num)) _setParticipantsPerRoom(1);
+    else _setParticipantsPerRoom(num);
+  };
+
+  const setRoomNum = (num) => {
+    // change ppr
+    if (num == 0 || isNaN(num)) {
+      _setRoomNum(1);
+    } else {
+      _setRoomNum(num);
+    }
+  };
 
   const resetRoomDrafts = (revertParticipantsPerRoom = false) => {
     // reset to default numbers of participantsPerRoom & roomNum
@@ -118,7 +130,7 @@ const NewMakeRooms = (props) => {
     const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
     let roomList = [];
 
-    for (let i = 0; i < roomNum; i++) {
+    for (let i = 0; i < facilitators.length; i++) {
       const currentRoom = { ...newRoom };
       currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
       currentRoom.members = [...facilitators];
@@ -208,21 +220,13 @@ const NewMakeRooms = (props) => {
       setParticipantsPerRoom(1);
     } else if (numberOfParticipants > selectedParticipants.length) {
       setParticipantsPerRoom(selectedParticipants.length);
+      const numRooms = Math.ceil(
+        filterFacilitators(selectedParticipants).length / numberOfParticipants
+      );
+      setRoomNum(numRooms);
     } else {
       setReverRoomNums(true);
       setParticipantsPerRoom(numberOfParticipants);
-    }
-  };
-
-  const setRoomNumber = (number) => {
-    if (number > 0) {
-      const numRooms = Math.ceil(
-        filterFacilitators(selectedParticipants).length / participantsPerRoom
-      );
-      setRoomNum(numRooms);
-      // setParticipantsPerRoom(1);
-    } else {
-      setRoomNum(number);
     }
   };
 
@@ -298,7 +302,7 @@ const NewMakeRooms = (props) => {
     <AssignmentMatrix
       list={selectedParticipants}
       updateList={setSelectedParticipants}
-      requiredParticipants={selectedParticipants.filter(
+      requiredParticipants={participants.filter(
         (mem) => mem.role === 'facilitator'
       )}
       select={updateParticipants}

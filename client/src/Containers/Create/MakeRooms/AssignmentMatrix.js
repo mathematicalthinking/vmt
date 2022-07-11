@@ -35,14 +35,13 @@ const AssignmentMatrix = (props) => {
   };
 
   useEffect(() => {
-    const facilitators = list.filter((member) => member.role === 'facilitator');
     let roomList = [...roomDrafts];
     if (roomNum > roomDrafts.length) {
       for (let i = roomDrafts.length; i < roomNum; i++) {
         const currentRoom = { ...newRoom };
         currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
         currentRoom.course = courseId;
-        currentRoom.members = [...facilitators];
+        currentRoom.members = [...requiredParticipants];
         roomList = [...roomList, currentRoom];
       }
     } else if (roomNum !== roomDrafts.length) {
@@ -79,7 +78,7 @@ const AssignmentMatrix = (props) => {
       dueDate,
       settings: { displayAliasedUsernames: aliasMode },
       name: `${roomName}: ${index + 1}`,
-      members: list.filter((member) => member.role === 'facilitator'),
+      members: [...requiredParticipants],
     };
 
     for (let i = index; i < roomList.length; i++) {
@@ -164,16 +163,6 @@ const AssignmentMatrix = (props) => {
                     id={`room-${i}`}
                   >
                     {i + 1}
-                    {/* <TextInput
-                    type="textarea"
-                    light
-                    size="14"
-                    value={room.name}
-                    name={`roomName:${i}`}
-                    change={(event) => {
-                      modRoomName(event);
-                    }}
-                  /> */}
                   </th>
                 );
               })}
@@ -227,7 +216,7 @@ const AssignmentMatrix = (props) => {
             {canDeleteRooms && (
               <tr className={`${classes.Participant} ${classes.LockedBottom}`}>
                 <td key="room-delete-row" className={classes.LockedColumn}>
-                  <span>Add / Delete?</span>
+                  <span>Add / Delete</span>
                 </td>
                 {roomDrafts.map((room, i) => {
                   const index = i; // defeat the linter
