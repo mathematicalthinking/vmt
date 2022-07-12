@@ -57,23 +57,6 @@ const NewMakeRooms = (props) => {
     }
   }, [selectedAssignment]);
 
-  // useEffect(() => {
-  //   if (revertRoomNums) {
-  //     const numRooms = Math.ceil(
-  //       filterFacilitators(selectedParticipants).length / participantsPerRoom
-  //     );
-  //      setRoomNum(numRooms);
-  //     setReverRoomNums(false);
-  //   }
-  // }, [participantsPerRoom]);
-
-  // useEffect(() => {
-  //   const numRooms = Math.ceil(
-  //     filterFacilitators(selectedParticipants).length / roomNum
-  //   );
-  //    setParticipantsPerRoom(numRooms);
-  // }, [roomNum]);
-
   useEffect(() => {
     const divisor = participantsPerRoom ? participantsPerRoom : 3;
     const numRooms = Math.ceil(
@@ -97,13 +80,12 @@ const NewMakeRooms = (props) => {
    */
 
   const setParticipantsPerRoom = (num) => {
-    if (num == 0 || isNaN(num)) _setParticipantsPerRoom(1);
+    if (num === 0 || isNaN(num)) _setParticipantsPerRoom(1);
     else _setParticipantsPerRoom(num);
   };
 
   const setRoomNum = (num) => {
-    // change ppr
-    if (num == 0 || isNaN(num)) {
+    if (num === 0 || isNaN(num)) {
       _setRoomNum(1);
     } else {
       _setRoomNum(num);
@@ -213,6 +195,7 @@ const NewMakeRooms = (props) => {
 
   const updateParticipants = (selectionMatrix) => {
     setRoomDrafts(selectionMatrix);
+    setRoomNum(selectionMatrix.length);
   };
 
   const setNumber = (numberOfParticipants) => {
@@ -276,8 +259,6 @@ const NewMakeRooms = (props) => {
       }
       currentRoom.members = members;
       currentRoom.name = `${roomName}: ${i + 1}`;
-      currentRoom.activity = roomDrafts[i].activity;
-      currentRoom.course = roomDrafts[i].course;
       roomsToCreate.push(currentRoom);
     }
     if (roomDrafts.length === 0) {
@@ -307,12 +288,11 @@ const NewMakeRooms = (props) => {
       )}
       select={updateParticipants}
       roomNum={parseInt(roomNum, 10)} // ensure a number is passed
-      setRoomNum={setRoomNum}
       activity={activity}
       courseId={course ? course._id : null}
       userId={userId}
       roomDrafts={roomDrafts}
-      canDeleteRooms={true}
+      canDeleteRooms
       aliasMode={aliasMode}
       roomName={roomName}
       sortParticipants={sortParticipants}

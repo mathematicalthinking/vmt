@@ -11,42 +11,24 @@ const AssignmentMatrix = (props) => {
     requiredParticipants,
     select,
     roomNum,
-    setRoomNum,
-    activity,
     courseId,
-    dueDate,
     userId,
     roomDrafts,
     canDeleteRooms,
-    aliasMode,
-    roomName,
     sortParticipants,
   } = props;
 
   const [showModal, setShowModal] = useState(false);
 
-  const date = dueDate ? new Date(dueDate) : new Date();
-  const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
-
-  const newRoom = {
-    activity: activity._id,
-    name: '',
-    members: [],
-  };
-
   useEffect(() => {
-    let roomList = [...roomDrafts];
-    if (roomNum > roomDrafts.length) {
-      for (let i = roomDrafts.length; i < roomNum; i++) {
-        const currentRoom = { ...newRoom };
-        currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
-        currentRoom.course = courseId;
-        currentRoom.members = [...requiredParticipants];
-        roomList = [...roomList, currentRoom];
-      }
-    } else if (roomNum !== roomDrafts.length) {
-      roomList.splice(roomNum - roomDrafts.length);
-    }
+    const roomList =
+      roomNum > roomDrafts.length
+        ? [...roomDrafts].concat(
+            Array(roomNum - roomDrafts.length).fill({
+              members: [...requiredParticipants],
+            })
+          )
+        : [...roomDrafts].splice(roomNum - roomDrafts.length);
     select(roomList);
   }, [roomNum]);
 
@@ -54,43 +36,20 @@ const AssignmentMatrix = (props) => {
     if (roomDrafts.length <= 1) return;
     const roomList = [...roomDrafts];
     roomList.splice(index, 1);
-    for (let i = index; i < roomList.length; i++) {
-      roomList[i].name = `${roomName}: ${i + 1}`;
-    }
-    setRoomNum(roomList.length);
     select(roomList);
   };
 
   const addRoom = (index) => {
-    if (roomDrafts.length >= list.length) return;
     const roomList = [...roomDrafts];
     const newRoom = {
-      activity: activity._id,
-      description: activity.description,
-      roomType: activity.roomType,
-      desmosLink: activity.desmosLink,
-      ggbFile: activity.ggbFile,
-      instructions: activity.instructions,
-      image: activity.image,
-      tabs: activity.tabs,
-      creator: userId,
-      course: courseId,
-      dueDate,
-      settings: { displayAliasedUsernames: aliasMode },
-      name: `${roomName}: ${index + 1}`,
       members: [...requiredParticipants],
     };
-
-    for (let i = index; i < roomList.length; i++) {
-      roomList[i].name = `${roomName}: ${i + 2}`;
-    }
     roomList.splice(index, 0, newRoom);
-    setRoomNum(roomList.length);
     select(roomList);
   };
 
   const selectParticipant = (event, data) => {
-    const roomIndex = data.roomIndex;
+    const { roomIndex } = data;
     const user = {
       role: data.participant.role || 'participant',
       _id: data.participant.user._id,
@@ -153,6 +112,9 @@ const AssignmentMatrix = (props) => {
                   className={`fas fa-solid fa-plus ${classes.plus}`}
                   title="Add Participants"
                   onClick={() => setShowModal(true)}
+                  onKeyDown={() => setShowModal(true)}
+                  tabIndex={-1}
+                  role="button"
                 />
               </th>
               {roomDrafts.map((room, i) => {
@@ -222,7 +184,7 @@ const AssignmentMatrix = (props) => {
                   const index = i; // defeat the linter
                   return (
                     <td
-                      key={`room-${room.name}${index}-delete`}
+                      key={`room-${index}-delete`}
                       className={classes.CellAction}
                     >
                       <i
@@ -231,6 +193,9 @@ const AssignmentMatrix = (props) => {
                         disabled={roomDrafts.length >= list.length}
                         data-testid={`addRoom-${i + 1}`}
                         onClick={() => addRoom(i)}
+                        onKeyDown={() => addRoom(i)}
+                        tabIndex={-1}
+                        role="button"
                       />
                       <i
                         className={`fas fa-solid fa-minus ${classes.minus}`}
@@ -238,6 +203,9 @@ const AssignmentMatrix = (props) => {
                         disabled={roomDrafts.length <= 1}
                         data-testid={`deleteRoom-${i + 1}`}
                         onClick={() => deleteRoom(i)}
+                        onKeyDown={() => deleteRoom(i)}
+                        tabIndex={-1}
+                        role="button"
                       />
                     </td>
                   );
@@ -258,7 +226,6 @@ AssignmentMatrix.propTypes = {
   roomNum: PropTypes.number,
   activity: PropTypes.shape({}),
   courseId: PropTypes.string,
-  dueDate: PropTypes.instanceOf(Date),
   userId: PropTypes.string.isRequired,
   roomDrafts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   canDeleteRooms: PropTypes.bool,
@@ -268,7 +235,6 @@ AssignmentMatrix.defaultProps = {
   activity: null,
   courseId: '',
   roomNum: 1,
-  dueDate: null,
   canDeleteRooms: true,
 };
 
