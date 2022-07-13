@@ -9,122 +9,83 @@ const NewMakeRooms = (props) => {
   const {
     activity,
     course = null,
-    match,
-    rooms,
-    participants = [],
+    participants: initialParticipants = [],
     selectedAssignment = null,
     userId,
     close,
   } = props;
 
-  const dispatch = useDispatch();
-  const history = useHistory();
+  const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
+  const history = useHistory(); // Elsewhere we use 'withRouter()'; this is the modern approach
 
   const [dueDate, setDueDate] = useState('');
   const [aliasMode, setAliasMode] = useState(false);
-  const [error, setError] = useState(null);
   const [roomName, setRoomName] = useState(
     `${activity.name} (${new Date().toLocaleDateString()})`
   );
-  const [roomNum, _setRoomNum] = useState(Math.ceil(participants.length / 3));
-  const [participantsPerRoom, _setParticipantsPerRoom] = useState(3);
-  const [selectedParticipants, setSelectedParticipants] = useState([]);
+  const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
+  const [participants, setParticipants] = useState(initialParticipants);
   const [roomDrafts, setRoomDrafts] = useState([]);
-  const [revertRoomNums, setReverRoomNums] = useState(false);
 
+  // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
+  // changed props.  However, the correct way of detecting and responding to a changed state is to act when the
+  // change-state function is called.
+
+  // if the initial list of participants changes, reset the participant list, the number of rooms, and the PPR display
   useEffect(() => {
-    setSelectedParticipants(sortParticipants(participants));
-    if (selectedAssignment) {
-      setAliasMode(selectedAssignment.aliasMode || false);
-      setDueDate(selectedAssignment.dueDate || '');
-    }
-  }, []);
+    setParticipants(sortParticipants(initialParticipants));
+    setRoomNum(
+      Math.max(Math.ceil(filterFacilitators(initialParticipants).length / 3), 1)
+    );
+    setParticipantsPerRoom(3);
+  }, [initialParticipants]);
 
+  // if the selected assignment changes, reset the display
   useEffect(() => {
     if (
       selectedAssignment &&
       Array.isArray(selectedAssignment.value) &&
       selectedAssignment.value.length
     ) {
-      setRoomNum(selectedAssignment.value.length);
+      setRoomDrafts(selectedAssignment.value);
       setAliasMode(selectedAssignment.aliasMode);
       setDueDate(selectedAssignment.dueDate || '');
-    } else {
-      const numRooms = Math.ceil(
-        filterFacilitators(selectedParticipants).length / participantsPerRoom
+      setParticipantsPerRoom(
+        Math.max(
+          Math.ceil(
+            filterFacilitators(participants).length /
+              selectedAssignment.value.length
+          ),
+          1
+        )
       );
-      setRoomNum(numRooms);
+    } else {
+      setRoomNum(
+        Math.max(Math.ceil(filterFacilitators(participants).length / 3), 1)
+      );
     }
   }, [selectedAssignment]);
 
-  useEffect(() => {
-    const divisor = participantsPerRoom ? participantsPerRoom : 3;
-    const numRooms = Math.ceil(
-      filterFacilitators(selectedParticipants).length / divisor
-    );
-    setRoomNum(numRooms);
-  }, [selectedParticipants]);
-
-  /**
-   * FUNTIONS NEEDED:
-   * submit
-   * shuffleParticipants ✅
-   * select / setParticipants ✅
-   * setDueDate / setAlias mode ✅
-   * setNumberOfParticipantsPerRoom ✅
-   * setNumberOfRooms -> add/delete rooms?
-   * setRoomName ✅
-   *
-   * addMember / selectParticipant -> ??? ->
-   * what will this look like ???
-   */
-
-  const setParticipantsPerRoom = (num) => {
-    if (num === 0 || isNaN(num)) _setParticipantsPerRoom(1);
-    else _setParticipantsPerRoom(num);
-  };
-
-  const setRoomNum = (num) => {
-    if (num === 0 || isNaN(num)) {
-      _setRoomNum(1);
-    } else {
-      _setRoomNum(num);
-    }
-  };
-
-  const resetRoomDrafts = (revertParticipantsPerRoom = false) => {
-    // reset to default numbers of participantsPerRoom & roomNum
-    if (revertParticipantsPerRoom) {
-      setReverRoomNums(true);
-      // setNumber(facilitators.length);
-    }
-
-    const newRoom = {
-      activity: activity._id,
-      course: course ? course._id : null,
-      name: '',
-      members: [],
-    };
-    const facilitators = participants.filter(
-      (member) => member.role === 'facilitator'
-    );
-    const date = dueDate ? new Date(dueDate) : new Date();
-    const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
-    let roomList = [];
-
-    for (let i = 0; i < facilitators.length; i++) {
-      const currentRoom = { ...newRoom };
-      currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
-      currentRoom.members = [...facilitators];
-      roomList = [...roomList, currentRoom];
-    }
-
-    updateParticipants(roomList);
+  const setRoomNum = (roomNum) => {
+    if (roomNum === roomDrafts.length) return;
+    const roomList =
+      roomNum > roomDrafts.length
+        ? roomDrafts.concat(
+            Array(roomNum - roomDrafts.length).fill({
+              members: [
+                ...initialParticipants.filter(
+                  (mem) => mem.role === 'facilitator'
+                ),
+              ],
+            })
+          )
+        : roomDrafts.slice(0, roomNum - roomDrafts.length);
+    setRoomDrafts(roomList);
   };
 
   const shuffleParticipants = () => {
     const updatedParticipants = shuffleUserList(
-      restructureMemberlist(filterFacilitators(selectedParticipants))
+      restructureMemberlist(filterFacilitators(participants))
     );
 
     const numRooms = Math.ceil(
@@ -195,22 +156,26 @@ const NewMakeRooms = (props) => {
 
   const updateParticipants = (selectionMatrix) => {
     setRoomDrafts(selectionMatrix);
-    setRoomNum(selectionMatrix.length);
+    setParticipantsPerRoom(
+      Math.ceil(
+        filterFacilitators(participants).length / selectionMatrix.length
+      )
+    );
   };
 
   const setNumber = (numberOfParticipants) => {
-    if (numberOfParticipants < 1) {
-      setParticipantsPerRoom(1);
-    } else if (numberOfParticipants > selectedParticipants.length) {
-      setParticipantsPerRoom(selectedParticipants.length);
-      const numRooms = Math.ceil(
-        filterFacilitators(selectedParticipants).length / numberOfParticipants
-      );
-      setRoomNum(numRooms);
-    } else {
-      setReverRoomNums(true);
-      setParticipantsPerRoom(numberOfParticipants);
-    }
+    console.log('participants length', filterFacilitators(participants).length);
+    // Make sure that number of participants is between 1 and the number of participants
+    const newNumberOfParticipants = Math.max(
+      Math.min(numberOfParticipants, filterFacilitators(participants).length),
+      1
+    );
+    setParticipantsPerRoom(newNumberOfParticipants);
+    const numRooms = Math.ceil(
+      filterFacilitators(participants).length / newNumberOfParticipants
+    );
+    console.log('number of rooms', numRooms);
+    setRoomNum(numRooms);
   };
 
   const submit = () => {
@@ -264,11 +229,8 @@ const NewMakeRooms = (props) => {
     if (roomDrafts.length === 0) {
       // create a room with just the facilitator
       const currentRoom = { ...newRoom };
-      const members = [];
-      members.push({ user: userId, role: 'facilitator' });
-      currentRoom.members = members;
-      // //   currentRoom.name = `${activity.name} room copy`;
-      currentRoom.name = `${roomName}`;
+      currentRoom.members = [{ user: userId, role: 'facilitator' }];
+      currentRoom.name = roomName;
       roomsToCreate.push(currentRoom);
     }
     dispatch(createGrouping(roomsToCreate, activity, course));
@@ -281,44 +243,34 @@ const NewMakeRooms = (props) => {
 
   const assignmentMatrix = (
     <AssignmentMatrix
-      list={selectedParticipants}
-      updateList={setSelectedParticipants}
-      requiredParticipants={participants.filter(
+      list={participants}
+      updateList={setParticipants}
+      requiredParticipants={initialParticipants.filter(
         (mem) => mem.role === 'facilitator'
       )}
       select={updateParticipants}
-      roomNum={parseInt(roomNum, 10)} // ensure a number is passed
-      activity={activity}
       courseId={course ? course._id : null}
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms
-      aliasMode={aliasMode}
-      roomName={roomName}
       sortParticipants={sortParticipants}
     />
   );
 
   return (
     <AssignRooms
-      activity={activity}
       aliasMode={aliasMode}
-      assignmentMatrix={assignmentMatrix}
-      dueDate={dueDate}
-      resetRoomDrafts={resetRoomDrafts}
-      roomName={roomName}
-      participantsPerRoom={participantsPerRoom}
-      submit={submit}
-      setNumber={setNumber}
-      setParticipantsPerRoom={setParticipantsPerRoom}
-      setRoomNum={setRoomNum}
-      shuffleParticipants={shuffleParticipants}
-      select={updateParticipants}
-      selectedAssignment={selectedAssignment}
       setAliasMode={setAliasMode}
+      dueDate={dueDate}
       setDueDate={setDueDate}
+      roomName={roomName}
       setRoomName={setRoomName}
-      close={close}
+      participantsPerRoom={participantsPerRoom}
+      setParticipantsPerRoom={setNumber}
+      assignmentMatrix={assignmentMatrix}
+      onSubmit={submit}
+      onShuffle={shuffleParticipants}
+      onCancel={close}
     />
   );
 };

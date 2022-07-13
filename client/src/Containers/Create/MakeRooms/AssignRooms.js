@@ -1,53 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { TextInput, Button, Checkbox } from 'Components';
-import Select from 'react-select';
 import classes from './makeRooms.css';
 
 const AssignRooms = (props) => {
   const {
     aliasMode,
-    assignmentMatrix,
-    dueDate,
-    close,
-    error,
-    resetRoomDrafts,
-    roomName,
-    submit,
-    participantsPerRoom,
-    select,
-    selectedAssignment = null,
     setAliasMode,
+    dueDate,
     setDueDate,
-    setNumber,
+    roomName,
     setRoomName,
-    setRoomNum,
+    participantsPerRoom,
     setParticipantsPerRoom,
-    shuffleParticipants,
+    assignmentMatrix,
+    onSubmit,
+    onShuffle,
+    onCancel,
   } = props;
 
   const [defaultRoomName, setDefaultRoomName] = useState(roomName);
   const [showRevertButton, setShowRevertButton] = useState(false);
-
-  useEffect(() => {
-    if (
-      selectedAssignment &&
-      selectedAssignment.value &&
-      selectedAssignment.value[0] &&
-      selectedAssignment.value[0].members
-    ) {
-      const room1Members = selectedAssignment.value[0].members;
-      const nonFacilitators = room1Members.filter(
-        (mem) => mem.role !== 'facilitator'
-      );
-      const numberOfParticipants = nonFacilitators.length;
-      setNumber(numberOfParticipants);
-      select(selectedAssignment.value);
-    } else {
-      // reset roomDrafts to only have facilitators selected
-      // and reset participantsPerRoom & roomNum to defaults
-      resetRoomDrafts(true);
-    }
-  }, [selectedAssignment]);
 
   useEffect(() => {
     // check if revert to defaultRoomName button needs to be displayed
@@ -56,7 +28,6 @@ const AssignRooms = (props) => {
 
   const restoreNameClick = () => setRoomName(defaultRoomName);
   const restoreNameKeyDown = (event) => {
-    const { defaultRoomName } = this.state;
     event.preventDefault();
     // 13 === "Enter" || 32 === "Space"
     if (event.keyCode === 13 || event.keyCode === 32) {
@@ -64,14 +35,9 @@ const AssignRooms = (props) => {
     }
   };
 
-  const handleShuffleClick = () => {
-    // this.resetAssignmentSelection();
-    shuffleParticipants();
-  };
-
   const handleParticipantsPerRoomChange = (event) => {
     const numberOfParticipants = parseInt(event.target.value.trim(), 10);
-    setNumber(numberOfParticipants);
+    setParticipantsPerRoom(numberOfParticipants);
   };
 
   const date = assignmentMatrix.dueDate
@@ -141,26 +107,18 @@ const AssignRooms = (props) => {
         <div className={classes.Button}>
           <Button
             m={5}
-            click={close} // change the react-select back to defaulValues
+            click={onCancel} // change the react-select back to defaulValues
             data-testid="assign-rooms"
             disabled={roomName === ''}
           >
             Cancel
           </Button>
-          <Button m={5} click={handleShuffleClick} data-testid="random-shuffle">
+          <Button m={5} click={onShuffle} data-testid="random-shuffle">
             Shuffle
           </Button>
           <Button
             m={5}
-            click={() => resetRoomDrafts()}
-            data-testid="clear-rooms"
-            disabled={roomName === ''}
-          >
-            Clear
-          </Button>
-          <Button
-            m={5}
-            click={submit}
+            click={onSubmit}
             data-testid="assign-rooms"
             disabled={roomName === ''}
           >

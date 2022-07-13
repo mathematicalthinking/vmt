@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Aux, BigModal } from 'Components';
 import NewStep1 from './NewStep1';
@@ -6,31 +6,21 @@ import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
   const {
-    list,
-    updateList,
+    list, // should be 'allParticipants'
     requiredParticipants,
-    select,
-    roomNum,
-    courseId,
-    userId,
     roomDrafts,
-    canDeleteRooms,
-    sortParticipants,
+    select, // should be 'setRoomDrafts'
+    canDeleteRooms, // should be 'canAddDeleteRooms'
+    updateList, // won't be needed when AddParticipants refactored out
+    courseId, // won't be needed when AddParticipants refactored out
+    userId, // won't be needed when AddParticipants refactored out
+    sortParticipants, // won't be needed when AddParticipants refactored out
   } = props;
 
+  // won't be needed when AddParticipants refactored out
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    const roomList =
-      roomNum > roomDrafts.length
-        ? [...roomDrafts].concat(
-            Array(roomNum - roomDrafts.length).fill({
-              members: [...requiredParticipants],
-            })
-          )
-        : [...roomDrafts].splice(roomNum - roomDrafts.length);
-    select(roomList);
-  }, [roomNum]);
+  // =========== HANDLE CHANGES IN NUMBER OF ROOMS ==============
 
   const deleteRoom = (index) => {
     if (roomDrafts.length <= 1) return;
@@ -47,6 +37,8 @@ const AssignmentMatrix = (props) => {
     roomList.splice(index, 0, newRoom);
     select(roomList);
   };
+
+  // ======================= HANDLE WHEN A PERSON GETS CLICKED (ASSIGNED TO A ROOM) ===========================
 
   const selectParticipant = (event, data) => {
     const { roomIndex } = data;
@@ -73,6 +65,8 @@ const AssignmentMatrix = (props) => {
       (mem) => mem.user._id === user._id
     );
   };
+
+  // =========================================================
 
   const handleAddParticipants = () => {
     return (
@@ -223,8 +217,6 @@ AssignmentMatrix.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
-  roomNum: PropTypes.number,
-  activity: PropTypes.shape({}),
   courseId: PropTypes.string,
   userId: PropTypes.string.isRequired,
   roomDrafts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
@@ -232,7 +224,6 @@ AssignmentMatrix.propTypes = {
 };
 
 AssignmentMatrix.defaultProps = {
-  activity: null,
   courseId: '',
   roomNum: 1,
   canDeleteRooms: true,
