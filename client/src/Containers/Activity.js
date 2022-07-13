@@ -35,7 +35,12 @@ class Activity extends Component {
     const { activity } = this.props;
     this.state = {
       owner: false,
-      tabs: [{ name: 'Assign' }, { name: 'Rooms' }, { name: 'Preview' }],
+      tabs: [
+        { name: 'Assign' },
+        { name: 'Edit Assignments' },
+        { name: 'Rooms' },
+        { name: 'Preview' },
+      ],
       editing: false,
       name: activity ? activity.name : null,
       description: activity ? activity.description : null,
@@ -182,7 +187,6 @@ class Activity extends Component {
     } = this.state;
     if (activity && canAccess) {
       const { resource } = match.params;
-
       const keyword = isPlural ? 'types' : 'type';
       const additionalDetails = {
         [keyword]: roomType,
@@ -257,6 +261,27 @@ class Activity extends Component {
         );
       } else if (resource === 'preview') {
         mainContent = <TemplatePreview activity={activity} />;
+      } else if (resource === 'edit assignments') {
+        mainContent = (
+          <ActivityDetails
+            inEditMode={true}
+            activity={activity}
+            update={this.updateActivityInfo}
+            instructions={instructions}
+            editing={editing}
+            owner={owner || user.isAdmin}
+            toggleEdit={this.toggleEdit}
+            userId={user._id}
+            course={course}
+            loading={loading}
+            canAccess={canAccess}
+            rooms={rooms}
+            user={{
+              role: 'facilitator',
+              user: { _id: user._id, username: user.username },
+            }}
+          />
+        );
       }
 
       return (

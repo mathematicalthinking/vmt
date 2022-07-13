@@ -97,9 +97,6 @@ const EditRoomAssignments = (props) => {
 
       <div className={classes.BottomButtons}>
         <div className={classes.Button}>
-          <Button m={5} click={close} data-testid="assign-rooms">
-            Cancel
-          </Button>
           <Button
             m={5}
             click={submit}

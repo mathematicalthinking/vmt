@@ -1,5 +1,5 @@
 /*
-previousAssignments:
+previousAssignments: groups assigned to specific rooms
     [
         { // each object is a room w/an added grouping name
             name: <grouping name>
@@ -7,11 +7,12 @@ previousAssignments:
         },
     ]
 
-groupings:
+groupings: collections of students
     [
         {
         _id: group1ID, activity: activityId, timestamp: XXXX,
-        rooms: [room1ID, room2ID, ...]
+        // rooms: [room1ID, room2ID, ...]
+        groups: [[mem1, mem2, ...], [mem3, mem4, ...]]
         },
     ]
 

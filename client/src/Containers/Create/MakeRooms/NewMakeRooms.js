@@ -209,13 +209,15 @@ const NewMakeRooms = (props) => {
         role: mem.role,
         color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
       }));
-      if (!course) {
-        members.unshift({
-          user: userId,
-          role: 'facilitator',
-          color: COLOR_MAP[0],
-        });
-      }
+
+      // if (!course) {
+      //   members.unshift({
+      //     user: userId,
+      //     role: 'facilitator',
+      //     color: COLOR_MAP[0],
+      //   });
+      // }
+
       currentRoom.members = members;
       currentRoom.name = `${roomName}: ${i + 1}`;
       roomsToCreate.push(currentRoom);
@@ -227,7 +229,12 @@ const NewMakeRooms = (props) => {
       currentRoom.name = roomName;
       roomsToCreate.push(currentRoom);
     }
-    dispatch(createGrouping(roomsToCreate, activity, course));
+    if (course) {
+      dispatch(createGrouping(roomsToCreate, activity, course));
+    } else {
+      console.log(roomsToCreate);
+      dispatch(createGrouping(roomsToCreate, activity));
+    }
     close();
     const { pathname: url } = history.location;
     // delete the word 'assign' and replace it with 'rooms'
