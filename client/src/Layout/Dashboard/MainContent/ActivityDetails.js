@@ -26,10 +26,11 @@ class ActivityDetails extends Component {
     super(props);
     this.state = {
       assigning: false,
-      inEditMode: false,
-      previousAssignments:
+      previousAssignments: // get from course or activity, default to []
         props.course && props.course.groupings
           ? createPreviousAssignments(props.course.groupings, props.rooms)
+          : props.activity && props.activity.groupings
+          ? createPreviousAssignments(props.activity.groupings, props.rooms)
           : [],
       selectedAssignment: null,
       editableRoomAssignOptions: [], // prevAssignemnts w/current activity._id
@@ -80,10 +81,10 @@ class ActivityDetails extends Component {
       userId,
       rooms,
       user,
+      inEditMode,
     } = this.props;
     const {
       assigning,
-      inEditMode,
       previousAssignments,
       selectedAssignment,
       editableRoomAssignOptions,
@@ -96,44 +97,8 @@ class ActivityDetails extends Component {
     return (
       <Aux>
         <div>
-          {/* <div className={classes.Instructions}>
-              <p className={classes.InstructionsHeader}>Instructions:</p>
-              <Error
-                error={
-                  loading.updateFail &&
-                  loading.updateKeys.indexOf('instructions') > -1
-                }
-              >
-                <EditText
-                  inputType="text-area"
-                  name="instructions"
-                  change={update}
-                  editing={editing}
-                >
-                  {instructions}
-                </EditText>
-              </Error>
-            </div> */}
-          {/* <div> */}
-          {/* <Button m={5} click={this.viewActivity} data-testid="view-activity">
-              Enter
-            </Button>
-            <Button
-              m={5}
-              click={() => {
-                this.setState({
-                  assigning: true,
-                  selectedAssignment: null,
-                  inEditMode: false,
-                });
-              }}
-              data-testid="assign"
-            >
-              Assign Template
-            </Button> */}
-
           <div className={classes.AssignContainer}>
-            {showCreateSelect && (
+            {!inEditMode && showCreateSelect && (
               <div className={classes.NewAssignmentsContainer}>
                 <label
                   className={classes.AssignText}
@@ -155,7 +120,6 @@ class ActivityDetails extends Component {
                   onChange={(selectedOption) => {
                     this.setState({
                       assigning: true,
-                      inEditMode: false,
                       selectedAssignment: selectedOption,
                       newAssignmentsValue: {
                         ...selectedOption,
@@ -185,7 +149,8 @@ class ActivityDetails extends Component {
               </div>
             )}
 
-            {editableRoomAssignOptions &&
+            {inEditMode &&
+            editableRoomAssignOptions &&
             editableRoomAssignOptions.length &&
             showEditSelect ? (
               <div className={classes.EditAssignmentsContainer}>
@@ -210,7 +175,6 @@ class ActivityDetails extends Component {
                   onChange={(selectedOption) => {
                     this.setState({
                       assigning: true,
-                      inEditMode: true,
                       selectedAssignment: selectedOption,
                       editAssignmentsValue: { ...selectedOption },
                       newAssignmentsValue: constants.defaultNewAssignmentsValue,
@@ -289,6 +253,7 @@ ActivityDetails.propTypes = {
   loading: PropTypes.bool,
   rooms: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
+  inEditMode: PropTypes.bool,
 };
 
 ActivityDetails.defaultProps = {
@@ -296,6 +261,7 @@ ActivityDetails.defaultProps = {
   editing: false,
   course: null,
   loading: false,
+  inEditMode: false,
 };
 
 export default withRouter(ActivityDetails);
