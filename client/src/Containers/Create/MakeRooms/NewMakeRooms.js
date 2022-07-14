@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { createGrouping } from 'store/actions';
@@ -8,9 +9,9 @@ import COLOR_MAP from '../../../utils/colorMap';
 const NewMakeRooms = (props) => {
   const {
     activity,
-    course = null,
-    participants: initialParticipants = [],
-    selectedAssignment = null,
+    course,
+    participants: initialParticipants,
+    selectedAssignment,
     userId,
     close,
   } = props;
@@ -18,11 +19,6 @@ const NewMakeRooms = (props) => {
   const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
   const history = useHistory(); // Elsewhere we use 'withRouter()'; this is the modern approach
 
-  const [dueDate, setDueDate] = useState('');
-  const [aliasMode, setAliasMode] = useState(false);
-  const [roomName, setRoomName] = useState(
-    `${activity.name} (${new Date().toLocaleDateString()})`
-  );
   const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
   const [participants, setParticipants] = useState(initialParticipants);
   const [roomDrafts, setRoomDrafts] = useState([]);
@@ -48,8 +44,6 @@ const NewMakeRooms = (props) => {
       selectedAssignment.value.length
     ) {
       setRoomDrafts(selectedAssignment.value);
-      setAliasMode(selectedAssignment.aliasMode);
-      setDueDate(selectedAssignment.dueDate || '');
       setParticipantsPerRoom(
         Math.max(
           Math.ceil(
@@ -178,7 +172,7 @@ const NewMakeRooms = (props) => {
     setRoomNum(numRooms);
   };
 
-  const submit = () => {
+  const submit = ({ aliasMode, dueDate, roomName }) => {
     const {
       _id,
       description,
@@ -259,12 +253,12 @@ const NewMakeRooms = (props) => {
 
   return (
     <AssignRooms
-      aliasMode={aliasMode}
-      setAliasMode={setAliasMode}
-      dueDate={dueDate}
-      setDueDate={setDueDate}
-      roomName={roomName}
-      setRoomName={setRoomName}
+      initialAliasMode={selectedAssignment.aliasMode || false}
+      initialDueDate={selectedAssignment.dueDate || ''}
+      initialRoomName={
+        selectedAssignment.roomName ||
+        `${activity.name} (${new Date().toLocaleDateString()})`
+      }
       participantsPerRoom={participantsPerRoom}
       setParticipantsPerRoom={setNumber}
       assignmentMatrix={assignmentMatrix}
@@ -273,6 +267,36 @@ const NewMakeRooms = (props) => {
       onCancel={close}
     />
   );
+};
+
+NewMakeRooms.propTypes = {
+  selectedAssignment: PropTypes.shape({
+    aliasMode: PropTypes.bool,
+    dueDate: PropTypes.string,
+    roomName: PropTypes.string,
+    value: PropTypes.arrayOf(PropTypes.shape({})),
+  }),
+  activity: PropTypes.shape({
+    name: PropTypes.string,
+    _id: PropTypes.string,
+    description: PropTypes.string,
+    roomType: PropTypes.string,
+    desmosLink: PropTypes.string,
+    ggbFile: PropTypes.string,
+    image: PropTypes.string,
+    instructions: PropTypes.string,
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
+  course: PropTypes.string,
+  userId: PropTypes.string.isRequired,
+  close: PropTypes.func.isRequired,
+  participants: PropTypes.arrayOf(PropTypes.shape({})),
+};
+
+NewMakeRooms.defaultProps = {
+  selectedAssignment: {},
+  course: null,
+  participants: [],
 };
 
 export default NewMakeRooms;

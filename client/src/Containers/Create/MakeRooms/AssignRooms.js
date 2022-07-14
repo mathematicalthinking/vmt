@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { TextInput, Button, Checkbox } from 'Components';
 import classes from './makeRooms.css';
 
 const AssignRooms = (props) => {
   const {
-    aliasMode,
-    setAliasMode,
-    dueDate,
-    setDueDate,
-    roomName,
-    setRoomName,
+    initialAliasMode,
+    initialDueDate,
+    initialRoomName,
     participantsPerRoom,
     setParticipantsPerRoom,
     assignmentMatrix,
@@ -18,20 +15,16 @@ const AssignRooms = (props) => {
     onCancel,
   } = props;
 
-  const [defaultRoomName, setDefaultRoomName] = useState(roomName);
-  const [showRevertButton, setShowRevertButton] = useState(false);
+  const [aliasMode, setAliasMode] = React.useState(initialAliasMode);
+  const [dueDate, setDueDate] = React.useState(initialDueDate);
+  const [roomName, setRoomName] = React.useState(initialRoomName);
 
-  useEffect(() => {
-    // check if revert to defaultRoomName button needs to be displayed
-    setShowRevertButton(roomName !== defaultRoomName);
-  }, [roomName]);
-
-  const restoreNameClick = () => setRoomName(defaultRoomName);
+  const restoreNameClick = () => setRoomName(initialRoomName);
   const restoreNameKeyDown = (event) => {
     event.preventDefault();
     // 13 === "Enter" || 32 === "Space"
     if (event.keyCode === 13 || event.keyCode === 32) {
-      setRoomName(defaultRoomName);
+      setRoomName(initialRoomName);
     }
   };
 
@@ -40,9 +33,7 @@ const AssignRooms = (props) => {
     setParticipantsPerRoom(numberOfParticipants);
   };
 
-  const date = assignmentMatrix.dueDate
-    ? new Date(assignmentMatrix.dueDate)
-    : new Date();
+  const date = dueDate ? new Date(dueDate) : new Date();
   const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
 
   return (
@@ -91,7 +82,7 @@ const AssignRooms = (props) => {
           value={roomName}
           title={`e.g. "${roomName} (${dateStamp}): 1"`}
         />
-        {showRevertButton && (
+        {initialRoomName !== roomName && (
           <i
             className={`fas fa-undo ${classes.RevertName}`}
             onClick={() => restoreNameClick()}
@@ -118,7 +109,7 @@ const AssignRooms = (props) => {
           </Button>
           <Button
             m={5}
-            click={onSubmit}
+            click={() => onSubmit({ aliasMode, dueDate, roomName })}
             data-testid="assign-rooms"
             disabled={roomName === ''}
           >

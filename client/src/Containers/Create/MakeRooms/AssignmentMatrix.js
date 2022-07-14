@@ -97,7 +97,7 @@ const AssignmentMatrix = (props) => {
       {showModal && handleAddParticipants()}
       <div className={classes.AssignmentMatrix}>
         <table className={classes.Table}>
-          <caption className={classes.Caption}>Number of Rooms</caption>
+          <caption className={classes.Caption}>Rooms</caption>
           <thead>
             <tr className={classes.LockedTop}>
               <th className={classes.LockedColumn}>
