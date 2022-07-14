@@ -171,18 +171,19 @@ export const createRoom = (body) => {
   };
 };
 
-export const createGrouping = (roomsToCreate, activity, course=null) => {
+export const createGrouping = (roomsToCreate, activity, course = null) => {
   return (dispatch, getState) => {
     const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
     const groupId = `${activity._id}--${randomNum}`;
     const timestamp = Date.now();
 
-    // add groupId to each room
-    roomsToCreate.forEach((room) => (room.groupId = groupId));
-
     dispatch(loading.start());
-    const results = roomsToCreate.map((body) => API.post('rooms', body));
-    Promise.all(results)
+
+    const roomsCreated = roomsToCreate.map((room) =>
+      // add groupId to each room
+      API.post('rooms', { ...room, groupId })
+    );
+    Promise.all(roomsCreated)
       .then((results) => {
         results.forEach(({ data: { result: room } }) => {
           dispatchNewRoom(room, dispatch);

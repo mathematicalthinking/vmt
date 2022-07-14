@@ -151,24 +151,28 @@ const NewMakeRooms = (props) => {
   const updateParticipants = (selectionMatrix) => {
     setRoomDrafts(selectionMatrix);
     setParticipantsPerRoom(
-      Math.ceil(
-        filterFacilitators(participants).length / selectionMatrix.length
+      Math.max(
+        Math.ceil(
+          filterFacilitators(participants).length / selectionMatrix.length
+        ),
+        1
       )
     );
   };
 
   const setNumber = (numberOfParticipants) => {
-    console.log('participants length', filterFacilitators(participants).length);
     // Make sure that number of participants is between 1 and the number of participants
     const newNumberOfParticipants = Math.max(
       Math.min(numberOfParticipants, filterFacilitators(participants).length),
       1
     );
     setParticipantsPerRoom(newNumberOfParticipants);
-    const numRooms = Math.ceil(
-      filterFacilitators(participants).length / newNumberOfParticipants
+    const numRooms = Math.max(
+      Math.ceil(
+        filterFacilitators(participants).length / newNumberOfParticipants
+      ),
+      1
     );
-    console.log('number of rooms', numRooms);
     setRoomNum(numRooms);
   };
 
@@ -232,7 +236,6 @@ const NewMakeRooms = (props) => {
     if (course) {
       dispatch(createGrouping(roomsToCreate, activity, course));
     } else {
-      console.log(roomsToCreate);
       dispatch(createGrouping(roomsToCreate, activity));
     }
     close();
