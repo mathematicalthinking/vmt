@@ -297,7 +297,7 @@ NewMakeRooms.propTypes = {
     instructions: PropTypes.string,
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
   }).isRequired,
-  course: PropTypes.string,
+  course: PropTypes.shape({ _id: PropTypes.string }),
   userId: PropTypes.string.isRequired,
   close: PropTypes.func.isRequired,
   participants: PropTypes.arrayOf(PropTypes.shape({})),

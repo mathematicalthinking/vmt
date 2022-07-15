@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { TextInput, Button, Checkbox } from 'Components';
 import classes from './makeRooms.css';
 
@@ -33,8 +34,12 @@ const AssignRooms = (props) => {
     setParticipantsPerRoom(numberOfParticipants);
   };
 
-  const date = dueDate ? new Date(dueDate) : new Date();
-  const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
+  // set min date selection taking timezone into consideration
+  // https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd#comment58447831_29774197:~:text=1124-,Just,-leverage%20the%20built
+  let today = new Date();
+  const offset = today.getTimezoneOffset();
+  today = new Date(today.getTime() - offset * 60 * 1000);
+  [today] = today.toISOString().split('T');
 
   return (
     <div className={classes.Container}>
@@ -67,7 +72,12 @@ const AssignRooms = (props) => {
           type="date"
           name="dueDate"
           width="175px"
-          change={(e) => setDueDate(e.target.value)}
+          minDate={today}
+          change={(e) => {
+            const datePicked = e.target.value;
+            if (datePicked < today) setDueDate('');
+            else setDueDate(datePicked);
+          }}
           value={dueDate}
         />
 
@@ -80,7 +90,8 @@ const AssignRooms = (props) => {
           width="300px"
           change={(event) => setRoomName(event.target.value)}
           value={roomName}
-          title={`e.g. "${roomName} (${dateStamp}): 1"`}
+          placeholder={roomName === '' ? 'Enter a room name prefix' : ''}
+          title={roomName === '' ? `e.g. "Intro to Geometry"` : ''}
         />
         {initialRoomName !== roomName && (
           <i
@@ -89,6 +100,7 @@ const AssignRooms = (props) => {
             onKeyDown={(event) => restoreNameKeyDown(event)}
             role="button"
             tabIndex={0}
+            title="Use Default Room Name"
           />
         )}
         {/* onKeyDown, role, & tabIndex are all included for eslint errs */}
@@ -119,6 +131,24 @@ const AssignRooms = (props) => {
       </div>
     </div>
   );
+};
+
+AssignRooms.propTypes = {
+  initialAliasMode: PropTypes.bool,
+  initialDueDate: PropTypes.string,
+  initialRoomName: PropTypes.string,
+  participantsPerRoom: PropTypes.number.isRequired,
+  setParticipantsPerRoom: PropTypes.func.isRequired,
+  assignmentMatrix: PropTypes.shape({}).isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onShuffle: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
+
+AssignRooms.defaultProps = {
+  initialAliasMode: false,
+  initialDueDate: '',
+  initialRoomName: '',
 };
 
 export default AssignRooms;

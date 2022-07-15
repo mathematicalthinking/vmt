@@ -1,50 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { TextInput, Button, Checkbox } from 'Components';
 import classes from './makeRooms.css';
 
 const EditRoomAssignments = (props) => {
   const {
+    initialAliasMode,
+    initialDueDate,
+    initialRoomName,
     assignmentMatrix,
-    selectedAssignment,
-    aliasMode,
-    setAliasMode,
-    dueDate,
-    setDueDate,
-    defaultRoomName,
-    roomName,
-    setRoomName,
-    submit,
-    close
+    onSubmit,
   } = props;
 
-  // const [defaultRoomName, setDefaultRoomName] = useState(
-  //   selectedAssignment.label
-  // );
-  // const [roomName, setRoomName] = useState(selectedAssignment.label);
-  const [showRevertButton, setShowRevertButton] = useState(
-    'Previous Assignments'
-  );
-  const [selectName, setSelectName] = useState(false);
+  const [aliasMode, setAliasMode] = React.useState(initialAliasMode);
+  const [dueDate, setDueDate] = React.useState(initialDueDate);
+  const [roomName, setRoomName] = React.useState(initialRoomName);
 
-  useEffect(() => {
-    // check if revert to defaultRoomName button needs to be displayed
-    setShowRevertButton(roomName !== defaultRoomName);
-  }, [roomName]);
-
-  const restoreNameClick = () => setRoomName(defaultRoomName);
+  const restoreNameClick = () => setRoomName(initialRoomName);
   const restoreNameKeyDown = (event) => {
-    const { defaultRoomName } = this.state;
     event.preventDefault();
     // 13 === "Enter" || 32 === "Space"
     if (event.keyCode === 13 || event.keyCode === 32) {
-      setRoomName(defaultRoomName);
+      setRoomName(initialRoomName);
     }
   };
-
-  const date = assignmentMatrix.dueDate
-    ? new Date(assignmentMatrix.dueDate)
-    : new Date();
-  const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
 
   return (
     <div className={classes.Container}>
@@ -55,7 +34,7 @@ const EditRoomAssignments = (props) => {
           dataId="aliasUsernames"
           style={{ width: '175px' }}
           change={() => setAliasMode(!aliasMode)}
-          checked={aliasMode}
+          checked={aliasMode || false}
         >
           Alias Usernames?
         </Checkbox>
@@ -79,9 +58,9 @@ const EditRoomAssignments = (props) => {
           width="300px"
           change={(event) => setRoomName(event.target.value)}
           value={roomName}
-          title={`e.g. "${roomName} (${dateStamp}): 1"`}
+          title={`e.g. "Intro to Geometry"`}
         />
-        {showRevertButton && (
+        {initialRoomName !== roomName && (
           <i
             className={`fas fa-undo ${classes.RevertName}`}
             onClick={() => restoreNameClick()}
@@ -99,7 +78,9 @@ const EditRoomAssignments = (props) => {
         <div className={classes.Button}>
           <Button
             m={5}
-            click={submit}
+            click={() =>
+              onSubmit({ aliasMode, dueDate, roomName, initialRoomName })
+            }
             data-testid="assign-rooms"
             disabled={roomName === ''}
           >
@@ -109,6 +90,20 @@ const EditRoomAssignments = (props) => {
       </div>
     </div>
   );
+};
+
+EditRoomAssignments.propTypes = {
+  initialAliasMode: PropTypes.bool,
+  initialDueDate: PropTypes.string,
+  initialRoomName: PropTypes.string,
+  assignmentMatrix: PropTypes.shape({}).isRequired,
+  onSubmit: PropTypes.func.isRequired,
+};
+
+EditRoomAssignments.defaultProps = {
+  initialAliasMode: false,
+  initialDueDate: '',
+  initialRoomName: '',
 };
 
 export default EditRoomAssignments;

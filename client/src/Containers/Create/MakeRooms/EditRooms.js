@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { updateRoom } from 'store/actions';
@@ -13,12 +14,6 @@ const EditRooms = (props) => {
   const [roomDrafts, setRoomDrafts] = useState(selectedAssignment.value);
   const [participants, setParticipants] = useState([]);
   const [roomNum, setRoomNum] = useState(selectedAssignment.value.length);
-  const [dueDate, setDueDate] = useState(selectedAssignment.dueDate || '');
-  const [aliasMode, setAliasMode] = useState(selectedAssignment.aliasMode);
-  const [roomName, setRoomName] = useState(selectedAssignment.label);
-  const [defaultRoomName, setDefaultRoomName] = useState(
-    selectedAssignment.label
-  );
 
   useEffect(() => {
     // derive participants from members within roomDrafts
@@ -43,18 +38,18 @@ const EditRooms = (props) => {
     // setParticipants(
     //   [...updatedParticipants].sort((a) => (a.role === 'facilitator' ? 1 : -1))
     // );
-
-    setDueDate(selectedAssignment.dueDate || '');
-    setAliasMode(selectedAssignment.aliasMode);
-    setRoomName(selectedAssignment.label);
-    setDefaultRoomName(selectedAssignment.label);
   }, [selectedAssignment]);
 
   const updateParticipants = (selectionMatrix) => {
     setRoomDrafts(selectionMatrix);
   };
 
-  const editPreviousAssignment = () => {
+  const editPreviousAssignment = ({
+    aliasMode,
+    dueDate,
+    roomName,
+    initialRoomName,
+  }) => {
     /**
      * If there are new room ids in the updatedAssignment that weren't
      * in the previousAssignment w/the same id as updatedAssignmnet,
@@ -82,15 +77,17 @@ const EditRooms = (props) => {
       const body = {
         members: membersToUpdate,
         settings: { displayAliasedUsernames: aliasMode },
-        dueDate: dueDate,
+        dueDate,
         name: `${roomName}: ${i + 1}`,
       };
       dispatch(updateRoom(oldRoomDraft.room, body));
     });
 
     // if roomName has changed, update the grouping in the store/db
-    if (roomName !== defaultRoomName) {
-      dispatch(updateGroupings(course, activity, selectedAssignment._id, roomName))
+    if (roomName !== initialRoomName) {
+      dispatch(
+        updateGroupings(course, activity, selectedAssignment._id, roomName)
+      );
     }
     close();
     const { pathname: url } = history.location;
@@ -118,19 +115,46 @@ const EditRooms = (props) => {
 
   return (
     <EditRoomAssignments
+      initialAliasMode={selectedAssignment.aliasMode || false}
+      initialDueDate={selectedAssignment.dueDate || ''}
+      initialRoomName={
+        selectedAssignment.roomName ||
+        `${activity.name} (${new Date().toLocaleDateString()})`
+      }
       assignmentMatrix={assignmentMatrix}
-      selectedAssignment={selectedAssignment}
-      aliasMode={aliasMode}
-      setAliasMode={setAliasMode}
-      dueDate={dueDate}
-      setDueDate={setDueDate}
-      defaultRoomName={defaultRoomName}
-      roomName={roomName}
-      setRoomName={setRoomName}
-      submit={editPreviousAssignment}
+      onSubmit={editPreviousAssignment}
       close={close}
     />
   );
+};
+
+EditRooms.propTypes = {
+  activity: PropTypes.shape({
+    name: PropTypes.string,
+    _id: PropTypes.string,
+    description: PropTypes.string,
+    roomType: PropTypes.string,
+    desmosLink: PropTypes.string,
+    ggbFile: PropTypes.string,
+    image: PropTypes.string,
+    instructions: PropTypes.string,
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
+  course: PropTypes.shape({ _id: PropTypes.string }),
+  selectedAssignment: PropTypes.shape({
+    _id: PropTypes.string,
+    aliasMode: PropTypes.bool,
+    dueDate: PropTypes.string,
+    roomName: PropTypes.string,
+    value: PropTypes.arrayOf(PropTypes.shape({})),
+    label: PropTypes.string,
+  }).isRequired,
+  userId: PropTypes.string.isRequired,
+  close: PropTypes.func.isRequired,
+};
+
+EditRooms.defaultProps = {
+  course: {},
 };
 
 export default EditRooms;

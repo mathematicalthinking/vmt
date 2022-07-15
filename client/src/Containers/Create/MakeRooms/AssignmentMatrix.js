@@ -219,14 +219,19 @@ AssignmentMatrix.propTypes = {
   select: PropTypes.func.isRequired,
   courseId: PropTypes.string,
   userId: PropTypes.string.isRequired,
-  roomDrafts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  roomDrafts: PropTypes.arrayOf(
+    PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) })
+  ).isRequired,
   canDeleteRooms: PropTypes.bool,
+  updateList: PropTypes.func,
+  sortParticipants: PropTypes.func,
 };
 
 AssignmentMatrix.defaultProps = {
   courseId: '',
-  roomNum: 1,
   canDeleteRooms: true,
+  updateList: () => {},
+  sortParticipants: () => {},
 };
 
 export default AssignmentMatrix;
