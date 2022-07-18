@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { updateRoom } from 'store/actions';
 import { updateGroupings } from 'store/actions/rooms';
-import { AssignmentMatrix, EditRoomAssignments } from './index';
+import { AssignmentMatrix, AssignRooms } from './index';
 
 const EditRooms = (props) => {
   const { activity, course, selectedAssignment, userId, close } = props;
@@ -114,7 +114,7 @@ const EditRooms = (props) => {
   );
 
   return (
-    <EditRoomAssignments
+    <AssignRooms
       initialAliasMode={selectedAssignment.aliasMode || false}
       initialDueDate={selectedAssignment.dueDate || ''}
       initialRoomName={
@@ -123,7 +123,7 @@ const EditRooms = (props) => {
       }
       assignmentMatrix={assignmentMatrix}
       onSubmit={editPreviousAssignment}
-      close={close}
+      onCancel={close}
     />
   );
 };

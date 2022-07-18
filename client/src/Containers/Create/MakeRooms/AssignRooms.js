@@ -44,16 +44,18 @@ const AssignRooms = (props) => {
   return (
     <div className={classes.Container}>
       <div className={classes.SubContainer}>
-        <TextInput
-          light
-          label="Participants per room"
-          type="number"
-          change={handleParticipantsPerRoomChange}
-          onKeyDown={handleParticipantsPerRoomChange}
-          value={String(participantsPerRoom)} // TextInput expects values to be text (i.e., strings)
-          name="participants"
-          width="185px"
-        />
+        {setParticipantsPerRoom && (
+          <TextInput
+            light
+            label="Participants per room"
+            type="number"
+            change={handleParticipantsPerRoomChange}
+            onKeyDown={handleParticipantsPerRoomChange}
+            value={String(participantsPerRoom)} // TextInput expects values to be text (i.e., strings)
+            name="participants"
+            width="185px"
+          />
+        )}
 
         <Checkbox
           light
@@ -80,29 +82,30 @@ const AssignRooms = (props) => {
           }}
           value={dueDate}
         />
-
-        {/* New room name input */}
-        <TextInput
-          light
-          label="Prefix for room names (editable)"
-          type="text"
-          name="roomName"
-          width="300px"
-          change={(event) => setRoomName(event.target.value)}
-          value={roomName}
-          placeholder={roomName === '' ? 'Enter a room name prefix' : ''}
-          title={roomName === '' ? `e.g. "Intro to Geometry"` : ''}
-        />
-        {initialRoomName !== roomName && (
-          <i
-            className={`fas fa-undo ${classes.RevertName}`}
-            onClick={() => restoreNameClick()}
-            onKeyDown={(event) => restoreNameKeyDown(event)}
-            role="button"
-            tabIndex={0}
-            title="Use Default Room Name"
+        <div className={classes.RoomNameInput}>
+          {/* New room name input */}
+          <TextInput
+            light
+            label="Prefix for room names (editable)"
+            type="text"
+            name="roomName"
+            width="300px"
+            change={(event) => setRoomName(event.target.value)}
+            value={roomName}
+            placeholder={roomName === '' ? 'Enter a room name prefix' : ''}
+            title={roomName === '' ? `e.g. "Intro to Geometry"` : ''}
           />
-        )}
+          {initialRoomName !== roomName && (
+            <i
+              className={`fas fa-undo ${classes.RevertName}`}
+              onClick={() => restoreNameClick()}
+              onKeyDown={(event) => restoreNameKeyDown(event)}
+              role="button"
+              tabIndex={0}
+              title="Use Default Room Name"
+            />
+          )}
+        </div>
         {/* onKeyDown, role, & tabIndex are all included for eslint errs */}
       </div>
       {assignmentMatrix}
@@ -116,9 +119,11 @@ const AssignRooms = (props) => {
           >
             Cancel
           </Button>
-          <Button m={5} click={onShuffle} data-testid="random-shuffle">
-            Shuffle
-          </Button>
+          {onShuffle && (
+            <Button m={5} click={onShuffle} data-testid="random-shuffle">
+              Shuffle
+            </Button>
+          )}
           <Button
             m={5}
             click={() => onSubmit({ aliasMode, dueDate, roomName })}
@@ -137,11 +142,11 @@ AssignRooms.propTypes = {
   initialAliasMode: PropTypes.bool,
   initialDueDate: PropTypes.string,
   initialRoomName: PropTypes.string,
-  participantsPerRoom: PropTypes.number.isRequired,
-  setParticipantsPerRoom: PropTypes.func.isRequired,
+  participantsPerRoom: PropTypes.number,
+  setParticipantsPerRoom: PropTypes.func,
   assignmentMatrix: PropTypes.shape({}).isRequired,
   onSubmit: PropTypes.func.isRequired,
-  onShuffle: PropTypes.func.isRequired,
+  onShuffle: PropTypes.func,
   onCancel: PropTypes.func.isRequired,
 };
 
@@ -149,6 +154,9 @@ AssignRooms.defaultProps = {
   initialAliasMode: false,
   initialDueDate: '',
   initialRoomName: '',
+  setParticipantsPerRoom: null,
+  onShuffle: null,
+  participantsPerRoom: null,
 };
 
 export default AssignRooms;

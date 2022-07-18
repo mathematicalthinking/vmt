@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { BigModal } from 'Components';
 import { createGrouping } from 'store/actions';
-import { AssignmentMatrix, AssignRooms } from './index';
+import { AssignmentMatrix, AssignRooms, AddParticipants } from './index';
 import COLOR_MAP from '../../../utils/colorMap';
 
 const NewMakeRooms = (props) => {
@@ -22,6 +23,8 @@ const NewMakeRooms = (props) => {
   const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
   const [participants, setParticipants] = useState(initialParticipants);
   const [roomDrafts, setRoomDrafts] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const showModalRef = React.useRef(false);
 
   // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
   // changed props.  However, the correct way of detecting and responding to a changed state is to act when the
@@ -245,37 +248,64 @@ const NewMakeRooms = (props) => {
     history.push(`${url.slice(0, indexOfLastSlash + 1)}rooms`);
   };
 
+  const handleAddParticipants = (shouldShow) => {
+    showModalRef.current = shouldShow === true ? shouldShow : false;
+    showModalRef.current === true && setShowModal(true);
+    return (
+      <BigModal
+        show={showModal === true}
+        closeModal={() => {
+          setShowModal(false);
+        }}
+      >
+        <React.Fragment>
+          <AddParticipants
+            participants={participants}
+            updateList={setParticipants}
+            userId={userId}
+            courseId={course ? course._id : null}
+            close={() => {
+              setShowModal(false);
+            }}
+            sortParticipants={sortParticipants}
+          />
+        </React.Fragment>
+      </BigModal>
+    );
+  };
+
   const assignmentMatrix = (
     <AssignmentMatrix
       list={participants}
-      updateList={setParticipants}
       requiredParticipants={initialParticipants.filter(
         (mem) => mem.role === 'facilitator'
       )}
       select={updateParticipants}
-      courseId={course ? course._id : null}
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms
-      sortParticipants={sortParticipants}
+      onAddParticipants={handleAddParticipants}
     />
   );
 
   return (
-    <AssignRooms
-      initialAliasMode={selectedAssignment.aliasMode || false}
-      initialDueDate={selectedAssignment.dueDate || ''}
-      initialRoomName={
-        selectedAssignment.roomName ||
-        `${activity.name} (${new Date().toLocaleDateString()})`
-      }
-      participantsPerRoom={participantsPerRoom}
-      setParticipantsPerRoom={setNumber}
-      assignmentMatrix={assignmentMatrix}
-      onSubmit={submit}
-      onShuffle={shuffleParticipants}
-      onCancel={close}
-    />
+    <React.Fragment>
+      {showModal && handleAddParticipants()}
+      <AssignRooms
+        initialAliasMode={selectedAssignment.aliasMode || false}
+        initialDueDate={selectedAssignment.dueDate || ''}
+        initialRoomName={
+          selectedAssignment.roomName ||
+          `${activity.name} (${new Date().toLocaleDateString()})`
+        }
+        participantsPerRoom={participantsPerRoom}
+        setParticipantsPerRoom={setNumber}
+        assignmentMatrix={assignmentMatrix}
+        onSubmit={submit}
+        onShuffle={shuffleParticipants}
+        onCancel={close}
+      />
+    </React.Fragment>
   );
 };
 

@@ -1,7 +1,5 @@
-import React, { useState, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Aux, BigModal } from 'Components';
-import NewStep1 from './NewStep1';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
@@ -11,14 +9,9 @@ const AssignmentMatrix = (props) => {
     roomDrafts,
     select, // should be 'setRoomDrafts'
     canDeleteRooms, // should be 'canAddDeleteRooms'
-    updateList, // won't be needed when AddParticipants refactored out
-    courseId, // won't be needed when AddParticipants refactored out
     userId, // won't be needed when AddParticipants refactored out
-    sortParticipants, // won't be needed when AddParticipants refactored out
+    onAddParticipants,
   } = props;
-
-  // won't be needed when AddParticipants refactored out
-  const [showModal, setShowModal] = useState(false);
 
   // =========== HANDLE CHANGES IN NUMBER OF ROOMS ==============
 
@@ -68,33 +61,8 @@ const AssignmentMatrix = (props) => {
 
   // =========================================================
 
-  const handleAddParticipants = () => {
-    return (
-      <BigModal
-        show={showModal}
-        closeModal={() => {
-          setShowModal(false);
-        }}
-      >
-        <Aux>
-          <NewStep1
-            participants={list}
-            updateList={updateList}
-            userId={userId}
-            // select={this.selectParticipant}
-            courseId={courseId}
-            close={() => setShowModal(false)}
-            sortParticipants={sortParticipants}
-            // selectedParticipants={selectedParticipants}
-          />
-        </Aux>
-      </BigModal>
-    );
-  };
-
   return (
     <Fragment>
-      {showModal && handleAddParticipants()}
       <div className={classes.AssignmentMatrix}>
         <table className={classes.Table}>
           <caption className={classes.Caption}>Rooms</caption>
@@ -102,14 +70,20 @@ const AssignmentMatrix = (props) => {
             <tr className={classes.LockedTop}>
               <th className={classes.LockedColumn}>
                 Participants{' '}
-                <i
-                  className={`fas fa-solid fa-plus ${classes.plus}`}
-                  title="Add Participants"
-                  onClick={() => setShowModal(true)}
-                  onKeyDown={() => setShowModal(true)}
-                  tabIndex={-1}
-                  role="button"
-                />
+                {onAddParticipants && (
+                  <i
+                    className={`fas fa-solid fa-plus ${classes.plus}`}
+                    title="Add Participants"
+                    onClick={() => {
+                      onAddParticipants(true);
+                    }}
+                    onKeyDown={() => {
+                      onAddParticipants(true);
+                    }}
+                    tabIndex={-1}
+                    role="button"
+                  />
+                )}
               </th>
               {roomDrafts.map((room, i) => {
                 return (
@@ -217,21 +191,17 @@ AssignmentMatrix.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
-  courseId: PropTypes.string,
   userId: PropTypes.string.isRequired,
   roomDrafts: PropTypes.arrayOf(
     PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) })
   ).isRequired,
   canDeleteRooms: PropTypes.bool,
-  updateList: PropTypes.func,
-  sortParticipants: PropTypes.func,
+  onAddParticipants: PropTypes.func,
 };
 
 AssignmentMatrix.defaultProps = {
-  courseId: '',
   canDeleteRooms: true,
-  updateList: () => {},
-  sortParticipants: () => {},
+  onAddParticipants: null,
 };
 
 export default AssignmentMatrix;

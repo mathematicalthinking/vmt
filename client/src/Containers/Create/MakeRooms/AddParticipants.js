@@ -10,7 +10,7 @@ import { updateCourseMembers } from 'store/actions';
 import ParticipantList from './ParticipantList';
 import classes from './makeRooms.css';
 
-const NewStep1 = (props) => {
+const AddParticipants = (props) => {
   const {
     participants,
     userId,
@@ -100,9 +100,7 @@ const NewStep1 = (props) => {
     updateList(newList);
 
     if (courseId) {
-      dispatch(
-        updateCourseMembers(courseId, newList)
-      );
+      dispatch(updateCourseMembers(courseId, newList));
     }
     close();
   };
@@ -142,7 +140,7 @@ const NewStep1 = (props) => {
                 info={member}
                 key={member.user._id}
                 resourceName="template"
-                canRemove={true}
+                canRemove
                 rejectAccess={() => removeMember(member)}
               />
               // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
@@ -159,15 +157,15 @@ const NewStep1 = (props) => {
   );
 };
 
-// NewStep1.propTypes = {
+// AddParticipants.propTypes = {
 //   userId: PropTypes.string.isRequired,
 //   course: PropTypes.string,
 //   participants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 //   //   setParticipants: PropTypes.func.isRequired,
 // };
 
-// NewStep1.defaultProps = {
+// AddParticipants.defaultProps = {
 //   course: null,
 // };
 
-export default NewStep1;
+export default AddParticipants;
