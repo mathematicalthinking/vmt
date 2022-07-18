@@ -64,17 +64,19 @@ const MakeRooms = (props) => {
 
   const setRoomNum = (roomNum) => {
     if (roomNum === roomDrafts.length) return;
+    const requiredMembers = initialParticipants.filter(
+      (mem) => mem.role === 'facilitator'
+    );
+    // Note that Array(n) creates an n length array, but with no values, so cannot map over them. Use fill() to fill the array with
+    // undefined so the map will work. Alternatively, could do Array.from(Array(n)).
     const roomList =
       roomNum > roomDrafts.length
-        ? roomDrafts.concat(
-            Array(roomNum - roomDrafts.length).fill({
-              members: [
-                ...initialParticipants.filter(
-                  (mem) => mem.role === 'facilitator'
-                ),
-              ],
-            })
-          )
+        ? roomDrafts
+            .concat(Array(roomNum - roomDrafts.length))
+            .fill()
+            .map(() => ({
+              members: [...requiredMembers],
+            }))
         : roomDrafts.slice(0, roomNum - roomDrafts.length);
     setRoomDrafts(roomList);
   };
