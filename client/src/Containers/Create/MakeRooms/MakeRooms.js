@@ -4,8 +4,10 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { BigModal } from 'Components';
 import { createGrouping } from 'store/actions';
-import { AssignmentMatrix, AssignRooms, AddParticipants } from './index';
-import COLOR_MAP from '../../../utils/colorMap';
+import COLOR_MAP from 'utils/colorMap';
+import AssignmentMatrix from './AssignmentMatrix';
+import AssignRooms from './AssignRooms';
+import AddParticipants from './AddParticipants';
 
 const MakeRooms = (props) => {
   const {

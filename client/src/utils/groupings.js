@@ -70,3 +70,9 @@ export const createPreviousAssignments = (groupings, rooms) => {
 
   return previousAssignments;
 };
+
+export const createEditableAssignments = (groups, rooms, id) => {
+  return createPreviousAssignments(groups, rooms).filter(
+    (assignment) => id === assignment.roomDrafts[0].activity
+  );
+};

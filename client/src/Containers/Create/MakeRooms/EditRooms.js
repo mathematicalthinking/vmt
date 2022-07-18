@@ -4,7 +4,8 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { updateRoom } from 'store/actions';
 import { updateGroupings } from 'store/actions/rooms';
-import { AssignmentMatrix, AssignRooms } from './index';
+import AssignmentMatrix from './AssignmentMatrix';
+import AssignRooms from './AssignRooms';
 
 const EditRooms = (props) => {
   const { activity, course, selectedAssignment, userId, close } = props;
