@@ -55,9 +55,6 @@ const WSPLoader = (callback) => {
       script.type = 'text/javascript';
       script.onload = () => {
         console.log('Loaded WSP-Runner... ');
-        // finally load the widgets and fire the ready callback
-        console.log('Core WSP assets loaded: Ready to create script!');
-        callback();
         loadWidgets();
       };
       document.body.appendChild(script);
@@ -87,6 +84,9 @@ const WSPLoader = (callback) => {
       link.id = 'widgetscss';
       link.onload = () => {
         console.log('Loaded Widgets...');
+        // finally load the widgets and fire the ready callback
+        console.log('Core WSP assets loaded: Ready to create script!');
+        callback();
       };
       document.body.appendChild(script).appendChild(link);
     };
