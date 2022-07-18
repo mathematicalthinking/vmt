@@ -66,7 +66,7 @@ const WebSketch = (props) => {
     if (sketchDoc) {
       // grab current state-event list
       // json returned from $('#sketch').data('document').getCurrentSpecObject()
-      let responseData = sketchDoc.getCurrentSpecObject();
+      const responseData = sketchDoc.getCurrentSpecObject();
       console.log('Response data: ', responseData);
 
       // start creating a string-based object to update the tab
@@ -352,20 +352,30 @@ const WebSketch = (props) => {
       const { currentStateBase64 } = tab;
       config = JSON.parse(currentStateBase64);
     }
-    $('#sketch').WSP('loadSketch', {
-      'data-sourceDocument': config,
-      onLoad: (metadata) => {
-        console.log('Loading: ', metadata);
-        $sketch = $('#sketch');
-        setFirstTabLoaded();
-        initializeListeners();
-      },
-    });
-    const data = $sketch.data('document');
-    console.log('Found data: ', data);
-    sketchDoc = data;
-    sketch = data.focusPage;
-    syncToFollower();
+    const pollDOM = () => {
+      const isWidgetLoaded = !!window.PAGENUM;
+      console.log('Widgets?: ', isWidgetLoaded);
+
+      if (isWidgetLoaded) {
+        $('#sketch').WSP('loadSketch', {
+          'data-sourceDocument': config,
+          onLoad: (metadata) => {
+            console.log('Loading: ', metadata);
+            $sketch = $('#sketch');
+            setFirstTabLoaded();
+            initializeListeners();
+          },
+        });
+        const data = $sketch.data('document');
+        console.log('Found data: ', data);
+        sketchDoc = data;
+        sketch = data.focusPage;
+        syncToFollower();
+      } else {
+        setTimeout(pollDOM, 200); // try again in 200 milliseconds
+      }
+    };
+    pollDOM();
   };
 
   // interaction helpers
@@ -429,13 +439,19 @@ const WebSketch = (props) => {
           className="sketch_canvas"
           id="sketch"
           ref={wspSketch}
-          // style={{
-          //   overflow: 'auto',
-          //   pointerEvents: !_hasControl() ? 'none' : 'auto',
-          // }}
+          style={{
+            overflow: 'auto',
+            pointerEvents: !_hasControl() ? 'none' : 'auto',
+          }}
         />
         <div className="buttonPane">
-          <div className="page_buttons" />
+          <div
+            className="page_buttons"
+            style={{
+              overflow: 'auto',
+              pointerEvents: !_hasControl() ? 'none' : 'auto',
+            }}
+          />
         </div>
       </div>
     </Fragment>
