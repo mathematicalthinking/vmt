@@ -5,7 +5,6 @@ import { debounce } from 'lodash';
 import { useQuery } from 'react-query';
 import API from 'utils/apiRequests';
 import buildLog from 'utils/buildLog';
-import { sort } from 'Components/Chat/QuickChatList';
 
 /**
  * Custom hook for sorting table data
@@ -33,7 +32,9 @@ export const useSortableData = (items, config = null) => {
     if (!sortConfig || !item[sortConfig.key] || !sortConfig.filter) return true;
     const now = new Date();
     const then = new Date(item[sortConfig.key]);
-    return Math.abs(then - now) <= timeFrames[sortConfig.filter];
+    return then.toString() !== 'Invalid Date'
+      ? Math.abs(then - now) <= timeFrames[sortConfig.filter]
+      : true;
   };
 
   const sortedItems = React.useMemo(() => {
@@ -81,7 +82,7 @@ export const useSortableData = (items, config = null) => {
       setSortConfig({
         key: key || sortConfig.key,
         direction: direction || sortConfig.direction,
-        filter: sortConfig.filter,
+        filter: filter || sortConfig.filter,
       });
     else setSortConfig({ key, direction, filter });
   };

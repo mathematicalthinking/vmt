@@ -266,6 +266,11 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
     return matchingKey ? matchingKey.name : defaultName;
   };
 
+  React.useEffect(() => {
+    if (!['updatedAt', 'createdAt', 'dueDate'].includes(sortConfig.key))
+      sortFn({ filter: 'all' });
+  }, [sortConfig.key]);
+
   return (
     <div>
       <label htmlFor="sortTable" className={classes.Label}>
