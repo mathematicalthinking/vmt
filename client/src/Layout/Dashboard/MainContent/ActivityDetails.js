@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import Select from 'react-select';
 import { Aux, Error } from '../../../Components';
-import NewMakeRooms from 'Containers/Create/MakeRooms/NewMakeRooms';
+import MakeRooms from 'Containers/Create/MakeRooms/MakeRooms';
 import EditRooms from 'Containers/Create/MakeRooms/EditRooms';
 import { createPreviousAssignments } from 'utils/groupings';
 import classes from './activityDetails.css';
@@ -206,7 +206,7 @@ class ActivityDetails extends Component {
 
         {/* standalone template */}
         {assigning && !course && !inEditMode ? (
-          <NewMakeRooms
+          <MakeRooms
             activity={activity}
             course={course ? course : null}
             userId={userId}
@@ -217,7 +217,7 @@ class ActivityDetails extends Component {
         ) : null}
 
         {assigning && course && !inEditMode ? (
-          <NewMakeRooms
+          <MakeRooms
             activity={activity}
             course={course ? course : null}
             userId={userId}
