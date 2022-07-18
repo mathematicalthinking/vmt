@@ -24,7 +24,6 @@ const NewMakeRooms = (props) => {
   const [participants, setParticipants] = useState(initialParticipants);
   const [roomDrafts, setRoomDrafts] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const showModalRef = React.useRef(false);
 
   // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
   // changed props.  However, the correct way of detecting and responding to a changed state is to act when the
@@ -248,32 +247,6 @@ const NewMakeRooms = (props) => {
     history.push(`${url.slice(0, indexOfLastSlash + 1)}rooms`);
   };
 
-  const handleAddParticipants = (shouldShow) => {
-    showModalRef.current = shouldShow === true ? shouldShow : false;
-    showModalRef.current === true && setShowModal(true);
-    return (
-      <BigModal
-        show={showModal === true}
-        closeModal={() => {
-          setShowModal(false);
-        }}
-      >
-        <React.Fragment>
-          <AddParticipants
-            participants={participants}
-            updateList={setParticipants}
-            userId={userId}
-            courseId={course ? course._id : null}
-            close={() => {
-              setShowModal(false);
-            }}
-            sortParticipants={sortParticipants}
-          />
-        </React.Fragment>
-      </BigModal>
-    );
-  };
-
   const assignmentMatrix = (
     <AssignmentMatrix
       list={participants}
@@ -284,13 +257,31 @@ const NewMakeRooms = (props) => {
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms
-      onAddParticipants={handleAddParticipants}
+      onAddParticipants={setShowModal}
     />
   );
 
   return (
     <React.Fragment>
-      {showModal && handleAddParticipants()}
+      {showModal && (
+        <BigModal
+          show={showModal}
+          closeModal={() => {
+            setShowModal(false);
+          }}
+        >
+          <AddParticipants
+            participants={participants}
+            updateList={setParticipants}
+            userId={userId}
+            courseId={course ? course._id : null}
+            close={() => {
+              setShowModal(false);
+            }}
+            sortParticipants={sortParticipants}
+          />
+        </BigModal>
+      )}
       <AssignRooms
         initialAliasMode={selectedAssignment.aliasMode || false}
         initialDueDate={selectedAssignment.dueDate || ''}

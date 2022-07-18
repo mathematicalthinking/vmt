@@ -9,7 +9,7 @@ const AssignmentMatrix = (props) => {
     roomDrafts,
     select, // should be 'setRoomDrafts'
     canDeleteRooms, // should be 'canAddDeleteRooms'
-    userId, // won't be needed when AddParticipants refactored out
+    userId,
     onAddParticipants,
   } = props;
 
