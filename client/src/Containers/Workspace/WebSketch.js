@@ -62,7 +62,12 @@ const WebSketch = (props) => {
   const putState = () => {
     const { tab, temp, updateRoomTab, room } = props;
     const { _id } = tab;
-    console.log('Sketch? ', !!$sketch, ' document: ', !!sketchDoc);
+    if (!sketchDoc) {
+      console.log('Setting sketc doc');
+      const sketchEl = window.jQuery('#sketch');
+      sketchDoc = sketchEl.data('document');
+    }
+    console.log('Sketch document: ', sketchDoc);
     if (sketchDoc) {
       // grab current state-event list
       // json returned from $('#sketch').data('document').getCurrentSpecObject()
