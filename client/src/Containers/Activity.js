@@ -1,5 +1,5 @@
 /* eslint-disable react/no-did-update-set-state */
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
@@ -171,41 +171,7 @@ class Activity extends Component {
     const { match, activity, course, rooms, user } = this.props;
     const { owner } = this.state;
     const { resource } = match.params;
-    const addSelect = (
-      <SelectAssignments
-        activity={activity}
-        course={course || null}
-        rooms={rooms}
-        userId={user._id}
-        user={{
-          role: 'facilitator',
-          user: { _id: user._id, username: user.username },
-        }}
-        label="Create:"
-        defaultOption={{ label: 'New Grouping', value: [] }}
-        toolTip="assign blurb for tooltip"
-        AssignmentComponent={MakeRooms}
-        optionsGenerator={createPreviousAssignments}
-        firstOption={{ label: 'New Grouping', value: [] }}
-      />
-    );
-    const editSelect = (
-      <SelectAssignments
-        activity={activity}
-        course={course || null}
-        rooms={rooms}
-        userId={user._id}
-        user={{
-          role: 'facilitator',
-          user: { _id: user._id, username: user.username },
-        }}
-        label="Edit:"
-        defaultOption={{ label: 'Change Room Assignments', value: [] }}
-        toolTip="edit blurb for tooltip"
-        AssignmentComponent={EditRooms}
-        optionsGenerator={createEditableAssignments}
-      />
-    );
+
     switch (resource) {
       case 'rooms':
         return (
@@ -222,9 +188,48 @@ class Activity extends Component {
       case 'preview':
         return <TemplatePreview activity={activity} />;
       case 'edit assignments':
-        return editSelect;
+        return (
+          <SelectAssignments
+            // keys are needed so that React doesn't re-use these two SelectAssignments (treating them as one)
+            // see https://reactjs.org/docs/reconciliation.html
+            key="editSelect"
+            activity={activity}
+            course={course || null}
+            rooms={rooms}
+            userId={user._id}
+            user={{
+              role: 'facilitator',
+              user: { _id: user._id, username: user.username },
+            }}
+            label="Edit:"
+            defaultOption={{ label: 'Change Room Assignments', value: [] }}
+            toolTip="edit blurb for tooltip"
+            AssignmentComponent={EditRooms}
+            optionsGenerator={createEditableAssignments}
+          />
+        );
       default:
-        return addSelect;
+        return (
+          <SelectAssignments
+            // keys are needed so that React doesn't re-use these two SelectAssignments (treating them as one)
+            // see https://reactjs.org/docs/reconciliation.html
+            key="addSelect"
+            activity={activity}
+            course={course || null}
+            rooms={rooms}
+            userId={user._id}
+            user={{
+              role: 'facilitator',
+              user: { _id: user._id, username: user.username },
+            }}
+            label="Create:"
+            defaultOption={{ label: 'New Grouping', value: [] }}
+            toolTip="assign blurb for tooltip"
+            AssignmentComponent={MakeRooms}
+            optionsGenerator={createPreviousAssignments}
+            firstOption={{ label: 'New Grouping', value: [] }}
+          />
+        );
     }
   };
 
@@ -293,7 +298,7 @@ class Activity extends Component {
       }
 
       return (
-        <Aux>
+        <Fragment>
           <DashboardLayout
             breadCrumbs={
               <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
@@ -403,7 +408,7 @@ class Activity extends Component {
               history={history}
             />
           ) : null}
-        </Aux>
+        </Fragment>
       );
     }
     // if (!activity) return <div>Loading</div>;
