@@ -36,20 +36,15 @@ class Chat extends Component {
       }
     });
     if (!replaying) {
-      socket.removeAllListeners('RECEIVE_MESSAGE');
-      socket.on('RECEIVE_MESSAGE', (data) => {
-        // console.log('Received message ', data);
-        addToLog(data);
-        // this.scrollToBottom()
-      });
-      socket.removeAllListeners('PENDING_MESSAGE');
-      socket.on('PENDING_MESSAGE', (data) => {
-        this.handlePending(data);
-      });
+      socket.on('RECEIVE_MESSAGE', addToLog);
+      socket.on('PENDING_MESSAGE', this.handlePending);
     }
   }
 
   componentWillUnmount() {
+    const { addToLog } = this.props;
+    socket.removeListener('PENDING_MESSAGE', this.handlePending);
+    socket.removeListener('RECEIVE_MESSAGE', addToLog);
     const { timeOut: timeID } = this.state;
     clearTimeout(timeID);
   }

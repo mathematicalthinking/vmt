@@ -390,6 +390,7 @@ class Chat extends Component {
       pendingUsers,
       connectionStatus,
       resetRoom,
+      showTitle,
     } = this.props;
     const {
       highlightedMessage,
@@ -459,62 +460,64 @@ class Chat extends Component {
           className={expanded ? classes.Container : classes.CollapsedContainer}
           ref={this.chatContainer}
         >
-          <div
-            className={classes.Title}
-            // onClick={this.toggleExpansion}
-            // onKeyPress={this.toggleExpansion}
-            tabIndex="0"
-            role="button"
-          >
-            {!replayer ? (
-              <div className={classes.DropdownContainer}>
-                <DropdownMenu
-                  goToReplayer={goToReplayer}
-                  createActivity={createActivity}
-                  resetRoom={() => resetRoom(user)}
-                />
-              </div>
-            ) : null}
-            Chat
-            {!replayer ? (
-              // eslint-disable-next-line
-              <div
-                className={classes.Status}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                <i
-                  className={[
-                    'fas fa-wifi',
-                    // user.connected ? classes.Connected : classes.Disconnected,
-                    classes[connectionStatus],
-                  ].join(' ')}
-                  // title={`Connection: ${connectionStatus}`}
-                />
-                <div className={classes.StatusText}>
-                  {socket.connected ? '' : 'Disconnected!'}
+          {showTitle && (
+            <div
+              className={classes.Title}
+              // onClick={this.toggleExpansion}
+              // onKeyPress={this.toggleExpansion}
+              tabIndex="0"
+              role="button"
+            >
+              {!replayer ? (
+                <div className={classes.DropdownContainer}>
+                  <DropdownMenu
+                    goToReplayer={goToReplayer}
+                    createActivity={createActivity}
+                    resetRoom={() => resetRoom(user)}
+                  />
                 </div>
-                <div className={classes.TooltipContent}>
-                  {!socket.connected ? (
-                    <div className={DropdownMenuClasses.DropdownItem}>
-                      {`Connection Status: ${connectionStatus}`}
-                      <Button
-                        click={() => {
-                          window.location.reload();
-                        }}
-                        data-testid="resync"
-                      >
-                        Force Refresh
-                      </Button>
-                    </div>
-                  ) : (
-                    `Connection Status: ${connectionStatus}`
-                  )}
+              ) : null}
+              Chat
+              {!replayer ? (
+                // eslint-disable-next-line
+                <div
+                  className={classes.Status}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <i
+                    className={[
+                      'fas fa-wifi',
+                      // user.connected ? classes.Connected : classes.Disconnected,
+                      classes[connectionStatus],
+                    ].join(' ')}
+                    // title={`Connection: ${connectionStatus}`}
+                  />
+                  <div className={classes.StatusText}>
+                    {socket.connected ? '' : 'Disconnected!'}
+                  </div>
+                  <div className={classes.TooltipContent}>
+                    {!socket.connected ? (
+                      <div className={DropdownMenuClasses.DropdownItem}>
+                        {`Connection Status: ${connectionStatus}`}
+                        <Button
+                          click={() => {
+                            window.location.reload();
+                          }}
+                          data-testid="resync"
+                        >
+                          Force Refresh
+                        </Button>
+                      </div>
+                    ) : (
+                      `Connection Status: ${connectionStatus}`
+                    )}
+                  </div>
                 </div>
-              </div>
-            ) : null}
-          </div>
+              ) : null}
+            </div>
+          )}
           <div
             className={expanded ? classes.ChatScroll : classes.Collapsed}
             data-testid="chat"
@@ -671,35 +674,39 @@ Chat.propTypes = {
   connectionStatus: PropTypes.string,
   changingIndex: PropTypes.bool,
   resetRoom: PropTypes.func,
+  showTitle: PropTypes.bool,
 };
+
+const dummyFn = () => {};
 
 Chat.defaultProps = {
   user: null,
-  toggleExpansion: null,
+  toggleExpansion: dummyFn,
   referToEl: null,
   referFromEl: null,
   referenceElement: null,
   value: '',
   replayer: false,
-  change: null,
-  submit: null,
-  quickChat: null,
+  change: dummyFn,
+  submit: dummyFn,
+  quickChat: dummyFn,
   referencing: false,
   isSimplified: true,
-  setFromElAndCoords: null,
-  setToElAndCoords: null,
-  startNewReference: null,
-  showReference: null,
-  clearReference: null,
-  showingReference: null,
+  setFromElAndCoords: dummyFn,
+  setToElAndCoords: dummyFn,
+  startNewReference: dummyFn,
+  showReference: dummyFn,
+  clearReference: dummyFn,
+  showingReference: false,
   chatInput: null,
   eventsWithRefs: [],
-  goToReplayer: null,
-  createActivity: null,
+  goToReplayer: dummyFn,
+  createActivity: dummyFn,
   pendingUsers: null,
   connectionStatus: 'None',
   changingIndex: false,
   resetRoom: () => {},
+  showTitle: true,
 };
 
 export default Chat;
