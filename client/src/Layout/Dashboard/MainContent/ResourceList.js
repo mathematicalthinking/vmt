@@ -272,9 +272,9 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
   }, [sortConfig.key]);
 
   return (
-    <div>
+    <div className={classes.SortUIContainer}>
       <label htmlFor="sortTable" className={classes.Label}>
-        Sort By:
+        Sort by:&nbsp;&nbsp;
         <Select
           placeholder="Select..."
           className={classes.Select}
