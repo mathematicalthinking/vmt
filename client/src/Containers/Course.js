@@ -16,6 +16,7 @@ import {
   requestAccess,
   grantAccess,
   updateUser,
+  updatedCourse,
 } from '../store/actions';
 import {
   DashboardLayout,
@@ -110,6 +111,7 @@ class Course extends Component {
     if (!course) {
       return;
     }
+
     // If the user has been removed from this course go back to myVMT
     if (
       prevProps.user.courses.indexOf(course._id) > -1 &&
@@ -516,7 +518,7 @@ class Course extends Component {
                         onKeyPress={this.toggleEdit}
                       >
                         <span>
-                          Edit Course <i className="fas fa-edit" />
+                          Edit Info <i className="fas fa-edit" />
                         </span>
                       </div>
                       {editing ? (

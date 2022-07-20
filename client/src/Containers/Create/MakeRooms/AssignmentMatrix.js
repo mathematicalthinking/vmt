@@ -1,209 +1,207 @@
-import React, { useEffect } from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-// import { TextInput } from 'Components';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
   const {
-    list,
-    selectedParticipants,
-    select,
-    roomNum,
-    activity,
-    course,
-    dueDate,
+    list, // should be 'allParticipants'
+    requiredParticipants,
+    roomDrafts,
+    select, // should be 'setRoomDrafts'
+    canDeleteRooms, // should be 'canAddDeleteRooms'
     userId,
-    rooms,
+    onAddParticipants,
   } = props;
-  const date = dueDate ? new Date(dueDate) : new Date();
-  const dateStamp = `${date.getMonth() + 1}-${date.getDate()}`;
 
-  const newRoom = {
-    activity: activity._id,
-    name: '',
-    members: [],
-  };
-
-  useEffect(() => {
-    const facilitators = [];
-    list.forEach((user) => {
-      if (user.role === 'facilitator') {
-        facilitators.push({
-          role: user.role,
-          _id: user.user._id,
-        });
-      }
-    });
-    let roomList = [...rooms];
-    if (roomNum > rooms.length) {
-      for (let i = rooms.length; i < roomNum; i++) {
-        const currentRoom = { ...newRoom };
-        currentRoom.name = `${activity.name} room ${i + 1} (${dateStamp})`;
-        currentRoom.course = course;
-        currentRoom.members = [...facilitators];
-        roomList = [...roomList, currentRoom];
-      }
-    } else {
-      roomList.splice(roomNum - rooms.length);
-    }
-    select(roomList);
-  }, [roomNum]);
+  // =========== HANDLE CHANGES IN NUMBER OF ROOMS ==============
 
   const deleteRoom = (index) => {
-    const roomList = [...rooms];
+    if (roomDrafts.length <= 1) return;
+    const roomList = [...roomDrafts];
     roomList.splice(index, 1);
     select(roomList);
   };
 
+  const addRoom = (index) => {
+    const roomList = [...roomDrafts];
+    const newRoom = {
+      members: [...requiredParticipants],
+    };
+    roomList.splice(index, 0, newRoom);
+    select(roomList);
+  };
+
+  // ======================= HANDLE WHEN A PERSON GETS CLICKED (ASSIGNED TO A ROOM) ===========================
+
   const selectParticipant = (event, data) => {
-    const roomId = data.roomIndex;
+    const { roomIndex } = data;
     const user = {
       role: data.participant.role || 'participant',
       _id: data.participant.user._id,
+      user: data.participant.user,
     };
-    if (user._id && roomId >= 0) {
-      const roomsUpdate = [...rooms];
-      const index = checkUser(roomId, user._id);
+    if (user._id && roomIndex >= 0) {
+      const roomsUpdate = [...roomDrafts];
+      const index = checkUser(roomIndex, user);
       if (index < 0) {
-        roomsUpdate[roomId].members.push({ ...user });
+        roomsUpdate[roomIndex].members.push({ ...user });
       }
       if (index >= 0) {
-        roomsUpdate[roomId].members.splice(index, 1);
+        roomsUpdate[roomIndex].members.splice(index, 1);
       }
       select(roomsUpdate);
     }
   };
 
-//   const modRoomName = (event) => {
-//     const roomsUpdate = [...rooms];
-//     const roomId = event.target.id.split(':')[1];
-//     roomsUpdate[roomId].name = event.target.value;
-//     select(roomsUpdate);
-//   };
-
-  const checkUser = (roomId, user) => {
-    return rooms[roomId].members.findIndex((mem) => mem._id === user);
+  const checkUser = (roomIndex, user) => {
+    return roomDrafts[roomIndex].members.findIndex(
+      (mem) => mem.user._id === user._id
+    );
   };
 
+  // =========================================================
+
   return (
-    <div className={classes.AssignmentMatrix}>
-      <table className={classes.Table}>
-        <thead>
-          <tr className={classes.LockedTop}>
-            <th className={classes.LockedColumn}>Participants</th>
-            {rooms.map((room, i) => {
-              return (
-                <th
-                  className={classes.RoomsList}
-                  key={`room-${i + 1}`}
-                  id={`room-${i}`}
-                >
-                  {i + 1}
-                  {/* <TextInput
-                    type="textarea"
-                    light
-                    size="14"
-                    value={room.name}
-                    name={`roomName:${i}`}
-                    change={(event) => {
-                      modRoomName(event);
+    <Fragment>
+      <div className={classes.AssignmentMatrix}>
+        <table className={classes.Table}>
+          <caption className={classes.Caption}>Rooms</caption>
+          <thead>
+            <tr className={classes.LockedTop}>
+              <th className={classes.LockedColumn}>
+                Participants{' '}
+                {onAddParticipants && (
+                  <i
+                    className={`fas fa-solid fa-plus ${classes.plus}`}
+                    title="Add Participants"
+                    onClick={() => {
+                      onAddParticipants(true);
                     }}
-                  /> */}
-                </th>
+                    onKeyDown={() => {
+                      onAddParticipants(true);
+                    }}
+                    tabIndex={-1}
+                    role="button"
+                  />
+                )}
+              </th>
+              {roomDrafts.map((room, i) => {
+                return (
+                  <th
+                    className={classes.RoomsList}
+                    key={`room-${i + 1}`}
+                    id={`room-${i}`}
+                  >
+                    {i + 1}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {/* top row rooms list */}
+            {list.map((participant, i) => {
+              const rowClass = requiredParticipants.some(
+                ({ user }) => user.username === participant.user.username
+              )
+                ? [classes.Participant, classes.Selected].join(' ')
+                : classes.Participant;
+              return (
+                <tr
+                  className={rowClass}
+                  key={participant.user._id}
+                  id={participant.user._id}
+                >
+                  <td className={classes.LockedColumn}>
+                    {`${i + 1}. ${participant.user.username}`}
+                  </td>
+                  {roomDrafts.map((room, j) => {
+                    const roomKey = `${participant.user._id}rm${j}`;
+                    const data = {
+                      roomKey,
+                      participant,
+                      roomIndex: j,
+                    };
+                    return (
+                      <td
+                        key={`${participant.user._id}rm${j + 1}`}
+                        className={classes.CellAction}
+                      >
+                        <input
+                          type="checkbox"
+                          id={roomKey}
+                          disabled={userId === participant.user._id}
+                          data-testid={`checkbox${i + 1}-${j + 1}`}
+                          onChange={(event) => {
+                            selectParticipant(event, data);
+                          }}
+                          checked={checkUser(j, participant.user) >= 0}
+                        />
+                      </td>
+                    );
+                  })}
+                </tr>
               );
             })}
-          </tr>
-        </thead>
-        <tbody>
-          {/* top row rooms list */}
-          {list.map((participant, i) => {
-            const rowClass = selectedParticipants.includes(participant)
-              ? [classes.Participant, classes.Selected].join(' ')
-              : classes.Participant;
-            return (
-              <tr
-                className={rowClass}
-                key={participant.user._id}
-                id={participant.user._id}
-              >
-                <td className={classes.LockedColumn}>
-                  {`${i + 1}. ${participant.user.username}`}
+            {canDeleteRooms && (
+              <tr className={`${classes.Participant} ${classes.LockedBottom}`}>
+                <td key="room-delete-row" className={classes.LockedColumn}>
+                  <span>Add / Delete</span>
                 </td>
-                {rooms.map((room, j) => {
-                  const roomKey = `${participant.user._id}rm${j}`;
-                  const data = {
-                    roomKey,
-                    participant,
-                    roomIndex: j,
-                  };
+                {roomDrafts.map((room, i) => {
+                  const index = i; // defeat the linter
                   return (
                     <td
-                      key={`${participant.user._id}rm${j + 1}`}
+                      key={`room-${index}-delete`}
                       className={classes.CellAction}
                     >
-                      <input
-                        type="checkbox"
-                        id={roomKey}
-                        disabled={userId === participant.user._id}
-                        data-testid={`checkbox${i + 1}-${j + 1}`}
-                        onChange={(event) => {
-                          selectParticipant(event, data);
-                        }}
-                        checked={checkUser(j, participant.user._id) >= 0}
+                      <i
+                        className={`fas fa-solid fa-plus ${classes.plus}`}
+                        id={`room-${i}-addBtn`}
+                        disabled={roomDrafts.length >= list.length}
+                        data-testid={`addRoom-${i + 1}`}
+                        onClick={() => addRoom(i)}
+                        onKeyDown={() => addRoom(i)}
+                        tabIndex={-1}
+                        role="button"
+                      />
+                      <i
+                        className={`fas fa-solid fa-minus ${classes.minus}`}
+                        id={`room-${i}-deleteBtn`}
+                        disabled={roomDrafts.length <= 1}
+                        data-testid={`deleteRoom-${i + 1}`}
+                        onClick={() => deleteRoom(i)}
+                        onKeyDown={() => deleteRoom(i)}
+                        tabIndex={-1}
+                        role="button"
                       />
                     </td>
                   );
                 })}
               </tr>
-            );
-          })}
-          <tr className={`${classes.Participant} ${classes.LockedBottom}`}>
-            <td key="room-delete-row" className={classes.LockedColumn}>
-              <span>Delete Room?</span>
-            </td>
-            {rooms.map((room, i) => {
-              const index = i; // defeat the linter
-              return (
-                <td
-                  key={`room-${room.name}${index}-delete`}
-                  className={classes.CellAction}
-                >
-                  <button
-                    type="button"
-                    id={`room-${i}-deleteBtn`}
-                    disabled={rooms.length <= 1}
-                    data-testid={`deleteRoom-${i + 1}`}
-                    onClick={() => deleteRoom(i)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              );
-            })}
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Fragment>
   );
 };
 
 AssignmentMatrix.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
-  roomNum: PropTypes.number,
-  activity: PropTypes.shape({}),
-  course: PropTypes.string,
-  dueDate: PropTypes.instanceOf(Date),
   userId: PropTypes.string.isRequired,
-  rooms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  roomDrafts: PropTypes.arrayOf(
+    PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) })
+  ).isRequired,
+  canDeleteRooms: PropTypes.bool,
+  onAddParticipants: PropTypes.func,
 };
 
 AssignmentMatrix.defaultProps = {
-  activity: null,
-  course: '',
-  roomNum: 1,
-  dueDate: null,
+  canDeleteRooms: true,
+  onAddParticipants: null,
 };
 
 export default AssignmentMatrix;

@@ -201,7 +201,7 @@ class Community extends Component {
       linkSuffix = '/details';
     } else {
       linkPath = '/myVMT/activities/';
-      linkSuffix = '/details';
+      linkSuffix = '/assign';
     }
     return (
       <CommunityLayout
