@@ -35,6 +35,7 @@ const WebSketch = (props) => {
     initializing = false;
     return () => {
       socket.removeAllListeners('RECEIVE_EVENT');
+      // window.UTILMENU = undefined;
       console.log('WSP activity ending - clean up listeners');
     };
   }, []);
@@ -342,45 +343,65 @@ const WebSketch = (props) => {
     syncToFollower();
   };
 
-  const loadSketch = () => {
-    const { tab } = props;
-    let config = tab.ggbFile
-      ? JSON.parse(Buffer.from(tab.ggbFile, 'base64'))
-      : testConfig;
+  const loadSKetchDoc = (config) => {
     const $ = window.jQuery;
     if (!$) {
       console.warn('No jQuerious');
       return;
     }
+    $('#sketch').WSP('loadSketch', {
+      'data-sourceDocument': config,
+      onLoad: (metadata) => {
+        console.log('Loading: ', metadata);
+        $sketch = $('#sketch');
+        setFirstTabLoaded();
+        initializeListeners();
+      },
+    });
+    const data = $sketch.data('document');
+    console.log('Found data: ', data);
+    sketchDoc = data;
+    sketch = data.focusPage;
+  };
+
+  const getSketchConfig = (tab) => {
+    let config = tab.ggbFile
+      ? JSON.parse(Buffer.from(tab.ggbFile, 'base64'))
+      : testConfig;
+
     if (tab.currentStateBase64 && tab.currentStateBase64 !== '{}') {
       // existing event data on tab
       const { currentStateBase64 } = tab;
       config = JSON.parse(currentStateBase64);
     }
-    const pollDOM = () => {
-      const isWidgetLoaded = !!window.PAGENUM;
-      console.log('Widgets?: ', isWidgetLoaded);
+    return config;
+  };
 
-      if (isWidgetLoaded) {
-        $('#sketch').WSP('loadSketch', {
-          'data-sourceDocument': config,
-          onLoad: (metadata) => {
-            console.log('Loading: ', metadata);
-            $sketch = $('#sketch');
-            setFirstTabLoaded();
-            initializeListeners();
-          },
-        });
-        const data = $sketch.data('document');
-        console.log('Found data: ', data);
-        sketchDoc = data;
-        sketch = data.focusPage;
-        syncToFollower();
-      } else {
-        setTimeout(pollDOM, 200); // try again in 200 milliseconds
-      }
-    };
-    pollDOM();
+  const loadSketch = () => {
+    const { tab } = props;
+
+    let isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
+    console.log('Widgets?: ', isWidgetLoaded);
+    if (isWidgetLoaded) {
+      window.WIDGETS.initWidget();
+      window.PAGENUM.initPageControls();
+      window.UTILMENU.initUtils();
+
+      loadSKetchDoc(getSketchConfig(tab));
+      syncToFollower();
+    } else {
+      const pollDOM = () => {
+        isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
+        console.log('Widgets recheck: ', isWidgetLoaded);
+        if (isWidgetLoaded) {
+          loadSKetchDoc(getSketchConfig(tab));
+          syncToFollower();
+        } else {
+          setTimeout(pollDOM, 100); // try again in 100 milliseconds
+        }
+      };
+      pollDOM();
+    }
   };
 
   // interaction helpers
