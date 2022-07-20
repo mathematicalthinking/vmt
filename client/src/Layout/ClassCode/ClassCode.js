@@ -157,7 +157,7 @@ function ClassCode(props) {
     return <div>Welcome back to VMT!</div>;
   };
 
-  const { temp, loggedIn } = props;
+  const { temp, loggedIn, errorMessage: systemError } = props;
   const isGoogleUser = memberToConf.user ? memberToConf.user.isGmail : false;
 
   return (
@@ -260,10 +260,19 @@ function ClassCode(props) {
                   {}
                   {isGoogleUser ? (
                     <div
+                      tabIndex={-1}
+                      role="button"
+                      onKeyDown={() => {
+                        // send user email to redux store so that oauthreturn can check if it is the same email that was clicked on in google oauth
+                        dispatch({
+                          type: 'STORE_PRESUMPTIVE_GMAIL',
+                          payload: {
+                            presumptiveEmailAddress: memberToConf.user.email,
+                          },
+                        });
+                      }}
                       onClick={() => {
-                        console.log(
-                          'send user email to redux store so that oauthreturn can check if it is the same email that was clicked on in google oauth'
-                        );
+                        // send user email to redux store so that oauthreturn can check if it is the same email that was clicked on in google oauth
                         dispatch({
                           type: 'STORE_PRESUMPTIVE_GMAIL',
                           payload: {
@@ -278,6 +287,11 @@ function ClassCode(props) {
                     <Button m={10} click={handleLogin}>
                       Yes, let&apos;s go
                     </Button>
+                  )}
+                </div>
+                <div className={classes.ErrorMsg}>
+                  {systemError !== '' && (
+                    <div className={classes.Error}>{systemError}</div>
                   )}
                 </div>
               </Fragment>
@@ -298,7 +312,7 @@ ClassCode.propTypes = {
   errorMessage: PropTypes.string,
   clearError: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
 };
 
 ClassCode.defaultProps = {

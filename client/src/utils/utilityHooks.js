@@ -17,8 +17,25 @@ import buildLog from 'utils/buildLog';
 
 // from https://www.smashingmagazine.com/2020/03/sortable-tables-react/
 
+const timeFrames = {
+  all: 99999999999999999999999,
+  lastDay: 24 * 60 * 60 * 1000,
+  lastWeek: 7 * 24 * 60 * 60 * 1000,
+  lastMonth: 30 * 24 * 60 * 60 * 1000,
+  lastYear: 356 * 24 * 60 * 60 * 1000,
+};
+
 export const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = React.useState(config);
+
+  const withinTimeframe = (item) => {
+    if (!sortConfig || !item[sortConfig.key] || !sortConfig.filter) return true;
+    const now = new Date();
+    const then = new Date(item[sortConfig.key]);
+    return then.toString() !== 'Invalid Date'
+      ? Math.abs(then - now) <= timeFrames[sortConfig.filter]
+      : true;
+  };
 
   const sortedItems = React.useMemo(() => {
     // eslint-disable-next-line prefer-const
@@ -44,7 +61,7 @@ export const useSortableData = (items, config = null) => {
         return 0;
       });
     }
-    return sortableItems;
+    return sortableItems.filter(withinTimeframe);
   }, [items, sortConfig]);
 
   const requestSort = (key) => {
@@ -56,12 +73,18 @@ export const useSortableData = (items, config = null) => {
     ) {
       direction = 'descending';
     }
-    setSortConfig({ key, direction });
+    setSortConfig({ ...sortConfig, key, direction });
   };
 
-  const resetSort = (key, direction) => {
-    if (key && direction) setSortConfig({ key, direction });
-    else if (key && !direction) requestSort(key);
+  const resetSort = ({ key, direction, filter }) => {
+    if (key && !direction && !filter) requestSort(key);
+    else if (sortConfig)
+      setSortConfig({
+        key: key || sortConfig.key,
+        direction: direction || sortConfig.direction,
+        filter: filter || sortConfig.filter,
+      });
+    else setSortConfig({ key, direction, filter });
   };
 
   return { items: sortedItems, requestSort, sortConfig, resetSort };

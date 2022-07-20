@@ -10,6 +10,13 @@ export default {
     return api.get(`/api/${resource}`, params ? { params } : {});
   },
 
+  // returns resources that contain any of the values in any of the fields
+  findAllMatching: (resource, fields, values) => {
+    return api.get(`/api/findAllMatching/${resource}`, {
+      params: { fields, values },
+    });
+  },
+
   search: (resource, text, exclude) => {
     return api.get(`/api/search/${resource}`, { params: { text, exclude } });
   },

@@ -20,6 +20,7 @@ const ResourceList = ({
   const initialConfig = {
     key: 'updatedAt',
     direction: 'descending',
+    filter: 'all',
   };
   const [fList, setFacilitatorList] = useState([]);
   const [pList, setParticipantList] = useState([]);
@@ -52,14 +53,8 @@ const ResourceList = ({
     setFacilitatorList(facilitatorList);
     setParticipantList(participantList);
 
-    const { key: facilitatorKey, direction: facilitatorDirection } =
-      resourceState.facilitatorConfig || initialConfig;
-
-    const { key: participantKey, direction: participantDirection } =
-      resourceState.participantConfig || initialConfig;
-
-    facilitatorRequestSort(facilitatorKey, facilitatorDirection);
-    participantRequestSort(participantKey, participantDirection);
+    facilitatorRequestSort(resourceState.facilitatorConfig || initialConfig);
+    participantRequestSort(resourceState.participantConfig || initialConfig);
   }, [userResources]);
 
   useEffect(() => {
@@ -145,7 +140,7 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I Manage
             </h2>
-            {facilitatorItems.length > 1 && setResourceState && (
+            {fList.length > 1 && setResourceState && (
               <SortUI
                 keys={keys}
                 sortFn={facilitatorRequestSort}
@@ -168,7 +163,7 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I&#39;m a member of
             </h2>
-            {participantItems.length > 1 && setResourceState && (
+            {pList.length > 1 && setResourceState && (
               <SortUI
                 keys={keys}
                 sortFn={participantRequestSort}
@@ -196,22 +191,21 @@ const ResourceList = ({
               {displayResource} I&#39;m a member of
             </h2>
           )}
-          {(facilitatorItems.length > 1 || participantItems.length > 1) &&
-            setResourceState && (
-              <SortUI
-                keys={keys}
-                sortFn={
-                  fList.length > 0 || displayResource === 'Templates'
-                    ? facilitatorRequestSort
-                    : participantRequestSort
-                }
-                sortConfig={
-                  fList.length > 0 || displayResource === 'Templates'
-                    ? resourceState.facilitatorConfig || initialConfig
-                    : resourceState.participantConfig || initialConfig
-                }
-              />
-            )}
+          {(fList.length > 1 || pList.length > 1) && setResourceState && (
+            <SortUI
+              keys={keys}
+              sortFn={
+                fList.length > 0 || displayResource === 'Templates'
+                  ? facilitatorRequestSort
+                  : participantRequestSort
+              }
+              sortConfig={
+                fList.length > 0 || displayResource === 'Templates'
+                  ? resourceState.facilitatorConfig || initialConfig
+                  : resourceState.participantConfig || initialConfig
+              }
+            />
+          )}
           <BoxList
             list={facilitatorItems.concat(participantItems)}
             linkPath={linkPath}
@@ -255,22 +249,42 @@ export default ResourceList;
 const SortUI = ({ keys, sortFn, sortConfig }) => {
   const upArrow = <i className="fas fa-solid fa-arrow-up" />;
   const downArrow = <i className="fas fa-solid fa-arrow-down" />;
+  const timeFrameOptions = [
+    { label: 'All', value: 'all' },
+    { label: 'Last Day', value: 'lastDay' },
+    { label: 'Last Week', value: 'lastWeek' },
+    { label: 'Last Month', value: 'lastMonth' },
+    { label: 'Last Year', value: 'lastYear' },
+  ];
+
+  const optionForValue = (value) => {
+    return timeFrameOptions.find((opt) => opt.value === value);
+  };
 
   const keyName = (defaultName) => {
     const matchingKey = keys.find((key) => key.property === sortConfig.key);
     return matchingKey ? matchingKey.name : defaultName;
   };
+
+  React.useEffect(() => {
+    if (!['updatedAt', 'createdAt', 'dueDate'].includes(sortConfig.key))
+      sortFn({ filter: 'all' });
+  }, [sortConfig.key]);
+
   return (
-    <div>
+    <div className={classes.SortUIContainer}>
       <label htmlFor="sortTable" className={classes.Label}>
-        Sort By:
+        Sort by:&nbsp;&nbsp;
         <Select
           placeholder="Select..."
           className={classes.Select}
           name="sortUI"
           id="sortTable"
           onChange={(selectedOption) => {
-            sortFn(selectedOption.value, sortConfig.direction);
+            sortFn({
+              key: selectedOption.value,
+              direction: sortConfig.direction,
+            });
           }}
           value={{
             // eslint-disable-next-line react/prop-types
@@ -285,14 +299,32 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
           isSearchable={false}
         />
         <span
-          onClick={() => sortFn(sortConfig.key)}
-          onKeyDown={() => sortFn(sortConfig.key)}
+          style={{ paddingRight: '5px' }}
+          onClick={() => sortFn({ key: sortConfig.key })}
+          onKeyDown={() => sortFn({ key: sortConfig.key })}
           role="button"
           tabIndex={-1}
         >
-          {sortConfig.direction === 'descending' ? downArrow : upArrow}
+          {sortConfig.direction === 'descending' ? downArrow : upArrow}{' '}
         </span>
       </label>
+      {['updatedAt', 'createdAt', 'dueDate'].includes(sortConfig.key) && (
+        <label htmlFor="filterTable" className={classes.Label}>
+          Filter by:
+          <Select
+            placeholder="Timeframe"
+            className={classes.Select}
+            name="filterUI"
+            id="filterTable"
+            onChange={(selectedOption) => {
+              sortFn({ filter: selectedOption.value });
+            }}
+            value={optionForValue(sortConfig.filter)}
+            options={timeFrameOptions}
+            isSearchable={false}
+          />
+        </label>
+      )}
     </div>
   );
 };
@@ -305,13 +337,9 @@ SortUI.propTypes = {
   sortConfig: PropTypes.shape({
     key: PropTypes.string,
     direction: PropTypes.string,
+    filter: PropTypes.string,
   }),
 };
 SortUI.defaultProps = {
   sortConfig: {},
-};
-
-SortUI.propTypes = {
-  keys: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  sortFn: PropTypes.func.isRequired,
 };

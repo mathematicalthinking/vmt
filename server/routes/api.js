@@ -110,6 +110,30 @@ router.get('/searchPaginated/:resource', (req, res) => {
     });
 });
 
+// Return records that have any of the values in any of the fields
+router.get('/findAllMatching/:resource', (req, res) => {
+  const resource = getResource(req);
+  const controller = controllers[req.params.resource];
+  const { fields = [], values = [] } = req.query;
+
+  const params = fields.map((field) => ({
+    [field]: { $in: values },
+  }));
+
+  controller
+    .get({ isTrashed: false, $or: params })
+    .then((results) => res.json({ results }))
+    .catch((err) => {
+      console.error(`Error get ${resource}: ${err}`);
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+      return errors.sendError.InternalError(msg, res);
+    });
+});
+
 router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
   const user = getUser(req);
   if (!user.isAdmin) {
