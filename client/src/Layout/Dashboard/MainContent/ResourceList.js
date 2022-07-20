@@ -108,7 +108,7 @@ const ResourceList = ({
   if (displayResource === 'Activities') displayResource = 'Templates';
   if (parentResource === 'courses') {
     linkPath = `/myVMT/${parentResource}/${parentResourceId}/${resource}/`;
-    linkSuffix = '/details';
+    linkSuffix = resource === 'activities' ? '/assign' : '/details';
   }
 
   let create;

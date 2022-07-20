@@ -1,14 +1,7 @@
 /* eslint-disable react/no-did-update-set-state */
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  DashboardLayout,
-  SidePanel,
-  ActivityDetails,
-  ResourceList,
-  DashboardContent,
-} from '../Layout/Dashboard';
 import {
   Aux,
   Button,
@@ -17,7 +10,22 @@ import {
   EditText,
   TrashModal,
   Error,
-} from '../Components';
+} from 'Components';
+import { getResourceTabTypes } from 'utils';
+import {
+  SelectAssignments,
+  EditRooms,
+  MakeRooms,
+} from 'Containers/Create/MakeRooms';
+import {
+  createPreviousAssignments,
+  createEditableAssignments,
+} from 'utils/groupings';
+import {
+  DashboardLayout,
+  SidePanel,
+  DashboardContent,
+} from '../Layout/Dashboard';
 import {
   getCourses,
   getRooms,
@@ -28,7 +36,6 @@ import {
 import { populateResource } from '../store/reducers';
 import Access from './Access';
 import TemplatePreview from './Monitoring/TemplatePreview';
-import getResourceTabTypes from 'utils/getResourceTabTypes';
 
 class Activity extends Component {
   constructor(props) {
@@ -37,10 +44,10 @@ class Activity extends Component {
     this.state = {
       owner: false,
       tabs: [
-        { name: 'Details' },
+        { name: 'Assign' },
+        { name: 'Edit Assignments' },
         { name: 'Rooms' },
         { name: 'Preview' },
-        { name: 'Settings' },
       ],
       editing: false,
       name: activity ? activity.name : null,
@@ -70,7 +77,7 @@ class Activity extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { activity, loading, user } = this.props;
+    const { activity, loading, user, match } = this.props;
     if (!activity) {
       return;
     }
@@ -155,16 +162,85 @@ class Activity extends Component {
     this.setState({ owner: canEdit, canAccess });
   }
 
+  viewActivity = () => {
+    const { history, activity } = this.props;
+    history.push(`/myVMT/workspace/${activity._id}/activity`);
+  };
+
+  mainContent = () => {
+    const { match, activity, course, rooms, user } = this.props;
+    const { owner } = this.state;
+    const { resource } = match.params;
+
+    switch (resource) {
+      case 'rooms':
+        return (
+          <DashboardContent
+            userResources={activity.rooms.map((roomId) => rooms[roomId])}
+            notifications={[]}
+            user={user}
+            resource={resource}
+            parentResource={course ? 'courses' : 'activities'}
+            parentResourceId={course ? course._id : activity._id}
+            activityOwner={owner || user.isAdmin}
+          />
+        );
+      case 'preview':
+        return <TemplatePreview activity={activity} />;
+      case 'edit assignments':
+        return (
+          <SelectAssignments
+            // keys are needed so that React doesn't re-use these two SelectAssignments (treating them as one)
+            // see https://reactjs.org/docs/reconciliation.html
+            key="editSelect"
+            activity={activity}
+            course={course || null}
+            rooms={rooms}
+            userId={user._id}
+            user={{
+              role: 'facilitator',
+              user: { _id: user._id, username: user.username },
+            }}
+            label="Edit:"
+            defaultOption={{ label: 'Change Room Assignments', value: [] }}
+            toolTip="edit blurb for tooltip"
+            AssignmentComponent={EditRooms}
+            optionsGenerator={createEditableAssignments}
+          />
+        );
+      default:
+        return (
+          <SelectAssignments
+            // keys are needed so that React doesn't re-use these two SelectAssignments (treating them as one)
+            // see https://reactjs.org/docs/reconciliation.html
+            key="addSelect"
+            activity={activity}
+            course={course || null}
+            rooms={rooms}
+            userId={user._id}
+            user={{
+              role: 'facilitator',
+              user: { _id: user._id, username: user.username },
+            }}
+            label="Create:"
+            defaultOption={{ label: 'New Grouping', value: [] }}
+            toolTip="assign blurb for tooltip"
+            AssignmentComponent={MakeRooms}
+            optionsGenerator={createPreviousAssignments}
+            firstOption={{ label: 'New Grouping', value: [] }}
+          />
+        );
+    }
+  };
+
   render() {
     const {
       activity,
       course,
       match,
       user,
-      loading,
       updateFail,
       updateKeys,
-      rooms,
       history,
       connectUpdateActivity,
     } = this.props;
@@ -173,7 +249,6 @@ class Activity extends Component {
       privacySetting,
       name,
       description,
-      instructions,
       owner,
       tabs,
       trashing,
@@ -182,8 +257,6 @@ class Activity extends Component {
       isPlural,
     } = this.state;
     if (activity && canAccess) {
-      const { resource } = match.params;
-
       const keyword = isPlural ? 'types' : 'type';
       const additionalDetails = {
         [keyword]: roomType,
@@ -214,51 +287,18 @@ class Activity extends Component {
           },
           {
             title: `${activity.name}`,
-            link: `/myVMT/courses/${course._id}/activities/${
-              activity._id
-            }/details`,
+            link: `/myVMT/courses/${course._id}/activities/${activity._id}/assign`,
           },
         ];
       } else {
         crumbs.push({
           title: `${activity.name}`,
-          link: `/myVMT/activities/${activity._id}/details`,
+          link: `/myVMT/activities/${activity._id}/assign`,
         });
       }
 
-      let mainContent = (
-        <ActivityDetails
-          activity={activity}
-          update={this.updateActivityInfo}
-          instructions={instructions}
-          editing={editing}
-          owner={owner || user.isAdmin}
-          toggleEdit={this.toggleEdit}
-          userId={user._id}
-          course={course}
-          loading={loading}
-          canAccess={canAccess}
-        />
-      );
-
-      if (resource === 'rooms') {
-        mainContent = (
-          <DashboardContent
-            userResources={activity.rooms.map((roomId) => rooms[roomId])}
-            notifications={[]}
-            user={user}
-            resource={resource}
-            parentResource={course ? 'courses' : 'activities'}
-            parentResourceId={course ? course._id : activity._id}
-            activityOwner={owner || user.isAdmin}
-          />
-        );
-      } else if (resource === 'preview') {
-        mainContent = <TemplatePreview activity={activity} />;
-      }
-
       return (
-        <Aux>
+        <Fragment>
           <DashboardLayout
             breadCrumbs={
               <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
@@ -308,7 +348,7 @@ class Activity extends Component {
                         onKeyPress={this.toggleEdit}
                         tabIndex="-1"
                       >
-                        Edit Template <i className="fas fa-edit" />
+                        Edit Info <i className="fas fa-edit" />
                       </div>
                       {editing ? (
                         // @TODO this should be a resuable component
@@ -340,9 +380,20 @@ class Activity extends Component {
                     </Aux>
                   ) : null
                 }
+                buttons={
+                  <div>
+                    <Button
+                      m={5}
+                      click={this.viewActivity}
+                      data-testid="view-activity"
+                    >
+                      Edit Template
+                    </Button>
+                  </div>
+                }
               />
             }
-            mainContent={mainContent}
+            mainContent={this.mainContent()}
             tabs={<TabList routingInfo={match} tabs={tabs} />}
           />
           {trashing ? (
@@ -357,7 +408,7 @@ class Activity extends Component {
               history={history}
             />
           ) : null}
-        </Aux>
+        </Fragment>
       );
     }
     // if (!activity) return <div>Loading</div>;
@@ -430,13 +481,10 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectGetCourses: getCourses,
-    connectGetRooms: getRooms,
-    connectUpdateActivity: updateActivity,
-    connectGetActivities: getActivities,
-    connectGetCurrentActivity: getCurrentActivity,
-  }
-)(Activity);
+export default connect(mapStateToProps, {
+  connectGetCourses: getCourses,
+  connectGetRooms: getRooms,
+  connectUpdateActivity: updateActivity,
+  connectGetActivities: getActivities,
+  connectGetCurrentActivity: getCurrentActivity,
+})(Activity);

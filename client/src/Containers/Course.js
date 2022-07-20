@@ -16,6 +16,7 @@ import {
   requestAccess,
   grantAccess,
   updateUser,
+  updatedCourse,
 } from '../store/actions';
 import {
   DashboardLayout,
@@ -110,6 +111,7 @@ class Course extends Component {
     if (!course) {
       return;
     }
+
     // If the user has been removed from this course go back to myVMT
     if (
       prevProps.user.courses.indexOf(course._id) > -1 &&
@@ -312,6 +314,17 @@ class Course extends Component {
     connectRemoveCourseMember(course._id, user._id);
   };
 
+  sortParticipants = (list) => {
+    const facilitators = list
+      .filter((mem) => mem.role === 'facilitator')
+      .sort((a, b) => a.user.username.localeCompare(b.user.username));
+    const prevParticipants = list.filter((mem) => mem.role === 'participant');
+
+    return prevParticipants
+      .sort((a, b) => a.user.username.localeCompare(b.user.username))
+      .concat(facilitators);
+  };
+
   render() {
     const {
       course,
@@ -382,7 +395,7 @@ class Course extends Component {
         mainContent = (
           <Members
             user={user}
-            classList={course.members}
+            classList={this.sortParticipants(course.members)}
             owner={course.myRole === 'facilitator' || isAdmin}
             resourceType="course"
             resourceId={course._id}
@@ -505,7 +518,7 @@ class Course extends Component {
                         onKeyPress={this.toggleEdit}
                       >
                         <span>
-                          Edit Course <i className="fas fa-edit" />
+                          Edit Info <i className="fas fa-edit" />
                         </span>
                       </div>
                       {editing ? (

@@ -1,0 +1,29 @@
+FROM node:12.16.1@sha256:8fa78144d1864f2b08ca4a2d28e9cc32930d78850630652ff338793291a91f0c
+RUN apt update -y && apt upgrade -y && apt install -y curl wget zip unzip bash iputils-ping net-tools dnsutils
+RUN npm install -g npm@8.10.0 npm-check-updates@13.0.1
+ENV NODE_PATH=src \
+    PORT=1340 \
+    NODE_OPTIONS=--max_old_space_size=3072
+WORKDIR /web
+
+# install client dev dependencies for building app
+COPY client/package*.json ./client/
+RUN cd client && npm i
+
+# install server dev dependencies
+COPY server/package*.json ./server/
+RUN cd server && npm i
+
+# copy code to the client dir
+COPY ./client /web/client/
+
+# build VMT React client for production
+# RUN cd ./server && npm run build-production
+RUN cd ./client && node --max-old-space-size=3072 scripts/build.js production
+
+# copy code to the server dir
+COPY ./server /web/server/
+
+EXPOSE 1340
+CMD ["node", "/web/server/bin/www"]
+#CMD ["tail", "-f", "/dev/null"] # uncomment this line to keep a crashing container up for troubleshooting

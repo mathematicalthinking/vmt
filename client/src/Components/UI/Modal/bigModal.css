@@ -17,9 +17,9 @@
   flex-flow: column;
   justify-content: center;
   width: var(--modal-width);
-  min-height: 370px;
-  max-height: 90%;
-  min-width: 70%;
+  /* min-height: 370px;
+  max-height: 90%; */
+  /* min-width: 70%; */
   width: auto;
   max-width: 90%;
   text-align: center;
@@ -29,7 +29,7 @@
     0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
   background-color: white;
   padding: 16px;
-  z-index: 1500;
+  z-index: 10001;
   overflow-x: auto;
   overflow-y: auto;
   transition: all 0.5s ease-out;

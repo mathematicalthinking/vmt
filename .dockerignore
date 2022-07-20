@@ -1,0 +1,13 @@
+.dockerignore
+**/node_modules
+npm-debug.log
+Dockerfile
+.git
+.github
+.gitignore
+**/cypress
+**/cypress.json
+**/seeders
+**/*.crt
+**/*.key
+**/*.pem

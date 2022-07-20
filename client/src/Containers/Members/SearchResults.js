@@ -58,7 +58,7 @@ class SearchResults extends Component {
                 <Button
                   data-testid={`invite-member-${user.username}`}
                   click={() => {
-                    inviteMember(user._id, user.username);
+                    inviteMember(user._id, user.username, user.email);
                   }}
                 >
                   Add

@@ -8,5 +8,6 @@ export { loadState, saveState } from './localStorage';
 export { default as notifications } from './notifications';
 export { default as socket } from './sockets';
 export * from './validators';
+export { default as getResourceTabTypes } from './getResourceTabTypes';
 export * from './utilityHooks';
 export * from './importing';
