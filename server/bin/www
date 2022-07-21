@@ -24,11 +24,11 @@ app.set('port', port);
  * Listen on provided port, on all network interfaces.
  */
 var server = http.createServer(app);
-server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-sockets.init(server).then(() => socketListeners());
-// socketListeners();
+sockets.init(server);
+socketListeners();
+server.listen(port);
 
 /**
  * Normalize a port into a number, string, or false.
