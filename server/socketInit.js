@@ -30,7 +30,7 @@ const options = {
 
 sockets.init = function(server) {
   this.io = new Server(server, options);
-  const pubClient = createClient({ url: 'redis://127.0.0.1:6379' });
+  const pubClient = createClient({ url: process.env.PUB_CLIENT_URL });
   const subClient = pubClient.duplicate();
 
   this.io.adapter(createAdapter(pubClient, subClient));
