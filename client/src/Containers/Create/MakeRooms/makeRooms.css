@@ -234,3 +234,31 @@
 .RoomNameInput {
   display: flex;
 }
+
+.AliasInstructions {
+  margin: auto 0;
+}
+
+.AliasTooltipContent {
+  display: none;
+  position: absolute;
+  /* margin-top: 2rem; */
+  margin-left: -2rem;
+  padding: 10px;
+  /* left: auto;
+  right: 65px; */
+  z-index: 1000;
+  box-shadow: lightShadow;
+  background: #2d91f2;
+  color: white;
+  border: 2px solid #ddd;
+  min-width: 250px;
+  /* width: max-content; */
+  max-width: 85%;
+  transition: 0.2s;
+}
+
+.AliasInstructions:hover .AliasTooltipContent {
+  display: flex;
+  animation: showDropdown 0.2s;
+}
