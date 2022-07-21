@@ -71,18 +71,28 @@ const AssignmentMatrix = (props) => {
               <th className={classes.LockedColumn}>
                 Participants{' '}
                 {onAddParticipants && (
-                  <i
-                    className={`fas fa-solid fa-plus ${classes.plus}`}
-                    title="Add Participants"
-                    onClick={() => {
-                      onAddParticipants(true);
-                    }}
-                    onKeyDown={() => {
-                      onAddParticipants(true);
-                    }}
-                    tabIndex={-1}
-                    role="button"
-                  />
+                  <div
+                    className={classes.AliasInstructions}
+                    style={{ display: 'inline' }}
+                  >
+                    <i
+                      className={`fas fa-solid fa-plus ${classes.plus}`}
+                      onClick={() => {
+                        onAddParticipants(true);
+                      }}
+                      onKeyDown={() => {
+                        onAddParticipants(true);
+                      }}
+                      tabIndex={-1}
+                      role="button"
+                    >
+                      <div className={classes.AliasTooltipContent}>
+                        Add participants. If you are within a Course,
+                        participants added here will be added to the Course
+                        members list.
+                      </div>
+                    </i>
+                  </div>
                 )}
               </th>
               {roomDrafts.map((room, i) => {

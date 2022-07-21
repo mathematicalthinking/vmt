@@ -57,16 +57,23 @@ const AssignRooms = (props) => {
           />
         )}
 
-        <Checkbox
-          light
-          name="aliasUsernames"
-          dataId="aliasUsernames"
-          style={{ width: '175px' }}
-          change={() => setAliasMode(!aliasMode)}
-          checked={aliasMode || false}
-        >
-          Alias Usernames?
-        </Checkbox>
+        <div className={classes.AliasInstructions}>
+          <Checkbox
+            light
+            name="aliasUsernames"
+            dataId="aliasUsernames"
+            style={{ width: '175px' }}
+            change={() => setAliasMode(!aliasMode)}
+            checked={aliasMode || false}
+          >
+            Alias Usernames?
+            <div className={classes.AliasTooltipContent}>
+              When selected, members in the room will be given a random
+              username. When not selected, members in the room will have their
+              normal usernames{' '}
+            </div>
+          </Checkbox>
+        </div>
 
         <TextInput
           light

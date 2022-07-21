@@ -203,7 +203,7 @@ class Activity extends Component {
             }}
             label="Edit:"
             defaultOption={{ label: 'Change Room Assignments', value: [] }}
-            toolTip="edit blurb for tooltip"
+            toolTip="Editing assignments allows you to easily change the rooms that members are assigned to. You can also change the due date, the prefix for the room names, and whether or not to anonymize members while they're in the room."
             AssignmentComponent={EditRooms}
             optionsGenerator={createEditableAssignments}
           />
@@ -224,7 +224,7 @@ class Activity extends Component {
             }}
             label="Create:"
             defaultOption={{ label: 'New Grouping', value: [] }}
-            toolTip="assign blurb for tooltip"
+            toolTip="Create rooms for members to do math in. You can reuse the member groups that you create here."
             AssignmentComponent={MakeRooms}
             optionsGenerator={createPreviousAssignments}
             firstOption={{ label: 'New Grouping', value: [] }}
