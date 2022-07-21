@@ -42,44 +42,47 @@ const MakeRooms = (props) => {
 
   // if the selected assignment changes, reset the display
   useEffect(() => {
-    if (
-      selectedAssignment &&
-      Array.isArray(selectedAssignment.value) &&
-      selectedAssignment.value.length
-    ) {
+    if (selectedAssignment && Array.isArray(selectedAssignment.value)) {
       setRoomDrafts(selectedAssignment.value);
-      setParticipantsPerRoom(
-        Math.max(
-          Math.ceil(
-            filterFacilitators(participants).length /
-              selectedAssignment.value.length
-          ),
-          1
-        )
-      );
+      if (selectedAssignment.value.length !== 0) {
+        setParticipantsPerRoom(
+          Math.max(
+            Math.ceil(
+              filterFacilitators(participants).length /
+                selectedAssignment.value.length
+            ),
+            1
+          )
+        );
+      } else
+        setRoomNum(
+          Math.max(Math.ceil(filterFacilitators(participants).length / 3), 1),
+          true
+        );
     } else {
       setRoomNum(
         Math.max(Math.ceil(filterFacilitators(participants).length / 3), 1)
       );
     }
-  }, [selectedAssignment]);
+  }, [selectedAssignment, participants.length]);
 
-  const setRoomNum = (roomNum) => {
-    if (roomNum === roomDrafts.length) return;
+  const setRoomNum = (roomNum, clearRooms) => {
+    const newRoomDrafts = clearRooms ? [] : roomDrafts;
+    if (roomNum === newRoomDrafts.length) return;
     const requiredMembers = initialParticipants.filter(
       (mem) => mem.role === 'facilitator'
     );
     // Note that Array(n) creates an n length array, but with no values, so cannot map over them. Use fill() to fill the array with
     // undefined so the map will work. Alternatively, could do Array.from(Array(n)).
     const roomList =
-      roomNum > roomDrafts.length
-        ? roomDrafts
-            .concat(Array(roomNum - roomDrafts.length))
+      roomNum > newRoomDrafts.length
+        ? newRoomDrafts
+            .concat(Array(roomNum - newRoomDrafts.length))
             .fill()
             .map(() => ({
               members: [...requiredMembers],
             }))
-        : roomDrafts.slice(0, roomNum - roomDrafts.length);
+        : newRoomDrafts.slice(0, roomNum - newRoomDrafts.length);
     setRoomDrafts(roomList);
   };
 
