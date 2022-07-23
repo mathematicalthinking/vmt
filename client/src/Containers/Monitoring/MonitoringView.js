@@ -168,7 +168,13 @@ function MonitoringView({
             .filter(
               (room) => selections[room._id] && queryStates[room._id].isSuccess
             )
-            .reduce((res, room) => ({ ...res, [room._id]: room }), {})}
+            .reduce(
+              (res, room) => ({
+                ...res,
+                [room._id]: queryStates[room._id].data,
+              }),
+              {}
+            )}
         />
       )}
     </div>
