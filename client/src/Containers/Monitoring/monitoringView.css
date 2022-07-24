@@ -23,6 +23,10 @@
   margin-top: 0px;
 }
 
+.MainSelect {
+  margin-bottom: 1.5em;
+}
+
 .TogglesContainer {
   display: flex;
   flex-direction: row;

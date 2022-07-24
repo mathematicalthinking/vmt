@@ -51,25 +51,30 @@ function TemplatePreview({ activity }) {
   return (
     <div className={classes.Container}>
       {isThumbnailSelected && activity.tabs && activity.tabs.length > 1 && (
-        <Select
-          options={activity.tabs.map((tab, index) => {
-            return { value: index, label: tab.name };
-          })}
-          value={tabSelection}
-          onChange={(selectedOption) => {
-            setTabSelection(selectedOption);
-          }}
-          placeholder="Select a Tab..."
-        />
+        <div className={classes.MainSelect}>
+          <Select
+            options={activity.tabs.map((tab, index) => {
+              return { value: index, label: tab.name };
+            })}
+            value={tabSelection}
+            onChange={(selectedOption) => {
+              setTabSelection(selectedOption);
+            }}
+            placeholder="Select a Tab..."
+          />
+        </div>
       )}
       <RoomsMonitor
         populatedRooms={activity.rooms
-          .filter((room) => queryStates[room._id].isSuccess)
-          .reduce((res, room) => ({
-            ...res,
-            [room._id]: queryStates[room._id].data,
-          }))}
-        tabIndex={tabSelection.value}
+          .filter((roomId) => queryStates[roomId].isSuccess)
+          .reduce(
+            (res, roomId) => ({
+              ...res,
+              [roomId]: queryStates[roomId].data,
+            }),
+            {}
+          )}
+        tabIndex={tabSelection && tabSelection.value}
         onThumbnailSelected={setIsThumbnailSelected}
       />
     </div>
