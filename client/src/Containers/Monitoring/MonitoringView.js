@@ -12,6 +12,9 @@ import classes from './monitoringView.css';
 /**
  * The MonitoringView allows users to select which of their rooms (whether ones
  * they manage or are a member of) to monitor.
+ *
+ * The rooms are shown by default in reverse chronological order. However,
+ * whatever sorting and selection is done by the selection table takes precedence.
  */
 
 function MonitoringView({

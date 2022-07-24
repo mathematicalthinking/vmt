@@ -224,62 +224,55 @@ function RoomsMonitor({
           <div className={classes.NoSnapshot}>No rooms to display</div>
         )}
         <div className={classes.TileGroup}>
-          {Object.values(populatedRooms)
-            .sort(
-              (a, b) =>
-                // Sort the rooms into reverse chronological order (most recently changed first) as of when the course was loaded
-                new Date(b.updatedAt) - new Date(a.updatedAt)
-            )
-            .map((room) => {
-              // for each of the rooms managed by a user, if that
-              // room is selected, display its title bar (title and menu) and
-              // then the particular view type.
-              return (
-                <div key={room._id} className={classes.Tile}>
-                  <div className={classes.TileContainer}>
-                    <div
-                      className={classes.Title}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'flex-start',
-                        alignItems: 'center',
-                        marginBottom: '5px',
-                      }}
-                    >
-                      <DropdownMenu
-                        list={_makeMenu(room._id)}
-                        name={<i className="fas fa-bars" />}
-                      />
-                      {populatedRooms[room._id] ? (
-                        <Fragment>
-                          {populatedRooms[room._id].name}
-                          <span className={classes.Timestamp}>
-                            updated:{' '}
-                            {_roomDateStamp(populatedRooms[room._id].updatedAt)}{' '}
-                          </span>
-                          <i
-                            className="fas fa-external-link-alt"
-                            title="Open a quick view of the room"
-                            onClick={() => {
-                              _openModal(room._id);
-                            }}
-                            onKeyDown={() => {
-                              _openModal(room._id);
-                            }}
-                            tabIndex="-1"
-                            role="button"
-                          />
-                        </Fragment>
-                      ) : (
-                        'Loading...'
-                      )}
-                    </div>
-                    {_displayViewType(room._id)}
+          {Object.values(populatedRooms).map((room) => {
+            // for each of the rooms managed by a user display its title bar (title and menu) and
+            // then the particular view type.
+            return (
+              <div key={room._id} className={classes.Tile}>
+                <div className={classes.TileContainer}>
+                  <div
+                    className={classes.Title}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                      marginBottom: '5px',
+                    }}
+                  >
+                    <DropdownMenu
+                      list={_makeMenu(room._id)}
+                      name={<i className="fas fa-bars" />}
+                    />
+                    {populatedRooms[room._id] ? (
+                      <Fragment>
+                        {populatedRooms[room._id].name}
+                        <span className={classes.Timestamp}>
+                          updated:{' '}
+                          {_roomDateStamp(populatedRooms[room._id].updatedAt)}{' '}
+                        </span>
+                        <i
+                          className="fas fa-external-link-alt"
+                          title="Open a quick view of the room"
+                          onClick={() => {
+                            _openModal(room._id);
+                          }}
+                          onKeyDown={() => {
+                            _openModal(room._id);
+                          }}
+                          tabIndex="-1"
+                          role="button"
+                        />
+                      </Fragment>
+                    ) : (
+                      'Loading...'
+                    )}
                   </div>
+                  {_displayViewType(room._id)}
                 </div>
-              );
-            })}
+              </div>
+            );
+          })}
         </div>
       </div>
       <BigModal show={showModal} closeModal={() => setShowModal(false)}>
