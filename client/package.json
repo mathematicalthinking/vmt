@@ -41,7 +41,7 @@
     "human-readable-ids": "^1.0.4",
     "jest": "20.0.4",
     "lodash": "^4.17.21",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "object-assign": "4.1.1",
     "postcss-flexbugs-fixes": "3.2.0",
     "postcss-loader": "2.0.8",
