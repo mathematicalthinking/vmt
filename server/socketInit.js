@@ -33,6 +33,14 @@ sockets.init = function(server) {
   const pubClient = createClient({ url: process.env.PUB_CLIENT_URL });
   const subClient = pubClient.duplicate();
 
+  pubClient.on('error', (err) => {
+    console.log(err.message);
+  });
+
+  subClient.on('error', (err) => {
+    console.log(err.message);
+  });
+
   this.io.adapter(createAdapter(pubClient, subClient));
 };
 
