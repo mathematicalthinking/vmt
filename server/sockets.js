@@ -430,7 +430,7 @@ module.exports = function() {
         ['socketId'],
         socketsInRoom
       );
-      return (answer || []).map((user) => user._id);
+      return (answer || []).map((user) => user._id.toString());
     };
 
     const leaveRoom = async (room, users, color, cb) => {
