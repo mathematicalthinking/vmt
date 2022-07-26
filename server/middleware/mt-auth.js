@@ -115,14 +115,8 @@ const prepareVmtUser = (req, res, next) => {
         ssoService.revokeRefreshToken(req.cookies[refreshCookie.name], user);
 
         const { socketId } = user;
-        const socket = (await sockets.io.in(socketId).fetchSockets())[0];
-        // sockets.io
-        //   .in(socketId)
-        //   .fetchSockets()
-        //   .then((socketList) => {
-        //     const socket = socketList[0];
-        if (socket) {
-          socket.emit('FORCED_LOGOUT');
+        if (socketId) {
+          sockets.io.in(socketId).emit('FORCED_LOGOUT');
         }
         // });
 
