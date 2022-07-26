@@ -4,6 +4,7 @@ const socketInit = require('./socketInit');
 const controllers = require('./controllers');
 const Message = require('./models/Message');
 const { socketMetricInc } = require('./services/metrics');
+const { findAllMatching } = require('./middleware/utils/helpers');
 
 module.exports = function() {
   const { io } = socketInit;
@@ -421,11 +422,19 @@ module.exports = function() {
       return showAliases ? member.alias : member.user.username;
     };
 
+    // Returns the users that are in roomId (across all nodes if necessary)
+    // Note that previously, we had extracted just the user _id and returned
+    // that array. Now we are returning an array of full user objects.
+    // We suspect that this still works bc we give that array to a db function that reverts
+    // the full user object to it's reference (i.e., the _id).
     const usersInRoom = async (roomId) => {
-      const socketsInRoom = await io.in(roomId).fetchSockets();
-      return socketsInRoom
-        .map((socket) => socket.user_id)
-        .filter((_id) => !!_id); // ocassionally we get null socket.user_ids. Filter these out.
+      const socketsInRoom = Array.from(await io.in(roomId).allSockets());
+      const answer = await findAllMatching(
+        controllers.user,
+        ['socketId'],
+        socketsInRoom
+      );
+      return answer;
     };
 
     const leaveRoom = async (room, users, color, cb) => {

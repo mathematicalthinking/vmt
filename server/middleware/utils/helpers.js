@@ -70,8 +70,20 @@ const areObjectIdsEqual = (a, b) => {
   return a2 === b2;
 };
 
+// Returns all records via the controller that have any of the values in any of the fields
+const findAllMatching = (controller, fields = [], values = []) => {
+  const params = fields.map((field) => ({
+    [field]: { $in: values },
+  }));
+
+  return controller
+    .get({ isTrashed: false, $or: params })
+    .then((results) => results);
+};
+
 module.exports.isNonEmptyObject = isNonEmptyObject;
 module.exports.getUserRoleInRecord = getUserRoleInRecord;
 module.exports.isUserFacilitatorInRecord = isUserFacilitatorInRecord;
 module.exports.areObjectIdsEqual = areObjectIdsEqual;
 module.exports.isValidMongoId = isValidMongoId;
+module.exports.findAllMatching = findAllMatching;

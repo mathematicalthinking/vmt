@@ -117,9 +117,10 @@ Notification.post('save', async function(notification, next) {
     try {
       const updatedUser = await updateUser(notification.toUser, updateQuery);
       const socketId = updatedUser && updatedUser.socketId;
-      const socket = (await sockets.io.in(socketId).fetchSockets())[0];
       const data = await buildEmitData(notification);
-      return socket && data ? socket.emit('NEW_NOTIFICATION', data) : null;
+      return socketId && data
+        ? sockets.io.in(socketId).emit('NEW_NOTIFICATION', data)
+        : null;
     } catch (err) {
       console.log('err post save ntf', err);
       return next(err);
@@ -127,34 +128,5 @@ Notification.post('save', async function(notification, next) {
   }
   return next();
 });
-
-//   return updateUser(notification.toUser, updateQuery)
-//     .then((updatedUser) => {
-//       // check if there is socket for user
-//       // if (!notification.isTrashed) {
-//       const { socketId } = updatedUser;
-
-//       return sockets.io
-//         .in(socketId)
-//         .fetchSockets()
-//         .then((socketList) => {
-//           const socket = socketList[0];
-//           if (socket) {
-//             return buildEmitData(notification).then((data) => {
-//               if (data) {
-//                 // console.log('EMITTING NTF: ', data);
-//                 return socket.emit('NEW_NOTIFICATION', data);
-//               }
-//               return null;
-//             });
-//           }
-//           return null;
-//         });
-//     })
-//     .catch((err) => {
-//       console.log('err post save ntf', err);
-//       next(err);
-//     });
-// }
 
 module.exports = mongoose.model('Notification', Notification);

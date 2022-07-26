@@ -91,7 +91,7 @@ app.use('/env.js', (req, res) => {
       curr.includes('REACT_APP_')
         ? acc.concat(`window.env.${curr}='${process.env[curr]}';`)
         : acc,
-    `window.env={};`
+    `window.env={};window.env.REACT_APP_MAYBE_HOSTNAME='${require('os').hostname()}';`
   );
   res.setHeader('Content-Type', 'application/javascript');
   res.send(commands);
