@@ -423,10 +423,6 @@ module.exports = function() {
     };
 
     // Returns the users that are in roomId (across all nodes if necessary)
-    // Note that previously, we had extracted just the user _id and returned
-    // that array. Now we are returning an array of full user objects.
-    // We suspect that this still works bc we give that array to a db function that reverts
-    // the full user object to it's reference (i.e., the _id).
     const usersInRoom = async (roomId) => {
       const socketsInRoom = Array.from(await io.in(roomId).allSockets());
       const answer = await findAllMatching(
@@ -434,7 +430,7 @@ module.exports = function() {
         ['socketId'],
         socketsInRoom
       );
-      return answer;
+      return (answer || []).map((user) => user._id.toString());
     };
 
     const leaveRoom = async (room, users, color, cb) => {
