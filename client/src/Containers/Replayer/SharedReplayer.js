@@ -6,6 +6,7 @@ import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import ReplayerControls from './ReplayerControls';
 import DesmosReplayer from './DesmosReplayer';
 import DesActivityReplayer from './DesActivityReplayer';
+import WSPReplayer from './WSPReplayer';
 import GgbReplayer from './GgbReplayer';
 import ChatReplayer from './ChatReplayer';
 import Clock from './Clock';
@@ -562,6 +563,23 @@ class SharedReplayer extends Component {
       if (tab.tabType === 'desmosActivity') {
         return (
           <DesActivityReplayer
+            log={this.updatedLog}
+            index={logIndex}
+            changingIndex={changingIndex}
+            playing={playing}
+            reset={this.reset}
+            changeTab={this.changeTab}
+            currentTabId={currentTabId}
+            setTabLoaded={this.setTabLoaded}
+            tab={tab}
+            key={tab._id}
+            inView={currentTabId === tab._id}
+          />
+        );
+      }
+      if (tab.tabType === 'wsp') {
+        return (
+          <WSPReplayer
             log={this.updatedLog}
             index={logIndex}
             changingIndex={changingIndex}
