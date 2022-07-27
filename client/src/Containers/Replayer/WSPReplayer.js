@@ -48,6 +48,7 @@ const WebSketch = (props) => {
       console.log('Setting sketc doc');
       const sketchEl = window.jQuery('#sketch');
       sketchDoc = sketchEl.data('document');
+      sketch = sketchDoc.focusPage;
     }
     // msg has three properties: action, time, and data
     // for most events, data is the attributes of the WSP event
@@ -132,6 +133,7 @@ const WebSketch = (props) => {
       console.log("Messaging error: this follower's sketch is not loaded.");
       return;
     }
+    console.log('Move message, data: ', moveList);
     for (const id in moveList) {
       const newLoc = moveList[id];
       const destGobj = sketch.gobjList.gobjects[id];
