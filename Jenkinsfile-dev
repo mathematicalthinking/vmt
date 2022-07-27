@@ -70,7 +70,7 @@ pipeline {
                             docker pull ${registry}:dev-latest
                                                         
                             # remove the docker swarm service
-                            docker service rm mt-test_vmt
+                            docker service rm mt-test_vmt1 mt-test_vmt2 mt-test_vmt3
 
                             # redeploy the app service                            
                             docker stack deploy --compose-file DevOpsTemp/mt/docker-compose-mt-apps-test.yml mt-test
