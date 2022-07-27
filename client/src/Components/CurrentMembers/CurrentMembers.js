@@ -66,7 +66,7 @@ function CurrentMembers({
 
   const usernameGen = (usrnm) => {
     let shortName = usrnm;
-    const maxLen = 20;
+    const maxLen = 35;
     if (shortName.includes('@'))
       shortName = shortName.substring(0, shortName.lastIndexOf('@'));
     if (shortName.length > maxLen) shortName = shortName.substring(0, maxLen);
