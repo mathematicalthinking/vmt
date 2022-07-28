@@ -11,7 +11,7 @@ const QuickChat = ({ populatedRoom, isSimplified, user }) => {
   };
 
   const leaveRoom = () => {
-    socket.emit('LEAVE_ROOM-QUICK_CHAT', populatedRoom._id, '#f26247');
+    socket.emit('LEAVE_ROOM_QUICKCHAT', populatedRoom._id, '#f26247');
   };
 
   React.useEffect(() => {
@@ -23,9 +23,8 @@ const QuickChat = ({ populatedRoom, isSimplified, user }) => {
       username: user.username,
       roomName: populatedRoom.name,
       color: '#f26247',
-      message: `QUICK CHAT: ${user.username} joined ${populatedRoom.name}`,
     };
-    socket.emit('JOIN_QUICK-CHAT', sendData, (data, err) => {
+    socket.emit('JOIN_QUICKCHAT', sendData, (data, err) => {
       if (err) {
         // eslint-disable-next-line no-console
         console.log('Error joining room');
