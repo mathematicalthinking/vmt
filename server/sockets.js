@@ -372,14 +372,22 @@ module.exports = function() {
     socket.on('LEAVE_ROOM', (roomId, color, cb) => {
       socketMetricInc('roomleave');
       socket.leave(roomId);
-      usersInRoom(roomId).then((users) => leaveRoom(roomId, users, color, cb));
+      usersInRoom(roomId).then((users) =>
+        leaveRoom(roomId, users, color, `${socket.username} left the room`, cb)
+      );
     });
 
     socket.on('LEAVE_ROOM-QUICK_CHAT', (roomId, color, cb) => {
       socketMetricInc('roomleave');
       socket.leave(roomId);
       usersInRoom(roomId).then((users) =>
-        leaveRoom(roomId, users, color, cb, true)
+        leaveRoom(
+          roomId,
+          users,
+          color,
+          `QUICK CHAT: ${socket.username} left the room`,
+          cb
+        )
       );
     });
 
@@ -466,10 +474,7 @@ module.exports = function() {
       return (answer || []).map((user) => user._id.toString());
     };
 
-    const leaveRoom = async (room, users, color, cb, quickChat = false) => {
-      const text = quickChat
-        ? `QUICK CHAT: ${socket.username} left the room`
-        : `${socket.username} left the room`;
+    const leaveRoom = async (room, users, color, text, cb) => {
       controllers.rooms
         .setCurrentUsers(room, users)
         .then((res) => {
