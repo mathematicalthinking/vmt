@@ -391,7 +391,6 @@ class Chat extends Component {
       connectionStatus,
       resetRoom,
       showTitle,
-      isQuickChat,
     } = this.props;
     const {
       highlightedMessage,
@@ -458,9 +457,7 @@ class Chat extends Component {
     return (
       <Fragment>
         <div
-          className={
-            isQuickChat ? classes.QuickChatContainer : classes.Container
-          }
+          className={expanded ? classes.Container : classes.CollapsedContainer}
           ref={this.chatContainer}
         >
           {showTitle && (
@@ -678,7 +675,6 @@ Chat.propTypes = {
   changingIndex: PropTypes.bool,
   resetRoom: PropTypes.func,
   showTitle: PropTypes.bool,
-  isQuickChat: PropTypes.bool,
 };
 
 const dummyFn = () => {};
@@ -711,7 +707,6 @@ Chat.defaultProps = {
   changingIndex: false,
   resetRoom: () => {},
   showTitle: true,
-  isQuickChat: false,
 };
 
 export default Chat;

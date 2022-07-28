@@ -41,18 +41,19 @@ const QuickChat = ({ populatedRoom, isSimplified, user }) => {
   }, [populatedRoom._id]);
 
   return (
-    <Chat
-      roomId={populatedRoom._id}
-      log={log}
-      addToLog={addToLog}
-      user={user}
-      referencing={false}
-      isSimplified={isSimplified}
-      currentTabId={populatedRoom.tabs[0]._id}
-      expanded
-      showTitle={false}
-      isQuickChat
-    />
+    <div style={{ height: '80%' }}>
+      <Chat
+        roomId={populatedRoom._id}
+        log={log}
+        addToLog={addToLog}
+        user={user}
+        referencing={false}
+        isSimplified={isSimplified}
+        currentTabId={populatedRoom.tabs[0]._id}
+        expanded
+        showTitle={false}
+      />
+    </div>
   );
 };
 
