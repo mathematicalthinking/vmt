@@ -101,6 +101,8 @@ const ResourceList = ({
   let linkSuffix;
   if (resource === 'courses') {
     linkSuffix = '/rooms';
+  } else if (resource === 'activities') {
+    linkSuffix = '/assign';
   } else {
     linkSuffix = '/details';
   }

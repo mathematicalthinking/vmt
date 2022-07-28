@@ -186,7 +186,11 @@ class Activity extends Component {
           />
         );
       case 'preview':
-        return <TemplatePreview activity={activity} />;
+        return (
+          <TemplatePreview
+            activity={{ ...activity, rooms: Object.values(rooms) }}
+          />
+        );
       case 'edit assignments':
         return (
           <SelectAssignments
