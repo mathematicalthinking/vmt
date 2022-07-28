@@ -11,11 +11,11 @@ const QuickChat = ({ populatedRoom, isSimplified, user }) => {
   };
 
   const leaveRoom = () => {
+    console.log('leaving room', populatedRoom._id);
     socket.emit('LEAVE_ROOM_QUICKCHAT', populatedRoom._id, '#f26247');
   };
 
   React.useEffect(() => {
-    leaveRoom();
     const sendData = {
       _id: createMongoId(),
       userId: user._id,
@@ -54,6 +54,18 @@ const QuickChat = ({ populatedRoom, isSimplified, user }) => {
       />
     </div>
   );
+};
+
+QuickChat.propTypes = {
+  populatedRoom: PropTypes.shape({
+    _id: PropTypes.string,
+    chat: PropTypes.arrayOf(PropTypes.shape({})),
+    tabs: PropTypes.arrayOf(PropTypes.shape({ _id: PropTypes.string })),
+    name: PropTypes.string,
+  }).isRequired,
+  isSimplified: PropTypes.bool.isRequired,
+  user: PropTypes.shape({ _id: PropTypes.string, username: PropTypes.string })
+    .isRequired,
 };
 
 const mapStateToProps = (state) => ({
