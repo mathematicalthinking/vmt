@@ -126,7 +126,7 @@ module.exports = function() {
       if (cb) cb();
     });
 
-    socket.on('JOIN', async (data, quickChat = false, cb) => {
+    socket.on('JOIN', async (data, cb) => {
       socketMetricInc('roomjoin');
 
       socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
@@ -148,8 +148,8 @@ module.exports = function() {
 
       const users = await usersInRoom(data.roomId);
 
-      const text = quickChat
-        ? `QUICK CHAT: ${data.username} joined ${data.roomName}`
+      const text = data.message
+        ? data.message
         : `${data.username} joined ${data.roomName}`;
 
       const message = {

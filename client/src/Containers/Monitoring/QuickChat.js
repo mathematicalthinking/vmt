@@ -23,8 +23,9 @@ const QuickChat = ({ populatedRoom, isSimplified, user }) => {
       username: user.username,
       roomName: populatedRoom.name,
       color: '#f26247',
+      message: `QUICK CHAT: ${user.username} joined ${populatedRoom.name}`,
     };
-    socket.emit('JOIN', sendData, true, (data, err) => {
+    socket.emit('JOIN', sendData, (data, err) => {
       if (err) {
         // eslint-disable-next-line no-console
         console.log('Error joining room');
