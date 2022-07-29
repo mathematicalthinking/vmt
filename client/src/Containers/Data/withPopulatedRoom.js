@@ -106,18 +106,20 @@ function withPopulatedRoom(WrappedComponent) {
         });
     }
 
+    // hri format: adjective-animal-number
+    // alias format: animal-number
     // eslint-disable-next-line class-methods-use-this, react/sort-comp
     getUniqueAlias(aliases) {
       let newAlias = hri
         .random()
         .split('-')
-        .splice(0, 2)
+        .splice(1, 2)
         .join('-');
       while (aliases.includes(newAlias)) {
         newAlias = hri
           .random()
           .split('-')
-          .splice(0, 2)
+          .splice(1, 2)
           .join('-');
       }
       return newAlias;

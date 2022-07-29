@@ -1,12 +1,12 @@
 {
   "name": "vmt",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
     "start-production": "NODE_ENV=production node ./bin/www",
     "start-staging": "NODE_ENV=staging node ./bin/www",
-    "dev": "NODE_ENV=development concurrently \"nodemon --ignore '../client'\" \"npm run client\"",
+    "dev": "NODE_ENV=development concurrently \"nodemon --ignore '../client'\" \"npm run client\" \"redis-server\"",
     "dev:pc": "\"SET NODE_ENV=development&& concurrently \"nodemon --ignore '../client'\" \"npm run client\"",
     "client": "cd ../client && npm run start",
     "build-staging": "cd ../client && node --max-old-space-size=3072 scripts/build.js staging",
@@ -29,8 +29,8 @@
     "seed": "node cypress/seedDb",
     "seed-sso": "cd ../../mt-sso && npm run test",
     "seed-enc": "cd ../../encompass &&  grunt serve-seed",
-    "test-vmt": "concurrently \"npm:test\"  \"npm:seed-sso\"",
-    "test-all": "concurrently \"npm:seed-enc\" \"npm:test\"  \"npm:seed-sso\"",
+    "test-vmt": "concurrently \"npm:test\"  \"npm:seed-sso\" \"redis-server\"",
+    "test-all": "concurrently \"npm:seed-enc\" \"npm:test\"  \"npm:seed-sso\" \"redis-server\"",
     "restore-sso": "cd ../../mt-sso && npm run seed",
     "restore-enc": "cd ..",
     "dev-sso": "cd ../../mt-sso && npm run dev",
@@ -42,6 +42,7 @@
     "test-start": "NODE_ENV=test concurrently \"nodemon --ignore '../client'\" \"npm run client\""
   },
   "dependencies": {
+    "@socket.io/redis-adapter": "^7.2.0",
     "axios": ">=0.21.2",
     "bluebird": "^3.5.1",
     "body-parser": "~1.18.2",
@@ -60,6 +61,7 @@
     "morgan": "^1.9.1",
     "multer": "^1.4.1",
     "prom-client": "^13.2.0",
+    "redis": "^3.1.2",
     "serve-favicon": "~2.4.5",
     "socket.io": "^4.3.1",
     "xml2js": "^0.4.19"

@@ -56,3 +56,8 @@
   margin: 0 1rem;
   font-weight: normal !important; /* !important to be normal font weight here */
 }
+
+.SortUIContainer {
+  display: flex;
+  flex-wrap: wrap;
+}

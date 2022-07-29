@@ -2,6 +2,8 @@ import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
 import * as loading from './loading';
+import { updateActivity } from './activities';
+import { updateCourse } from './courses';
 
 export const gotRooms = (rooms, isNewRoom) => ({
   type: actionTypes.GOT_ROOMS,
@@ -151,23 +153,16 @@ export const setRoomStartingPoint = (roomId) => {
   };
 };
 
+// Note: we only need to update Course, Activity, & User w/new room
+// in the Redux store, b/c on the server side, when a new room is created
+// this info is added to the db (see server/model/Room.js -> Room.post)
 export const createRoom = (body) => {
   return (dispatch) => {
     dispatch(loading.start());
     API.post('rooms', body)
       .then((res) => {
         const { result } = res.data;
-        result.myRole = 'facilitator';
-        dispatch(createdRoom(result));
-        if (!body.tempRoom) {
-          if (body.course) {
-            dispatch(addCourseRooms(body.course, [result._id]));
-          }
-          if (body.activity) {
-            dispatch(addActivityRooms(body.activity, [result._id]));
-          }
-          dispatch(addUserRooms([result._id]));
-        }
+        dispatchNewRoom(result, dispatch);
         return dispatch(loading.success());
       })
       .catch((err) => {
@@ -175,6 +170,94 @@ export const createRoom = (body) => {
       });
   };
 };
+
+export const createGrouping = (roomsToCreate, activity, course = null) => {
+  return (dispatch, getState) => {
+    const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
+    const groupId = `${activity._id}--${randomNum}`;
+    const timestamp = Date.now();
+
+    dispatch(loading.start());
+
+    const roomsCreated = roomsToCreate.map((room) =>
+      // add groupId to each room
+      API.post('rooms', { ...room, groupId })
+    );
+    Promise.all(roomsCreated)
+      .then((results) => {
+        results.forEach(({ data: { result: room } }) => {
+          dispatchNewRoom(room, dispatch);
+        });
+        const newRoomIds = results.map(
+          ({ data: { result: room } }) => room._id
+        );
+        const newGrouping = {
+          _id: groupId,
+          activity: activity._id,
+          activityName: activity.name,
+          timestamp,
+          rooms: newRoomIds,
+        };
+
+        updateActivity(activity._id, {
+          groupings: [...activity.groupings, newGrouping],
+        })(dispatch, getState);
+
+        if (activity.course && course) {
+          updateCourse(course._id, {
+            groupings: [...course.groupings, newGrouping],
+          })(dispatch, getState);
+        }
+
+        return dispatch(loading.success());
+      })
+      .catch((err) => {
+        dispatch(loading.fail(err));
+      });
+  };
+};
+
+export const updateGroupings = (course, activity, groupingId, newName) => {
+  const timestamp = Date.now();
+  const activityGroupingsIndex = activity.groupings.findIndex(
+    (grouping) => grouping._id === groupingId
+  );
+  const courseGroupingsIndex = course.groupings.findIndex(
+    (grouping) => grouping._id === groupingId
+  );
+
+  const updatedGrouping = {
+    ...activity.groupings[activityGroupingsIndex],
+    activityName: newName,
+    timestamp,
+  };
+
+  const newCourseGroupings = [...course.groupings];
+  newCourseGroupings[courseGroupingsIndex] = updatedGrouping;
+
+  const newActivityGroupings = [...activity.groupings];
+  newActivityGroupings[activityGroupingsIndex] = updatedGrouping;
+
+  return (dispatch, getState) => {
+    updateActivity(activity._id, {
+      groupings: newActivityGroupings,
+    })(dispatch, getState);
+    updateCourse(course._id, {
+      groupings: newCourseGroupings,
+    })(dispatch, getState);
+  };
+};
+
+function dispatchNewRoom(room, dispatch) {
+  room.myRole = 'facilitator';
+  dispatch(createdRoom(room));
+
+  if (!room.tempRoom) {
+    if (room.course) dispatch(addCourseRooms(room.course, [room._id]));
+    if (room.activity) dispatch(addActivityRooms(room.activity, [room._id]));
+    dispatch(addUserRooms([room._id]));
+  }
+}
 
 export const createRoomFromActivity = (
   activityId,

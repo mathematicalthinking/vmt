@@ -52,6 +52,7 @@ const Room = new mongoose.Schema(
     // wasNew: {type: Boolean},
     isTrashed: { type: Boolean, default: false },
     snapshot: {},
+    groupId: { type: String },
   },
   { timestamps: true }
 );

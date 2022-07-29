@@ -542,7 +542,7 @@ class Room extends Component {
                         onKeyPress={this.toggleEdit}
                         tabIndex="-1"
                       >
-                        Edit Room <i className="fas fa-edit" />
+                        Edit Info <i className="fas fa-edit" />
                       </div>
                       {editing ? (
                         // @TODO this should be a resuable component
