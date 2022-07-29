@@ -6,24 +6,24 @@ import { useQuery } from 'react-query';
 import API from 'utils/apiRequests';
 import buildLog from 'utils/buildLog';
 
-/**
- * Custom hook for sorting table data
- * @param {array} items - The data array. Each element represents a row as an object, with the properties (keys) representing the table columns
- * @param {object} [config = null] - Optional specification of an initial sorting of the form { key, direction }
- * @returns {array} items - The data sorted by the requested column (key)
- * @returns {object} sortConfig - The current sorting: { key, direction }
- * @returns {function} requestSort - A function that takes a key and sorts the items accordingly
- */
-
-// from https://www.smashingmagazine.com/2020/03/sortable-tables-react/
-
 const timeFrames = {
   all: 99999999999999999999999,
   lastDay: 24 * 60 * 60 * 1000,
   lastWeek: 7 * 24 * 60 * 60 * 1000,
+  last2Weeks: 2 * 7 * 24 * 60 * 60 * 1000,
   lastMonth: 30 * 24 * 60 * 60 * 1000,
   lastYear: 356 * 24 * 60 * 60 * 1000,
 };
+
+/**
+ * Custom hook for sorting and filtering table data.  Note that filter must be one of all, lastDay, lastWeek, last2Weeks, lastMonth, or lastYear. Adapted from https://www.smashingmagazine.com/2020/03/sortable-tables-react/.
+ * @param {array} items - The data array. Each element represents a row as an object, with the properties (keys) representing the table columns
+ * @param {object} [config = null] - Optional specification of an initial sorting of the form { key, direction, filter }
+ * @returns {array} items - The data sorted by the requested column (key), in the requested direction, filtered by the requested filter.
+ * @returns {object} sortConfig - The current sorting: { key, direction, filter }. Note that filter must be one of all, lastDay, lastWeek, last2Weeks, lastMonth, or lastYear.
+ * @returns {function} requestSort - Takes a key and sorts the items accordingly. If not direction is supplied, the current direction is reversed.
+ * @returns {function} resetSort - Takes a sortConfig object. That object is merged with the current sortConfig then the items are sorted and filtered appropriately.
+ */
 
 export const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = React.useState(config);

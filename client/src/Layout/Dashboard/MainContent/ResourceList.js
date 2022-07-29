@@ -20,7 +20,7 @@ const ResourceList = ({
   const initialConfig = {
     key: 'updatedAt',
     direction: 'descending',
-    filter: 'all',
+    filter: 'last2Weeks',
   };
   const [fList, setFacilitatorList] = useState([]);
   const [pList, setParticipantList] = useState([]);
@@ -255,6 +255,7 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
     { label: 'All', value: 'all' },
     { label: 'Last Day', value: 'lastDay' },
     { label: 'Last Week', value: 'lastWeek' },
+    { label: 'Last Two Weeks', value: 'last2Weeks' },
     { label: 'Last Month', value: 'lastMonth' },
     { label: 'Last Year', value: 'lastYear' },
   ];
@@ -311,6 +312,7 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
         </span>
       </label>
       {['updatedAt', 'createdAt', 'dueDate'].includes(sortConfig.key) && (
+        // eslint-disable-next-line jsx-a11y/label-has-associated-control
         <label htmlFor="filterTable" className={classes.Label}>
           Filter by:
           <Select
