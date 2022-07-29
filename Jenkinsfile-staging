@@ -41,7 +41,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to test server') {
+        stage('Deploy to staging server') {
             steps {
                 script {
                     // checkout the devops git repo to get the swarm stack file
@@ -70,7 +70,7 @@ pipeline {
                             docker pull ${registry}:staging-latest
                                                         
                             # remove the docker swarm service
-                            docker service rm mt-staging_vmt
+                            docker service rm mt-staging_vmt1 mt-staging_vmt2 mt-staging_vmt3
 
                             # redeploy the app service                            
                             docker stack deploy --compose-file DevOpsTemp/mt/docker-compose-mt-apps-staging.yml mt-staging
