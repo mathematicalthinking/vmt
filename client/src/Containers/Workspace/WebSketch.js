@@ -43,7 +43,7 @@ const WebSketch = (props) => {
   // Handle new Events- escapes initialization scope
   useEffect(() => {
     if (props.inControl === 'ME') {
-      moveGobj(activityUpdates);
+      updateGobj(activityUpdates);
     }
   }, [activityUpdates]);
 
@@ -51,7 +51,7 @@ const WebSketch = (props) => {
     // TODO: build helper to parse WSP event types and event data to plain text
     let actionText = 'interacted with the Activity';
     let actionDetailText = '';
-    if (updates.action === 'moveGobj') {
+    if (updates.action === 'updateGobj') {
       actionText = 'moved a point';
     }
     if (updates.data) {
@@ -64,16 +64,16 @@ const WebSketch = (props) => {
     const { tab, temp, updateRoomTab, room } = props;
     const { _id } = tab;
     if (!sketchDoc) {
-      console.log('Setting sketc doc');
+      // console.log('Setting sketc doc');
       const sketchEl = window.jQuery('#sketch');
       sketchDoc = sketchEl.data('document');
     }
-    console.log('Sketch document: ', sketchDoc);
+    // console.log('Sketch document: ', sketchDoc);
     if (sketchDoc) {
       // grab current state-event list
       // json returned from $('#sketch').data('document').getCurrentSpecObject()
       const responseData = sketchDoc.getCurrentSpecObject();
-      console.log('Response data: ', responseData);
+      // console.log('Response data: ', responseData);
 
       // start creating a string-based object to update the tab
       const updateObject = {
@@ -141,8 +141,8 @@ const WebSketch = (props) => {
         console.log('Follower changed to page', data.pageId, 'in the sketch.');
         // setTimeout (function () {notify('');}, 1000);
         break;
-      case 'moveGobj': // gobjs have moved to new locations
-        moveGobjs(data);
+      case 'updateGobj': // gobjs have moved to new locations
+        updateGobjs(data);
         break;
       case 'WillPlayTool': // controlling sketch has played a tool
         notify('Playing ' + data.tool.name + ' Tool');
@@ -193,6 +193,22 @@ const WebSketch = (props) => {
     });
   };
 
+  const sync = (kind, constraint, handler) => {
+    const sel = kind + '[constraint="' + constraint + '"]';
+    const gobjs = sketch.sQuery(sel);
+    gobjs.on('update', handler);
+  };
+
+  const syncGobjUpdates = () => {
+    sync('Point', 'Free', updateGobj);
+    sync('Point', 'PointOnPath', updateGobj);
+    sync('Point', 'PointOnPolygonEdge', updateGobj);
+    sync('Parameter', 'Free', updateGobj);
+    // console.log('Gobj updates synchronized');
+    // Should also update Calculations, and Functions (all editable expressions).
+    // Also verify that PointOnPathPlotValue points work no matter what their parentage.)
+  };
+
   const syncToFollower = () => {
     // We must be specific to avoid disconnecting other handlers for page changes, toolplay, etc.
     const handlers = [
@@ -213,8 +229,9 @@ const WebSketch = (props) => {
     // Required after toolplay, undo/redo, and page changes
     sketch = sketchDoc.focusPage;
     const points = sketch.sQuery('Point[constraint="Free"]');
-    console.log('Synchronizing drags');
+    // console.log('Synchronizing drags');
     points.on('update', setActivityUpdates);
+    syncGobjUpdates();
   };
 
   // If a point moved, find the object in the other sketch
@@ -222,37 +239,68 @@ const WebSketch = (props) => {
   // Don't send the entire gobj, as it may have circular references
   // (to children that refer to their parents) and thus cannot
   // be stringifiedl.
-  const moveGobj = (event) => {
+  const updateGobj = (event) => {
     if (event) {
       const gobj = event.target;
-      const gobjInfoDat = { id: gobj.id, loc: gobj.geom.loc };
-      sendMoveMessage(gobjInfoDat);
+      const gobjInfo = { id: gobj.id, constraint: gobj.constraint };
+      switch (gobj.constraint) {
+        case 'Free':
+          if (!gobj.value) {
+            gobjInfo.loc = gobj.geom.loc; // free point
+          } else {
+            gobjInfo.value = gobj.value; // free parameter or calculation
+            // What else is needed for a free calculation?
+          }
+          break;
+        case 'PointOnPath':
+        case 'PointOnPolygonEdge':
+          gobjInfo.value = gobj.value;
+          break;
+        default:
+          console.log('updateGobj() cannot handle this event:', event);
+        // Add more
+      }
+      sendMoveMessage(gobjInfo);
     }
-    // } else {
-    //   let selector = `#${attr.id}`;
-    //   // console.log("Selector: ", selector, " sQuery? ", !!sketch.sQuery);
-    //   let destGobj = sketch.sQuery(selector)[0];
-    //   destGobj.geom.loc = GSP.GeometricPoint(attr.loc);
-    //   destGobj.invalidateGeom();
-    // }
   };
 
-  const moveGobjs = (data) => {
+  const updateGobjs = (data) => {
+    function setLoc(target, source) {
+      target.x = source.x; // Avoid the need to create a new GSP.GeometricPoint
+      target.y = source.y;
+    }
+
     // A gobj moved, so move the same gobj in the follower sketch
+
     const moveList = JSON.parse(data);
     if (!sketch) {
       console.log("Messaging error: this follower's sketch is not loaded.");
       return;
     }
-    for (const id in moveList) {
-      const newLoc = moveList[id];
+    // eslint-disable-next-line
+    for (let id in moveList) {
+      const gobjInfo = moveList[id];
       const destGobj = sketch.gobjList.gobjects[id];
-      if (destGobj) {
-        const loc = destGobj.geom.loc;
-        loc.x = newLoc.x; // Avoid the need to create a new GSP.GeometricPoint
-        loc.y = newLoc.y;
-        destGobj.invalidateGeom();
+      switch (gobjInfo.constraint) {
+        case 'Free':
+          if (gobjInfo.loc) {
+            setLoc(destGobj.geom.loc, gobjInfo.loc);
+          } else {
+            destGobj.value = gobjInfo.value;
+            // what else is needed for a free calculation?
+          }
+          break;
+        case 'PointOnPath':
+        case 'PointOnPolygonEdge':
+          destGobj.value = gobjInfo.value;
+          break;
+        default:
+          console.log(
+            'follow.js does not handle constraint',
+            gobjInfo.constraint
+          );
       }
+      destGobj.invalidateGeom();
     }
   };
 
@@ -273,8 +321,8 @@ const WebSketch = (props) => {
     // The controller has chosen Undo or Redo
     // apply the delta using sQuery.applySketchDelta()
     // data also provides the timeStamp and the tool name.
-    let delta = data.delta;
-    console.log('Action type:', data.type);
+    const { delta } = data;
+    // console.log('Action type:', data.type);
     if (data.type === 'undo') {
       notify('Undid previous action', 1500);
     } else {
@@ -313,7 +361,7 @@ const WebSketch = (props) => {
     if (messagePending) return;
     // There is a follower and no message scheduled, so schedule one now
     setTimeout(() => {
-      const msg = { action: 'moveGobj', time: Date.now() };
+      const msg = { action: 'updateGobj', time: Date.now() };
       const moveData = moveMessage; // create a ref to the current cache
       moveMessage = {}; // make a new empty cache
       messagePending = false;
@@ -331,10 +379,14 @@ const WebSketch = (props) => {
   };
 
   const reflectMessage = (event, context, attr) => {
-    console.log('Send message: ', event.type);
+    // console.log('Send message: ', event.type);
     // sendFollowerMessage(event, attr);
     // SS: removed timeout, to make sure the follower is updated right away before any subsequent drags
     const msg = { action: event.type, time: event.timeStamp, data: attr };
+    if (context !== undefined) {
+      // msg.context = context;
+      console.log('Message context: ', context);
+    }
     handleEventData(msg);
   };
 
