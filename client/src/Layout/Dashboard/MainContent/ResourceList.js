@@ -258,6 +258,11 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
     { label: 'Last Two Weeks', value: 'last2Weeks' },
     { label: 'Last Month', value: 'lastMonth' },
     { label: 'Last Year', value: 'lastYear' },
+    { label: 'More than a Day', value: 'afterDay' },
+    { label: 'More than a Week', value: 'afterWeek' },
+    { label: 'More than Two Weeks', value: 'after2Weeks' },
+    { label: 'More than a Month', value: 'afterMonth' },
+    { label: 'More than a Year', value: 'afterYear' },
   ];
 
   const optionForValue = (value) => {

@@ -7,12 +7,17 @@ import API from 'utils/apiRequests';
 import buildLog from 'utils/buildLog';
 
 const timeFrames = {
-  all: 99999999999999999999999,
-  lastDay: 24 * 60 * 60 * 1000,
-  lastWeek: 7 * 24 * 60 * 60 * 1000,
-  last2Weeks: 2 * 7 * 24 * 60 * 60 * 1000,
-  lastMonth: 30 * 24 * 60 * 60 * 1000,
-  lastYear: 356 * 24 * 60 * 60 * 1000,
+  all: () => true,
+  lastDay: (diff) => diff <= 24 * 60 * 60 * 1000,
+  lastWeek: (diff) => diff <= 7 * 24 * 60 * 60 * 1000,
+  last2Weeks: (diff) => diff <= 2 * 7 * 24 * 60 * 60 * 1000,
+  lastMonth: (diff) => diff <= 30 * 24 * 60 * 60 * 1000,
+  lastYear: (diff) => diff <= 356 * 24 * 60 * 60 * 1000,
+  afterDay: (diff) => diff > 24 * 60 * 60 * 1000,
+  afterWeek: (diff) => diff > 7 * 24 * 60 * 60 * 1000,
+  after2Weeks: (diff) => diff > 2 * 7 * 24 * 60 * 60 * 1000,
+  afterMonth: (diff) => diff > 30 * 24 * 60 * 60 * 1000,
+  afterYear: (diff) => diff > 356 * 24 * 60 * 60 * 1000,
 };
 
 /**
@@ -29,11 +34,17 @@ export const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = React.useState(config);
 
   const withinTimeframe = (item) => {
-    if (!sortConfig || !item[sortConfig.key] || !sortConfig.filter) return true;
+    if (
+      !sortConfig ||
+      !item[sortConfig.key] ||
+      !sortConfig.filter ||
+      !timeFrames[sortConfig.filter]
+    )
+      return true;
     const now = new Date();
     const then = new Date(item[sortConfig.key]);
     return then.toString() !== 'Invalid Date'
-      ? Math.abs(then - now) <= timeFrames[sortConfig.filter]
+      ? timeFrames[sortConfig.filter](Math.abs(then - now))
       : true;
   };
 
