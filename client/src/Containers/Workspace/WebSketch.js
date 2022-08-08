@@ -43,7 +43,7 @@ const WebSketch = (props) => {
   // Handle new Events- escapes initialization scope
   useEffect(() => {
     if (props.inControl === 'ME') {
-      updateGobj(activityUpdates);
+      recordGobjUpdate(activityUpdates);
     }
   }, [activityUpdates]);
 
@@ -96,7 +96,7 @@ const WebSketch = (props) => {
   const handleEventData = (updates, type) => {
     if (initializing) return;
     const { room, user, myColor, tab, resetControlTimer } = props;
-
+    if (!_hasControl()) return;
     if (!receivingData) {
       const description = buildDescription(user.username, updates);
       const currentStateString = JSON.stringify(updates);
@@ -141,11 +141,12 @@ const WebSketch = (props) => {
         console.log('Follower changed to page', data.pageId, 'in the sketch.');
         // setTimeout (function () {notify('');}, 1000);
         break;
-      case 'updateGobj': // gobjs have moved to new locations
-        updateGobjs(data);
+      case 'GobjsUpdated': // gobjs have moved to new locations
+        imposeGobjUpdates(data);
         break;
       case 'WillPlayTool': // controlling sketch has played a tool
         notify('Playing ' + data.tool.name + ' Tool');
+        startFollowerTool(data.tool.name);
         break;
       case 'ToolPlayed': // controlling sketch has played a tool
         toolPlayed(data);
@@ -153,6 +154,7 @@ const WebSketch = (props) => {
         break;
       case 'ToolAborted': // controlling sketch has aborted a tool
         notify('Canceled ' + data.tool.name + ' Tool', 1500);
+        abortFollowerTool();
         break;
       case 'WillUndoRedo': // controlling sketch will undo or redo
         notify('Performing ' + data.type, 1500);
@@ -193,20 +195,34 @@ const WebSketch = (props) => {
     });
   };
 
-  const sync = (kind, constraint, handler) => {
-    const sel = kind + '[constraint="' + constraint + '"]';
-    const gobjs = sketch.sQuery(sel);
-    gobjs.on('update', handler);
-  };
+  // const sync = (kind, constraint, handler) => {
+  //   const sel = kind + '[constraint="' + constraint + '"]';
+  //   const gobjs = sketch.sQuery(sel);
+  //   gobjs.on('update', handler);
+  // };
 
   const syncGobjUpdates = () => {
-    sync('Point', 'Free', updateGobj);
-    sync('Point', 'PointOnPath', updateGobj);
-    sync('Point', 'PointOnPolygonEdge', updateGobj);
-    sync('Parameter', 'Free', updateGobj);
-    // console.log('Gobj updates synchronized');
-    // Should also update Calculations, and Functions (all editable expressions).
-    // Also verify that PointOnPathPlotValue points work no matter what their parentage.)
+    // sync('Point', 'Free', recordGobjUpdate);
+    // sync('Point', 'PointOnPath', recordGobjUpdate);
+    // sync('Point', 'PointOnPolygonEdge', recordGobjUpdate);
+    // sync('Parameter', 'Free', recordGobjUpdate);
+    // // console.log('Gobj updates synchronized');
+    // // Should also update Calculations, and Functions (all editable expressions).
+    // // Also verify that PointOnPathPlotValue points work no matter what their parentage.)
+    /* We need to record updates for a limited set of objects; here's the list:
+     gobj.constraint === 'Free' (dragging can change [geom.loc] of free points, parameters, calculations, functions, pictures)
+     gobj.isFreePointOnPath     (dragging can change [geom.loc] of a point-on-path)
+     gobj.kind === 'Expression' (dragging a param, calc, or fn can change[geom.loc]; editing can change [infix])
+     gobj.kind === 'Button' (dragging can change[geom.loc]; drag-merging can change [parents])
+     gobj.kind === 'DOMKind' (dragging a table or text gobj can change [geom.loc]) */
+    const updateSel =
+      'Expression,Button,DOMKind,[constraint="Free"],[isFreePointOnPath="true"]';
+    const gobjsToUpdate = sketch.sQuery(updateSel);
+    gobjsToUpdate.on('update', recordGobjUpdate);
+    /* Handlers do not yet exist for changes to a gobj's infix or parents, and in fact
+     sQuery doesn't have an event that can be made to fire on changes to a gobj's infix or parents.
+     There is a WSP message we can listen to for parameter edits: EditParameter.WSP
+     We can listen for WSP messages when widgets are used to change a gobj's style, visibility, trace status, etc. */
   };
 
   const syncToFollower = () => {
@@ -216,6 +232,7 @@ const WebSketch = (props) => {
       { event: 'DidChangeCurrentPage.WSP', handler: reflectAndSync },
       { event: 'WillPlayTool.WSP', handler: reflectMessage },
       { event: 'ToolPlayed.WSP', handler: reflectAndSync },
+      { event: 'ToolPlayBegan.WSP', handler: syncGobjUpdates }, // Tool objects are instantiated, so track them
       { event: 'ToolAborted.WSP', handler: reflectMessage },
       { event: 'WillUndoRedo.WSP', handler: reflectMessage },
       { event: 'UndoRedo.WSP', handler: reflectAndSync },
@@ -234,22 +251,35 @@ const WebSketch = (props) => {
     syncGobjUpdates();
   };
 
-  // If a point moved, find the object in the other sketch
-  // with matching kind and label and move it to the same location.
-  // Don't send the entire gobj, as it may have circular references
-  // (to children that refer to their parents) and thus cannot
-  // be stringifiedl.
-  const updateGobj = (event) => {
+  /* If a free or semi-free gobj is updated, find the gobj in the other sketch
+   with matching kind and label and move it to the same location.
+   We only need to handle certain constraints and kinds:
+   Free constraints may have changed values or locations.
+   Semi-free constraints (isFreePointOnPath) may have changed values.
+   Expressions may have been edited.
+   Don't send the entire gobj, as it may have circular references
+   (to children that refer to their parents) and thus cannot
+   be stringifiedl. */
+  const recordGobjUpdate = (event) => {
     if (event) {
       const gobj = event.target;
+      if (
+        gobj.constraint !== 'Free' &&
+        gobj.kind !== 'Expression' &&
+        !gobj.isFreePointOnPath
+      ) {
+        return;
+      }
       const gobjInfo = { id: gobj.id, constraint: gobj.constraint };
       switch (gobj.constraint) {
-        case 'Free':
-          if (!gobj.value) {
-            gobjInfo.loc = gobj.geom.loc; // free point
-          } else {
+        case 'Free': // Free points have locations
+          if (gobj.value) {
+            // free expressions (params and calcs) have values
             gobjInfo.value = gobj.value; // free parameter or calculation
-            // What else is needed for a free calculation?
+          }
+          if (gobj.geom.loc) {
+            // free points, params, etc. have locations
+            gobjInfo.loc = gobj.geom.loc;
           }
           break;
         case 'PointOnPath':
@@ -257,14 +287,16 @@ const WebSketch = (props) => {
           gobjInfo.value = gobj.value;
           break;
         default:
-          console.log('updateGobj() cannot handle this event:', event);
+          console.log('recordGobjUpdate() cannot handle this event:', event);
         // Add more
       }
-      sendMoveMessage(gobjInfo);
+      if (_hasControl()) {
+        sendMoveMessage(gobjInfo);
+      }
     }
   };
 
-  const updateGobjs = (data) => {
+  const imposeGobjUpdates = (data) => {
     function setLoc(target, source) {
       target.x = source.x; // Avoid the need to create a new GSP.GeometricPoint
       target.y = source.y;
@@ -281,6 +313,10 @@ const WebSketch = (props) => {
     for (let id in moveList) {
       const gobjInfo = moveList[id];
       const destGobj = sketch.gobjList.gobjects[id];
+      if (!destGobj) {
+        continue; // The moveList might be out of date during toolplay,
+        // and could include a gobj that no longer exists.
+      }
       switch (gobjInfo.constraint) {
         case 'Free':
           if (gobjInfo.loc) {
@@ -296,7 +332,7 @@ const WebSketch = (props) => {
           break;
         default:
           console.log(
-            'follow.js does not handle constraint',
+            'follower does not handle constraint',
             gobjInfo.constraint
           );
       }
@@ -304,33 +340,60 @@ const WebSketch = (props) => {
     }
   };
 
+  const startFollowerTool = (name) => {
+    let tool;
+    sketchDoc.tools.some((aTool) => {
+      if (aTool.metadata.name === name) {
+        tool = aTool;
+        return true;
+      }
+      return false;
+    });
+    sketch.toolController.setActiveTool(tool);
+  };
+
+  function abortFollowerTool() {
+    sketch.toolController.abortActiveTool();
+  }
+
   const toolPlayed = (data) => {
-    // The controller has played a tool.
-    // apply the delta using sQuery.applySketchDelta()
-    // data also provides the timeStamp and the tool name.
-    let { delta } = data;
-    // console.log("A tool was played:", data.tool);
-    if (typeof delta === 'string') {
-      delta = JSON.parse(delta);
-    }
-    sketchDoc.applyDeltaToActivePage(delta);
+    // The controller has played a tool, and the follower has shown the process by imposing tool-object updates,
+    // not by simulating mouse events. This leaves the controller and follower sketches in different states.
+    // NB: This implies that we cannot allow the controller and follower to switch control during toolplay.
+    // It also complicates the result, because we need to sync the undo history, not just sketch state.
+    // So we confirm the tool and then insert the controller's tool delta in place of the follower's.
+    const controller = sketch.toolController;
+    const history = sketchDoc.getCurrentPageData().session.history;
+    controller.confirmActiveTool(); // Uses the follower delta instead of the passed delta
+    sketchDoc.undo();
+    history.current.next.delta = data.delta;
+    sketchDoc.redo();
     sketch = sketchDoc.focusPage; // Required after toolplay & undo/redo
   };
 
   const undoRedo = (data) => {
-    // The controller has chosen Undo or Redo
-    // apply the delta using sQuery.applySketchDelta()
-    // data also provides the timeStamp and the tool name.
-    const { delta } = data;
-    // console.log('Action type:', data.type);
+    // The controller has chosen Undo or Redo. Do the same for the follower,
+    // but also check to make sure the controller and follower histories are in sync.
     if (data.type === 'undo') {
-      notify('Undid previous action', 1500);
+      // notify('Undid previous action', 1500);
+      sketchDoc.undo();
     } else {
-      notify('Redid next action', 1500);
+      // notify('Redid next action', 1500);
+      sketchDoc.redo();
     }
-    sketchDoc.applyDeltaToActivePage(delta);
-    sketch = sketchDoc.focusPage;
-    // Required after toolplay & undo/redo
+    sketch = sketchDoc.focusPage; // Required after toolplay & undo/redo
+    // FOR DEBUGGING: Check whether the controller and follower undo histories are in sync!
+    let history = sketchDoc.getCurrentPageData().session.history;
+    if (
+      JSON.stringify(data.delta) !==
+      JSON.stringify(
+        sketchDoc.getCurrentPageData().session.history.current.delta
+      )
+    ) {
+      console.log('UNDO HISTORIES DIVERGE!!');
+      console.log('controller delta:', data.delta);
+      console.log('follower delta:', history.current.delta);
+    }
   };
 
   const notify = (text, optionalDuration) => {
@@ -357,21 +420,21 @@ const WebSketch = (props) => {
     let moveMessage = {}; // assembles the next move message
     // Move messages can arrive too quickly; send them out at a reasonable frame rate
     // For a full frame interval (moveDelay), collect all move data and send out the most recent data for each affected gobj.
-    moveMessage[gobjInfo.id] = gobjInfo.loc; // Add this move to the cache
+    moveMessage[gobjInfo.id] = gobjInfo; // REM .LOC Add this move to the cache
     if (messagePending) return;
     // There is a follower and no message scheduled, so schedule one now
     setTimeout(() => {
-      const msg = { action: 'updateGobj', time: Date.now() };
+      const msg = { action: 'GobjsUpdated', time: Date.now() };
       const moveData = moveMessage; // create a ref to the current cache
       moveMessage = {}; // make a new empty cache
       messagePending = false;
       msg.data = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
-      console.log(
-        'Sending move message: ',
-        msg,
-        ' to server at time',
-        msg.time
-      );
+      // console.log(
+      //   'Sending move message: ',
+      //   msg,
+      //   ' to server at time',
+      //   msg.time
+      // );
       // follower.postMessage(msg, '*');
       handleEventData(msg);
     }, moveDelay);
