@@ -68,11 +68,12 @@ const WebSketch = (props) => {
         console.log('Follower changed to page', data.pageId, 'in the sketch.');
         // setTimeout (function () {notify('');}, 1000);
         break;
-      case 'moveGobj': // gobjs have moved to new locations
-        moveGobjs(data);
+      case 'GobjsUpdated': // gobjs have moved to new locations
+        imposeGobjUpdates(data);
         break;
       case 'WillPlayTool': // controlling sketch has played a tool
         notify('Playing ' + data.tool.name + ' Tool');
+        startFollowerTool(data.tool.name);
         break;
       case 'ToolPlayed': // controlling sketch has played a tool
         toolPlayed(data);
@@ -80,6 +81,7 @@ const WebSketch = (props) => {
         break;
       case 'ToolAborted': // controlling sketch has aborted a tool
         notify('Canceled ' + data.tool.name + ' Tool', 1500);
+        abortFollowerTool();
         break;
       case 'WillUndoRedo': // controlling sketch will undo or redo
         notify('Performing ' + data.type, 1500);
@@ -100,6 +102,7 @@ const WebSketch = (props) => {
       { event: 'DidChangeCurrentPage.WSP', handler: reflectAndSync },
       { event: 'WillPlayTool.WSP', handler: reflectMessage },
       { event: 'ToolPlayed.WSP', handler: reflectAndSync },
+      { event: 'ToolPlayBegan.WSP', handler: reflectMessage }, // Tool objects are instantiated, so track them
       { event: 'ToolAborted.WSP', handler: reflectMessage },
       { event: 'WillUndoRedo.WSP', handler: reflectMessage },
       { event: 'UndoRedo.WSP', handler: reflectAndSync },
@@ -112,9 +115,15 @@ const WebSketch = (props) => {
     });
     // Required after toolplay, undo/redo, and page changes
     sketch = sketchDoc.focusPage;
-    // const points = sketch.sQuery('Point[constraint="Free"]');
-    console.log('Synchronizing drags');
-    // points.on('update', setActivityUpdates);
+    // console.log('Synchronizing drags');
+    syncGobjUpdates();
+  };
+
+  const syncGobjUpdates = () => {
+    const updateSel =
+      'Expression,Button,DOMKind,[constraint="Free"],[isFreePointOnPath="true"]';
+    const gobjsToUpdate = sketch.sQuery(updateSel);
+    gobjsToUpdate.on('update', recordGobjUpdate);
   };
 
   const reflectMessage = (event, context, attr) => {
@@ -122,57 +131,138 @@ const WebSketch = (props) => {
   };
 
   const reflectAndSync = (event, context, attr) => {
-    reflectMessage(event, context, attr);
     syncToFollower();
   };
 
-  const moveGobjs = (data) => {
+  const recordGobjUpdate = (event) => {
+    if (event) {
+      const gobj = event.target;
+      if (
+        gobj.constraint !== 'Free' &&
+        gobj.kind !== 'Expression' &&
+        !gobj.isFreePointOnPath
+      ) {
+        return;
+      }
+      const gobjInfo = { id: gobj.id, constraint: gobj.constraint };
+      switch (gobj.constraint) {
+        case 'Free': // Free points have locations
+          if (gobj.value) {
+            // free expressions (params and calcs) have values
+            gobjInfo.value = gobj.value; // free parameter or calculation
+          }
+          if (gobj.geom.loc) {
+            // free points, params, etc. have locations
+            gobjInfo.loc = gobj.geom.loc;
+          }
+          break;
+        case 'PointOnPath':
+        case 'PointOnPolygonEdge':
+          gobjInfo.value = gobj.value;
+          break;
+        default:
+          console.log('recordGobjUpdate() cannot handle this event:', event);
+        // Add more
+      }
+    }
+  };
+
+  const imposeGobjUpdates = (data) => {
+    function setLoc(target, source) {
+      target.x = source.x; // Avoid the need to create a new GSP.GeometricPoint
+      target.y = source.y;
+    }
+
     // A gobj moved, so move the same gobj in the follower sketch
+
     const moveList = JSON.parse(data);
     if (!sketch) {
       console.log("Messaging error: this follower's sketch is not loaded.");
       return;
     }
-    console.log('Move message, data: ', moveList);
-    for (const id in moveList) {
-      const newLoc = moveList[id];
+    console.log('Imposing Gobj Updates: ', moveList);
+    // eslint-disable-next-line
+    for (let id in moveList) {
+      const gobjInfo = moveList[id];
+      console.log('Imposing Gobj: ', gobjInfo);
       const destGobj = sketch.gobjList.gobjects[id];
-      if (destGobj) {
-        const loc = destGobj.geom.loc;
-        loc.x = newLoc.x; // Avoid the need to create a new GSP.GeometricPoint
-        loc.y = newLoc.y;
-        destGobj.invalidateGeom();
+      if (!destGobj) {
+        console.log('No destGobj! ', sketch.gobjList);
+        continue; // The moveList might be out of date during toolplay,
+        // and could include a gobj that no longer exists.
       }
+      switch (gobjInfo.constraint) {
+        case 'Free':
+          if (gobjInfo.loc) {
+            setLoc(destGobj.geom.loc, gobjInfo.loc);
+          } else {
+            destGobj.value = gobjInfo.value;
+            // what else is needed for a free calculation?
+          }
+          break;
+        case 'PointOnPath':
+        case 'PointOnPolygonEdge':
+          destGobj.value = gobjInfo.value;
+          break;
+        default:
+          console.log(
+            'follower does not handle constraint',
+            gobjInfo.constraint
+          );
+      }
+      destGobj.invalidateGeom();
     }
   };
 
   const toolPlayed = (data) => {
-    // The controller has played a tool.
-    // apply the delta using sQuery.applySketchDelta()
-    // data also provides the timeStamp and the tool name.
-    let { delta } = data;
-    // console.log("A tool was played:", data.tool);
-    if (typeof delta === 'string') {
-      delta = JSON.parse(delta);
-    }
-    sketchDoc.applyDeltaToActivePage(delta);
+    const controller = sketch.toolController;
+    const history = sketchDoc.getCurrentPageData().session.history;
+    controller.confirmActiveTool(); // Uses the follower delta instead of the passed delta
+    sketchDoc.undo();
+    history.current.next.delta = data.delta;
+    sketchDoc.redo();
     sketch = sketchDoc.focusPage; // Required after toolplay & undo/redo
   };
 
+  const startFollowerTool = (name) => {
+    let tool;
+    sketchDoc.tools.some((aTool) => {
+      if (aTool.metadata.name === name) {
+        tool = aTool;
+        return true;
+      }
+      return false;
+    });
+    sketch.toolController.setActiveTool(tool);
+  };
+
+  const abortFollowerTool = () => {
+    sketch.toolController.abortActiveTool();
+  };
+
   const undoRedo = (data) => {
-    // The controller has chosen Undo or Redo
-    // apply the delta using sQuery.applySketchDelta()
-    // data also provides the timeStamp and the tool name.
-    let delta = data.delta;
-    console.log('Action type:', data.type);
+    // The controller has chosen Undo or Redo. Do the same for the follower,
+    // but also check to make sure the controller and follower histories are in sync.
     if (data.type === 'undo') {
-      notify('Undid previous action', 1500);
+      // notify('Undid previous action', 1500);
+      sketchDoc.undo();
     } else {
-      notify('Redid next action', 1500);
+      // notify('Redid next action', 1500);
+      sketchDoc.redo();
     }
-    sketchDoc.applyDeltaToActivePage(delta);
-    sketch = sketchDoc.focusPage;
-    // Required after toolplay & undo/redo
+    sketch = sketchDoc.focusPage; // Required after toolplay & undo/redo
+    // FOR DEBUGGING: Check whether the controller and follower undo histories are in sync!
+    let history = sketchDoc.getCurrentPageData().session.history;
+    if (
+      JSON.stringify(data.delta) !==
+      JSON.stringify(
+        sketchDoc.getCurrentPageData().session.history.current.delta
+      )
+    ) {
+      console.log('UNDO HISTORIES DIVERGE!!');
+      console.log('controller delta:', data.delta);
+      console.log('follower delta:', history.current.delta);
+    }
   };
 
   const notify = (text, optionalDuration) => {

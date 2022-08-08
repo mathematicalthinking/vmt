@@ -95,8 +95,15 @@ const WebSketch = (props) => {
   // handles a change event when user is in control
   const handleEventData = (updates, type) => {
     if (initializing) return;
-    const { room, user, myColor, tab, resetControlTimer } = props;
-    if (!_hasControl()) return;
+    const { room, user, myColor, tab, resetControlTimer, inControl } = props;
+    console.log(
+      'Handler props: ',
+      room,
+      ' user: ',
+      user,
+      ' incontrol: ',
+      inControl
+    );
     if (!receivingData) {
       const description = buildDescription(user.username, updates);
       const currentStateString = JSON.stringify(updates);
@@ -115,6 +122,7 @@ const WebSketch = (props) => {
       };
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
+      console.log('Sent message: ', newData);
       resetControlTimer();
       putState(); // save to db?
       // use new json config with $('#sketch').data('document').getCurrentSpecObject()?
@@ -144,6 +152,7 @@ const WebSketch = (props) => {
       case 'GobjsUpdated': // gobjs have moved to new locations
         imposeGobjUpdates(data);
         break;
+      case 'ToolPlayBegan':
       case 'WillPlayTool': // controlling sketch has played a tool
         notify('Playing ' + data.tool.name + ' Tool');
         startFollowerTool(data.tool.name);
@@ -172,7 +181,6 @@ const WebSketch = (props) => {
   const initializeListeners = () => {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog, temp } = props;
-
     socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
       addToLog(data);
@@ -187,6 +195,8 @@ const WebSketch = (props) => {
         });
         if (!temp) updatedRoom(room._id, { tabs: updatedTabs });
         const updatesState = JSON.parse(data.currentState);
+        console.log('Handling incoming msg: ', updatesState);
+
         handleMessage(updatesState);
       } else {
         addNtfToTabs(data.tab);
@@ -232,7 +242,7 @@ const WebSketch = (props) => {
       { event: 'DidChangeCurrentPage.WSP', handler: reflectAndSync },
       { event: 'WillPlayTool.WSP', handler: reflectMessage },
       { event: 'ToolPlayed.WSP', handler: reflectAndSync },
-      { event: 'ToolPlayBegan.WSP', handler: syncGobjUpdates }, // Tool objects are instantiated, so track them
+      { event: 'ToolPlayBegan.WSP', handler: reflectAndSync }, // Tool objects are instantiated, so track them
       { event: 'ToolAborted.WSP', handler: reflectMessage },
       { event: 'WillUndoRedo.WSP', handler: reflectMessage },
       { event: 'UndoRedo.WSP', handler: reflectAndSync },
@@ -352,9 +362,9 @@ const WebSketch = (props) => {
     sketch.toolController.setActiveTool(tool);
   };
 
-  function abortFollowerTool() {
+  const abortFollowerTool = () => {
     sketch.toolController.abortActiveTool();
-  }
+  };
 
   const toolPlayed = (data) => {
     // The controller has played a tool, and the follower has shown the process by imposing tool-object updates,
@@ -362,6 +372,7 @@ const WebSketch = (props) => {
     // NB: This implies that we cannot allow the controller and follower to switch control during toolplay.
     // It also complicates the result, because we need to sync the undo history, not just sketch state.
     // So we confirm the tool and then insert the controller's tool delta in place of the follower's.
+    console.log('Tool played: ', data);
     const controller = sketch.toolController;
     const history = sketchDoc.getCurrentPageData().session.history;
     controller.confirmActiveTool(); // Uses the follower delta instead of the passed delta
@@ -448,8 +459,8 @@ const WebSketch = (props) => {
     const msg = { action: event.type, time: event.timeStamp, data: attr };
     if (context !== undefined) {
       // msg.context = context;
-      console.log('Message context: ', context);
     }
+    console.log('Message context: ', context, ', MSG reflect: ', msg);
     handleEventData(msg);
   };
 
