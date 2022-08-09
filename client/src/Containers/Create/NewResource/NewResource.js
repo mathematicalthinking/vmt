@@ -37,14 +37,20 @@ const initialState = {
   dueDate: null,
   activities: [],
   privacySetting: 'private',
-  roomType: 'geogebra',
   organization: '',
   school: '',
   district: '',
 };
 
 class NewResourceContainer extends Component {
-  state = { ...initialState };
+  constructor(props) {
+    super(props);
+    const { lastRoomType } = this.props;
+    this.state = {
+      ...initialState,
+      roomType: lastRoomType,
+    };
+  }
 
   startCreation = () => this.setState({ creating: true });
 
@@ -176,6 +182,7 @@ class NewResourceContainer extends Component {
           }
           // console.log(`New room created: ${newResource}`);
           connectCreateRoom(newResource);
+          connectUpdateUser({ lastRoomType: roomType });
           break;
         default:
           break;
@@ -465,8 +472,9 @@ NewResourceContainer.propTypes = {
   connectCreateRoom: PropTypes.func.isRequired,
   connectCreateActivity: PropTypes.func.isRequired,
   intro: PropTypes.bool,
+  lastRoomType: PropTypes.string.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
 };
 
 NewResourceContainer.defaultProps = {
@@ -480,6 +488,7 @@ const mapStateToProps = (store, ownProps) => {
     rooms: store.rooms.rooms, // ????
     userId: store.user._id,
     username: store.user.username,
+    lastRoomType: store.user.lastRoomType || 'desmosActivity',
     userActivities: getUserResources(store, 'activities') || [],
     course: ownProps.match.params.course_id
       ? populateResource(store, 'courses', ownProps.match.params.course_id, [
@@ -490,15 +499,12 @@ const mapStateToProps = (store, ownProps) => {
 };
 
 export default withRouter(
-  connect(
-    mapStateToProps,
-    {
-      connectCreateCourse: createCourse,
-      connectCreateRoom: createRoom,
-      connectCreateActivity: createActivity,
-      connectUpdateUser: updateUser,
-      connectCreateRoomFromActivity: createRoomFromActivity,
-      connectCopyActivity: copyActivity,
-    }
-  )(NewResourceContainer)
+  connect(mapStateToProps, {
+    connectCreateCourse: createCourse,
+    connectCreateRoom: createRoom,
+    connectCreateActivity: createActivity,
+    connectUpdateUser: updateUser,
+    connectCreateRoomFromActivity: createRoomFromActivity,
+    connectCopyActivity: copyActivity,
+  })(NewResourceContainer)
 );

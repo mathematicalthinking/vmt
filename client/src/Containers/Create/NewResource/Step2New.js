@@ -10,6 +10,13 @@ const Step2New = (props) => {
       <p style={{ marginBottom: 10 }}>Select a workspace type</p>
       <div className={classes.RadioButtons}>
         <RadioBtn
+          name="desmosActivity"
+          checked={roomType === 'desmosActivity'}
+          check={setRoomType}
+        >
+          Desmos Activity
+        </RadioBtn>
+        <RadioBtn
           name="geogebra"
           checked={roomType === 'geogebra'}
           check={setRoomType}
@@ -22,13 +29,6 @@ const Step2New = (props) => {
           check={setRoomType}
         >
           Desmos
-        </RadioBtn>
-        <RadioBtn
-          name="desmosActivity"
-          checked={roomType === 'desmosActivity'}
-          check={setRoomType}
-        >
-          Desmos Activity
         </RadioBtn>
         {window.env.REACT_APP_PYRET_MODE &&
         window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' ? (
