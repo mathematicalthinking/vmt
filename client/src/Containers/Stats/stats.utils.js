@@ -7,66 +7,26 @@ export const processData = (
   data,
   { users, events, messages, actions },
   { start, end }
-) => {
-  const timeFilteredData = data.filter((d, i) => {
-    return d.timestamp >= start && d.timestamp <= end;
-  });
-  const timeScale = calculateTimeScale(start, end);
-  const filteredData = filterData(timeFilteredData, {
-    users,
-    events,
-    messages,
-    actions,
-  });
-  const lines = filteredData.map((fd) => ({
-    data: buildLineData(fd.data, timeScale, start, end),
-    color: fd.color,
-  }));
-  return {
-    lines,
-    timeScale,
-    start,
-    end,
-    filteredData: filteredData
-      .reduce((acc, fd) => {
-        const fdWithColor = fd.data.map((d) => {
-          const ggbEvent = getSignificantGgbEventFromEvent(d);
-
-          const messageType =
-            d.messageType && d.reference ? 'reference' : d.messageType;
-          let messageDetails = d.text;
-          if (d.description) {
-            messageDetails += ` (${d.description})`;
-          }
-          return {
-            time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
-            user: d.user ? d.user.username || d.user : null,
-            'action/message': messageType
-              ? `message: ${messageType.toLowerCase()}`
-              : `action: ${
-                  ggbEvent && ggbEvent.eventType
-                    ? ggbEvent.eventType.toLowerCase()
-                    : 'generic desmos event'
-                }`,
-            details: d.messageType ? messageDetails : d.description,
-            xml:
-              (ggbEvent && ggbEvent.xml) ||
-              (ggbEvent && ggbEvent.commandString),
-            color: fd.color,
-            _id: d._id,
-          };
-        });
-        return acc.concat(fdWithColor);
-      }, [])
-      .sort((a, b) => a.timestamp - b.timestamp),
-    units: timeUnitMap[timeScale],
-  };
-};
+) =>
+  processDataHelper(data, { users, events, messages, actions }, { start, end });
 
 export const processCourseData = (
   data,
   { users, events, messages, actions },
   { start, end }
+) =>
+  processDataHelper(
+    data,
+    { users, events, messages, actions },
+    { start, end },
+    true
+  );
+
+const processDataHelper = (
+  data,
+  { users, events, messages, actions },
+  { start, end },
+  returnRoomAndUserIds = false
 ) => {
   const timeFilteredData = data.filter((d, i) => {
     return d.timestamp >= start && d.timestamp <= end;
@@ -98,10 +58,9 @@ export const processCourseData = (
           if (d.description) {
             messageDetails += ` (${d.description})`;
           }
-          return {
+          const dataToReturn = {
             time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
             user: d.user ? d.user.username || d.user : null,
-            userId: d.user._id || null,
             'action/message': messageType
               ? `message: ${messageType.toLowerCase()}`
               : `action: ${
@@ -115,8 +74,14 @@ export const processCourseData = (
               (ggbEvent && ggbEvent.commandString),
             color: fd.color,
             _id: d._id,
-            roomId: d.room || null,
           };
+
+          if (returnRoomAndUserIds) {
+            dataToReturn.userId = d.user._id || null;
+            dataToReturn.roomId = d.room || null;
+          }
+
+          return dataToReturn;
         });
         return acc.concat(fdWithColor);
       }, [])
