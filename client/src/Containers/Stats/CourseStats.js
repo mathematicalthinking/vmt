@@ -8,16 +8,11 @@ import { exportCSV } from './stats.utils';
 
 const CourseStats = ({ roomIds, name }) => {
   const [loading, setLoading] = useState(true);
+  const augmentedData = React.useRef([]);
 
   const populatedRooms = roomIds.map((roomId) =>
     usePopulatedRoom(roomId, true)
   );
-  const populatedRoomsObject = populatedRooms.reduce((acc, curr) => {
-    return curr.data && curr.data._id && { ...acc, [curr.data]: curr.data };
-  }, {});
-
-  console.log(populatedRooms)
-  console.log(populatedRoomsObject)
 
   const combinedLog = populatedRooms
     .filter((roomQuery) => roomQuery.isSuccess)
@@ -27,10 +22,16 @@ const CourseStats = ({ roomIds, name }) => {
     );
 
   const [state, dispatch] = useReducer(statsReducer, initialState);
-  const augmentedData = React.useRef([]);
   const { filteredData } = state;
 
   const augmentFilteredData = (data) => {
+    const roomNames = populatedRooms.reduce((acc, curr) => {
+      return (
+        curr.data &&
+        curr.data._id && { ...acc, [curr.data._id]: curr.data.name }
+      );
+    }, {});
+
     const userIds = Array.from(
       new Set(filteredData.map((d) => d.userId.toString()))
     );
@@ -49,14 +50,10 @@ const CourseStats = ({ roomIds, name }) => {
         })
         .then((studentIds) => {
           return data.map((d) => {
-            const currRoom = populatedRooms.filter(
-              ({ data: room }) => room._id === d.roomId
-            );
-            const roomName = currRoom[0].data.name;
             return {
               ...d,
               studentId: studentIds[d.userId],
-              roomName,
+              roomName: roomNames[d.roomId],
             };
           });
         })
