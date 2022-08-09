@@ -1,7 +1,14 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-console */
-import React, { useRef, useState, useEffect, Fragment } from 'react';
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  Fragment,
+  useCallback,
+} from 'react';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 import testConfig from './Tools/test.json';
 import WSPLoader from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
@@ -54,22 +61,10 @@ const WebSketch = (props) => {
     }
   }, [activityData]);
 
-  // Storage API
+  // Storage API functions
+  const debouncedUpdate = useCallback(debounce(putState, 350), []);
 
-  const buildDescription = (username, updates) => {
-    // TODO: build helper to parse WSP event types and event data to plain text
-    let actionText = 'interacted with the Activity';
-    let actionDetailText = '';
-    if (updates.action === 'updateGobj') {
-      actionText = 'moved a point';
-    }
-    if (updates.data) {
-      actionDetailText = updates.data;
-    }
-    return `${username} ${actionText} ${actionDetailText}`;
-  };
-
-  const putState = () => {
+  function putState() {
     const { tab, temp, updateRoomTab, room } = props;
     const { _id } = tab;
     if (!sketchDoc) {
@@ -82,8 +77,7 @@ const WebSketch = (props) => {
       // grab current state-event list
       // json returned from $('#sketch').data('document').getCurrentSpecObject()
       const responseData = sketchDoc.getCurrentSpecObject();
-      // console.log('Response data: ', responseData);
-
+      console.log('Response data: ', responseData);
       // start creating a string-based object to update the tab
       const updateObject = {
         currentStateBase64: JSON.stringify(responseData),
@@ -99,6 +93,22 @@ const WebSketch = (props) => {
           console.log(err);
         });
     }
+  }
+
+  const buildDescription = (username, updates) => {
+    // TODO: build helper to parse WSP event types and event data to plain text
+    let actionText = 'interacted with the Activity';
+    let actionDetailText = '';
+    if (!updates) {
+      console.log('No updates! desc called', username, updates);
+    }
+    if (updates.action === 'updateGobj') {
+      actionText = 'moved a point';
+    }
+    if (updates.data) {
+      actionDetailText = updates.data;
+    }
+    return `${username} ${actionText} ${actionDetailText}`;
   };
 
   // --- Controller functions ---
@@ -250,7 +260,8 @@ const WebSketch = (props) => {
       socket.emit('SEND_EVENT', newData, () => {});
       console.log('Sent message: ', newData);
       resetControlTimer();
-      putState(); // save to db?
+      // putState(); // save to db?
+      debouncedUpdate();
       // use new json config with $('#sketch').data('document').getCurrentSpecObject()?
     }
     receivingData = false;
