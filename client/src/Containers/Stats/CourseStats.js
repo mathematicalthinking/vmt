@@ -1,8 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'Components';
-import { usePopulatedRoom } from 'utils/utilityHooks';
-import { findMatchingUsers } from 'utils';
+import { usePopulatedRoom, findMatchingUsers } from 'utils';
 import statsReducer, { initialState } from './statsReducer';
 import { exportCSV } from './stats.utils';
 
