@@ -8,6 +8,7 @@ import classes from './monitoringView.css';
 export default function Thumbnails({
   populatedRoom,
   defaultLabel,
+  alwaysShowLabel,
   initialTabIndex,
   initialScreen,
 }) {
@@ -122,11 +123,14 @@ export default function Thumbnails({
         style={{
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: 'flex-start',
+          justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '5px',
         }}
       >
+        {(alwaysShowLabel ||
+          (!(tabOptions.length > 1) && !(screenOptions.length > 1))) &&
+          defaultLabel}
         {tabOptions.length > 1 && (
           <Select
             className={classes.Select}
@@ -149,9 +153,6 @@ export default function Thumbnails({
             placeholder="Select a Screen..."
           />
         )}
-        {!(tabOptions.length > 1) &&
-          !(screenOptions.length > 1) &&
-          defaultLabel}
       </div>
     ) : null;
   };
@@ -173,10 +174,12 @@ Thumbnails.propTypes = {
   defaultLabel: PropTypes.string,
   initialTabIndex: PropTypes.number,
   initialScreen: PropTypes.number,
+  alwaysShowLabel: PropTypes.bool,
 };
 
 Thumbnails.defaultProps = {
   defaultLabel: '',
   initialTabIndex: -1,
   initialScreen: -1,
+  alwaysShowLabel: false,
 };

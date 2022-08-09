@@ -25,6 +25,7 @@
     
   .Thumbnails {
     width: 75%;
+    min-width: 50vw;
     overflow: scroll;
     margin-right: 10px;
   }
