@@ -63,7 +63,8 @@ module.exports = {
         path: 'chat',
         // options: { limit: 25 }, // Eventually we'll need to paginate this
         populate: { path: 'user', select: 'username' },
-        select: '-room',
+        // allow messages to have roomIds, like events do
+        // select: '-room',
       })
       .populate({ path: 'members.user', select: 'username' })
       .populate({ path: 'currentMembers', select: 'username' })

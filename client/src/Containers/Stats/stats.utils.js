@@ -7,6 +7,26 @@ export const processData = (
   data,
   { users, events, messages, actions },
   { start, end }
+) =>
+  processDataHelper(data, { users, events, messages, actions }, { start, end });
+
+export const processCourseData = (
+  data,
+  { users, events, messages, actions },
+  { start, end }
+) =>
+  processDataHelper(
+    data,
+    { users, events, messages, actions },
+    { start, end },
+    true
+  );
+
+const processDataHelper = (
+  data,
+  { users, events, messages, actions },
+  { start, end },
+  returnRoomAndUserIds = false
 ) => {
   const timeFilteredData = data.filter((d, i) => {
     return d.timestamp >= start && d.timestamp <= end;
@@ -38,7 +58,7 @@ export const processData = (
           if (d.description) {
             messageDetails += ` (${d.description})`;
           }
-          return {
+          const dataToReturn = {
             time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
             user: d.user ? d.user.username || d.user : null,
             'action/message': messageType
@@ -55,6 +75,13 @@ export const processData = (
             color: fd.color,
             _id: d._id,
           };
+
+          if (returnRoomAndUserIds) {
+            dataToReturn.userId = d.user._id || null;
+            dataToReturn.roomId = d.room || null;
+          }
+
+          return dataToReturn;
         });
         return acc.concat(fdWithColor);
       }, [])

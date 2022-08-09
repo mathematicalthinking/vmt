@@ -76,9 +76,7 @@ const findAllMatching = (controller, fields = [], values = []) => {
     [field]: { $in: values },
   }));
 
-  return controller
-    .get({ isTrashed: false, $or: params })
-    .then((results) => results);
+  return controller.get({ isTrashed: false, $or: params });
 };
 
 module.exports.isNonEmptyObject = isNonEmptyObject;
