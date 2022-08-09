@@ -113,6 +113,8 @@ function withPopulatedRoom(WrappedComponent) {
           console.log(
             'we should probably just go back to the previous page? maybe display the error'
           );
+          const { history } = this.props;
+          history.goBack();
         });
     }
 
