@@ -33,8 +33,8 @@ export default (state = initialState, action) => {
     case 'GENERATE_DATA': {
       let { data } = action;
       const { users, events } = state;
-      const start = data[0].timestamp;
-      const end = data[data.length - 1].timestamp;
+      const start = Math.min(...data.map((d) => d.timestamp));
+      const end = Math.max(...data.map((d) => d.timestamp));
       const rawDuration = end - start;
       data = data.filter((d) => !d.isMultiPart);
 

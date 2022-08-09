@@ -34,6 +34,7 @@ import {
   Error,
 } from '../Components';
 import Access from './Access';
+import CourseStats from './Stats/CourseStats';
 
 class Course extends Component {
   constructor(props) {
@@ -46,6 +47,7 @@ class Course extends Component {
         { name: 'Members' },
         { name: 'Activities' },
         { name: 'Preview' },
+        { name: 'Stats' },
       ],
       firstView: false,
       editing: false,
@@ -404,8 +406,12 @@ class Course extends Component {
             }
           />
         );
-      } else if (resource === 'preview')
+      } else if (resource === 'preview') {
         mainContent = <CourseMonitor course={course} />;
+      } else if (resource === 'stats')
+        mainContent = (
+          <CourseStats roomIds={course.rooms.map((room) => room._id)} />
+        );
       // Updatekeys = the keys that we failed to update
       const { updateFail, updateKeys } = loading;
 
