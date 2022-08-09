@@ -229,7 +229,7 @@ module.exports = {
 
   /**
    * @method post - creates a room (and tabs if necessary)
-   * @param  {body} - fields for creating new room and tabs
+   * @param  {body} - fields for creating new room and tabs (kind of a room configuration object)
    */
   post: (body) => {
     return new Promise(async (resolve, reject) => {
@@ -315,7 +315,10 @@ module.exports = {
           new Tab({
             name: 'Tab 1',
             room: room._id,
-            startingpoint: '',
+            startingPoint: '',
+            // startingPointBase64 and currentStateBase64 should be in the body only if we are creating a new desmos activity.
+            startingPointBase64: body.startingPointBase64,
+            currentStateBase64: body.currentStateBase64,
             desmosLink: body.desmosLink,
             tabType: body.roomType || 'geogebra',
             appName: body.appName,
