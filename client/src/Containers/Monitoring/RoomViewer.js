@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { SimpleChat, ToggleGroup, CurrentMembers } from 'Components';
-import classes from './roomViewer.css';
 import Thumbnails from './Thumbnails';
+import classes from './roomViewer.css';
 
 /**
  * The RoomPreview provides two views into a rooms: thumbnail and chat. Users can
@@ -30,10 +31,30 @@ function RoomViewer({ populatedRoom }) {
 
   const [chatType, setChatType] = React.useState(constants.DETAILED);
 
+  const toTimelineString = (timestamp) => {
+    const oneWeekAgo = moment().subtract(7, 'days');
+    const oneYearAgo = moment().subtract(1, 'year');
+    const momentTimestamp = moment.unix(timestamp / 1000);
+    let format = 'ddd h:mm:ss a';
+    if (momentTimestamp.isBefore(oneYearAgo)) {
+      format = 'MMMM Do YYYY, h:mm:ss a';
+    } else if (momentTimestamp.isBefore(oneWeekAgo)) {
+      format = 'MMMM Do, h:mm:ss a';
+    }
+
+    return momentTimestamp.format(format);
+  };
+
   return (
     <div className={classes.Container}>
       <div className={classes.Thumbnails}>
-        <Thumbnails populatedRoom={populatedRoom} defaultLabel="Thumbnail" />
+        <Thumbnails
+          populatedRoom={populatedRoom}
+          defaultLabel={`Thumbnail last updated ${toTimelineString(
+            new Date(populatedRoom.updatedAt)
+          )}`}
+          alwaysShowLabel
+        />
       </div>
       <div className={classes.Aside}>
         <div className={classes.ChatSection}>
@@ -72,7 +93,7 @@ function RoomViewer({ populatedRoom }) {
               marginBottom: '5px',
             }}
           >
-            {`Members: ${populatedRoom.members.length}; Currently: ${populatedRoom.currentMembers.length}`}
+            {`Attendance (Members: ${populatedRoom.members.length}; Currently: ${populatedRoom.currentMembers.length})`}
           </div>
           <CurrentMembers
             members={populatedRoom.members}
