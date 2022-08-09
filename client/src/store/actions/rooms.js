@@ -1,3 +1,4 @@
+import { initializeNewDesmosActivity } from 'Containers/Workspace/Tools/DesActivityHelpers';
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
@@ -153,20 +154,36 @@ export const setRoomStartingPoint = (roomId) => {
   };
 };
 
+/**
+ * Posts the room to the database. Handles getting initialization info for DesmosActivity rooms if needed.
+ * @param {Room} room
+ * @returns {Promise}
+ */
+const addRoomToDB = async (room) => {
+  const result = await (room.roomType === 'desmosActivity'
+    ? initializeNewDesmosActivity(room)
+    : room);
+  return API.post('rooms', result);
+};
+
 // Note: we only need to update Course, Activity, & User w/new room
 // in the Redux store, b/c on the server side, when a new room is created
 // this info is added to the db (see server/model/Room.js -> Room.post)
+
+// Note also that 'body' is NOT a room, but rather a kind of room configuration
+// object. The server uses the information provided by the room configuation object
+// to create the room and its associated tabs.
 export const createRoom = (body) => {
   return (dispatch) => {
     dispatch(loading.start());
-    API.post('rooms', body)
+    addRoomToDB(body)
       .then((res) => {
         const { result } = res.data;
         dispatchNewRoom(result, dispatch);
         return dispatch(loading.success());
       })
       .catch((err) => {
-        dispatch(loading.fail(err.response.data.errorMessage));
+        dispatch(loading.fail(err));
       });
   };
 };
@@ -181,7 +198,7 @@ export const createGrouping = (roomsToCreate, activity, course = null) => {
 
     const roomsCreated = roomsToCreate.map((room) =>
       // add groupId to each room
-      API.post('rooms', { ...room, groupId })
+      addRoomToDB({ ...room, groupId })
     );
     Promise.all(roomsCreated)
       .then((results) => {
