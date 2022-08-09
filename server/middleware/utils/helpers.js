@@ -75,10 +75,13 @@ const findAllMatching = (controller, fields = [], values = []) => {
   const params = fields.map((field) => ({
     [field]: { $in: values },
   }));
-
-  return controller
-    .get({ isTrashed: false, $or: params })
-    .then((results) => results);
+  console.log(controller);
+  console.log(fields);
+  console.log(values);
+  return controller.get({ isTrashed: false, $or: params }).then((results) => {
+    console.log(results);
+    return results;
+  });
 };
 
 module.exports.isNonEmptyObject = isNonEmptyObject;

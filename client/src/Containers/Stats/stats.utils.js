@@ -63,6 +63,68 @@ export const processData = (
   };
 };
 
+export const processCourseData = (
+  data,
+  { users, events, messages, actions },
+  { start, end }
+) => {
+  const timeFilteredData = data.filter((d, i) => {
+    return d.timestamp >= start && d.timestamp <= end;
+  });
+  const timeScale = calculateTimeScale(start, end);
+  const filteredData = filterData(timeFilteredData, {
+    users,
+    events,
+    messages,
+    actions,
+  });
+  const lines = filteredData.map((fd) => ({
+    data: buildLineData(fd.data, timeScale, start, end),
+    color: fd.color,
+  }));
+  return {
+    lines,
+    timeScale,
+    start,
+    end,
+    filteredData: filteredData
+      .reduce((acc, fd) => {
+        const fdWithColor = fd.data.map((d) => {
+          const ggbEvent = getSignificantGgbEventFromEvent(d);
+
+          const messageType =
+            d.messageType && d.reference ? 'reference' : d.messageType;
+          let messageDetails = d.text;
+          if (d.description) {
+            messageDetails += ` (${d.description})`;
+          }
+          return {
+            time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
+            user: d.user ? d.user.username || d.user : null,
+            userId: d.user._id || null,
+            'action/message': messageType
+              ? `message: ${messageType.toLowerCase()}`
+              : `action: ${
+                  ggbEvent && ggbEvent.eventType
+                    ? ggbEvent.eventType.toLowerCase()
+                    : 'generic desmos event'
+                }`,
+            details: d.messageType ? messageDetails : d.description,
+            xml:
+              (ggbEvent && ggbEvent.xml) ||
+              (ggbEvent && ggbEvent.commandString),
+            color: fd.color,
+            _id: d._id,
+            roomId: d.room || null,
+          };
+        });
+        return acc.concat(fdWithColor);
+      }, [])
+      .sort((a, b) => a.timestamp - b.timestamp),
+    units: timeUnitMap[timeScale],
+  };
+};
+
 const filterData = (
   data,
   { users = [], events = [], messages = [], actions = [] }

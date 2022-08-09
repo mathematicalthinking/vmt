@@ -1,12 +1,16 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'Components';
 import { usePopulatedRoom } from 'utils/utilityHooks';
+import { API } from 'utils';
 import statsReducer, { initialState } from './statsReducer';
 import { exportCSV } from './stats.utils';
 
-const CourseStats = ({ roomIds }) => {
-  // start with rooms
+const CourseStats = ({ rooms, name }) => {
+  const roomIds = rooms.map((room) => room._id);
+
+  const [loading, setLoading] = useState(true);
+
   const populatedRooms = roomIds.map((roomId) =>
     usePopulatedRoom(roomId, true)
   );
@@ -19,16 +23,61 @@ const CourseStats = ({ roomIds }) => {
     );
 
   const [state, dispatch] = useReducer(statsReducer, initialState);
+  const augmentedData = React.useRef([]);
   const { filteredData } = state;
 
-  const augmentedData = filteredData.map(
-    // add in user_id, studentId (From user metadata), roomName
-    () => {}
-  );
+  const augmentFilteredData = (data) => {
+    const userIds = Array.from(
+      new Set(filteredData.map((d) => d.userId.toString()))
+    );
+    // query db for student ids
+    return (
+      API.findAllMatching('user', ['_id'], userIds)
+        .then((res) => {
+          return res.data.results.reduce(
+            (acc, curr) => ({
+              ...acc,
+              [curr._id.toString()]:
+                (curr.metadata && curr.metadata.identifier) || null,
+            }),
+            {}
+          );
+        })
+        .then((studentIds) => {
+          return data.map((d) => {
+            const currRoom = populatedRooms.filter(
+              ({ data: room }) => room._id === d.roomId
+            );
+            const roomName = currRoom[0].data.name;
+            return {
+              ...d,
+              studentId: studentIds[d.userId],
+              roomName,
+            };
+          });
+        })
+        // eslint-disable-next-line no-console
+        .catch((err) => console.log(err))
+    );
+  };
+
   useEffect(() => {
-    if (combinedLog && combinedLog.length > 0)
-      dispatch({ type: 'GENERATE_DATA', data: combinedLog });
+    if (!populatedRooms.some((query) => !query.isSuccess) && loading) {
+      setLoading(false);
+      if (combinedLog && combinedLog.length > 0)
+        dispatch({ type: 'GENERATE_COURSE_DATA', data: combinedLog });
+    }
   }, [combinedLog.length]);
+
+  useEffect(() => {
+    // augment filteredData
+    if (!loading) {
+      augmentFilteredData(filteredData).then(
+        // eslint-disable-next-line no-return-assign
+        (results) => (augmentedData.current = results)
+      );
+    }
+  }, [loading]);
 
   return combinedLog && combinedLog.length > 0 ? (
     <div>
@@ -37,7 +86,7 @@ const CourseStats = ({ roomIds }) => {
         theme="None"
         key="2"
         data-testid="download-csv"
-        click={() => exportCSV(augmentedData, `$courseData_csv`)}
+        click={() => exportCSV(augmentedData.current, `${name}_courseData`)}
       >
         <i className="fas fa-download" style={{ color: 'blue' }} />
       </Button>
@@ -50,8 +99,8 @@ const CourseStats = ({ roomIds }) => {
 };
 
 CourseStats.propTypes = {
-  // populatedRoom: PropTypes.shape({}).isRequired,
-  roomIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+  rooms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  name: PropTypes.string.isRequired,
 };
 
 export default CourseStats;

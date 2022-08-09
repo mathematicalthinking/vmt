@@ -409,9 +409,7 @@ class Course extends Component {
       } else if (resource === 'preview') {
         mainContent = <CourseMonitor course={course} />;
       } else if (resource === 'stats')
-        mainContent = (
-          <CourseStats roomIds={course.rooms.map((room) => room._id)} />
-        );
+        mainContent = <CourseStats rooms={course.rooms} name={course.name} />;
       // Updatekeys = the keys that we failed to update
       const { updateFail, updateKeys } = loading;
 
