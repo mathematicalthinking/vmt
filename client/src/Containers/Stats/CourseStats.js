@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'Components';
 import { usePopulatedRoom } from 'utils/utilityHooks';
-import { API } from 'utils';
+import { findMatchingUsers } from 'utils';
 import statsReducer, { initialState } from './statsReducer';
 import { exportCSV } from './stats.utils';
 
@@ -37,9 +37,9 @@ const CourseStats = ({ roomIds, name }) => {
     );
     // query db for student ids
     return (
-      API.findAllMatching('user', ['_id'], userIds)
+      findMatchingUsers(['_id'], userIds)
         .then((res) => {
-          return res.data.results.reduce(
+          return res.reduce(
             (acc, curr) => ({
               ...acc,
               [curr._id.toString()]:
