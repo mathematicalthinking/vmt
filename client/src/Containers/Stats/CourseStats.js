@@ -6,14 +6,18 @@ import { API } from 'utils';
 import statsReducer, { initialState } from './statsReducer';
 import { exportCSV } from './stats.utils';
 
-const CourseStats = ({ rooms, name }) => {
-  const roomIds = rooms.map((room) => room._id);
-
+const CourseStats = ({ roomIds, name }) => {
   const [loading, setLoading] = useState(true);
 
   const populatedRooms = roomIds.map((roomId) =>
     usePopulatedRoom(roomId, true)
   );
+  const populatedRoomsObject = populatedRooms.reduce((acc, curr) => {
+    return curr.data && curr.data._id && { ...acc, [curr.data]: curr.data };
+  }, {});
+
+  console.log(populatedRooms)
+  console.log(populatedRoomsObject)
 
   const combinedLog = populatedRooms
     .filter((roomQuery) => roomQuery.isSuccess)
@@ -99,7 +103,7 @@ const CourseStats = ({ rooms, name }) => {
 };
 
 CourseStats.propTypes = {
-  rooms: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  roomIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   name: PropTypes.string.isRequired,
 };
 
