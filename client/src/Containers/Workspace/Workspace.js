@@ -758,9 +758,8 @@ class Workspace extends Component {
   };
 
   goBack = () => {
-    const { populatedRoom, history } = this.props;
-    const { _id } = populatedRoom;
-    history.push(`/myVMT/rooms/${_id}/details`);
+    const { history } = this.props;
+    history.goBack();
   };
 
   setGraphCoords = (graphCoords) => {
@@ -1311,7 +1310,8 @@ Workspace.propTypes = {
     username: PropTypes.string,
   }).isRequired,
   temp: PropTypes.bool,
-  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func, goBack: PropTypes.func })
+    .isRequired,
   save: PropTypes.func,
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
