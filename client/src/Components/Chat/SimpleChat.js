@@ -11,7 +11,6 @@ import ChatClasses from './chat.css';
  */
 
 function SimpleChat({ log, isSimplified }) {
-  if (!log) log = [];
   const chatScroll = React.createRef();
   const prevLogLength = React.useRef(0);
   const [showNewMessages, setShowNewMessages] = React.useState(false);
@@ -86,12 +85,13 @@ function SimpleChat({ log, isSimplified }) {
 }
 
 SimpleChat.propTypes = {
-  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  log: PropTypes.arrayOf(PropTypes.shape({})),
   isSimplified: PropTypes.bool,
 };
 
 SimpleChat.defaultProps = {
   isSimplified: true,
+  log: [],
 };
 
 export default SimpleChat;
