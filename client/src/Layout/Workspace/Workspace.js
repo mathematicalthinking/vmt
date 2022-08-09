@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Loading } from 'Components';
 import classes from './workspace.css';
 
 class WorkspaceLayout extends Component {
@@ -92,10 +93,7 @@ class WorkspaceLayout extends Component {
     }
     const isFirefox = window.navigator.userAgent.indexOf('Firefox') !== -1;
     return (
-      <div
-        className={classes.PageContainer}
-        style={{ visibility: loaded || activity ? 'visible' : 'hidden' }}
-      >
+      <div className={classes.PageContainer}>
         {/* {!encompass ? <div className={classes.Background} /> : null} */}
         <div className={classes.Container}>
           <div
@@ -111,28 +109,43 @@ class WorkspaceLayout extends Component {
             <div
               ref={this.Graph}
               className={replayer ? classes.ReplayerTop : classes.Top}
-              style={{ position: 'relative' }}
+              style={{
+                position: 'relative',
+              }}
             >
-              {graphs.map((graph) => {
-                return (
-                  <div
-                    key={graph.key}
-                    className={replayer ? classes.ReplayerGraph : classes.Graph}
-                    style={{
-                      display:
-                        currentTabId === graph.props.tab._id ? 'block' : 'none',
-                      position: 'absolute',
-                      top: 0,
-                      left: 1,
-                      bottom: 1,
-                      right: 1,
-                      pointerEvents: replayer ? 'none' : 'auto',
-                    }}
-                  >
-                    {graph}
-                  </div>
-                );
-              })}
+              {/* {!loaded ? <Loading message="Preparing your room..." /> : null} */}
+              <div
+                style={
+                  {
+                    // visibility: loaded || activity ? 'visible' : 'hidden',
+                  }
+                }
+              >
+                {graphs.map((graph) => {
+                  return (
+                    <div
+                      key={graph.key}
+                      className={
+                        replayer ? classes.ReplayerGraph : classes.Graph
+                      }
+                      style={{
+                        display:
+                          currentTabId === graph.props.tab._id
+                            ? 'block'
+                            : 'none',
+                        position: 'absolute',
+                        top: 0,
+                        left: 1,
+                        bottom: 1,
+                        right: 1,
+                        pointerEvents: replayer ? 'none' : 'auto',
+                      }}
+                    >
+                      {graph}
+                    </div>
+                  );
+                })}
+              </div>
               {replayer ? (
                 <div className={classes.ReplayerBottom}>{bottomLeft}</div>
               ) : null}

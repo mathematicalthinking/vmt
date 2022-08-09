@@ -78,7 +78,12 @@ function withPopulatedRoom(WrappedComponent) {
     }
 
     fetchRoom(roomId) {
-      API.getPopulatedById('rooms', roomId, false, true)
+      this.fetchRoom_helper(roomId, false);
+      this.fetchRoom_helper(roomId, true);
+    }
+
+    fetchRoom_helper(roomId, justLoadEvents) {
+      API.getPopulatedById('rooms', roomId, justLoadEvents, true)
         .then((res) => {
           const populatedRoom = res.data.result;
           populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
@@ -94,7 +99,12 @@ function withPopulatedRoom(WrappedComponent) {
           if (!this.cancelFetch) {
             this.setState((prevState) => ({
               loading: false,
-              populatedRoom: { ...prevState.populatedRoom, ...populatedRoom },
+              populatedRoom: justLoadEvents
+                ? {
+                    ...prevState.populatedRoom,
+                    log: populatedRoom.log,
+                  }
+                : { ...prevState.populatedRoom, ...populatedRoom },
             }));
           }
         })

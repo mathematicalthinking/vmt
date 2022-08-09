@@ -1191,9 +1191,9 @@ class Workspace extends Component {
 
     return (
       <Fragment>
-        {!isFirstTabLoaded ? (
+        {/* {!isFirstTabLoaded ? (
           <Loading message="Preparing your room..." />
-        ) : null}
+        ) : null} */}
         <WorkspaceLayout
           snapshotRef={snapshotRef}
           graphs={graphs}
