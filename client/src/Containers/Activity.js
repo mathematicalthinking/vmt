@@ -45,7 +45,7 @@ class Activity extends Component {
       owner: false,
       tabs: [
         { name: 'Assign' },
-        { name: 'Edit Assignments' },
+        // { name: 'Edit Assignments' },
         { name: 'Rooms' },
         { name: 'Preview' },
       ],
@@ -57,6 +57,7 @@ class Activity extends Component {
       canAccess: false,
       roomType: '',
       isPlural: false,
+      showAssignments: false,
     };
   }
 
@@ -169,7 +170,7 @@ class Activity extends Component {
 
   mainContent = () => {
     const { match, activity, course, rooms, user } = this.props;
-    const { owner } = this.state;
+    const { owner, showAssignments } = this.state;
     const { resource } = match.params;
 
     switch (resource) {
@@ -213,26 +214,52 @@ class Activity extends Component {
           />
         );
       default:
-        return (
-          <SelectAssignments
-            // keys are needed so that React doesn't re-use these two SelectAssignments (treating them as one)
-            // see https://reactjs.org/docs/reconciliation.html
-            key="addSelect"
+        return showAssignments ? (
+          // <SelectAssignments
+          //   // keys are needed so that React doesn't re-use these two SelectAssignments (treating them as one)
+          //   // see https://reactjs.org/docs/reconciliation.html
+          //   key="addSelect"
+          //   activity={activity}
+          //   course={course || null}
+          //   rooms={rooms}
+          //   userId={user._id}
+          //   user={{
+          //     role: 'facilitator',
+          //     user: { _id: user._id, username: user.username },
+          //   }}
+          //   label="Create:"
+          //   defaultOption={{ label: 'New Grouping', value: [] }}
+          //   toolTip="Create rooms for members to do math in. You can reuse the member groups that you create here."
+          //   AssignmentComponent={MakeRooms}
+          //   optionsGenerator={createPreviousAssignments}
+          //   firstOption={{ label: 'New Grouping', value: [] }}
+          // />
+          <MakeRooms
             activity={activity}
             course={course || null}
-            rooms={rooms}
             userId={user._id}
-            user={{
-              role: 'facilitator',
-              user: { _id: user._id, username: user.username },
-            }}
-            label="Create:"
-            defaultOption={{ label: 'New Grouping', value: [] }}
-            toolTip="Create rooms for members to do math in. You can reuse the member groups that you create here."
-            AssignmentComponent={MakeRooms}
-            optionsGenerator={createPreviousAssignments}
-            firstOption={{ label: 'New Grouping', value: [] }}
+            close={() => this.setState({ showAssignments: false })}
+            participants={
+              course
+                ? course.members
+                : [
+                    {
+                      role: 'facilitator',
+                      user: { _id: user._id, username: user.username },
+                    },
+                  ]
+            }
+            rooms={rooms}
           />
+        ) : (
+          <div>
+            <Button
+              click={() => this.setState({ showAssignments: true })}
+              m={5}
+            >
+              Assign Template
+            </Button>
+          </div>
         );
     }
   };
@@ -443,8 +470,9 @@ class Activity extends Component {
 Activity.propTypes = {
   match: PropTypes.shape({}).isRequired,
   activity: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
-  course: PropTypes.shape({}),
+  user: PropTypes.shape({ _id: PropTypes.string, username: PropTypes.string })
+    .isRequired,
+  course: PropTypes.shape({ members: PropTypes.shape({}) }),
   history: PropTypes.shape({}).isRequired,
   loading: PropTypes.bool.isRequired,
   updateFail: PropTypes.bool.isRequired,
