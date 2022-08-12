@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { max } from 'd3';
 import moment from 'moment';
-import { processData, dateFormatMap } from './stats.utils';
+import { processData, processCourseData, dateFormatMap } from './stats.utils';
 
 export const initialState = {
   byUser: false,
@@ -33,8 +33,8 @@ export default (state = initialState, action) => {
     case 'GENERATE_DATA': {
       let { data } = action;
       const { users, events } = state;
-      const start = data[0].timestamp;
-      const end = data[data.length - 1].timestamp;
+      const start = Math.min(...data.map((d) => d.timestamp));
+      const end = Math.max(...data.map((d) => d.timestamp));
       const rawDuration = end - start;
       data = data.filter((d) => !d.isMultiPart);
 
@@ -196,6 +196,40 @@ export default (state = initialState, action) => {
       return {
         ...state,
         inChartView: !state.inChartView,
+      };
+    }
+
+    case 'GENERATE_COURSE_DATA': {
+      let { data } = action;
+      const { users, events } = state;
+      const start = Math.min(...data.map((d) => d.timestamp));
+      const end = Math.max(...data.map((d) => d.timestamp));
+      const rawDuration = end - start;
+      data = data.filter((d) => !d.isMultiPart);
+
+      const { filteredData, lines, timeScale, units } = processCourseData(
+        data,
+        { users, events },
+        { start, end }
+      );
+      const maxY = max(lines[0].data, (d) => d[1]);
+      const durationDisplay = rawDuration / 1000 / timeScale;
+      return {
+        ...state,
+        lines,
+        timeScale,
+        units,
+        maxY,
+        data,
+        filteredData,
+        rawDuration,
+        durationDisplay,
+        startDateF: moment.unix(start / 1000).format(dateFormatMap[units]),
+        endDateF: moment.unix(end / 1000).format(dateFormatMap[units]),
+        startTime: start,
+        currentStartTime: start,
+        endTime: end,
+        currentEndTime: end,
       };
     }
 

@@ -66,6 +66,32 @@ export const fetchConfigData = async (tab) => {
   }
 };
 
+export const initializeNewDesmosActivity = async (roomConfig) => {
+  if (!roomConfig || !roomConfig.desmosLink) return roomConfig;
+  const { Player } = await import('external/js/api.full.es');
+  const configData = await fetchConfigData({
+    desmosLink: roomConfig.desmosLink,
+  });
+  if (configData.status !== 200) return roomConfig;
+  let responses = {};
+  await new Player({
+    activityConfig: configData.config,
+    targetElement: document.createElement('div'),
+    onError: (err) => {
+      console.error(
+        err.message ? err : `PlayerAPI error: ${JSON.stringify(err, null, 2)}`
+      );
+    },
+    onResponseDataUpdated: (newResponse) => {
+      responses = { ...responses, ...newResponse };
+    },
+  });
+  return {
+    ...roomConfig,
+    startingPointBase64: JSON.stringify(configData.config),
+    currentStateBase64: JSON.stringify(responses),
+  };
+};
 // Activity Confguration MetaData Schemas
 // Schemas should conform to JSON Schema syntax. See: https://json-schema.org/
 export const activityMetadataSchema = {

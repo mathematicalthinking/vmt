@@ -196,7 +196,7 @@ class Workspace extends Component {
 
   componentWillUnmount() {
     const { populatedRoom, connectUpdatedRoom, user } = this.props;
-    const { myColor, cancelSnapshots, currentMembers } = this.state;
+    const { myColor, cancelSnapshots, currentMembers, log, tabs } = this.state;
     // Only generate a LEAVE message (and remove the user from the currentMembers list) if:
     // - the user is in admin mode and is leaving via the exit button (i.e., not from switching mode)
     // - the user is leaving because they switched their admin mode on. They were in the room,
@@ -213,6 +213,8 @@ class Workspace extends Component {
         currentMembers: currentMembers.filter(
           (mem) => mem && user && mem._id !== user._id
         ),
+        chat: log.filter((msg) => msg.messageType),
+        tabs,
       });
     }
     window.removeEventListener('resize', this.resizeHandler);
@@ -756,9 +758,8 @@ class Workspace extends Component {
   };
 
   goBack = () => {
-    const { populatedRoom, history } = this.props;
-    const { _id } = populatedRoom;
-    history.push(`/myVMT/rooms/${_id}/details`);
+    const { history } = this.props;
+    history.goBack();
   };
 
   setGraphCoords = (graphCoords) => {
@@ -1309,7 +1310,8 @@ Workspace.propTypes = {
     username: PropTypes.string,
   }).isRequired,
   temp: PropTypes.bool,
-  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func, goBack: PropTypes.func })
+    .isRequired,
   save: PropTypes.func,
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
