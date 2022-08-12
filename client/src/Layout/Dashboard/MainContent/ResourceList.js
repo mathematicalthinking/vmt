@@ -142,7 +142,7 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I Manage
             </h2>
-            {fList.length > 1 && setResourceState && (
+            {fList.length >= 1 && setResourceState && (
               <SortUI
                 keys={keys}
                 sortFn={facilitatorRequestSort}
@@ -165,7 +165,7 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I&#39;m a member of
             </h2>
-            {pList.length > 1 && setResourceState && (
+            {pList.length >= 1 && setResourceState && (
               <SortUI
                 keys={keys}
                 sortFn={participantRequestSort}
@@ -193,7 +193,7 @@ const ResourceList = ({
               {displayResource} I&#39;m a member of
             </h2>
           )}
-          {(fList.length > 1 || pList.length > 1) && setResourceState && (
+          {(fList.length >= 1 || pList.length >= 1) && setResourceState && (
             <SortUI
               keys={keys}
               sortFn={
