@@ -101,6 +101,7 @@ const WebSketch = (props) => {
     let actionDetailText = '';
     if (!updates) {
       console.log('No updates! desc called', username, updates);
+      return `${username} ${actionText} ${actionDetailText}`;
     }
     if (updates.action === 'updateGobj') {
       actionText = 'moved a point';
@@ -119,7 +120,7 @@ const WebSketch = (props) => {
     sketchDoc = $sketch.data('document');
     sketch = sketchDoc && sketchDoc.focusPage;
     if (!sketch) {
-      console.log('getSketch() failed to find the sketch.');
+      console.error('getSketch() failed to find the sketch.');
     }
     return sketch;
   };
@@ -174,17 +175,20 @@ const WebSketch = (props) => {
   };
 
   const reflectMessage = (event, attr) => {
+    console.log('Message attr: ', attr);
     // SS: removed timeout, to make sure the follower is updated right away before any subsequent drags
-    const msg = { action: event.type, time: event.timeStamp, attr };
+    // const msgAttr = JSON.stringify(attr);
+    const msgAttr = attr;
+    const msg = { action: event.type, time: event.timeStamp, attr: msgAttr };
     // msg is ready to post to follower
-    // setActivityMessage(msg);
     setActivityData(msg);
   };
 
   // send msg and then reestablish listeners, could possibly be done for all events
   const reflectAndSync = (event, attr) => {
     reflectMessage(event, attr);
-    getSketch();
+    // getSketch();
+    sketch = sketchDoc.focusPage;
     syncToFollower();
   };
 
@@ -256,7 +260,6 @@ const WebSketch = (props) => {
     const { room, user, myColor, tab, resetControlTimer } = props;
     if (!receivingData) {
       const description = buildDescription(user.username, updates);
-      console.log('Handling update: ', updates);
       const currentStateString = JSON.stringify(updates);
       const newData = {
         _id: mongoIdGenerator(),
@@ -273,7 +276,7 @@ const WebSketch = (props) => {
       };
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
-      console.log('Sent message: ', newData);
+      console.log('Sent message: ', newData.currentState);
       resetControlTimer();
       // putState(); // save to db?
       debouncedUpdate();
@@ -318,15 +321,16 @@ const WebSketch = (props) => {
   const handleMessage = (msg) => {
     // msg has three properties: action, time, and data
     // for most events, data is the attributes of the WSP event
-    const { attr, data } = msg;
+    const { attr } = msg;
     const mergeGobjDesc = (gobjInfo, toInfo) => {
       // given a merged gobj and info about what it was merged to
-      let gobjs = sketch.gobjList.gobjects;
+      const gobjs = sketch.gobjList.gobjects;
       let desc = ' ' + gobjDesc(gobjInfo) + ' ';
       // The merged gobj may have gone away, but gobjInfo recorded the kind, label, and id
-      let gobj2 = gobjs[toInfo.id1];
-      let desc2 = ' ' + gobjDesc(gobj2);
-      let gobj3, desc3;
+      const gobj2 = gobjs[toInfo.id1];
+      const desc2 = ' ' + gobjDesc(gobj2);
+      let gobj3;
+      let desc3;
       if (toInfo.type !== 'intersection') {
         desc += 'to' + desc2;
       } else {
@@ -579,6 +583,8 @@ const WebSketch = (props) => {
     });
     const data = $sketch.data('document');
     console.log('Found data: ', data);
+    const sketchWidth = data.metadata.width;
+    console.log('Sketch width: ', sketchWidth);
     sketchDoc = data;
     sketch = data.focusPage;
   };
