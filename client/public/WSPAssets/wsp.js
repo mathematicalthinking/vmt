@@ -7382,6 +7382,23 @@
                       "data" : data});
       },
       
+      /**
+       * Polyfill substitute for optional chaining. Instead of val = obj1?.obj2?.obj3?.datum,
+       * we can write val = GSP._get('obj1.obj2.obj3', datum), which will return either
+       * the value of datum or undefined if any piece of the path is invalid
+      */
+      _get: function(path, target) {
+        var parts = path.split && path.split('.'),
+            retVal;
+        if (!parts) return;
+        retVal = target;
+        parts.every(function(part) {
+          retVal = retVal[part];
+          return retVal;
+        });
+        return retVal;
+      },
+    
     
     /**
      * Class construction utility.
@@ -12710,7 +12727,7 @@
                       pval = sQueryPrototype.findDottedProperty(gList[key], 
                           'style.' + prop);
                   }
-                  if (value === pval || value === "true" && pval === true) {
+                  if (value === pval) {
                       target[key] = gList[key];
                   }
               }
@@ -14809,11 +14826,21 @@
       pushConfirmedSketchOpDelta: function(preOpDelta) {
         var currentPageId = this.getFocusPage().metadata.id;
         var history = this.getCurrentPageHistory();
+        // SS Feature Change: we now remember both the preOpDelta and the current delta.
+        /* Old code:
         if (preOpDelta && history.current.prev) {
           // pop off the last completed undo/redo op (toolplay or gobj-deletion).
           // Replace it with the potentially more expansive: last undo-redo    
           // op + any subsequent non-toolplay changes (e.g. position changes)
           history.undo();
+          history.pushDelta(preOpDelta);
+        }
+        New code below
+        */ 
+        if (preOpDelta) {
+          // Leave any completed undo/redo op (toolplay or gobj-deletion).
+          // Add two snapshots: the preOpDelta before the current op (toolplay/delete/dragMerge)
+          // and the current op itself.
           history.pushDelta(preOpDelta);
         }
         var delta = this.getPageDeltaObj(currentPageId);
@@ -35760,36 +35787,41 @@
             },
           peg$c22 = "=",
           peg$c23 = { type: "literal", value: "=", description: "\"=\"" },
-          peg$c24 = /^[0-9a-zA-Z_]/,
-          peg$c25 = { type: "class", value: "[0-9a-zA-Z_]", description: "[0-9a-zA-Z_]" },
-          peg$c26 = function(chars) {
+          peg$c24 = "true",
+          peg$c25 = { type: "literal", value: "true", description: "\"true\"" },
+          peg$c26 = function() {
+              return true;
+            },
+          peg$c27 = /^[0-9a-zA-Z_]/,
+          peg$c28 = { type: "class", value: "[0-9a-zA-Z_]", description: "[0-9a-zA-Z_]" },
+          peg$c29 = function(chars) {
                 return chars.join('');
             },
-          peg$c27 = "\"",
-          peg$c28 = { type: "literal", value: "\"", description: "\"\\\"\"" },
-          peg$c29 = /^[^\n\r\f\\"]/,
-          peg$c30 = { type: "class", value: "[^\\n\\r\\f\\\\\"]", description: "[^\\n\\r\\f\\\\\"]" },
-          peg$c31 = "\\",
-          peg$c32 = { type: "literal", value: "\\", description: "\"\\\\\"" },
-          peg$c33 = function(nl) { return nl },
-          peg$c34 = function(chars) {
+          peg$c30 = "\"",
+          peg$c31 = { type: "literal", value: "\"", description: "\"\\\"\"" },
+          peg$c32 = /^[^\n\r\f\\"]/,
+          peg$c33 = { type: "class", value: "[^\\n\\r\\f\\\\\"]", description: "[^\\n\\r\\f\\\\\"]" },
+          peg$c34 = "\\",
+          peg$c35 = { type: "literal", value: "\\", description: "\"\\\\\"" },
+          peg$c36 = function(nl) { return nl },
+          peg$c37 = function(chars) {
                 return chars.join("");
               },
-          peg$c35 = "'",
-          peg$c36 = { type: "literal", value: "'", description: "\"'\"" },
-          peg$c37 = /^[^\n\r\f\\']/,
-          peg$c38 = { type: "class", value: "[^\\n\\r\\f\\\\']", description: "[^\\n\\r\\f\\\\']" },
-          peg$c39 = "\n",
-          peg$c40 = { type: "literal", value: "\n", description: "\"\\n\"" },
-          peg$c41 = "\r\n",
-          peg$c42 = { type: "literal", value: "\r\n", description: "\"\\r\\n\"" },
-          peg$c43 = "\r",
-          peg$c44 = { type: "literal", value: "\r", description: "\"\\r\"" },
-          peg$c45 = "\f",
-          peg$c46 = { type: "literal", value: "\f", description: "\"\\f\"" },
-          peg$c47 = /^[^\r\n\f0-9a-fA-F]/,
-          peg$c48 = { type: "class", value: "[^\\r\\n\\f0-9a-fA-F]", description: "[^\\r\\n\\f0-9a-fA-F]" },
-          peg$c49 = function(char_) { return char_; },
+          peg$c38 = "'",
+          peg$c39 = { type: "literal", value: "'", description: "\"'\"" },
+          peg$c40 = /^[^\n\r\f\\']/,
+          peg$c41 = { type: "class", value: "[^\\n\\r\\f\\\\']", description: "[^\\n\\r\\f\\\\']" },
+          peg$c42 = "\n",
+          peg$c43 = { type: "literal", value: "\n", description: "\"\\n\"" },
+          peg$c44 = "\r\n",
+          peg$c45 = { type: "literal", value: "\r\n", description: "\"\\r\\n\"" },
+          peg$c46 = "\r",
+          peg$c47 = { type: "literal", value: "\r", description: "\"\\r\"" },
+          peg$c48 = "\f",
+          peg$c49 = { type: "literal", value: "\f", description: "\"\\f\"" },
+          peg$c50 = /^[^\r\n\f0-9a-fA-F]/,
+          peg$c51 = { type: "class", value: "[^\\r\\n\\f0-9a-fA-F]", description: "[^\\r\\n\\f0-9a-fA-F]" },
+          peg$c52 = function(char_) { return char_; },
   
           peg$currPos          = 0,
           peg$reportedPos      = 0,
@@ -36187,7 +36219,7 @@
           if (s2 !== peg$FAILED) {
             s3 = peg$parseoper();
             if (s3 !== peg$FAILED) {
-              s4 = peg$parsestring();
+              s4 = peg$parsevalue();
               if (s4 !== peg$FAILED) {
                 if (input.charCodeAt(peg$currPos) === 93) {
                   s5 = peg$c19;
@@ -36238,27 +36270,58 @@
         return s0;
       }
   
+      function peg$parsevalue() {
+        var s0;
+  
+        s0 = peg$parsestring();
+        if (s0 === peg$FAILED) {
+          s0 = peg$parsetrueValue();
+        }
+  
+        return s0;
+      }
+  
+      function peg$parsetrueValue() {
+        var s0, s1;
+  
+        s0 = peg$currPos;
+        if (input.substr(peg$currPos, 4) === peg$c24) {
+          s1 = peg$c24;
+          peg$currPos += 4;
+        } else {
+          s1 = peg$FAILED;
+          if (peg$silentFails === 0) { peg$fail(peg$c25); }
+        }
+        if (s1 !== peg$FAILED) {
+          peg$reportedPos = s0;
+          s1 = peg$c26();
+        }
+        s0 = s1;
+  
+        return s0;
+      }
+  
       function peg$parsename() {
         var s0, s1, s2;
   
         s0 = peg$currPos;
         s1 = [];
-        if (peg$c24.test(input.charAt(peg$currPos))) {
+        if (peg$c27.test(input.charAt(peg$currPos))) {
           s2 = input.charAt(peg$currPos);
           peg$currPos++;
         } else {
           s2 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c25); }
+          if (peg$silentFails === 0) { peg$fail(peg$c28); }
         }
         if (s2 !== peg$FAILED) {
           while (s2 !== peg$FAILED) {
             s1.push(s2);
-            if (peg$c24.test(input.charAt(peg$currPos))) {
+            if (peg$c27.test(input.charAt(peg$currPos))) {
               s2 = input.charAt(peg$currPos);
               peg$currPos++;
             } else {
               s2 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c25); }
+              if (peg$silentFails === 0) { peg$fail(peg$c28); }
             }
           }
         } else {
@@ -36266,7 +36329,7 @@
         }
         if (s1 !== peg$FAILED) {
           peg$reportedPos = s0;
-          s1 = peg$c26(s1);
+          s1 = peg$c29(s1);
         }
         s0 = s1;
   
@@ -36289,35 +36352,35 @@
   
         s0 = peg$currPos;
         if (input.charCodeAt(peg$currPos) === 34) {
-          s1 = peg$c27;
+          s1 = peg$c30;
           peg$currPos++;
         } else {
           s1 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c28); }
+          if (peg$silentFails === 0) { peg$fail(peg$c31); }
         }
         if (s1 !== peg$FAILED) {
           s2 = [];
-          if (peg$c29.test(input.charAt(peg$currPos))) {
+          if (peg$c32.test(input.charAt(peg$currPos))) {
             s3 = input.charAt(peg$currPos);
             peg$currPos++;
           } else {
             s3 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$c30); }
+            if (peg$silentFails === 0) { peg$fail(peg$c33); }
           }
           if (s3 === peg$FAILED) {
             s3 = peg$currPos;
             if (input.charCodeAt(peg$currPos) === 92) {
-              s4 = peg$c31;
+              s4 = peg$c34;
               peg$currPos++;
             } else {
               s4 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c32); }
+              if (peg$silentFails === 0) { peg$fail(peg$c35); }
             }
             if (s4 !== peg$FAILED) {
               s5 = peg$parsenl();
               if (s5 !== peg$FAILED) {
                 peg$reportedPos = s3;
-                s4 = peg$c33(s5);
+                s4 = peg$c36(s5);
                 s3 = s4;
               } else {
                 peg$currPos = s3;
@@ -36333,27 +36396,27 @@
           }
           while (s3 !== peg$FAILED) {
             s2.push(s3);
-            if (peg$c29.test(input.charAt(peg$currPos))) {
+            if (peg$c32.test(input.charAt(peg$currPos))) {
               s3 = input.charAt(peg$currPos);
               peg$currPos++;
             } else {
               s3 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c30); }
+              if (peg$silentFails === 0) { peg$fail(peg$c33); }
             }
             if (s3 === peg$FAILED) {
               s3 = peg$currPos;
               if (input.charCodeAt(peg$currPos) === 92) {
-                s4 = peg$c31;
+                s4 = peg$c34;
                 peg$currPos++;
               } else {
                 s4 = peg$FAILED;
-                if (peg$silentFails === 0) { peg$fail(peg$c32); }
+                if (peg$silentFails === 0) { peg$fail(peg$c35); }
               }
               if (s4 !== peg$FAILED) {
                 s5 = peg$parsenl();
                 if (s5 !== peg$FAILED) {
                   peg$reportedPos = s3;
-                  s4 = peg$c33(s5);
+                  s4 = peg$c36(s5);
                   s3 = s4;
                 } else {
                   peg$currPos = s3;
@@ -36370,15 +36433,15 @@
           }
           if (s2 !== peg$FAILED) {
             if (input.charCodeAt(peg$currPos) === 34) {
-              s3 = peg$c27;
+              s3 = peg$c30;
               peg$currPos++;
             } else {
               s3 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c28); }
+              if (peg$silentFails === 0) { peg$fail(peg$c31); }
             }
             if (s3 !== peg$FAILED) {
               peg$reportedPos = s0;
-              s1 = peg$c34(s2);
+              s1 = peg$c37(s2);
               s0 = s1;
             } else {
               peg$currPos = s0;
@@ -36401,35 +36464,35 @@
   
         s0 = peg$currPos;
         if (input.charCodeAt(peg$currPos) === 39) {
-          s1 = peg$c35;
+          s1 = peg$c38;
           peg$currPos++;
         } else {
           s1 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c36); }
+          if (peg$silentFails === 0) { peg$fail(peg$c39); }
         }
         if (s1 !== peg$FAILED) {
           s2 = [];
-          if (peg$c37.test(input.charAt(peg$currPos))) {
+          if (peg$c40.test(input.charAt(peg$currPos))) {
             s3 = input.charAt(peg$currPos);
             peg$currPos++;
           } else {
             s3 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$c38); }
+            if (peg$silentFails === 0) { peg$fail(peg$c41); }
           }
           if (s3 === peg$FAILED) {
             s3 = peg$currPos;
             if (input.charCodeAt(peg$currPos) === 92) {
-              s4 = peg$c31;
+              s4 = peg$c34;
               peg$currPos++;
             } else {
               s4 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c32); }
+              if (peg$silentFails === 0) { peg$fail(peg$c35); }
             }
             if (s4 !== peg$FAILED) {
               s5 = peg$parsenl();
               if (s5 !== peg$FAILED) {
                 peg$reportedPos = s3;
-                s4 = peg$c33(s5);
+                s4 = peg$c36(s5);
                 s3 = s4;
               } else {
                 peg$currPos = s3;
@@ -36445,27 +36508,27 @@
           }
           while (s3 !== peg$FAILED) {
             s2.push(s3);
-            if (peg$c37.test(input.charAt(peg$currPos))) {
+            if (peg$c40.test(input.charAt(peg$currPos))) {
               s3 = input.charAt(peg$currPos);
               peg$currPos++;
             } else {
               s3 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c38); }
+              if (peg$silentFails === 0) { peg$fail(peg$c41); }
             }
             if (s3 === peg$FAILED) {
               s3 = peg$currPos;
               if (input.charCodeAt(peg$currPos) === 92) {
-                s4 = peg$c31;
+                s4 = peg$c34;
                 peg$currPos++;
               } else {
                 s4 = peg$FAILED;
-                if (peg$silentFails === 0) { peg$fail(peg$c32); }
+                if (peg$silentFails === 0) { peg$fail(peg$c35); }
               }
               if (s4 !== peg$FAILED) {
                 s5 = peg$parsenl();
                 if (s5 !== peg$FAILED) {
                   peg$reportedPos = s3;
-                  s4 = peg$c33(s5);
+                  s4 = peg$c36(s5);
                   s3 = s4;
                 } else {
                   peg$currPos = s3;
@@ -36482,15 +36545,15 @@
           }
           if (s2 !== peg$FAILED) {
             if (input.charCodeAt(peg$currPos) === 39) {
-              s3 = peg$c35;
+              s3 = peg$c38;
               peg$currPos++;
             } else {
               s3 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c36); }
+              if (peg$silentFails === 0) { peg$fail(peg$c39); }
             }
             if (s3 !== peg$FAILED) {
               peg$reportedPos = s0;
-              s1 = peg$c34(s2);
+              s1 = peg$c37(s2);
               s0 = s1;
             } else {
               peg$currPos = s0;
@@ -36512,35 +36575,35 @@
         var s0;
   
         if (input.charCodeAt(peg$currPos) === 10) {
-          s0 = peg$c39;
+          s0 = peg$c42;
           peg$currPos++;
         } else {
           s0 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c40); }
+          if (peg$silentFails === 0) { peg$fail(peg$c43); }
         }
         if (s0 === peg$FAILED) {
-          if (input.substr(peg$currPos, 2) === peg$c41) {
-            s0 = peg$c41;
+          if (input.substr(peg$currPos, 2) === peg$c44) {
+            s0 = peg$c44;
             peg$currPos += 2;
           } else {
             s0 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$c42); }
+            if (peg$silentFails === 0) { peg$fail(peg$c45); }
           }
           if (s0 === peg$FAILED) {
             if (input.charCodeAt(peg$currPos) === 13) {
-              s0 = peg$c43;
+              s0 = peg$c46;
               peg$currPos++;
             } else {
               s0 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c44); }
+              if (peg$silentFails === 0) { peg$fail(peg$c47); }
             }
             if (s0 === peg$FAILED) {
               if (input.charCodeAt(peg$currPos) === 12) {
-                s0 = peg$c45;
+                s0 = peg$c48;
                 peg$currPos++;
               } else {
                 s0 = peg$FAILED;
-                if (peg$silentFails === 0) { peg$fail(peg$c46); }
+                if (peg$silentFails === 0) { peg$fail(peg$c49); }
               }
             }
           }
@@ -36554,23 +36617,23 @@
   
         s0 = peg$currPos;
         if (input.charCodeAt(peg$currPos) === 92) {
-          s1 = peg$c31;
+          s1 = peg$c34;
           peg$currPos++;
         } else {
           s1 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c32); }
+          if (peg$silentFails === 0) { peg$fail(peg$c35); }
         }
         if (s1 !== peg$FAILED) {
-          if (peg$c47.test(input.charAt(peg$currPos))) {
+          if (peg$c50.test(input.charAt(peg$currPos))) {
             s2 = input.charAt(peg$currPos);
             peg$currPos++;
           } else {
             s2 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$c48); }
+            if (peg$silentFails === 0) { peg$fail(peg$c51); }
           }
           if (s2 !== peg$FAILED) {
             peg$reportedPos = s0;
-            s1 = peg$c49(s2);
+            s1 = peg$c52(s2);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -36602,6 +36665,7 @@
       parse:       parse
     };
   })();
+  
   
   /**
    * @fileOverview Draw API / holder of draw engines
@@ -40381,13 +40445,13 @@
     /* Label Pool strategy
      * If a tool generates labels (for instance, by measuring an existing or given object),
      * labels may change as each given is snapped or unsnapped. When snapping a particular matchedGiven,
-     * newly-generated labels will automatically be added to the session's generatedLabels array.
+     * newly-generated labels will automatically be added to the session's generatedLabels list.
      * When unsnapping, these new labels should be given back, even if other matchedGivens have
      * been snapped in the meantime.
      * When unsnapping, the simplest solution is to restore the labelPool to its last saved state,
      * and at the same time to check the labels of the newly unsnapped gobj and its givenParents.
-     * Any of those labels that are in the generatedLabels array should be deleted:
-     * both the label itself and the entry in the generatedLabels array.
+     * Any of those labels that are in the generatedLabels list should be deleted:
+     * both the label itself and the entry in the generatedLabels list.
      * Then both the mergeCandidate and its matchedGiven (including givenParents) should call
      * descendantLabelGraphHasChanged() to update their own labels and their descendant labels.
      * Finally, labelPool.saveState should be called.
@@ -41033,7 +41097,7 @@
         if (this.labelStateSaved) {
           this.labelStateSaved = false;
           this.sketch.labelPool.restoreSavedState();
-          this.generatedLabels = undefined;
+          this.generatedLabels = {};
         }
       },
       
@@ -41070,12 +41134,10 @@
         if (this.labelStateSaved) {
           self.sketch.labelPool.restoreSavedState();
           self.sketch.labelPool.saveState(this.session);
-          if (this.generatedLabels) {
-            $.each (this.generatedLabels, function (key) {
-              gobjList[key].label = undefined;
-            });
-            this.generatedLabels = undefined;
-          }
+          $.each (this.generatedLabels, function (key) {
+            gobjList[key].label = undefined;
+          });
+          this.generatedLabels = {};
         }
         this.matchedGivens.forEach(function(match) {
           match.finalize(self);
@@ -41102,7 +41164,7 @@
         if (this.labelStateSaved) {
           this.labelStateSaved = false;
           this.sketch.labelPool.forgetSavedState();
-          this.generatedLabels = undefined;        
+          this.generatedLabels = {};        
         }
   */
         //  Show the Calculator, _unless_ it was already shown at the end of toolplay.
@@ -41267,6 +41329,7 @@
         ret.givenArray = [];
         ret.constructedObjects = {};
         ret.matchedGivens = [];
+        ret.generatedLabels = {};
         ret.resetPlayback();
         ret.nextLayerOrder = 0; // track so that tool interiors can be in front of existing interiors/images
   console.log ("Created ToolplaySession", ret);
@@ -41382,7 +41445,7 @@
             sketch = session.sketch;
         
         function updateGobjLabel (gobj) {
-          if (gobj.label && session.generatedLabels[gobj.id]) {
+          if (gobj.label && GSP._get('session.generatedLabels', gobj.id)) {
             delete session.generatedLabels[gobj.id];
             delete gobj.label;
             gobj.descendantLabelGraphHasChanged();
@@ -41945,7 +42008,7 @@
   //console.log ("unsnapFromCandidate restoring and saving labelPool:", sketch.labelPool);
           sketch.labelPool.restoreSavedState();
           sketch.labelPool.saveState(this.session);
-          this.session.generatedLabels = undefined;  // Might this be a problem with a tool that has multiple label-producing givens?
+          this.session.generatedLabels = {};  // Might this be a problem with a tool that has multiple label-producing givens?
   //console.log ("unsnapFromCandidate restored and saved labelPool:", sketch.labelPool);
         }
   //if (TOOLS) {
@@ -42315,25 +42378,25 @@
         container.toggleClass("wsp-ok-cancel-mode", false);
       },
       
-      /**
+     /**
        * Aborts the active tool, if there is one.  It cancels any tool in progress.
        * This does the job of cleaning up any associated ui.
+       * It's a no-op if there's no active tool
        */
       abortActiveTool: function() {
         var regime = this.activeRegime,
-            name = this.activeTool.metadata.name;
-        if (regime) {
+            tool = this.activeTool,
+            name;
+        if (regime && tool) {
+          name = tool.metadata.name;
           //Popping the regime will trigger our delegate who performs all of the cleanup
           this.sketch.popAllTouchRegimesIncluding(regime);
+          this.sketch.event(
+            'ToolAborted',
+            {},
+            {tool: {name: name}}
+          );
         }
-        this.sketch.event(
-          'ToolAborted',
-          {},
-          {
-            'tool': {
-              name: name
-            }
-          });
       },
       
       /**
@@ -42359,6 +42422,7 @@
               'ToolPlayed',
               {},
               {
+                preDelta: controller.preToolDelta,
                 delta: delta,
                 tool: {
                   name: oldTool.metadata.name
@@ -45312,21 +45376,31 @@
           }
         }
       },
-      
+  
       touchEnded: function (pos, touch) {
         var mergeCandidate = (this.dmState === "PreMerge" && this.dmCurProxy) ?
                               this.getCandidateFromProxy (this.dmCurProxy) : null,
             doc = this.sketch.document,
-            delta;
+            delta,
+            //prepare the gobjDesc as this.gobj may go away before the event is sent
+            gobjDesc = {kind: this.gobj.kind, id: this.gobj.id, label: this.gobj.label},
+            dmType, id1, id2;
         this.setHighlights (false);
         this.clearTimers ();
         if (mergeCandidate) { // either a gobj or an intersection
           if (this.gobj.kind === "Point" && mergeCandidate.isAPath && mergeCandidate.isAPath()) {  // merge gobj to path
             this.sketch.putGivenOnPath(this.gobj, mergeCandidate,
                                        mergeCandidate.mapPositionToPathValue(this.gobj.geom.loc));
+            dmType = 'path';
+            id1 = mergeCandidate.id;
           } else if (mergeCandidate.path1) {  // merge gobj to newly created intersection
             this.sketch.putGivenOnIntersection (this.gobj, mergeCandidate);
+            dmType = 'intersection';
+            id1 = mergeCandidate.path1.id;
+            id2 = mergeCandidate.path2.id;
           } else {  // merge gobj to an existing object of the same kind
+            dmType = 'same';
+            id1 = mergeCandidate.id;
             this.sketch.mergeGobjToCandidate (this.gobj, mergeCandidate);
           }
           delta = doc.pushConfirmedSketchOpDelta (this.dmPreDelta);
@@ -45334,13 +45408,14 @@
           // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
           this.sketch.event(
             "MergeGObjs",
+            {},
             {
-              'merged': this.gobj,
-              'result': mergeCandidate
-            },
-            {
-              'delta': delta
-            });
+              'delta': delta,
+              // the merged gobj may go away, 
+              'merged': gobjDesc,
+              'result': {type: dmType, id1: id1, id2: id2}
+            }
+          );
         }
       }
       

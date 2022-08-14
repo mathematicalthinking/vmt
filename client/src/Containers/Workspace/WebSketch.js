@@ -185,7 +185,6 @@ const WebSketch = (props) => {
   const recordGobjUpdate = (event) => {
     if (event) {
       const gobj = event.target;
-      console.log('New event target: ', gobj);
       if (
         gobj.constraint !== 'Free' &&
         gobj.kind !== 'Expression' &&

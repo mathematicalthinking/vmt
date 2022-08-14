@@ -96,6 +96,7 @@ const WebSketch = (props) => {
   };
 
   const syncToFollower = () => {
+    // most of this code shouldn't be needed in the replayer as it mirrors follower logic
     // We must be specific to avoid disconnecting other handlers for page changes, toolplay, etc.
     const handlers = [
       { event: 'WillChangeCurrentPage.WSP', handler: reflectMessage },
