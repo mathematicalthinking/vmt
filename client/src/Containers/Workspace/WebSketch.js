@@ -77,7 +77,7 @@ const WebSketch = (props) => {
       // grab current state-event list
       // json returned from $('#sketch').data('document').getCurrentSpecObject()
       const responseData = sketchDoc.getCurrentSpecObject();
-      console.log('Response data: ', responseData);
+      // console.log('Response data: ', responseData);
       // start creating a string-based object to update the tab
       const updateObject = {
         currentStateBase64: JSON.stringify(responseData),
@@ -113,6 +113,17 @@ const WebSketch = (props) => {
 
   // --- Controller functions ---
 
+  const getSketch = () => {
+    // Call this whenever the sketch doc may have changed.
+    // e.g., page changes, start of toolplay, undo/redo, etc.
+    sketchDoc = $sketch.data('document');
+    sketch = sketchDoc && sketchDoc.focusPage;
+    if (!sketch) {
+      console.log('getSketch() failed to find the sketch.');
+    }
+    return sketch;
+  };
+
   // establish listeners
   const syncToFollower = () => {
     // We must be specific to avoid disconnecting other handlers for page changes, toolplay, etc.
@@ -122,9 +133,11 @@ const WebSketch = (props) => {
       { event: 'WillPlayTool.WSP', handler: reflectMessage },
       { event: 'ToolPlayed.WSP', handler: reflectAndSync },
       { event: 'ToolPlayBegan.WSP', handler: syncGobjUpdates }, // Tool objects are instantiated, so track them
-      { event: 'ToolAborted.WSP', handler: reflectMessage },
+      { event: 'ToolAborted.WSP', handler: reflectAndSync },
+      { event: 'MergeGObjs.WSP', handler: reflectAndSync },
       { event: 'WillUndoRedo.WSP', handler: reflectMessage },
       { event: 'UndoRedo.WSP', handler: reflectAndSync },
+      { event: 'ChangeStyle.WSP', handler: reflectMessage },
     ];
     handlers.forEach((el) => {
       $sketch.off(el.event, el.handler);
@@ -132,8 +145,7 @@ const WebSketch = (props) => {
     handlers.forEach((el) => {
       $sketch.on(el.event, el.handler);
     });
-    // Required after toolplay, undo/redo, and page changes
-    sketch = sketchDoc.focusPage;
+    // getSketch();  // Required after toolplay, undo/redo, and page changes
     // establish listeners on sketch objects, to include pointsOnPath
     syncGobjUpdates();
   };
@@ -146,30 +158,33 @@ const WebSketch = (props) => {
     // gobj.kind === 'Button' (dragging can change[geom.loc]; drag-merging can change [parents])
     // gobj.kind === 'DOMKind' (dragging a table or text gobj can change [geom.loc])
     const updateSel =
-      'Expression,Button,DOMKind,[constraint="Free"],[isFreePointOnPath="true"]';
-    const gobjsToUpdate = sketch.sQuery(updateSel);
-    gobjsToUpdate.on('update', setActivityUpdates);
+      'Expression,Button,DOMKind,[constraint="Free"],[isFreePointOnPath=true]';
+    let gobjsToUpdate;
+    getSketch(); // Make sure we use the current sketch
+    if (sketch.gobjList.gobjects === null) {
+      console.log('syncGobjUpdates found no gobjs to track.');
+    } else {
+      gobjsToUpdate = sketch.sQuery(updateSel);
+      gobjsToUpdate.on('update', setActivityUpdates);
+    }
     // Handlers do not yet exist for changes to a gobj's infix or parents, and in fact
     // sQuery doesn't have an event that can be made to fire on changes to a gobj's infix or parents.
     // There is a WSP message we can listen to for parameter edits: EditParameter.WSP
     // We can listen for WSP messages when widgets are used to change a gobj's style, visibility, trace status, etc.
   };
 
-  const reflectMessage = (event, context, attr) => {
+  const reflectMessage = (event, attr) => {
     // SS: removed timeout, to make sure the follower is updated right away before any subsequent drags
-    const msg = { action: event.type, time: event.timeStamp, data: attr };
-    if (context !== undefined) {
-      // msg.context = context;  // can create circular ref?
-    }
+    const msg = { action: event.type, time: event.timeStamp, attr };
     // msg is ready to post to follower
-    // console.log('Message context: ', context, ', MSG reflect: ', msg);
     // setActivityMessage(msg);
     setActivityData(msg);
   };
 
   // send msg and then reestablish listeners, could possibly be done for all events
-  const reflectAndSync = (event, context, attr) => {
-    reflectMessage(event, context, attr);
+  const reflectAndSync = (event, attr) => {
+    reflectMessage(event, attr);
+    getSketch();
     syncToFollower();
   };
 
@@ -228,7 +243,7 @@ const WebSketch = (props) => {
       const moveData = moveMessage; // create a ref to the current cache
       moveMessage = {}; // make a new empty cache
       messagePending = false;
-      msg.data = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
+      msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
       // msg ready to post to follower
       handleEventData(msg);
     }, moveDelay);
@@ -241,6 +256,7 @@ const WebSketch = (props) => {
     const { room, user, myColor, tab, resetControlTimer } = props;
     if (!receivingData) {
       const description = buildDescription(user.username, updates);
+      console.log('Handling update: ', updates);
       const currentStateString = JSON.stringify(updates);
       const newData = {
         _id: mongoIdGenerator(),
@@ -295,10 +311,32 @@ const WebSketch = (props) => {
     });
   };
 
+  const gobjDesc = (gobj) => {
+    return gobj.kind + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
+  };
+
   const handleMessage = (msg) => {
     // msg has three properties: action, time, and data
     // for most events, data is the attributes of the WSP event
-    const { data } = msg;
+    const { attr, data } = msg;
+    const mergeGobjDesc = (gobjInfo, toInfo) => {
+      // given a merged gobj and info about what it was merged to
+      let gobjs = sketch.gobjList.gobjects;
+      let desc = ' ' + gobjDesc(gobjInfo) + ' ';
+      // The merged gobj may have gone away, but gobjInfo recorded the kind, label, and id
+      let gobj2 = gobjs[toInfo.id1];
+      let desc2 = ' ' + gobjDesc(gobj2);
+      let gobj3, desc3;
+      if (toInfo.type !== 'intersection') {
+        desc += 'to' + desc2;
+      } else {
+        gobj3 = gobjs[toInfo.id2];
+        desc3 = gobjDesc(gobj3);
+        desc += 'to the intersection of ' + desc2 + ' and ' + desc3;
+      }
+      return desc;
+    };
+
     switch (msg.action) {
       case 'LoadDocument':
         console.log(
@@ -306,35 +344,46 @@ const WebSketch = (props) => {
         );
         break;
       case 'WillChangeCurrentPage':
-        notify('Changed to page ' + data.newPageId, 1500);
+        notify('Changed to page ' + attr.newPageId, 1500);
         break;
       case 'DidChangeCurrentPage':
-        sketchDoc.switchPage(data.pageId);
-        sketch = sketchDoc.focusPage;
-        console.log('Follower changed to page', data.pageId, 'in the sketch.');
+        sketchDoc.switchPage(attr.pageId);
+        getSketch();
+        console.log('Follower changed to page', attr.pageId, 'in the sketch.');
         // setTimeout (function () {notify('');}, 1000);
         break;
       case 'GobjsUpdated': // gobjs have moved to new locations
-        imposeGobjUpdates(data);
+        imposeGobjUpdates(attr);
         break;
       case 'ToolPlayBegan':
-      case 'WillPlayTool': // controlling sketch has played a tool
-        notify('Playing ' + data.tool.name + ' Tool');
-        startFollowerTool(data.tool.name);
+      case 'WillPlayTool': // controlling sketch will play a tool
+        notify('Playing ' + attr.tool.name + ' Tool');
+        startFollowerTool(attr.tool.name);
         break;
+      // Ignore ToolPlayBegan, as we simulate only user drags (not matches) during toolplay
+      // To get all the internals right, we'd need to duplicate every snap and unsnap.
+      // We still may need to keep a record of snapped gobjs to get the drags right.
       case 'ToolPlayed': // controlling sketch has played a tool
-        toolPlayed(data);
+        toolPlayed(attr);
         notify('');
         break;
       case 'ToolAborted': // controlling sketch has aborted a tool
-        notify('Canceled ' + data.tool.name + ' Tool', 1500);
+        notify('Canceled ' + attr.tool.name + ' Tool', 1500);
         abortFollowerTool();
         break;
+      case 'MergeGObjs': // controlling sketch has played a tool
+        gobjsMerged(attr);
+        notify('Merged' + mergeGobjDesc(attr.merged, attr.result));
+        // attr.merged and attr.result have id and label properties
+        break;
       case 'WillUndoRedo': // controlling sketch will undo or redo
-        notify('Performing ' + data.type, 1500);
+        notify('Performing ' + attr.type, 1500);
         break;
       case 'UndoRedo': // controlling sketch has finished undo or redo
-        undoRedo(data);
+        undoRedo(attr);
+        break;
+      case 'ChangeStyle': // controlling sketch has changed gobj styles
+        changeStyle(attr);
         break;
       default:
         // Other actions to be defined: gobjEdited, gobjStyled, etc.
@@ -343,7 +392,7 @@ const WebSketch = (props) => {
   };
 
   const notify = (text, optionalDuration) => {
-    // duration is unlimited if not specified
+    // duration is 1500 if not specified
     // console.log(`Notify: ${text}, duration: ${optionalDuration}`);
     // let $notifyDiv = $('#notify');
     if (text) {
@@ -355,7 +404,7 @@ const WebSketch = (props) => {
           // if (activityMessage === text) {
           setActivityMessage('');
           // }
-        }, optionalDuration);
+        }, optionalDuration || 1500);
       }
     } else {
       setActivityMessage('');
@@ -431,7 +480,8 @@ const WebSketch = (props) => {
     // NB: This implies that we cannot allow the controller and follower to switch control during toolplay.
     // It also complicates the result, because we need to sync the undo history, not just sketch state.
     // So we confirm the tool and then insert the controller's tool delta in place of the follower's.
-    console.log('Tool played: ', data);
+    // If data contains a preDelta, ignore it as it should be in our current history as well.
+    // console.log('Tool played: ', data);
     if (!sketch || !sketchDoc) {
       console.log('NO Sketch to play tool on! ', sketch);
     }
@@ -441,7 +491,25 @@ const WebSketch = (props) => {
     sketchDoc.undo();
     history.current.next.delta = data.delta;
     sketchDoc.redo();
-    sketch = sketchDoc.focusPage; // Required after toolplay & undo/redo
+    // Required after toolplay & undo/redo
+    getSketch();
+  };
+
+  const gobjsMerged = (data) => {
+    // Similarly to toolPlayed(), some gobjs have been merged and gone away.
+    // But the follower has nothing to undo, so just needs to redo the passed delta.
+    // (This will lose any remaining redo deltas, thus matching up with the controller.)
+    // If data contains a preDelta, figure out what to do.
+    const history = sketchDoc.getCurrentPageData().session.history;
+    let current = history.current;
+    if (data.preDelta) {
+      current.next = { delta: data.preDelta, prev: current, next: null };
+      history.redo();
+      current = history.current; // history.redo() changes current.
+    }
+    current.next = { delta: data.delta, prev: current, next: null };
+    sketchDoc.redo();
+    initSketchPage(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
   };
 
   const undoRedo = (data) => {
@@ -454,7 +522,8 @@ const WebSketch = (props) => {
       // notify('Redid next action', 1500);
       sketchDoc.redo();
     }
-    sketch = sketchDoc.focusPage; // Required after toolplay & undo/redo
+    // Required after toolplay & undo/redo
+    getSketch();
     // FOR DEBUGGING: Check whether the controller and follower undo histories are in sync!
     let history = sketchDoc.getCurrentPageData().session.history;
     if (
@@ -467,6 +536,28 @@ const WebSketch = (props) => {
       console.log('controller delta:', data.delta);
       console.log('follower delta:', history.current.delta);
     }
+  };
+
+  const changeStyle = (data) => {
+    let note = 'Changed styles for ';
+    let gobjCount = 0;
+    const maxCount = 4;
+    $.each(data.changes, function(id) {
+      var gobj = sketch.gobjList.gobjects[id];
+      gobj.style = JSON.parse(this.style);
+      gobj.invalidateAppearance();
+      gobjCount += 1;
+      if (gobjCount > 1) {
+        note += ', ';
+      }
+      if (gobjCount <= maxCount) {
+        note += gobjDesc(gobj);
+      }
+    });
+    if (gobjCount > maxCount) {
+      note += '...';
+    }
+    notify(note);
   };
 
   // --- Initialization functions ---

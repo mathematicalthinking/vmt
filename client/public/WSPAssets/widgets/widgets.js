@@ -43,19 +43,28 @@ if (!Array.prototype.includes) {
 }
 
 if (!String.prototype.endsWith) {
+  // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
+  String.prototype.endsWith = function(search, this_len) {
+    if (this_len === undefined || this_len > this.length) {
+      this_len = this.length;
+    }
+    return this.substring(this_len - search.length, this_len) === search;
+  };
+}
+
+/*
+ //if (!String.prototype.endsWith) {
   // Polyfill from https://www.techcartnow.com/javascript-string-endswith-method-fixing-error-object-does-not-support-property-or-method-endswith-for-not-supported-browsers-ie-10-ie-11/
   Object.defineProperty(String.prototype, 'endsWith', {
-    value: function(searchValue, lengthToSearch) {
+    value: function (searchValue, lengthToSearch) {
       if (lengthToSearch === undefined || lengthToSearch > this.length) {
-        lengthToSearch = this.length;
+          lengthToSearch = this.length;
       }
-      return (
-        this.substring(lengthToSearch - searchValue.length, lengthToSearch) ===
-        searchValue
-      );
-    },
+      return this.substring(lengthToSearch - searchValue.length, lengthToSearch) === searchValue;
+    }
   });
 }
+*/
 
 if (!String.prototype.includes) {
   // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes#Polyfill
@@ -289,6 +298,9 @@ var WIDGETS = (function() {
         )
           return false;
       }
+    } else {
+      // a and b are neither equal nor both objects
+      return false;
     }
     return true;
   }
@@ -669,19 +681,19 @@ var WIDGETS = (function() {
 
   TapWidget.prototype.postProcessSketch = function(sketch) {
     // Return all sketch objects to their proper state, reversing the effects of pre-processing
-    var gobjArr = []; // check all sketch objects to see whether any were modified
+    var changes; // check all sketch objects to see whether any were modified
     if (activeWidget && activeWidget.postProcessGobj) {
       sketch.sQuery('*').each(function(ix, gobj) {
-        if (activeWidget.postProcessGobj(gobj)) {
-          gobjArr.push(gobj);
+        var gobjInfo = activeWidget.postProcessGobj(gobj);
+        // postProcessGobj must return either false or a truthy value suitable for including in an event
+        // For instance, don't return a gobj's style object; instead duplicate or stringify it.
+        if (gobjInfo) {
+          changes = changes || {};
+          changes[gobj.id] = gobjInfo;
         }
       });
-      if (gobjArr.length) {
-        this.sketch.event(
-          activeWidget.eventName,
-          { gobjArr: gobjArr }, // Improvement: provide a list of changed gobjs collected from postProcessGobj methods
-          {}
-        );
+      if (changes) {
+        this.sketch.event(activeWidget.eventName, {}, { changes: changes });
       }
       sketch.isDirty = true; // Possible code improvement: some widgets dirty the sketch and some don't
     }
@@ -745,7 +757,7 @@ var WIDGETS = (function() {
 
   function resizeSketchFrame(sketchDoc) {
     // Resize the frame to fit a new sketch
-    console.log('widgets.resizeSketchFram() called, but not needed.');
+    console.log('widgets.resizeSketchFrame() called, but not needed.');
     var $canvas, $container, $refNode, width;
     $canvas = sketchDoc.canvasNode;
     $container = $canvas.parent();
@@ -966,6 +978,9 @@ var WIDGETS = (function() {
       delete gobj.oldStyle;
     }
     Object.getPrototypeOf(styleWidget).postProcessGobj(gobj); // undo any TapWidget pre-processing
+    if (ret) {
+      ret = { style: JSON.stringify(gobj.style) };
+    }
     return ret;
   };
 
@@ -2727,6 +2742,7 @@ var WIDGETS = (function() {
   function initWidget() {
     if (true) {
       makeWidget(makeWidgetHTML());
+      console.log('makeWidgetHTML() finished,');
     } else {
       $.ajax({
         // Load the widget html
@@ -3238,6 +3254,7 @@ var PAGENUM = (function() {
     // Only need to call this once to set css classes, UNLESS
     // tools are dynamically enabled or disabled on various pages (e.g., in the Tool Library).
     var tools = sketchDoc.tools;
+    console.log('setToolEnabling() called.');
     if (!tools) return;
     tools.forEach(function(tool) {
       var $node = tool.$element,
@@ -3391,11 +3408,14 @@ var PAGENUM = (function() {
   function init() {
     // The buttons cannot be created until the sketch is loaded and we know whether it contains more than a single page.
     var canvasNodes = $('.sketch_canvas');
+    console.log('init() called.');
     canvasNodes.on('LoadDocument.WSP', function(event, context) {
+      console.log('LoadDocument received.');
       injectButtonElements(context.document);
       setToolEnabling(context.document);
     });
     canvasNodes.on('DidChangeCurrentPage.WSP', function(event, context) {
+      console.log('DidChangeCurrentPage received.');
       showPageNum(context.document, event.target);
     });
   }
@@ -4158,7 +4178,10 @@ var UTILMENU = (function() {
 })(); // UTILMENU
 
 $(function() {
+  console.log('calling initWidget()');
   WIDGETS.initWidget();
+  console.log('calling initPageControls()');
   PAGENUM.initPageControls();
+  console.log('calling initUtils()');
   UTILMENU.initUtils();
 });
