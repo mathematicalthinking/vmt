@@ -33,7 +33,7 @@ const CourseStats = ({ roomIds, name }) => {
     }, {});
 
     const userIds = Array.from(
-      new Set(filteredData.map((d) => d.userId.toString()))
+      new Set(filteredData.map((d) => (d.user && d.userId.toString()) || ''))
     );
     // query db for student ids
     return (
