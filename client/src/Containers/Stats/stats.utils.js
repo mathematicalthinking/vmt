@@ -77,7 +77,7 @@ const processDataHelper = (
           };
 
           if (returnRoomAndUserIds) {
-            dataToReturn.userId = d.user._id || null;
+            dataToReturn.userId = (d.user && d.user._id) || null;
             dataToReturn.roomId = d.room || null;
           }
 
