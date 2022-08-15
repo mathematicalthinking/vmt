@@ -7,6 +7,7 @@ import { exportCSV } from './stats.utils';
 
 const CourseStats = ({ roomIds, name }) => {
   const [loading, setLoading] = useState(true);
+  const [doneUpdating, setDoneUpdating] = useState(false);
   const augmentedData = React.useRef([]);
 
   const populatedRooms = roomIds.map((roomId) =>
@@ -70,32 +71,51 @@ const CourseStats = ({ roomIds, name }) => {
   }, [combinedLog.length]);
 
   useEffect(() => {
-    // augment filteredData
     if (!loading) {
-      augmentFilteredData(filteredData).then(
-        // eslint-disable-next-line no-return-assign
-        (results) => (augmentedData.current = results)
-      );
+      augmentFilteredData(filteredData).then((results) => {
+        augmentedData.current = results;
+        setDoneUpdating(true);
+      });
     }
   }, [loading]);
 
-  return combinedLog && combinedLog.length > 0 ? (
-    <div>
-      Click here to download events from all rooms in this course:&nbsp;
-      <Button
-        theme="None"
-        key="2"
-        data-testid="download-csv"
-        click={() => exportCSV(augmentedData.current, `${name}_courseData`)}
-      >
-        <i className="fas fa-download" style={{ color: 'blue' }} />
-      </Button>
-    </div>
-  ) : (
-    <div data-testid="no-data-message">
-      This room does not have any activity yet.
-    </div>
-  );
+  if (!doneUpdating) {
+    return (
+      <div data-testid="check-for-data-message">Checking for Stats data...</div>
+    );
+  }
+
+  if (
+    doneUpdating &&
+    Array.isArray(augmentedData.current) &&
+    augmentedData.current.length > 0
+  ) {
+    return (
+      <div data-testid="download-available">
+        Click here to download events from all rooms in this course:&nbsp;
+        <Button
+          theme="None"
+          key="2"
+          data-testid="download-csv"
+          click={() => exportCSV(augmentedData.current, `${name}_courseData`)}
+        >
+          <i className="fas fa-download" style={{ color: 'blue' }} />
+        </Button>
+      </div>
+    );
+  }
+
+  if (
+    doneUpdating &&
+    Array.isArray(augmentedData.current) &&
+    augmentedData.current.length === 0
+  ) {
+    return (
+      <div data-testid="no-data-message">
+        This course does not have any rooms with activity yet.
+      </div>
+    );
+  }
 };
 
 CourseStats.propTypes = {
