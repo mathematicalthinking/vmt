@@ -174,19 +174,17 @@ const WebSketch = (props) => {
     // We can listen for WSP messages when widgets are used to change a gobj's style, visibility, trace status, etc.
   };
 
-  const reflectMessage = (event, attr) => {
-    console.log('Message attr: ', attr);
+  const reflectMessage = (event, context, attr) => {
     // SS: removed timeout, to make sure the follower is updated right away before any subsequent drags
     // const msgAttr = JSON.stringify(attr);
-    const msgAttr = attr;
-    const msg = { action: event.type, time: event.timeStamp, attr: msgAttr };
+    const msg = { action: event.type, time: event.timeStamp, attr };
     // msg is ready to post to follower
     setActivityData(msg);
   };
 
   // send msg and then reestablish listeners, could possibly be done for all events
-  const reflectAndSync = (event, attr) => {
-    reflectMessage(event, attr);
+  const reflectAndSync = (event, context, attr) => {
+    reflectMessage(event, context, attr);
     // getSketch();
     sketch = sketchDoc.focusPage;
     syncToFollower();
@@ -513,7 +511,7 @@ const WebSketch = (props) => {
     }
     current.next = { delta: data.delta, prev: current, next: null };
     sketchDoc.redo();
-    initSketchPage(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
+    getSketch(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
   };
 
   const undoRedo = (data) => {
