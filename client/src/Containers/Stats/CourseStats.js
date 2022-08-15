@@ -71,7 +71,6 @@ const CourseStats = ({ roomIds, name }) => {
   }, [combinedLog.length]);
 
   useEffect(() => {
-    // augment filteredData
     if (!loading) {
       augmentFilteredData(filteredData).then((results) => {
         augmentedData.current = results;
@@ -86,7 +85,11 @@ const CourseStats = ({ roomIds, name }) => {
     );
   }
 
-  if (doneUpdating && augmentedData.current.length > 0) {
+  if (
+    doneUpdating &&
+    Array.isArray(augmentedData.current) &&
+    augmentedData.current.length > 0
+  ) {
     return (
       <div data-testid="download-available">
         Click here to download events from all rooms in this course:&nbsp;
@@ -102,10 +105,12 @@ const CourseStats = ({ roomIds, name }) => {
     );
   }
 
-  if (doneUpdating && augmentedData.current.length === 0) {
+  if (
+    doneUpdating &&
+    Array.isArray(augmentedData.current) &&
+    augmentedData.current.length === 0
+  ) {
     return (
-      // doneUpating && augmenteData.current.length === 0
-
       <div data-testid="no-data-message">
         This course does not have any rooms with activity yet.
       </div>
