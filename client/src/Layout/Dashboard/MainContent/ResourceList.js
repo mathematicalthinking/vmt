@@ -83,7 +83,10 @@ const ResourceList = ({
     if (resources) {
       resources.forEach((userResource) => {
         if (userResource) {
-          if (userResource.myRole === 'facilitator') {
+          if (
+            userResource.myRole === 'facilitator' ||
+            resource === 'activities'
+          ) {
             facilitatorList.push(userResource);
           } else {
             participantList.push(userResource);
@@ -186,7 +189,7 @@ const ResourceList = ({
         </div>
       ) : (
         <Fragment>
-          {fList.length > 0 || displayResource === 'Templates' ? (
+          {fList.length > 0 ? (
             <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
           ) : (
             <h2 className={classes.ResourceHeader}>
@@ -197,12 +200,12 @@ const ResourceList = ({
             <SortUI
               keys={keys}
               sortFn={
-                fList.length > 0 || displayResource === 'Templates'
+                fList.length > 0
                   ? facilitatorRequestSort
                   : participantRequestSort
               }
               sortConfig={
-                fList.length > 0 || displayResource === 'Templates'
+                fList.length > 0
                   ? resourceState.facilitatorConfig || initialConfig
                   : resourceState.participantConfig || initialConfig
               }
