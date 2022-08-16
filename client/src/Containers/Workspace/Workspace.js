@@ -335,7 +335,7 @@ class Workspace extends Component {
           if (err) {
             // eslint-disable-next-line no-console
             console.log('Error joining room');
-            console.log(err); // HOW SHOULD WE HANDLE THIS
+            console.log(err);
             this.goBack();
             return;
           }
@@ -359,17 +359,20 @@ class Workspace extends Component {
     }
 
     socket.on('USER_JOINED', (data) => {
-      const { currentMembers, message } = data;
+      const { controlledBy: currentControl } = this.state;
+      const { currentMembers, message, releasedControl } = data;
+      const controlledBy = releasedControl ? null : currentControl;
       const currMems = populatedRoom.getCurrentMembers(currentMembers);
       this.setState(
         {
-          // currentMembers : populatedRoom.getCurrentMembers(currentMembers),
-          // currentMembers: currentMembers,
           currentMembers: currMems,
+          controlledBy,
         },
         () =>
-          connectUpdatedRoom(populatedRoom._id, { currentMembers: currMems })
-        // () => populatedRoom.setCurrentMembers(currentMembers)
+          connectUpdatedRoom(populatedRoom._id, {
+            currentMembers: currMems,
+            controlledBy,
+          })
       );
       this.addToLog(message);
     });
