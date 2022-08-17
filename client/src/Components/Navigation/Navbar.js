@@ -15,6 +15,7 @@ const Navbar = ({ user, location, toggleAdmin }) => {
   if (
     location.pathname.indexOf('community') > -1 ||
     location.pathname.indexOf('dashboard') > -1 ||
+    location.pathname.indexOf('archive') > -1 ||
     (location.pathname.indexOf('myVMT') > -1 &&
       location.pathname.indexOf('workspace') === -1 &&
       location.pathname.indexOf('explore') === -1)
@@ -73,6 +74,12 @@ const Navbar = ({ user, location, toggleAdmin }) => {
           {user.isAdmin ? (
             <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
           ) : null}
+          {user.loggedIn ? (
+            <NavItem
+              link="/archive/rooms?privacy=all&roomType=all"
+              name="Archive"
+            />
+          ) : null}
           <DropdownNavItem name={<span>Info</span>} list={aboutList} />
 
           {user.loggedIn ? (
@@ -94,7 +101,14 @@ const Navbar = ({ user, location, toggleAdmin }) => {
 };
 
 Navbar.propTypes = {
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({
+    accountType: PropTypes.string,
+    isAdmin: PropTypes.bool,
+    inAdminMode: PropTypes.bool,
+    loggedIn: PropTypes.bool,
+    notifications: PropTypes.arrayOf(PropTypes.shape({})),
+    username: PropTypes.string,
+  }),
   location: PropTypes.shape({
     pathname: PropTypes.string,
     search: PropTypes.string,
