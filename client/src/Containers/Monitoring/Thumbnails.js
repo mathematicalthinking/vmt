@@ -149,7 +149,7 @@ export default function Thumbnails({
             className={classes.Select}
             options={screenOptions}
             value={screenSelection}
-            onChange={(selectedOption) => setScreenSelection(selectedOption)}
+            onChange={setScreenSelection}
             placeholder="Select a Screen..."
           />
         )}

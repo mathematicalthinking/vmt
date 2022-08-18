@@ -274,7 +274,7 @@ class Workspace extends Component {
     const { currentTabId, tabs } = this.state;
     const currentTab = tabs.find((tab) => tab._id === currentTabId);
 
-    if (currentTab && currentTab.tabType !== 'desmosActivity') {
+    if (currentTab && currentTab.tabType === 'desmosActivity') {
       // set screen in state
       this.setState({ currentScreen: screenNum }, () => {
         // takeSnap if needed
