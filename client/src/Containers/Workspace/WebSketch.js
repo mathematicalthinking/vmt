@@ -564,7 +564,7 @@ const WebSketch = (props) => {
 
   // --- Initialization functions ---
 
-  const loadSKetchDoc = (config) => {
+  const loadSketchDoc = (config) => {
     const $ = window.jQuery;
     if (!$) {
       console.warn('No jQuerious');
@@ -609,8 +609,7 @@ const WebSketch = (props) => {
       window.WIDGETS.initWidget();
       window.PAGENUM.initPageControls();
       window.UTILMENU.initUtils();
-
-      loadSKetchDoc(getSketchConfig(tab));
+      loadSketchDoc(getSketchConfig(tab));
       // establish sketch listeners for handlers
       syncToFollower();
     } else {
@@ -618,7 +617,7 @@ const WebSketch = (props) => {
         isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
         console.log('Widgets recheck: ', isWidgetLoaded);
         if (isWidgetLoaded) {
-          loadSKetchDoc(getSketchConfig(tab));
+          loadSketchDoc(getSketchConfig(tab));
           syncToFollower();
         } else {
           setTimeout(pollDOM, 100); // try again in 100 milliseconds
