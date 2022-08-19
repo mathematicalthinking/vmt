@@ -18,7 +18,8 @@ const Archive = () => {
   const [visibleResources, setVisibleResources] = useState([]);
   const [moreAvailable, setMoreAvailable] = useState(true);
   const [skip, setSkip] = useState(0);
-  const [selectAll, setSelectAll] = useState(false);
+  const [selected, setSelected] = useState([]);
+  const [selectAllChecked, setSelectAllChecked] = useState(false);
 
   useEffect(() => {
     debounceFetchData();
@@ -177,8 +178,27 @@ const Archive = () => {
     setQueryParams(filters);
   };
 
-  const handleSelectAll = () => {
-    setSelectAll((prevState) => !prevState);
+  const handleSelectAll = (event) => {
+    const checked = event.target.checked;
+    if (!checked) {
+      setSelectAllChecked(false);
+      setSelected([]);
+    } else {
+      const ids = visibleResources.map((res) => res._id);
+      setSelectAllChecked(true);
+      setSelected(ids);
+    }
+  };
+
+  const handleSelectOne = (event, id) => {
+    // setSelectAll(false);
+    const checked = event.target.checked;
+    setSelectAllChecked(false);
+    if (checked) {
+      setSelected((prevState) => [...prevState, id]);
+    } else {
+      setSelected((prevState) => [...prevState.filter((el) => id !== el)]);
+    }
   };
 
   let linkPath;
@@ -215,7 +235,9 @@ const Archive = () => {
       setToDate={setToDate}
       setFromDate={setFromDate}
       handleSelectAll={handleSelectAll}
-      selectAll={selectAll}
+      selectAllChecked={selectAllChecked}
+      selected={selected}
+      selectOne={handleSelectOne}
     />
   );
 };

@@ -8,6 +8,7 @@ import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
 import Expand from './expand';
 import Notification from '../../Notification/Notification';
+import { select } from 'd3';
 
 class ContentBox extends PureComponent {
   state = {
@@ -35,6 +36,7 @@ class ContentBox extends PureComponent {
 
   render() {
     const {
+      id,
       notifications,
       link,
       image,
@@ -43,6 +45,9 @@ class ContentBox extends PureComponent {
       title,
       locked,
       details,
+      selectable,
+      selected,
+      selectOne,
     } = this.props;
     const { expanded, tabTypes, typeKeyword } = this.state;
     const notificationElements =
@@ -59,11 +64,16 @@ class ContentBox extends PureComponent {
     }
 
     return (
-      <div style={{display: 'flex'}}>
-        <Checkbox
-          change={() => {}}
-          style={{margin: "0 1rem"}}
-        />
+      <div style={{ display: 'flex' }}>
+        {selectable && (
+          <Checkbox
+            change={selectOne}
+            style={{ margin: '0 1rem' }}
+            checked={selected.indexOf(id) > -1}
+            dataId={id}
+            id={id}
+          />
+        )}
 
         <Link
           to={link}
@@ -139,6 +149,8 @@ class ContentBox extends PureComponent {
 }
 
 ContentBox.propTypes = {
+  id: PropTypes.string.isRequired,
+  key: PropTypes.string.isRequired,
   notifications: PropTypes.number,
   link: PropTypes.string.isRequired,
   image: PropTypes.string,
@@ -151,6 +163,8 @@ ContentBox.propTypes = {
   locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({}).isRequired,
   selectable: PropTypes.bool,
+  selected: PropTypes.arrayOf(PropTypes.shape({})),
+  selectOne: PropTypes.func,
 };
 
 ContentBox.defaultProps = {
@@ -158,5 +172,7 @@ ContentBox.defaultProps = {
   image: null,
   roomType: null,
   selectable: false,
+  selected: [],
+  selectOne: null,
 };
 export default ContentBox;

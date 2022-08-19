@@ -32,7 +32,9 @@ const Archive = (props) => {
     setToDate,
     setFromDate,
     handleSelectAll,
-    selectAll,
+    selectAllChecked,
+    selected,
+    selectOne,
   } = props;
 
   const header = useRef();
@@ -203,7 +205,7 @@ const Archive = (props) => {
         </div>
         <Checkbox
           change={handleSelectAll}
-          checked={selectAll}
+          checked={selectAllChecked}
           dataId="select-all"
         >
           Select All
@@ -234,6 +236,8 @@ const Archive = (props) => {
               linkSuffix={linkSuffix}
               listType="public"
               selectable
+              selected={selected}
+              selectOne={selectOne}
             />
             <div className={classes.LoadMore}>
               <Button m={20} disabled={!moreAvailable} click={setSkipState}>
