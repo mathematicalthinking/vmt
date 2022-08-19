@@ -46,8 +46,8 @@ class ContentBox extends PureComponent {
       locked,
       details,
       selectable,
-      selected,
-      selectOne,
+      isChecked,
+      onSelect,
     } = this.props;
     const { expanded, tabTypes, typeKeyword } = this.state;
     const notificationElements =
@@ -67,9 +67,9 @@ class ContentBox extends PureComponent {
       <div style={{ display: 'flex' }}>
         {selectable && (
           <Checkbox
-            change={selectOne}
+            change={onSelect}
             style={{ margin: '0 1rem' }}
-            checked={selected.indexOf(id) > -1}
+            checked={isChecked}
             dataId={id}
             id={id}
           />
@@ -150,7 +150,6 @@ class ContentBox extends PureComponent {
 
 ContentBox.propTypes = {
   id: PropTypes.string.isRequired,
-  key: PropTypes.string.isRequired,
   notifications: PropTypes.number,
   link: PropTypes.string.isRequired,
   image: PropTypes.string,
@@ -163,8 +162,8 @@ ContentBox.propTypes = {
   locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({}).isRequired,
   selectable: PropTypes.bool,
-  selected: PropTypes.arrayOf(PropTypes.shape({})),
-  selectOne: PropTypes.func,
+  isChecked: PropTypes.bool,
+  onSelect: PropTypes.func,
 };
 
 ContentBox.defaultProps = {
@@ -172,7 +171,7 @@ ContentBox.defaultProps = {
   image: null,
   roomType: null,
   selectable: false,
-  selected: [],
-  selectOne: null,
+  isChecked: false,
+  onSelect: null,
 };
 export default ContentBox;

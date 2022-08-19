@@ -33,8 +33,8 @@ const Archive = (props) => {
     setFromDate,
     handleSelectAll,
     selectAllChecked,
-    selected,
-    selectOne,
+    selectedIds,
+    onSelect,
   } = props;
 
   const header = useRef();
@@ -203,13 +203,18 @@ const Archive = (props) => {
             </Fragment>
           </InfoBox>
         </div>
-        <Checkbox
-          change={handleSelectAll}
-          checked={selectAllChecked}
-          dataId="select-all"
-        >
-          Select All
-        </Checkbox>
+        <div style={{ display: 'flex' }}>
+          <Checkbox
+            change={handleSelectAll}
+            checked={selectAllChecked}
+            dataId="select-all"
+          >
+            Select All
+          </Checkbox>
+          <Button click={() => {}} disabled={selectedIds.length === 0}>
+            Restore
+          </Button>
+        </div>
       </div>
       <div
         className={classes.List}
@@ -236,8 +241,8 @@ const Archive = (props) => {
               linkSuffix={linkSuffix}
               listType="public"
               selectable
-              selected={selected}
-              selectOne={selectOne}
+              selectedIds={selectedIds}
+              onSelect={onSelect}
             />
             <div className={classes.LoadMore}>
               <Button m={20} disabled={!moreAvailable} click={setSkipState}>

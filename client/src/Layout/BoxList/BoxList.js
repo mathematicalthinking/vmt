@@ -16,8 +16,8 @@ const boxList = (props) => {
     maxHeight,
     scrollable,
     selectable,
-    selected,
-    selectOne,
+    selectedIds,
+    onSelect,
   } = props;
 
   const timeDiff = (ts) => {
@@ -86,8 +86,8 @@ const boxList = (props) => {
                 id={item._id}
                 // image={item.image}
                 selectable={selectable}
-                selected={selected}
-                selectOne={selectOne}
+                isChecked={selectedIds.includes(item._id)}
+                onSelect={onSelect}
                 notifications={notificationCount}
                 roomType={
                   item && item.tabs ? item.tabs.map((tab) => tab.tabType) : null
@@ -149,8 +149,8 @@ boxList.propTypes = {
   maxHeight: PropTypes.number,
   scrollable: PropTypes.bool,
   selectable: PropTypes.bool,
-  selected: PropTypes.arrayOf(PropTypes.shape({})),
-  selectOne: PropTypes.func,
+  selectedIds: PropTypes.arrayOf(PropTypes.string),
+  onSelect: PropTypes.func,
 };
 
 boxList.defaultProps = {
@@ -158,8 +158,8 @@ boxList.defaultProps = {
   maxHeight: null,
   scrollable: false,
   selectable: false,
-  selected: [],
-  selectOne: null,
+  selectedIds: [],
+  onSelect: null,
   notifications: [],
 };
 

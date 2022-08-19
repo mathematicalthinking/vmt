@@ -191,13 +191,15 @@ const Archive = () => {
   };
 
   const handleSelectOne = (event, id) => {
-    // setSelectAll(false);
-    const checked = event.target.checked;
-    setSelectAllChecked(false);
+    const { checked } = event.target;
     if (checked) {
       setSelected((prevState) => [...prevState, id]);
+      if (selected.length + 1 === visibleResources.length) {
+        setSelectAllChecked(true);
+      } else setSelectAllChecked(false);
     } else {
       setSelected((prevState) => [...prevState.filter((el) => id !== el)]);
+      setSelectAllChecked(false);
     }
   };
 
@@ -236,8 +238,8 @@ const Archive = () => {
       setFromDate={setFromDate}
       handleSelectAll={handleSelectAll}
       selectAllChecked={selectAllChecked}
-      selected={selected}
-      selectOne={handleSelectOne}
+      selectedIds={selected}
+      onSelect={handleSelectOne}
     />
   );
 };

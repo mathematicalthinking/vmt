@@ -828,7 +828,7 @@ module.exports = {
         },
       },
       {
-        $project: {          
+        $project: {
           updatedAt: 1,
           createdAt: 1,
           name: 1,
@@ -848,7 +848,6 @@ module.exports = {
         $project: {
           tabType: 1,
           eventCount: { $size: '$events' },
-          snapshot: 1,
         },
       },
     ];
