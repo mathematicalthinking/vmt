@@ -3,6 +3,7 @@ export { default as LoginLayout } from './Login/Login';
 export { default as Signup } from './Signup/Signup';
 export { default as ClassCode } from './ClassCode/ClassCode';
 export { default as CommunityLayout } from './Community/Community';
+export { default as ArchiveLayout } from './Archive/Archive';
 export { default as FacilitatorIntro } from './Facilitator/Facilitator';
 export { default as Confirmation } from './Confirmation/Confirmation';
 export { default as NewResource } from './Create/NewResource/NewResource';

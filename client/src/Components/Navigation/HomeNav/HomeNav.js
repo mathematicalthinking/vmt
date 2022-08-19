@@ -73,10 +73,7 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
               <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
             ) : null}
             {loggedIn ? (
-              <NavItem
-                link="/archive/rooms?privacy=all&roomType=all"
-                name="Archive"
-              />
+              <NavItem link="/archive/rooms?roomType=all" name="Archive" />
             ) : null}
             <DropdownNavItem
               name={<span>Info</span>}

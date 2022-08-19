@@ -350,10 +350,10 @@ class Dashboard extends Component {
           toggleFilter={this.toggleFilter}
           totalCounts={totalCounts}
           setSinceDate={this.setSinceDate}
+          setToDate={this.setToDate}
           dateRangePreset={dateRangePreset}
           customSinceDate={customSinceDate}
           customToDate={customToDate}
-          setToDate={this.setToDate}
           manageUser={this.manageUser}
           ownUserId={user._id}
         />

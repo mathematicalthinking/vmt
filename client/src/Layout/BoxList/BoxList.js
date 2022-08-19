@@ -15,6 +15,7 @@ const boxList = (props) => {
     draggable,
     maxHeight,
     scrollable,
+    selectable,
   } = props;
 
   const timeDiff = (ts) => {
@@ -79,7 +80,8 @@ const boxList = (props) => {
                 link={`${linkPath}${item._id}${linkSuffix}`}
                 key={item._id}
                 id={item._id}
-                image={item.image}
+                // image={item.image}
+                selectable={selectable}
                 notifications={notificationCount}
                 roomType={
                   item && item.tabs ? item.tabs.map((tab) => tab.tabType) : null
@@ -140,12 +142,14 @@ boxList.propTypes = {
   draggable: PropTypes.bool,
   maxHeight: PropTypes.number,
   scrollable: PropTypes.bool,
+  selectable: PropTypes.bool,
 };
 
 boxList.defaultProps = {
   draggable: false,
   maxHeight: null,
   scrollable: false,
+  selectable: false,
   notifications: [],
 };
 

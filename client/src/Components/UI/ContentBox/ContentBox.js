@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import getResourceTabTypes from 'utils/getResourceTabTypes';
+import Checkbox from 'Components/Form/Checkbox/Checkbox';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
 import Expand from './expand';
 import Notification from '../../Notification/Notification';
-import getResourceTabTypes from 'utils/getResourceTabTypes';
 
 class ContentBox extends PureComponent {
   state = {
@@ -19,9 +20,7 @@ class ContentBox extends PureComponent {
     const { roomType } = this.props;
 
     if (roomType) {
-      const { tabTypes, isPlural } = getResourceTabTypes(
-        roomType
-      );
+      const { tabTypes, isPlural } = getResourceTabTypes(roomType);
       const tempTypeKeyword = isPlural ? 'Tab Types' : 'Tab Type';
       this.setState({ typeKeyword: tempTypeKeyword, tabTypes });
     }
@@ -60,7 +59,12 @@ class ContentBox extends PureComponent {
     }
 
     return (
-      <Aux>
+      <div style={{display: 'flex'}}>
+        <Checkbox
+          change={() => {}}
+          style={{margin: "0 1rem"}}
+        />
+
         <Link
           to={link}
           className={classes.Container}
@@ -74,7 +78,7 @@ class ContentBox extends PureComponent {
               <div className={classes.BannerLeft}>
                 <div className={classes.Icons}>
                   <Icons
-                    image={image}
+                    // image={image}
                     lock={locked}
                     roomType={roomType}
                     listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
@@ -129,7 +133,7 @@ class ContentBox extends PureComponent {
             </div>
           </div>
         </Link>
-      </Aux>
+      </div>
     );
   }
 }
@@ -146,11 +150,13 @@ ContentBox.propTypes = {
   title: PropTypes.string.isRequired,
   locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({}).isRequired,
+  selectable: PropTypes.bool,
 };
 
 ContentBox.defaultProps = {
   notifications: null,
   image: null,
   roomType: null,
+  selectable: false,
 };
 export default ContentBox;
