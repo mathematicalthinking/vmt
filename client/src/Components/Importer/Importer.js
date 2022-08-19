@@ -297,12 +297,13 @@ export default function Importer(props) {
           'username',
           user.username
         );
-        const { organization, identifier, ...rest } = user;
+        const { organization, identifier, isGmail, ...rest } = user;
         return existingUser
           ? {
               ...existingUser,
               metadata: { organization, identifier },
               sponsor: sponsors[user.username] || creator._id,
+              isGmail,
             }
           : {
               accountType: 'pending',
