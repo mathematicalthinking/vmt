@@ -809,4 +809,48 @@ module.exports = {
       { totalCount: totalCount && totalCount[0] ? totalCount[0].count : 0 },
     ];
   },
+
+  searchPaginatedArchive: (searchText, criteria, skip, ids) => {
+    const aggregationPipeline = [
+      {
+        $match: {
+          $and: [
+            criteria,
+            {
+              $or: [
+                { name: searchText },
+                { description: searchText },
+                { instructions: searchText },
+              ],
+            },
+            { _id: { $in: ids } },
+          ],
+        },
+      },
+      {
+        $project: {          
+          updatedAt: 1,
+          createdAt: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          messagesCount: { $size: '$chat' },
+        },
+      },
+    ];
+    const eventsPipeline = [
+      {
+        $match: {
+          room: { $in: ids },
+        },
+      },
+      {
+        $project: {
+          tabType: 1,
+          eventCount: { $size: '$events' },
+          snapshot: 1,
+        },
+      },
+    ];
+  },
 };
