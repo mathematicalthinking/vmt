@@ -398,6 +398,7 @@ class Course extends Component {
           <Members
             user={user}
             classList={this.sortParticipants(course.members)}
+            courseMembers={course.members}
             owner={course.myRole === 'facilitator' || isAdmin}
             resourceType="course"
             resourceId={course._id}
