@@ -278,10 +278,12 @@ const DesmosActivity = (props) => {
   };
 
   useEffect(() => {
+    const { onScreenChange } = props;
     initializing = true;
     let unsub;
     initPlayer().then((token) => {
       unsub = token;
+      onScreenChange(getCurrentScreen());
     });
     initializing = false;
     return () => {
