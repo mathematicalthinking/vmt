@@ -15,9 +15,7 @@ export { default as Logout } from './Logout';
 export { default as GgbGraph } from './Workspace/GgbGraph';
 export { default as DesmosGraph } from './Workspace/DesmosGraph';
 export { default as GgbActivityGraph } from './Workspace/GgbActivityGraph';
-export {
-  default as DesmosActivityGraph,
-} from './Workspace/DesmosActivityGraph';
+export { default as DesmosActivityGraph } from './Workspace/DesmosActivityGraph';
 export { default as DesmosActivity } from './Workspace/DesmosActivity';
 export { default as Chat } from './Workspace/Chat';
 export { default as GgbReplayer } from './Replayer/GgbReplayer';

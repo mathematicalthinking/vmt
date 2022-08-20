@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
 import { API } from 'utils';
+import { Button, BigModal } from 'Components';
+import { RoomPreview } from 'Containers';
 
 const SKIP_VALUE = 20;
 const Archive = () => {
@@ -20,6 +22,8 @@ const Archive = () => {
   const [skip, setSkip] = useState(0);
   const [selected, setSelected] = useState([]);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [showRoomPreview, setShowRoomPreview] = useState(false);
+  const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
 
   useEffect(() => {
     debounceFetchData();
@@ -179,7 +183,7 @@ const Archive = () => {
   };
 
   const handleSelectAll = (event) => {
-    const checked = event.target.checked;
+    const { checked } = event.target;
     if (!checked) {
       setSelectAllChecked(false);
       setSelected([]);
@@ -203,27 +207,69 @@ const Archive = () => {
     }
   };
 
-  let linkPath;
-  let linkSuffix;
-  // @ TODO conditional logic for displaying room in dahsboard if it belongs to the user
-  if (match.params.resource === 'courses') {
-    linkPath = '/myVMT/courses/';
-    linkSuffix = '/rooms';
-  } else if (match.params.resource === 'rooms') {
-    linkPath = '/myVMT/rooms/';
-    linkSuffix = '/details';
-  } else {
-    linkPath = '/myVMT/activities/';
-    linkSuffix = '/assign';
-  }
+  const goToReplayer = (roomId) => {
+    history.push(`/myVMT/workspace/${roomId}/replayer`);
+  };
+
+  const goToRoomPreview = (roomId) => {
+    let showM = true;
+    setShowRoomPreview(true);
+    setRoomPreviewComponent(
+      <BigModal
+        show={showM}
+        closeModal={() => {
+          setShowRoomPreview(false);
+          showM = false;
+        }}
+      >
+        <RoomPreview roomId={roomId} />
+      </BigModal>
+    );
+  };
+  const customIcons = [
+    {
+      title: 'Replayer',
+      onClick: (e, id) => {
+        // e.stopPropagation();
+        e.preventDefault();
+        goToReplayer(id);
+      },
+      icon: (
+        <Button data-testid="Replayer" click={null}>
+          Replayer
+        </Button>
+      ),
+    },
+    {
+      title: 'Restore',
+      onClick: (e, id) => {
+        // e.stopPropagation();
+        e.preventDefault();
+        console.log('restore: ', id);
+      },
+      icon: (
+        <Button click={null} data-testid="Restore">
+          Restore
+        </Button>
+      ),
+    },
+    {
+      title: 'Preview',
+      onClick: (e, id) => {
+        // e.stopPropagation();
+        e.preventDefault();
+        setShowRoomPreview(true);
+        goToRoomPreview(id);
+      },
+      icon: <i className="fas fa-external-link-alt" />,
+    },
+  ];
 
   return (
     <ArchiveLayout
       visibleResources={visibleResources}
       resource={match.params.resource}
-      linkPath={linkPath}
       searchValue={searchText}
-      linkSuffix={linkSuffix}
       setSkip={setSkipState}
       setCriteria={setSearchCriteria}
       moreAvailable={moreAvailable}
@@ -240,6 +286,9 @@ const Archive = () => {
       selectAllChecked={selectAllChecked}
       selectedIds={selected}
       onSelect={handleSelectOne}
+      icons={customIcons}
+      showRoomPreview={showRoomPreview}
+      roomPreviewComponent={roomPreviewComponent}
     />
   );
 };

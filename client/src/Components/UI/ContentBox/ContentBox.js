@@ -48,6 +48,7 @@ class ContentBox extends PureComponent {
       selectable,
       isChecked,
       onSelect,
+      customIcons,
     } = this.props;
     const { expanded, tabTypes, typeKeyword } = this.state;
     const notificationElements =
@@ -63,6 +64,111 @@ class ContentBox extends PureComponent {
       return null;
     }
 
+    const childElements = (
+      <div
+        data-testid={`content-box-${title}`}
+        className={classes.SubContainer}
+      >
+        <div className={classes.TopBanner}>
+          <div className={classes.BannerLeft}>
+            <div className={classes.Icons}>
+              <Icons
+                // image={image}
+                lock={locked}
+                roomType={roomType}
+                listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
+              />
+            </div>
+            <div className={classes.Title} data-testid="">
+              {title}
+            </div>
+            {notificationElements}
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              width: '100%',
+              padding: '0 1rem',
+            }}
+          >
+            {customIcons &&
+              customIcons.map((icon) => (
+                <div
+                  onClick={(e) => icon.onClick(e, id)}
+                  onKeyDown={icon.onClick}
+                  tabIndex={-1}
+                  role="button"
+                  title={icon.title}
+                  key={`icon-${id}`}
+                  style={{ margin: '0 1rem', cursor: 'pointer' }}
+                >
+                  {icon.icon}
+                </div>
+              ))}
+          </div>
+          <div
+            className={classes.Expand}
+            style={{
+              transform: expanded ? `rotate(180deg)` : `rotate(0)`,
+            }}
+          >
+            <Expand clickHandler={this.toggleExpand} />
+          </div>
+        </div>
+        <div className={classes.Content}>
+          {details && expanded ? (
+            <div className={classes.Expanded}>
+              {details.facilitators && details.facilitators.length > 0 ? (
+                <div>
+                  Facilitators:{' '}
+                  {details.facilitators.map((facilitator) => facilitator)}
+                </div>
+              ) : null}
+              {details.sinceUpdated ? (
+                <div>Updated: {details.sinceUpdated} ago</div>
+              ) : null}
+              {details.createdAt ? (
+                <div>Created: {details.createdAt}</div>
+              ) : null}
+              {details.dueDate ? <div>Due Date: {details.dueDate}</div> : null}
+              {details.creator ? `Creator: ${details.creator}` : null}
+              {details.entryCode ? (
+                <div>Entry Code: {details.entryCode}</div>
+              ) : null}
+              {details.description ? (
+                <div>Description: {details.description}</div>
+              ) : null}
+              {tabTypes && tabTypes.length ? (
+                <div className={classes.TabTypes}>
+                  {typeKeyword}: {tabTypes}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+
+    const parentElement = link ? (
+      <Link
+        to={link}
+        className={classes.Container}
+        style={{ height: expanded ? 150 : 50 }}
+      >
+        {childElements}
+      </Link>
+    ) : (
+      <div
+        to={link}
+        className={classes.Container}
+        style={{ height: expanded ? 150 : 50, cursor: 'default' }}
+      >
+        {childElements}
+      </div>
+    );
+
     return (
       <div style={{ display: 'flex' }}>
         {selectable && (
@@ -75,74 +181,7 @@ class ContentBox extends PureComponent {
           />
         )}
 
-        <Link
-          to={link}
-          className={classes.Container}
-          style={{ height: expanded ? 150 : 50 }}
-        >
-          <div
-            data-testid={`content-box-${title}`}
-            className={classes.SubContainer}
-          >
-            <div className={classes.TopBanner}>
-              <div className={classes.BannerLeft}>
-                <div className={classes.Icons}>
-                  <Icons
-                    // image={image}
-                    lock={locked}
-                    roomType={roomType}
-                    listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
-                  />
-                </div>
-                <div className={classes.Title} data-testid="">
-                  {title}
-                </div>
-                {notificationElements}
-              </div>
-              <div
-                className={classes.Expand}
-                style={{
-                  transform: expanded ? `rotate(180deg)` : `rotate(0)`,
-                }}
-              >
-                <Expand clickHandler={this.toggleExpand} />
-              </div>
-            </div>
-            <div className={classes.Content}>
-              {details && expanded ? (
-                <div className={classes.Expanded}>
-                  {details.facilitators && details.facilitators.length > 0 ? (
-                    <div>
-                      Facilitators:{' '}
-                      {details.facilitators.map((facilitator) => facilitator)}
-                    </div>
-                  ) : null}
-                  {details.sinceUpdated ? (
-                    <div>Updated: {details.sinceUpdated} ago</div>
-                  ) : null}
-                  {details.createdAt ? (
-                    <div>Created: {details.createdAt}</div>
-                  ) : null}
-                  {details.dueDate ? (
-                    <div>Due Date: {details.dueDate}</div>
-                  ) : null}
-                  {details.creator ? `Creator: ${details.creator}` : null}
-                  {details.entryCode ? (
-                    <div>Entry Code: {details.entryCode}</div>
-                  ) : null}
-                  {details.description ? (
-                    <div>Description: {details.description}</div>
-                  ) : null}
-                  {tabTypes && tabTypes.length ? (
-                    <div className={classes.TabTypes}>
-                      {typeKeyword}: {tabTypes}
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </Link>
+        {parentElement}
       </div>
     );
   }
@@ -151,7 +190,7 @@ class ContentBox extends PureComponent {
 ContentBox.propTypes = {
   id: PropTypes.string.isRequired,
   notifications: PropTypes.number,
-  link: PropTypes.string.isRequired,
+  link: PropTypes.string,
   image: PropTypes.string,
   roomType: PropTypes.oneOfType([
     PropTypes.string,
@@ -164,6 +203,7 @@ ContentBox.propTypes = {
   selectable: PropTypes.bool,
   isChecked: PropTypes.bool,
   onSelect: PropTypes.func,
+  customIcons: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 ContentBox.defaultProps = {
@@ -173,5 +213,7 @@ ContentBox.defaultProps = {
   selectable: false,
   isChecked: false,
   onSelect: null,
+  customIcons: [],
+  link: null,
 };
 export default ContentBox;

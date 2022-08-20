@@ -18,6 +18,7 @@ const boxList = (props) => {
     selectable,
     selectedIds,
     onSelect,
+    icons,
   } = props;
 
   const timeDiff = (ts) => {
@@ -81,7 +82,11 @@ const boxList = (props) => {
             {!draggable ? (
               <ContentBox
                 title={item.name}
-                link={`${linkPath}${item._id}${linkSuffix}`}
+                link={
+                  linkPath !== null
+                    ? `${linkPath}${item._id}${linkSuffix}`
+                    : null
+                }
                 key={item._id}
                 id={item._id}
                 // image={item.image}
@@ -95,13 +100,18 @@ const boxList = (props) => {
                 locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
                 listType={listType}
+                customIcons={icons}
               >
                 {item.description}
               </ContentBox>
             ) : (
               <DragContentBox
                 title={item.name}
-                link={`${linkPath}${item._id}${linkSuffix}`}
+                link={
+                  linkPath !== null
+                    ? `${linkPath}${item._id}${linkSuffix}`
+                    : null
+                }
                 key={item._id}
                 id={item._id}
                 notifications={notifications}
@@ -143,14 +153,15 @@ boxList.propTypes = {
   listType: PropTypes.string.isRequired,
   resource: PropTypes.string.isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
-  linkPath: PropTypes.string.isRequired,
-  linkSuffix: PropTypes.string.isRequired,
+  linkPath: PropTypes.string,
+  linkSuffix: PropTypes.string,
   draggable: PropTypes.bool,
   maxHeight: PropTypes.number,
   scrollable: PropTypes.bool,
   selectable: PropTypes.bool,
   selectedIds: PropTypes.arrayOf(PropTypes.string),
   onSelect: PropTypes.func,
+  icons: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 boxList.defaultProps = {
@@ -161,6 +172,9 @@ boxList.defaultProps = {
   selectedIds: [],
   onSelect: null,
   notifications: [],
+  icons: null,
+  linkPath: null,
+  linkSuffix: null,
 };
 
 export default boxList;
