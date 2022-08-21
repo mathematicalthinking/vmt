@@ -26,7 +26,8 @@ const restore = require('../restore');
 
 const dropDb = (uri) => {
   return mongoose
-    .createConnection(uri, { useNewUrlParser: true })
+    .createConnection(uri)
+    .asPromise()
     .then((db) => {
       db.dropDatabase();
     })

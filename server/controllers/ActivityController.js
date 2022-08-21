@@ -15,6 +15,7 @@ module.exports = {
   getById: (id) => {
     return new Promise((resolve, reject) => {
       db.Activity.findById(id)
+        // this might not work in Mongoose 6. change to {path: 'tabs'}? Lots of potential changes.
         .populate('tabs')
         .then((activity) => resolve(activity))
         .catch((err) => reject(err));

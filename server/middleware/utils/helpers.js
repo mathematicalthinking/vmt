@@ -23,6 +23,7 @@ const isUserFacilitatorInRecord = (record, userId) => {
 };
 
 const isValidMongoId = (val) => {
+  // with Mongoose 6, better to use mongoose.isObjectIdOrHexString()?
   const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$');
   return checkForHexRegExp.test(val);
 };

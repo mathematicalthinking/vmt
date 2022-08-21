@@ -25,19 +25,18 @@ console.log('NODE_ENV=', process.env.NODE_ENV);
 
 const mongoURI = process.env.MONGO_URI;
 const isSecure = !mongoURI.includes('localhost');
-let mongoOptions = { useNewUrlParser: true, poolSize: 10 };
-if (isSecure) {
-  mongoOptions = {
-    ...mongoOptions,
-    ssl: true,
-    sslValidate: true,
-    user: process.env.MONGO_USER,
-    pass: process.env.MONGO_PASS,
-    sslKey: fs.readFileSync(process.env.MONGO_SSL_KEY_DIR),
-    sslCert: fs.readFileSync(process.env.MONGO_SSL_CERT_DIR),
-    authSource: process.env.MONGO_AUTHDB,
-  };
-}
+
+const mongoOptions = isSecure
+  ? {
+      ssl: true,
+      sslValidate: true,
+      user: process.env.MONGO_USER,
+      pass: process.env.MONGO_PASS,
+      sslKey: fs.readFileSync(process.env.MONGO_SSL_KEY_DIR),
+      sslCert: fs.readFileSync(process.env.MONGO_SSL_CERT_DIR),
+      authSource: process.env.MONGO_AUTHDB,
+    }
+  : {};
 
 mongoose.connect(mongoURI, mongoOptions, (err) => {
   if (err) {

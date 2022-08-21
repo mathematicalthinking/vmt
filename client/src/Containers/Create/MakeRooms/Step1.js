@@ -22,8 +22,11 @@ class Step1 extends Component {
     // this seems bad actualy...we're duplicating parent state here...we ashould just rename this local state
     // parent state = paritcipants we're confirmed are being adding to the room. this component's state = staging
     if (prevProps.selectedParticipants.length < selectedParticipants.length) {
-      const selectedUser = searchResults.filter((user) =>
-        selectedParticipants.find((userId) => user._id.toString() === userId)
+      const selectedUser = searchResults.filter(
+        // note use of == vs === for Mongoose 6. https://mongoosejs.com/docs/migrating_to_6.html#objectid-valueof
+        // we need to change this everywhere we compare _ids that might be ObjectIds
+        // eslint-disable-next-line eqeqeq
+        (user) => selectedParticipants.find((userId) => user._id == userId)
       );
       this.setState((previousState) => ({
         nominatedParticipants: previousState.nominatedParticipants.concat(

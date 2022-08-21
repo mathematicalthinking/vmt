@@ -274,7 +274,7 @@ router.post('/resetPassword/:token', async (req, res) => {
         populate: { path: 'tabs' },
       })
       .populate({ path: 'notifications', populate: { path: 'fromUser' } })
-      .lean()
+      .lean() // will this work in Mongoose 6? https://mongoosejs.com/docs/migrating_to_6.html#removed-execpopulate
       .exec();
 
     setSsoCookie(res, accessToken);
