@@ -20,3 +20,8 @@ Icon
 client/.env
 client/.env_pyret
 server/.env_pyret
+client/client.envOld
+newEnv/client.env
+newEnv/env_devLocal
+newEnv/server.env_testLocal
+server/server.envOld
