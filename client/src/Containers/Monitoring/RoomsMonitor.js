@@ -220,7 +220,7 @@ function RoomsMonitor({
           </Fragment>
         </div>
         {_adminWarning()}
-        {populatedRooms.length === 0 && (
+        {Object.keys(populatedRooms).length === 0 && (
           <div className={classes.NoSnapshot}>No rooms to display</div>
         )}
         <div className={classes.TileGroup}>
