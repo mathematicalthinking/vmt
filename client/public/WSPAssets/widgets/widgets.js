@@ -693,7 +693,11 @@ var WIDGETS = (function() {
         }
       });
       if (changes) {
-        this.sketch.event(activeWidget.eventName, {}, { changes: changes });
+        this.sketch.event(
+          activeWidget.eventName,
+          {},
+          { changes: changes, canceling: this.cancelOnExit }
+        );
       }
       sketch.isDirty = true; // Possible code improvement: some widgets dirty the sketch and some don't
     }
@@ -971,6 +975,7 @@ var WIDGETS = (function() {
         gobj.style = jQuery.extend(true, {}, gobj.oldStyle);
         restoreTextColor();
         gobj.sQuery.sketch.invalidateAppearance(gobj);
+        ret = true; // include the original style in the message
       } else {
         // not canceling
         ret = !deepEquals(gobj.oldStyle, gobj.style); // if styles differ, return true
@@ -1000,6 +1005,12 @@ var WIDGETS = (function() {
       if (colorIndex >= 0) {
         setColor(colorIndex);
       } // colorIndex >= 0
+
+      styleWidget.sketch.event(
+        styleWidget.eventName,
+        {},
+        { id: gobj.id, newStyle: gobj.style }
+      );
     } // if (gobj)
   };
 
@@ -1170,6 +1181,9 @@ var WIDGETS = (function() {
     if (gobj.wasHidden) {
       delete gobj.wasHidden;
     }
+    if (retVal) {
+      retVal = { hidden: gobj.style.hidden };
+    }
     return retVal;
   };
 
@@ -1306,19 +1320,21 @@ var WIDGETS = (function() {
 
     function sendEvent(gobj) {
       // Was gobj changed? If so, emit an event.
-      var currentText = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label,
-        changed =
-          currentText !== self.oldLabel ||
-          self.oldAutoGenerate !== gobj.shouldAutogenerateLabel ||
-          !deepEquals(self.oldStyle, gobj.style);
+      var attr = { id: gobj.id },
+        currentText = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label,
+        labelChanged = currentText !== self.oldLabel,
+        styleChanged = !deepEquals(self.oldStyle, gobj.style),
+        autoChanged = self.oldAutoGenerate !== gobj.shouldAutogenerateLabel,
+        changed = labelChanged || autoChanged || styleChanged;
       if (changed) {
-        self.sketch.event(
-          self.eventName,
-          {
-            gobj: gobj,
-          },
-          {}
-        );
+        attr.label = currentText;
+        if (styleChanged) {
+          attr.style = $.extend(true, {}, gobj.style);
+        }
+        if (autoChanged) {
+          attr.autoGenerate = gobj.shouldAutogenerateLabel;
+        }
+        self.sketch.event(self.eventName, {}, attr);
       }
     }
 
@@ -2285,19 +2301,15 @@ var WIDGETS = (function() {
 
   traceWidget.handleTap = function(event, context) {
     var gobj = Object.getPrototypeOf(traceWidget).handleTap(event, context),
-      style,
-      status;
+      style;
     if (!canTraceGobj(gobj)) return; // ignore taps on untraceable objects
     if (gobj) {
       style = gobj.style;
       style.traced = !style.traced;
-      status = 'tracing ' + (style.traced ? 'on' : 'off');
       traceWidget.sketch.event(
         traceWidget.eventName,
-        {
-          gobj: gobj,
-        },
-        { 'new status': status }
+        {},
+        { id: gobj.id, tracing: style.traced }
       );
       if (!style.traced) {
         gobj.setRenderState('none');
@@ -2335,19 +2347,18 @@ var WIDGETS = (function() {
     // The Delete Widget posts an undo delta and emits an event with each deletion
     var sketch = this.sketch,
       delta,
+      deletedIds = [],
       preDelta = sketch.document.getRecentChangesDelta(); // capture changes since last undo event
     sketch.gobjList.removeGObjects(deleteWidget.progenyList, sketch);
     delta = sketch.document.pushConfirmedSketchOpDelta(preDelta);
     sketch.document.changedUIMode();
-    // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
+    $.each(deleteWidget.progenyList, function() {
+      deletedIds.push(this.id);
+    });
     this.sketch.event(
       this.eventName,
-      {
-        'deleted gobjs': deleteWidget.progenyList,
-      },
-      {
-        delta: delta,
-      }
+      {},
+      { delta: delta, preDelta: preDelta, deletedIds: deletedIds }
     );
   };
 
@@ -2719,8 +2730,9 @@ var WIDGETS = (function() {
     var $data = $('<div>');
     scriptPath = getScriptPath();
     if ($widget) {
-      $widget.remove();
+      // $widget.remove();
       console.log('makeWidget() should not be called twice.');
+      return;
     }
     $data.append(data);
     $widget = $data.find('#widget');

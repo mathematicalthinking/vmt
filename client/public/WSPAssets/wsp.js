@@ -7383,20 +7383,17 @@
       },
       
       /**
-       * Polyfill substitute for optional chaining. Instead of val = obj1?.obj2?.obj3?.datum,
-       * we can write val = GSP._get('obj1.obj2.obj3', datum), which will return either
-       * the value of datum or undefined if any piece of the path is invalid
+       * Polyfill substitute for optional chaining. Instead of val = obj?.obj1?.obj2?.obj3.obj4,
+       * we can write val = GSP._get(obj, 'obj2.obj3.obj4'), which will return either
+       * the value of obj.obj2.obj3.obj4 or undefined if any piece of the path is invalid
       */
-      _get: function(path, target) {
-        var parts = path.split && path.split('.'),
-            retVal;
-        if (!parts) return;
-        retVal = target;
-        parts.every(function(part) {
-          retVal = retVal[part];
-          return retVal;
-        });
-        return retVal;
+      _get: function(obj, path) {
+        var parts = path.split && path.split('.');
+        if (!obj || !parts) return; // undefined
+        while (obj && parts.length) {
+          obj = obj[parts.shift()];
+        }
+        return (obj && parts.length === 0) ? obj : undefined;
       },
     
     
@@ -10472,6 +10469,7 @@
         "EditParameter",
         "ChangeStyle",
         "ChangeTraceStatus",
+        "ClearTraces",
         "ChangeLabel", 
         "ChangeVisibility",
         "DeleteGObjs",
@@ -16468,6 +16466,11 @@
         this.traces.saturation = 0;
         this.traces.appliedAlpha = 1.0;
         this.traces.fadeStartTime = 0;
+        this.event(
+          'ClearTraces',
+          {},
+          {}
+        );
       },
   
   
