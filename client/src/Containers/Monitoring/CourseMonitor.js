@@ -23,7 +23,7 @@ function CourseMonitor({ course }) {
         new Date(b.updatedAt) - new Date(a.updatedAt)
     )
     .map((room) => room._id);
-  const populatedRooms = usePopulatedRooms(roomIds, true, {
+  const populatedRooms = usePopulatedRooms(roomIds, false, {
     refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
   });
 
