@@ -34,6 +34,7 @@ const WebSketch = (props) => {
   let sketchDoc = null; // The WSP document in which the websketch lives.
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
+  const $ = window?.jQuery;
   const { setFirstTabLoaded } = props;
 
   useEffect(() => {
@@ -112,6 +113,21 @@ const WebSketch = (props) => {
     return `${username} ${actionText} ${actionDetailText}`;
   };
 
+  const initSketchPage = () => {
+    // Refresh vars and handlers for a new sketch page
+    // This needs to be called any time the sketch page is regenerated, for instance,
+    // due to a page change, undo or redo, or confirmed or aborted toolplay
+    // Ideally we'd like every such operation to clean up after itself by calling
+    // initSketch, but the possibility of asynchronous operations suggests that
+    // it may be safest to call getSketch(): a function that returns the sketch
+    // object from the sketchDoc.
+    if ($sketch.data('document') !== sketchDoc) {
+      console.error('follow: initSketchPage found invalid sketchDoc');
+      window.GSP.createError('follow: initSketchPage found invalid sketchDoc.');
+    }
+    sketch = sketchDoc.focusPage;
+  };
+
   // --- Controller functions ---
 
   const getSketch = () => {
@@ -139,6 +155,11 @@ const WebSketch = (props) => {
       { event: 'WillUndoRedo.WSP', handler: reflectMessage },
       { event: 'UndoRedo.WSP', handler: reflectAndSync },
       { event: 'ChangeStyle.WSP', handler: reflectMessage },
+      { event: 'ChangeTraceStatus.WSP', handler: reflectMessage },
+      { event: 'ChangeLabel.WSP', handler: reflectMessage },
+      { event: 'ChangeVisibility.WSP', handler: reflectMessage },
+      { event: 'DeleteGObjs.WSP', handler: reflectAndSync },
+      { event: 'ClearTraces.WSP', handler: reflectMessage },
     ];
     handlers.forEach((el) => {
       $sketch.off(el.event, el.handler);
@@ -312,8 +333,26 @@ const WebSketch = (props) => {
     });
   };
 
-  const gobjDesc = (gobj) => {
-    return gobj.kind + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
+  const gobjDesc = (gobj, cur, max) => {
+    // Returns a gobj-description string suitable for a list of form
+    // "Point #1, Point B, Circle #4, ..."
+    // cur is the 0-based item number in the list, max is the max allowed
+    // So with max = 3 the return values for cur = 1, 2,etc. are
+    // cur = 0: "Point #1"
+    // cur = 1: ", Point B"
+    // cur = 2: ", Circle #4"
+    // cur = 3: ", ..."
+    // cur > 3: ""
+    var retVal = '';
+    if (cur === max) {
+      retVal = ', ...';
+    } else if (cur < max) {
+      retVal = gobj.kind + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
+      if (cur > 0) {
+        retVal = ', ' + retVal;
+      }
+    }
+    return retVal;
   };
 
   const handleMessage = (msg) => {
@@ -346,7 +385,7 @@ const WebSketch = (props) => {
         );
         break;
       case 'WillChangeCurrentPage':
-        notify('Changed to page ' + attr.newPageId, 1500);
+        notify('Changed to page ' + attr.newPageId, { duration: 1500 });
         break;
       case 'DidChangeCurrentPage':
         sketchDoc.switchPage(attr.pageId);
@@ -370,7 +409,7 @@ const WebSketch = (props) => {
         notify('');
         break;
       case 'ToolAborted': // controlling sketch has aborted a tool
-        notify('Canceled ' + attr.tool.name + ' Tool', 1500);
+        notify('Canceled ' + attr.tool.name + ' Tool');
         abortFollowerTool();
         break;
       case 'MergeGObjs': // controlling sketch has played a tool
@@ -379,13 +418,29 @@ const WebSketch = (props) => {
         // attr.merged and attr.result have id and label properties
         break;
       case 'WillUndoRedo': // controlling sketch will undo or redo
-        notify('Performing ' + attr.type, 1500);
+        notify('Performing ' + attr.type);
         break;
-      case 'UndoRedo': // controlling sketch has finished undo or redo
+      case 'UndoRedo':
         undoRedo(attr);
         break;
-      case 'ChangeStyle': // controlling sketch has changed gobj styles
+      case 'ChangeStyle':
         changeStyle(attr);
+        break;
+      case 'ChangeTraceStatus':
+        changeTraceStatus(attr);
+        break;
+      case 'ClearTraces':
+        notify('Traces cleared.');
+        sketch.clearTraces();
+        break;
+      case 'ChangeLabel':
+        changeLabel(attr);
+        break;
+      case 'ChangeVisibility':
+        changeVisibility(attr);
+        break;
+      case 'DeleteGObjs':
+        deleteGobjs(attr);
         break;
       default:
         // Other actions to be defined: gobjEdited, gobjStyled, etc.
@@ -393,21 +448,59 @@ const WebSketch = (props) => {
     }
   };
 
-  const notify = (text, optionalDuration) => {
-    // duration is 1500 if not specified
-    // console.log(`Notify: ${text}, duration: ${optionalDuration}`);
+  const notify = (text, options) => {
+    const { GSP } = window;
+    // duration is 2000 if not specified
+    let duration = 2000;
+    let gobjs;
+    let callback;
+    if (options && GSP) {
+      duration = GSP._get(options, 'duration') || 2500;
+      gobjs = GSP._get(options, 'highlitGobjs'); //
+      callback = GSP._get(options, 'callback');
+    }
+
+    const highlight = (on) => {
+      if (!gobjs) return;
+      $.each(gobjs, () => {
+        // this may be a gobj, or may be a gobj id
+        const gobj =
+          typeof this === 'string' ? sketch.gobjList.gobjects[this] : this;
+        const { state } = gobj;
+        if (on) {
+          if (state.renderState) {
+            state.oldRenderState = state.renderState; // track the previous renderState
+          }
+          state.renderState = 'targetHighlit';
+        } else {
+          // off
+          if (state.renderState === 'targetHighlit') {
+            if (state.oldRenderState) {
+              // prev renderState existed, so restore it
+              state.renderState = state.oldRenderState;
+            } else {
+              // prev renderState didn't exist, so restore its non-existence
+              delete state.renderState;
+            }
+          }
+          delete state.oldRenderState; // delete tracked prev value, if any
+        }
+        gobj.invalidateAppearance();
+      });
+    };
+    // console.log(`Notify: ${text}, duration: ${duration}`);
     // let $notifyDiv = $('#notify');
     if (text) {
       setActivityMessage(text);
-      if (optionalDuration) {
-        setTimeout(() => {
-          console.log('Setting timeout for : ', optionalDuration);
-          // only hide the notification if it's the same text as was set.
-          // if (activityMessage === text) {
-          setActivityMessage('');
-          // }
-        }, optionalDuration || 1500);
-      }
+      highlight(true);
+      setTimeout(() => {
+        // only hide the notification if it's the same text as was set.
+        setActivityMessage('');
+        highlight(false);
+        if (callback) {
+          callback();
+        }
+      }, duration);
     } else {
       setActivityMessage('');
     }
@@ -420,6 +513,7 @@ const WebSketch = (props) => {
     }
     // A gobj moved, so move the same gobj in the follower sketch
     const moveList = JSON.parse(data);
+    initSketchPage();
     if (!sketch) {
       console.log("Messaging error: this follower's sketch is not loaded.");
       return;
@@ -540,32 +634,135 @@ const WebSketch = (props) => {
     }
   };
 
-  const changeStyle = (data) => {
-    let note = 'Changed styles for ';
-    let gobjCount = 0;
-    const maxCount = 4;
-    $.each(data.changes, function(id) {
-      var gobj = sketch.gobjList.gobjects[id];
-      gobj.style = JSON.parse(this.style);
-      gobj.invalidateAppearance();
-      gobjCount += 1;
-      if (gobjCount > 1) {
-        note += ', ';
-      }
-      if (gobjCount <= maxCount) {
-        note += gobjDesc(gobj);
-      }
-    });
-    if (gobjCount > maxCount) {
-      note += '...';
+  const changeStyle = (attr) => {
+    function multipleGobjs() {
+      let note;
+      let gobjCount = 0;
+      const maxCount = 4;
+      note = attr.canceling
+        ? 'Canceled style changes for '
+        : 'Changed styles for ';
+      // eslint-disable-next-line
+      $.each(attr.changes, function(id) {
+        const gobj = sketch.gobjList.gobjects[id];
+        gobj.style = JSON.parse(this.style);
+        gobj.invalidateAppearance();
+        note += gobjDesc(gobj, gobjCount, maxCount);
+        gobjCount += 1;
+      });
+      notify(note, { duration: 3000, highlitGobjs: Object.keys(attr.changes) });
     }
-    notify(note);
+
+    function singleGobj() {
+      const gobj = sketch.gobjList.gobjects[attr.id];
+      const note = 'Changed style for ' + gobjDesc(gobj, 0, 1);
+      gobj.style = attr.newStyle;
+      notify(note, { duration: 2000, highlitGobjs: [attr.id] });
+    }
+
+    if (attr.changes) {
+      multipleGobjs();
+    } else {
+      singleGobj();
+    }
   };
+
+  function changeTraceStatus(attr) {
+    const gobj = sketch.gobjList.gobjects[attr.id];
+    const newState = attr.tracing;
+    const note =
+      'Tracing turned ' +
+      (newState ? 'on' : 'off') +
+      ' for ' +
+      gobjDesc(gobj, 0, 1);
+    notify(note, { duration: 2000, highlitGobjs: [attr.id] });
+    gobj.style.traced = newState;
+  }
+
+  function changeLabel(attr) {
+    // attr: id and label are always present
+    // style and autoGenerate are present if changed
+    const gobj = sketch.gobjList.gobjects[attr.id];
+    const labelChanged = attr.label !== 'gobj.label';
+    let note = 'Changed ' + (labelChanged ? 'label ' : '');
+    if (attr.style) {
+      note += (labelChanged ? 'and ' : '') + 'label style ';
+      gobj.style = attr.style;
+    }
+    if (labelChanged) {
+      gobj.label = attr.label;
+    }
+    note += 'of ' + gobjDesc(gobj, 0, 1);
+    notify(note, { duration: 2000, highlitGobjs: [attr.id] });
+    if (attr.autoGenerateLabel) {
+      gobj.autoGenerateLabel = attr.autoGenerateLabel;
+    }
+    gobj.invalidateAppearance();
+  }
+
+  function changeVisibility(data) {
+    let noteHidden = 'Hiding ';
+    let noteShown = 'Showing ';
+    let note = '';
+    let hidCount = 0;
+    let showCount = 0;
+    const maxCount = 4;
+    // eslint-disable-next-line
+    $.each(data.changes, function(id) {
+      const gobj = sketch.gobjList.gobjects[id];
+      gobj.style.hidden = this.hidden;
+      if (this.hidden) {
+        noteHidden += gobjDesc(gobj, hidCount, maxCount);
+        hidCount += 1;
+      } else {
+        noteShown += gobjDesc(gobj, showCount, maxCount);
+        showCount += 1;
+      }
+      gobj.invalidateAppearance();
+    });
+    if (hidCount) note += noteHidden;
+    if (hidCount && showCount) note += ' and ';
+    if (showCount) note += noteShown;
+    notify(note, { duration: 3000, highlitGobjs: data.changes });
+    // Ideally the notify timeout would fade the changed objects in and out while the notice is up
+    // We could provide a callback that would send a parameter that runs from 0 to 100 during the timeout
+    // For the time being, we could show the hidden objects, trigger the notification, and then
+    // hid the visible objects.
+  }
+
+  function deleteGobjs(data) {
+    let note = 'Deleted ';
+    const deletedGobjs = {};
+    let thisDelta;
+    let gobjCount = 0;
+    const maxCount = 6;
+
+    function doDelete() {
+      sketch.gobjList.removeGObjects(deletedGobjs, sketch);
+      thisDelta = sketch.document.pushConfirmedSketchOpDelta(data.preDelta);
+      // CHECK: thisDelta should match data.delta.
+      console.log('Delete delta: ', thisDelta, ' vs ', data.delta);
+      sketch.document.changedUIMode();
+    }
+
+    $.each(data.deletedIds, function() {
+      const gobj = sketch.gobjList.gobjects[this];
+      deletedGobjs[this] = gobj;
+      note += gobjDesc(gobj, gobjCount, maxCount);
+      gobjCount += 1;
+    });
+
+    notify(note, {
+      duration: 3000,
+      highlitGobjs: data.deletedIds,
+      callback: doDelete,
+    });
+  }
 
   // --- Initialization functions ---
 
   const loadSketchDoc = (config) => {
-    const $ = window.jQuery;
+    $ = window.jQuery;
     if (!$) {
       console.warn('No jQuerious');
       return;
@@ -603,6 +800,7 @@ const WebSketch = (props) => {
   const loadSketch = () => {
     const { tab } = props;
 
+    // When should this call happen, before or after loading the sketch?
     let isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
     console.log('Widgets?: ', isWidgetLoaded);
     if (isWidgetLoaded) {
