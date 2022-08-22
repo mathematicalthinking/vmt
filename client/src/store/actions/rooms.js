@@ -1,4 +1,5 @@
 import { initializeNewDesmosActivity } from 'Containers/Workspace/Tools/DesActivityHelpers';
+import { STATUS } from 'constants.js';
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
@@ -305,7 +306,11 @@ export const createRoomFromActivity = (
 export const updateRoom = (id, body) => {
   return (dispatch, getState) => {
     const room = { ...getState().rooms.byId[id] };
-    if (body.isTrashed) {
+    if (
+      body.isTrashed ||
+      body.status === STATUS.TRASHED ||
+      body.status === STATUS.ARCHIVED
+    ) {
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
     } else {
@@ -314,7 +319,11 @@ export const updateRoom = (id, body) => {
     API.put('rooms', id, body)
       .then()
       .catch(() => {
-        if (body.isTrashed) {
+        if (
+          body.isTrashed ||
+          body.status === STATUS.TRASHED ||
+          body.status === STATUS.ARCHIVED
+        ) {
           dispatch(addUserRooms([id]));
           dispatch(createdRoom(room));
         }
