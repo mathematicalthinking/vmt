@@ -34,7 +34,7 @@ const WebSketch = (props) => {
   let sketchDoc = null; // The WSP document in which the websketch lives.
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
-  const $ = window?.jQuery;
+  let $ = window ? window.jQuery : undefined;
   const { setFirstTabLoaded } = props;
 
   useEffect(() => {
