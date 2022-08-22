@@ -24,12 +24,11 @@ function CourseMonitor({ course }) {
     )
     .map((room) => room._id);
   const populatedRooms = usePopulatedRooms(roomIds, true, {
-    // refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+    refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
   });
 
   if (populatedRooms.isError) return <div>There was an error</div>;
 
-  console.log(populatedRooms.isSuccess && populatedRooms.data);
   return populatedRooms.isSuccess ? (
     <RoomsMonitor populatedRooms={populatedRooms.data} />
   ) : (
