@@ -21,6 +21,8 @@ import classes from './graph.css';
 const WebSketch = (props) => {
   const [showControlWarning, setShowControlWarning] = useState(false);
   const [activityUpdates, setActivityUpdates] = useState();
+  const [activityMoves, setActivityMoves] = useState({});
+  const [pendingMsg, setPendingMsg] = useState(false);
   const [activityData, setActivityData] = useState();
   const [activityMessage, setActivityMessage] = useState('');
 
@@ -28,7 +30,6 @@ const WebSketch = (props) => {
 
   let initializing = false;
   let receivingData = false;
-  let messagePending = false; // true if a message is pending but not yet sent
 
   let $sketch = null; // the jquery object for the server's sketch_canvas HTML element
   let sketchDoc = null; // The WSP document in which the websketch lives.
@@ -64,6 +65,9 @@ const WebSketch = (props) => {
 
   // Storage API functions
   const debouncedUpdate = useCallback(debounce(putState, 350), []);
+
+  // drag smoothing function
+  // const debouncedMove = useCallback(debounce(handleMessage, 150), []);
 
   function putState() {
     const { tab, temp, updateRoomTab, room } = props;
@@ -233,6 +237,7 @@ const WebSketch = (props) => {
       const gobjInfo = { id: gobj.id, constraint: gobj.constraint };
       switch (gobj.constraint) {
         case 'Free': // Free points have locations
+        case 'Calculation':
           if (gobj.value) {
             // free expressions (params and calcs) have values
             gobjInfo.value = gobj.value; // free parameter or calculation
@@ -255,22 +260,24 @@ const WebSketch = (props) => {
   };
 
   const sendUpdateMessage = (gobjInfo) => {
-    let moveMessage = {}; // assembles the next move message
     // Move messages can arrive too quickly; send them out at a reasonable frame rate
     // For a full frame interval (moveDelay), collect all move data and send out the most recent data for each affected gobj.
-    moveMessage[gobjInfo.id] = gobjInfo; // REM .LOC Add this move to the cache
-    if (messagePending) return;
+    const { id } = gobjInfo;
+    setActivityMoves({ ...activityMoves, [id]: gobjInfo });
+    // moveMessage[gobjInfo.id] = gobjInfo; // REM .LOC Add this move to the cache
+    if (pendingMsg) return;
     // There is a follower and no message scheduled, so schedule one now
     setTimeout(() => {
       const msg = { action: 'GobjsUpdated', time: Date.now() };
-      const moveData = moveMessage; // create a ref to the current cache
-      moveMessage = {}; // make a new empty cache
-      messagePending = false;
+      const moveData = activityMoves; // create a ref to the current cache
+      setActivityMoves({});
+      // moveMessage = {}; // make a new empty cache
+      setPendingMsg(false);
       msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
       // msg ready to post to follower
       handleEventData(msg);
     }, moveDelay);
-    messagePending = true;
+    setPendingMsg(true);
   };
 
   // sends an update msg object for the user in control
@@ -527,6 +534,7 @@ const WebSketch = (props) => {
         continue; // The moveList might be out of date during toolplay,
         // and could include a gobj that no longer exists.
       }
+      console.log('Handling Gobjs: ', gobjInfo);
       switch (gobjInfo.constraint) {
         case 'Free':
           if (gobjInfo.loc) {
