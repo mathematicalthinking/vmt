@@ -109,6 +109,9 @@ class TempWorkspace extends Component {
     if (graphType === 'pyret' && firstEntry) {
       updatedTabs[0].tabType = 'pyret';
     }
+    if (graphType === 'wsp' && firstEntry) {
+      updatedTabs[0].tabType = 'wsp';
+    }
     // this.setState({enteredRoom: true, graph: graphType})
     return socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {
@@ -224,6 +227,14 @@ class TempWorkspace extends Component {
                 Pyret
               </Button>
             ) : null}
+               <Button
+              data-testid="temp-wsp"
+              m={5}
+              click={() => this.joinRoom('wsp')}
+              disabled={!loggedIn && !tempUsername}
+            >
+              Web Sketchpad
+            </Button>
           </div>
         ) : (
           <Button

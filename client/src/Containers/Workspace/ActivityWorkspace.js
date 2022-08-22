@@ -14,6 +14,7 @@ import {
   DesmosActivityEditor,
   GgbActivityGraph,
   CodePyretOrg,
+  WebSketch,
   Tabs,
   RoomInfo,
   ActivityTools,
@@ -140,6 +141,20 @@ class ActivityWorkspace extends Component {
         if (tab.tabType === 'pyret') {
           return (
             <CodePyretOrg
+              key={tab._id}
+              tab={tab}
+              activity={activity}
+              role={role}
+              currentTab={currentTabId || initialTabId}
+              updateActivityTab={connectUpdateActivityTab}
+              setFirstTabLoaded={this.setFirstTabLoaded}
+              isFirstTabLoaded={isFirstTabLoaded}
+            />
+          );
+        }
+        if (tab.tabType === 'wsp') {
+          return (
+            <WebSketch
               key={tab._id}
               tab={tab}
               activity={activity}

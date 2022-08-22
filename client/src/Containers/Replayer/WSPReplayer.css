@@ -1,0 +1,12 @@
+.Toast {
+    position: absolute;
+    z-index: 2;
+    top: 50px;
+    left: 120px;
+    background: lightgray;
+    color: blue;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid blueHover;
+  }
+  

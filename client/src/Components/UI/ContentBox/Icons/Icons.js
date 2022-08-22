@@ -4,6 +4,7 @@ import ggbIcon from './geogebra.png';
 import dsmIcon from './desmos.png';
 import dsmActIcon from './desmosActivity.png';
 import pyretIcon from './pyretlogo.png';
+import wspIcon from './gsp_app.png';
 import bothIcon from './desmosandgeogebra.png';
 import ToolTip from '../../../ToolTip/ToolTip';
 import classes from './icons.css';
@@ -65,16 +66,26 @@ const Icons = ({ lock, listType, roomType, image }) => {
       </div>
     </ToolTip>
   );
+
+  const wspImageAndToolTip = (
+    <ToolTip text="WSP" delay={600}>
+      <div className={classes.Icon}>
+        <img width={28} src={wspIcon} alt="Web Sketchpad" />
+      </div>
+    </ToolTip>
+  );
+
   if (Array.isArray(roomType)) {
     let des = false;
     let ggb = false;
     let act = false;
     let pyrt = false;
-
+    let wsp = false;
     roomType.forEach((rmType) => {
       if (rmType === 'desmos') des = true;
       else if (rmType === 'desmosActivity') act = true;
       else if (rmType === 'pyret') pyrt = true;
+      else if (rmType === 'wsp') wsp = true;
       else ggb = true;
     });
     if (ggb && des) {
@@ -91,6 +102,8 @@ const Icons = ({ lock, listType, roomType, image }) => {
       roomTypeIcon = desActImageAndToolTip;
     } else if (pyrt) {
       roomTypeIcon = pyretImageAndToolTip;
+    } else if (wsp) {
+      roomTypeIcon = wspImageAndToolTip;
     } else {
       roomTypeIcon = ggbImageAndToolTip;
     }

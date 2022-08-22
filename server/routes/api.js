@@ -246,10 +246,38 @@ const ggbUpload = multer({
   fileFilter: multerMw.ggbFileFilter,
 });
 
+const wspUpload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: multerMw.wspFileFilter,
+});
+
 router.post(
   '/upload/ggb',
   middleware.validateUser,
   ggbUpload.array('ggbFiles', 10),
+  (req, res) => {
+    const bufferFiles = req.files;
+
+    if (!Array.isArray(bufferFiles)) {
+      return res.json({ result: [] });
+    }
+    const base64Files = bufferFiles.map((fileObj) => {
+      const { buffer } = fileObj;
+      if (buffer) {
+        return buffer.toString('base64');
+      }
+      // console.log('no buffer!');
+      return errors.sendError('no buffer on fileObj while mapping files', res);
+    });
+    const compacted = _.compact(base64Files);
+    return res.json({ result: compacted });
+  }
+);
+
+router.post(
+  '/upload/wsp',
+  middleware.validateUser,
+  wspUpload.array('ggbFiles', 10),
   (req, res) => {
     const bufferFiles = req.files;
 

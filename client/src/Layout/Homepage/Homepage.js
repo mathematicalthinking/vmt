@@ -52,6 +52,9 @@ class Homepage extends PureComponent {
     if (url.split('.')[0] === 'https://vmt-test') {
       return 'staging';
     }
+    if (url.split('.')[0] === 'https://vmt-dev') {
+      return 'dev-sandbox';
+    }
     if (process.env.NODE_ENV === 'development') {
       return 'development';
     }
@@ -65,7 +68,7 @@ class Homepage extends PureComponent {
         win ? `: maintenance window is ${win}` : ''
       }, please contact if uptime is required.`;
     }
-    if (pageLocation === 'staging') {
+    if (pageLocation === 'staging' || pageLocation === 'dev-sandbox') {
       return 'Staging deployment may have unplanned maintenance, please notify if an uptime window is required.';
     }
     return null;
@@ -194,7 +197,9 @@ class Homepage extends PureComponent {
                 open source
               </a>{' '}
               and currently in active development - You are viewing this
-              application in <b>{pageLocation}</b> mode. {pyretStatus}
+              application in <b>{pageLocation}</b> mode. Web Sketchpad (WSP) is
+              in DRAFT integration. {pyretStatus}
+              {pyretStatus}
             </p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />
