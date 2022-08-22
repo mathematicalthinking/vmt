@@ -80,7 +80,7 @@ module.exports = {
                   populate: { path: 'user', select: 'username color' },
                 },
               }
-            : { path: 'tabs' }
+            : { path: 'tabs', select: '-events' }
         )
         // options: { limit: 25 },
         .lean()
