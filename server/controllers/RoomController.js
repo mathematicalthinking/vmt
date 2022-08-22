@@ -57,34 +57,36 @@ module.exports = {
   },
 
   getPopulatedById: (id, params) => {
-    return (
-      db.Room.findById(id)
-        .populate({ path: 'creator', select: 'username' })
-        .populate({
-          path: 'chat',
-          // options: { limit: 25 }, // Eventually we'll need to paginate this
-          populate: { path: 'user', select: 'username' },
-          // allow messages to have roomIds, like events do
-          // select: '-room',
-        })
-        .populate({ path: 'members.user', select: 'username' })
-        .populate({ path: 'currentMembers', select: 'username' })
-        .populate({ path: 'course', select: 'name' })
-        .populate({ path: 'activity', select: 'name' })
-        .populate(
-          params.events
-            ? {
-                path: 'tabs',
-                populate: {
-                  path: 'events',
-                  populate: { path: 'user', select: 'username color' },
-                },
-              }
-            : { path: 'tabs', select: '-events' }
-        )
-        // options: { limit: 25 },
-        .lean()
-    );
+    return db.Room.findById(id)
+      .populate({ path: 'creator', select: 'username' })
+      .populate({
+        path: 'chat',
+        // options: { limit: 25 }, // Eventually we'll need to paginate this
+        populate: { path: 'user', select: 'username' },
+        // allow messages to have roomIds, like events do
+        // select: '-room',
+      })
+      .populate({ path: 'members.user', select: 'username' })
+      .populate({ path: 'currentMembers', select: 'username' })
+      .populate({ path: 'course', select: 'name' })
+      .populate({ path: 'activity', select: 'name' })
+      .populate(
+        params.events
+          ? {
+              path: 'tabs',
+              populate: {
+                path: 'events',
+                populate: { path: 'user', select: 'username color' },
+              },
+            }
+          : {
+              path: 'tabs',
+              select:
+                '-events -startingPoint -startingPointBase64 -currentState -currentStateBase64',
+            }
+      )
+      .lean();
+    // options: { limit: 25 },
   },
 
   // returns the current state for each tab...does not return events or any other information
