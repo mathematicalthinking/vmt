@@ -101,7 +101,7 @@ class ContentBox extends PureComponent {
                   tabIndex={-1}
                   role="button"
                   title={icon.title}
-                  key={`icon-${id}`}
+                  key={`icon-${icon.title}-${id}`}
                   style={{ margin: '0 1rem', cursor: 'pointer' }}
                 >
                   {icon.icon}

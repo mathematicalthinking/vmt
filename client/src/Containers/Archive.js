@@ -3,7 +3,7 @@ import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
 import { API } from 'utils';
-import { Button, BigModal } from 'Components';
+import { Button, BigModal, Modal } from 'Components';
 import { RoomPreview } from 'Containers';
 
 const SKIP_VALUE = 20;
@@ -24,6 +24,8 @@ const Archive = () => {
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [showRoomPreview, setShowRoomPreview] = useState(false);
   const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
+  const [showRestoreComponent, setShowRestoreComponent] = useState(false);
+  const [restoreComponent, setRestoreComponent] = useState(null);
 
   useEffect(() => {
     debounceFetchData();
@@ -207,6 +209,47 @@ const Archive = () => {
     }
   };
 
+  const handleRestore = (id) => {
+    let showModal = true;
+    const res = visibleResources.filter((res) => res._id === id)[0].name;
+    setRestoreComponent(
+      <Modal
+        show={showModal}
+        closeModal={() => {
+          showModal = false;
+          setShowRestoreComponent(false);
+        }}
+      >
+        Are you sure you want to restore {res}
+        <div className={''}>
+          <Button
+            data-testid="restore-resource"
+            click={() => {
+              console.log('yes');
+              showModal = false;
+              setShowRestoreComponent(false);
+            }}
+            m={5}
+          >
+            Yes
+          </Button>
+          <Button
+            data-testid="cancel-manage-user"
+            click={() => {
+              console.log('no');
+              showModal = false;
+              setShowRestoreComponent(false);
+            }}
+            theme="Cancel"
+            m={5}
+          >
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+    );
+  };
+
   const goToReplayer = (roomId) => {
     history.push(`/myVMT/workspace/${roomId}/replayer`);
   };
@@ -226,11 +269,11 @@ const Archive = () => {
       </BigModal>
     );
   };
+
   const customIcons = [
     {
       title: 'Replayer',
       onClick: (e, id) => {
-        // e.stopPropagation();
         e.preventDefault();
         goToReplayer(id);
       },
@@ -243,9 +286,10 @@ const Archive = () => {
     {
       title: 'Restore',
       onClick: (e, id) => {
-        // e.stopPropagation();
         e.preventDefault();
         console.log('restore: ', id);
+        setShowRestoreComponent(true);
+        handleRestore(id);
       },
       icon: (
         <Button click={null} data-testid="Restore">
@@ -256,7 +300,6 @@ const Archive = () => {
     {
       title: 'Preview',
       onClick: (e, id) => {
-        // e.stopPropagation();
         e.preventDefault();
         setShowRoomPreview(true);
         goToRoomPreview(id);
@@ -289,6 +332,8 @@ const Archive = () => {
       icons={customIcons}
       showRoomPreview={showRoomPreview}
       roomPreviewComponent={roomPreviewComponent}
+      showRestoreComponent={showRestoreComponent}
+      restoreComponent={restoreComponent}
     />
   );
 };

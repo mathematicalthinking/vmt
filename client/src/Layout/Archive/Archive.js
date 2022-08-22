@@ -36,6 +36,8 @@ const Archive = (props) => {
     icons,
     showRoomPreview,
     roomPreviewComponent,
+    showRestoreComponent,
+    restoreComponent,
   } = props;
 
   const header = useRef();
@@ -43,6 +45,7 @@ const Archive = (props) => {
   return (
     <React.Fragment>
       {showRoomPreview && roomPreviewComponent}
+      {showRestoreComponent && restoreComponent}
 
       <div className={classes.Container}>
         <div className={classes.Header} ref={header}>
@@ -264,6 +267,45 @@ const Archive = (props) => {
       </div>
     </React.Fragment>
   );
+};
+
+Archive.propTypes = {
+  visibleResources: PropTypes.arrayOf(PropTypes.shape({})),
+  resource: PropTypes.string.isRequired,
+  searchValue: PropTypes.string,
+  setSkipState: PropTypes.func,
+  setCriteria: PropTypes.func.isRequired,
+  moreAvailable: PropTypes.bool.isRequired,
+  filters: PropTypes.shape({}).isRequired,
+  toggleFilter: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
+  onTabChange: PropTypes.func.isRequired,
+  dateRangePreset: PropTypes.string.isRequired,
+  customFromDate: PropTypes.string,
+  customToDate: PropTypes.string,
+  setToDate: PropTypes.func.isRequired,
+  setFromDate: PropTypes.func.isRequired,
+  handleSelectAll: PropTypes.func.isRequired,
+  selectAllChecked: PropTypes.bool.isRequired,
+  selectedIds: PropTypes.arrayOf(PropTypes.string),
+  onSelect: PropTypes.func.isRequired,
+  icons: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  showRoomPreview: PropTypes.bool.isRequired,
+  roomPreviewComponent: PropTypes.func,
+  showRestoreComponent: PropTypes.bool.isRequired,
+  restoreComponent: PropTypes.func,
+};
+
+Archive.defaultProps = {
+  visibleResources: [],
+  searchValue: '',
+  setSkipState: null,
+  customFromDate: null,
+  customToDate: null,
+  selectedIds: [],
+  roomPreviewComponent: null,
+  restoreComponent: null,
+
 };
 
 export default Archive;
