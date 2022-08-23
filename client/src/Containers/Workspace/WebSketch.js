@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import testConfig from './Tools/test.json';
 import WSPLoader from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
@@ -22,11 +23,11 @@ const WebSketch = (props) => {
   const [showControlWarning, setShowControlWarning] = useState(false);
   const [activityUpdates, setActivityUpdates] = useState();
   const [activityMoves, setActivityMoves] = useState({});
-  const [pendingMsg, setPendingMsg] = useState(false);
+  // const [pendingMsg, setPendingMsg] = useState(false);
   const [activityData, setActivityData] = useState();
   const [activityMessage, setActivityMessage] = useState('');
 
-  const moveDelay = 1000 / 30; // divisor is the frame rate
+  const moveDelay = 35; // divisor is the frame rate
 
   let initializing = false;
   let receivingData = false;
@@ -67,7 +68,18 @@ const WebSketch = (props) => {
   const debouncedUpdate = useCallback(debounce(putState, 350), []);
 
   // drag smoothing function
-  // const debouncedMove = useCallback(debounce(handleMessage, 150), []);
+  // const debouncedMove = useCallback(
+  //   debounce(postMoveMessage, 5, {
+  //     leading: true,
+  //     maxWait: moveDelay,
+  //   }),
+  //   []
+  // );
+  const debouncedMove = useCallback(throttle(postMoveMessage, moveDelay), []);
+
+  // useEffect(() => {
+  //   debouncedMove();
+  // }, [activityMoves]);
 
   function putState() {
     const { tab, temp, updateRoomTab, room } = props;
@@ -264,21 +276,33 @@ const WebSketch = (props) => {
     // For a full frame interval (moveDelay), collect all move data and send out the most recent data for each affected gobj.
     const { id } = gobjInfo;
     setActivityMoves({ ...activityMoves, [id]: gobjInfo });
+    console.log('Move dat: ', activityMoves);
+
+    debouncedMove(activityMoves);
     // moveMessage[gobjInfo.id] = gobjInfo; // REM .LOC Add this move to the cache
-    if (pendingMsg) return;
-    // There is a follower and no message scheduled, so schedule one now
-    setTimeout(() => {
-      const msg = { action: 'GobjsUpdated', time: Date.now() };
-      const moveData = activityMoves; // create a ref to the current cache
-      setActivityMoves({});
-      // moveMessage = {}; // make a new empty cache
-      setPendingMsg(false);
-      msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
-      // msg ready to post to follower
-      handleEventData(msg);
-    }, moveDelay);
-    setPendingMsg(true);
+    // if (pendingMsg) return;
+    // // There is a follower and no message scheduled, so schedule one now
+    // setTimeout(() => {
+    //   const msg = { action: 'GobjsUpdated', time: Date.now() };
+    //   const moveData = activityMoves; // create a ref to the current cache
+    //   setActivityMoves({});
+    //   // moveMessage = {}; // make a new empty cache
+    //   setPendingMsg(false);
+    //   msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
+    //   // msg ready to post to follower
+    //   handleEventData(msg);
+    // }, moveDelay);
+    // setPendingMsg(true);
   };
+
+  function postMoveMessage(moves) {
+    const msg = { action: 'GobjsUpdated', time: Date.now() };
+    const moveData = { ...moves }; // create a ref to the current cache
+    setActivityMoves({});
+    msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
+    // msg ready to post to follower
+    handleEventData(msg);
+  }
 
   // sends an update msg object for the user in control
   const handleEventData = (updates, type) => {
@@ -286,6 +310,8 @@ const WebSketch = (props) => {
     const { room, user, myColor, tab, resetControlTimer } = props;
     if (!receivingData) {
       const description = buildDescription(user.username, updates);
+      console.log('Sent message: ', updates);
+
       const currentStateString = JSON.stringify(updates);
       const newData = {
         _id: mongoIdGenerator(),
@@ -302,7 +328,6 @@ const WebSketch = (props) => {
       };
       props.addToLog(newData);
       socket.emit('SEND_EVENT', newData, () => {});
-      console.log('Sent message: ', newData.currentState);
       resetControlTimer();
       // putState(); // save to db?
       debouncedUpdate();
@@ -525,6 +550,8 @@ const WebSketch = (props) => {
       console.log("Messaging error: this follower's sketch is not loaded.");
       return;
     }
+    console.log('Handling Gobjs: ', moveList);
+
     // eslint-disable-next-line
     for (let id in moveList) {
       const gobjInfo = moveList[id];
@@ -534,8 +561,8 @@ const WebSketch = (props) => {
         continue; // The moveList might be out of date during toolplay,
         // and could include a gobj that no longer exists.
       }
-      console.log('Handling Gobjs: ', gobjInfo);
       switch (gobjInfo.constraint) {
+        case 'Calculation':
         case 'Free':
           if (gobjInfo.loc) {
             setLoc(destGobj.geom.loc, gobjInfo.loc);
