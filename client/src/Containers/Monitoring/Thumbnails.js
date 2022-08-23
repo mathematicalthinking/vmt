@@ -142,6 +142,7 @@ export default function Thumbnails({
               setScreenSelection(0);
             }}
             placeholder="Select a Tab..."
+            isSearchable={false}
           />
         )}
         {screenOptions.length > 1 && (
@@ -151,6 +152,7 @@ export default function Thumbnails({
             value={screenSelection}
             onChange={setScreenSelection}
             placeholder="Select a Screen..."
+            isSearchable={false}
           />
         )}
       </div>

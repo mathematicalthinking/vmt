@@ -202,7 +202,7 @@ function RoomsMonitor({
                 constants.ATTENDANCE,
                 constants.CHAT,
                 constants.THUMBNAIL,
-                constants.GRAPH,
+                // constants.GRAPH,
               ]}
               value={viewType}
               onChange={(type) => {

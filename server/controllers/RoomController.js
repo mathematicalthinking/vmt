@@ -84,7 +84,7 @@ module.exports = {
             }
           : {
               path: 'tabs',
-              select: 'name tabType',
+              select: 'name tabType snapshot',
             }
       )
       .lean();
