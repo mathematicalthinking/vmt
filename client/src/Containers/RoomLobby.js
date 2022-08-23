@@ -33,6 +33,7 @@ import {
   updateUser,
 } from 'store/actions';
 import getUserNotifications from 'utils/notifications';
+import { STATUS } from 'constants.js';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
@@ -68,6 +69,7 @@ class Room extends Component {
       isAdmin: false,
       roomType: '',
       isPlural: false,
+      archiving: false,
     };
   }
 
@@ -272,6 +274,16 @@ class Room extends Component {
     history.push(`/myVMT/workspace/${room._id}/replayer`);
   };
 
+  showArchiveModal = () => {
+    this.setState({ archiving: true });
+  };
+
+  archiveRoom = () => {
+    const { room, connectUpdateRoom, history } = this.props;
+    connectUpdateRoom(room._id, { ...room, status: STATUS.ARCHIVED });
+    history.push(`/myVMT/rooms`);
+  };
+
   fetchRoom = () => {
     const { connectGetRoom, match } = this.props;
     connectGetRoom(match.params.room_id);
@@ -341,6 +353,7 @@ class Room extends Component {
       trashing,
       roomType,
       isPlural,
+      archiving,
     } = this.state;
     if (room && room.tabs && !guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
@@ -468,6 +481,28 @@ class Room extends Component {
       }
       return (
         <Aux>
+          {archiving && (
+            <Modal
+              show={archiving}
+              closeModal={() => this.setState({ archiving: false })}
+            >
+              <p>
+                Are you sure you want to archive{' '}
+                <span style={{ fontWeight: '800' }}>{room.name}</span>?
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <Button m="1rem" click={this.archiveRoom}>
+                  Yes
+                </Button>
+                <Button
+                  m="1rem"
+                  click={() => this.setState({ archiving: false })}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </Modal>
+          )}
           <DashboardLayout
             breadCrumbs={
               <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
@@ -525,6 +560,16 @@ class Room extends Component {
                         click={!loading.loading ? this.goToReplayer : null}
                       >
                         Replayer
+                      </Button>
+                    </span>
+                    <span>
+                      <Button
+                        theme={loading.loading ? 'SmallCancel' : 'Small'}
+                        m={10}
+                        data-testid="Replayer"
+                        click={!loading.loading ? this.showArchiveModal : null}
+                      >
+                        Archive
                       </Button>
                     </span>
                   </Aux>
@@ -670,8 +715,19 @@ class Room extends Component {
 }
 
 Room.propTypes = {
-  room: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
+  room: PropTypes.shape({
+    _id: PropTypes.string,
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    privacySetting: PropTypes.string,
+    myRole: PropTypes.string,
+    name: PropTypes.string,
+  }),
+  user: PropTypes.shape({
+    _id: PropTypes.string,
+    username: PropTypes.string,
+    firstName: PropTypes.string,
+  }).isRequired,
   course: PropTypes.shape({}),
   history: PropTypes.shape({}).isRequired,
   match: PropTypes.shape({}).isRequired,
@@ -709,18 +765,15 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectJoinWithCode: joinWithCode,
-    connectRequestAccess: requestAccess,
-    connectClearError: clearError,
-    connectClearNotification: clearNotification,
-    connectUpdateRoom: updateRoom,
-    connectGetRoom: getRoom,
-    connectRemoveRoomMember: removeRoomMember,
-    connectClearLoadingInfo: clearLoadingInfo,
-    connectPopulateRoom: populateRoom,
-    connectUpdateUser: updateUser,
-  }
-)(Room);
+export default connect(mapStateToProps, {
+  connectJoinWithCode: joinWithCode,
+  connectRequestAccess: requestAccess,
+  connectClearError: clearError,
+  connectClearNotification: clearNotification,
+  connectUpdateRoom: updateRoom,
+  connectGetRoom: getRoom,
+  connectRemoveRoomMember: removeRoomMember,
+  connectClearLoadingInfo: clearLoadingInfo,
+  connectPopulateRoom: populateRoom,
+  connectUpdateUser: updateUser,
+})(Room);
