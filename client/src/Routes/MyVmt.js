@@ -17,7 +17,7 @@ import {
   Dashboard,
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
-import { PrivateRoute, ErrorToast } from '../Components';
+import { PrivateRoute, ErrorToast, Loading } from '../Components';
 import { Confirmation, FacilitatorIntro } from '../Layout';
 import ErrorBoundary from '../ErrorBoundary';
 import { updateUser } from '../store/actions/user';
@@ -82,6 +82,7 @@ const MyVmt = ({
   user,
   globalErrorMessage,
   connectUpdateUser,
+  loading,
 }) => {
   const toggleAdmin = () => {
     connectUpdateUser({ inAdminMode: !user.inAdminMode });
@@ -92,6 +93,9 @@ const MyVmt = ({
 
   const doRedirectToUnconfirmed =
     loggedIn && email.length > 0 && !isEmailConfirmed;
+
+  if (loading) return <Loading message="Loading the User" />;
+
   return (
     <ErrorBoundary>
       <Navbar user={user} toggleAdmin={toggleAdmin} />
@@ -141,6 +145,7 @@ MyVmt.propTypes = {
   }),
   globalErrorMessage: PropTypes.string,
   connectUpdateUser: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
 };
 
 MyVmt.defaultProps = {
@@ -151,6 +156,7 @@ MyVmt.defaultProps = {
 const mapStateToProps = (state) => ({
   loggedIn: state.user.loggedIn,
   user: state.user,
+  loading: state.loading.loading,
   globalErrorMessage: state.loading.globalErrorMessage,
 });
 
