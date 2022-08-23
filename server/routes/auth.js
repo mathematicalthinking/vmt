@@ -74,7 +74,7 @@ const login = async (req, res) => {
       })
       .populate({
         path: 'activities',
-        populate: { path: 'tabs' },
+        populate: { path: 'tabs', select: 'tabsType name' },
       })
       .populate({ path: 'notifications', populate: { path: 'fromUser' } })
       .lean()
