@@ -48,7 +48,10 @@ module.exports = {
         //   populate: { path: params.events ? 'events' : '' },
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
-        .select('name creator members course graphImage privacySetting _id')
+        .populate({ path: 'tabs', select: 'tabType name' })
+        .select(
+          'name creator activity members course graphImage privacySetting _id'
+        )
         .then((room) => {
           resolve(room);
         })
@@ -81,8 +84,7 @@ module.exports = {
             }
           : {
               path: 'tabs',
-              select:
-                '-events -startingPoint -startingPointBase64 -currentState -currentStateBase64',
+              select: 'name tabType',
             }
       )
       .lean();
