@@ -71,7 +71,7 @@ module.exports = {
       .populate({ path: 'course', select: 'name' })
       .populate({ path: 'activity', select: 'name' })
       .populate(
-        params.events
+        params.events === 'true'
           ? {
               path: 'tabs',
               populate: {
