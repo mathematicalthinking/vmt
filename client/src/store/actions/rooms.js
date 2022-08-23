@@ -6,6 +6,7 @@ import { normalize } from '../utils';
 import * as loading from './loading';
 import { updateActivity } from './activities';
 import { updateCourse } from './courses';
+import { updateUser } from './user';
 
 export const gotRooms = (rooms, isNewRoom) => ({
   type: actionTypes.GOT_ROOMS,
@@ -95,6 +96,14 @@ export const removeUserRooms = (roomIdsArr) => {
     roomIdsArr,
   };
 };
+
+export const addRoomToArchive = (roomId) => {
+  return {
+    type: actionTypes.ADD_ROOM_TO_ARCHIVE,
+    roomId,
+  };
+};
+
 export const addActivityRooms = (activityId, roomIdsArr) => {
   return {
     type: actionTypes.ADD_ACTIVITY_ROOMS,
@@ -306,6 +315,9 @@ export const createRoomFromActivity = (
 export const updateRoom = (id, body) => {
   return (dispatch, getState) => {
     const room = { ...getState().rooms.byId[id] };
+    if (body.status === STATUS.ARCHIVED) {
+      dispatch(addRoomToArchive(id));
+    }
     if (
       body.isTrashed ||
       body.status === STATUS.TRASHED ||
@@ -313,6 +325,7 @@ export const updateRoom = (id, body) => {
     ) {
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
+      dispatch(updatedRoom(id, body)); // Optimistically update the UI
     } else {
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
     }
@@ -326,6 +339,7 @@ export const updateRoom = (id, body) => {
         ) {
           dispatch(addUserRooms([id]));
           dispatch(createdRoom(room));
+          dispatch(updatedRoom(id, { ...body, status: STATUS.DEFAULT }));
         }
         const prevRoom = {};
         const keys = Object.keys(body);

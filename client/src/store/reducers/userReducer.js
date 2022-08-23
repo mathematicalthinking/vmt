@@ -83,6 +83,15 @@ const reducer = (state = initialState, action) => {
       const rooms = state.rooms.filter((id) => !action.roomIdsArr.includes(id));
       return { ...state, rooms };
     }
+    case actionTypes.ADD_ROOM_TO_ARCHIVE: {
+      return {
+        ...state,
+        archive: {
+          ...state.archive,
+          rooms: [...state.archive.rooms, action.roomId],
+        },
+      };
+    }
     case actionTypes.ADD_NOTIFICATION: {
       const newNotifications = [...state.notifications, action.ntf];
       return {
