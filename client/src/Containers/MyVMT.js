@@ -152,7 +152,7 @@ class MyVMT extends Component {
         }
         sidePanel={
           <SidePanel
-            image={user.profilePic}
+            // image={user.profilePic}
             name={user.username}
             subTitle={`${user.firstName} ${user.lastName}`}
             additionalDetails={additionalDetails}
@@ -170,7 +170,9 @@ class MyVMT extends Component {
 }
 
 MyVMT.propTypes = {
-  match: PropTypes.shape({}).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({ resource: PropTypes.string }),
+  }).isRequired,
   user: PropTypes.shape({
     courses: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]) // allows for an id or a populated object
@@ -181,7 +183,12 @@ MyVMT.propTypes = {
     activities: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
     ),
-    archive: PropTypes.shape({ room: PropTypes.arrayOf({}) }),
+    archive: PropTypes.shape({ rooms: PropTypes.arrayOf({}) }),
+    notifications: PropTypes.arrayOf(PropTypes.string),
+    username: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    accountType: PropTypes.string,
   }).isRequired,
 };
 

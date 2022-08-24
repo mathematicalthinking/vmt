@@ -666,10 +666,16 @@ class SharedReplayer extends Component {
 SharedReplayer.propTypes = {
   encompass: PropTypes.bool,
   // match: PropTypes.shape({}).isRequired,
-  populatedRoom: PropTypes.shape({}).isRequired,
+  populatedRoom: PropTypes.shape({
+    _id: PropTypes.string,
+    log: PropTypes.arrayOf(PropTypes.shape({})),
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    name: PropTypes.string,
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
   user: PropTypes.shape({}).isRequired,
   updateEnc: PropTypes.func,
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
 };
 
 SharedReplayer.defaultProps = {

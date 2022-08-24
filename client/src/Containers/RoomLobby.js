@@ -33,13 +33,13 @@ import {
   updateUser,
 } from 'store/actions';
 import getUserNotifications from 'utils/notifications';
+import getResourceTabTypes from 'utils/getResourceTabTypes';
 import { STATUS } from 'constants.js';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
 import Access from './Access';
 import RoomPreview from './Monitoring/RoomPreview';
-import getResourceTabTypes from 'utils/getResourceTabTypes';
 
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
@@ -734,20 +734,40 @@ class Room extends Component {
 Room.propTypes = {
   room: PropTypes.shape({
     _id: PropTypes.string,
+    course: PropTypes.arrayOf(PropTypes.shape({})),
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
     members: PropTypes.arrayOf(PropTypes.shape({})),
     privacySetting: PropTypes.string,
     myRole: PropTypes.string,
     name: PropTypes.string,
+    dueDate: PropTypes.string,
+    description: PropTypes.string,
+    entryCode: PropTypes.string,
+    image: PropTypes.string,
+    instructions: PropTypes.string,
+    settings: PropTypes.arrayOf(PropTypes.shape({})),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
     username: PropTypes.string,
     firstName: PropTypes.string,
+    notifications: PropTypes.arrayOf(PropTypes.string),
+    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+    inAdminMode: PropTypes.bool,
+    isAdmin: PropTypes.bool,
   }).isRequired,
-  course: PropTypes.shape({}),
-  history: PropTypes.shape({}).isRequired,
-  match: PropTypes.shape({}).isRequired,
+  course: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+  }),
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      room_id: PropTypes.string,
+      resource: PropTypes.string,
+    }),
+  }).isRequired,
   loading: PropTypes.bool.isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   error: PropTypes.string,

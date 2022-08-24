@@ -8,7 +8,7 @@ import API from '../utils/apiRequests';
 
 const SKIP_VALUE = 20;
 class Community extends Component {
-  _isOkToLoadResults = false; 
+  _isOkToLoadResults = false;
   constructor(props) {
     super(props);
     this.state = {
