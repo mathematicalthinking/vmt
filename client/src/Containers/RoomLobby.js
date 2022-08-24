@@ -541,38 +541,60 @@ class Room extends Component {
                 owner={room.myRole === 'facilitator'}
                 additionalDetails={additionalDetails}
                 buttons={
-                  <Aux>
-                    <span>
-                      <Button
-                        theme={loading.loading ? 'SmallCancel' : 'Small'}
-                        m={10}
-                        data-testid="Enter"
-                        click={!loading.loading ? this.goToWorkspace : null}
-                      >
-                        Enter
-                      </Button>
-                    </span>
-                    <span>
-                      <Button
-                        theme={loading.loading ? 'SmallCancel' : 'Small'}
-                        m={10}
-                        data-testid="Replayer"
-                        click={!loading.loading ? this.goToReplayer : null}
-                      >
-                        Replayer
-                      </Button>
-                    </span>
-                    <span>
-                      <Button
-                        theme={loading.loading ? 'SmallCancel' : 'Small'}
-                        m={10}
-                        data-testid="Replayer"
-                        click={!loading.loading ? this.showArchiveModal : null}
-                      >
-                        Archive
-                      </Button>
-                    </span>
-                  </Aux>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', marginBottom: '2rem' }}>
+                      <span>
+                        <Button
+                          theme={loading.loading ? 'SmallCancel' : 'Small'}
+                          m={10}
+                          data-testid="Enter"
+                          click={!loading.loading ? this.goToWorkspace : null}
+                        >
+                          Enter
+                        </Button>
+                      </span>
+                      <span>
+                        <Button
+                          theme={loading.loading ? 'SmallCancel' : 'Small'}
+                          m={10}
+                          data-testid="Replayer"
+                          click={!loading.loading ? this.goToReplayer : null}
+                        >
+                          Replayer
+                        </Button>
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <span>
+                        <Button
+                          // theme={loading.loading ? 'SmallCancel' : 'Small'}
+                          m={10}
+                          data-testid="Replayer"
+                          theme="Danger"
+                          click={
+                            !loading.loading ? this.showArchiveModal : null
+                          }
+                        >
+                          Archive
+                        </Button>
+                      </span>
+                      <span>
+                        <Button
+                          click={this.trashRoom}
+                          data-testid="trash-room"
+                          theme="Danger"
+                          m={10}
+                        >
+                          <i className="fas fa-trash-alt" />
+                          <span
+                            style={{ padding: '15px', letterSpacing: 'normal' }}
+                          >
+                            Delete
+                          </span>
+                        </Button>
+                      </span>
+                    </div>
+                  </div>
                 }
                 editButton={
                   room.myRole === 'facilitator' || isAdmin ? (
@@ -603,13 +625,6 @@ class Room extends Component {
                             theme="Small"
                           >
                             Save
-                          </Button>
-                          <Button
-                            click={this.trashRoom}
-                            data-testid="trash-room"
-                            theme="Danger"
-                          >
-                            <i className="fas fa-trash-alt" />
                           </Button>
                           <Button click={this.toggleEdit} theme="Cancel">
                             Cancel
