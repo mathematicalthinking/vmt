@@ -103,6 +103,7 @@ class MyVMT extends Component {
       courses: user.courses.length,
       rooms: user.rooms.length,
       activities: user.activities.length,
+      'archived rooms': user.archive.rooms.length,
     };
     const resourceTypes = [
       'rooms',
@@ -180,6 +181,7 @@ MyVMT.propTypes = {
     activities: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
     ),
+    archive: PropTypes.shape({ room: PropTypes.arrayOf({}) }),
   }).isRequired,
 };
 

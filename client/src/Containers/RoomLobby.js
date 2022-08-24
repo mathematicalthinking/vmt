@@ -564,7 +564,24 @@ class Room extends Component {
                         </Button>
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <div
+                      style={{ display: 'flex', justifyContent: 'flexStart' }}
+                    >
+                      <span>
+                        <Button
+                          click={this.trashRoom}
+                          data-testid="trash-room"
+                          theme="Danger"
+                          m={10}
+                        >
+                          <i className="fas fa-trash-alt" />
+                          <span
+                            style={{ padding: '6px', letterSpacing: 'normal' }}
+                          >
+                            Delete
+                          </span>
+                        </Button>
+                      </span>
                       <span>
                         <Button
                           // theme={loading.loading ? 'SmallCancel' : 'Small'}
@@ -575,22 +592,7 @@ class Room extends Component {
                             !loading.loading ? this.showArchiveModal : null
                           }
                         >
-                          Archive
-                        </Button>
-                      </span>
-                      <span>
-                        <Button
-                          click={this.trashRoom}
-                          data-testid="trash-room"
-                          theme="Danger"
-                          m={10}
-                        >
-                          <i className="fas fa-trash-alt" />
-                          <span
-                            style={{ padding: '15px', letterSpacing: 'normal' }}
-                          >
-                            Delete
-                          </span>
+                          <span style={{ padding: '6px' }}>Archive</span>
                         </Button>
                       </span>
                     </div>
