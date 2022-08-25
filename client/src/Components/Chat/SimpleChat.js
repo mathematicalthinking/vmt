@@ -33,9 +33,9 @@ function SimpleChat({ log, isSimplified }) {
   const resetMessages = () => {
     const newMessages = log.map((message) => (
       <Message
-        key={`${message._id}-${Math.random()}`}
+        key={message._id}
         message={message}
-        id={`${message._id}-${Math.random()}`} // ?? no message._id ??
+        id={message._id} // ?? no message._id ??
         onClick={() => {}}
         showReference={() => {}}
         highlighted={false}
