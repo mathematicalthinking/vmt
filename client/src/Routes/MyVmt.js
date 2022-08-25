@@ -82,7 +82,6 @@ const MyVmt = ({
   user,
   globalErrorMessage,
   connectUpdateUser,
-  loading,
 }) => {
   const toggleAdmin = () => {
     connectUpdateUser({ inAdminMode: !user.inAdminMode });
@@ -91,10 +90,14 @@ const MyVmt = ({
   const { path } = match;
   const { email, isEmailConfirmed } = user;
 
-  const doRedirectToUnconfirmed =
-    loggedIn && email.length > 0 && !isEmailConfirmed;
+  // when a user has a large redux store, reloading the takes seconds to
+  //  populate the store. Therefore, a user can be logged in but not registered
+  //  as such in the store. When a user is logged in and refreshes, the cookie
+  //  is immediately available.
+  const actuallyLoggedIn = document.cookie.indexOf('mt_sso_') > -1;
 
-  if (loading) return <Loading message="Loading the User" />;
+  const doRedirectToUnconfirmed =
+    actuallyLoggedIn && email.length > 0 && !isEmailConfirmed;
 
   return (
     <ErrorBoundary>
@@ -145,7 +148,6 @@ MyVmt.propTypes = {
   }),
   globalErrorMessage: PropTypes.string,
   connectUpdateUser: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired,
 };
 
 MyVmt.defaultProps = {
@@ -156,7 +158,6 @@ MyVmt.defaultProps = {
 const mapStateToProps = (state) => ({
   loggedIn: state.user.loggedIn,
   user: state.user,
-  loading: state.loading.loading,
   globalErrorMessage: state.loading.globalErrorMessage,
 });
 
