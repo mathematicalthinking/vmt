@@ -115,6 +115,26 @@ router.get('/searchPaginated/:resource', (req, res) => {
     });
 });
 
+router.get('/searchPaginatedArchive/:resource', (req, res) => {
+  const resource = getResource(req);
+  const controller = controllers[resource];
+  const { searchText, skip, filters } = req.query;
+  const regex = searchText ? new RegExp(searchText, 'i') : '';
+  controller
+    .searchPaginatedArchive(regex, skip, filters)
+    .then((results) => {
+      res.json({ results });
+    })
+    .catch((err) => {
+      console.error(`Error search paginated archive ${resource}: ${err}`);
+      let msg = null;
+      if (typeof err === 'string') {
+        msg = err;
+      }
+      errors.sendError.InternalError(msg, res);
+    });
+});
+
 // Return records that have any of the values in any of the fields
 router.get('/findAllMatching/:resource', (req, res) => {
   const resource = getResource(req);

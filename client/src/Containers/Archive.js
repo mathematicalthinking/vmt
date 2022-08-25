@@ -5,12 +5,14 @@ import { ArchiveLayout } from 'Layout';
 import { API } from 'utils';
 import { Button, BigModal, Modal } from 'Components';
 import { RoomPreview } from 'Containers';
+import { useStore } from 'react-redux';
 
 const SKIP_VALUE = 20;
 const Archive = () => {
   const history = useHistory(); // potentially only need history pathname
   const match = useRouteMatch(); // and not url from match
   const { resource } = useParams();
+  const { archive } = useStore().getState().user;
 
   const [searchText, setSearchText] = useState('');
   const [dateRangePreset, setDateRangePreset] = useState('oneDay');
@@ -112,9 +114,12 @@ const Archive = () => {
     if (updatedFilters.roomType === 'all') {
       delete updatedFilters.roomType;
     }
-    API.searchPaginated(resource, updatedFilters.search, skip, {
-      privacySetting: 'all',
+    API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
+      _ids: archive[resource],
     }).then((res) => {
+      console.log(resource);
+      console.log(archive);
+      console.log(res);
       const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
       setLoading(false);
       setMoreAvailable(isMoreAvailable);

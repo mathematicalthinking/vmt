@@ -641,7 +641,6 @@ module.exports = {
     }
     const initialFilter = { updatedAt: { $gte: new Date(since) } };
     // eslint-disable-next-line no-unused-vars
-    let eventsFilter = { $gte: ['$$e.timestamp', since] };
     if (to && since && to > since) {
       let toMomentObj = moment(to, 'x', true);
       if (!toMomentObj.isValid()) {
@@ -649,9 +648,6 @@ module.exports = {
       }
       to = Number(toMomentObj.endOf('day').format('x'));
       initialFilter.updatedAt.$lte = new Date(to);
-      eventsFilter = {
-        $and: [eventsFilter, { $lte: ['$$e.timestamp', to] }],
-      };
     }
     const pipeline = [
       { $match: initialFilter },
@@ -775,23 +771,36 @@ module.exports = {
     ];
   },
 
-  searchPaginatedArchive: (searchText, criteria, skip, ids) => {
-    const aggregationPipeline = [
+  // criteria will be various filters selected by the user as an object. searchText is the string the user types.
+  // ids is an array of room ids
+  // skip is a number specifying the starting result to return.
+  searchPaginatedArchive: async (searchText, skip, filters) => {
+    const initialMatch = convertSearchFilters(filters);
+    if (searchText)
+      initialMatch.push({
+        $or: [
+          { name: searchText },
+          { description: searchText },
+          { instructions: searchText },
+        ],
+      });
+    console.log(initialMatch);
+
+    const roomsPipeline = [
       {
         $match: {
-          $and: [
-            criteria,
-            {
-              $or: [
-                { name: searchText },
-                { description: searchText },
-                { instructions: searchText },
-              ],
-            },
-            { _id: { $in: ids } },
-          ],
+          $and: initialMatch,
         },
       },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'members',
+        },
+      },
+      { $unwind: '$userObject' },
       {
         $project: {
           updatedAt: 1,
@@ -799,23 +808,52 @@ module.exports = {
           name: 1,
           instructions: 1,
           description: 1,
+          'members.username': 1,
+          // 'members.role': 1,
           messagesCount: { $size: '$chat' },
         },
       },
+      { $sort: { updatedAt: -1 } },
+      { $skip: skip ? parseInt(skip, 10) : 0 },
+      { $limit: 20 },
     ];
-    const eventsPipeline = [
+
+    const rooms = await Room.aggregate(roomsPipeline);
+    const roomIds = rooms.map((room) => room._id);
+    const tabsPipeline = [
       {
         $match: {
-          room: { $in: ids },
+          room: { $in: roomIds },
         },
       },
       {
         $project: {
           tabType: 1,
           eventCount: { $size: '$events' },
+          room: 1,
+        },
+      },
+      {
+        $group: {
+          _id: '$room',
+          tabTypes: { $addToSet: '$tabType' },
+          eventCount: { $sum: '$eventCount' },
         },
       },
     ];
+    console.log(rooms);
+    const tabs = await Tab.aggregate(tabsPipeline);
+    console.log(tabs);
+    const updatedRooms = rooms.map((room) => {
+      const tab = tabs.find((t) => String(t._id) === String(room._id));
+      return {
+        ...room,
+        tabTypes: tab.tabTypes,
+        eventCount: tab.eventCount,
+      };
+    });
+
+    return updatedRooms;
   },
 };
 
@@ -881,4 +919,11 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
     .catch((err) => {
       reject(err);
     });
+};
+
+// takes a filters as an object and returns an object that can be used in a Mongoose query.
+const convertSearchFilters = (filters) => {
+  return filters.ids
+    ? [{ _id: { $in: filters.ids } }, { isTrashed: false }]
+    : [{ isTrashed: false }];
 };
