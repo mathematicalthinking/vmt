@@ -76,7 +76,10 @@ const login = async (req, res) => {
         path: 'activities',
         populate: { path: 'tabs', select: 'tabsType name' },
       })
-      .populate({ path: 'notifications', populate: { path: 'fromUser' } })
+      .populate({
+        path: 'notifications',
+        populate: { path: 'fromUser', select: '_id username' },
+      })
       .lean()
       .exec();
 
@@ -273,7 +276,10 @@ router.post('/resetPassword/:token', async (req, res) => {
         path: 'activities',
         populate: { path: 'tabs' },
       })
-      .populate({ path: 'notifications', populate: { path: 'fromUser' } })
+      .populate({
+        path: 'notifications',
+        populate: { path: 'fromUser', select: '_id username' },
+      })
       .lean()
       .exec();
 
