@@ -90,6 +90,7 @@ const MyVmt = ({
   const { path } = match;
   const { email, isEmailConfirmed } = user;
 
+
   // when a user has a large redux store, reloading the takes seconds to
   //  populate the store. Therefore, a user can be logged in but not registered
   //  as such in the store. When a user is logged in and refreshes, the cookie
