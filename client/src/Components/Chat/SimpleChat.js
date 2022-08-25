@@ -33,9 +33,9 @@ function SimpleChat({ log, isSimplified }) {
   const resetMessages = () => {
     const newMessages = log.map((message) => (
       <Message
-        key={message._id}
+        key={`${message._id}-${Math.random()}`}
         message={message}
-        id={message._id} // ?? no message._id ??
+        id={`${message._id}-${Math.random()}`} // ?? no message._id ??
         onClick={() => {}}
         showReference={() => {}}
         highlighted={false}
@@ -44,7 +44,8 @@ function SimpleChat({ log, isSimplified }) {
         isSimplified={isSimplified}
       />
     ));
-    setMessages(newMessages);
+    setTimeout(() => setMessages(newMessages), 0);
+    // setMessages(newMessages);
   };
 
   React.useEffect(() => {
@@ -54,7 +55,7 @@ function SimpleChat({ log, isSimplified }) {
   React.useEffect(() => {
     if (_isNearBottom() || prevLogLength.current === 0) _scrollToBottom();
     else setShowNewMessages(true);
-    if (prevLogLength.current !== log.length) resetMessages();
+    if (prevLogLength.current < log.length) resetMessages();
     prevLogLength.current = log.length;
   }, [log]);
 
