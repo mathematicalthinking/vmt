@@ -94,7 +94,10 @@ const MyVmt = ({
   //  populate the store. Therefore, a user can be logged in but not registered
   //  as such in the store. When a user is logged in and refreshes, the cookie
   //  is immediately available.
-  const actuallyLoggedIn = document.cookie.indexOf('mt_sso_') > -1;
+  const actuallyLoggedIn =
+    process.env.NODE_ENV !== 'development'
+      ? document.cookie.indexOf('mt_sso_') > -1
+      : loggedIn;
 
   const doRedirectToUnconfirmed =
     actuallyLoggedIn && email.length > 0 && !isEmailConfirmed;
@@ -109,7 +112,7 @@ const MyVmt = ({
               exact
               key={page.path}
               path={`${path}${page.path}`}
-              authed={loggedIn && !doRedirectToUnconfirmed}
+              authed={actuallyLoggedIn && !doRedirectToUnconfirmed}
               component={page.component}
               redirectPath={
                 doRedirectToUnconfirmed
