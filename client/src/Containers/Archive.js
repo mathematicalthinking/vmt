@@ -59,8 +59,8 @@ const Archive = () => {
     const filters = {
       roomType: searchParams.get('roomType'),
       search: searchParams.get('search'),
-      from: searchParams.get('from') || 'oneDay',
-      to: searchParams.get('to'),
+      from: searchParams.get('from') || 0,
+      to: searchParams.get('to') || Date.now(),
     };
     return filters;
   };
@@ -115,11 +115,10 @@ const Archive = () => {
       delete updatedFilters.roomType;
     }
     API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
-      _ids: archive[resource],
+      // _ids: archive[resource],
+      // ...updatedFilters,
+      roomType: updatedFilters.roomType,
     }).then((res) => {
-      console.log(resource);
-      console.log(archive);
-      console.log(res);
       const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
       setLoading(false);
       setMoreAvailable(isMoreAvailable);

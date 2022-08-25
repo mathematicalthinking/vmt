@@ -775,32 +775,36 @@ module.exports = {
   // ids is an array of room ids
   // skip is a number specifying the starting result to return.
   searchPaginatedArchive: async (searchText, skip, filters) => {
-    const initialMatch = convertSearchFilters(filters);
-    if (searchText)
-      initialMatch.push({
-        $or: [
-          { name: searchText },
-          { description: searchText },
-          { instructions: searchText },
-        ],
-      });
-    console.log(initialMatch);
+    const criteria = await convertSearchFilters(filters);
+    const initialMatch = searchText
+      ? {
+          $and: [
+            criteria,
+            { status: STATUS.ARCHIVED },
+            {
+              $or: [
+                { name: searchText },
+                { description: searchText },
+                { instructions: searchText },
+              ],
+            },
+          ],
+        }
+      : criteria;
 
     const roomsPipeline = [
       {
-        $match: {
-          $and: initialMatch,
-        },
+        // $match: initialMatch,
+        $match: initialMatch,
       },
       {
         $lookup: {
           from: 'users',
           localField: 'members.user',
           foreignField: '_id',
-          as: 'members',
+          as: 'userObject',
         },
       },
-      { $unwind: '$userObject' },
       {
         $project: {
           updatedAt: 1,
@@ -808,8 +812,9 @@ module.exports = {
           name: 1,
           instructions: 1,
           description: 1,
-          'members.username': 1,
-          // 'members.role': 1,
+          'members.role': 1,
+          'userObject.username': 1,
+          'userObject._id': 1,
           messagesCount: { $size: '$chat' },
         },
       },
@@ -841,11 +846,16 @@ module.exports = {
         },
       },
     ];
-    console.log(rooms);
     const tabs = await Tab.aggregate(tabsPipeline);
-    console.log(tabs);
     const updatedRooms = rooms.map((room) => {
       const tab = tabs.find((t) => String(t._id) === String(room._id));
+      if (room.members && room.userObject) {
+        room.members.forEach(
+          // eslint-disable-next-line no-return-assign
+          (member, idx) => (member.user = room.userObject[idx])
+        );
+      }
+      delete room.userObject;
       return {
         ...room,
         tabTypes: tab.tabTypes,
@@ -922,8 +932,36 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
 };
 
 // takes a filters as an object and returns an object that can be used in a Mongoose query.
-const convertSearchFilters = (filters) => {
-  return filters.ids
-    ? [{ _id: { $in: filters.ids } }, { isTrashed: false }]
-    : [{ isTrashed: false }];
+const convertSearchFilters = async (filters) => {
+  const criteria = {
+    tempRoom: false,
+    isTrashed: false,
+  };
+  if (filters.ids && Array.isArray(filters.ids))
+    criteria._id = { $in: filters.ids };
+  if (filters.to || filters.from) {
+    criteria.updatedAt = {};
+    if (filters.from) criteria.updatedAt = { $gte: filters.from };
+    if (filters.to) criteria.updatedAt = { $lte: filters.to };
+  }
+
+  if (filters.roomType) {
+    const tabIds = await prefetchTabIds(filters.ids, filters.roomType);
+    criteria.tabs = {
+      $in: tabIds,
+    };
+  }
+  return criteria;
+};
+
+// if filters.roomType, search tab collection (if we have filters.ids, match by room field), looking for tabTYpe = roomType.
+// extract the tab ids from the results. When we do the rooms search, include {tabs: {$in: tabIds}} in the initial match.
+
+const prefetchTabIds = async (roomIds, tabType) => {
+  const tabsPipeline = roomIds
+    ? [{ $match: { room: { $in: roomIds }, tabType } }]
+    : [{ $match: { tabType } }];
+
+  const tabs = await Tab.aggregate(tabsPipeline);
+  return tabs.map((tab) => tab._id);
 };

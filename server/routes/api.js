@@ -121,7 +121,7 @@ router.get('/searchPaginatedArchive/:resource', (req, res) => {
   const { searchText, skip, filters } = req.query;
   const regex = searchText ? new RegExp(searchText, 'i') : '';
   controller
-    .searchPaginatedArchive(regex, skip, filters)
+    .searchPaginatedArchive(regex, skip, JSON.parse(filters))
     .then((results) => {
       res.json({ results });
     })
