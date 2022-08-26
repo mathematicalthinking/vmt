@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
@@ -28,6 +28,7 @@ const Archive = () => {
   const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
   const [showRestoreComponent, setShowRestoreComponent] = useState(false);
   const [restoreComponent, setRestoreComponent] = useState(null);
+  const [roomType, setRoomType] = useState('all');
 
   useEffect(() => {
     debounceFetchData();
@@ -39,7 +40,7 @@ const Archive = () => {
 
   useEffect(() => {
     debounceFetchData();
-  }, [searchText, resource, customToDate, customFromDate]);
+  }, [searchText, resource, customToDate, customFromDate, roomType]);
 
   const debounceFetchData = debounce(() => fetchData(), 1000);
 
@@ -79,9 +80,10 @@ const Archive = () => {
 
     // handle roomType filter
     if (filter.indexOf('room-') !== -1) {
-      const roomType = filter.split('-')[1];
+      const roomTypeInput = filter.split('-')[1];
       if (resource === 'courses') filters.roomType = null;
-      else filters.roomType = roomType;
+      else filters.roomType = roomTypeInput;
+      setRoomType(roomTypeInput);
     }
 
     // handle from & to filters
@@ -215,7 +217,7 @@ const Archive = () => {
 
   const handleRestore = (id) => {
     let showModal = true;
-    const res = visibleResources.filter((res) => res._id === id)[0].name;
+    const res = visibleResources.filter((el) => el._id === id)[0].name;
     setRestoreComponent(
       <Modal
         show={showModal}
