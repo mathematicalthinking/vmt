@@ -17,6 +17,12 @@ export default {
     });
   },
 
+  findAllMatchingIdsPopulated: (resource, ids, events) => {
+    return api.get(`/api/findAllMatchingIds/${resource}/populated`, {
+      params: { ids, events },
+    });
+  },
+
   search: (resource, text, exclude) => {
     return api.get(`/api/search/${resource}`, { params: { text, exclude } });
   },

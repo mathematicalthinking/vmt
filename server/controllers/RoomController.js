@@ -48,7 +48,10 @@ module.exports = {
         //   populate: { path: params.events ? 'events' : '' },
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
-        .select('name creator members course graphImage privacySetting _id')
+        .populate({ path: 'tabs', select: 'tabType name' })
+        .select(
+          'name creator activity members course graphImage privacySetting _id'
+        )
         .then((room) => {
           resolve(room);
         })
@@ -70,16 +73,22 @@ module.exports = {
       .populate({ path: 'currentMembers', select: 'username' })
       .populate({ path: 'course', select: 'name' })
       .populate({ path: 'activity', select: 'name' })
-      .populate({
-        path: 'tabs',
-        populate: {
-          path: params.events ? 'events' : '',
-          populate: params.events
-            ? { path: 'user', select: 'username color' }
-            : '',
-          // options: { limit: 25 },
-        },
-      });
+      .populate(
+        params.events === 'true'
+          ? {
+              path: 'tabs',
+              populate: {
+                path: 'events',
+                populate: { path: 'user', select: 'username color' },
+              },
+            }
+          : {
+              path: 'tabs',
+              select: 'name tabType snapshot',
+            }
+      )
+      .lean();
+    // options: { limit: 25 },
   },
 
   // returns the current state for each tab...does not return events or any other information

@@ -60,41 +60,44 @@ function buildEmitData(notification) {
     const emitData = {};
     const type = notification.notificationType;
     const resource = notification.resourceType;
-    notification.populate({ path: 'fromUser' }, (err, ntf) => {
-      if (err) {
-        return reject(err);
-      }
-      emitData.notification = ntf;
+    notification.populate(
+      { path: 'fromUser', select: '_id username' },
+      (err, ntf) => {
+        if (err) {
+          return reject(err);
+        }
+        emitData.notification = ntf;
 
-      if (
-        type === 'grantedAccess' ||
-        type === 'assignedNewRoom' ||
-        type === 'invitation'
-      ) {
-        // if this ntf signifies a new resource send that resource to user so they can add it to their store
-        if (resource === 'course') {
-          return Course.findById(notification.resourceId)
+        if (
+          type === 'grantedAccess' ||
+          type === 'assignedNewRoom' ||
+          type === 'invitation'
+        ) {
+          // if this ntf signifies a new resource send that resource to user so they can add it to their store
+          if (resource === 'course') {
+            return Course.findById(notification.resourceId)
+              .populate({ path: 'members.user', select: 'username' })
+              .exec((err, course) => {
+                if (err) {
+                  return reject(err);
+                }
+                emitData.course = course;
+                return resolve(emitData);
+              });
+          }
+          return Room.findById(notification.resourceId)
             .populate({ path: 'members.user', select: 'username' })
-            .exec((err, course) => {
+            .exec((err, room) => {
               if (err) {
                 return reject(err);
               }
-              emitData.course = course;
+              emitData.room = room;
               return resolve(emitData);
             });
         }
-        return Room.findById(notification.resourceId)
-          .populate({ path: 'members.user', select: 'username' })
-          .exec((err, room) => {
-            if (err) {
-              return reject(err);
-            }
-            emitData.room = room;
-            return resolve(emitData);
-          });
+        return resolve(emitData);
       }
-      return resolve(emitData);
-    });
+    );
   });
 }
 
