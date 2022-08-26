@@ -44,7 +44,8 @@ function SimpleChat({ log, isSimplified }) {
         isSimplified={isSimplified}
       />
     ));
-    setMessages(newMessages);
+    setTimeout(() => setMessages(newMessages), 0);
+    // setMessages(newMessages);
   };
 
   React.useEffect(() => {
@@ -54,7 +55,7 @@ function SimpleChat({ log, isSimplified }) {
   React.useEffect(() => {
     if (_isNearBottom() || prevLogLength.current === 0) _scrollToBottom();
     else setShowNewMessages(true);
-    if (prevLogLength.current !== log.length) resetMessages();
+    if (prevLogLength.current < log.length) resetMessages();
     prevLogLength.current = log.length;
   }, [log]);
 
