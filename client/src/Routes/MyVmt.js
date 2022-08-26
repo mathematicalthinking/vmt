@@ -82,7 +82,6 @@ const MyVmt = ({
   user,
   globalErrorMessage,
   connectUpdateUser,
-  loading,
 }) => {
   const toggleAdmin = () => {
     connectUpdateUser({ inAdminMode: !user.inAdminMode });
@@ -93,8 +92,6 @@ const MyVmt = ({
 
   const doRedirectToUnconfirmed =
     loggedIn && email.length > 0 && !isEmailConfirmed;
-
-  if (loading) return <Loading message="Loading the User" />;
 
   return (
     <ErrorBoundary>
@@ -145,7 +142,6 @@ MyVmt.propTypes = {
   }),
   globalErrorMessage: PropTypes.string,
   connectUpdateUser: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired,
 };
 
 MyVmt.defaultProps = {
@@ -156,7 +152,6 @@ MyVmt.defaultProps = {
 const mapStateToProps = (state) => ({
   loggedIn: state.user.loggedIn,
   user: state.user,
-  loading: state.loading.loading,
   globalErrorMessage: state.loading.globalErrorMessage,
 });
 
