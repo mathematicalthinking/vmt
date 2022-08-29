@@ -288,7 +288,7 @@ const WebSketch = (props) => {
     // Move messages can arrive too quickly; send them out at a reasonable frame rate
     // For a full frame interval (moveDelay), collect all move data and send out the most recent data for each affected gobj.
     const { id } = gobjInfo;
-    setActivityMoves({ ...activityMoves, [id]: gobjInfo });
+    setActivityMoves((prevMoves) => ({ ...prevMoves, [id]: gobjInfo }));
 
     // debouncedMove(activityMoves);
     // moveMessage[gobjInfo.id] = gobjInfo; // REM .LOC Add this move to the cache
@@ -299,15 +299,17 @@ const WebSketch = (props) => {
     if (now - timeSent >= moveDelay) {
       const msg = { action: 'GobjsUpdated', time: Date.now() };
       const moveData = { ...activityMoves }; // create a ref to the current cache
+
       setActivityMoves({});
       setTimeSent(Date.now());
       // moveMessage = {}; // make a new empty cache
       // setPendingMsg(false);
-      console.log('Move dat: ', moveData);
+      console.log('Move dat: ', moveData, ' gobj: ', gobjInfo);
       if (Object.keys(moveData).length !== 0) {
         msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
         // msg ready to post to follower
         handleEventData(msg);
+        // }
       }
     }
     // }, moveDelay);
