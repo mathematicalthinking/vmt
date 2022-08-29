@@ -206,7 +206,7 @@ module.exports = function() {
       socketMetricInc('sync');
       if (!_id) {
         // console.log('unknown user connected: ', socket.id);
-        cb(null, 'NO USER');
+        cb(null, 'NO USER ID GIVEN TO SYNC_SOCKET');
         return;
       }
       socket.user_id = _id;
@@ -432,6 +432,11 @@ module.exports = function() {
         ['socketId'],
         socketsInRoom
       );
+      if (answer.length !== usersInRoom.length)
+        console.log(
+          `There are ${socketsInRoom.length -
+            answer.length} sockets with unknown users`
+        );
       return (answer || []).map((user) => user._id.toString());
     };
 
