@@ -23,7 +23,7 @@ const WebSketch = (props) => {
   const [showControlWarning, setShowControlWarning] = useState(false);
   const [activityUpdates, setActivityUpdates] = useState();
   const [activityMoves, setActivityMoves] = useState({});
-  // const [pendingMsg, setPendingMsg] = useState(false);
+  const [pendingMsg, setPendingMsg] = useState(false);
   const [activityData, setActivityData] = useState();
   const [activityMessage, setActivityMessage] = useState('');
 
@@ -75,10 +75,17 @@ const WebSketch = (props) => {
   //   }),
   //   []
   // );
-  const debouncedMove = useCallback(throttle(postMoveMessage, moveDelay), []);
+  const debouncedMove = useCallback(
+    throttle(postMoveMessage, moveDelay, {
+      leading: true,
+    }),
+    [activityMoves]
+  );
 
   // useEffect(() => {
-  //   debouncedMove();
+  //   if (_hasControl && Object.keys(activityMoves).length !== 0) {
+  //     debouncedMove();
+  //   }
   // }, [activityMoves]);
 
   function putState() {
@@ -267,7 +274,12 @@ const WebSketch = (props) => {
           console.log('recordGobjUpdate() cannot handle this event:', event);
         // Add more
       }
-      sendUpdateMessage(gobjInfo);
+      // sendUpdateMessage(gobjInfo);
+      const { id } = gobjInfo;
+      setActivityMoves({ ...activityMoves, [id]: gobjInfo });
+      if (_hasControl && Object.keys(activityMoves).length !== 0) {
+        debouncedMove();
+      }
     }
   };
 
@@ -276,28 +288,31 @@ const WebSketch = (props) => {
     // For a full frame interval (moveDelay), collect all move data and send out the most recent data for each affected gobj.
     const { id } = gobjInfo;
     setActivityMoves({ ...activityMoves, [id]: gobjInfo });
-    console.log('Move dat: ', activityMoves);
 
-    debouncedMove(activityMoves);
+    // debouncedMove(activityMoves);
     // moveMessage[gobjInfo.id] = gobjInfo; // REM .LOC Add this move to the cache
-    // if (pendingMsg) return;
-    // // There is a follower and no message scheduled, so schedule one now
-    // setTimeout(() => {
-    //   const msg = { action: 'GobjsUpdated', time: Date.now() };
-    //   const moveData = activityMoves; // create a ref to the current cache
-    //   setActivityMoves({});
-    //   // moveMessage = {}; // make a new empty cache
-    //   setPendingMsg(false);
-    //   msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
-    //   // msg ready to post to follower
-    //   handleEventData(msg);
-    // }, moveDelay);
-    // setPendingMsg(true);
+    if (pendingMsg) return;
+    // There is a follower and no message scheduled, so schedule one now
+    setTimeout(() => {
+      const msg = { action: 'GobjsUpdated', time: Date.now() };
+      const moveData = { ...activityMoves }; // create a ref to the current cache
+      setActivityMoves({});
+      // moveMessage = {}; // make a new empty cache
+      setPendingMsg(false);
+      console.log('Move dat: ', moveData);
+      if (Object.keys(moveData).length !== 0) {
+        msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
+        // msg ready to post to follower
+        handleEventData(msg);
+      }
+    }, moveDelay);
+    setPendingMsg(true);
   };
 
-  function postMoveMessage(moves) {
+  function postMoveMessage() {
     const msg = { action: 'GobjsUpdated', time: Date.now() };
-    const moveData = { ...moves }; // create a ref to the current cache
+    const moveData = { ...activityMoves }; // create a ref to the current cache
+    console.log('Move dat: ', moveData);
     setActivityMoves({});
     msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
     // msg ready to post to follower
@@ -544,7 +559,7 @@ const WebSketch = (props) => {
       target.y = source.y;
     }
     // A gobj moved, so move the same gobj in the follower sketch
-    const moveList = JSON.parse(data);
+    let moveList = JSON.parse(data);
     initSketchPage();
     if (!sketch) {
       console.log("Messaging error: this follower's sketch is not loaded.");
