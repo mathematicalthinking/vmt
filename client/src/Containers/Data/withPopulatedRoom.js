@@ -16,6 +16,7 @@ function withPopulatedRoom(WrappedComponent) {
     };
 
     componentDidMount() {
+      this.syncSocket();
       this.cancelFetch = false;
       const { match } = this.props;
       this.fetchRoom(match.params.room_id);
@@ -34,9 +35,18 @@ function withPopulatedRoom(WrappedComponent) {
       socket.removeAllListeners('RESET_COMPLETE');
     }
 
+    syncSocket = () => {
+      const { user: currentUser } = this.props;
+      socket.emit('SYNC_SOCKET', currentUser._id, (res, err) => {
+        if (err) console.error(err);
+        else console.log(res);
+      });
+    };
+
     syncRooms = async (user) => {
       this.cancelFetch = false;
       const { populatedRoom: oldRoom } = this.state;
+      this.syncSocket();
       socket.emit('RESET_ROOM', oldRoom._id, user);
     };
 
