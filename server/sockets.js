@@ -21,6 +21,7 @@ module.exports = function() {
 
   io.sockets.on('connection', (socket) => {
     socketMetricInc('connect');
+    // socketMetricInc('connectionByUser',sock)
 
     // io.sockets.adapter.on('join-room', (room, id) => {
     //   console.log('join-room', room, id);
@@ -186,6 +187,7 @@ module.exports = function() {
 
     socket.on('disconnecting', (reason) => {
       socketMetricInc('disconnect');
+      socketMetricInc('disconnectionByUser', socket.user_id);
       console.log(
         'socket disconnect from user: ',
         socket.user_id,
