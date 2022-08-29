@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
+// import throttle from 'lodash/throttle';
 import testConfig from './Tools/test.json';
 import WSPLoader from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
@@ -23,11 +23,12 @@ const WebSketch = (props) => {
   const [showControlWarning, setShowControlWarning] = useState(false);
   const [activityUpdates, setActivityUpdates] = useState();
   const [activityMoves, setActivityMoves] = useState({});
-  const [pendingMsg, setPendingMsg] = useState(false);
+  // const [pendingMsg, setPendingMsg] = useState(false);
+  const [timeSent, setTimeSent] = useState(0);
   const [activityData, setActivityData] = useState();
   const [activityMessage, setActivityMessage] = useState('');
 
-  const moveDelay = 35; // divisor is the frame rate
+  const moveDelay = 30; // divisor is the frame rate
 
   let initializing = false;
   let receivingData = false;
@@ -75,12 +76,12 @@ const WebSketch = (props) => {
   //   }),
   //   []
   // );
-  const debouncedMove = useCallback(
-    throttle(postMoveMessage, moveDelay, {
-      leading: true,
-    }),
-    [activityMoves]
-  );
+  // const debouncedMove = useCallback(
+  //   throttle(postMoveMessage, moveDelay, {
+  //     leading: true,
+  //   }),
+  //   [activityMoves]
+  // );
 
   // useEffect(() => {
   //   if (_hasControl && Object.keys(activityMoves).length !== 0) {
@@ -274,12 +275,12 @@ const WebSketch = (props) => {
           console.log('recordGobjUpdate() cannot handle this event:', event);
         // Add more
       }
-      // sendUpdateMessage(gobjInfo);
-      const { id } = gobjInfo;
-      setActivityMoves({ ...activityMoves, [id]: gobjInfo });
-      if (_hasControl && Object.keys(activityMoves).length !== 0) {
-        debouncedMove();
-      }
+      sendUpdateMessage(gobjInfo);
+      // const { id } = gobjInfo;
+      // setActivityMoves({ ...activityMoves, [id]: gobjInfo });
+      // if (_hasControl && Object.keys(activityMoves).length !== 0) {
+      //   debouncedMove();
+      // }
     }
   };
 
@@ -291,33 +292,37 @@ const WebSketch = (props) => {
 
     // debouncedMove(activityMoves);
     // moveMessage[gobjInfo.id] = gobjInfo; // REM .LOC Add this move to the cache
-    if (pendingMsg) return;
+    // if (pendingMsg) return;
     // There is a follower and no message scheduled, so schedule one now
-    setTimeout(() => {
+    // setTimeout(() => {
+    const now = Date.now();
+    if (now - timeSent >= moveDelay) {
       const msg = { action: 'GobjsUpdated', time: Date.now() };
       const moveData = { ...activityMoves }; // create a ref to the current cache
       setActivityMoves({});
+      setTimeSent(Date.now());
       // moveMessage = {}; // make a new empty cache
-      setPendingMsg(false);
+      // setPendingMsg(false);
       console.log('Move dat: ', moveData);
       if (Object.keys(moveData).length !== 0) {
         msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
         // msg ready to post to follower
         handleEventData(msg);
       }
-    }, moveDelay);
-    setPendingMsg(true);
+    }
+    // }, moveDelay);
+    // setPendingMsg(true);
   };
 
-  function postMoveMessage() {
-    const msg = { action: 'GobjsUpdated', time: Date.now() };
-    const moveData = { ...activityMoves }; // create a ref to the current cache
-    console.log('Move dat: ', moveData);
-    setActivityMoves({});
-    msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
-    // msg ready to post to follower
-    handleEventData(msg);
-  }
+  // function postMoveMessage() {
+  //   const msg = { action: 'GobjsUpdated', time: Date.now() };
+  //   const moveData = { ...activityMoves }; // create a ref to the current cache
+  //   console.log('Move dat: ', moveData);
+  //   setActivityMoves({});
+  //   msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
+  //   // msg ready to post to follower
+  //   handleEventData(msg);
+  // }
 
   // sends an update msg object for the user in control
   const handleEventData = (updates, type) => {
