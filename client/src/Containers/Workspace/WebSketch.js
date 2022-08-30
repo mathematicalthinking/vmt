@@ -23,12 +23,11 @@ const WebSketch = (props) => {
   const [showControlWarning, setShowControlWarning] = useState(false);
   const [activityUpdates, setActivityUpdates] = useState();
   const [activityMoves, setActivityMoves] = useState({});
-  // const [pendingMsg, setPendingMsg] = useState(false);
   const [timeSent, setTimeSent] = useState(0);
   const [activityData, setActivityData] = useState();
   const [activityMessage, setActivityMessage] = useState('');
 
-  const moveDelay = 30; // divisor is the frame rate
+  const moveDelay = 175; // divisor is the frame rate
 
   let initializing = false;
   let receivingData = false;
@@ -37,6 +36,7 @@ const WebSketch = (props) => {
   let sketchDoc = null; // The WSP document in which the websketch lives.
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
+  const pendingUpdate = React.createRef(null);
   let $ = window ? window.jQuery : undefined;
   const { setFirstTabLoaded } = props;
 
@@ -66,28 +66,7 @@ const WebSketch = (props) => {
   }, [activityData]);
 
   // Storage API functions
-  const debouncedUpdate = useCallback(debounce(putState, 350), []);
-
-  // drag smoothing function
-  // const debouncedMove = useCallback(
-  //   debounce(postMoveMessage, 5, {
-  //     leading: true,
-  //     maxWait: moveDelay,
-  //   }),
-  //   []
-  // );
-  // const debouncedMove = useCallback(
-  //   throttle(postMoveMessage, moveDelay, {
-  //     leading: true,
-  //   }),
-  //   [activityMoves]
-  // );
-
-  // useEffect(() => {
-  //   if (_hasControl && Object.keys(activityMoves).length !== 0) {
-  //     debouncedMove();
-  //   }
-  // }, [activityMoves]);
+  const debouncedUpdate = useCallback(debounce(putState, 250), []);
 
   function putState() {
     const { tab, temp, updateRoomTab, room } = props;
@@ -275,56 +254,44 @@ const WebSketch = (props) => {
           console.log('recordGobjUpdate() cannot handle this event:', event);
         // Add more
       }
-      sendUpdateMessage(gobjInfo);
-      // const { id } = gobjInfo;
-      // setActivityMoves({ ...activityMoves, [id]: gobjInfo });
-      // if (_hasControl && Object.keys(activityMoves).length !== 0) {
-      //   debouncedMove();
-      // }
+      // sendUpdateMessage(gobjInfo);
+      const { id } = gobjInfo;
+      setActivityMoves((prevMoves) => ({ ...prevMoves, [id]: gobjInfo }));
     }
   };
 
-  const sendUpdateMessage = (gobjInfo) => {
-    // Move messages can arrive too quickly; send them out at a reasonable frame rate
-    // For a full frame interval (moveDelay), collect all move data and send out the most recent data for each affected gobj.
-    const { id } = gobjInfo;
-    setActivityMoves((prevMoves) => ({ ...prevMoves, [id]: gobjInfo }));
-
-    // debouncedMove(activityMoves);
-    // moveMessage[gobjInfo.id] = gobjInfo; // REM .LOC Add this move to the cache
-    // if (pendingMsg) return;
-    // There is a follower and no message scheduled, so schedule one now
-    // setTimeout(() => {
-    const now = Date.now();
-    if (now - timeSent >= moveDelay) {
-      const msg = { action: 'GobjsUpdated', time: Date.now() };
-      const moveData = { ...activityMoves }; // create a ref to the current cache
-
-      setActivityMoves({});
-      setTimeSent(Date.now());
-      // moveMessage = {}; // make a new empty cache
-      // setPendingMsg(false);
-      console.log('Move dat: ', moveData, ' gobj: ', gobjInfo);
-      if (Object.keys(moveData).length !== 0) {
-        msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
-        // msg ready to post to follower
-        handleEventData(msg);
-        // }
+  useEffect(() => {
+    if (Object.keys(activityMoves).length !== 0) {
+      const now = Date.now();
+      const timeSince = now - timeSent;
+      if (timeSince >= moveDelay) {
+        console.log('Posting moves, delay: ', timeSince);
+        postMoveMessage();
+      } else {
+        // sweep messages that may have been missed
+        pendingUpdate.current = setTimeout(
+          () => postMoveMessage(),
+          moveDelay - timeSince
+        );
       }
     }
-    // }, moveDelay);
-    // setPendingMsg(true);
-  };
+    return () => {
+      clearTimeout(pendingUpdate.current);
+    };
+  }, [activityMoves]);
 
-  // function postMoveMessage() {
-  //   const msg = { action: 'GobjsUpdated', time: Date.now() };
-  //   const moveData = { ...activityMoves }; // create a ref to the current cache
-  //   console.log('Move dat: ', moveData);
-  //   setActivityMoves({});
-  //   msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
-  //   // msg ready to post to follower
-  //   handleEventData(msg);
-  // }
+  function postMoveMessage() {
+    const msg = { action: 'GobjsUpdated', time: Date.now() };
+    const moveData = { ...activityMoves }; // create a ref to the current cache
+    console.log('Move dat: ', moveData);
+    setActivityMoves({});
+    if (Object.keys(moveData).length !== 0) {
+      setTimeSent(Date.now());
+      msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
+      // msg ready to post to follower
+      handleEventData(msg);
+    }
+  }
 
   // sends an update msg object for the user in control
   const handleEventData = (updates, type) => {
