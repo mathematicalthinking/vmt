@@ -6,7 +6,9 @@ import { Button } from 'Components';
 import ImportModal from './ImportModal';
 
 export default function Importer(props) {
-  // props will be user, onImport, onCancel
+  // props will be user, onImport, onCancel, preImportAction, buttonText
+  const { buttonText, preImportAction } = props;
+
   const [showModal, setShowModal] = React.useState(false);
   const [importedData, setImportedData] = React.useState([]);
   const [validationErrors, setValidationErrors] = React.useState([]);
@@ -48,6 +50,8 @@ export default function Importer(props) {
   };
 
   const handleOnFileLoad = async (data) => {
+    if (preImportAction) preImportAction();
+
     const extractedData = data
       .map((d) => d.data)
       .filter((d) => Object.values(d).some((val) => val !== '')); // ignore any blank lines
@@ -381,7 +385,7 @@ export default function Importer(props) {
         noDrag
       >
         {/* Undocumented feature of CSVReader is that providing a function allows for a custom UI */}
-        {() => <Button click={handleOpenDialog}>Import New Users</Button>}
+        {() => <Button click={handleOpenDialog}>{buttonText}</Button>}
       </CSVReader>
     </Fragment>
   );
@@ -390,4 +394,10 @@ export default function Importer(props) {
 Importer.propTypes = {
   user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
   onImport: PropTypes.func.isRequired,
+  buttonText: PropTypes.string.isRequired,
+  preImportAction: PropTypes.func,
+};
+
+Importer.defaultProps = {
+  preImportAction: null,
 };

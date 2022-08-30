@@ -135,6 +135,23 @@ class Members extends PureComponent {
       connectRemoveCourseMember(resourceId, info.user._id);
     } else connectRemoveRoomMember(resourceId, info.user._id);
   };
+
+  removeAllMembers = () => {
+    const {
+      resourceId,
+      resourceType,
+      courseMembers,
+      connectRemoveCourseMember,
+    } = this.props;
+    if (resourceType !== 'course') return;
+    const membersToRemove = courseMembers.filter(
+      (mem) => mem.role !== 'facilitator'
+    );
+    membersToRemove.forEach((mem) =>
+      connectRemoveCourseMember(resourceId, mem.user._id)
+    );
+  };
+
   /**
    * @method changeRole
    * @param  {Object} info - member obj { color, _id, role, {_id, username}}
@@ -336,7 +353,13 @@ class Members extends PureComponent {
               icon={<i className="fas fa-user-plus" />}
               rightIcons={
                 resourceType === 'course' ? (
-                  <Fragment>
+                  <div
+                    style={{
+                      display: 'flex',
+                      width: '475px',
+                      justifyContent: 'space-between',
+                    }}
+                  >
                     <div className={classes.Instructions}>
                       <i className="far fa-question-circle fa-2x" />
                       <div className={classes.TooltipContent}>
@@ -368,7 +391,7 @@ class Members extends PureComponent {
                       buttonText="Import to Replace"
                       preImportAction={this.removeAllMembers}
                     />
-                  </Fragment>
+                  </div>
                 ) : null
               }
             >
