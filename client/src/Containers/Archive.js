@@ -18,6 +18,7 @@ const Archive = () => {
   const [dateRangePreset, setDateRangePreset] = useState('oneDay');
   const [customFromDate, setCustomFromDate] = useState(null);
   const [customToDate, setCustomToDate] = useState(null);
+  const [roomType, setRoomType] = useState('all');
   const [loading, setLoading] = useState(true);
   const [visibleResources, setVisibleResources] = useState([]);
   const [moreAvailable, setMoreAvailable] = useState(true);
@@ -28,7 +29,6 @@ const Archive = () => {
   const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
   const [showRestoreComponent, setShowRestoreComponent] = useState(false);
   const [restoreComponent, setRestoreComponent] = useState(null);
-  const [roomType, setRoomType] = useState('all');
 
   useEffect(() => {
     debounceFetchData();

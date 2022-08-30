@@ -1,7 +1,7 @@
 import React, { useRef, Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import PropTypes from 'prop-types';
-import { BoxList } from 'Layout';
+import { BoxList, SelectableBoxList } from 'Layout';
 import {
   Search,
   CustomLink,
@@ -210,7 +210,7 @@ const Archive = (props) => {
               </Fragment>
             </InfoBox>
           </div>
-          <div style={{ display: 'flex' }}>
+          {/* <div style={{ display: 'flex' }}>
             <Checkbox
               change={handleSelectAll}
               checked={selectAllChecked}
@@ -227,7 +227,7 @@ const Archive = (props) => {
             >
               Restore
             </Button>
-          </div>
+          </div> */}
         </div>
         <div
           className={classes.List}
@@ -247,7 +247,7 @@ const Archive = (props) => {
             </div>
           ) : (
             <Fragment>
-              <BoxList
+              <SelectableBoxList
                 list={visibleResources}
                 resource={resource}
                 listType="public"

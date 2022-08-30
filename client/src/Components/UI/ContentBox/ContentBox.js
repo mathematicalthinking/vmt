@@ -8,7 +8,6 @@ import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
 import Expand from './expand';
 import Notification from '../../Notification/Notification';
-import { select } from 'd3';
 
 class ContentBox extends PureComponent {
   state = {

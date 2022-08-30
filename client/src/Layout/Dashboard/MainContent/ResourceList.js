@@ -155,11 +155,11 @@ const ResourceList = ({
 
             <BoxList
               list={facilitatorItems}
+              resource={resource}
+              listType="private"
               linkPath={linkPath}
               linkSuffix={linkSuffix}
               notifications={notifications}
-              resource={resource}
-              listType="private"
               parentResourec={parentResource}
               // draggable
             />

@@ -15,9 +15,7 @@ export { default as NotFound } from './NotFound/NotFound';
 export { default as Terms } from './Terms/Terms';
 export { default as Faq } from './Faq/Faq';
 export { default as Instructions } from './Instructions/Instructions';
-export {
-  default as FacilitatorInstructions,
-} from './Instructions/FacilitatorInstructions';
+export { default as FacilitatorInstructions } from './Instructions/FacilitatorInstructions';
 export { default as Contact } from './Contact/Contact';
 export { default as ForgotPassword } from './ForgotPassword/ForgotPassword';
 export { default as ResetPasswordLayout } from './ResetPassword/ResetPassword';
@@ -25,3 +23,4 @@ export { default as ResetPasswordLayout } from './ResetPassword/ResetPassword';
 export { default as AdminDashboardLayout } from './AdminDashboard/AdminDashboard';
 // prettier-ignore
 export { default as DashboardBoxList } from './DashboardBoxList/DashboardBoxList';
+export { default as SelectableBoxList } from './SelectableBoxList/SelectableBoxList';
