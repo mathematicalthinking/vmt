@@ -2,10 +2,8 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { CSVReader } from 'react-papaparse';
 import { validateEmail, validateUsername, findMatchingUsers } from 'utils';
-import { NavLink } from 'react-router-dom';
 import { Button } from 'Components';
 import ImportModal from './ImportModal';
-import classes from './importer.css';
 
 export default function Importer(props) {
   // props will be user, onImport, onCancel
@@ -370,25 +368,6 @@ export default function Importer(props) {
   return (
     <Fragment>
       {showModal && importModal()}
-      <div className={classes.Instructions}>
-        <i className="far fa-question-circle fa-2x" />
-        <div className={classes.TooltipContent}>
-          <p>
-            The search bar allows for the searching and addition of existing VMT
-            Users. By using the Import feature, new users can be created for
-            your course. <br /> For csv formatting and importing guides, please
-            see the VMT{' '}
-            <NavLink
-              exact
-              to="/instructions"
-              className={classes.Link}
-              activeStyle={{ borderBottom: '1px solid #2d91f2' }}
-            >
-              Instructions
-            </NavLink>
-          </p>
-        </div>
-      </div>
       <CSVReader
         ref={buttonRef}
         onFileLoad={handleOnFileLoad}

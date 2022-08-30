@@ -3,6 +3,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { NavLink } from 'react-router-dom';
 import { Member, Search, Modal, Button, InfoBox } from 'Components';
 import Slider from 'Components/UI/Button/Slider';
 import COLOR_MAP from 'utils/colorMap';
@@ -37,8 +38,7 @@ class Members extends PureComponent {
     };
   }
 
-
-  // When a Member is added to a Classlist, 
+  // When a Member is added to a Classlist,
   // Remove them from the temporaryExclusion list.
   // See Room.js: if the refresh rate is too long,
   // Members could have been added to a Classlist multiple times
@@ -336,7 +336,39 @@ class Members extends PureComponent {
               icon={<i className="fas fa-user-plus" />}
               rightIcons={
                 resourceType === 'course' ? (
-                  <Importer user={user} onImport={this.handleImport} />
+                  <Fragment>
+                    <div className={classes.Instructions}>
+                      <i className="far fa-question-circle fa-2x" />
+                      <div className={classes.TooltipContent}>
+                        <p>
+                          The search bar allows for the searching and addition
+                          of existing VMT Users. By using the Import feature,
+                          new users can be created for your course. <br /> For
+                          csv formatting and importing guides, please see the
+                          VMT{' '}
+                          <NavLink
+                            exact
+                            to="/instructions"
+                            className={classes.Link}
+                            activeStyle={{ borderBottom: '1px solid #2d91f2' }}
+                          >
+                            Instructions
+                          </NavLink>
+                        </p>
+                      </div>
+                    </div>
+                    <Importer
+                      user={user}
+                      buttonText="Import New Users"
+                      onImport={this.handleImport}
+                    />
+                    <Importer
+                      user={user}
+                      onImport={this.handleImport}
+                      buttonText="Import to Replace"
+                      preImportAction={this.removeAllMembers}
+                    />
+                  </Fragment>
                 ) : null
               }
             >
