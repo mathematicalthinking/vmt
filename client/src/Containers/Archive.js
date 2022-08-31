@@ -313,7 +313,7 @@ const Archive = () => {
       icon: <i className="fas fa-external-link-alt" />,
     },
   ];
-
+  // selected = selectedIds do i still need that as;ldkjasdl;fjkasdflkjasdfl;kasdf
   return (
     <ArchiveLayout
       visibleResources={visibleResources}
@@ -331,10 +331,6 @@ const Archive = () => {
       customToDate={customToDate}
       setToDate={setToDate}
       setFromDate={setFromDate}
-      handleSelectAll={handleSelectAll}
-      selectAllChecked={selectAllChecked}
-      selectedIds={selected}
-      onSelect={handleSelectOne}
       icons={customIcons}
       showRoomPreview={showRoomPreview}
       roomPreviewComponent={roomPreviewComponent}

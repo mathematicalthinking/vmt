@@ -1,15 +1,8 @@
 import React, { useRef, Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import PropTypes from 'prop-types';
-import { BoxList, SelectableBoxList } from 'Layout';
-import {
-  Search,
-  CustomLink,
-  Button,
-  RadioBtn,
-  InfoBox,
-  Checkbox,
-} from 'Components';
+import { SelectableBoxList } from 'Layout';
+import { Search, CustomLink, Button, RadioBtn, InfoBox } from 'Components';
 import classes from './archive.css';
 
 const Archive = (props) => {
@@ -29,10 +22,6 @@ const Archive = (props) => {
     customToDate,
     setToDate,
     setFromDate,
-    handleSelectAll,
-    selectAllChecked,
-    selectedIds,
-    onSelect,
     icons,
     showRoomPreview,
     roomPreviewComponent,
@@ -210,24 +199,6 @@ const Archive = (props) => {
               </Fragment>
             </InfoBox>
           </div>
-          {/* <div style={{ display: 'flex' }}>
-            <Checkbox
-              change={handleSelectAll}
-              checked={selectAllChecked}
-              dataId="select-all"
-            >
-              Select All
-            </Checkbox>
-            <Button
-              click={() => {
-                console.log('restore');
-              }}
-              disabled={selectedIds.length === 0}
-              m={'0 1rem'}
-            >
-              Restore
-            </Button>
-          </div> */}
         </div>
         <div
           className={classes.List}
@@ -252,8 +223,6 @@ const Archive = (props) => {
                 resource={resource}
                 listType="public"
                 selectable
-                selectedIds={selectedIds}
-                onSelect={onSelect}
                 icons={icons}
               />
               <div className={classes.LoadMore}>
@@ -276,7 +245,9 @@ Archive.propTypes = {
   setSkipState: PropTypes.func,
   setCriteria: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
-  filters: PropTypes.shape({}).isRequired,
+  filters: PropTypes.shape({
+    roomType: PropTypes.string,
+  }).isRequired,
   toggleFilter: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   onTabChange: PropTypes.func.isRequired,
@@ -285,10 +256,6 @@ Archive.propTypes = {
   customToDate: PropTypes.string,
   setToDate: PropTypes.func.isRequired,
   setFromDate: PropTypes.func.isRequired,
-  handleSelectAll: PropTypes.func.isRequired,
-  selectAllChecked: PropTypes.bool.isRequired,
-  selectedIds: PropTypes.arrayOf(PropTypes.string),
-  onSelect: PropTypes.func.isRequired,
   icons: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   showRoomPreview: PropTypes.bool.isRequired,
   roomPreviewComponent: PropTypes.func,
@@ -302,10 +269,8 @@ Archive.defaultProps = {
   setSkipState: null,
   customFromDate: null,
   customToDate: null,
-  selectedIds: [],
   roomPreviewComponent: null,
   restoreComponent: null,
-
 };
 
 export default Archive;

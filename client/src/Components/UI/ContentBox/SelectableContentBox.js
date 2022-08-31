@@ -5,7 +5,7 @@ import Notification from 'Components/Notification/Notification';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import Icons from './Icons/Icons';
 import Expand from './expand';
-import classes from './contentBox.css';
+import classes from './SelectableContentBox.css';
 
 const SelectableContentBox = (props) => {
   const {
@@ -148,6 +148,35 @@ const SelectableContentBox = (props) => {
   );
 };
 
-SelectableContentBox.propTypes = {};
+SelectableContentBox.propTypes = {
+  id: PropTypes.string.isRequired,
+  notifications: PropTypes.number,
+  link: PropTypes.string,
+  roomType: PropTypes.string,
+  listType: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  locked: PropTypes.bool.isRequired,
+  details: PropTypes.shape({
+    facilitators: PropTypes.arrayOf(PropTypes.string),
+    sinceUpdated: PropTypes.string,
+    createdAt: PropTypes.string,
+    dueDate: PropTypes.string,
+    creator: PropTypes.string,
+    entryCode: PropTypes.string,
+    description: PropTypes.string,
+  }).isRequired,
+  isChecked: PropTypes.bool,
+  onSelect: PropTypes.func.isRequired,
+  customIcons: PropTypes.arrayOf(PropTypes.shape({})),
+};
+
+SelectableContentBox.defaultProps = {
+  notifications: null,
+  link: null,
+  roomType: null,
+  listType: null,
+  isChecked: false,
+  customIcons: [],
+};
 
 export default SelectableContentBox;

@@ -63,7 +63,7 @@ const SelectableBoxList = (props) => {
     return `${days} day${days > 1 ? 's' : ''}`;
   };
 
-  let listElems = "There doesn't appear to be anything here yet";
+  const listElems = "There doesn't appear to be anything here yet";
   if (list.length === 0) {
     return (
       <div className={classes.Container} data-testid="box-list">
@@ -73,8 +73,8 @@ const SelectableBoxList = (props) => {
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex' }}>
+    <div className={classes.Container}>
+      <div className={classes.Header}>
         <Checkbox
           change={handleSelectAll}
           checked={selectAllChecked}
@@ -84,70 +84,76 @@ const SelectableBoxList = (props) => {
         </Checkbox>
         {selectActions.map((action) => action)}
       </div>
-      {list.map((item) => {
-        if (item) {
-          const details = {
-            description: item.description,
-            createdAt: item.createdAt
-              ? item.createdAt.split('T')[0].toLocaleString()
-              : '',
-            dueDate: item.dueDate,
-            facilitators: item.members
-              ? item.members
-                  .filter((member) => member.role === 'facilitator')
-                  .map(
-                    (member, x, arr) =>
-                      `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
-                  )
-              : [],
-            sinceUpdated: timeDiff(item.updatedAt),
-          };
+      <div style={{ marginTop: '40px' }}>
+        {list.map((item) => {
+          if (item) {
+            const details = {
+              description: item.description,
+              createdAt: item.createdAt
+                ? item.createdAt.split('T')[0].toLocaleString()
+                : '',
+              dueDate: item.dueDate,
+              facilitators: item.members
+                ? item.members
+                    .filter((member) => member.role === 'facilitator')
+                    .map(
+                      (member, x, arr) =>
+                        `${member.user.username}${
+                          x < arr.length - 1 ? ', ' : ''
+                        }`
+                    )
+                : [],
+              sinceUpdated: timeDiff(item.updatedAt),
+            };
 
-          let notificationCount = 0;
-          if (listType === 'private') {
-            if (notifications.length > 0) {
-              notifications.forEach((ntf) => {
-                if (
-                  ntf.resourceId === item._id ||
-                  ntf.parentResource === item._id
-                ) {
-                  notificationCount += 1;
-                }
-              });
+            let notificationCount = 0;
+            if (listType === 'private') {
+              if (notifications.length > 0) {
+                notifications.forEach((ntf) => {
+                  if (
+                    ntf.resourceId === item._id ||
+                    ntf.parentResource === item._id
+                  ) {
+                    notificationCount += 1;
+                  }
+                });
+              }
+              details.entryCode = item.entryCode;
+            } else if (item.creator) {
+              details.creator = item.creator.username;
             }
-            details.entryCode = item.entryCode;
-          } else if (item.creator) {
-            details.creator = item.creator.username;
+            return (
+              <div className={classes.ContentBox} key={item._id}>
+                <SelectableContentBox
+                  title={item.name}
+                  link={
+                    linkPath !== null
+                      ? `${linkPath}${item._id}${linkSuffix}`
+                      : null
+                  }
+                  key={item._id}
+                  id={item._id}
+                  isChecked={selectedIds.includes(item._id)}
+                  onSelect={handleSelectOne}
+                  notifications={notificationCount}
+                  roomType={
+                    item && item.tabs
+                      ? item.tabs.map((tab) => tab.tabType)
+                      : null
+                  }
+                  locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
+                  details={details}
+                  listType={listType}
+                  customIcons={icons}
+                >
+                  {item.description}
+                </SelectableContentBox>
+              </div>
+            );
           }
-          return (
-            <div className={classes.ContentBox} key={item._id}>
-              <SelectableContentBox
-                title={item.name}
-                link={
-                  linkPath !== null
-                    ? `${linkPath}${item._id}${linkSuffix}`
-                    : null
-                }
-                key={item._id}
-                id={item._id}
-                isChecked={selectedIds.includes(item._id)}
-                onSelect={handleSelectOne}
-                notifications={notificationCount}
-                roomType={
-                  item && item.tabs ? item.tabs.map((tab) => tab.tabType) : null
-                }
-                locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
-                details={details}
-                listType={listType}
-                customIcons={icons}
-              >
-                {item.description}
-              </SelectableContentBox>
-            </div>
-          );
-        }
-        return null;
-      })}
+          return null;
+        })}
+      </div>
     </div>
   );
 };
@@ -159,14 +165,12 @@ SelectableBoxList.propTypes = {
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   linkPath: PropTypes.string,
   linkSuffix: PropTypes.string,
-  draggable: PropTypes.bool,
   selectedIds: PropTypes.arrayOf(PropTypes.string),
   selectActions: PropTypes.func,
   icons: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 SelectableBoxList.defaultProps = {
-  draggable: false,
   selectedIds: [],
   selectActions: [],
   notifications: [],

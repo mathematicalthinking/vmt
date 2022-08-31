@@ -1,23 +1,38 @@
 .Container {
-    display: flex;
-    /* flex: 1; */
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    overflow-x: visible;
-    font-weight: 300;
-    margin-top: 10px;
-    font-size: 16px;
-    margin-bottom: 25px;
-  }
-  
-  /* .Container > div {
+  display: flex;
+  /* flex: 1; */
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  overflow-x: visible;
+  font-weight: 300;
+  font-size: 16px;
+  margin-bottom: 25px;
+}
+
+.Header {
+  padding-top: 5px;
+  position: fixed;
+  width: 100%;
+  max-width: 1100px;
+  z-index: 320;
+  color: #444;
+  background: #f8f8f8;
+  box-shadow: 10px 10px 10px 2px #f8f8f8, -10px 0 10px 2px #f8f8f8;
+}
+
+.List {
+  margin-top: 260px;
+  display: flex;
+  flex-flow: column;
+}
+
+/* .Container > div {
     flex: 1 1 auto;
   } */
-  
-  .ContentBox {
-    /* max-width: 252px; */
-    width: 100%;
-    margin: 2px;
-    transition: 0.2s;
-  }
-  
+
+.ContentBox {
+  /* max-width: 252px; */
+  width: 100%;
+  margin: 2px;
+  transition: 0.2s;
+}

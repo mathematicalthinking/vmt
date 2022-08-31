@@ -12,7 +12,7 @@
   }
   .Container {
     position: relative;
-    width: 80%;
+    width: 100%;
     max-width: 1100px;
     /* margin-top: 20px; */
     align-self: center;
@@ -21,7 +21,7 @@
   .Header {
     padding-top: 25px;
     position: fixed;
-    width: 80%;
+    width: 100%;
     max-width: 1100px;
     z-index: 320;
     color: #444;
