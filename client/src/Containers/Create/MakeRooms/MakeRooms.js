@@ -33,11 +33,30 @@ const MakeRooms = (props) => {
 
   // if the initial list of participants changes, reset the participant list, the number of rooms, and the PPR display
   useEffect(() => {
-    setParticipants(sortParticipants(initialParticipants));
-    setRoomNum(
-      Math.max(Math.ceil(filterFacilitators(initialParticipants).length / 3), 1)
-    );
-    setParticipantsPerRoom(3);
+    // Standalone Template -> extract participants from selectedAssignment,
+    // if it exists
+    let participantsToSet = initialParticipants;
+    if (!course && Object.keys(selectedAssignment).length > 0) {
+      const participantsObj = {};
+      const newRoomDrafts = selectedAssignment.value;
+      newRoomDrafts.forEach((room) => {
+        room.members.forEach((mem) => {
+          if (!participantsObj[mem.user._id])
+            participantsObj[mem.user._id] = mem;
+        });
+      });
+      setParticipants(Object.values(participantsObj).map((mem) => mem));
+      updateParticipants(newRoomDrafts);
+    } else {
+      setParticipants(sortParticipants(initialParticipants));
+      setRoomNum(
+        Math.max(
+          Math.ceil(filterFacilitators(initialParticipants).length / 3),
+          1
+        )
+      );
+      setParticipantsPerRoom(3);
+    }
   }, [initialParticipants]);
 
   // if the selected assignment changes, reset the display
