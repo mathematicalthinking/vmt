@@ -35,8 +35,7 @@ const MakeRooms = (props) => {
   useEffect(() => {
     // Standalone Template -> extract participants from selectedAssignment,
     // if it exists
-    let participantsToSet = initialParticipants;
-    if (!course && Object.keys(selectedAssignment).length > 0) {
+    if (!course && selectedAssignment.value.length) {
       const participantsObj = {};
       const newRoomDrafts = selectedAssignment.value;
       newRoomDrafts.forEach((room) => {
