@@ -38,6 +38,7 @@ const Activity = new mongoose.Schema(
       {
         _id: false,
         activity: { type: ObjectId, ref: 'Activity' },
+        activityName: { type: String },
         timestamp: { type: Number },
         rooms: [{ type: ObjectId, ref: 'Room' }],
       },
