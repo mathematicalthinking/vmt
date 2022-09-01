@@ -2,7 +2,7 @@
 
 Virtual Math Teams (VMT) provides a collaboration infrastructure for visual math and geometry tools, such as Geogebra and Desmos. To provide this infrastructure, this version uses React.js and Redux.js, express and sockets.io. see 'Installation' below.
 
-## License 
+## License
 
 - For non-commercial uses, this application is licensed under the [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html) license.
 - Any use of VMT for commercial purposes is subject to and requires a special license to be negotiated with Mathematical Thinking.
