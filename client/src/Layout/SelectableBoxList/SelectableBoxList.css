@@ -10,6 +10,7 @@
 }
 
 .Header {
+  display: flex;
   padding-top: 5px;
   position: fixed;
   width: 100%;

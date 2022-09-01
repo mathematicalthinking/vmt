@@ -23,6 +23,7 @@ const Archive = (props) => {
     setToDate,
     setFromDate,
     icons,
+    selectActions,
     showRoomPreview,
     roomPreviewComponent,
     showRestoreComponent,
@@ -224,6 +225,7 @@ const Archive = (props) => {
                 listType="public"
                 selectable
                 icons={icons}
+                selectActions={selectActions}
               />
               <div className={classes.LoadMore}>
                 <Button m={20} disabled={!moreAvailable} click={setSkipState}>
@@ -256,7 +258,8 @@ Archive.propTypes = {
   customToDate: PropTypes.string,
   setToDate: PropTypes.func.isRequired,
   setFromDate: PropTypes.func.isRequired,
-  icons: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  icons: PropTypes.arrayOf(PropTypes.shape({})),
+  selectActions: PropTypes.arrayOf(PropTypes.shape({})),
   showRoomPreview: PropTypes.bool.isRequired,
   roomPreviewComponent: PropTypes.func,
   showRestoreComponent: PropTypes.bool.isRequired,
@@ -271,6 +274,8 @@ Archive.defaultProps = {
   customToDate: null,
   roomPreviewComponent: null,
   restoreComponent: null,
+  icons: [],
+  selectActions: [],
 };
 
 export default Archive;

@@ -82,9 +82,21 @@ const SelectableBoxList = (props) => {
         >
           Select All
         </Checkbox>
-        {selectActions.map((action) => action)}
+        {selectActions.map((selectAction) => (
+          <div
+            onClick={(e) => selectAction.onClick(e, selectedIds)}
+            onKeyDown={(e) => selectAction.onClick(e, selectedIds)}
+            role="button"
+            tabIndex={-1}
+            title={selectAction.title}
+            key={`selectAction-${selectAction.title}`}
+            style={{ margin: '0 1rem' }}
+          >
+            {selectAction.icon}
+          </div>
+        ))}
       </div>
-      <div style={{ marginTop: '40px' }}>
+      <div style={{ marginTop: '60px' }}>
         {list.map((item) => {
           if (item) {
             const details = {
@@ -166,7 +178,7 @@ SelectableBoxList.propTypes = {
   linkPath: PropTypes.string,
   linkSuffix: PropTypes.string,
   selectedIds: PropTypes.arrayOf(PropTypes.string),
-  selectActions: PropTypes.func,
+  selectActions: PropTypes.arrayOf(PropTypes.shape({})),
   icons: PropTypes.arrayOf(PropTypes.shape({})),
 };
 

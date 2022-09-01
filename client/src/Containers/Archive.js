@@ -8,6 +8,7 @@ import { RoomPreview } from 'Containers';
 import { useStore } from 'react-redux';
 
 const SKIP_VALUE = 20;
+
 const Archive = () => {
   const history = useHistory(); // potentially only need history pathname
   const match = useRouteMatch(); // and not url from match
@@ -215,9 +216,34 @@ const Archive = () => {
     }
   };
 
+  const getResourceNames = (ids) => {
+    return visibleResources
+      .filter((resource) => ids.includes(resource._id))
+      .map((res) => res.name);
+  };
+
+  const restoreButton = {
+    title: 'Restore',
+    onClick: (e, id) => {
+      e.preventDefault();
+      console.log('restore: ', id);
+      setShowRestoreComponent(true);
+      handleRestore(id);
+    },
+    icon: (
+      <Button click={null} data-testid="Restore">
+        Restore
+      </Button>
+    ),
+  };
+
   const handleRestore = (id) => {
     let showModal = true;
-    const res = visibleResources.filter((el) => el._id === id)[0].name;
+    let res;
+    if (Array.isArray(id)) {
+      res = getResourceNames(id).join(', ');
+      console.log('res', res);
+    } else res = visibleResources.filter((el) => el._id === id)[0].name;
     setRestoreComponent(
       <Modal
         show={showModal}
@@ -226,7 +252,10 @@ const Archive = () => {
           setShowRestoreComponent(false);
         }}
       >
-        Are you sure you want to restore {res}
+        <span>
+          Are you sure you want to restore{' '}
+          <span style={{ fontWeight: 'bolder' }}>{res}</span>
+        </span>
         <div className={''}>
           <Button
             data-testid="restore-resource"
@@ -289,20 +318,7 @@ const Archive = () => {
         </Button>
       ),
     },
-    {
-      title: 'Restore',
-      onClick: (e, id) => {
-        e.preventDefault();
-        console.log('restore: ', id);
-        setShowRestoreComponent(true);
-        handleRestore(id);
-      },
-      icon: (
-        <Button click={null} data-testid="Restore">
-          Restore
-        </Button>
-      ),
-    },
+    restoreButton,
     {
       title: 'Preview',
       onClick: (e, id) => {
@@ -313,6 +329,9 @@ const Archive = () => {
       icon: <i className="fas fa-external-link-alt" />,
     },
   ];
+
+  const selectActions = [restoreButton];
+
   // selected = selectedIds do i still need that as;ldkjasdl;fjkasdflkjasdfl;kasdf
   return (
     <ArchiveLayout
@@ -336,6 +355,7 @@ const Archive = () => {
       roomPreviewComponent={roomPreviewComponent}
       showRestoreComponent={showRestoreComponent}
       restoreComponent={restoreComponent}
+      selectActions={selectActions}
     />
   );
 };
