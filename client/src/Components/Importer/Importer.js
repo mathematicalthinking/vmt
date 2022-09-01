@@ -50,8 +50,6 @@ export default function Importer(props) {
   };
 
   const handleOnFileLoad = async (data) => {
-    if (preImportAction) preImportAction();
-
     const extractedData = data
       .map((d) => d.data)
       .filter((d) => Object.values(d).some((val) => val !== '')); // ignore any blank lines
@@ -115,8 +113,9 @@ export default function Importer(props) {
         setValidationErrors(newValidationErrors);
       });
     } else {
-      setShowModal(false);
+      if (preImportAction) await preImportAction();
       createAndInviteMembers();
+      setShowModal(false);
     }
   };
 
