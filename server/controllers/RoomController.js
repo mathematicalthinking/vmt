@@ -1,5 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
+const { ObjectId } = require('mongodb');
+// const { ObjectID } = require('mongoose')
 const db = require('../models');
 const STATUS = require('../constants/status');
 const ROLE = require('../constants/role');
@@ -286,7 +288,6 @@ module.exports = {
         delete body.ggbFiles;
       }
       const room = new Room(body);
-      // console.log('Creating new room: ', body);
       if (existingTabs) {
         tabModels = existingTabs.map((tab) => {
           const newTab = new Tab({
@@ -776,11 +777,11 @@ module.exports = {
   // skip is a number specifying the starting result to return.
   searchPaginatedArchive: async (searchText, skip, filters) => {
     const criteria = await convertSearchFilters(filters);
+    criteria.status = STATUS.ARCHIVED;
     const initialMatch = searchText
       ? {
           $and: [
             criteria,
-            { status: STATUS.ARCHIVED },
             {
               $or: [
                 { name: searchText },
@@ -791,7 +792,7 @@ module.exports = {
           ],
         }
       : criteria;
-
+    console.log(initialMatch);
     const roomsPipeline = [
       {
         // $match: initialMatch,
@@ -824,6 +825,7 @@ module.exports = {
     ];
 
     const rooms = await Room.aggregate(roomsPipeline);
+    console.log(rooms);
     const roomIds = rooms.map((room) => room._id);
     const tabsPipeline = [
       {
@@ -937,12 +939,14 @@ const convertSearchFilters = async (filters) => {
     tempRoom: false,
     isTrashed: false,
   };
-  if (filters.ids && Array.isArray(filters.ids))
-    criteria._id = { $in: filters.ids };
+  if (filters.ids && Array.isArray(filters.ids)) {
+    criteria._id = { $in: filters.ids.map((id) => new ObjectId(id)) };
+  }
   if (filters.to || filters.from) {
     criteria.updatedAt = {};
-    if (filters.from) criteria.updatedAt = { $gte: filters.from };
-    if (filters.to) criteria.updatedAt = { $lte: filters.to };
+    if (filters.from)
+      criteria.updatedAt = { $gte: new Date(Number(filters.from)) };
+    if (filters.to) criteria.updatedAt = { $lte: new Date(Number(filters.to)) };
   }
 
   if (filters.roomType) {

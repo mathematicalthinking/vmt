@@ -118,9 +118,9 @@ const Archive = () => {
       delete updatedFilters.roomType;
     }
     API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
-      // _ids: archive[resource],
-      // ...updatedFilters,
-      roomType: updatedFilters.roomType,
+      ids: archive[resource],
+      ...updatedFilters,
+      // roomType: updatedFilters.roomType,
     }).then((res) => {
       const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
       setLoading(false);
