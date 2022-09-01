@@ -42,7 +42,7 @@ class Members extends PureComponent {
   // Remove them from the temporaryExclusion list.
   // See Room.js: if the refresh rate is too long,
   // Members could have been added to a Classlist multiple times
-  componentDidUpdate(prevProps) {
+  componentDidUpdate() {
     const { classList } = this.props;
     const { temporaryExclusion } = this.state;
     const classIds = classList.map((member) => member.user && member.user._id);
@@ -147,8 +147,10 @@ class Members extends PureComponent {
     const membersToRemove = courseMembers.filter(
       (mem) => mem.role !== 'facilitator'
     );
-    membersToRemove.forEach((mem) =>
-      connectRemoveCourseMember(resourceId, mem.user._id)
+    Promise.all(
+      membersToRemove.map((mem) =>
+        connectRemoveCourseMember(resourceId, mem.user._id)
+      )
     );
   };
 
