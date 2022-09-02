@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { BigModal } from 'Components';
-import { createGrouping, createRoom } from 'store/actions';
+import { createGrouping } from 'store/actions';
 import COLOR_MAP from 'utils/colorMap';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
@@ -260,14 +260,12 @@ const MakeRooms = (props) => {
       currentRoom.name = roomName;
       roomsToCreate.push(currentRoom);
     }
-    roomsToCreate.forEach((room) => {
-      dispatch(createRoom(room));
-    });
-    // if (course) {
-    //   dispatch(createGrouping(roomsToCreate, activity, course));
-    // } else {
-    //   dispatch(createGrouping(roomsToCreate, activity));
-    // }
+
+    if (course) {
+      dispatch(createGrouping(roomsToCreate, activity, course));
+    } else {
+      dispatch(createGrouping(roomsToCreate, activity));
+    }
     close();
     const { pathname: url } = history.location;
     // delete the word 'assign' and replace it with 'rooms'
@@ -285,7 +283,7 @@ const MakeRooms = (props) => {
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms
-      onAddParticipants={course ? undefined : setShowModal}
+      onAddParticipants={setShowModal}
     />
   );
 
