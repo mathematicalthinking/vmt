@@ -50,7 +50,7 @@ const MakeRooms = (props) => {
       setParticipants(sortParticipants(initialParticipants));
       setRoomNum(
         Math.max(
-          Math.ceil(filterFacilitators(initialParticipants).length / 3),
+          Math.floor(filterFacilitators(initialParticipants).length / 3),
           1
         )
       );
@@ -65,7 +65,7 @@ const MakeRooms = (props) => {
       if (selectedAssignment.value.length !== 0) {
         setParticipantsPerRoom(
           Math.max(
-            Math.ceil(
+            Math.floor(
               filterFacilitators(participants).length /
                 selectedAssignment.value.length
             ),
@@ -74,12 +74,12 @@ const MakeRooms = (props) => {
         );
       } else
         setRoomNum(
-          Math.max(Math.ceil(filterFacilitators(participants).length / 3), 1),
+          Math.max(Math.floor(filterFacilitators(participants).length / 3), 1),
           true
         );
     } else {
       setRoomNum(
-        Math.max(Math.ceil(filterFacilitators(participants).length / 3), 1)
+        Math.max(Math.floor(filterFacilitators(participants).length / 3), 1)
       );
     }
   }, [selectedAssignment, participants.length]);
@@ -109,21 +109,25 @@ const MakeRooms = (props) => {
       restructureMemberlist(filterFacilitators(participants))
     );
 
-    const numRooms = Math.ceil(
+    const numRooms = Math.floor(
       updatedParticipants.length / participantsPerRoom
     );
 
     const roomsUpdate = resetParticipants([...roomDrafts]);
 
-    const partcipantsToAssign = [...updatedParticipants];
+    const participantsToAssign = [...updatedParticipants];
     for (let i = 0; i < numRooms; i++) {
       if (roomsUpdate[i]) {
         roomsUpdate[i].members = [
           ...roomsUpdate[i].members,
-          ...partcipantsToAssign.splice(0, participantsPerRoom),
+          ...participantsToAssign.splice(0, participantsPerRoom),
         ];
       }
     }
+    // assign any extra participants to other rooms
+    participantsToAssign.forEach((participant, idx) =>
+      roomsUpdate[idx].members.push(participant)
+    );
 
     setRoomDrafts(roomsUpdate);
   };
@@ -179,7 +183,7 @@ const MakeRooms = (props) => {
     setRoomDrafts(selectionMatrix);
     setParticipantsPerRoom(
       Math.max(
-        Math.ceil(
+        Math.floor(
           filterFacilitators(participants).length / selectionMatrix.length
         ),
         1
@@ -195,7 +199,7 @@ const MakeRooms = (props) => {
     );
     setParticipantsPerRoom(newNumberOfParticipants);
     const numRooms = Math.max(
-      Math.ceil(
+      Math.floor(
         filterFacilitators(participants).length / newNumberOfParticipants
       ),
       1
