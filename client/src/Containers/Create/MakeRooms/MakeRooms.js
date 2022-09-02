@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { BigModal } from 'Components';
-import { createGrouping, createRoom } from 'store/actions';
+import { createGrouping } from 'store/actions';
 import COLOR_MAP from 'utils/colorMap';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
@@ -33,11 +33,29 @@ const MakeRooms = (props) => {
 
   // if the initial list of participants changes, reset the participant list, the number of rooms, and the PPR display
   useEffect(() => {
-    setParticipants(sortParticipants(initialParticipants));
-    setRoomNum(
-      Math.max(Math.ceil(filterFacilitators(initialParticipants).length / 3), 1)
-    );
-    setParticipantsPerRoom(3);
+    // Standalone Template -> extract participants from selectedAssignment,
+    // if it exists
+    if (!course && selectedAssignment.value.length) {
+      const participantsObj = {};
+      const newRoomDrafts = selectedAssignment.value;
+      newRoomDrafts.forEach((room) => {
+        room.members.forEach((mem) => {
+          if (!participantsObj[mem.user._id])
+            participantsObj[mem.user._id] = mem;
+        });
+      });
+      setParticipants(Object.values(participantsObj).map((mem) => mem));
+      updateParticipants(newRoomDrafts);
+    } else {
+      setParticipants(sortParticipants(initialParticipants));
+      setRoomNum(
+        Math.max(
+          Math.ceil(filterFacilitators(initialParticipants).length / 3),
+          1
+        )
+      );
+      setParticipantsPerRoom(3);
+    }
   }, [initialParticipants]);
 
   // if the selected assignment changes, reset the display
@@ -242,14 +260,12 @@ const MakeRooms = (props) => {
       currentRoom.name = roomName;
       roomsToCreate.push(currentRoom);
     }
-    roomsToCreate.forEach((room) => {
-      dispatch(createRoom(room));
-    });
-    // if (course) {
-    //   dispatch(createGrouping(roomsToCreate, activity, course));
-    // } else {
-    //   dispatch(createGrouping(roomsToCreate, activity));
-    // }
+
+    if (course) {
+      dispatch(createGrouping(roomsToCreate, activity, course));
+    } else {
+      dispatch(createGrouping(roomsToCreate, activity));
+    }
     close();
     const { pathname: url } = history.location;
     // delete the word 'assign' and replace it with 'rooms'
@@ -267,7 +283,7 @@ const MakeRooms = (props) => {
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms
-      onAddParticipants={course ? undefined : setShowModal}
+      onAddParticipants={setShowModal}
     />
   );
 
