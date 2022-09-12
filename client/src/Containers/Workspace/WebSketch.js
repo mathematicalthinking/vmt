@@ -158,11 +158,14 @@ const WebSketch = (props) => {
       { event: 'MergeGObjs.WSP', handler: reflectAndSync },
       { event: 'WillUndoRedo.WSP', handler: reflectMessage },
       { event: 'UndoRedo.WSP', handler: reflectAndSync },
-      { event: 'ChangeStyle.WSP', handler: reflectMessage },
-      { event: 'ChangeTraceStatus.WSP', handler: reflectMessage },
-      { event: 'ChangeLabel.WSP', handler: reflectMessage },
-      { event: 'ChangeVisibility.WSP', handler: reflectMessage },
-      { event: 'DeleteGObjs.WSP', handler: reflectAndSync },
+      { event: 'StyleWidget.WSP', handler: reflectMessage },
+      { event: 'TraceWidget.WSP', handler: reflectMessage },
+      { event: 'LabelWidget.WSP', handler: reflectMessage },
+      { event: 'VisibilityWidget.WSP', handler: reflectMessage },
+      { event: 'DeleteWidget.WSP', handler: reflectAndSync },
+      { event: 'StartEditParameter.WSP', handler: reflectMessage },
+      { event: 'CancelEditParameter.WSP', handler: reflectMessage },
+      { event: 'EditParameter.WSP', handler: reflectMessage },
       { event: 'ClearTraces.WSP', handler: reflectMessage },
     ];
     handlers.forEach((el) => {
@@ -202,7 +205,7 @@ const WebSketch = (props) => {
   const reflectMessage = (event, context, attr) => {
     // SS: removed timeout, to make sure the follower is updated right away before any subsequent drags
     // const msgAttr = JSON.stringify(attr);
-    const msg = { action: event.type, time: event.timeStamp, attr };
+    const msg = { name: event.type, time: event.timeStamp, attr };
     // msg is ready to post to follower
     setActivityData(msg);
   };
@@ -236,15 +239,19 @@ const WebSketch = (props) => {
       }
       const gobjInfo = { id: gobj.id, constraint: gobj.constraint };
       switch (gobj.constraint) {
-        case 'Free': // Free points have locations
-        case 'Calculation':
-          if (gobj.value) {
-            // free expressions (params and calcs) have values
-            gobjInfo.value = gobj.value; // free parameter or calculation
-          }
+        case 'Free': // Free points have locations; free parameters have values and locations
           if (gobj.geom.loc) {
             // free points, params, etc. have locations
             gobjInfo.loc = gobj.geom.loc;
+          }
+          if (GSP.isParameter(gobj)) {
+            gobjInfo.expression = gobj.expression;
+          }
+          break;
+        case 'Calculation': // Calculations have values; how do we distinguish which has been changed?
+          if (gobj.value) {
+            // free expressions (params and calcs) have values
+            gobjInfo.value = gobj.value; // free parameter or calculation
           }
           break;
         case 'PointOnPath':
@@ -255,7 +262,7 @@ const WebSketch = (props) => {
           console.log('recordGobjUpdate() cannot handle this event:', event);
         // Add more
       }
-      // sendUpdateMessage(gobjInfo);
+      // Don't bother with context; it has cycles and cannot easily be stringified
       const { id } = gobjInfo;
       setActivityMoves((prevMoves) => ({ ...prevMoves, [id]: gobjInfo }));
     }
@@ -282,7 +289,7 @@ const WebSketch = (props) => {
   }, [activityMoves]);
 
   function postMoveMessage() {
-    const msg = { action: 'GobjsUpdated', time: Date.now() };
+    const msg = { name: 'GobjsUpdated', time: Date.now() };
     const moveData = { ...activityMoves }; // create a ref to the current cache
     console.log('Move dat: ', moveData);
     setActivityMoves({});
@@ -365,7 +372,11 @@ const WebSketch = (props) => {
     // cur = 2: ", Circle #4"
     // cur = 3: ", ..."
     // cur > 3: ""
-    var retVal = '';
+    let retVal = '';
+    if (typeof cur === 'undefined') {
+      cur = 0;
+      max = 1;
+    }
     if (cur === max) {
       retVal = ', ...';
     } else if (cur < max) {
@@ -378,7 +389,7 @@ const WebSketch = (props) => {
   };
 
   const handleMessage = (msg) => {
-    // msg has three properties: action, time, and data
+    // msg has three properties: name, time, and data
     // for most events, data is the attributes of the WSP event
     const { attr } = msg;
     const mergeGobjDesc = (gobjInfo, toInfo) => {
@@ -399,87 +410,134 @@ const WebSketch = (props) => {
       }
       return desc;
     };
-
-    switch (msg.action) {
-      case 'LoadDocument':
-        console.log(
-          'Unimplemented: follower should load a new sketch into its sketch_canvas.'
-        );
-        break;
-      case 'WillChangeCurrentPage':
-        notify('Changed to page ' + attr.newPageId, { duration: 1500 });
-        break;
-      case 'DidChangeCurrentPage':
-        sketchDoc.switchPage(attr.pageId);
-        getSketch();
-        console.log('Follower changed to page', attr.pageId, 'in the sketch.');
-        // setTimeout (function () {notify('');}, 1000);
-        break;
-      case 'GobjsUpdated': // gobjs have moved to new locations
-        imposeGobjUpdates(attr);
-        break;
-      case 'ToolPlayBegan':
-      case 'WillPlayTool': // controlling sketch will play a tool
-        notify('Playing ' + attr.tool.name + ' Tool');
-        startFollowerTool(attr.tool.name);
-        break;
-      // Ignore ToolPlayBegan, as we simulate only user drags (not matches) during toolplay
-      // To get all the internals right, we'd need to duplicate every snap and unsnap.
-      // We still may need to keep a record of snapped gobjs to get the drags right.
-      case 'ToolPlayed': // controlling sketch has played a tool
-        toolPlayed(attr);
-        notify('');
-        break;
-      case 'ToolAborted': // controlling sketch has aborted a tool
-        notify('Canceled ' + attr.tool.name + ' Tool');
-        abortFollowerTool();
-        break;
-      case 'MergeGObjs': // controlling sketch has played a tool
-        gobjsMerged(attr);
-        notify('Merged' + mergeGobjDesc(attr.merged, attr.result));
-        // attr.merged and attr.result have id and label properties
-        break;
-      case 'WillUndoRedo': // controlling sketch will undo or redo
-        notify('Performing ' + attr.type);
-        break;
-      case 'UndoRedo':
-        undoRedo(attr);
-        break;
-      case 'ChangeStyle':
-        changeStyle(attr);
-        break;
-      case 'ChangeTraceStatus':
-        changeTraceStatus(attr);
-        break;
-      case 'ClearTraces':
-        notify('Traces cleared.');
-        sketch.clearTraces();
-        break;
-      case 'ChangeLabel':
-        changeLabel(attr);
-        break;
-      case 'ChangeVisibility':
-        changeVisibility(attr);
-        break;
-      case 'DeleteGObjs':
-        deleteGobjs(attr);
-        break;
-      default:
-        // Other actions to be defined: gobjEdited, gobjStyled, etc.
-        throw new Error(`Unkown message type: ${msg.action}`);
+    if (msg.name.match('Widget')) {
+      handleWidgetMessage(msg);
+    } else {
+      switch (msg.name) {
+        case 'LoadDocument':
+          console.log(
+            'Unimplemented: follower should load a new sketch into its sketch_canvas.'
+          );
+          break;
+        case 'WillChangeCurrentPage':
+          notify('Changed to page ' + attr.newPageId, { duration: 1500 });
+          break;
+        case 'DidChangeCurrentPage':
+          sketchDoc.switchPage(attr.pageId);
+          // getSketch();
+          initSketchPage();
+          console.log(
+            'Follower changed to page',
+            attr.pageId,
+            'in the sketch.'
+          );
+          // setTimeout (function () {notify('');}, 1000);
+          break;
+        case 'GobjsUpdated': // gobjs have moved to new locations
+          imposeGobjUpdates(attr);
+          break;
+        // case 'ToolPlayBegan':
+        case 'WillPlayTool': // controlling sketch will play a tool
+          notify('Playing ' + attr.tool.name + ' Tool');
+          startFollowerTool(attr.tool.name);
+          break;
+        // Ignore ToolPlayBegan, as we simulate only user drags (not matches) during toolplay
+        // To get all the internals right, we'd need to duplicate every snap and unsnap.
+        // We still may need to keep a record of snapped gobjs to get the drags right.
+        case 'ToolPlayed': // controlling sketch has played a tool
+          toolPlayed(attr);
+          notify('');
+          break;
+        case 'ToolAborted': // controlling sketch has aborted a tool
+          notify('Canceled ' + attr.tool.name + ' Tool');
+          abortFollowerTool();
+          break;
+        case 'MergeGObjs': // controlling sketch has played a tool
+          gobjsMerged(attr);
+          notify('Merged' + mergeGobjDesc(attr.merged, attr.result));
+          // attr.merged and attr.result have id and label properties
+          break;
+        case 'WillUndoRedo': // controlling sketch will undo or redo
+          notify('Performing ' + attr.type);
+          break;
+        case 'UndoRedo':
+          undoRedo(attr);
+          break;
+        case 'StartEditParameter': // These messages notify the user; an update message actually performs the update
+          paramEdit('Started', attr);
+          break;
+        case 'CancelEditParameter': // These messages notify the user; an update message actually performs the update
+          paramEdit('Canceled', attr);
+          break;
+        case 'EditParameter':
+          paramEdit('Finished', attr);
+          break;
+        case 'ClearTraces':
+          notify('Traces cleared.');
+          sketch.clearTraces();
+          break;
+        default:
+          // Other messages to be defined: gobjEdited, gobjStyled, etc.
+          throw new Error(`Unkown message type: ${msg.name}`);
+      }
     }
   };
 
+  function handleWidgetMessage(msg) {
+    const name = msg.name.substring(0, msg.name.indexOf('Widget'));
+    const attr = msg.attr;
+    const handlePrePost = ['Style', 'Visibility'];
+    function doHandleWidget() {
+      switch (name) {
+        case 'Style':
+          handleStyleWidget(attr);
+          break;
+        case 'Trace':
+          handleTraceWidget(attr);
+          break;
+        case 'Label':
+          handleLabelWidget(attr);
+          break;
+        case 'Visibility':
+          handleVisibilityWidget(attr);
+          break;
+        case 'Delete':
+          handleDeleteWidget(attr);
+          break;
+      }
+    }
+
+    if (attr.action === 'activate') {
+      notify(name + ' widget activated:', { persist: true, prepend: true });
+    } else if (attr.action === 'deactivate') {
+      notify(name + ' widget deactivated.', { prepend: true });
+    } else {
+      doHandleWidget(); // Neither activate nor deactivate
+      return;
+    } // Only activate & deactivate left
+    if (handlePrePost.indexOf(name) >= 0) {
+      doHandleWidget(); // Some widgets (e.g., style, visibility) need to handle activate/deactivate messages.
+    }
+  }
+
   const notify = (text, options) => {
-    const { GSP } = window;
-    // duration is 2000 if not specified
-    let duration = 2000;
+    // options.duration must be a non-zero number or 'persist'
+    // options.prepend causes the message to be prepended to the normal notify div
+    // duration is 2500 if not specified
+    let duration = options.duration || 2500;
     let gobjs;
     let callback;
-    if (options && GSP) {
-      duration = GSP._get(options, 'duration') || 2500;
-      gobjs = GSP._get(options, 'highlitGobjs'); //
-      callback = GSP._get(options, 'callback');
+    let prepend = false;
+    if (options) {
+      if (options.duration) {
+        duration = options.duration;
+      }
+      if (options.prepend) {
+        // need seperate div + handling for 'prenotify'
+        prepend = true;
+      }
+      gobjs = options.highlitGobjs;
+      callback = options.callback;
     }
 
     const highlight = (on) => {
@@ -515,14 +573,16 @@ const WebSketch = (props) => {
     if (text) {
       setActivityMessage(text);
       highlight(true);
-      setTimeout(() => {
-        // only hide the notification if it's the same text as was set.
-        setActivityMessage('');
-        highlight(false);
-        if (callback) {
-          callback();
-        }
-      }, duration);
+      if (!options || !options.persist) {
+        setTimeout(() => {
+          // only hide the notification if it's the same text as was set.
+          setActivityMessage('');
+          highlight(false);
+          if (callback) {
+            callback();
+          }
+        }, duration);
+      }
     } else {
       setActivityMessage('');
     }
@@ -552,18 +612,24 @@ const WebSketch = (props) => {
         // and could include a gobj that no longer exists.
       }
       switch (gobjInfo.constraint) {
-        case 'Calculation':
+        // case 'Calculation':
         case 'Free':
           if (gobjInfo.loc) {
             setLoc(destGobj.geom.loc, gobjInfo.loc);
-          } else {
+          }
+          if (gobjInfo.value) {
             destGobj.value = gobjInfo.value;
-            // what else is needed for a free calculation?
+          }
+          if (gobjInfo.expression) {
+            // Update param after it's changed
+            destGobj.expression = gobjInfo.expression;
           }
           break;
         case 'PointOnPath':
         case 'PointOnPolygonEdge':
           destGobj.value = gobjInfo.value;
+          break;
+        case 'Calculation':
           break;
         default:
           console.log(
@@ -659,103 +725,83 @@ const WebSketch = (props) => {
     }
   };
 
-  const changeStyle = (attr) => {
-    function multipleGobjs() {
-      let note;
-      let gobjCount = 0;
-      const maxCount = 4;
-      note = attr.canceling
-        ? 'Canceled style changes for '
-        : 'Changed styles for ';
-      // eslint-disable-next-line
-      $.each(attr.changes, function(id) {
-        const gobj = sketch.gobjList.gobjects[id];
-        gobj.style = JSON.parse(this.style);
-        gobj.invalidateAppearance();
-        note += gobjDesc(gobj, gobjCount, maxCount);
-        gobjCount += 1;
-      });
-      notify(note, { duration: 3000, highlitGobjs: Object.keys(attr.changes) });
-    }
-
-    function singleGobj() {
-      const gobj = sketch.gobjList.gobjects[attr.id];
-      const note = 'Changed style for ' + gobjDesc(gobj, 0, 1);
-      gobj.style = attr.newStyle;
-      notify(note, { duration: 2000, highlitGobjs: [attr.id] });
-    }
-
-    if (attr.changes) {
-      multipleGobjs();
-    } else {
-      singleGobj();
-    }
+  const handleStyleWidget = (attr) => {
+    let note;
+    let gobjCount = 0;
+    const maxCount = 4;
+    note = attr.canceled ? 'Canceled style changes for ' : 'Changed style for ';
+    // eslint-disable-next-line
+    $.each(attr.changes, function() {
+      const gobj = sketch.gobjList.gobjects[this.id];
+      gobjIds.push(this.id);
+      gobj.style = JSON.parse(this.style);
+      gobj.invalidateAppearance();
+      note += gobjDesc(gobj, gobjCount, maxCount);
+      gobjCount += 1;
+    });
+    notify(note, { duration: 3000, highlitGobjs: gobjIds });
   };
 
-  function changeTraceStatus(attr) {
-    const gobj = sketch.gobjList.gobjects[attr.id];
-    const newState = attr.tracing;
+  function handleTraceWidget(attr) {
+    const change = attr.changes[0]; // Note the assumption: there's only a single gobj being changed
+    const gobj = sketch.gobjList.gobjects[change.id];
     const note =
       'Tracing turned ' +
-      (newState ? 'on' : 'off') +
+      (change.traced ? 'on' : 'off') +
       ' for ' +
       gobjDesc(gobj, 0, 1);
-    notify(note, { duration: 2000, highlitGobjs: [attr.id] });
-    gobj.style.traced = newState;
+    gobj.style.traced = change.traced;
+    notify(note, { duration: 2000, highlitGobjs: [gobj.id] });
   }
 
-  function changeLabel(attr) {
-    // attr: id and label are always present
-    // style and autoGenerate are present if changed
-    const gobj = sketch.gobjList.gobjects[attr.id];
+  function handleLabelWidget(attr) {
+    // attr: gobjId is always present, other properties only if changed:
+    // text (the label or text), styleJson (stringified), and autoGenerate (for shouldAutogenerateLabel).
+    const gobj =
+      sketch.gobjList.gobjects[attr.sketch.gobjList.gobjects[attr.gobjId]];
     const labelChanged = attr.label !== 'gobj.label';
-    let note = 'Changed ' + (labelChanged ? 'label ' : '');
-    if (attr.style) {
-      note += (labelChanged ? 'and ' : '') + 'label style ';
-      gobj.style = attr.style;
+    let note = (note = 'Modified ');
+    if (attr.text) {
+      gobj.setLabel(attr.text);
+      // ADD SUPPORT HERE FOR CHANGING TEXT OBJECTS (E.G., CAPTIONS)
     }
-    if (labelChanged) {
-      gobj.label = attr.label;
+    note += gobjDesc(gobj) + ' label.';
+    if (attr.styleJson) {
+      gobj.style = JSON.parse(attr.styleJson);
     }
-    note += 'of ' + gobjDesc(gobj, 0, 1);
-    notify(note, { duration: 2000, highlitGobjs: [attr.id] });
+    if (attr.autoGenerate) {
+      gobj.shouldAutogenerateLabel = attr.autoGenerate;
+    }
+    notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
     if (attr.autoGenerateLabel) {
       gobj.autoGenerateLabel = attr.autoGenerateLabel;
     }
     gobj.invalidateAppearance();
   }
 
-  function changeVisibility(data) {
-    let noteHidden = 'Hiding ';
-    let noteShown = 'Showing ';
-    let note = '';
-    let hidCount = 0;
-    let showCount = 0;
-    const maxCount = 4;
-    // eslint-disable-next-line
-    $.each(data.changes, function(id) {
-      const gobj = sketch.gobjList.gobjects[id];
-      gobj.style.hidden = this.hidden;
-      if (this.hidden) {
-        noteHidden += gobjDesc(gobj, hidCount, maxCount);
-        hidCount += 1;
-      } else {
-        noteShown += gobjDesc(gobj, showCount, maxCount);
-        showCount += 1;
-      }
-      gobj.invalidateAppearance();
-    });
-    if (hidCount) note += noteHidden;
-    if (hidCount && showCount) note += ' and ';
-    if (showCount) note += noteShown;
-    notify(note, { duration: 3000, highlitGobjs: data.changes });
-    // Ideally the notify timeout would fade the changed objects in and out while the notice is up
-    // We could provide a callback that would send a parameter that runs from 0 to 100 during the timeout
-    // For the time being, we could show the hidden objects, trigger the notification, and then
-    // hid the visible objects.
+  function handleVisibilityWidget(attr) {
+    let note;
+    // This handler handles activate/deactivate actions
+    if (attr.action.match('activate')) {
+      // matches both activate & deactivate
+      WIDGETS.toggleVisibilityModality();
+    } else {
+      $.each(attr.changes, function() {
+        const gobj = sketch.gobjList.gobjects[this.id];
+        note = this.style.faded ? 'Hid ' : 'Showed ';
+        gobj.style = this.style;
+        gobj.invalidateAppearance();
+        note += gobjDesc(gobj);
+        notify(note, { duration: 2500, highlitGobjs: [gobj] });
+      });
+      // Ideally the notify timeout would fade the changed objects in and out while the notice is up
+      // We could provide a callback that would send a parameter that runs from 0 to 100 during the timeout
+      // For the time being, we could show the hidden objects, trigger the notification, and then
+      // hid the visible objects.
+    }
   }
 
-  function deleteGobjs(data) {
+  function handleDeleteWidget(attr) {
     let note = 'Deleted ';
     const deletedGobjs = {};
     let thisDelta;
@@ -764,13 +810,13 @@ const WebSketch = (props) => {
 
     function doDelete() {
       sketch.gobjList.removeGObjects(deletedGobjs, sketch);
-      thisDelta = sketch.document.pushConfirmedSketchOpDelta(data.preDelta);
-      // CHECK: thisDelta should match data.delta.
-      console.log('Delete delta: ', thisDelta, ' vs ', data.delta);
+      thisDelta = sketch.document.pushConfirmedSketchOpDelta(attr.preDelta);
+      // CHECK: thisDelta should match attr.delta.
+      console.log('Delete delta: ', thisDelta, ' vs ', attr.delta);
       sketch.document.changedUIMode();
     }
 
-    $.each(data.deletedIds, function() {
+    $.each(attr.deletedIds, function() {
       const gobj = sketch.gobjList.gobjects[this];
       deletedGobjs[this] = gobj;
       note += gobjDesc(gobj, gobjCount, maxCount);
@@ -779,9 +825,17 @@ const WebSketch = (props) => {
 
     notify(note, {
       duration: 3000,
-      highlitGobjs: data.deletedIds,
+      highlitGobjs: attr.deletedIds,
       callback: doDelete,
     });
+  }
+
+  function paramEdit(reason, attr) {
+    // state is editStarted, changesNotAccepted, or changesAccepted
+    const gobj = sketch.gobjList.gobjects[attr.gobjId];
+    let note = reason;
+    note += ' parameter edit: <em>' + gobj.label + '</em>';
+    notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
   }
 
   // --- Initialization functions ---
