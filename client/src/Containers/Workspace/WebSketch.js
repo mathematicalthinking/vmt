@@ -486,7 +486,7 @@ const WebSketch = (props) => {
 
   function handleWidgetMessage(msg) {
     const name = msg.name.substring(0, msg.name.indexOf('Widget'));
-    const attr = msg.attr;
+    const { attr } = msg;
     const handlePrePost = ['Style', 'Visibility'];
     function doHandleWidget() {
       switch (name) {
@@ -505,6 +505,8 @@ const WebSketch = (props) => {
         case 'Delete':
           handleDeleteWidget(attr);
           break;
+        default:
+          console.log('No widget handler for name: ', name);
       }
     }
 
@@ -548,6 +550,7 @@ const WebSketch = (props) => {
         const gobj =
           typeof this === 'string' ? sketch.gobjList.gobjects[this] : this;
         const { state } = gobj;
+        if (!state) return;
         if (on) {
           if (state.renderState) {
             state.oldRenderState = state.renderState; // track the previous renderState
@@ -739,17 +742,33 @@ const WebSketch = (props) => {
   const handleStyleWidget = (attr) => {
     let note;
     let gobjCount = 0;
+    const gobjIds = [];
     const maxCount = 4;
     note = attr.canceled ? 'Canceled style changes for ' : 'Changed style for ';
     // eslint-disable-next-line
-    $.each(attr.changes, function() {
-      const gobj = sketch.gobjList.gobjects[this.id];
-      gobjIds.push(this.id);
-      gobj.style = JSON.parse(this.style);
-      gobj.invalidateAppearance();
-      note += gobjDesc(gobj, gobjCount, maxCount);
-      gobjCount += 1;
-    });
+    console.log('attr changes: ', attr);
+    // $.each(attr.changes, function() {
+    //   const gobj = sketch.gobjList.gobjects[this.id];
+    //   gobjIds.push(this.id);
+    //   gobj.style = JSON.parse(this.style);
+    //   gobj.invalidateAppearance();
+    //   note += gobjDesc(gobj, gobjCount, maxCount);
+    //   gobjCount += 1;
+    // });
+    if (attr.changes && attr.changes.length > 0) {
+      attr.changes.forEach((change) => {
+        const gobj = sketch.gobjList.gobjects[change.id];
+        gobjIds.push(change.id);
+        gobj.style = change.style;
+        gobj.invalidateAppearance();
+        note += gobjDesc(gobj, gobjCount, maxCount);
+        gobjCount += 1;
+      });
+    } else {
+      if (attr.action === 'activate') {
+        note = 'Initialized style widget...';
+      }
+    }
     notify(note, { duration: 3000, highlitGobjs: gobjIds });
   };
 
@@ -795,7 +814,7 @@ const WebSketch = (props) => {
     // This handler handles activate/deactivate actions
     if (attr.action.match('activate')) {
       // matches both activate & deactivate
-      WIDGETS.toggleVisibilityModality();
+      window.WIDGETS.toggleVisibilityModality();
     } else {
       $.each(attr.changes, function() {
         const gobj = sketch.gobjList.gobjects[this.id];
@@ -959,10 +978,15 @@ const WebSketch = (props) => {
         }}
         inAdminMode={user ? user.inAdminMode : false}
       />
-      {activityMessage && (
+      {(activityMessage || persistMessage) && (
+        <div className={classes.Toast}>
+          {persistMessage} {activityMessage || '...'}
+        </div>
+      )}
+      {/* {activityMessage && (
         <div className={classes.Toast}>{activityMessage}</div>
       )}
-      {persistMessage && <div className={classes.Toast}>{persistMessage}</div>}
+      {persistMessage && <div className={classes.Toast}>{persistMessage}</div>} */}
       <div
         // className={classes.sketch_container}
         className="sketch_container"
