@@ -26,6 +26,7 @@ const WebSketch = (props) => {
   const [timeSent, setTimeSent] = useState(0);
   const [activityData, setActivityData] = useState();
   const [activityMessage, setActivityMessage] = useState('');
+  const [persistMessage, setPrependMessage] = useState('');
 
   const moveDelay = 175; // divisor is the frame rate
 
@@ -571,18 +572,28 @@ const WebSketch = (props) => {
     // console.log(`Notify: ${text}, duration: ${duration}`);
     // let $notifyDiv = $('#notify');
     if (text) {
-      setActivityMessage(text);
+      if (prepend) {
+        setPrependMessage(text);
+      } else {
+        setActivityMessage(text);
+      }
       highlight(true);
       if (!options || !options.persist) {
         setTimeout(() => {
           // only hide the notification if it's the same text as was set.
-          setActivityMessage('');
+          if (prepend) {
+            setPrependMessage('');
+          } else {
+            setActivityMessage('');
+          }
           highlight(false);
           if (callback) {
             callback();
           }
         }, duration);
       }
+    } else if (prepend) {
+      setPrependMessage('');
     } else {
       setActivityMessage('');
     }
@@ -951,6 +962,7 @@ const WebSketch = (props) => {
       {activityMessage && (
         <div className={classes.Toast}>{activityMessage}</div>
       )}
+      {persistMessage && <div className={classes.Toast}>{persistMessage}</div>}
       <div
         // className={classes.sketch_container}
         className="sketch_container"
