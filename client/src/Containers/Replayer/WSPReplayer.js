@@ -34,6 +34,7 @@ const WebSketch = (props) => {
   // function that parses new log for event data
   const updateSketch = () => {
     const { log } = props;
+    // consider comparing to previous index and handling large jumps forward/backward with squashed updates from initial
     // Take updated player data with new Player state to update
     const newData = log[index] ? log[index].currentState : null;
     if (newData) {

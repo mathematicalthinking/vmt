@@ -43,28 +43,19 @@ if (!Array.prototype.includes) {
 }
 
 if (!String.prototype.endsWith) {
-  // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
-  String.prototype.endsWith = function(search, this_len) {
-    if (this_len === undefined || this_len > this.length) {
-      this_len = this.length;
-    }
-    return this.substring(this_len - search.length, this_len) === search;
-  };
-}
-
-/*
- //if (!String.prototype.endsWith) {
   // Polyfill from https://www.techcartnow.com/javascript-string-endswith-method-fixing-error-object-does-not-support-property-or-method-endswith-for-not-supported-browsers-ie-10-ie-11/
   Object.defineProperty(String.prototype, 'endsWith', {
-    value: function (searchValue, lengthToSearch) {
+    value: function(searchValue, lengthToSearch) {
       if (lengthToSearch === undefined || lengthToSearch > this.length) {
-          lengthToSearch = this.length;
+        lengthToSearch = this.length;
       }
-      return this.substring(lengthToSearch - searchValue.length, lengthToSearch) === searchValue;
-    }
+      return (
+        this.substring(lengthToSearch - searchValue.length, lengthToSearch) ===
+        searchValue
+      );
+    },
   });
 }
-*/
 
 if (!String.prototype.includes) {
   // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes#Polyfill
@@ -266,7 +257,15 @@ var WIDGETS = (function() {
     targetGobj, // the currently-targeted sketch and gobj
     targetState = 'fadeInOut', // renderState used for targets of style widget
     activeWidget, // the currently active widget
-    preserveActiveWidget; // remember the last active widget in case of retargeting or hiding and showing widgets.
+    preserveActiveWidget, // remember the last active widget in case of retargeting or hiding and showing widgets.
+    widgetEventNames = {
+      // Each widget name, with 'Widget" appended, corresponds to an events list entry in GSP.EventEmitter
+      style: 'Style',
+      trace: 'Trace',
+      label: 'Label',
+      visibility: 'Visibility',
+      deletion: 'Delete', // cannot use 'delete' as a key
+    };
 
   // The following vars belong to the style widget
   var currentPointStyle = -1,
@@ -299,7 +298,7 @@ var WIDGETS = (function() {
           return false;
       }
     } else {
-      // a and b are neither equal nor both objects
+      // they're not both objects, and a !== b
       return false;
     }
     return true;
@@ -317,13 +316,28 @@ var WIDGETS = (function() {
   }
 
   // Widget constructor: first define properties
-  function Widget(name, changeEvent) {
+  function Widget(name) {
     // All widgets have a button that must be appropriately shown (when enabled) and highlighted (when active)
+    var eventName = name;
+    if (name === 'delete') {
+      eventName = 'deletion';
+    }
     this.name = name;
-    this.eventName = changeEvent;
+    this.eventName = widgetEventNames[eventName] + 'Widget';
     this.domButtonSelector = '#widget_' + name + 'ButtonID'; // e.g., the dom object with id = "#widget_styleButtonID"
     this.enabled = true; // Don't show any widgets until they are activated.
   }
+
+  // Send Widget events via the sketch event() function.
+  Widget.prototype.event = function(context, attr) {
+    // Each widget sends events using its own eventName.
+    // The action param distinguishes (e.g.) "activate" from "deactivate".
+    // Parameters context and attr are optional.
+    attr = attr || {};
+    context = context || {};
+    context.widget = this;
+    getSketch().event(this.eventName, context, attr);
+  };
 
   // Define Widget methods on the prototype
   Widget.prototype.activate = function(sketch, inst) {
@@ -335,25 +349,32 @@ var WIDGETS = (function() {
       return false;
     }
     activeWidget = inst;
-    this.active = true;
-    this.sketch = sketch;
+    inst.active = true;
     $(inst.domButtonSelector).addClass('widget_active');
     $('.widgetPane').on('keyup', function(e) {
       if (e.keyCode === 27) {
         activeWidget.deactivate();
       }
     });
+    inst.event({ widget: inst }, { action: 'activate' });
     return true;
   };
 
   Widget.prototype.deactivate = function(inst) {
     // must be a no-op if not already active
-    // This prototype must be called last, because it sets the target sketch to null
+    var context = { widget: inst },
+      attr = { action: 'deactivate' };
     if (inst === activeWidget) activeWidget = null;
-    this.active = false;
-    this.sketch = null;
+    inst.active = false;
     $(inst.domButtonSelector).removeClass('widget_active');
     $('.widgetPane').off('keyup');
+    if (inst.changes) {
+      attr.changes = inst.changes;
+      if (inst.cancelOnExit) {
+        attr.canceled = true;
+      }
+    }
+    inst.event(context, attr);
   };
 
   Widget.prototype.toggle = function(sketch, inst) {
@@ -374,7 +395,8 @@ var WIDGETS = (function() {
     sketch,
     widgetInstance
   ) {
-    // return true if the widget's enabled, false if not. Side effect: deactivates the active widget if it's newly disabled.
+    // return true if the widget's enabled, false if not.
+    // Side effect: deactivates the active widget if it's newly disabled.
     var retVal = this.checkEnablingForCurrentPage(sketch);
     widgetInstance.enabled = retVal;
     if (retVal) $(widgetInstance.domButtonSelector).show();
@@ -401,7 +423,7 @@ var WIDGETS = (function() {
       regime = sketch.hasTouchRegimes() && sketch.currentTouchRegime();
     if (!Object.getPrototypeOf(this).activate(sketch, inst)) return false;
     canvasNodes = $('.sketch_canvas');
-    canvasNodes.on('Tap.WSP', inst.handleTap); // Detect taps for all sketches
+    canvasNodes.on('Tap.WSP', handleTap); // Detect taps for all sketches
     // Possible improvement: Toolplay in a different sketch calls targetControllerToDoc() if the toolplay sketch has widgets enabled.
 
     if (regime && regime.name === 'DisplayRegime') {
@@ -416,11 +438,11 @@ var WIDGETS = (function() {
     var sketch = getSketch(),
       canvasNodes = $('.sketch_canvas'),
       regime = sketch.hasTouchRegimes() && sketch.currentTouchRegime();
-    canvasNodes.off('Tap.WSP', inst.handleTap);
-    canvasNodes.off('WillUndoRedo.WSP', callPostProcess);
-    canvasNodes.off('UndoRedo.WSP', callPreProcess);
+    canvasNodes.off('Tap.WSP', handleTap);
+    canvasNodes.off('WillUndoRedo.WSP', stopPage);
+    canvasNodes.off('UndoRedo.WSP', startPage);
     if (activeWidget && activeWidget.postProcessSketch)
-      activeWidget.postProcessSketch(this.sketch); // Undo effects of preprocessing
+      activeWidget.postProcessSketch(this); // Undo effects of preprocessing
     if (regime && regime.name === 'DisplayRegime') {
       regime.allowUnselectableTap(false);
     }
@@ -437,23 +459,23 @@ var WIDGETS = (function() {
     else return null;
   };
 
-  var styleWidget = new TapWidget('style', 'ChangeStyle');
+  var styleWidget = new TapWidget('style');
   styleWidget.cancelOnExit = false;
   styleWidget.defaultColor = { row: 0, column: 1 }; // red
   styleWidget.defaultPointStyle = 2;
   styleWidget.defaultLineThickness = 2;
   styleWidget.defaultLineStyle = 0;
 
-  var visibilityWidget = new TapWidget('visibility', 'ChangeVisibility');
+  var visibilityWidget = new TapWidget('visibility');
 
-  var labelWidget = new TapWidget('label', 'ChangeLabel');
+  var labelWidget = new TapWidget('label');
   labelWidget.labelPoolSaved = false;
   labelWidget.touchPos = GSP.GeometricPoint(0, 0);
   labelWidget.textRule = null;
 
-  var traceWidget = new TapWidget('trace', 'ChangeTraceStatus');
+  var traceWidget = new TapWidget('trace');
 
-  var deleteWidget = new TapWidget('delete', 'DeleteGObjs');
+  var deleteWidget = new TapWidget('delete');
 
   // When adding a new widget, be sure to add the new widget to the authorPreferenceSpecs in document.js!
   var widgetList = [
@@ -499,7 +521,7 @@ var WIDGETS = (function() {
         activeWidget.deactivate();
       }
     });
-    //  An active widget should be stopped on a page change or undo/redo, and restarted if possible when the operation finishes
+    //  Page changes and undo/redo change the sketch, so stop the widget before the sketch change, and restart it afterward.
     canvasNodes.on('WillUndoRedo.WSP', stopPage);
     canvasNodes.on('UndoRedo.WSP', startPage);
     canvasNodes.on('WillChangeCurrentPage.WSP', stopPage);
@@ -554,6 +576,25 @@ var WIDGETS = (function() {
       sketchChanged = newSketch !== targetSketch,
       buttonNode = findWidgetButton(newNode),
       doShowWidget = PREF.getPref(newDoc, 'showWidgetPanelOnPageStart');
+
+    function preserveWidget() {
+      // confirm and then deactivate the active widget
+      $('#widget').css({ opacity: 0.25, 'z-index': -1 });
+      if (activeWidget) {
+        preserveActiveWidget = activeWidget;
+        WIDGETS.confirmModality();
+      }
+    }
+
+    function restoreWidget() {
+      // restore and activate the preserved widget
+      $('#widget').css({ opacity: 1, 'z-index': 'none' });
+      if (preserveActiveWidget) {
+        preserveActiveWidget.activate(getSketch());
+        preserveActiveWidget = null;
+      }
+    }
+
     if ($sketch.css('display') === 'none' || newSketch === targetSketch) {
       return activeWidget; // don't target to a hidden sketch, or retarget to the same page of the same sketch
     }
@@ -591,35 +632,26 @@ var WIDGETS = (function() {
       // Reposition the widget only when the node changes
       // We'll place it as a child of the sketch_canvas' parent, located relative to the sketch child of the sketch_canvas.
       // That way it will move with the sketch_canvas--but we need to be sure this parent has position:relative;
+      // Set up the handlers to confirm and deactivate any active widget on dragging and toolplay,
+      // and to activate that same widget when dragging or toolplay ends.
       if (targetNode) {
         // remove handlers from the old node
         $targetNode.off('WillPlayTool.WSP'); // turn off handlers for the previous node
         $targetNode.off('ToolPlayed.WSP');
         $targetNode.off('ToolAborted.WSP');
+        $targetNode.off('StartDragConfirmed.WSP');
+        $targetNode.off('EndDrag.WSP');
       }
       targetNode = sketchNode;
       $targetNode = $(targetNode);
       if ($widgetParent.parent().length) {
         $widgetParent.detach();
       }
-      $targetNode.on('WillPlayTool.WSP', function() {
-        //  attach handlers to the new node
-        $('#widget').css({ opacity: 0.25, 'z-index': -1 });
-        if (activeWidget) {
-          preserveActiveWidget = activeWidget;
-          WIDGETS.confirmModality();
-        }
-      });
-      $targetNode.on('ToolPlayed.WSP', function() {
-        $('#widget').css({ opacity: 1, 'z-index': 'none' });
-        if (preserveActiveWidget) {
-          preserveActiveWidget.activate(getSketch());
-          preserveActiveWidget = null;
-        }
-      });
-      $targetNode.on('ToolAborted.WSP', function() {
-        $('#widget').css({ opacity: 1, 'z-index': 'none' });
-      });
+      $targetNode.on('WillPlayTool.WSP', preserveWidget);
+      $targetNode.on('ToolPlayed.WSP', restoreWidget);
+      $targetNode.on('ToolAborted.WSP', restoreWidget);
+      $targetNode.on('StartDragConfirmed.WSP', preserveWidget);
+      $targetNode.on('EndDrag.WSP', restoreWidget);
     }
     if (sketchChanged) {
       // even if the node's not changed, a page switch detaches the widgets
@@ -655,7 +687,7 @@ var WIDGETS = (function() {
       preserveActiveWidget.activate(newSketch, preserveActiveWidget);
     preserveActiveWidget = null;
     return anyWidgetsEnabled && activeWidget; // if a widget is returned, it's the enabled active widget
-  }
+  } // targetControllerToDoc
 
   function preProcessSketch(sketch) {
     // Prepare all sketch objects to enable widget use, making all selectable and (for visibility widget) showing hidden objects
@@ -672,44 +704,29 @@ var WIDGETS = (function() {
     }
   }
 
-  function callPreProcess(e, context) {
-    // This could be a new node.
-    var sketch = context ? context.sketch : getSketch();
-    preProcessSketch(sketch);
-    return true; // propagate the message
-  }
-
-  TapWidget.prototype.postProcessSketch = function(sketch) {
+  TapWidget.prototype.postProcessSketch = function() {
     // Return all sketch objects to their proper state, reversing the effects of pre-processing
-    var changes; // check all sketch objects to see whether any were modified
+    var sketch = getSketch(),
+      changes = []; // record any sketch objects that were modified,
+    // but ONLY if they weren't individually sent as events
     if (activeWidget && activeWidget.postProcessGobj) {
       sketch.sQuery('*').each(function(ix, gobj) {
-        var gobjInfo = activeWidget.postProcessGobj(gobj);
-        // postProcessGobj must return either false or a truthy value suitable for including in an event
-        // For instance, don't return a gobj's style object; instead duplicate or stringify it.
-        if (gobjInfo) {
-          changes = changes || {};
-          changes[gobj.id] = gobjInfo;
+        var change = activeWidget.postProcessGobj(gobj);
+        // returns a change object if the gobj was changed by this widget
+        // postProcessGobj has access to cancelOnExit. If true,
+        // change contains the original props; if false, it contains new props.
+        if (change) {
+          change.id = gobj.id;
+          changes.push(change);
         }
       });
-      if (changes) {
-        this.sketch.event(
-          activeWidget.eventName,
-          {},
-          { changes: changes, canceling: this.cancelOnExit }
-        );
+      if (changes.length) {
+        this.changes = changes; // Deactivate will send changes along with the deactivate event
       }
       sketch.isDirty = true; // Possible code improvement: some widgets dirty the sketch and some don't
     }
     return true; // If this is a message handler, propagate the message
   };
-
-  function callPostProcess() {
-    // If node is changing, clean up the sketch in the old node,
-    if (activeWidget && activeWidget.postProcessSketch)
-      activeWidget.postProcessSketch(getSketch());
-    return true; // propagate the message
-  }
 
   function findZoom() {
     return parseFloat(getComputedStyle($('#widget')[0]).fontSize) / 16;
@@ -747,6 +764,12 @@ var WIDGETS = (function() {
     }
   }
 
+  function handleTap(event, context) {
+    if (activeWidget) {
+      activeWidget.handleTap(event, context);
+    }
+  }
+
   function injectButtonContent(canvas) {
     // Find any uninitialized .widget_button element matching this doc id, and initialize the buttons.
     var newContent,
@@ -761,7 +784,7 @@ var WIDGETS = (function() {
 
   function resizeSketchFrame(sketchDoc) {
     // Resize the frame to fit a new sketch
-    console.log('widgets.resizeSketchFrame() called, but not needed.');
+    console.log('widgets.resizeSketchFrame() called;is it needed?');
     var $canvas, $container, $refNode, width;
     $canvas = sketchDoc.canvasNode;
     $container = $canvas.parent();
@@ -772,21 +795,25 @@ var WIDGETS = (function() {
         width +=
           parseInt($container.css('border-left-width'), 10) +
           parseInt($container.css('border-right-width'), 10);
-        /* I think this is no longer needed, since hidden sketches aren't loaded till visible (using IntersectionObserver).
-    // Better to fix the deeper problem by making the sketch load properly into a sketch_container even when it's hidden
-          } else { // The container is hidden, so try to calculate what it will be when shown
+      } else {
+        // The container is hidden, so try to calculate what it will be when shown
         var toolHeight;
-        width = sketchDoc.metadata.width + $container.find(".wsp-tool-column").width() + 6;
-        toolHeight = sketchDoc.metadata.height - $canvas.find(".wsp-undo-button").outerHeight() - 2;
-        $canvas.find(".wsp-user-tools").outerHeight(toolHeight);
-        $canvas.find(".wsp-base-node").outerWidth(width - 4);
+        width =
+          sketchDoc.metadata.width +
+          $container.find('.wsp-tool-column').width() +
+          6;
+        toolHeight =
+          sketchDoc.metadata.height -
+          $canvas.find('.wsp-undo-button').outerHeight() -
+          2;
+        $canvas.find('.wsp-user-tools').outerHeight(toolHeight);
+        $canvas.find('.wsp-base-node').outerWidth(width - 4);
         // This is a complete hack to make the hidden sketch elements the proper size.
         // If styles change, this could be off by a few pixels, or worse if (for instance) undo and redo are at bottom.
         // The current work-around is to use data-delayed-url so that a sketch isn't loaded until it's actually visible.
-        // A better work-around wouild be to factor attachToolsToNode into two different functions,
+        // A better work-around would be to factor attachToolsToNode into two different functions,
         // one to size the sketch elements and another to attach the tools. Then we could call the resize()
         // function when the sketch becomes visible. (Though detecting that event is also a can of worms.)
-  */
       }
       $container.outerWidth(width);
     }
@@ -817,6 +844,18 @@ var WIDGETS = (function() {
       // Do we need to change the color cached in the renderRefCon?
       domNode.css({ color: color });
       domNode.find('*').css({ color: color });
+    }
+  }
+
+  function notifyInvalidatedStyle(gobj, notify, moreChanges) {
+    // Invalidates the appearance and optionalLy sends an event with the modified style.
+    gobj.invalidateAppearance();
+    if (notify) {
+      // NEED TO EXTEND THE CHANGES OBJECT WITH moreChanges if it exists
+      styleWidget.event(
+        { gobj: gobj },
+        { action: 'changed', changes: [{ id: gobj.id, style: gobj.style }] }
+      );
     }
   }
 
@@ -892,10 +931,10 @@ var WIDGETS = (function() {
     return $('.block' + column + row).css('background-color'); // Use .css to return the computed style
   }
 
-  function setGobjColor(color, optGobj) {
+  function setGobjColor(color, notify) {
     // if optGobj is undefined, set the color of the targetGobj.
     var retVal = false, // returns true if color was changed
-      gobj = optGobj || targetGobj;
+      gobj = targetGobj;
     if (gobj) {
       if (styleWidget.objectColorBox.checked) {
         if (gobj.isOfKind('Text')) {
@@ -905,7 +944,7 @@ var WIDGETS = (function() {
           retVal = gobj.style.color !== color;
           if (retVal) {
             gobj.style.color = color; // Set the color of a geometric object, a text object, or a button handle
-            gobj.invalidateAppearance();
+            notifyInvalidatedStyle(gobj, notify);
           }
           gobj.setRenderState(targetState);
         }
@@ -914,18 +953,18 @@ var WIDGETS = (function() {
     return retVal;
   }
 
-  function setPointStyle(newStyle) {
+  function setPointStyle(newStyle, notify) {
     var gobj = targetGobj;
     currentPointStyle = newStyle;
     if (gobj && gobj.style.radius && currentPointStyle >= 0) {
       gobj.setRenderState('none');
       gobj.style.radius = radiusValue[currentPointStyle];
       gobj.setRenderState(targetState);
-      gobj.invalidateAppearance();
+      notifyInvalidatedStyle(gobj, notify);
     }
   }
 
-  function setLineStyle(newStyle, newThickness) {
+  function setLineStyle(newStyle, newThickness, notify) {
     var gobj = targetGobj;
     currentLineStyle = newStyle;
     currentLineThickness = newThickness;
@@ -936,17 +975,19 @@ var WIDGETS = (function() {
       if (gobj.style.width && currentLineThickness >= 0)
         gobj.style.width = pathWidthValue[currentLineThickness];
       gobj.setRenderState(targetState);
-      gobj.invalidateAppearance();
+      notifyInvalidatedStyle(gobj, notify);
     }
   }
 
-  function setColor(colorIndex) {
-    var newColor = getColorFromIndex(colorIndex);
-    if (styleWidget.objectColorBox.checked) {
-      setGobjColor(newColor);
+  function setColor(colorIndex, notify) {
+    var newColor = getColorFromIndex(colorIndex),
+      doGobj = styleWidget.objectColorBox.checked,
+      doText = styleWidget.textColorBox.checked;
+    if (doGobj) {
+      setGobjColor(newColor, notify && !doText); // if doing both, notify only once
     }
-    if (styleWidget.textColorBox.checked) {
-      setTextColor(newColor);
+    if (doText) {
+      setTextColor(newColor, notify);
     }
   }
 
@@ -966,31 +1007,27 @@ var WIDGETS = (function() {
   };
 
   styleWidget.postProcessGobj = function(gobj) {
-    // return true if style is changed
-    var ret = false,
-      cancel = styleWidget.cancelOnExit;
+    // if style is changed, return the change
+    var cancel = styleWidget.cancelOnExit,
+      change; // If canceling, return gobj.oldStyle; if not, return gobj.style
+    //
     if (gobj.oldStyle) {
       // exists if this gobj's style was changed
       if (cancel) {
-        gobj.style = jQuery.extend(true, {}, gobj.oldStyle);
+        gobj.style = gobj.oldStyle;
         restoreTextColor();
         gobj.sQuery.sketch.invalidateAppearance(gobj);
-        ret = true; // include the original style in the message
-      } else {
-        // not canceling
-        ret = !deepEquals(gobj.oldStyle, gobj.style); // if styles differ, return true
       }
+      change = { style: jQuery.extend(true, {}, gobj.style) };
       delete gobj.oldStyle;
     }
     Object.getPrototypeOf(styleWidget).postProcessGobj(gobj); // undo any TapWidget pre-processing
-    if (ret) {
-      ret = { style: JSON.stringify(gobj.style) };
-    }
-    return ret;
+    return change; // defined only if the gobj was affected by the widget
   };
 
   styleWidget.handleTap = function(event, context) {
-    var gobj;
+    var gobj,
+      change = {}; // the change for this gobj
     gobj = Object.getPrototypeOf(styleWidget).handleTap(event, context);
     if (gobj) {
       setTarget(gobj);
@@ -1005,12 +1042,10 @@ var WIDGETS = (function() {
       if (colorIndex >= 0) {
         setColor(colorIndex);
       } // colorIndex >= 0
-
-      styleWidget.sketch.event(
-        styleWidget.eventName,
-        {},
-        { id: gobj.id, newStyle: gobj.style }
-      );
+      // A change record includes the gobj's id along with any gobj properties that have changed
+      change.id = gobj.id;
+      change.style = gobj.style;
+      this.event({ gobj: gobj }, { action: 'changed', changes: [change] });
     } // if (gobj)
   };
 
@@ -1030,7 +1065,7 @@ var WIDGETS = (function() {
       selStyle.left = column + 'rem';
       selStyle.display = 'block';
     }
-    setLineStyle(style, thickness);
+    setLineStyle(style, thickness, 'notify');
   }
 
   function highlightPointGrid(style) {
@@ -1046,7 +1081,7 @@ var WIDGETS = (function() {
       selStyle.top = row + 'rem';
       selStyle.display = 'block';
     }
-    setPointStyle(style);
+    setPointStyle(style, 'notify');
   }
 
   function highlightColorGrid(column, row) {
@@ -1066,7 +1101,7 @@ var WIDGETS = (function() {
       if (!styleWidget.textColorBox.checked)
         check(styleWidget.objectColorBox, true);
       if (targetGobj) {
-        setColor(colorIndex);
+        setColor(colorIndex, 'notify');
       }
     }
   }
@@ -1164,6 +1199,7 @@ var WIDGETS = (function() {
   };
 
   visibilityWidget.postProcessGobj = function(gobj) {
+    // if visibility is changed, return the change
     // return true if the gobj's visibility has changed
     var style = gobj.style,
       isHidden,
@@ -1181,17 +1217,15 @@ var WIDGETS = (function() {
     if (gobj.wasHidden) {
       delete gobj.wasHidden;
     }
-    if (retVal) {
-      retVal = { hidden: gobj.style.hidden };
-    }
     return retVal;
   };
 
   visibilityWidget.handleTap = function(event, context) {
     var gobj = Object.getPrototypeOf(visibilityWidget).handleTap(
-      event,
-      context
-    );
+        event,
+        context
+      ),
+      change = {};
     if (gobj) {
       if (!gobj.style.faded) {
         // faded is false or undefined, so fade a visible object
@@ -1201,6 +1235,10 @@ var WIDGETS = (function() {
         unfade(gobj);
       }
       $('#wVisibilityPrompt').css('display', 'none');
+      // Send a change record including the gobj's id and style
+      change.id = gobj.id;
+      change.style = gobj.style;
+      this.event({ gobj: gobj }, { action: 'changed', changes: [change] });
     }
   };
 
@@ -1288,7 +1326,7 @@ var WIDGETS = (function() {
   // The label widget caches properties of the currently-targeted gobj to restore them if the user cancels.
   labelWidget.cacheProperties = function(gobj) {
     this.oldLabel = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label;
-    this.oldAutoGenerate = gobj.shouldAutogenerateLabel;
+    this.oldAutogenerate = gobj.shouldAutogenerateLabel;
     normalizeFontFamily(gobj);
     this.oldStyle = $.extend(true, {}, gobj.style);
   };
@@ -1314,27 +1352,32 @@ var WIDGETS = (function() {
 
   labelWidget.finalizeLabel = function() {
     // Make sure the label and nameOrigin of the previous target are compatible,
-    // and emit an event if appropriate.
+    // and emit an event if appropriate. The event includes some or all of these
+    // changed properties:
+    // text (the label or text,
+    // styleJson (stringified), and
+    // autoGenerate (for shouldAutogenerateLabel).
     var properOrigin,
       self = this;
 
     function sendEvent(gobj) {
       // Was gobj changed? If so, emit an event.
-      var attr = { id: gobj.id },
-        currentText = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label,
-        labelChanged = currentText !== self.oldLabel,
-        styleChanged = !deepEquals(self.oldStyle, gobj.style),
-        autoChanged = self.oldAutoGenerate !== gobj.shouldAutogenerateLabel,
-        changed = labelChanged || autoChanged || styleChanged;
-      if (changed) {
-        attr.label = currentText;
-        if (styleChanged) {
-          attr.style = $.extend(true, {}, gobj.style);
-        }
-        if (autoChanged) {
-          attr.autoGenerate = gobj.shouldAutogenerateLabel;
-        }
-        self.sketch.event(self.eventName, {}, attr);
+      var currentText = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label,
+        styleJson,
+        attr = {};
+      if (currentText !== self.oldLabel) {
+        attr.text = currentText;
+      }
+      if (self.oldAutogenerate !== gobj.shouldAutogenerateLabel) {
+        attr.autoGenerate = gobj.shouldAutogenerateLabel;
+      }
+      if (!deepEquals(self.oldStyle, gobj.style)) {
+        styleJson = JSON.stringify(gobj.style);
+        attr.styleJson = styleJson;
+      }
+      if (Object.keys(attr).length) {
+        // Change this event call to use the new event() in the Widget prototype.
+        self.event({ gobj: gobj }, attr);
       }
     }
 
@@ -1350,7 +1393,7 @@ var WIDGETS = (function() {
       }
     }
     delete this.oldLabel;
-    delete this.oldAutoGenerate;
+    delete this.oldAutogenerate;
     delete this.oldStyle;
   };
 
@@ -1366,13 +1409,13 @@ var WIDGETS = (function() {
         delete gobj.label;
       } else if (!labelWidget.oldLabel) {
         delete gobj.label;
-        gobj.shouldAutogenerateLabel = labelWidget.oldAutoGenerate;
+        gobj.shouldAutogenerateLabel = labelWidget.oldAutogenerate;
       } else {
         // Call changeText() to restore the old label. But first, make sure gobj.label is different from oldLabel.
         // Otherwise changeText() will think there's nothing to do.
         gobj.label = labelWidget.oldLabel ? '' : ' ';
         changeText(labelWidget.oldLabel, gobj.style.nameOrigin);
-        gobj.shouldAutogenerateLabel = labelWidget.oldAutoGenerate;
+        gobj.shouldAutogenerateLabel = labelWidget.oldAutogenerate;
       }
       restoreSavedPool();
       invalidateLabel(gobj);
@@ -1449,7 +1492,7 @@ var WIDGETS = (function() {
         gobj.style.nameOrigin !== 'noVisibleName'
       );
     }
-    gobj.invalidateAppearance();
+    notifyInvalidatedStyle(gobj, 'notify', { label: gobj.label });
   }
 
   function changeText(newText, newOrigin) {
@@ -1577,7 +1620,7 @@ var WIDGETS = (function() {
 
           function makeLabel(nameOrigin) {
             // Create labels only if this the current nameOrigin or (the parent is unlabeled and toGobj isn't namedFromLabel
-            var option = {};
+            var option = { init: true };
             if (
               toGobj.style.nameOrigin === nameOrigin ||
               (!preImage.label && toGobj.style.nameOrigin !== 'namedFromLabel')
@@ -1815,8 +1858,9 @@ var WIDGETS = (function() {
         copyGObjToStyles();
       }
       if (
-        toGobj.style.nameOrigin === 'namedFromLabel' &&
-        (toGobj.label.match(/namedFromLabel/) || !toGobj.label)
+        (toGobj.style.nameOrigin === 'namedFromLabel' &&
+          toGobj.label.match(/namedFromLabel/)) ||
+        !toGobj.label
       ) {
         generateNewLabel(toGobj);
       }
@@ -2067,7 +2111,7 @@ var WIDGETS = (function() {
     $('#wLabelPane').css('display', 'none');
     $('#wLabelPrompt').css('display', 'block');
     targetGobj = null; // targetGobj can't hang around; it might not even exist any more
-    Object.getPrototypeOf(labelWidget).postProcessSketch(sketch); // undo any TapWidget pre-processing
+    Object.getPrototypeOf(labelWidget).postProcessSketch(this, sketch); // undo any TapWidget pre-processing
   };
 
   function getScriptPath() {
@@ -2187,7 +2231,7 @@ var WIDGETS = (function() {
   }
 
   function movementMessagesOn() {
-    $targetNode.on('StartDrag.WSP', stopGlowing);
+    $targetNode.on('StartDragConfirmed.WSP', stopGlowing);
     $targetNode.on('EndDrag.WSP', startGlowing);
     $targetNode.on('StartAnimate.WSP', stopGlowing);
     $targetNode.on('EndAnimate.WSP', startGlowing);
@@ -2196,7 +2240,7 @@ var WIDGETS = (function() {
   }
 
   function movementMessagesOff() {
-    $targetNode.off('StartDrag.WSP');
+    $targetNode.off('StartDragConfirmed.WSP');
     $targetNode.off('EndDrag.WSP');
     $targetNode.off('StartAnimate.WSP');
     $targetNode.off('EndAnimate.WSP');
@@ -2301,15 +2345,17 @@ var WIDGETS = (function() {
 
   traceWidget.handleTap = function(event, context) {
     var gobj = Object.getPrototypeOf(traceWidget).handleTap(event, context),
+      change = { id: gobj.id },
       style;
     if (!canTraceGobj(gobj)) return; // ignore taps on untraceable objects
     if (gobj) {
       style = gobj.style;
       style.traced = !style.traced;
-      traceWidget.sketch.event(
+      change.traced = style.traced;
+      getSketch().event(
         traceWidget.eventName,
-        {},
-        { id: gobj.id, tracing: style.traced }
+        { gobj: gobj },
+        { action: 'changed', changes: [change] }
       );
       if (!style.traced) {
         gobj.setRenderState('none');
@@ -2345,20 +2391,21 @@ var WIDGETS = (function() {
 
   deleteWidget.deleteProgeny = function() {
     // The Delete Widget posts an undo delta and emits an event with each deletion
-    var sketch = this.sketch,
+    var sketch = getSketch(),
       delta,
-      deletedIds = [],
       preDelta = sketch.document.getRecentChangesDelta(); // capture changes since last undo event
     sketch.gobjList.removeGObjects(deleteWidget.progenyList, sketch);
     delta = sketch.document.pushConfirmedSketchOpDelta(preDelta);
     sketch.document.changedUIMode();
-    $.each(deleteWidget.progenyList, function() {
-      deletedIds.push(this.id);
-    });
-    this.sketch.event(
+    // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
+    sketch.event(
       this.eventName,
-      {},
-      { delta: delta, preDelta: preDelta, deletedIds: deletedIds }
+      {
+        'deleted gobjs': deleteWidget.progenyList,
+      },
+      {
+        delta: delta,
+      }
     );
   };
 
@@ -2404,6 +2451,7 @@ var WIDGETS = (function() {
 
   function makeWidgetHTML() {
     // jshint multistr:true
+    // jshint -W044
     var text =
       '<div id="widget" class="clearfix">\
     <div id="widget_control" class="widget_controlWidth">\
@@ -2686,8 +2734,8 @@ var WIDGETS = (function() {
     <p class = "util-popup-legend">(No spaces or commas allowed with "-json.js".)</p>\
     <div class="util-div-fname">\
       <label for="util-fname">Name: </label>\
-      <input id = "util-fname" type="text" placeholder="file name" required \
-        pattern="^[a-zA-Z0-9](?:(([a-zA-Z0-9-\\._]*)(-json\\.js))|(([a-zA-Z0-9-\\._ ,]*)(\\.json))$)" \
+      <input id = "util-fname" type="text" placeholder="file name (no spaces)" required \
+        pattern="(^[a-zA-Z0-9]([a-zA-Z0-9_-])*.json)|(^[a-zA-Z0-9]([a-zA-Z0-9_-])*-json.js)$"\
         title="Must end with \'.json\' or \'-json.js\'"\
         oninput="UTILMENU.checkFName(this.validity);"/>\
       <span class="validity"></span>\
@@ -2730,9 +2778,8 @@ var WIDGETS = (function() {
     var $data = $('<div>');
     scriptPath = getScriptPath();
     if ($widget) {
-      // $widget.remove();
+      $widget.remove();
       console.log('makeWidget() should not be called twice.');
-      return;
     }
     $data.append(data);
     $widget = $data.find('#widget');
@@ -2754,7 +2801,6 @@ var WIDGETS = (function() {
   function initWidget() {
     if (true) {
       makeWidget(makeWidgetHTML());
-      console.log('makeWidgetHTML() finished,');
     } else {
       $.ajax({
         // Load the widget html
@@ -3266,7 +3312,6 @@ var PAGENUM = (function() {
     // Only need to call this once to set css classes, UNLESS
     // tools are dynamically enabled or disabled on various pages (e.g., in the Tool Library).
     var tools = sketchDoc.tools;
-    console.log('setToolEnabling() called.');
     if (!tools) return;
     tools.forEach(function(tool) {
       var $node = tool.$element,
@@ -3420,14 +3465,11 @@ var PAGENUM = (function() {
   function init() {
     // The buttons cannot be created until the sketch is loaded and we know whether it contains more than a single page.
     var canvasNodes = $('.sketch_canvas');
-    console.log('init() called.');
     canvasNodes.on('LoadDocument.WSP', function(event, context) {
-      console.log('LoadDocument received.');
       injectButtonElements(context.document);
       setToolEnabling(context.document);
     });
     canvasNodes.on('DidChangeCurrentPage.WSP', function(event, context) {
-      console.log('DidChangeCurrentPage received.');
       showPageNum(context.document, event.target);
     });
   }
@@ -3893,9 +3935,8 @@ var UTILMENU = (function() {
     // The download should be in script form if the title ends in ".js" or "-json".
     // For script output, the variable name is the portion of the title up to ".js" or "-json".
     /*
-       pattern=\"^[a-zA-Z0-9](?:[a-zA-Z0-9-\\._]*)(-json\\.js|\\.json)$\" title=\"Must end with '.json' or '-json.js'\"\
-
-       **/
+     * pattern=\"(^[a-zA-Z0-9]([a-zA-Z0-9_-])*\.json)|(^[a-zA-Z0-9]([a-zA-Z0-9_-])*-json\.js)$"
+     **/
     if (!$('#util-fname')[0].validity.valid) return;
     scriptOutput = title.slice(-3) === '.js' || title.slice(-5) === '-json';
     if (scriptOutput) {
@@ -3933,12 +3974,14 @@ var UTILMENU = (function() {
 
   function doDownload() {
     // Prepare a download of the sketch contents associated with the utilButton menu
-    var $dialog = $('#download-modal');
+    var $dialog = $('#download-modal'),
+      $fName = $('#util-fname');
     $dialog.css('display', 'block');
     $dialog
       .find('.util-popup-content')
       .tinyDraggable({ exclude: '.dragExclude' });
-    $('#util-fname').select();
+    $fName.select();
+    UTILMENU.checkFName($fName.validity.valid);
   }
 
   function prepareUpload() {
@@ -4190,10 +4233,7 @@ var UTILMENU = (function() {
 })(); // UTILMENU
 
 $(function() {
-  console.log('calling initWidget()');
   WIDGETS.initWidget();
-  console.log('calling initPageControls()');
   PAGENUM.initPageControls();
-  console.log('calling initUtils()');
   UTILMENU.initUtils();
 });
