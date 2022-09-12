@@ -48,6 +48,7 @@ const WebSketch = (props) => {
     return () => {
       socket.removeAllListeners('RECEIVE_EVENT');
       // window.UTILMENU = undefined;
+      // do we need to unmount or destroy the wsp instance?
       console.log('WSP activity ending - clean up listeners');
     };
   }, []);
