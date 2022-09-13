@@ -6,7 +6,6 @@ import { normalize } from '../utils';
 import * as loading from './loading';
 import { updateActivity } from './activities';
 import { updateCourse } from './courses';
-import { updateUser } from './user';
 
 export const gotRooms = (rooms, isNewRoom) => ({
   type: actionTypes.GOT_ROOMS,
@@ -346,7 +345,6 @@ export const updateRoom = (id, body) => {
         keys.forEach((key) => {
           prevRoom[key] = room[key];
         });
-
         dispatch(updatedRoom(id, prevRoom));
         dispatch(loading.updateFail('room', keys));
         setTimeout(() => {
@@ -478,6 +476,7 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
   };
 };
 
+// unused
 export const removeRoom = (roomId) => {
   return (dispatch) => {
     dispatch(loading.start());
@@ -487,10 +486,14 @@ export const removeRoom = (roomId) => {
         if (res.data.result.course) {
           dispatch(removeCourseRooms(res.data.result.course, [roomId]));
         }
+        // if (res.data.result.activity) {
+        //   dispatch(removeActivityRooms(res.data.result.activity, [roomId]));
+        // }
         dispatch(removedRoom(roomId));
         dispatch(loading.success());
       })
       .catch((err) => {
+        // @todo: if fail, restore room
         dispatch(loading.fail());
         // eslint-disable-next-line no-console
         console.log(err);
@@ -510,5 +513,29 @@ export const updateMonitorSelections = (selections) => {
       type: actionTypes.UPDATE_MONITOR_SELECTIONS,
       monitorSelections: selections,
     });
+  };
+};
+
+export const restoreArchivedRoom = (id) => {
+  return async (dispatch) => {
+    const roomData = await API.get('rooms', { _id: id });
+    const room = await roomData.data.results[0];
+    dispatch(removeRoomFromArchive(id)); // do this for each facilitator
+    // dispatch(addUserRooms([id]));
+    const roomToUpdate = { ...room, status: STATUS.DEFAULT, unarchive: true };
+    // add room to store
+    dispatch(updateRoom(id, roomToUpdate));
+    // updates room status & unarchives room from db
+    // dispatchNewRoom(updatedRoom, dispatch);
+
+    // change room in db API.put('rooms', id, status.defualt)
+    // in catch undo everything
+  };
+};
+
+const removeRoomFromArchive = (id) => {
+  return {
+    type: actionTypes.REMOVE_ROOM_FROM_ARCHIVE,
+    id,
   };
 };

@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
+import { useDispatch, useStore } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
 import { API } from 'utils';
-import { Button, BigModal, Modal } from 'Components';
+import { Button, BigModal, Modal, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
-import { useStore } from 'react-redux';
+import { restoreArchivedRoom } from 'store/actions';
+import { STATUS } from 'constants.js';
+import classes from './Archive.css';
 
 const SKIP_VALUE = 20;
 
 const Archive = () => {
   const history = useHistory(); // potentially only need history pathname
+  const dispatch = useDispatch();
   const match = useRouteMatch(); // and not url from match
   const { resource } = useParams();
   const { archive } = useStore().getState().user;
@@ -131,31 +135,6 @@ const Archive = () => {
           : res.data.results
       );
     });
-
-    // this API search uses date filters, but is quite specific to
-    // the Dashboard since/to date structure
-    // API.getRecentActivity(
-    //   resource,
-    //   updatedFilters.search,
-    //   skip,
-    //   updatedFilters
-    // ).then((res) => {
-    //   const [items, totalCounts] = res.data.results;
-
-    //   const isMoreAvailable = items.length >= SKIP_VALUE;
-    //   setVisibleResources((prevState) =>
-    //     concat ? [...prevState.visibleResources].concat(items) : items
-    //   );
-    //   setMoreAvailable(isMoreAvailable);
-
-    //   // this.setState((prevState) => ({
-    //   //   visibleResources: concat
-    //   //     ? [...prevState.visibleResources].concat(items)
-    //   //     : items,
-    //   //   moreAvailable,
-    //   //   totalCounts,
-    //   // }));
-    // });
   };
 
   const setSkipState = () => {
@@ -170,9 +149,9 @@ const Archive = () => {
   };
 
   const clearSearch = () => {
+    setSearchText('');
     setLoading(true);
     setVisibleResources([]);
-    setSearchText('');
   };
 
   const setFromDate = (date) => {
@@ -223,44 +202,62 @@ const Archive = () => {
   };
 
   const restoreButton = {
-    title: 'Restore',
+    title: 'Unarchive',
     onClick: (e, id) => {
       e.preventDefault();
-      console.log('restore: ', id);
       setShowRestoreComponent(true);
       handleRestore(id);
     },
     icon: (
-      <Button click={null} data-testid="Restore">
-        Restore
-      </Button>
+      <ToolTip text="Unarchive" delay={600}>
+        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+          output
+        </span>
+      </ToolTip>
     ),
   };
 
   const handleRestore = (id) => {
     let showModal = true;
-    let res;
+    let resourceNames;
+    let singleResource = true;
     if (Array.isArray(id)) {
-      res = getResourceNames(id).join(', ');
-      console.log('res', res);
-    } else res = visibleResources.filter((el) => el._id === id)[0].name;
+      singleResource = false;
+      resourceNames = getResourceNames(id).join(', ');
+    } else
+      resourceNames = visibleResources.filter((el) => el._id === id)[0].name;
+
+    const dispatchRestore = () => {
+      if (singleResource) {
+        dispatch(restoreArchivedRoom(id, { status: STATUS.DEFAULT }));
+      } else
+        id.forEach((resId) =>
+          dispatch(restoreArchivedRoom(resId, { status: STATUS.DEFAULT }))
+        );
+      // re-fetch to clear restored rooms from the page
+      // and to get an accurate search
+      debounceFetchData();
+    };
+
     setRestoreComponent(
       <Modal
+        // show={showRestoreComponent} // doesn't work
         show={showModal}
         closeModal={() => {
+          // showRestoreComponent = false;
           showModal = false;
           setShowRestoreComponent(false);
         }}
       >
         <span>
           Are you sure you want to restore{' '}
-          <span style={{ fontWeight: 'bolder' }}>{res}</span>
+          <span style={{ fontWeight: 'bolder' }}>{resourceNames}</span>
         </span>
         <div className={''}>
           <Button
             data-testid="restore-resource"
             click={() => {
-              console.log('yes');
+              dispatchRestore();
               showModal = false;
               setShowRestoreComponent(false);
             }}
@@ -271,7 +268,6 @@ const Archive = () => {
           <Button
             data-testid="cancel-manage-user"
             click={() => {
-              console.log('no');
               showModal = false;
               setShowRestoreComponent(false);
             }}
@@ -307,19 +303,6 @@ const Archive = () => {
 
   const customIcons = [
     {
-      title: 'Replayer',
-      onClick: (e, id) => {
-        e.preventDefault();
-        goToReplayer(id);
-      },
-      icon: (
-        <Button data-testid="Replayer" click={null}>
-          Replayer
-        </Button>
-      ),
-    },
-    restoreButton,
-    {
       title: 'Preview',
       onClick: (e, id) => {
         e.preventDefault();
@@ -328,6 +311,19 @@ const Archive = () => {
       },
       icon: <i className="fas fa-external-link-alt" />,
     },
+    {
+      title: 'Replayer',
+      onClick: (e, id) => {
+        e.preventDefault();
+        goToReplayer(id);
+      },
+      icon: (
+        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+          replay
+        </span>
+      ),
+    },
+    restoreButton,
   ];
 
   const selectActions = [restoreButton];

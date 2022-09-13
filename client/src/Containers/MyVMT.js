@@ -103,8 +103,11 @@ class MyVMT extends Component {
       courses: user.courses.length,
       rooms: user.rooms.length,
       activities: user.activities.length,
-      'archived rooms': user.archive.rooms.length,
     };
+
+    if (user.archive && user.archive.rooms && user.archive.rooms.length)
+      additionalDetails['archived rooms'] = user.archive.rooms.length;
+
     const resourceTypes = [
       'rooms',
       'courses',
@@ -132,6 +135,7 @@ class MyVMT extends Component {
         }
         user={user}
         resource={resource}
+        selectableBoxList
       />
     );
     // resource 404 error display
@@ -183,8 +187,8 @@ MyVMT.propTypes = {
     activities: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
     ),
-    archive: PropTypes.shape({ rooms: PropTypes.arrayOf({}) }),
-    notifications: PropTypes.arrayOf(PropTypes.string),
+    archive: PropTypes.shape({ rooms: PropTypes.arrayOf(PropTypes.string) }),
+    notifications: PropTypes.arrayOf(PropTypes.shape({})),
     username: PropTypes.string,
     firstName: PropTypes.string,
     lastName: PropTypes.string,

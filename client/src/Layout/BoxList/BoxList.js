@@ -101,6 +101,7 @@ const boxList = (props) => {
                 details={details}
                 listType={listType}
                 customIcons={icons}
+                resource={resource}
               >
                 {item.description}
               </ContentBox>

@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import getResourceTabTypes from 'utils/getResourceTabTypes';
 import ggbIcon from './geogebra.png';
 import dsmIcon from './desmos.png';
 import dsmActIcon from './desmosActivity.png';
@@ -7,7 +8,6 @@ import pyretIcon from './pyretlogo.png';
 import bothIcon from './desmosandgeogebra.png';
 import ToolTip from '../../../ToolTip/ToolTip';
 import classes from './icons.css';
-import getResourceTabTypes from 'utils/getResourceTabTypes';
 
 const Icons = ({ lock, listType, roomType, image }) => {
   let lockIcon;
@@ -103,9 +103,11 @@ const Icons = ({ lock, listType, roomType, image }) => {
   }
   return (
     <Fragment>
-      <div className={classes.Icon}>
-        <img src={image} width={25} alt="" />
-      </div>
+      {image && (
+        <div className={classes.Icon}>
+          <img src={image} width={25} alt="" />
+        </div>
+      )}
       <div className={classes.Icon}>{lockIcon}</div>
       {roomTypeIcon}
     </Fragment>

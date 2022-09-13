@@ -263,13 +263,13 @@ Archive.propTypes = {
   showRoomPreview: PropTypes.bool.isRequired,
   roomPreviewComponent: PropTypes.func,
   showRestoreComponent: PropTypes.bool.isRequired,
-  restoreComponent: PropTypes.func,
+  restoreComponent: PropTypes.shape({}),
 };
 
 Archive.defaultProps = {
   visibleResources: [],
   searchValue: '',
-  setSkipState: null,
+  setSkipState: () => {},
   customFromDate: null,
   customToDate: null,
   roomPreviewComponent: null,

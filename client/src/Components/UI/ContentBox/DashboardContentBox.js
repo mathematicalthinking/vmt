@@ -104,12 +104,7 @@ class DashboardContentBox extends PureComponent {
           <div className={classes.BannerLeft}>
             {resource === 'rooms' ? (
               <div className={classes.Icons}>
-                <Icons
-                  image={image}
-                  lock={locked}
-                  roomType={roomType}
-                  listType={listType}
-                />
+                <Icons lock={locked} roomType={roomType} listType={listType} />
               </div>
             ) : null}
             <div className={classes.Title} data-testid="">

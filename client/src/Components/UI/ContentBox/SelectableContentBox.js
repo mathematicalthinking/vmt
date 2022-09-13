@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Checkbox } from 'Components';
+import { Checkbox, ToolTip } from 'Components';
 import Notification from 'Components/Notification/Notification';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import Icons from './Icons/Icons';
@@ -20,17 +21,19 @@ const SelectableContentBox = (props) => {
     isChecked,
     onSelect,
     customIcons,
+    resource,
   } = props;
 
+  const history = useHistory();
   const [expanded, setExpanded] = useState(false);
   const [typeKeyword, setTypeKeyword] = useState('Tab Type');
-  const [tabTypes, setTabTypes] = useState('');
+  const [tabTypesText, setTabTypesText] = useState('');
 
   useEffect(() => {
-    const { resourceTabTypes, isPlural } = getResourceTabTypes(roomType);
+    const { tabTypes, isPlural } = getResourceTabTypes(roomType);
     const tempTypeKeyword = isPlural ? 'Tab Types' : 'Tab Type';
     setTypeKeyword(tempTypeKeyword);
-    setTabTypes(resourceTabTypes);
+    setTabTypesText(tabTypes);
   }, []);
 
   const notificationElements =
@@ -39,14 +42,13 @@ const SelectableContentBox = (props) => {
     ) : null;
 
   return (
-    <div style={{ display: 'flex' }}>
-      <Checkbox
-        change={onSelect}
-        style={{ margin: '0 1rem' }}
-        checked={isChecked}
-        dataId={id}
-        id={id}
-      />
+    <Checkbox
+      change={onSelect}
+      style={{ margin: '0 1rem 0 0' }}
+      checked={isChecked}
+      dataId={id}
+      id={id}
+    >
       <div
         to={link}
         className={classes.Container}
@@ -66,8 +68,30 @@ const SelectableContentBox = (props) => {
                   listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
                 />
               </div>
-              <div className={classes.Title} data-testid="">
-                {title}
+              <div
+                className={link ? classes.TitleLink : classes.Title}
+                data-testid=""
+                onClick={() => link && history.push(link)}
+                onKeyDown={() => link && history.push(link)}
+                role="button"
+                tabIndex={-1}
+                title={title}
+              >
+                {link ? (
+                  // only show tooltip for lobby link
+                  // when the link is provided
+                  <ToolTip
+                    text={`Go to ${resource.substring(
+                      0,
+                      resource.length - 1
+                    )} lobby`}
+                    delay={600}
+                  >
+                    {title}
+                  </ToolTip>
+                ) : (
+                  title
+                )}
               </div>
               {notificationElements}
             </div>
@@ -77,7 +101,7 @@ const SelectableContentBox = (props) => {
                 alignItems: 'center',
                 justifyContent: 'flex-end',
                 width: '100%',
-                padding: '0 1rem',
+                // padding: '0 1rem',
               }}
             >
               {customIcons &&
@@ -87,11 +111,12 @@ const SelectableContentBox = (props) => {
                     onKeyDown={icon.onClick}
                     tabIndex={-1}
                     role="button"
-                    title={icon.title}
                     key={`icon-${icon.title}-${id}`}
-                    style={{ margin: '0 1rem', cursor: 'pointer' }}
+                    style={{ margin: '0 .5rem', cursor: 'pointer' }}
                   >
-                    {icon.icon}
+                    <ToolTip text={icon.title} delay={600}>
+                      {icon.icon}
+                    </ToolTip>
                   </div>
                 ))}
             </div>
@@ -134,9 +159,9 @@ const SelectableContentBox = (props) => {
                 {details.description ? (
                   <div>Description: {details.description}</div>
                 ) : null}
-                {tabTypes && tabTypes.length ? (
+                {tabTypesText && tabTypesText.length ? (
                   <div className={classes.TabTypes}>
-                    {typeKeyword}: {tabTypes}
+                    {typeKeyword}: {tabTypesText}
                   </div>
                 ) : null}
               </div>
@@ -144,7 +169,7 @@ const SelectableContentBox = (props) => {
           </div>
         </div>
       </div>
-    </div>
+    </Checkbox>
   );
 };
 
@@ -152,7 +177,7 @@ SelectableContentBox.propTypes = {
   id: PropTypes.string.isRequired,
   notifications: PropTypes.number,
   link: PropTypes.string,
-  roomType: PropTypes.string,
+  roomType: PropTypes.arrayOf(PropTypes.string),
   listType: PropTypes.string,
   title: PropTypes.string.isRequired,
   locked: PropTypes.bool.isRequired,
@@ -168,6 +193,7 @@ SelectableContentBox.propTypes = {
   isChecked: PropTypes.bool,
   onSelect: PropTypes.func.isRequired,
   customIcons: PropTypes.arrayOf(PropTypes.shape({})),
+  resource: PropTypes.string,
 };
 
 SelectableContentBox.defaultProps = {
@@ -177,6 +203,7 @@ SelectableContentBox.defaultProps = {
   listType: null,
   isChecked: false,
   customIcons: [],
+  resource: null,
 };
 
 export default SelectableContentBox;

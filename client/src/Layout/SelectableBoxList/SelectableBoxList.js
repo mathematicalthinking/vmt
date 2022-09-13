@@ -88,7 +88,7 @@ const SelectableBoxList = (props) => {
             onKeyDown={(e) => selectAction.onClick(e, selectedIds)}
             role="button"
             tabIndex={-1}
-            title={selectAction.title}
+            // title={selectAction.title}
             key={`selectAction-${selectAction.title}`}
             style={{ margin: '0 1rem' }}
           >
@@ -96,76 +96,73 @@ const SelectableBoxList = (props) => {
           </div>
         ))}
       </div>
-      <div style={{ marginTop: '60px' }}>
-        {list.map((item) => {
-          if (item) {
-            const details = {
-              description: item.description,
-              createdAt: item.createdAt
-                ? item.createdAt.split('T')[0].toLocaleString()
-                : '',
-              dueDate: item.dueDate,
-              facilitators: item.members
-                ? item.members
-                    .filter((member) => member.role === 'facilitator')
-                    .map(
-                      (member, x, arr) =>
-                        `${member.user.username}${
-                          x < arr.length - 1 ? ', ' : ''
-                        }`
-                    )
-                : [],
-              sinceUpdated: timeDiff(item.updatedAt),
-            };
+      {list.map((item) => {
+        if (item) {
+          const details = {
+            description: item.description,
+            createdAt: item.createdAt
+              ? item.createdAt.split('T')[0].toLocaleString()
+              : '',
+            dueDate: item.dueDate,
+            facilitators: item.members
+              ? item.members
+                  .filter((member) => member.role === 'facilitator')
+                  .map(
+                    (member, x, arr) =>
+                      `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
+                  )
+              : [],
+            sinceUpdated: timeDiff(item.updatedAt),
+          };
 
-            let notificationCount = 0;
-            if (listType === 'private') {
-              if (notifications.length > 0) {
-                notifications.forEach((ntf) => {
-                  if (
-                    ntf.resourceId === item._id ||
-                    ntf.parentResource === item._id
-                  ) {
-                    notificationCount += 1;
-                  }
-                });
-              }
-              details.entryCode = item.entryCode;
-            } else if (item.creator) {
-              details.creator = item.creator.username;
+          let notificationCount = 0;
+          if (listType === 'private') {
+            if (notifications.length > 0) {
+              notifications.forEach((ntf) => {
+                if (
+                  ntf.resourceId === item._id ||
+                  ntf.parentResource === item._id
+                ) {
+                  notificationCount += 1;
+                }
+              });
             }
-            return (
-              <div className={classes.ContentBox} key={item._id}>
-                <SelectableContentBox
-                  title={item.name}
-                  link={
-                    linkPath !== null
-                      ? `${linkPath}${item._id}${linkSuffix}`
-                      : null
-                  }
-                  key={item._id}
-                  id={item._id}
-                  isChecked={selectedIds.includes(item._id)}
-                  onSelect={handleSelectOne}
-                  notifications={notificationCount}
-                  roomType={
-                    item && item.tabs
-                      ? item.tabs.map((tab) => tab.tabType)
-                      : null
-                  }
-                  locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
-                  details={details}
-                  listType={listType}
-                  customIcons={icons}
-                >
-                  {item.description}
-                </SelectableContentBox>
-              </div>
-            );
+            details.entryCode = item.entryCode;
+          } else if (item.creator) {
+            details.creator = item.creator.username;
           }
-          return null;
-        })}
-      </div>
+          return (
+            <div className={classes.ContentBox} key={item._id}>
+              <SelectableContentBox
+                title={item.name}
+                link={
+                  linkPath !== null
+                    ? `${linkPath}${item._id}${linkSuffix}`
+                    : null
+                }
+                key={item._id}
+                id={item._id}
+                isChecked={selectedIds.includes(item._id)}
+                onSelect={handleSelectOne}
+                notifications={notificationCount}
+                roomType={
+                  item && item.tabs
+                    ? item.tabs.map((tab) => tab.tabType)
+                    : item.tabTypes
+                }
+                locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
+                details={details}
+                listType={listType}
+                customIcons={icons}
+                resource={resource}
+              >
+                {item.description}
+              </SelectableContentBox>
+            </div>
+          );
+        }
+        return null;
+      })}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import PropTypes from 'prop-types';
 import { MonitoringView } from '../../../Containers';
 import ResourceList from './ResourceList';
@@ -14,7 +14,7 @@ export default function DashboardContent(props) {
     setResourceState({
       ...resourceState,
       [resource]: newState,
-      //ex: course: facilitatorConfig: { key: 'updatedAt', direction: 'ascending' }, participantConfig: { key: 'updatedAt', direction: 'ascending' },
+      // ex: course: facilitatorConfig: { key: 'updatedAt', direction: 'ascending' }, participantConfig: { key: 'updatedAt', direction: 'ascending' },
     });
   };
 

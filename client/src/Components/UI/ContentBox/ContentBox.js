@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { Checkbox, ToolTip } from 'Components';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
-import Checkbox from 'Components/Form/Checkbox/Checkbox';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
-import Aux from '../../HOC/Auxil';
 import Expand from './expand';
 import Notification from '../../Notification/Notification';
 
@@ -17,13 +16,18 @@ class ContentBox extends PureComponent {
   };
 
   componentDidMount() {
-    const { roomType } = this.props;
+    const { roomType, resource } = this.props;
 
     if (roomType) {
       const { tabTypes, isPlural } = getResourceTabTypes(roomType);
       const tempTypeKeyword = isPlural ? 'Tab Types' : 'Tab Type';
       this.setState({ typeKeyword: tempTypeKeyword, tabTypes });
     }
+    const createResourceToDisplay =
+      resource === 'courses' || resource === 'rooms'
+        ? resource.substring(0, resource.length - 1)
+        : 'template';
+    this.setState({ resourceToDisplay: createResourceToDisplay });
   }
 
   toggleExpand = (event) => {
@@ -49,7 +53,7 @@ class ContentBox extends PureComponent {
       onSelect,
       customIcons,
     } = this.props;
-    const { expanded, tabTypes, typeKeyword } = this.state;
+    const { expanded, tabTypes, typeKeyword, resourceToDisplay } = this.state;
     const notificationElements =
       notifications > 0 ? (
         <Notification count={notifications} data-testid="content-box-ntf" />
@@ -78,9 +82,11 @@ class ContentBox extends PureComponent {
                 listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
               />
             </div>
-            <div className={classes.Title} data-testid="">
-              {title}
-            </div>
+            <ToolTip text={`Go To ${resourceToDisplay} Lobby`} delay={600}>
+              <div className={classes.Title} data-testid="" title={title}>
+                {title}
+              </div>
+            </ToolTip>
             {notificationElements}
           </div>
           <div
@@ -203,6 +209,7 @@ ContentBox.propTypes = {
   isChecked: PropTypes.bool,
   onSelect: PropTypes.func,
   customIcons: PropTypes.arrayOf(PropTypes.shape({})),
+  resource: PropTypes.string,
 };
 
 ContentBox.defaultProps = {
@@ -214,5 +221,6 @@ ContentBox.defaultProps = {
   onSelect: null,
   customIcons: [],
   link: null,
+  resource: null,
 };
 export default ContentBox;

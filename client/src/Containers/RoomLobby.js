@@ -18,6 +18,7 @@ import {
   EditText,
   TrashModal,
   Error,
+  ToolTip,
 } from 'Components';
 import {
   joinWithCode,
@@ -40,6 +41,7 @@ import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
 import Access from './Access';
 import RoomPreview from './Monitoring/RoomPreview';
+import classes from './RoomLobby.css';
 
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
@@ -553,48 +555,48 @@ class Room extends Component {
                           Enter
                         </Button>
                       </span>
-                      <span>
-                        <Button
-                          theme={loading.loading ? 'SmallCancel' : 'Small'}
-                          m={10}
-                          data-testid="Replayer"
-                          click={!loading.loading ? this.goToReplayer : null}
-                        >
-                          Replayer
-                        </Button>
-                      </span>
                     </div>
                     <div
-                      style={{ display: 'flex', justifyContent: 'flexStart' }}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        alignItems: 'flex-end',
+                      }}
                     >
-                      <span>
-                        <Button
-                          click={this.trashRoom}
-                          data-testid="trash-room"
-                          theme="Danger"
-                          m={10}
-                        >
-                          <i className="fas fa-trash-alt" />
-                          <span
-                            style={{ padding: '6px', letterSpacing: 'normal' }}
-                          >
-                            Delete
-                          </span>
-                        </Button>
-                      </span>
-                      <span>
-                        <Button
+                      <ToolTip text="Replayer" delay={600}>
+                        <span
                           // theme={loading.loading ? 'SmallCancel' : 'Small'}
-                          m={10}
+                          // m={10}
                           data-testid="Replayer"
-                          theme="Danger"
-                          click={
-                            !loading.loading ? this.showArchiveModal : null
+                          onClick={!loading.loading ? this.goToReplayer : null}
+                          onKeyDown={
+                            !loading.loading ? this.goToReplayer : null
                           }
+                          role="button"
+                          tabIndex={-1}
+                          className={`material-symbols-outlined ${classes.CustomIcon}`}
                         >
-                          <span style={{ padding: '6px' }}>Archive</span>
-                        </Button>
-                      </span>
+                          replay
+                        </span>
+                      </ToolTip>
+                      {room.myRole === 'facilitator' && (
+                        <ToolTip text="Archive This Room" delay={600}>
+                          <span
+                            data-testid="archive-room"
+                            onClick={
+                              !loading.loading ? this.showArchiveModal : null
+                            }
+                            onKeyDown={
+                              !loading.loading ? this.showArchiveModal : null
+                            }
+                            className={`material-symbols-outlined ${classes.CustomIcon}`}
+                            role="button"
+                            tabIndex={-1}
+                          >
+                            archive
+                          </span>
+                        </ToolTip>
+                      )}
                     </div>
                   </div>
                 }
@@ -628,6 +630,15 @@ class Room extends Component {
                           >
                             Save
                           </Button>
+                          <Button
+                            theme="Danger"
+                            m={10}
+                            click={this.trashRoom}
+                            data-testid="trash-room"
+                          >
+                            <i className="fas fa-trash-alt" />
+                          </Button>
+
                           <Button click={this.toggleEdit} theme="Cancel">
                             Cancel
                           </Button>

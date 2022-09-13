@@ -90,6 +90,18 @@ const reducer = (state = initialState, action) => {
           ...state.archive,
           rooms: [...state.archive.rooms, action.roomId],
         },
+        rooms: state.rooms.filter((room) => room !== action.roomId),
+      };
+    }
+    case actionTypes.REMOVE_ROOM_FROM_ARCHIVE: {
+      const rooms = state.archive.rooms.filter((id) => id !== action.id);
+      return {
+        ...state,
+        archive: {
+          ...state.archive,
+          rooms,
+        },
+        rooms: [...state.rooms, action.id],
       };
     }
     case actionTypes.ADD_NOTIFICATION: {

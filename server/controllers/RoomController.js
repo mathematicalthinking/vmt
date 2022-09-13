@@ -440,7 +440,8 @@ module.exports = {
           .catch((err) => {
             reject(err);
           });
-      } else if (body.checkAccess) {
+      }
+      if (body.checkAccess) {
         let roomToPopulate;
         let fromUser;
         db.Room.findById(id)
@@ -525,6 +526,11 @@ module.exports = {
       } else if (body.status === STATUS.ARCHIVED) {
         removeAndChangeStatus(id, STATUS.ARCHIVED, reject, resolve);
       } else {
+        // unarchive is flag is set
+        if (body.unarchive) {
+          delete body.unarchive;
+          unarchive(id);
+        }
         const doUpdateTabVisitors =
           typeof body.instructions === 'string' && body.instructions.length > 0;
         db.Room.findByIdAndUpdate(id, body, { new: true })
@@ -792,7 +798,6 @@ module.exports = {
           ],
         }
       : criteria;
-    console.log(initialMatch);
     const roomsPipeline = [
       {
         // $match: initialMatch,
@@ -825,7 +830,6 @@ module.exports = {
     ];
 
     const rooms = await Room.aggregate(roomsPipeline);
-    console.log(rooms);
     const roomIds = rooms.map((room) => room._id);
     const tabsPipeline = [
       {
@@ -968,4 +972,35 @@ const prefetchTabIds = async (roomIds, tabType) => {
 
   const tabs = await Tab.aggregate(tabsPipeline);
   return tabs.map((tab) => tab._id);
+};
+
+const unarchive = (id) => {
+  db.Room.findById(id).then(async (room) => {
+    const userIds = room.members.map((member) => member.user);
+    try {
+      // remove the room from the list of archived rooms for members in the room
+      // add the room to the list of rooms for members in the room
+      userIds.forEach((userId) => {
+        db.User.bulkWrite([
+          {
+            updateOne: {
+              filter: { _id: userId },
+              update: {
+                $pull: { 'archive.rooms': id },
+                $addToSet: { rooms: id },
+              },
+            },
+          },
+          {
+            updateOne: {
+              filter: { _id: userId },
+              update: { $addToSet: { rooms: id } },
+            },
+          },
+        ]);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  });
 };
