@@ -712,7 +712,6 @@ module.exports = {
           members: 1,
           tempRoom: 1,
           chat: 1,
-          messagesCount: { $size: '$chat' },
         },
       },
     ];
@@ -728,6 +727,32 @@ module.exports = {
         },
       });
     }
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'tabs',
+          localField: 'tabs',
+          foreignField: '_id',
+          as: 'tabObject',
+        },
+      },
+      { $unwind: '$tabObject' },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          image: { $first: '$image' },
+          privacySetting: { $first: '$privacySetting' },
+          updatedAt: { $first: '$updatedAt' },
+          members: { $first: '$members' },
+          tempRoom: { $first: '$tempRoom' },
+          chat: { $first: '$chat' },
+          tabs: { $push: '$tabObject' },
+        },
+      }
+    );
     pipeline.push({
       $facet: {
         paginatedResults: [
@@ -741,13 +766,12 @@ module.exports = {
               instructions: 1,
               description: 1,
               image: 1,
-              tabs: 1,
               privacySetting: 1,
               updatedAt: 1,
               members: 1,
-              eventsCount: 1,
               tempRoom: 1,
-              messagesCount: 1,
+              messagesCount: { $size: '$chat' },
+              'tabs.tabType': 1,
             },
           },
         ],
