@@ -14,7 +14,7 @@ const EditRooms = (props) => {
 
   const [roomDrafts, setRoomDrafts] = useState(selectedAssignment.value);
   const [participants, setParticipants] = useState([]);
-  const [roomNum, setRoomNum] = useState(selectedAssignment.value.length);
+  const roomNum = selectedAssignment.value.length;
 
   useEffect(() => {
     // derive participants from members within roomDrafts
@@ -30,7 +30,7 @@ const EditRooms = (props) => {
       (mem) => mem
     );
 
-    updateParticipants(newRoomDrafts);
+    setRoomDrafts(newRoomDrafts);
     setParticipants(updatedParticipants);
 
     // sorting facilitators like below reverses the order that rooms are displayed
@@ -40,10 +40,6 @@ const EditRooms = (props) => {
     //   [...updatedParticipants].sort((a) => (a.role === 'facilitator' ? 1 : -1))
     // );
   }, [selectedAssignment]);
-
-  const updateParticipants = (selectionMatrix) => {
-    setRoomDrafts(selectionMatrix);
-  };
 
   const editPreviousAssignment = ({
     aliasMode,
