@@ -527,7 +527,7 @@ const WebSketch = (props) => {
     // options.duration must be a non-zero number or 'persist'
     // options.prepend causes the message to be prepended to the normal notify div
     // duration is 2500 if not specified
-    let duration = options.duration || 2500;
+    let duration = 2500;
     let gobjs;
     let callback;
     let prepend = false;

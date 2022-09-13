@@ -86,7 +86,7 @@
 .Toast {
   position: absolute;
   z-index: 2;
-  top: 50px;
+  top: 35px;
   left: 120px;
   background: lightgray;
   color: blue;
