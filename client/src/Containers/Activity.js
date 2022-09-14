@@ -227,7 +227,10 @@ class Activity extends Component {
               user: { _id: user._id, username: user.username },
             }}
             label="Create:"
-            defaultOption={{ label: 'Select new or existing...', value: [] }}
+            defaultOption={{
+              label: 'Select "new" or an existing grouping...',
+              value: [],
+            }}
             toolTip="Create rooms for members to do math in. You can reuse the member groups that you create here."
             AssignmentComponent={MakeRooms}
             optionsGenerator={createPreviousAssignments}

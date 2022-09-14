@@ -70,6 +70,10 @@
   color: blue;
 }
 
+.SelectionMade, .SelectionMade:hover {
+  background-color: #bbb
+}
+
 .EvenParticipant {
   background-color: #ddd;
 }

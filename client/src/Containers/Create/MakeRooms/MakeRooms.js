@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { BigModal } from 'Components';
+import { BigModal, Button, Modal } from 'Components';
 import { createGrouping } from 'store/actions';
 import COLOR_MAP from 'utils/colorMap';
 import AssignmentMatrix from './AssignmentMatrix';
@@ -26,6 +26,8 @@ const MakeRooms = (props) => {
   const [participants, setParticipants] = useState(initialParticipants);
   const [roomDrafts, setRoomDrafts] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const submitArgs = React.useRef(); // used for passing along submit info
 
   // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
   // changed props.  However, the correct way of detecting and responding to a changed state is to act when the
@@ -36,15 +38,18 @@ const MakeRooms = (props) => {
     // Standalone Template -> extract participants from selectedAssignment,
     // if it exists
     if (!course && selectedAssignment.value.length) {
-      const participantsObj = {};
       const newRoomDrafts = selectedAssignment.value;
-      newRoomDrafts.forEach((room) => {
-        room.members.forEach((mem) => {
-          if (!participantsObj[mem.user._id])
-            participantsObj[mem.user._id] = mem;
-        });
-      });
-      setParticipants(Object.values(participantsObj).map((mem) => mem));
+      const members = newRoomDrafts.map((room) => room.members).flat();
+      // ensure no repeats
+      const newParticipants = members.reduce(
+        (acc, mem) => ({
+          ...acc,
+          [mem.user._id]: mem,
+        }),
+        {}
+      );
+
+      setParticipants(Object.values(newParticipants));
       updateParticipants(newRoomDrafts);
     } else {
       setParticipants(sortParticipants(initialParticipants));
@@ -207,6 +212,20 @@ const MakeRooms = (props) => {
     setRoomNum(numRooms);
   };
 
+  const checkBeforeSubmit = (submitInfo) => {
+    submitArgs.current = submitInfo;
+    const everyoneAssigned = participants.every(
+      (participant) =>
+        participant.user &&
+        roomDrafts.some((room) =>
+          room.members.some(
+            (mem) => mem.user && mem.user._id === participant.user._id
+          )
+        )
+    );
+    return everyoneAssigned ? submit(submitInfo) : setShowWarning(true);
+  };
+
   const submit = ({ aliasMode, dueDate, roomName }) => {
     const {
       _id,
@@ -312,6 +331,22 @@ const MakeRooms = (props) => {
           />
         </BigModal>
       )}
+      {showWarning && (
+        <Modal show={showWarning} closeModal={() => setShowWarning(false)}>
+          <div>
+            There are unassigned participants. Do you want to continue with this
+            assignment?
+          </div>
+          <div>
+            <Button m={10} click={() => submit(submitArgs.current)}>
+              Assign
+            </Button>
+            <Button m={10} theme="Cancel" click={() => setShowWarning(false)}>
+              Cancel
+            </Button>
+          </div>
+        </Modal>
+      )}
       <AssignRooms
         initialAliasMode={selectedAssignment.aliasMode || false}
         initialDueDate={selectedAssignment.dueDate || ''}
@@ -322,7 +357,7 @@ const MakeRooms = (props) => {
         participantsPerRoom={participantsPerRoom}
         setParticipantsPerRoom={setNumber}
         assignmentMatrix={assignmentMatrix}
-        onSubmit={submit}
+        onSubmit={checkBeforeSubmit}
         onShuffle={shuffleParticipants}
         onCancel={close}
       />
