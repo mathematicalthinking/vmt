@@ -206,7 +206,7 @@ class Activity extends Component {
               user: { _id: user._id, username: user.username },
             }}
             label="Edit:"
-            defaultOption={{ label: 'Change Room Assignments', value: [] }}
+            defaultOption={{ label: 'Select a room assignment...', value: [] }}
             toolTip="Editing assignments allows you to easily change the rooms that members are assigned to. You can also change the due date, the prefix for the room names, and whether or not to anonymize members while they're in the room."
             AssignmentComponent={EditRooms}
             optionsGenerator={createEditableAssignments}
@@ -227,7 +227,10 @@ class Activity extends Component {
               user: { _id: user._id, username: user.username },
             }}
             label="Create:"
-            defaultOption={{ label: 'New Grouping', value: [] }}
+            defaultOption={{
+              label: 'Select "new" or an existing grouping...',
+              value: [],
+            }}
             toolTip="Create rooms for members to do math in. You can reuse the member groups that you create here."
             AssignmentComponent={MakeRooms}
             optionsGenerator={createPreviousAssignments}

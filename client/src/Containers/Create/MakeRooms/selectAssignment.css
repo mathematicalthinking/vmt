@@ -57,7 +57,7 @@
   
   .Select { 
     min-width: 285px;
-    z-index: 100;
+    z-index: 300;
   }
   
   .Instructions {

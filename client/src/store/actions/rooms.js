@@ -239,28 +239,36 @@ export const updateGroupings = (course, activity, groupingId, newName) => {
   const activityGroupingsIndex = activity.groupings.findIndex(
     (grouping) => grouping._id === groupingId
   );
-  const courseGroupingsIndex = course.groupings.findIndex(
-    (grouping) => grouping._id === groupingId
-  );
 
   const updatedGrouping = {
     ...activity.groupings[activityGroupingsIndex],
     activityName: newName,
     timestamp,
   };
-
-  const newCourseGroupings = [...course.groupings];
-  newCourseGroupings[courseGroupingsIndex] = updatedGrouping;
-
   const newActivityGroupings = [...activity.groupings];
   newActivityGroupings[activityGroupingsIndex] = updatedGrouping;
+
+  if (course) {
+    const courseGroupingsIndex = course.groupings.findIndex(
+      (grouping) => grouping._id === groupingId
+    );
+
+    const newCourseGroupings = [...course.groupings];
+    newCourseGroupings[courseGroupingsIndex] = updatedGrouping;
+
+    return (dispatch, getState) => {
+      updateActivity(activity._id, {
+        groupings: newActivityGroupings,
+      })(dispatch, getState);
+      updateCourse(course._id, {
+        groupings: newCourseGroupings,
+      })(dispatch, getState);
+    };
+  }
 
   return (dispatch, getState) => {
     updateActivity(activity._id, {
       groupings: newActivityGroupings,
-    })(dispatch, getState);
-    updateCourse(course._id, {
-      groupings: newCourseGroupings,
     })(dispatch, getState);
   };
 };
