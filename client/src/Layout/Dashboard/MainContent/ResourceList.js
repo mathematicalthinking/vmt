@@ -5,7 +5,7 @@ import Select from 'react-select';
 import PropTypes from 'prop-types';
 import { useSortableData } from 'utils';
 import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
-import { Button, Modal, BigModal, Search } from 'Components';
+import { Button, Modal, BigModal, Search, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
 import { updateRoom } from 'store/actions';
 import { STATUS } from 'constants.js';
@@ -153,13 +153,15 @@ const ResourceList = ({
       handleArchive(id);
     },
     icon: (
-      <span
-        className={`material-symbols-outlined ${classes.CustomIcon}`}
-        data-testid="Archive"
-        style={{ fontSize: '23px' }}
-      >
-        input
-      </span>
+      <ToolTip text="Archive" delay={600}>
+        <span
+          className={`material-symbols-outlined ${classes.CustomIcon}`}
+          data-testid="Archive"
+          style={{ fontSize: '23px' }}
+        >
+          input
+        </span>
+      </ToolTip>
     ),
   };
 
@@ -352,7 +354,9 @@ const ResourceList = ({
                 />
               )}
 
-              {selectableBoxList && resource !== 'activities' ? (
+              {selectableBoxList &&
+              resource !== 'activities' &&
+              resource !== 'courses' ? (
                 <SelectableBoxList
                   list={facilitatorItems}
                   resource={resource}

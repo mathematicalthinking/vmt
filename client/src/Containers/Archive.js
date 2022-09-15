@@ -309,7 +309,12 @@ const Archive = () => {
         setShowRoomPreview(true);
         goToRoomPreview(id);
       },
-      icon: <i className="fas fa-external-link-alt" />,
+      // icon: <i className="fas fa-external-link-alt" />,
+      icon: (
+        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+          open_in_new
+        </span>
+      ),
     },
     {
       title: 'Replayer',
