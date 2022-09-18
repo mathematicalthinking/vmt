@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.home/20220909214918
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20220917022230
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -7404,6 +7404,7 @@
        * we can write GSP._put(obj, 'obj1,obj2.obj3.obj4', 'hello'),
        * and obj1, obj2, obj3, and obj4 will be created if necessary.
        * The value of obj4 will be 'hello'
+       * return value is the last path element (obj4 in this example)
       */
       _put: function(obj, path, value) {
         var parts = path.split && path.split('.'),
@@ -7415,13 +7416,13 @@
             obj[subPath] = {};
           }
           if (!parts.length) {
-            obj.subPath = value;
+            obj[subPath] = value;
           } else {
             obj = obj[subPath];
           }
         }
-        return true;
-      },  
+        return obj[subPath];
+      },
         
     /**
      * Class construction utility.
@@ -10499,6 +10500,7 @@
         "StartDragConfirmed",
         "MoveDrag",
         "EndDrag",
+        "MergeGobjs",
         "StartAnimate",
         "EndAnimate",
         "StartMove",
@@ -10520,8 +10522,7 @@
         "TraceWidget",
         "LabelWidget", 
         "VisibilityWidget",
-        "DeleteWidget",
-        "MergeGObjs"
+        "DeleteWidget"
       ],
   
       /**
@@ -12046,6 +12047,23 @@
         
         var sketch = gobj.sQuery.sketch,
             self = this;
+            
+        function score(gobj) { // hasLabel counts 2 pts, showLabel counts 1
+          var ret = gobj.hasLabel ? 2 : 0;
+          if (GSP._get(gobj, 'style.label.showLabel')) {
+            ret += 1;
+          }
+        }     
+            
+        function preferFirstLabel(gobj1, gobj2) { // return true for gobj1, false for gobj2
+          // Compare hasLabel, style.label.showLabel, and then lowest id as a tiebreaker.
+          var score1 = score(gobj1),
+              score2 = score(gobj2);
+          if (score1 > score2) return true;
+          if (score2 > score1) return false;
+          return +gobj1.id < +gobj2.id;
+        }
+        
         // if toMerge has already been removed from the gobjList, there's nothing to do.
         if (!sketch.gobjList.gobjects[toMerge.id]) return;
         
@@ -12075,14 +12093,11 @@
           });
         }
   
-        // If we are merging something with a label, to
-        // something without one, use the label, otherwise
-        // you can get ugly default "Object 1" strings in
-        // child labels.
-  
-        // Note, when we have a createDefaultLabel() function,
-        // this will a good place to use it.
-        if( !gobj.label) {
+        // Which label should the merged gobj have? We evaluate them based on:
+        // a) having a label
+        // b) showing a label
+        // c) having a lower id (and thus more likely an earlier-generated label)  
+        if (preferFirstLabel(toMerge, gobj)) {
           gobj.label = toMerge.label;
           gobj.style.label.showLabel = toMerge.style.label.showLabel;
         }
@@ -40421,7 +40436,6 @@
      *    _mergeGObjToSpecGObj: function(gobj, specGObjToCreate)
      *    abortPlayback: function ()
      *    confirmPlayback: function ()
-     *    putGivenOnIntersection: function(intersectionInfo, givenGObj)
      *    putGivenOnPath: function(path, givenGObj, value)
      *    addGObjAsMatchedGiven: function (gobj)
      *    findExistingMatchedGivenWithProperty: function (propertyName, value)
@@ -44889,30 +44903,45 @@
         var mergeCandidate = (this.dmState === "PreMerge" && this.dmCurProxy) ?
                               this.getCandidateFromProxy (this.dmCurProxy) : null,
             doc = this.sketch.document,
-            delta;
+            attr = {gobjId: this.gobj.id},
+            newGobj;  // the replacement gobj and id if the id changed
         this.setHighlights (false);
         this.clearTimers ();
+        if (!mergeCandidate) {
+          return false;
+        }
         if (mergeCandidate) { // either a gobj or an intersection
           if (this.gobj.kind === "Point" && mergeCandidate.isAPath && mergeCandidate.isAPath()) {  // merge gobj to path
-            this.sketch.putGivenOnPath(this.gobj, mergeCandidate,
-                                       mergeCandidate.mapPositionToPathValue(this.gobj.geom.loc));
+            attr.pathValue = mergeCandidate.mapPositionToPathValue(this.gobj.geom.loc);
+            attr.pathId = mergeCandidate.id;
+            newGobj = this.sketch.putGivenOnPath(this.gobj, mergeCandidate, attr.pathValue);
           } else if (mergeCandidate.path1) {  // merge gobj to newly created intersection
-            this.sketch.putGivenOnIntersection (this.gobj, mergeCandidate);
+            attr.path1Id = mergeCandidate.path1.id;
+            attr.path2Id = mergeCandidate.path2.id;
+            newGobj = this.sketch.putGivenOnIntersection (this.gobj, mergeCandidate);
           } else {  // merge gobj to an existing object of the same kind
-            this.sketch.mergeGobjToCandidate (this.gobj, mergeCandidate, {skipDescendantUpdate: true});
+            newGobj = this.sketch.mergeGobjToCandidate (this.gobj, mergeCandidate, {skipDescendantUpdate: true});
+            attr.mergeToId = mergeCandidate.id; 
           }
-          delta = doc.pushConfirmedSketchOpDelta (this.dmPreDelta);
+          attr.delta = doc.pushConfirmedSketchOpDelta (this.dmPreDelta);
+          if (newGobj) {
+            attr.newId = newGobj.id;
+          }
           doc.changedUIMode();
           // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
+          // Three options for attr; all include gobjId.
+          // point-point or param-value: mergeToId
+          // point-path: pathId & pathValue
+          // point-intersection: path1Id & path2Id
           this.sketch.event(
-            "MergeGObjs",
+            "MergeGobjs",
             {
-              'merged': this.gobj,
-              'result': mergeCandidate
+              gobj: this.gobj,
+              mergeInfo: mergeCandidate
             },
-            {
-              'delta': delta
-            });
+            attr
+          );
+          return true;
         }
       }
       
@@ -45096,22 +45125,27 @@
         return Math.max(Math.abs(this.lastX - this.origX),
                         Math.abs(this.lastY - this.origY));
       },
+      
       touchEnded: function (pos, touch) {
+        var didMerge;
         if (this.gobj.style.selectable) {
           this.motionManager.ApplyCurrent();
           this.motionManager.EndMotion(this.motionId);
           this.sketch.invalidateGeom(this.gobj);
           this.gobj.dragDidEnd();
-          if (this.possibleMerge) {
           // When in DisplayRegime, let DragMergeTracker know about touchEnded events
-            (this.touchEnded.base[this.dragMergeBaseIndex] || arguments.callee.base).call(this, pos, touch);
-          }
           if (this.sendTouchEvents) {
-            this.sketch.event("EndDrag", {
-              gobj: this.gobj,
-              position: pos,
-              touch: touch
-            });
+            // The drag can end with a MergeGobjs event (in dragMergeTracker) or with an EndDrag event here
+            if (this.possibleMerge) { 
+              didMerge = (this.touchEnded.base[this.dragMergeBaseIndex] || arguments.callee.base).call(this, pos, touch);
+            }
+            if (!didMerge && this.sendTouchEvents) { // No MergeGobjs event, so send EndDrag.
+              this.sketch.event("EndDrag", {
+                gobj: this.gobj,
+                position: pos,
+                touch: touch
+              });
+            }
           }
         }
         this.checkForOverlapCycleTap ();
@@ -45131,7 +45165,7 @@
   
         // Tell the longPress job we are done and gone.
         this.touchIsInProgress = false;
-      }
+      }  // touchEnded
   
     });
     

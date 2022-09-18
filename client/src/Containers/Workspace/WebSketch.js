@@ -160,7 +160,7 @@ const WebSketch = (props) => {
       { event: 'ToolPlayed.WSP', handler: reflectAndSync },
       { event: 'ToolPlayBegan.WSP', handler: syncGobjUpdates }, // Tool objects are instantiated, so track them
       { event: 'ToolAborted.WSP', handler: reflectAndSync },
-      { event: 'MergeGObjs.WSP', handler: reflectAndSync },
+      { event: 'MergeGobjs.WSP', handler: reflectAndSync },
       { event: 'WillUndoRedo.WSP', handler: reflectMessage },
       { event: 'UndoRedo.WSP', handler: reflectAndSync },
       { event: 'StyleWidget.WSP', handler: reflectMessage },
@@ -249,10 +249,12 @@ const WebSketch = (props) => {
             // free points, params, etc. have locations
             gobjInfo.loc = gobj.geom.loc;
           }
-          if (GSP.isParameter(gobj)) {
+          if (window.GSP.isParameter(gobj)) {
             gobjInfo.expression = gobj.expression;
           }
-          break;
+        // break;
+        // Params should fall through, and there's no harm to points falling through as they don't have values.
+        /* falls through */
         case 'Calculation': // Calculations have values; how do we distinguish which has been changed?
           if (gobj.value) {
             // free expressions (params and calcs) have values
@@ -502,10 +504,10 @@ const WebSketch = (props) => {
           notify('Canceled ' + attr.tool.name + ' Tool');
           abortFollowerTool();
           break;
-        case 'MergeGObjs': // controlling sketch has merged a gobj
+        case 'MergeGobjs': // controlling sketch has merged a gobj
           gobjsMerged(attr);
           // the merged gobj may have been replaced
-          notify('Merged ' + mergeGobjDesc(attr));
+          notify('Merged ' + mergeGobjDesc(attr), attr.options);
           break;
         case 'WillUndoRedo': // controlling sketch will undo or redo
           notify('Performing ' + attr.type);
@@ -623,6 +625,7 @@ const WebSketch = (props) => {
         } else {
           // off
           if (state.renderState === 'targetHighlit') {
+            setHighLights(...highLights, gobj); // track this gobj as highlighted
             if (state.oldRenderState) {
               // prev renderState existed, so restore it
               state.renderState = state.oldRenderState;
@@ -636,9 +639,6 @@ const WebSketch = (props) => {
         }
         gobj.invalidateAppearance();
       });
-      if (on) {
-        setHighLights(gobjs);
-      }
     };
     // console.log(`Notify: ${text}, duration: ${duration}`);
     // let $notifyDiv = $('#notify');
