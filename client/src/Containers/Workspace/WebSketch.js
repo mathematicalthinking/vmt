@@ -404,7 +404,7 @@ const WebSketch = (props) => {
     // msg has three properties: name, time, and data
     // for most events, data is the attributes of the WSP event
     const { attr } = msg;
-    function _put(obj, path, value) {
+    function put(obj, path, value) {
       const parts = path.split && path.split('.');
       let subPath;
       if (!obj || !parts) return;
@@ -421,6 +421,7 @@ const WebSketch = (props) => {
       }
       return obj[subPath];
     }
+
     const mergeGobjDesc = (attr) => {
       // given a merged gobj and info about what it was merged to
       // Three options for attr; all include gobjId.
@@ -430,7 +431,7 @@ const WebSketch = (props) => {
       let desc = gobjDesc(attr.gobjId) + ' to ';
       const mergeTo = attr.mergeToId || attr.pathId;
       const value = [attr.gobjId];
-      const highlitGobjs = GSP._put(attr, 'options.highlitGobjs', value);
+      const highlitGobjs = put(attr, 'options.highlitGobjs', value);
       if (mergeTo) {
         desc += gobjDesc(mergeTo);
         highlitGobjs.push(mergeTo);
