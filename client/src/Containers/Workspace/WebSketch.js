@@ -983,10 +983,6 @@ const WebSketch = (props) => {
           {persistMessage} {activityMessage || '...'}
         </div>
       )}
-      {/* {activityMessage && (
-        <div className={classes.Toast}>{activityMessage}</div>
-      )}
-      {persistMessage && <div className={classes.Toast}>{persistMessage}</div>} */}
       <div
         // className={classes.sketch_container}
         className="sketch_container"

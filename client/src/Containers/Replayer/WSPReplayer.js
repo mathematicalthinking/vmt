@@ -10,12 +10,13 @@ import classes from './WSPReplayer.css';
 const WebSketch = (props) => {
   const [activityMessage, setActivityMessage] = useState('');
   const [persistMessage, setPrependMessage] = useState('');
+  const [jumping, setJumping] = useState(false);
 
   let $sketch = null; // the jquery object for the server's sketch_canvas HTML element
   let sketchDoc = null; // The WSP document in which the websketch lives.
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
-  const { index } = props;
+  const { index, log, tab } = props;
 
   useEffect(() => {
     // load required files and then the sketch when ready
@@ -24,6 +25,22 @@ const WebSketch = (props) => {
       console.log('WSP activity ending - clean up listeners');
     };
   }, []);
+
+  // Get the previous value (was passed into hook on last render)
+  const prevIndex = usePrevious(index);
+
+  // Hook
+  function usePrevious(value) {
+    // The ref object is a generic container whose current property is mutable ...
+    // ... and can hold any value, similar to an instance property on a class
+    const ref = useRef();
+    // Store current value in ref
+    useEffect(() => {
+      ref.current = value;
+    }, [value]); // Only re-run if value changes
+    // Return previous value (happens before update in useEffect above)
+    return ref.current;
+  }
 
   // Handle new Events- escapes initialization scope
   useEffect(() => {
@@ -34,16 +51,55 @@ const WebSketch = (props) => {
 
   // function that parses new log for event data
   const updateSketch = () => {
-    const { log } = props;
     // consider comparing to previous index and handling large jumps forward/backward with squashed updates from initial
     // Take updated player data with new Player state to update
     const newData = log[index] ? log[index].currentState : null;
     if (newData) {
-      console.log('New data ', newData);
       const updatesState = JSON.parse(newData);
-      handleMessage(updatesState);
+      console.log(
+        'Index: ',
+        index,
+        ', Prev: ',
+        prevIndex,
+        ' New data ',
+        updatesState
+      );
+      if (index - prevIndex === 1) {
+        handleMessage(updatesState);
+      } else {
+        console.log('handling jump!');
+        handleJump(index, prevIndex);
+      }
     }
   };
+
+  function handleJump(ind, prevInd) {
+    // timer can be used to 'show' changes applied in fast-forward - must make func async!
+    // const timer = (ms) => new Promise((res) => setTimeout(res, ms));
+    setJumping(true);
+    // jumping forward
+    if (ind > prevInd) {
+      for (let i = prevInd + 1; i <= ind; i++) {
+        const newData = log[i] ? log[i].currentState : null;
+        if (newData) {
+          const updatesState = JSON.parse(newData);
+          handleMessage(updatesState);
+          // await timer(0);
+        }
+      }
+    } else {
+      // jumping back
+      loadSKetchDoc(getSketchConfig(tab));
+      for (let i = 1; i <= ind; i++) {
+        const newData = log[i] ? log[i].currentState : null;
+        if (newData) {
+          const updatesState = JSON.parse(newData);
+          handleMessage(updatesState);
+        }
+      }
+    }
+    setJumping(false);
+  }
 
   const handleMessage = (msg) => {
     if (!sketchDoc) {
@@ -675,6 +731,11 @@ const WebSketch = (props) => {
       {(activityMessage || persistMessage) && (
         <div className={classes.Toast}>
           {persistMessage} {activityMessage || '...'}
+        </div>
+      )}
+      {jumping && (
+        <div className={`${classes.Toast} ${classes.Ntf}`}>
+          Applying changes...
         </div>
       )}
       <div
