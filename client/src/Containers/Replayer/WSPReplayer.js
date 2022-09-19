@@ -113,48 +113,7 @@ const WebSketch = (props) => {
       sketch = sketchDoc.focusPage;
     }
     const { attr } = msg;
-    function put(obj, path, value) {
-      const parts = path.split && path.split('.');
-      let subPath;
-      if (!obj || !parts) return;
-      while (obj && parts.length) {
-        subPath = parts.shift();
-        if (!obj[subPath]) {
-          obj[subPath] = {};
-        }
-        if (!parts.length) {
-          obj[subPath] = value;
-        } else {
-          obj = obj[subPath];
-        }
-      }
-      return obj[subPath];
-    }
 
-    const mergeGobjDesc = (attr) => {
-      // given a merged gobj and info about what it was merged to
-      // Three options for attr; all include gobjId.
-      // point-point or param-value: mergeToId
-      // point-path: pathId & pathValue
-      // point-intersection: path1Id & path2Id
-      let desc = gobjDesc(attr.gobjId) + ' to ';
-      const mergeTo = attr.mergeToId || attr.pathId;
-      const value = [attr.gobjId];
-      const highlitGobjs = put(attr, 'options.highlitGobjs', value);
-      if (mergeTo) {
-        desc += gobjDesc(mergeTo);
-        highlitGobjs.push(mergeTo);
-      } else {
-        // must be a point to intersection merge
-        desc +=
-          ' the intersection of ' +
-          gobjDesc(attr.path1Id) +
-          ' and ' +
-          gobjDesc(attr.path2Id);
-        highlitGobjs.push(attr.path1Id, attr.path2Id);
-      }
-      return desc;
-    };
     if (attr.gobjId) {
       attr.gobj = sketch.gobjList.gobjects[attr.gobjId];
       if (!attr.gobj)
@@ -245,6 +204,31 @@ const WebSketch = (props) => {
     }
   };
 
+  const mergeGobjDesc = (attr) => {
+    // given a merged gobj and info about what it was merged to
+    // Three options for attr; all include gobjId.
+    // point-point or param-value: mergeToId
+    // point-path: pathId & pathValue
+    // point-intersection: path1Id & path2Id
+    let desc = gobjDesc(attr.gobjId) + ' to ';
+    const mergeTo = attr.mergeToId || attr.pathId;
+    const value = [attr.gobjId];
+    const highlitGobjs = window.GSP._put(attr, 'options.highlitGobjs', value);
+    if (mergeTo) {
+      desc += gobjDesc(mergeTo);
+      highlitGobjs.push(mergeTo);
+    } else {
+      // must be a point to intersection merge
+      desc +=
+        ' the intersection of ' +
+        gobjDesc(attr.path1Id) +
+        ' and ' +
+        gobjDesc(attr.path2Id);
+      highlitGobjs.push(attr.path1Id, attr.path2Id);
+    }
+    return desc;
+  };
+
   const gobjDesc = (gobj, cur, max) => {
     // Returns a gobj-description string suitable for a list of form
     // "Point #1, Point B, Circle #4, ..."
@@ -267,10 +251,8 @@ const WebSketch = (props) => {
     }
     if (cur === max) {
       retVal = ', ...';
-    } else if (cur < max) {
-      if (gobj) {
-        retVal = gobj.kind + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
-      }
+    } else if (cur < max && gobj) {
+      retVal = gobj.kind + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
       if (cur > 0) {
         retVal = ', ' + retVal;
       }
@@ -320,8 +302,8 @@ const WebSketch = (props) => {
   const notify = (text, options) => {
     // options.duration must be a non-zero number or 'persist'
     // options.prepend causes the message to be prepended to the normal notify div
-    // duration is 2000 if not specified
-    let duration = 2000;
+    // duration is 2500 if not specified
+    let duration = 2500;
     let gobjs;
     let callback;
     let prepend = false;
@@ -342,6 +324,7 @@ const WebSketch = (props) => {
     }
 
     const highlight = (on) => {
+      console.log('highlight:', text, 'options:', options, 'on:', on);
       if (highLights.length > 0) {
         // Whether on or off, remove previous highlights
         highLights.forEach((gobj) => {
@@ -355,7 +338,7 @@ const WebSketch = (props) => {
         setHighLights([]);
       }
       if (!gobjs) return; // Nothing to do
-      gobjs.forEach(function(gobj) {
+      gobjs.forEach((gobj) => {
         // this may be a gobj, or may be a gobj id
         gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
         const { state } = gobj;
@@ -365,11 +348,14 @@ const WebSketch = (props) => {
             state.oldRenderState = state.renderState; // track the previous renderState
           }
           state.renderState = 'targetHighlit';
+          setHighLights(...highLights, gobj); // track this gobj as highlighted
         } else {
           // off
           if (state.renderState === 'targetHighlit') {
-            setHighLights(...highLights, gobj); // track this gobj as highlighted
-            if (state.oldRenderState) {
+            if (
+              state.oldRenderState &&
+              state.oldRenderState !== 'targetHighlit'
+            ) {
               // prev renderState existed, so restore it
               state.renderState = state.oldRenderState;
             } else {
@@ -378,7 +364,7 @@ const WebSketch = (props) => {
             }
           }
           delete state.oldRenderState; // delete tracked prev value, if any
-          // setHighLights([]);
+          setHighLights([]);
         }
         gobj.invalidateAppearance();
       });
@@ -657,7 +643,7 @@ const WebSketch = (props) => {
       console.log('Delete delta: ', thisDelta, ' vs ', attr.delta);
       sketch.document.changedUIMode();
     }
-
+    // TODO - refactor
     $.each(attr.deletedIds, function() {
       const gobj = sketch.gobjList.gobjects[this];
       deletedGobjs[this] = gobj;

@@ -291,7 +291,7 @@ module.exports = {
             currentState: tab.currentState,
             startingPoint: tab.currentState,
             startingPointBase64:
-              tab.tabType === 'desmosActivity'
+              tab.tabType === 'desmosActivity' || tab.tabType === 'wsp'
                 ? tab.startingPointBase64
                 : tab.currentStateBase64,
             currentStateBase64:

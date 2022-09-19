@@ -104,12 +104,8 @@ const WebSketch = (props) => {
   }
 
   const buildDescription = (username, updates) => {
-    let { attr } = updates;
-    if (typeof attr === 'string') {
-      attr = JSON.parse(attr);
-    }
-    // console.log('Description: ', updates, ' attr: ', attr);
     // TODO: build helper to parse WSP event types and event data to plain text - parseWSPevent in draft
+    // let actionText = 'intereacted with the sketch';
     let actionText = parseWSPevent(updates);
     let actionDetailText = '';
     if (!updates) {
@@ -120,6 +116,7 @@ const WebSketch = (props) => {
   };
 
   const parseWSPevent = (update) => {
+    if (!update) return '';
     let { attr } = update;
     if (typeof attr === 'string') {
       attr = JSON.parse(attr);
@@ -128,10 +125,10 @@ const WebSketch = (props) => {
     if (attr.gobjId) {
       gobjId = attr.gobjId;
     } else {
-      if (Object.keys(attr).length > 1) {
-        gobjId = `${Object.keys(attr).length} gobjs`;
-      }
       gobjId = Object.keys(attr)[0];
+      if (Object.keys(attr).length > 1) {
+        gobjId += ` and ${Object.keys(attr).length} other gobjs`;
+      }
     }
     switch (update.name) {
       case 'WillChangeCurrentPage':
@@ -947,7 +944,7 @@ const WebSketch = (props) => {
       console.log('Delete delta: ', thisDelta, ' vs ', attr.delta);
       sketch.document.changedUIMode();
     }
-
+    // TODO - refactor
     $.each(attr.deletedIds, function() {
       const gobj = sketch.gobjList.gobjects[this];
       deletedGobjs[this] = gobj;
@@ -1004,6 +1001,10 @@ const WebSketch = (props) => {
       // existing event data on tab
       const { currentStateBase64 } = tab;
       config = JSON.parse(currentStateBase64);
+    } else if (tab.startingPointBase64 && tab.startingPointBase64 !== '{}') {
+      // starting point data on tab
+      const { startingPointBase64 } = tab;
+      config = JSON.parse(startingPointBase64);
     }
     return config;
   };
