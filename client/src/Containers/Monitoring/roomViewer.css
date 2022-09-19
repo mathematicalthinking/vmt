@@ -50,7 +50,6 @@
   .AttendanceSection {
     border-radius: 3px;
     box-shadow: lightShadow;
-    overflow-y: scroll;
     height: 30vh;
   }
 

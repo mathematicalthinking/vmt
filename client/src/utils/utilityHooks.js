@@ -278,3 +278,30 @@ export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
     options
   );
 }
+
+export function usePopulatedRooms(
+  roomIds,
+  shouldBuildLog = false,
+  options = {}
+) {
+  return useQuery(
+    [roomIds, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
+    () =>
+      API.findAllMatchingIdsPopulated('rooms', roomIds, shouldBuildLog)
+        .then((res) => {
+          const populatedRooms = res.data.results;
+          if (!shouldBuildLog) return populatedRooms;
+          return populatedRooms.map((room) => {
+            const log = buildLog(room.tabs, room.chat);
+            return { ...room, log };
+          });
+        })
+        .then((roomArray) => {
+          return roomArray.reduce(
+            (acc, room) => ({ ...acc, [room._id]: room }),
+            {}
+          );
+        }),
+    options
+  );
+}

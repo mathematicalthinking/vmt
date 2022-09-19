@@ -21,6 +21,7 @@ module.exports = function() {
 
   io.sockets.on('connection', (socket) => {
     socketMetricInc('connect');
+    // socketMetricInc('connectionByUser',sock)
 
     // io.sockets.adapter.on('join-room', (room, id) => {
     //   console.log('join-room', room, id);
@@ -186,6 +187,7 @@ module.exports = function() {
 
     socket.on('disconnecting', (reason) => {
       socketMetricInc('disconnect');
+      socketMetricInc('disconnectionByUser', socket.user_id);
       console.log(
         'socket disconnect from user: ',
         socket.user_id,
@@ -204,7 +206,7 @@ module.exports = function() {
       socketMetricInc('sync');
       if (!_id) {
         // console.log('unknown user connected: ', socket.id);
-        cb(null, 'NO USER');
+        cb(null, 'NO USER ID GIVEN TO SYNC_SOCKET');
         return;
       }
       socket.user_id = _id;
@@ -430,6 +432,11 @@ module.exports = function() {
         ['socketId'],
         socketsInRoom
       );
+      if (answer.length !== usersInRoom.length)
+        console.log(
+          `There are ${socketsInRoom.length -
+            answer.length} sockets with unknown users`
+        );
       return (answer || []).map((user) => user._id.toString());
     };
 
