@@ -34,6 +34,7 @@ function CurrentMembers({
   }, [activeMember]);
 
   React.useEffect(() => {
+    if (!currentMembers) return;
     // filter out any malformed members. Of course, this has the effect of potentially not showing someone who is there.
     const currmembers = currentMembers.filter((m) => m && m._id);
     // Creatings new array of members in the room so that we have all of the member metadata (inc color)
@@ -52,7 +53,7 @@ function CurrentMembers({
         };
         newMemCount += 1;
       }
-      return mem;
+      return { ...mem, user: { ...mem.user, username: member.username } };
     });
     setPresentMembers(result);
   }, [currentMembers]);
@@ -65,7 +66,7 @@ function CurrentMembers({
 
   const usernameGen = (usrnm) => {
     let shortName = usrnm;
-    const maxLen = 12;
+    const maxLen = 35;
     if (shortName.includes('@'))
       shortName = shortName.substring(0, shortName.lastIndexOf('@'));
     if (shortName.length > maxLen) shortName = shortName.substring(0, maxLen);
@@ -130,7 +131,7 @@ CurrentMembers.propTypes = {
   ).isRequired,
   members: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   activeMember: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.shape({})),
+    PropTypes.arrayOf(PropTypes.string),
     PropTypes.string,
   ]),
   expanded: PropTypes.bool.isRequired,

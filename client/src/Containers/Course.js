@@ -16,8 +16,13 @@ import {
   requestAccess,
   grantAccess,
   updateUser,
+  updatedCourse,
 } from '../store/actions';
-import { DashboardLayout, SidePanel, ResourceList } from '../Layout/Dashboard';
+import {
+  DashboardLayout,
+  SidePanel,
+  DashboardContent,
+} from '../Layout/Dashboard';
 import {
   Aux,
   Modal,
@@ -29,15 +34,9 @@ import {
   Error,
 } from '../Components';
 import Access from './Access';
+import CourseStats from './Stats/CourseStats';
 
 class Course extends Component {
-  initialTabs = [
-    { name: 'Rooms' },
-    { name: 'Members' },
-    { name: 'Activities' },
-    { name: 'Preview' },
-  ];
-
   constructor(props) {
     super(props);
     const { course } = this.props;
@@ -48,6 +47,7 @@ class Course extends Component {
         { name: 'Members' },
         { name: 'Activities' },
         { name: 'Preview' },
+        { name: 'Stats' },
       ],
       firstView: false,
       editing: false,
@@ -113,6 +113,7 @@ class Course extends Component {
     if (!course) {
       return;
     }
+
     // If the user has been removed from this course go back to myVMT
     if (
       prevProps.user.courses.indexOf(course._id) > -1 &&
@@ -245,7 +246,6 @@ class Course extends Component {
       name: course.name,
       privacySetting: course.privacySetting,
       entryCode: course.entryCode,
-      instruction: course.instructions,
       errorMessage: '',
     }));
   };
@@ -316,6 +316,17 @@ class Course extends Component {
     connectRemoveCourseMember(course._id, user._id);
   };
 
+  sortParticipants = (list) => {
+    const facilitators = list
+      .filter((mem) => mem.role === 'facilitator')
+      .sort((a, b) => a.user.username.localeCompare(b.user.username));
+    const prevParticipants = list.filter((mem) => mem.role === 'participant');
+
+    return prevParticipants
+      .sort((a, b) => a.user.username.localeCompare(b.user.username))
+      .concat(facilitators);
+  };
+
   render() {
     const {
       course,
@@ -371,7 +382,7 @@ class Course extends Component {
       let mainContent;
       if (resource === 'rooms' || resource === 'activities') {
         mainContent = (
-          <ResourceList
+          <DashboardContent
             userResources={myRooms || course[resource] || []}
             user={user}
             resource={resource}
@@ -386,7 +397,8 @@ class Course extends Component {
         mainContent = (
           <Members
             user={user}
-            classList={course.members}
+            classList={this.sortParticipants(course.members)}
+            courseMembers={course.members}
             owner={course.myRole === 'facilitator' || isAdmin}
             resourceType="course"
             resourceId={course._id}
@@ -395,8 +407,15 @@ class Course extends Component {
             }
           />
         );
-      } else if (resource === 'preview')
+      } else if (resource === 'preview') {
         mainContent = <CourseMonitor course={course} />;
+      } else if (resource === 'stats')
+        mainContent = (
+          <CourseStats
+            roomIds={course.rooms.map((room) => room._id)}
+            name={course.name}
+          />
+        );
       // Updatekeys = the keys that we failed to update
       const { updateFail, updateKeys } = loading;
 
@@ -509,7 +528,7 @@ class Course extends Component {
                         onKeyPress={this.toggleEdit}
                       >
                         <span>
-                          Edit Course <i className="fas fa-edit" />
+                          Edit Info <i className="fas fa-edit" />
                         </span>
                       </div>
                       {editing ? (
@@ -623,11 +642,44 @@ class Course extends Component {
 }
 
 Course.propTypes = {
-  course: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
-  match: PropTypes.shape({}).isRequired,
+  course: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    description: PropTypes.string,
+    myRole: PropTypes.string,
+    instructions: PropTypes.string,
+    entryCode: PropTypes.string,
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+    activities: PropTypes.arrayOf(PropTypes.shape({})),
+    privacySetting: PropTypes.string,
+    creator: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]),
+    image: PropTypes.string,
+  }),
+  user: PropTypes.shape({
+    rooms: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]) // This type represents that the values might be the _id or the populated object
+    ),
+    courses: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
+    notifications: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
+    inAdminMode: PropTypes.bool,
+    _id: PropTypes.string,
+    username: PropTypes.string,
+    accountType: PropTypes.string,
+    firstName: PropTypes.string,
+  }).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      course_id: PropTypes.string,
+      resource: PropTypes.string,
+    }),
+  }).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   loading: PropTypes.bool.isRequired,
   connectGrantAccess: PropTypes.func.isRequired,
   connectRequestAccess: PropTypes.func.isRequired,
@@ -683,15 +735,12 @@ const mapStateToProps = (store, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectClearNotification: clearNotification,
-    connectRemoveCourseMember: removeCourseMember,
-    connectUpdateCourse: updateCourse,
-    connectGetCourse: getCourse,
-    connectRequestAccess: requestAccess,
-    connectGrantAccess: grantAccess,
-    connectUpdateUser: updateUser,
-  }
-)(Course);
+export default connect(mapStateToProps, {
+  connectClearNotification: clearNotification,
+  connectRemoveCourseMember: removeCourseMember,
+  connectUpdateCourse: updateCourse,
+  connectGetCourse: getCourse,
+  connectRequestAccess: requestAccess,
+  connectGrantAccess: grantAccess,
+  connectUpdateUser: updateUser,
+})(Course);

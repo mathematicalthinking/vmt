@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -17,7 +17,7 @@ import {
   Dashboard,
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
-import { PrivateRoute, ErrorToast } from '../Components';
+import { PrivateRoute, ErrorToast, Loading } from '../Components';
 import { Confirmation, FacilitatorIntro } from '../Layout';
 import ErrorBoundary from '../ErrorBoundary';
 import { updateUser } from '../store/actions/user';
@@ -76,63 +76,70 @@ const pages = [
     component: Dashboard,
   },
 ];
-class MyVmt extends Component {
-  toggleAdmin = () => {
-    const { connectUpdateUser, user } = this.props;
+const MyVmt = ({
+  match,
+  loggedIn,
+  user,
+  globalErrorMessage,
+  connectUpdateUser,
+}) => {
+  const toggleAdmin = () => {
     connectUpdateUser({ inAdminMode: !user.inAdminMode });
   };
 
-  render() {
-    const { match, loggedIn, user, globalErrorMessage } = this.props;
-    const { path } = match;
-    const { email, isEmailConfirmed } = user;
+  const { path } = match;
+  const { email, isEmailConfirmed } = user;
 
-    const doRedirectToUnconfirmed =
-      loggedIn && email.length > 0 && !isEmailConfirmed;
-    return (
-      <ErrorBoundary>
-        <Navbar user={user} toggleAdmin={this.toggleAdmin} />
-        <Switch>
-          {pages.map((page) => {
-            return (
-              <PrivateRoute
-                exact
-                key={page.path}
-                path={`${path}${page.path}`}
-                authed={loggedIn && !doRedirectToUnconfirmed}
-                component={page.component}
-                redirectPath={
-                  doRedirectToUnconfirmed
-                    ? '/unconfirmed'
-                    : page.redirectPath || '/'
-                }
-              />
-            );
-          })}
-          <Route
-            path={`${path}/explore/:room_id`}
-            component={withPopulatedRoom(TempWorkspace)}
-          />
-          <Route
-            path="*"
-            component={
-              () => <div>Error</div>
-              // ^ @TODO 404 page ...will never hit due to resource wildcard
-            }
-          />
-        </Switch>
-        {globalErrorMessage ? (
-          <ErrorToast>{globalErrorMessage}</ErrorToast>
-        ) : null}
-      </ErrorBoundary>
-    );
-  }
-}
+  const doRedirectToUnconfirmed =
+    loggedIn && email.length > 0 && !isEmailConfirmed;
+
+  return (
+    <ErrorBoundary>
+      <Navbar user={user} toggleAdmin={toggleAdmin} />
+      <Switch>
+        {pages.map((page) => {
+          return (
+            <PrivateRoute
+              exact
+              key={page.path}
+              path={`${path}${page.path}`}
+              authed={loggedIn && !doRedirectToUnconfirmed}
+              component={page.component}
+              redirectPath={
+                doRedirectToUnconfirmed
+                  ? '/unconfirmed'
+                  : page.redirectPath || '/'
+              }
+            />
+          );
+        })}
+        <Route
+          path={`${path}/explore/:room_id`}
+          component={withPopulatedRoom(TempWorkspace)}
+        />
+        <Route
+          path="*"
+          component={
+            () => <div>Error</div>
+            // ^ @TODO 404 page ...will never hit due to resource wildcard
+          }
+        />
+      </Switch>
+      {globalErrorMessage ? (
+        <ErrorToast>{globalErrorMessage}</ErrorToast>
+      ) : null}
+    </ErrorBoundary>
+  );
+};
 
 MyVmt.propTypes = {
-  match: PropTypes.shape({}).isRequired,
+  match: PropTypes.shape({ path: PropTypes.string }).isRequired,
   loggedIn: PropTypes.bool.isRequired,
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({
+    inAdminMode: PropTypes.bool,
+    isEmailConfirmed: PropTypes.bool,
+    email: PropTypes.string,
+  }),
   globalErrorMessage: PropTypes.string,
   connectUpdateUser: PropTypes.func.isRequired,
 };
@@ -148,9 +155,6 @@ const mapStateToProps = (state) => ({
   globalErrorMessage: state.loading.globalErrorMessage,
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    connectUpdateUser: updateUser,
-  }
-)(MyVmt);
+export default connect(mapStateToProps, {
+  connectUpdateUser: updateUser,
+})(MyVmt);

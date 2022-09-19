@@ -212,7 +212,11 @@ class SocketProvider extends Component {
 }
 
 SocketProvider.propTypes = {
-  user: PropTypes.shape({ loggedIn: PropTypes.bool.isRequired }).isRequired,
+  user: PropTypes.shape({
+    loggedIn: PropTypes.bool.isRequired,
+    _id: PropTypes.string.isRequired,
+    socketId: PropTypes.string,
+  }).isRequired,
   courses: PropTypes.shape({}).isRequired,
   rooms: PropTypes.shape({}).isRequired,
   roomsArr: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -237,20 +241,17 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectAddNotification: addNotification,
-    connectAddUserCourses: addUserCourses,
-    connectGetUser: getUser,
-    connectAddUserRooms: addUserRooms,
-    connectGotCourses: gotCourses,
-    connectGotRooms: gotRooms,
-    connectAddCourseRooms: addCourseRooms,
-    connectAddRoomMember: addRoomMember,
-    connectAddCourseMember: addCourseMember,
-    connectUpdateUser: updateUser,
-    connectClearError: clearError,
-    connectLogout: logout,
-  }
-)(SocketProvider);
+export default connect(mapStateToProps, {
+  connectAddNotification: addNotification,
+  connectAddUserCourses: addUserCourses,
+  connectGetUser: getUser,
+  connectAddUserRooms: addUserRooms,
+  connectGotCourses: gotCourses,
+  connectGotRooms: gotRooms,
+  connectAddCourseRooms: addCourseRooms,
+  connectAddRoomMember: addRoomMember,
+  connectAddCourseMember: addCourseMember,
+  connectUpdateUser: updateUser,
+  connectClearError: clearError,
+  connectLogout: logout,
+})(SocketProvider);

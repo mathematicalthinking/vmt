@@ -16,7 +16,7 @@
 .DropdownContent {
   display: none;
   position: absolute;
-  top: 56px;
+  top: 90%; /* for different navbar heights, dropdown will appear at the bottom, slightly overlapping */
   left: 0;
   right: 0;
   /* border: 1px solid red; */

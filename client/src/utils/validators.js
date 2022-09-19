@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import api from 'utils/apiRequests';
 
+// These variables MUST be the same as those in MT-SSO (see mt-sso/src/validators/schema.ts)
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 const usernamePattern = /^[a-z0-9_]{3,30}$/;
 const disallowedUsernames = ['admin', 'encompass', 'vmt', 'virtualmathteams'];
@@ -98,18 +99,4 @@ export const validateExistingField = async (field, value) => {
       );
     })
     .catch((err) => console.error(err));
-};
-
-export const suggestUniqueUsername = (username) => {
-  const uniqueName = validateExistingField('username', username)
-    .then((isExisting) => {
-      return !isExisting
-        ? username
-        : suggestUniqueUsername(username + Math.floor(Math.random() * 1000));
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-  return uniqueName;
 };

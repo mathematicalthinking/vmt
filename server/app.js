@@ -22,40 +22,21 @@ const { router: metrics } = require('./services/metrics');
 const app = express();
 console.log('NODE_ENV=', process.env.NODE_ENV);
 // SETUP DATABASE & SESSION
-let mongoURI;
+
+const mongoURI = process.env.MONGO_URI;
+const isSecure = !mongoURI.includes('localhost');
 let mongoOptions = { useNewUrlParser: true, poolSize: 10 };
-if (process.env.NODE_ENV === 'development') {
-  mongoURI = process.env.MONGO_DEV_URI;
-} else if (process.env.TRAVIS) {
-  mongoURI = process.env.MONGO_TEST_URI;
-} else if (process.env.NODE_ENV === 'production') {
-  mongoURI = process.env.MONGO_PROD_URI;
+if (isSecure) {
   mongoOptions = {
     ...mongoOptions,
     ssl: true,
     sslValidate: true,
-    user: process.env.MONGO_PROD_USER,
-    pass: process.env.MONGO_PROD_PASS,
-    sslKey: fs.readFileSync(process.env.MONGO_PROD_SSL_KEY_DIR),
-    sslCert: fs.readFileSync(process.env.MONGO_PROD_SSL_CERT_DIR),
-    authSource: process.env.MONGO_PROD_AUTHDB,
+    user: process.env.MONGO_USER,
+    pass: process.env.MONGO_PASS,
+    sslKey: fs.readFileSync(process.env.MONGO_SSL_KEY_DIR),
+    sslCert: fs.readFileSync(process.env.MONGO_SSL_CERT_DIR),
+    authSource: process.env.MONGO_AUTHDB,
   };
-} else if (process.env.NODE_ENV === 'staging') {
-  mongoURI = process.env.MONGO_STAGING_URI;
-  if (process.env.YES_TO_MONGO_STAGE_SSL.toLowerCase() === 'yes') {
-    mongoOptions = {
-      ...mongoOptions,
-      ssl: true,
-      sslValidate: true,
-      user: process.env.MONGO_STAGING_USER,
-      pass: process.env.MONGO_STAGING_PASS,
-      sslKey: fs.readFileSync(process.env.MONGO_STAGING_SSL_KEY_DIR),
-      sslCert: fs.readFileSync(process.env.MONGO_STAGING_SSL_CERT_DIR),
-      authSource: process.env.MONGO_STAGING_AUTHDB,
-    };
-  }
-} else if (process.env.NODE_ENV === 'test') {
-  mongoURI = process.env.MONGO_TEST_URI;
 }
 
 mongoose.connect(mongoURI, mongoOptions, (err) => {
@@ -101,6 +82,20 @@ app.use('/auth', auth);
 app.use('/api', api);
 app.use('/enc', enc);
 app.use('/admin', admin);
+
+// This route is called by the script tag in the client index.html (client/public/index.html). Returns javascript that sets up environment
+// variables defined in server/.env that are used by the client. Creates a window.env object that holds all the server-provided variables.
+app.use('/env.js', (req, res) => {
+  const commands = Object.keys(process.env).reduce(
+    (acc, curr) =>
+      curr.includes('REACT_APP_')
+        ? acc.concat(`window.env.${curr}='${process.env[curr]}';`)
+        : acc,
+    `window.env={};window.env.REACT_APP_HOSTNAME='${require('os').hostname()}';`
+  );
+  res.setHeader('Content-Type', 'application/javascript');
+  res.send(commands);
+});
 
 if (process.env.ENCOMPASS) {
   app.use(express.static(path.join(__dirname, '../client/encompassBuild')));

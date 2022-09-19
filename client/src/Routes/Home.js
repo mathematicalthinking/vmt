@@ -101,8 +101,8 @@ class Home extends PureComponent {
           <br />
           {this.isWeekend()
             ? `VMT is in development and may undergo regular weekend maintenance${
-                process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE
-                  ? ` on ${process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE}`
+                window.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE
+                  ? ` on ${window.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE}`
                   : ''
               }, please contact if uptime is needed.`
             : null}

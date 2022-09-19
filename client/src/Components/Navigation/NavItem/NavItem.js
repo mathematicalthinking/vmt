@@ -6,18 +6,9 @@ import classes from './navItem.css';
 import Checkbox from '../../Form/Checkbox/Checkbox';
 
 const NavItem = ({ name, link, ntf, sliderDetails }) => {
-  let style = classes.Item;
-  if (
-    typeof name === 'string' &&
-    window.location.href.toLowerCase().indexOf(
-      name
-        .toLowerCase()
-        .split(' ')
-        .join('')
-    ) > -1
-  ) {
-    style = classes.ActiveLink;
-  }
+  const style = window.location.href.includes(link)
+    ? classes.ActiveLink
+    : classes.Item;
 
   const dataName = typeof name === 'string' ? name : 'profile';
 

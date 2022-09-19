@@ -112,3 +112,7 @@
   position: relative;
   top: 3px;
 }
+
+.TabTypes {
+  text-transform: capitalize;
+}

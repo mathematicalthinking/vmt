@@ -3,14 +3,19 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import Button from '../Components/UI/Button/Button';
+import {
+  Search,
+  Member,
+  EditText,
+  ToolTip,
+  Error,
+  Button,
+  BreadCrumbs,
+} from 'Components';
+import { suggestUniqueUsername, API } from 'utils';
 import SidePanel from '../Layout/Dashboard/SidePanel/SidePanel';
-import BreadCrumbs from '../Components/Navigation/BreadCrumbs/BreadCrumbs';
 import SearchResults from './Members/SearchResults';
-import { Search, Member, EditText, ToolTip, Error } from '../Components';
-import API from '../utils/apiRequests';
 import { updateUser, updateUserSettings } from '../store/actions';
-import { suggestUniqueUsername } from '../utils/validators';
 // import MainContent from '../Layout/Dashboard/MainContent/';
 import DashboardLayout from '../Layout/Dashboard/Dashboard';
 
@@ -280,8 +285,22 @@ class Profile extends Component {
 }
 
 Profile.propTypes = {
-  user: PropTypes.shape({}).isRequired,
-  loading: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    username: PropTypes.string,
+    email: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    accountType: PropTypes.string,
+    profilePic: PropTypes.string, // @TODO This field is not in the DB model! See VMT-355.
+    isAdmin: PropTypes.bool,
+    inAdminMode: PropTypes.bool,
+  }).isRequired,
+  loading: PropTypes.shape({
+    updateFail: PropTypes.bool,
+    updateKeys: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
   connectUpdateUserInfo: PropTypes.func.isRequired,
 };
@@ -291,7 +310,7 @@ const mapStateToProps = (store) => ({
   loading: store.loading,
 });
 
-export default connect(
-  mapStateToProps,
-  { connectUpdateUser: updateUser, connectUpdateUserInfo: updateUserSettings }
-)(Profile);
+export default connect(mapStateToProps, {
+  connectUpdateUser: updateUser,
+  connectUpdateUserInfo: updateUserSettings,
+})(Profile);

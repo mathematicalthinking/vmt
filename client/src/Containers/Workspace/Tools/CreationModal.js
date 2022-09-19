@@ -32,7 +32,7 @@ const CreationModal = (props) => {
     const copy = { ...populatedRoom };
     const { connectCreateActivity, connectCreateRoom } = props;
 
-    _updateError();
+     _updateError();
     if (createActivityError) return;
 
     const { description, privacySetting, instructions } = copy;

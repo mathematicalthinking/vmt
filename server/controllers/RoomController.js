@@ -48,7 +48,10 @@ module.exports = {
         //   populate: { path: params.events ? 'events' : '' },
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
-        .select('name creator members course graphImage privacySetting _id')
+        .populate({ path: 'tabs', select: 'tabType name' })
+        .select(
+          'name creator activity members course graphImage privacySetting _id'
+        )
         .then((room) => {
           resolve(room);
         })
@@ -63,22 +66,29 @@ module.exports = {
         path: 'chat',
         // options: { limit: 25 }, // Eventually we'll need to paginate this
         populate: { path: 'user', select: 'username' },
-        select: '-room',
+        // allow messages to have roomIds, like events do
+        // select: '-room',
       })
       .populate({ path: 'members.user', select: 'username' })
       .populate({ path: 'currentMembers', select: 'username' })
       .populate({ path: 'course', select: 'name' })
       .populate({ path: 'activity', select: 'name' })
-      .populate({
-        path: 'tabs',
-        populate: {
-          path: params.events ? 'events' : '',
-          populate: params.events
-            ? { path: 'user', select: 'username color' }
-            : '',
-          // options: { limit: 25 },
-        },
-      });
+      .populate(
+        params.events === 'true'
+          ? {
+              path: 'tabs',
+              populate: {
+                path: 'events',
+                populate: { path: 'user', select: 'username color' },
+              },
+            }
+          : {
+              path: 'tabs',
+              select: 'name tabType snapshot',
+            }
+      )
+      .lean();
+    // options: { limit: 25 },
   },
 
   // returns the current state for each tab...does not return events or any other information
@@ -229,7 +239,7 @@ module.exports = {
 
   /**
    * @method post - creates a room (and tabs if necessary)
-   * @param  {body} - fields for creating new room and tabs
+   * @param  {body} - fields for creating new room and tabs (kind of a room configuration object)
    */
   post: (body) => {
     return new Promise(async (resolve, reject) => {
@@ -290,7 +300,7 @@ module.exports = {
             currentState: tab.currentState,
             startingPoint: tab.currentState,
             startingPointBase64:
-              tab.tabType === 'desmosActivity'
+              tab.tabType === 'desmosActivity' || tab.tabType === 'wsp'
                 ? tab.startingPointBase64
                 : tab.currentStateBase64,
             currentStateBase64:
@@ -315,7 +325,10 @@ module.exports = {
           new Tab({
             name: 'Tab 1',
             room: room._id,
-            startingpoint: '',
+            startingPoint: '',
+            // startingPointBase64 and currentStateBase64 should be in the body only if we are creating a new desmos activity.
+            startingPointBase64: body.startingPointBase64,
+            currentStateBase64: body.currentStateBase64,
             desmosLink: body.desmosLink,
             tabType: body.roomType || 'geogebra',
             appName: body.appName,

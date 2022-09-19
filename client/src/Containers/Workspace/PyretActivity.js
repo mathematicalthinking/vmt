@@ -13,7 +13,7 @@ const CodePyretOrg = (props) => {
   const [iframeSrc, setIframeSrc] = useState(
     // 'http://localhost:5000/editor'
     // 'http://localhost:5000/editor' or 'https://pyret-horizon.herokuapp.com/editor'
-    `${process.env.REACT_APP_PYRET_URL}#warnOnExit=false&headerStyle=small`
+    `${window.env.REACT_APP_PYRET_URL}#warnOnExit=false&headerStyle=small`
   );
   const { inControl, user, isFirstTabLoaded } = props;
   const cpoIframe = useRef();
@@ -41,7 +41,13 @@ const CodePyretOrg = (props) => {
       console.log(params, iframeReference());
       // source made stateful forces an iframe refresh
       // setIframeSrc(`http://localhost:5000/editor${params}`);
-      setIframeSrc(`${process.env.REACT_APP_PYRET_URL}${params}`);
+      setIframeSrc(`${window.env.REACT_APP_PYRET_URL}${params}`);
+      // const pyretWindow = iframeReference();
+      // pyretWindow.src += params;
+      // forcing iFrame reload with random param
+      // const rand = Math.floor(Math.random() * 1000000 + 1);
+      // eslint-disable-next-line
+      // pyretWindow.src += '?uid=' + rand + params;
     }
     window.onmessage = function(event) {
       if (event.data.protocol !== 'pyret') {

@@ -70,7 +70,7 @@ class Step1 extends Component {
       dueDate,
       setDueDate,
       nextStep,
-      course,
+      courseId,
       selectedParticipants,
       select,
     } = this.props;
@@ -90,7 +90,7 @@ class Step1 extends Component {
     return (
       <div className={classes.Container}>
         <DueDate dueDate={dueDate} selectDate={setDueDate} />
-        {!course && (
+        {!courseId && (
           <Fragment>
             <h2 className={classes.Title}>Selected Participants</h2>
             <ParticipantList
@@ -100,7 +100,7 @@ class Step1 extends Component {
             />
           </Fragment>
         )}
-        {!course && (
+        {!courseId && (
           <Fragment>
             <h2 className={classes.Title}>Add Participants</h2>
             <div className={classes.SubContainer}>
@@ -137,11 +137,11 @@ Step1.propTypes = {
   userId: PropTypes.string.isRequired,
   selectedParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
-  course: PropTypes.string,
+  courseId: PropTypes.string,
 };
 
 Step1.defaultProps = {
   dueDate: null,
-  course: null,
+  courseId: null,
 };
 export default Step1;

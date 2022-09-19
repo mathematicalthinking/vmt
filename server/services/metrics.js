@@ -40,7 +40,9 @@ register.registerMetric(totalSocketconnections);
 // // Register the histogram
 // register.registerMetric(totalSocketevents);
 
-const socketMetricInc = (type) => {
+const users = {};
+
+const socketMetricInc = (type, userId) => {
   if (type === 'disconnect') {
     disconnectCount.inc();
   }
@@ -79,6 +81,15 @@ const socketMetricInc = (type) => {
   }
   if (type === 'refupdated') {
     refUpdateCount.inc();
+  }
+  if (type === 'disconnectionByUser') {
+    if (!userId) return;
+    users[userId] = (users[userId] || 0) + 1;
+    const threshhold = Object.values(users).filter((val) => val > 1);
+    disconnectGauge.set(threshhold.length);
+    console.log(`setting gauge to: ${threshhold.length}`);
+    disconnectByUsers.observe(users[userId]);
+    console.log(users);
   }
 };
 
@@ -159,6 +170,18 @@ const refUpdateCount = new client.Counter({
   help: 'number of reference update events',
 });
 register.registerMetric(refUpdateCount);
+
+const disconnectByUsers = new client.Summary({
+  name: 'socket_disconnectByUsers',
+  help: 'number of disconnections by user',
+});
+register.registerMetric(disconnectByUsers);
+
+const disconnectGauge = new client.Gauge({
+  name: 'socket_disconnectByUsersGauge',
+  help: 'number of users with disconnections above 1',
+});
+register.registerMetric(disconnectGauge);
 
 router.get('/', async (req, res) => {
   res.set('Content-Type', register.contentType);

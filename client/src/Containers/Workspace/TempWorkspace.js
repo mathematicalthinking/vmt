@@ -216,8 +216,8 @@ class TempWorkspace extends Component {
             >
               GeoGebra
             </Button>
-            {process.env.REACT_APP_PYRET_MODE &&
-            process.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' ? (
+            {window.env.REACT_APP_PYRET_MODE &&
+            window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' ? (
               <Button
                 data-testid="temp-pyret"
                 m={5}

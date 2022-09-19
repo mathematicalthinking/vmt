@@ -1,3 +1,7 @@
+const { Server } = require('socket.io');
+const { createAdapter } = require('@socket.io/redis-adapter');
+const { createClient } = require('redis');
+
 const { getMtSsoUrl, getEncUrl } = require('./config/app-urls');
 
 const allowedOrigins = [getMtSsoUrl(), getEncUrl()];
@@ -25,7 +29,19 @@ const options = {
 };
 
 sockets.init = function(server) {
-  this.io = require('socket.io')(server, options);
+  this.io = new Server(server, options);
+  const pubClient = createClient({ url: process.env.PUB_CLIENT_URL });
+  const subClient = pubClient.duplicate();
+
+  pubClient.on('error', (err) => {
+    console.log(err.message);
+  });
+
+  subClient.on('error', (err) => {
+    console.log(err.message);
+  });
+
+  this.io.adapter(createAdapter(pubClient, subClient));
 };
 
 module.exports = sockets;

@@ -15,6 +15,7 @@ function SimpleChat({ log, isSimplified }) {
   const chatScroll = React.createRef();
   const prevLogLength = React.useRef(0);
   const [showNewMessages, setShowNewMessages] = React.useState(false);
+  const [messages, setMessages] = React.useState([]);
 
   const _scrollToBottom = () => {
     const chat = chatScroll.current;
@@ -29,6 +30,24 @@ function SimpleChat({ log, isSimplified }) {
     );
   };
 
+  const resetMessages = () => {
+    const newMessages = log.map((message) => (
+      <Message
+        key={message._id}
+        message={message}
+        id={message._id} // ?? no message._id ??
+        onClick={() => {}}
+        showReference={() => {}}
+        highlighted={false}
+        reference={false}
+        referencing={false}
+        isSimplified={isSimplified}
+      />
+    ));
+    setTimeout(() => setMessages(newMessages), 0);
+    // setMessages(newMessages);
+  };
+
   React.useEffect(() => {
     _scrollToBottom();
   }, []);
@@ -36,7 +55,7 @@ function SimpleChat({ log, isSimplified }) {
   React.useEffect(() => {
     if (_isNearBottom() || prevLogLength.current === 0) _scrollToBottom();
     else setShowNewMessages(true);
-
+    if (prevLogLength.current < log.length) resetMessages();
     prevLogLength.current = log.length;
   }, [log]);
 
@@ -51,23 +70,7 @@ function SimpleChat({ log, isSimplified }) {
           if (_isNearBottom()) setShowNewMessages(false);
         }}
       >
-        {!log.length
-          ? 'No logs for this room'
-          : log.map((message) => {
-              return (
-                <Message
-                  key={message._id}
-                  message={message}
-                  id={message._id} // ?? no message._id ??
-                  onClick={() => {}}
-                  showReference={() => {}}
-                  highlighted={false}
-                  reference={false}
-                  referencing={false}
-                  isSimplified={isSimplified}
-                />
-              );
-            })}
+        {!messages.length ? 'No logs for this room' : messages}
         <div className={ChatClasses.Timestamp}>End of message log</div>
       </div>
       {showNewMessages && (

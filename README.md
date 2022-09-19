@@ -2,7 +2,7 @@
 
 Virtual Math Teams (VMT) provides a collaboration infrastructure for visual math and geometry tools, such as Geogebra and Desmos. To provide this infrastructure, this version uses React.js and Redux.js, express and sockets.io. see 'Installation' below.
 
-## License
+## License 
 
 - For non-commercial uses, this application is licensed under the [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html) license.
 - Any use of VMT for commercial purposes is subject to and requires a special license to be negotiated with Mathematical Thinking.
@@ -10,7 +10,7 @@ Virtual Math Teams (VMT) provides a collaboration infrastructure for visual math
 
 ## Installation (Technologies used)
 
-To provide the colloaboration infrastructure, this application uses a combination of:
+To provide the collaboration infrastructure, this application uses a combination of:
 
 - [MongoDB](http://www.mongodb.org/),
 - [Express](http://expressjs.com/),
@@ -20,16 +20,16 @@ To provide the colloaboration infrastructure, this application uses a combinatio
 - [Node.js](http://nodejs.org/)
 
 ## Setup for local Development
- In its current state, VMT is tightly linked with [EnCOMPASS](https://github.com/mathematicalthinking/encompass). When a user signs up with VMT, they also receive an EnCOMPASS account which has the same username (and vice versa). If a user is logged in to one app, they will also be logged in to the other app. As a result, you must also be running [mt-sso](https://github.com/mathematicalthinking/mt-sso) and [EnCOMPASS](https://github.com/mathematicalthinking/encompass) for user registration and login to work properly. If you do not need signup functionality while developing, then you do not need to be running EnCOMPASS.
- 
- If you wish to run VMT separately, then you just need to remove the existing auth routes (`server/routes/auth`) and middleware (`server/middleware/mt-auth`) and put in your own system. There are also routes used solely by EnCOMPASS that could be removed (`server/routes/enc`).
 
+In its current state, VMT is tightly linked with [EnCOMPASS](https://github.com/mathematicalthinking/encompass). When a user signs up with VMT, they also receive an EnCOMPASS account which has the same username (and vice versa). If a user is logged in to one app, they will also be logged in to the other app. As a result, you must also be running [mt-sso](https://github.com/mathematicalthinking/mt-sso) ([EnCOMPASS](https://github.com/mathematicalthinking/encompass) is not required) for user registration and login to work properly. If you do not need signup functionality while developing, then you do not need to be running EnCOMPASS.
+
+If you wish to run VMT separately, then you just need to remove the existing auth routes (`server/routes/auth`) and middleware (`server/middleware/mt-auth`) and put in your own system. There are also routes used solely by EnCOMPASS that could be removed (`server/routes/enc`).
 
 1. Fork this repo ([instructions](https://github.com/mathematicalthinking/vmt/blob/main/docs/gitForkRepo.md))
 1. `$ cd vmt/server && npm install`
 1. `$ cd ../client && npm install`
 1. `$ cd ..`
-1. `$ cp .env.example .env`
+1. `$ cp .env.example .env` Note that the client .env contains very little and will soon be deprecated. Instead, client environment variables are provided by the server. In the server .env file, prefix client variables with REACT_APP_. They will be available in the client code via window.env.REACT_APP_XXX (global variables).
 1. Make sure you have mongodb installed. [instructions here](https://docs.mongodb.com/manual/installation/)
 1. From anywhere on your computer run `$ mongod --dbpath <some-new-dir-for-db>` where `<some-new-dir-for-db>` is a directory for MongoDB data then cd back to the vmt/ and...
 1. `$ npm run dev` This will start the react development server on port 3000 and the express server on 3001 **N.B., you'll need to have nodemon and concurrently installed** these are included in the dev dependencies but you may need to install them globally. `$ npm i -g nodemon concurrently`

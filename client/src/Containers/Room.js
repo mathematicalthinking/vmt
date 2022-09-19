@@ -1,25 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { usePopulatedRoom } from 'utils';
+// import { usePopulatedRoom } from 'utils';
 import RoomLobby from './RoomLobby';
 
 function Room(props) {
-  const { match, room } = props;
-  const { room_id } = match.params;
-  const { isSuccess, data } = usePopulatedRoom(room_id, false, {
-    refetchInterval: 500,
-  });
+  const { room } = props;
+  // const { room_id } = match.params;
+  // const { isSuccess, data } = usePopulatedRoom(room_id, false);
+  // const updatedRoom = isSuccess ? { ...room, ...data } : room;
 
-  const updatedRoom = isSuccess ? { ...room, ...data } : room;
-
-  return <RoomLobby {...props} room={updatedRoom} />;
+  // Global live update of Room from the DB was too resource intensive. Plus, it stopped the Redux-based updates
+  // (e.g., changes to the UI when a member was added). For now, removing the live update, which means that the Room Details
+  // won't ever update unless you refresh the screen.
+  return <RoomLobby {...props} room={room} />;
 }
 
 Room.propTypes = {
   room: PropTypes.shape({}),
-  history: PropTypes.shape({}).isRequired,
-  match: PropTypes.shape({}).isRequired,
+  // history: PropTypes.shape({}).isRequired,
+  // match: PropTypes.shape({}).isRequired,
 };
 
 Room.defaultProps = {

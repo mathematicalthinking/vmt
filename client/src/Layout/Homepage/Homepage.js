@@ -108,14 +108,14 @@ class Homepage extends PureComponent {
     );
     let pyretStatus = '';
     if (
-      process.env.REACT_APP_PYRET_MODE &&
-      process.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes'
+      window.env.REACT_APP_PYRET_MODE &&
+      window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes'
     ) {
       pyretStatus = 'Pyret mode is enabled';
     }
 
     const maintWindow =
-      process.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE || 'Sunday, 3-7pm EST';
+      window.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE || 'Sunday, 3-7pm EST';
     return (
       <Aux>
         <Background bottomSpace={null} />

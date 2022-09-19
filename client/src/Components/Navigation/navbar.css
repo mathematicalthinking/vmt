@@ -24,6 +24,12 @@
   height: navbarHeight;
 }
 
+.EditorNavContainer {
+  composes: NavContainer;
+  width: 95%;
+  height: calc(navbarHeight * .5);
+}
+
 .WorkspaceNav {
   composes: NavContainer;
   box-shadow: none;

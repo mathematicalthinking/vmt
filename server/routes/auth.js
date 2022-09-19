@@ -33,13 +33,7 @@ const Room = require('../models/Room');
 
 const ssoService = require('../services/sso');
 
-let secret;
-
-if (process.env.NODE_ENV === 'test') {
-  secret = process.env.MT_USER_JWT_SECRET_TEST;
-} else {
-  secret = process.env.MT_USER_JWT_SECRET;
-}
+const secret = process.env.MT_USER_JWT_SECRET;
 
 const addDefaultPassword = (req) => ({
   ...req,
@@ -80,9 +74,12 @@ const login = async (req, res) => {
       })
       .populate({
         path: 'activities',
-        populate: { path: 'tabs' },
+        populate: { path: 'tabs', select: 'tabsType name' },
       })
-      .populate({ path: 'notifications', populate: { path: 'fromUser' } })
+      .populate({
+        path: 'notifications',
+        populate: { path: 'fromUser', select: '_id username' },
+      })
       .lean()
       .exec();
 
@@ -279,7 +276,10 @@ router.post('/resetPassword/:token', async (req, res) => {
         path: 'activities',
         populate: { path: 'tabs' },
       })
-      .populate({ path: 'notifications', populate: { path: 'fromUser' } })
+      .populate({
+        path: 'notifications',
+        populate: { path: 'fromUser', select: '_id username' },
+      })
       .lean()
       .exec();
 

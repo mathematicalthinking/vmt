@@ -6,19 +6,47 @@ import { useQuery } from 'react-query';
 import API from 'utils/apiRequests';
 import buildLog from 'utils/buildLog';
 
-/**
- * Custom hook for sorting table data
- * @param {array} items - The data array. Each element represents a row as an object, with the properties (keys) representing the table columns
- * @param {object} [config = null] - Optional specification of an initial sorting of the form { key, direction }
- * @returns {array} items - The data sorted by the requested column (key)
- * @returns {object} sortConfig - The current sorting: { key, direction }
- * @returns {function} requestSort - A function that takes a key and sorts the items accordingly
- */
+const timeFrames = {
+  all: () => true,
+  lastDay: (diff) => diff <= 24 * 60 * 60 * 1000,
+  lastWeek: (diff) => diff <= 7 * 24 * 60 * 60 * 1000,
+  last2Weeks: (diff) => diff <= 2 * 7 * 24 * 60 * 60 * 1000,
+  lastMonth: (diff) => diff <= 30 * 24 * 60 * 60 * 1000,
+  lastYear: (diff) => diff <= 356 * 24 * 60 * 60 * 1000,
+  afterDay: (diff) => diff > 24 * 60 * 60 * 1000,
+  afterWeek: (diff) => diff > 7 * 24 * 60 * 60 * 1000,
+  after2Weeks: (diff) => diff > 2 * 7 * 24 * 60 * 60 * 1000,
+  afterMonth: (diff) => diff > 30 * 24 * 60 * 60 * 1000,
+  afterYear: (diff) => diff > 356 * 24 * 60 * 60 * 1000,
+};
 
-// from https://www.smashingmagazine.com/2020/03/sortable-tables-react/
+/**
+ * Custom hook for sorting and filtering table data.  Note that filter must be one of all, lastDay, lastWeek, last2Weeks, lastMonth, or lastYear. Adapted from https://www.smashingmagazine.com/2020/03/sortable-tables-react/.
+ * @param {array} items - The data array. Each element represents a row as an object, with the properties (keys) representing the table columns
+ * @param {object} [config = null] - Optional specification of an initial sorting of the form { key, direction, filter }
+ * @returns {array} items - The data sorted by the requested column (key), in the requested direction, filtered by the requested filter.
+ * @returns {object} sortConfig - The current sorting: { key, direction, filter }. Note that filter must be one of all, lastDay, lastWeek, last2Weeks, lastMonth, or lastYear.
+ * @returns {function} requestSort - Takes a key and sorts the items accordingly. If not direction is supplied, the current direction is reversed.
+ * @returns {function} resetSort - Takes a sortConfig object. That object is merged with the current sortConfig then the items are sorted and filtered appropriately.
+ */
 
 export const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = React.useState(config);
+
+  const withinTimeframe = (item) => {
+    if (
+      !sortConfig ||
+      !item[sortConfig.key] ||
+      !sortConfig.filter ||
+      !timeFrames[sortConfig.filter]
+    )
+      return true;
+    const now = new Date();
+    const then = new Date(item[sortConfig.key]);
+    return then.toString() !== 'Invalid Date'
+      ? timeFrames[sortConfig.filter](Math.abs(then - now))
+      : true;
+  };
 
   const sortedItems = React.useMemo(() => {
     // eslint-disable-next-line prefer-const
@@ -44,7 +72,7 @@ export const useSortableData = (items, config = null) => {
         return 0;
       });
     }
-    return sortableItems;
+    return sortableItems.filter(withinTimeframe);
   }, [items, sortConfig]);
 
   const requestSort = (key) => {
@@ -56,12 +84,18 @@ export const useSortableData = (items, config = null) => {
     ) {
       direction = 'descending';
     }
-    setSortConfig({ key, direction });
+    setSortConfig({ ...sortConfig, key, direction });
   };
 
-  const resetSort = (key, direction) => {
-    if (key && direction) setSortConfig({ key, direction });
-    else if (key && !direction) requestSort(key);
+  const resetSort = ({ key, direction, filter }) => {
+    if (key && !direction && !filter) requestSort(key);
+    else if (sortConfig)
+      setSortConfig({
+        key: key || sortConfig.key,
+        direction: direction || sortConfig.direction,
+        filter: filter || sortConfig.filter,
+      });
+    else setSortConfig({ key, direction, filter });
   };
 
   return { items: sortedItems, requestSort, sortConfig, resetSort };
@@ -241,6 +275,33 @@ export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
           return populatedRoom;
         }
       ),
+    options
+  );
+}
+
+export function usePopulatedRooms(
+  roomIds,
+  shouldBuildLog = false,
+  options = {}
+) {
+  return useQuery(
+    [roomIds, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
+    () =>
+      API.findAllMatchingIdsPopulated('rooms', roomIds, shouldBuildLog)
+        .then((res) => {
+          const populatedRooms = res.data.results;
+          if (!shouldBuildLog) return populatedRooms;
+          return populatedRooms.map((room) => {
+            const log = buildLog(room.tabs, room.chat);
+            return { ...room, log };
+          });
+        })
+        .then((roomArray) => {
+          return roomArray.reduce(
+            (acc, room) => ({ ...acc, [room._id]: room }),
+            {}
+          );
+        }),
     options
   );
 }

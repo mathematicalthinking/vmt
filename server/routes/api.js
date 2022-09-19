@@ -8,13 +8,18 @@ const middleware = require('../middleware/api');
 const errors = require('../middleware/errors');
 const multerMw = require('../middleware/multer');
 
-const { getUser, getResource } = require('../middleware/utils/request');
+const {
+  getUser,
+  getResource,
+  getParamsId,
+} = require('../middleware/utils/request');
+const { findAllMatching } = require('../middleware/utils/helpers');
 
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
 
 router.get('/:resource', middleware.validateUser, (req, res) => {
-  const { resource } = req.params;
+  const resource = getResource(req);
   const controller = controllers[resource];
   req.query.isTrashed = false;
   controller
@@ -32,7 +37,8 @@ router.get('/:resource', middleware.validateUser, (req, res) => {
 });
 
 router.post('/:resource/code', (req, res) => {
-  const { resource } = req.params;
+  const resource = getResource(req);
+  const controller = controllers[resource];
   const { code } = req.body;
   if (resource !== 'courses') {
     return errors.sendError.InternalError(
@@ -40,9 +46,8 @@ router.post('/:resource/code', (req, res) => {
       res
     );
   }
-  const controller = controllers[resource];
 
-  controller
+  return controller
     .getByCode(code)
     .then((result) => res.json({ result }))
     .catch((err) => {
@@ -63,7 +68,7 @@ router.get('/search/:resource', (req, res) => {
   if (resource !== 'user') {
     errors.sendError.InvalidContentError('Invalid Resource', res);
   }
-  const controller = controllers[req.params.resource];
+  const controller = controllers[resource];
   let text = req.query.text || '';
 
   text = text.replace(/\s+/g, '');
@@ -85,7 +90,7 @@ router.get('/search/:resource', (req, res) => {
 });
 
 router.get('/searchPaginated/:resource', (req, res) => {
-  const { resource } = req.params;
+  const resource = getResource(req);
   const controller = controllers[resource];
   const { criteria, skip, privacySetting, roomType } = req.query;
   let regex;
@@ -110,6 +115,45 @@ router.get('/searchPaginated/:resource', (req, res) => {
     });
 });
 
+// Return records that have any of the values in any of the fields
+router.get('/findAllMatching/:resource', (req, res) => {
+  const resource = getResource(req);
+  const controller = controllers[resource];
+  const { fields = [], values = [] } = req.query;
+
+  findAllMatching(controller, fields, values)
+    .then((results) => res.json({ results }))
+    .catch((err) => {
+      console.error(`Error get ${resource}: ${err}`);
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+      return errors.sendError.InternalError(msg, res);
+    });
+});
+
+router.get('/findAllMatchingIds/:resource/populated', (req, res) => {
+  const resource = getResource(req);
+  const controller = controllers[resource];
+  const { ids = [], events = false } = req.query;
+
+  try {
+    return Promise.all(
+      ids.map((id) => controller.getPopulatedById(id, { events }))
+    ).then((results) => res.json({ results }));
+  } catch (err) {
+    console.error(`Error get ${resource}: ${err}`);
+    let msg = null;
+
+    if (typeof err === 'string') {
+      msg = err;
+    }
+    return errors.sendError.InternalError(msg, res);
+  }
+});
+
 router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
   const user = getUser(req);
   if (!user.isAdmin) {
@@ -118,7 +162,7 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
       res
     );
   }
-  const { resource } = req.params;
+  const resource = getResource(req);
   const allowedResources = ['rooms', 'user'];
 
   if (!allowedResources.includes(resource)) {
@@ -154,7 +198,8 @@ router.get(
   '/:resource/:id/populated',
   middleware.validateRecordAccess,
   (req, res) => {
-    const { id, resource } = req.params;
+    const id = getParamsId(req);
+    const resource = getResource(req);
     const controller = controllers[resource];
     controller
       .getPopulatedById(id, req.query)
@@ -177,7 +222,8 @@ router.get(
 
 // returns a record WITHOUT sensitive information
 router.get('/:resource/:id', middleware.validateUser, (req, res) => {
-  const { id, resource } = req.params;
+  const id = getParamsId(req);
+  const resource = getResource(req);
   const controller = controllers[resource];
   controller
     .getById(id, req.query)
@@ -197,7 +243,8 @@ router.get('/:resource/:id', middleware.validateUser, (req, res) => {
 // Bypass the middlewre for now on a temp room...eventually we should probably change the URL
 // from the rooms id to some sort of secret entry code.
 router.get('/:resource/:id/:tempRoom', (req, res) => {
-  const { id, resource } = req.params;
+  const id = getParamsId(req);
+  const resource = getResource(req);
   const controller = controllers[resource];
   controller
     .getPopulatedById(id, req.query)
@@ -275,7 +322,8 @@ router.post(
   middleware.validateUser,
   middleware.validateNewRecord,
   (req, res) => {
-    const controller = controllers[req.params.resource];
+    const resource = getResource(req);
+    const controller = controllers[resource];
     controller
       .post(req.body)
       .then((result) => res.json({ result }))
@@ -294,7 +342,8 @@ router.post(
 );
 
 router.put('/:resource/:id/add', middleware.validateUser, (req, res) => {
-  const { resource, id } = req.params;
+  const id = getParamsId(req);
+  const resource = getResource(req);
   const controller = controllers[resource];
 
   const user = getUser(req);
@@ -333,7 +382,8 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res) => {
 });
 
 router.put('/:resource/:id/remove', middleware.validateUser, (req, res) => {
-  const { resource, id } = req.params;
+  const id = getParamsId(req);
+  const resource = getResource(req);
   const controller = controllers[resource];
   const user = getUser(req);
   req.params.remove = true; // Add remove to the params so we can allow users to modify their own status in  a resource (not just the resource owners) i.e. I should be able to remove myself from a course even if I'm not an owner of that course // THIS SHOULD BE DONE DIFFERENTLY CHECK req.USER and compare to member being removed
@@ -370,7 +420,8 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res) => {
 });
 
 router.put('/:resource/:id', middleware.validateUser, (req, res) => {
-  const { resource, id } = req.params;
+  const id = getParamsId(req);
+  const resource = getResource(req);
   const controller = controllers[resource];
 
   const user = getUser(req);

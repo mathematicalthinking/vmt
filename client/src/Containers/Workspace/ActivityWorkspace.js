@@ -14,7 +14,7 @@ import {
   DesmosActivityEditor,
   GgbActivityGraph,
   CodePyretOrg,
-  WebSketch,
+  WebSketchEditor,
   Tabs,
   RoomInfo,
   ActivityTools,
@@ -154,7 +154,7 @@ class ActivityWorkspace extends Component {
         }
         if (tab.tabType === 'wsp') {
           return (
-            <WebSketch
+            <WebSketchEditor
               key={tab._id}
               tab={tab}
               activity={activity}
@@ -284,13 +284,10 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 export default withRouter(
-  connect(
-    mapStateToProps,
-    {
-      connectUpdatedActivity: updatedActivity,
-      connectSetActivityStartingPoint: setActivityStartingPoint,
-      connectGetCurrentActivity: getCurrentActivity,
-      connectUpdateActivityTab: updateActivityTab,
-    }
-  )(ActivityWorkspace)
+  connect(mapStateToProps, {
+    connectUpdatedActivity: updatedActivity,
+    connectSetActivityStartingPoint: setActivityStartingPoint,
+    connectGetCurrentActivity: getCurrentActivity,
+    connectUpdateActivityTab: updateActivityTab,
+  })(ActivityWorkspace)
 );

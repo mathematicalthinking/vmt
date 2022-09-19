@@ -29,6 +29,7 @@ const Room = new mongoose.Schema(
           default: colorMap[0],
         },
         role: { type: String, enum: ['participant', 'facilitator', 'guest'] },
+        alias: { type: String },
       },
     ],
     currentMembers: { type: [{ type: ObjectId, ref: 'User' }], default: [] },
@@ -44,12 +45,14 @@ const Room = new mongoose.Schema(
       participantsCanCreateTabs: { type: Boolean, default: false },
       participantsCanChangePerspective: { type: Boolean, default: false },
       controlByTab: { type: Boolean, default: false },
+      displayAliasedUsernames: { type: Boolean, default: false },
     },
     graphImage: { type: ObjectId, ref: 'Image' },
     controlledBy: { type: ObjectId, ref: 'User', default: null },
     // wasNew: {type: Boolean},
     isTrashed: { type: Boolean, default: false },
     snapshot: {},
+    groupId: { type: String },
   },
   { timestamps: true }
 );

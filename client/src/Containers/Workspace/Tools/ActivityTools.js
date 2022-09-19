@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import classes from './tools.css';
 
 const ActivityTools = (props) => {
   const { owner, copy, goBack, tabs } = props;
+  const [WSPTabType, setWSPTabType] = useState(() =>
+    tabs.some((tab) => tab.tabType === 'wsp')
+  );
+  const [DesTabType, setDesTabType] = useState(() =>
+    tabs.some((tab) => tab.tabType === 'desmosActivity')
+  );
   const tabdata = tabs.map((tab) => {
     if (tab.tabType === 'desmosActivity' && tab.desmosLink) {
       // Desmos Base URL: https://teacher.desmos.com/activitybuilder/custom/
@@ -15,9 +21,7 @@ const ActivityTools = (props) => {
             className={classes.Link}
             target="_blank"
             rel="noopener noreferrer"
-            href={`https://teacher.desmos.com/activitybuilder/custom/${
-              tab.desmosLink
-            }`}
+            href={`https://teacher.desmos.com/activitybuilder/custom/${tab.desmosLink}`}
             data-testid="desmos-link"
           >
             Base configuration at Teacher.Desmos
@@ -65,16 +69,38 @@ const ActivityTools = (props) => {
             <br />
             {tabdata}
             <br />
-            Desmos Activity editing is in draft within VMT. Find more at{' '}
-            <a
-              className={classes.Link}
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://teacher.desmos.com/"
-              data-testid="desmos-link"
-            >
-              teacher.desmos.com
-            </a>
+            {DesTabType && (
+              <Fragment>
+                Desmos Activity editing is in draft within VMT. Find more at{' '}
+                <a
+                  className={classes.Link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://teacher.desmos.com/"
+                  data-testid="desmos-link"
+                >
+                  teacher.desmos.com
+                </a>
+              </Fragment>
+            )}
+            {WSPTabType && (
+              <Fragment>
+                WebSketch Pad Template editing is only partially supported
+                within VMT. Visit the{' '}
+                <a
+                  className={classes.Link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://geometricfunctions.org/fc/tools/library/?debug=true"
+                  data-testid="wsp-link"
+                >
+                  WebSketch Tool Library
+                </a>{' '}
+                to access all of the available tools and configuration options
+                when creating your WSP template. When done, download the file in
+                .json format to upload to VMT.
+              </Fragment>
+            )}
             <div className={classes.Save}>
               <div
                 className={classes.SideButton}

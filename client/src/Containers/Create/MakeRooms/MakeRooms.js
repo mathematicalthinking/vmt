@@ -1,293 +1,101 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import { Aux, BigModal } from 'Components';
-import { Step1, Step2Course, ParticipantList } from './index';
-import createClasses from '../create.css';
-import { createRoom } from '../../../store/actions';
+import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { BigModal } from 'Components';
+import { createGrouping, createRoom } from 'store/actions';
+import COLOR_MAP from 'utils/colorMap';
 import AssignmentMatrix from './AssignmentMatrix';
-import COLOR_MAP from '../../../utils/colorMap';
+import AssignRooms from './AssignRooms';
+import AddParticipants from './AddParticipants';
 
-class MakeRooms extends Component {
-  constructor(props) {
-    super(props);
-    const { participants, activity } = this.props;
-    this.state = {
-      isRandom: true,
-      participantsPerRoom: 3,
-      roomNum: 1,
-      roomName: `${activity.name} (${new Date().toLocaleDateString()})`,
-      selectedParticipants: [...participants].sort((a) =>
-        a.role === 'facilitator' ? 1 : -1
-      ),
-      roomDrafts: [],
-      dueDate: null,
-      error: null,
-      step: 0,
-    };
-  }
+const MakeRooms = (props) => {
+  const {
+    activity,
+    course,
+    participants: initialParticipants,
+    selectedAssignment,
+    userId,
+    close,
+  } = props;
 
-  componentDidMount() {
-    window.addEventListener('keypress', this.onKeyPress);
+  const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
+  const history = useHistory(); // Elsewhere we use 'withRouter()'; this is the modern approach
 
-    const { selectedParticipants, isRandom, participantsPerRoom } = this.state;
+  const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
+  const [participants, setParticipants] = useState(initialParticipants);
+  const [roomDrafts, setRoomDrafts] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
-    if (isRandom) {
-      const numRooms = Math.ceil(
-        this.filterFacilitators(selectedParticipants).length /
-          participantsPerRoom
-      );
-      this.setRoomNumber(numRooms);
-    }
-  }
+  // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
+  // changed props.  However, the correct way of detecting and responding to a changed state is to act when the
+  // change-state function is called.
 
-  componentWillUnmount() {
-    window.removeEventListener('keypress', this.onKeyPress);
-  }
-
-  onKeyPress = (event) => {
-    const { step } = this.state;
-    if (event.key === 'Enter') {
-      if (step < 1) {
-        this.nextStep();
-      } else {
-        this.submit();
-      }
-    }
-  };
-
-  setRandom = () => {
-    const {
-      selectedParticipants: participants,
-      participantsPerRoom,
-    } = this.state;
-    this.setState({ isRandom: true }, () => {
-      const numRooms = Math.ceil(
-        this.filterFacilitators(participants).length / participantsPerRoom
-      );
-      this.setRoomNumber(numRooms);
-    });
-  };
-
-  setManual = () =>
-    this.setState({ isRandom: false }, () => {
-      this.setRoomNumber(1);
-    });
-
-  setParticipantNumber = (event) =>
-    this.setState({ participantsPerRoom: parseInt(event.target.value, 10) });
-
-  setRoomNumber = (number) => {
-    if (number > 0) {
-      this.setState({ roomNum: number });
-    } else {
-      this.setState({
-        roomNum: 1,
-      });
-    }
-  };
-
-  setRoomName = (newRoomName) => {
-    if (newRoomName.length > 0) {
-      this.setState({ roomName: newRoomName });
-    } else {
-      this.setState({
-        roomName: '',
-        error: 'Please provide a room name',
-      });
-    }
-  };
-
-  setNumber = (event) => {
-    const { selectedParticipants: participants, isRandom } = this.state;
-    const participantsPerRoom = parseInt(event.target.value.trim(), 10);
-    if (participantsPerRoom < 1) {
-      this.setState({
-        participantsPerRoom: 1,
-      });
-    } else if (participantsPerRoom > participants.length) {
-      this.setState({
-        participantsPerRoom: participants.length,
-      });
-    } else {
-      this.setState(
-        {
-          participantsPerRoom,
-        },
-        () => {
-          if (isRandom) {
-            const numRooms = Math.ceil(
-              this.filterFacilitators(participants).length / participantsPerRoom
-            );
-            this.setRoomNumber(numRooms);
-          }
-        }
-      );
-    }
-  };
-
-  setDate = (event) => {
-    const { activity } = this.props;
-    const date = event && event !== '' ? new Date(event) : new Date();
-    const dateStamp = date.toLocaleDateString();
-    this.setState({
-      dueDate: event,
-      roomName: `${activity.name} (${dateStamp})`,
-    });
-  };
-
-  nextStep = () => {
-    this.setState((prevState) => ({
-      step: prevState.step + 1,
-    }));
-  };
-
-  prevStep = () => {
-    this.setState((prevState) => ({
-      step: prevState.step - 1,
-    }));
-  };
-
-  selectParticipant = (event, userId) => {
-    const _updateParticipantList = (selectedParticipants) => {
-      const newParticipant = userId;
-      let updatedSelectedParticipants = [...selectedParticipants];
-      // if user is already selected, remove them from the selected list
-      if (
-        selectedParticipants.some((mem) => {
-          return mem.user._id === newParticipant.user._id;
-        })
-      ) {
-        updatedSelectedParticipants = selectedParticipants.filter(
-          (participant) => participant !== newParticipant
-        );
-        // if the user is not already selected, add them to selected and remove from remaining
-      } else {
-        updatedSelectedParticipants.push(newParticipant);
-      }
-      return updatedSelectedParticipants;
-    };
-
-    this.setState(
-      (previousState) => ({
-        selectedParticipants: _updateParticipantList(
-          previousState.selectedParticipants
-        ),
-      }),
-      () => {
-        const {
-          isRandom,
-          participantsPerRoom,
-          selectedParticipants,
-        } = this.state;
-        if (isRandom) {
-          const numRooms = Math.ceil(
-            this.filterFacilitators(selectedParticipants).length /
-              participantsPerRoom
-          );
-          this.setRoomNumber(numRooms);
-        }
-      }
+  // if the initial list of participants changes, reset the participant list, the number of rooms, and the PPR display
+  useEffect(() => {
+    setParticipants(sortParticipants(initialParticipants));
+    setRoomNum(
+      Math.max(Math.ceil(filterFacilitators(initialParticipants).length / 3), 1)
     );
-    // Else add them
-  };
+    setParticipantsPerRoom(3);
+  }, [initialParticipants]);
 
-  setParticipants = (event, user) => {
-    const _updateParticipantsList = (selectedParticipants) => {
-      let updatedParticpants = [...selectedParticipants];
-      if (
-        selectedParticipants.findIndex((userObj) => userObj.id === user._id) >
-        -1
-      ) {
-        updatedParticpants = selectedParticipants.filter(
-          (participant) => participant !== user
+  // if the selected assignment changes, reset the display
+  useEffect(() => {
+    if (selectedAssignment && Array.isArray(selectedAssignment.value)) {
+      setRoomDrafts(selectedAssignment.value);
+      if (selectedAssignment.value.length !== 0) {
+        setParticipantsPerRoom(
+          Math.max(
+            Math.ceil(
+              filterFacilitators(participants).length /
+                selectedAssignment.value.length
+            ),
+            1
+          )
         );
-        // if the user is not already selected, add them to selected and remove from remaining
-      } else {
-        updatedParticpants.push(user);
-      }
-      return updatedParticpants;
-    };
-
-    this.setState(
-      (previousState) => ({
-        selectedParticipants: _updateParticipantsList(
-          previousState.selectedParticipants
-        ),
-      }),
-      () => {
-        const {
-          isRandom,
-          participantsPerRoom,
-          selectedParticipants,
-        } = this.state;
-        if (isRandom) {
-          const numRooms = Math.ceil(
-            this.filterFacilitators(selectedParticipants).length /
-              participantsPerRoom
-          );
-          this.setRoomNumber(numRooms);
-        }
-      }
-    );
-  };
-
-  updateParticipants = (selectionMatrix) => {
-    this.setState({ roomDrafts: selectionMatrix });
-  };
-
-  resetParticipants = (roomsArray) => {
-    return roomsArray.map((roomArray) => {
-      const newMems = roomArray.members.filter(
-        (mem) => mem.role === 'facilitator'
+      } else
+        setRoomNum(
+          Math.max(Math.ceil(filterFacilitators(participants).length / 3), 1),
+          true
+        );
+    } else {
+      setRoomNum(
+        Math.max(Math.ceil(filterFacilitators(participants).length / 3), 1)
       );
-      return { ...roomArray, members: newMems };
-    });
+    }
+  }, [selectedAssignment, participants.length]);
+
+  const setRoomNum = (roomNum, clearRooms) => {
+    const newRoomDrafts = clearRooms ? [] : roomDrafts;
+    if (roomNum === newRoomDrafts.length) return;
+    const requiredMembers = initialParticipants.filter(
+      (mem) => mem.role === 'facilitator'
+    );
+    // Note that Array(n) creates an n length array, but with no values, so cannot map over them. Use fill() to fill the array with
+    // undefined so the map will work. Alternatively, could do Array.from(Array(n)).
+    const roomList =
+      roomNum > newRoomDrafts.length
+        ? newRoomDrafts
+            .concat(Array(roomNum - newRoomDrafts.length))
+            .fill()
+            .map(() => ({
+              members: [...requiredMembers],
+            }))
+        : newRoomDrafts.slice(0, roomNum - newRoomDrafts.length);
+    setRoomDrafts(roomList);
   };
 
-  shuffleUserList = (array) => {
-    // random number between 0 - array.length
-    // take first index and switch with random index
-    const arrayCopy = [...array];
-    arrayCopy.forEach((elem, index) => {
-      const randomIndex = Math.floor(Math.random() * array.length);
-      arrayCopy[index] = arrayCopy[randomIndex];
-      arrayCopy[randomIndex] = elem;
-    });
-    return arrayCopy;
-  };
-
-  filterFacilitators = (membersArray) => {
-    return membersArray.filter((mem) => mem.role !== 'facilitator');
-  };
-
-  restructureMemberlist = (list) => {
-    return list.map((mem) => {
-      const user = {
-        role: mem.role || 'participant',
-        _id: mem.user._id,
-      };
-      return user;
-    });
-  };
-
-  shuffleParticipants = () => {
-    const {
-      selectedParticipants: participants,
-      participantsPerRoom,
-      roomDrafts,
-    } = this.state;
-
-    const updatedParticipants = this.shuffleUserList(
-      this.restructureMemberlist(this.filterFacilitators(participants))
+  const shuffleParticipants = () => {
+    const updatedParticipants = shuffleUserList(
+      restructureMemberlist(filterFacilitators(participants))
     );
 
     const numRooms = Math.ceil(
       updatedParticipants.length / participantsPerRoom
     );
 
-    const roomsUpdate = this.resetParticipants([...roomDrafts]);
+    const roomsUpdate = resetParticipants([...roomDrafts]);
 
     const partcipantsToAssign = [...updatedParticipants];
     for (let i = 0; i < numRooms; i++) {
@@ -299,24 +107,85 @@ class MakeRooms extends Component {
       }
     }
 
-    this.setState({
-      roomDrafts: roomsUpdate,
+    setRoomDrafts(roomsUpdate);
+  };
+
+  const resetParticipants = (roomsArray) => {
+    return roomsArray.map((roomArray) => {
+      const newMems = roomArray.members.filter(
+        (mem) => mem.role === 'facilitator'
+      );
+      return { ...roomArray, members: newMems };
     });
   };
 
-  // NOW THAT WE HAVE A CREATEROOMFROMACTIVITY ACTION THINK ABOUT REFACTORING ALL OF THIS
-  // TO UTILIZE THAT FUNCTIONALITY
-  submit = () => {
-    const {
-      activity,
-      userId,
-      course,
-      connectCreateRoom,
-      close,
-      history,
-      match,
-    } = this.props;
-    const { dueDate, roomDrafts, roomName } = this.state;
+  const sortParticipants = (list) => {
+    const facilitators = list
+      .filter((mem) => mem.role === 'facilitator')
+      .sort((a, b) => a.user.username.localeCompare(b.user.username));
+    const prevParticipants = list.filter((mem) => mem.role === 'participant');
+
+    return prevParticipants
+      .sort((a, b) => a.user.username.localeCompare(b.user.username))
+      .concat(facilitators);
+  };
+
+  const restructureMemberlist = (list) => {
+    return list.map((mem) => {
+      const user = {
+        role: mem.role || 'participant',
+        _id: mem.user._id,
+        user: mem.user,
+      };
+      return user;
+    });
+  };
+
+  const shuffleUserList = (array) => {
+    // random number between 0 - array.length
+    // take first index and switch with random index
+    const arrayCopy = [...array];
+    arrayCopy.forEach((elem, index) => {
+      const randomIndex = Math.floor(Math.random() * array.length);
+      arrayCopy[index] = arrayCopy[randomIndex];
+      arrayCopy[randomIndex] = elem;
+    });
+    return arrayCopy;
+  };
+
+  const filterFacilitators = (membersArray) => {
+    return membersArray.filter((mem) => mem.role !== 'facilitator');
+  };
+
+  const updateParticipants = (selectionMatrix) => {
+    setRoomDrafts(selectionMatrix);
+    setParticipantsPerRoom(
+      Math.max(
+        Math.ceil(
+          filterFacilitators(participants).length / selectionMatrix.length
+        ),
+        1
+      )
+    );
+  };
+
+  const setNumber = (numberOfParticipants) => {
+    // Make sure that number of participants is between 1 and the number of participants
+    const newNumberOfParticipants = Math.max(
+      Math.min(numberOfParticipants, filterFacilitators(participants).length),
+      1
+    );
+    setParticipantsPerRoom(newNumberOfParticipants);
+    const numRooms = Math.max(
+      Math.ceil(
+        filterFacilitators(participants).length / newNumberOfParticipants
+      ),
+      1
+    );
+    setRoomNum(numRooms);
+  };
+
+  const submit = ({ aliasMode, dueDate, roomName }) => {
     const {
       _id,
       description,
@@ -327,192 +196,148 @@ class MakeRooms extends Component {
       instructions,
       tabs,
     } = activity;
+
     const newRoom = {
       activity: _id,
       creator: userId,
-      course,
+      course: course ? course._id : null,
       description,
       roomType,
       desmosLink,
       ggbFile,
       instructions,
       dueDate,
+      settings: { displayAliasedUsernames: aliasMode },
       image,
       tabs,
     };
-    // if (!isRandom) {
-    // create a room with the selected participants
+
     const roomsToCreate = [];
+
     for (let i = 0; i < roomDrafts.length; i++) {
       // const currentRoom = { ...roomDrafts[i] };
       const currentRoom = { ...newRoom };
       const members = roomDrafts[i].members.map((mem, index) => ({
-        user: course ? mem._id : mem,
+        user: course ? mem.user._id : mem.user,
         role: mem.role,
         color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
       }));
-      if (!course) {
-        members.unshift({
-          user: userId,
-          role: 'facilitator',
-          color: COLOR_MAP[0],
-        });
-      }
+
+      // if (!course) {
+      //   members.unshift({
+      //     user: userId,
+      //     role: 'facilitator',
+      //     color: COLOR_MAP[0],
+      //   });
+      // }
+
       currentRoom.members = members;
-      //   currentRoom.name = roomDrafts[i].name;
       currentRoom.name = `${roomName}: ${i + 1}`;
-      currentRoom.activity = roomDrafts[i].activity;
-      currentRoom.course = roomDrafts[i].course;
       roomsToCreate.push(currentRoom);
     }
     if (roomDrafts.length === 0) {
       // create a room with just the facilitator
       const currentRoom = { ...newRoom };
-      const members = [];
-      members.push({ user: userId, role: 'facilitator' });
-      currentRoom.members = members;
-      // //   currentRoom.name = `${activity.name} room copy`;
-      currentRoom.name = `${roomName}`;
+      currentRoom.members = [{ user: userId, role: 'facilitator' }];
+      currentRoom.name = roomName;
       roomsToCreate.push(currentRoom);
     }
-    roomsToCreate.forEach((room) => connectCreateRoom(room));
+    roomsToCreate.forEach((room) => {
+      dispatch(createRoom(room));
+    });
+    // if (course) {
+    //   dispatch(createGrouping(roomsToCreate, activity, course));
+    // } else {
+    //   dispatch(createGrouping(roomsToCreate, activity));
+    // }
     close();
-    const { url } = match;
-    history.push(`${url.slice(0, url.length - 7)}rooms`);
+    const { pathname: url } = history.location;
+    // delete the word 'assign' and replace it with 'rooms'
+    const indexOfLastSlash = url.lastIndexOf('/');
+    history.push(`${url.slice(0, indexOfLastSlash + 1)}rooms`);
   };
 
-  render() {
-    const { activity, course, userId, close } = this.props;
-    const {
-      step,
-      dueDate,
-      isRandom,
-      selectedParticipants,
-      roomNum,
-      roomName,
-      participantsPerRoom,
-      error,
-      roomDrafts,
-    } = this.state;
-    // @TODO STUDENTLIST SHOULD REFLECT THIS.STATE.REMAINING STUDENTS -- RIGHT NOW THERE IS A
-    // DISCREPANCY BETWEEN THOSE LISTS AS ONE HOLD IDS AND THE OTHER HOLDS OBJECTS
-    const participantList = (
-      <ParticipantList
-        list={selectedParticipants}
-        selectedParticipants={selectedParticipants}
-        select={this.setParticipants}
-      />
-    );
-    const assignmentMatrix = (
-      <AssignmentMatrix
-        list={selectedParticipants}
-        selectedParticipants={selectedParticipants.filter(
-          (mem) => mem.role === 'facilitator'
-        )}
-        select={this.updateParticipants}
-        roomNum={parseInt(roomNum, 10)} // ensure a number is passed
-        activity={activity}
-        course={course}
-        dueDate={dueDate}
-        userId={userId}
-        rooms={roomDrafts}
-      />
-    );
+  const assignmentMatrix = (
+    <AssignmentMatrix
+      list={participants}
+      requiredParticipants={initialParticipants.filter(
+        (mem) => mem.role === 'facilitator'
+      )}
+      select={updateParticipants}
+      userId={userId}
+      roomDrafts={roomDrafts}
+      canDeleteRooms
+      onAddParticipants={course ? undefined : setShowModal}
+    />
+  );
 
-    let CurrentStep = (
-      <Step1
-        dueDate={dueDate}
-        setDueDate={this.setDate}
-        nextStep={this.nextStep}
-        participantList={participantList}
-        userId={userId}
-        select={this.selectParticipant}
-        course={course}
-        selectedParticipants={selectedParticipants}
+  return (
+    <React.Fragment>
+      {showModal && (
+        <BigModal
+          show={showModal}
+          closeModal={() => {
+            setShowModal(false);
+          }}
+        >
+          <AddParticipants
+            participants={participants}
+            updateList={setParticipants}
+            userId={userId}
+            courseId={course ? course._id : null}
+            close={() => {
+              setShowModal(false);
+            }}
+            sortParticipants={sortParticipants}
+          />
+        </BigModal>
+      )}
+      <AssignRooms
+        initialAliasMode={selectedAssignment.aliasMode || false}
+        initialDueDate={selectedAssignment.dueDate || ''}
+        initialRoomName={
+          selectedAssignment.roomName ||
+          `${activity.name} (${new Date().toLocaleDateString()})`
+        }
+        participantsPerRoom={participantsPerRoom}
+        setParticipantsPerRoom={setNumber}
+        assignmentMatrix={assignmentMatrix}
+        onSubmit={submit}
+        onShuffle={shuffleParticipants}
+        onCancel={close}
       />
-    );
-
-    if (step === 1) {
-      // if (course) {
-      CurrentStep = (
-        <Step2Course
-          activity={activity}
-          assignmentMatrix={assignmentMatrix}
-          submit={this.submit}
-          setRandom={this.setRandom}
-          setManual={this.setManual}
-          setNumber={this.setNumber}
-          shuffleParticipants={this.shuffleParticipants}
-          participantsPerRoom={participantsPerRoom}
-          roomNum={parseInt(roomNum, 10)} // ensure a number is passed
-          roomName={roomName}
-          setRoomNumber={this.setRoomNumber}
-          setRoomName={this.setRoomName}
-          setParticipantNumber={this.setParticipantNumber}
-          isRandom={isRandom}
-          error={error}
-        />
-      );
-    }
-    const stepDisplays = [];
-    for (let i = 0; i < 2; i++) {
-      stepDisplays.push(
-        <div
-          key={`step-${i}`}
-          className={[
-            createClasses.Step,
-            i <= step ? createClasses.CompletedStep : null,
-          ].join(' ')}
-        />
-      );
-    }
-
-    return (
-      <BigModal show closeModal={close}>
-        <Aux>
-          {step > 0 ? (
-            <i
-              onClick={this.prevStep}
-              onKeyPress={this.prevStep}
-              role="button"
-              tabIndex="-1"
-              className={['fas', 'fa-arrow-left', createClasses.BackIcon].join(
-                ' '
-              )}
-            />
-          ) : null}
-          {CurrentStep}
-          <div className={createClasses.StepDisplayContainer}>
-            {stepDisplays}
-          </div>
-        </Aux>
-      </BigModal>
-    );
-  }
-}
+    </React.Fragment>
+  );
+};
 
 MakeRooms.propTypes = {
-  participants: PropTypes.arrayOf(PropTypes.shape({})),
-  activity: PropTypes.shape({}).isRequired,
+  selectedAssignment: PropTypes.shape({
+    aliasMode: PropTypes.bool,
+    dueDate: PropTypes.string,
+    roomName: PropTypes.string,
+    value: PropTypes.arrayOf(PropTypes.shape({})),
+  }),
+  activity: PropTypes.shape({
+    name: PropTypes.string,
+    _id: PropTypes.string,
+    description: PropTypes.string,
+    roomType: PropTypes.string,
+    desmosLink: PropTypes.string,
+    ggbFile: PropTypes.string,
+    image: PropTypes.string,
+    instructions: PropTypes.string,
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
+  course: PropTypes.shape({ _id: PropTypes.string }),
   userId: PropTypes.string.isRequired,
-  course: PropTypes.string,
   close: PropTypes.func.isRequired,
-  history: PropTypes.shape({}).isRequired,
-  match: PropTypes.shape({}).isRequired,
-  connectCreateRoom: PropTypes.func.isRequired,
+  participants: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 MakeRooms.defaultProps = {
+  selectedAssignment: {},
   course: null,
   participants: [],
 };
-const mapDispatchToProps = (dispatch) => ({
-  connectCreateRoom: (room) => dispatch(createRoom(room)),
-});
 
-export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps
-  )(MakeRooms)
-);
+export default MakeRooms;

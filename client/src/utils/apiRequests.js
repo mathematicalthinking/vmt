@@ -1,16 +1,6 @@
 import axios from 'axios';
 
-let baseURL = process.env.REACT_APP_SERVER_URL_PRODUCTION;
-if (process.env.REACT_APP_STAGING) {
-  baseURL = process.env.REACT_APP_SERVER_URL_STAGING;
-} else if (
-  process.env.REACT_APP_DEV ||
-  process.env.NODE_ENV === 'development' ||
-  process.env.NODE_ENV === 'test' ||
-  process.env.REACT_APP_TEST
-) {
-  baseURL = process.env.REACT_APP_SERVER_URL_DEV;
-}
+const baseURL = window.env.REACT_APP_SERVER_URL;
 
 // console.log('server url: ', baseURL);
 const api = axios.create({ baseURL });
@@ -18,6 +8,19 @@ const api = axios.create({ baseURL });
 export default {
   get: (resource, params) => {
     return api.get(`/api/${resource}`, params ? { params } : {});
+  },
+
+  // returns resources that contain any of the values in any of the fields
+  findAllMatching: (resource, fields, values) => {
+    return api.get(`/api/findAllMatching/${resource}`, {
+      params: { fields, values },
+    });
+  },
+
+  findAllMatchingIdsPopulated: (resource, ids, events) => {
+    return api.get(`/api/findAllMatchingIds/${resource}/populated`, {
+      params: { ids, events },
+    });
   },
 
   search: (resource, text, exclude) => {

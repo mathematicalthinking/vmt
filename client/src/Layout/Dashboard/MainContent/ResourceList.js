@@ -20,6 +20,7 @@ const ResourceList = ({
   const initialConfig = {
     key: 'updatedAt',
     direction: 'descending',
+    filter: 'last2Weeks',
   };
   const [fList, setFacilitatorList] = useState([]);
   const [pList, setParticipantList] = useState([]);
@@ -52,21 +53,16 @@ const ResourceList = ({
     setFacilitatorList(facilitatorList);
     setParticipantList(participantList);
 
-    const { key: facilitatorKey, direction: facilitatorDirection } =
-      resourceState.facilitatorConfig || initialConfig;
-
-    const { key: participantKey, direction: participantDirection } =
-      resourceState.participantConfig || initialConfig;
-
-    facilitatorRequestSort(facilitatorKey, facilitatorDirection);
-    participantRequestSort(participantKey, participantDirection);
+    facilitatorRequestSort(resourceState.facilitatorConfig || initialConfig);
+    participantRequestSort(resourceState.participantConfig || initialConfig);
   }, [userResources]);
 
   useEffect(() => {
-    setResourceState({
-      facilitatorConfig: facilitatorSortConfig,
-      participantConfig: participantSortConfig,
-    });
+    if (setResourceState)
+      setResourceState({
+        facilitatorConfig: facilitatorSortConfig,
+        participantConfig: participantSortConfig,
+      });
   }, [facilitatorSortConfig, participantSortConfig]);
 
   const search = (criteria) => {
@@ -87,7 +83,10 @@ const ResourceList = ({
     if (resources) {
       resources.forEach((userResource) => {
         if (userResource) {
-          if (userResource.myRole === 'facilitator') {
+          if (
+            userResource.myRole === 'facilitator' ||
+            resource === 'activities'
+          ) {
             facilitatorList.push(userResource);
           } else {
             participantList.push(userResource);
@@ -105,6 +104,8 @@ const ResourceList = ({
   let linkSuffix;
   if (resource === 'courses') {
     linkSuffix = '/rooms';
+  } else if (resource === 'activities') {
+    linkSuffix = '/assign';
   } else {
     linkSuffix = '/details';
   }
@@ -112,7 +113,7 @@ const ResourceList = ({
   if (displayResource === 'Activities') displayResource = 'Templates';
   if (parentResource === 'courses') {
     linkPath = `/myVMT/${parentResource}/${parentResourceId}/${resource}/`;
-    linkSuffix = '/details';
+    linkSuffix = resource === 'activities' ? '/assign' : '/details';
   }
 
   let create;
@@ -131,7 +132,7 @@ const ResourceList = ({
 
   return (
     <div>
-      {/* @TODO don't show create optinos for participants */}
+      {/* @TODO don't show create options for participants */}
       <div className={classes.Controls}>
         <div className={classes.Search}>
           <Search _search={search} data-testid="search" />
@@ -144,7 +145,7 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I Manage
             </h2>
-            {facilitatorItems.length > 1 && (
+            {fList.length >= 1 && setResourceState && (
               <SortUI
                 keys={keys}
                 sortFn={facilitatorRequestSort}
@@ -167,7 +168,7 @@ const ResourceList = ({
             <h2 className={classes.ResourceHeader}>
               {displayResource} I&#39;m a member of
             </h2>
-            {participantItems.length > 1 && (
+            {pList.length >= 1 && setResourceState && (
               <SortUI
                 keys={keys}
                 sortFn={participantRequestSort}
@@ -188,23 +189,23 @@ const ResourceList = ({
         </div>
       ) : (
         <Fragment>
-          {fList.length > 0 || displayResource === 'Templates' ? (
+          {fList.length > 0 ? (
             <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
           ) : (
             <h2 className={classes.ResourceHeader}>
               {displayResource} I&#39;m a member of
             </h2>
           )}
-          {(facilitatorItems.length > 1 || participantItems.length > 1) && (
+          {(fList.length >= 1 || pList.length >= 1) && setResourceState && (
             <SortUI
               keys={keys}
               sortFn={
-                fList.length > 0 || displayResource !== 'Templates'
+                fList.length > 0
                   ? facilitatorRequestSort
                   : participantRequestSort
               }
               sortConfig={
-                fList.length > 0 || displayResource !== 'Templates'
+                fList.length > 0
                   ? resourceState.facilitatorConfig || initialConfig
                   : resourceState.participantConfig || initialConfig
               }
@@ -230,10 +231,13 @@ ResourceList.propTypes = {
   resource: PropTypes.string.isRequired,
   parentResource: PropTypes.string,
   parentResourceId: PropTypes.string,
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({ accountType: PropTypes.string }).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  resourceState: PropTypes.shape({}),
+  resourceState: PropTypes.shape({
+    facilitatorConfig: PropTypes.shape({}),
+    participantConfig: PropTypes.shape({}),
+  }),
   setResourceState: PropTypes.func,
 };
 
@@ -241,7 +245,7 @@ ResourceList.defaultProps = {
   parentResource: null,
   parentResourceId: null,
   resourceState: {},
-  setResourceState: () => {},
+  setResourceState: null,
 };
 
 export default ResourceList;
@@ -250,25 +254,53 @@ export default ResourceList;
 const SortUI = ({ keys, sortFn, sortConfig }) => {
   const upArrow = <i className="fas fa-solid fa-arrow-up" />;
   const downArrow = <i className="fas fa-solid fa-arrow-down" />;
+  const timeFrameOptions = [
+    { label: 'All', value: 'all' },
+    { label: 'Last Day', value: 'lastDay' },
+    { label: 'Last Week', value: 'lastWeek' },
+    { label: 'Last Two Weeks', value: 'last2Weeks' },
+    { label: 'Last Month', value: 'lastMonth' },
+    { label: 'Last Year', value: 'lastYear' },
+    { label: 'More than a Day', value: 'afterDay' },
+    { label: 'More than a Week', value: 'afterWeek' },
+    { label: 'More than Two Weeks', value: 'after2Weeks' },
+    { label: 'More than a Month', value: 'afterMonth' },
+    { label: 'More than a Year', value: 'afterYear' },
+  ];
+
+  const optionForValue = (value) => {
+    return timeFrameOptions.find((opt) => opt.value === value);
+  };
 
   const keyName = (defaultName) => {
     const matchingKey = keys.find((key) => key.property === sortConfig.key);
     return matchingKey ? matchingKey.name : defaultName;
   };
+
+  React.useEffect(() => {
+    if (!['updatedAt', 'createdAt', 'dueDate'].includes(sortConfig.key))
+      sortFn({ filter: 'all' });
+  }, [sortConfig.key]);
+
   return (
-    <div>
+    <div className={classes.SortUIContainer}>
       <label htmlFor="sortTable" className={classes.Label}>
-        Sort By:
+        Sort by:&nbsp;&nbsp;
         <Select
           placeholder="Select..."
           className={classes.Select}
           name="sortUI"
           id="sortTable"
           onChange={(selectedOption) => {
-            sortFn(selectedOption.value, sortConfig.direction);
+            sortFn({
+              key: selectedOption.value,
+              direction: sortConfig.direction,
+            });
           }}
           value={{
+            // eslint-disable-next-line react/prop-types
             label: keyName(keys[0].name),
+            // eslint-disable-next-line react/prop-types
             value: sortConfig.key || keys[0].property,
           }}
           options={keys.map((key) => ({
@@ -277,27 +309,49 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
           }))}
           isSearchable={false}
         />
-        <span onClick={() => sortFn(sortConfig.key)}>
-          {sortConfig.direction === 'descending' ? downArrow : upArrow}
+        <span
+          style={{ paddingRight: '5px' }}
+          onClick={() => sortFn({ key: sortConfig.key })}
+          onKeyDown={() => sortFn({ key: sortConfig.key })}
+          role="button"
+          tabIndex={-1}
+        >
+          {sortConfig.direction === 'descending' ? downArrow : upArrow}{' '}
         </span>
       </label>
+      {['updatedAt', 'createdAt', 'dueDate'].includes(sortConfig.key) && (
+        // eslint-disable-next-line jsx-a11y/label-has-associated-control
+        <label htmlFor="filterTable" className={classes.Label}>
+          Filter by:
+          <Select
+            placeholder="Timeframe"
+            className={classes.Select}
+            name="filterUI"
+            id="filterTable"
+            onChange={(selectedOption) => {
+              sortFn({ filter: selectedOption.value });
+            }}
+            value={optionForValue(sortConfig.filter)}
+            options={timeFrameOptions}
+            isSearchable={false}
+          />
+        </label>
+      )}
     </div>
   );
 };
 
 SortUI.propTypes = {
-  keys: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  keys: PropTypes.arrayOf(
+    PropTypes.shape({ name: PropTypes.string, property: PropTypes.string })
+  ).isRequired,
   sortFn: PropTypes.func.isRequired,
   sortConfig: PropTypes.shape({
     key: PropTypes.string,
     direction: PropTypes.string,
+    filter: PropTypes.string,
   }),
 };
 SortUI.defaultProps = {
   sortConfig: {},
-};
-
-SortUI.propTypes = {
-  keys: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  sortFn: PropTypes.func.isRequired,
 };

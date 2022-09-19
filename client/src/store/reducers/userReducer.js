@@ -107,6 +107,13 @@ const reducer = (state = initialState, action) => {
         loginError: '',
       };
     }
+    case 'STORE_PRESUMPTIVE_GMAIL': {
+      const { presumptiveEmailAddress } = action.payload;
+      return {
+        ...state,
+        presumptiveEmailAddress,
+      };
+    }
     default:
       return state;
   }

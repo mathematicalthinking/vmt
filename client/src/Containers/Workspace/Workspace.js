@@ -49,6 +49,8 @@ class Workspace extends Component {
       }
     }
 
+    this.adminModeSwitched = false; // Needed if someone leaves a room by switching their admin mode
+
     this.state = {
       takeSnapshot: () => {},
       cancelSnapshots: () => {},
@@ -60,8 +62,10 @@ class Workspace extends Component {
       log: populatedRoom.log || [],
       myColor,
       controlledBy: populatedRoom.controlledBy,
-      activeMember: '',
-      currentMembers: temp ? tempCurrentMembers : populatedRoom.currentMembers,
+      currentMembers: temp
+        ? tempCurrentMembers
+        : populatedRoom.getCurrentMembers(),
+      // : populatedRoom.currentMembers,
       referencing: false,
       showingReference: false,
       isSimplified: true,
@@ -93,8 +97,7 @@ class Workspace extends Component {
   }
 
   componentDidMount() {
-    const { populatedRoom, user, temp, tempMembers, lastMessage } = this.props;
-
+    const { populatedRoom, temp, tempMembers, lastMessage, user } = this.props;
     // initialize a hash of events that have references that will be
     // updated every time a reference made
     // allows for quicker lookup when needing to check if objects
@@ -156,24 +159,7 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // @TODO populatedRoom.controlledBy is ALWAYS null! Should use
-    // controlledBy in the state instead.
-    const { populatedRoom, user, temp, lastMessage } = this.props;
-    if (
-      prevProps.populatedRoom.controlledBy === null &&
-      populatedRoom.controlledBy !== null &&
-      populatedRoom.controlledBy !== user._id
-    ) {
-      //   socket.emit('RELEASE_CONTROL', {user: {_id: this.props.user._id, username: this.props.user.username}, roomId: this.props.room._id}, (err, message) => {
-      //     this.props.updatedRoom(this.props.room._id, {chat: [...this.props.room.chat, message]})
-      //     // this.setState({activeMember: ''})
-      //   })
-    }
-
-    if (!socket.connected && populatedRoom.controlledBy === user._id) {
-      const auto = true;
-      this.toggleControl(null, auto);
-    }
+    const { populatedRoom: currentRoom, temp, lastMessage, user } = this.props;
 
     if (temp) {
       if (prevProps.lastMessage !== lastMessage) {
@@ -182,20 +168,44 @@ class Workspace extends Component {
     }
 
     if (prevProps.user.inAdminMode !== user.inAdminMode) {
+      this.adminModeSwitched = true; // used in componentWillUnmount
       this.goBack();
     }
 
-    // this._takeSnapshotIfNeeded(); // likely too CPU intensive and noticible by user.
-
-    // const { takeSnapshot } = this.state;
-    // if (prevProps.controlledBy === user._id) takeSnapshot();
+    // test did populatedRoom change?
+    // if so, do we need to update state?
+    const oldRoom = prevProps.populatedRoom;
+    const populatedRoom = {
+      ...currentRoom,
+      currentMembers: currentRoom.getCurrentMembers(),
+    };
+    const propsDifference = this.findRoomDifference(oldRoom, populatedRoom);
+    if (propsDifference) {
+      const stateDifference = this.findRoomDifference(
+        this.state,
+        populatedRoom
+      );
+      if (stateDifference) {
+        // We are being very careful to update the state only if completely necessary, so this setState is warranted.
+        // Note that the pieces of populatedRoom (log, currentMembers, etc) are separate state variables in Workspace
+        // (it's almost as if Workspace's state object is an uber populatedRoom).
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState(stateDifference);
+      }
+    }
   }
 
   componentWillUnmount() {
     const { populatedRoom, connectUpdatedRoom, user } = this.props;
-    const { myColor, currentMembers, cancelSnapshots } = this.state;
-    // don't generate a LEAVE message if the user is an admin
-    if (!user.inAdminMode) {
+    const { myColor, cancelSnapshots, currentMembers, log, tabs } = this.state;
+    // Only generate a LEAVE message (and remove the user from the currentMembers list) if:
+    // - the user is in admin mode and is leaving via the exit button (i.e., not from switching mode)
+    // - the user is leaving because they switched their admin mode on. They were in the room,
+    //   so they need to be removed from the currentMembers list.
+    if (
+      (!this.adminModeSwitched && !user.inAdminMode) ||
+      (this.adminModeSwitched && user.inAdminMode)
+    ) {
       socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
       // Below updates the Redux store, removing the current user from the list of people in the room (currentMembers).
       // However, this might not be needed as the socket updates the DB with the current members. The next time this info is needed, in
@@ -204,6 +214,8 @@ class Workspace extends Component {
         currentMembers: currentMembers.filter(
           (mem) => mem && user && mem._id !== user._id
         ),
+        chat: log.filter((msg) => msg.messageType),
+        tabs,
       });
     }
     window.removeEventListener('resize', this.resizeHandler);
@@ -263,7 +275,7 @@ class Workspace extends Component {
     const { currentTabId, tabs } = this.state;
     const currentTab = tabs.find((tab) => tab._id === currentTabId);
 
-    if (currentTab && currentTab.tabType !== 'desmosActivity') {
+    if (currentTab && currentTab.tabType === 'desmosActivity') {
       // set screen in state
       this.setState({ currentScreen: screenNum }, () => {
         // takeSnap if needed
@@ -294,15 +306,9 @@ class Workspace extends Component {
   };
 
   initializeListeners = () => {
-    const { temp, populatedRoom, user, connectUpdatedRoom } = this.props;
+    const { temp, populatedRoom, connectUpdatedRoom, user } = this.props;
     const { myColor } = this.state;
-    socket.removeAllListeners('USER_JOINED');
-    socket.removeAllListeners('CREATED_TAB');
-    socket.removeAllListeners('USER_LEFT');
-    socket.removeAllListeners('RELEASED_CONTROL');
-    socket.removeAllListeners('TOOK_CONTROL');
 
-    // const updatedUsers = [...room.currentMembers, {user: {_id: user._id, username: user.username}}]
     if (!temp) {
       const sendData = {
         _id: mongoIdGenerator(),
@@ -330,18 +336,22 @@ class Workspace extends Component {
           if (err) {
             // eslint-disable-next-line no-console
             console.log('Error joining room');
-            console.log(err); // HOW SHOULD WE HANDLE THIS
+            console.log(err);
             this.goBack();
             return;
           }
           const { room, message } = data;
+          const currMems = populatedRoom.getCurrentMembers(room.currentMembers);
           this.setState(
             {
-              currentMembers: room.currentMembers,
+              // currentMembers: room.currentMembers,
+              // currentMembers: populatedRoom.getCurrentMembers(),
+              currentMembers: currMems,
             },
             () =>
               connectUpdatedRoom(populatedRoom._id, {
-                currentMembers: room.currentMembers,
+                // currentMembers: room.currentMembers,
+                currentMembers: currMems,
               })
           );
           this.addToLog(message);
@@ -350,12 +360,20 @@ class Workspace extends Component {
     }
 
     socket.on('USER_JOINED', (data) => {
-      const { currentMembers, message } = data;
+      const { controlledBy: currentControl } = this.state;
+      const { currentMembers, message, releasedControl } = data;
+      const controlledBy = releasedControl ? null : currentControl;
+      const currMems = populatedRoom.getCurrentMembers(currentMembers);
       this.setState(
         {
-          currentMembers,
+          currentMembers: currMems,
+          controlledBy,
         },
-        () => connectUpdatedRoom(populatedRoom._id, { currentMembers })
+        () =>
+          connectUpdatedRoom(populatedRoom._id, {
+            currentMembers: currMems,
+            controlledBy,
+          })
       );
       this.addToLog(message);
     });
@@ -363,11 +381,15 @@ class Workspace extends Component {
     socket.on('USER_LEFT', (data) => {
       let { controlledBy } = this.state;
       const { currentMembers, message } = data;
+      const currMems = populatedRoom.getCurrentMembers(currentMembers);
       if (data.releasedControl) {
         controlledBy = null;
       }
-      this.setState({ controlledBy, currentMembers }, () =>
-        connectUpdatedRoom(populatedRoom._id, { controlledBy, currentMembers })
+      this.setState({ controlledBy, currentMembers: currMems }, () =>
+        connectUpdatedRoom(populatedRoom._id, {
+          controlledBy,
+          currentMembers: currMems,
+        })
       );
       this.addToLog(message);
     });
@@ -507,14 +529,13 @@ class Workspace extends Component {
 
   toggleControl = (event, auto) => {
     const { populatedRoom, user } = this.props;
-    const { controlledBy } = this.state;
-    const { myColor } = this.state;
-    // if (!user.connected && !auto) {
-    //   // i.e. if the user clicked the button manually instead of controll being toggled programatically
-    //   window.alert(
-    //     'You have disconnected from the server. Check your internet connection and try refreshing the page'
-    //   );
-    // }
+    const { controlledBy, myColor } = this.state;
+    if (!socket.connected && !auto) {
+      // i.e. if the user clicked the button manually instead of controll being toggled programatically
+      window.alert(
+        'You have disconnected from the server. Check your internet connection and try refreshing the page'
+      );
+    }
     // console.log(
     //   'toggling control..., currently controlled by you-',
     //   controlledBy === user._id
@@ -598,7 +619,9 @@ class Workspace extends Component {
 
   emitNewTab = (tabInfo) => {
     const { myColor } = this.state;
+    const { user } = this.props;
     tabInfo.message.color = myColor;
+    tabInfo.message.user = user; // every event should have a 'user' property!
     socket.emit('NEW_TAB', tabInfo, () => {
       this.addToLog(tabInfo.message);
     });
@@ -643,17 +666,13 @@ class Workspace extends Component {
 
     if (referToEl.wasObjectDeleted) {
       // referenced object was removed
-      const msg = `The referenced object (${referToEl.elementType} ${
-        referToEl.element
-      }) was deleted.`;
+      const msg = `The referenced object (${referToEl.elementType} ${referToEl.element}) was deleted.`;
       window.alert(msg);
       return;
     }
 
     if (referToEl.wasObjectUpdated) {
-      const msg = `Caution! The referenced object (${referToEl.elementType} ${
-        referToEl.element
-      }) has been modified since the time of reference.`;
+      const msg = `Caution! The referenced object (${referToEl.elementType} ${referToEl.element}) has been modified since the time of reference.`;
       window.alert(msg);
     }
 
@@ -743,9 +762,8 @@ class Workspace extends Component {
   };
 
   goBack = () => {
-    const { populatedRoom, history } = this.props;
-    const { _id } = populatedRoom;
-    history.push(`/myVMT/rooms/${_id}/details`);
+    const { history } = this.props;
+    history.goBack();
   };
 
   setGraphCoords = (graphCoords) => {
@@ -829,7 +847,7 @@ class Workspace extends Component {
 
   handleInstructionsModal = () => {
     const { currentTabId, tabs } = this.state;
-    const { user, populatedRoom } = this.props;
+    const { populatedRoom, user } = this.props;
 
     if (!user || !populatedRoom) {
       return;
@@ -849,7 +867,7 @@ class Workspace extends Component {
     }
     let { instructions } = tab;
 
-    if (!instructions && (tabIndex === 0 && populatedRoom.instructions)) {
+    if (!instructions && tabIndex === 0 && populatedRoom.instructions) {
       ({ instructions } = populatedRoom);
     }
 
@@ -918,29 +936,48 @@ class Workspace extends Component {
     });
   };
 
-  resetRoom = () => {
-    const { resetRoom } = this.props;
-    resetRoom().then(() => {
-      const { populatedRoom } = this.props;
-      this.setState({
-        controlledBy:
-          populatedRoom && populatedRoom.controlledBy
-            ? populatedRoom.controlledBy
-            : null,
-        currentMembers:
-          populatedRoom && populatedRoom.currentMembers
-            ? populatedRoom.currentMembers
-            : null,
-        tabs: populatedRoom && populatedRoom.tabs ? populatedRoom.tabs : null,
-        log: populatedRoom && populatedRoom.log ? populatedRoom.log : null,
-      });
-    });
+  /**
+   * @method findRoomDifference
+   * @param oldRoom
+   * @param newRoom
+   * @returns false if no differences, else a new state object with the differences
+   */
+  findRoomDifference = (oldRoom, newRoom) => {
+    const results = {};
+
+    if (
+      (oldRoom.tabs || newRoom.tabs) &&
+      (oldRoom.tabs && oldRoom.tabs.length) !==
+        (newRoom.tabs && newRoom.tabs.length)
+    ) {
+      results.tabs = newRoom.tabs;
+    }
+
+    if (
+      (oldRoom.log || newRoom.log) &&
+      (oldRoom.log && oldRoom.log.length) !==
+        (newRoom.log && newRoom.log.length)
+    ) {
+      results.log = newRoom.log;
+    }
+
+    if (oldRoom.controlledBy !== newRoom.controlledBy) {
+      results.controlledBy = newRoom.controlledBy;
+    }
+
+    if (
+      JSON.stringify(oldRoom.currentMembers) !==
+      JSON.stringify(newRoom.currentMembers)
+    ) {
+      results.currentMembers = newRoom.currentMembers;
+    }
+
+    return Object.keys(results).length !== 0 ? results : false;
   };
 
   render() {
     const {
       populatedRoom,
-      user,
       connectUpdateRoom,
       connectUpdatedRoom,
       save,
@@ -949,7 +986,8 @@ class Workspace extends Component {
       connectUpdateRoomTab,
       tempCurrentMembers,
       connectUpdateUserSettings,
-      // resetRoom,
+      resetRoom,
+      user,
     } = this.props;
     const {
       tabs: currentTabs,
@@ -989,7 +1027,12 @@ class Workspace extends Component {
     const currentMembers = (
       <CurrentMembers
         members={temp ? tempMembers : populatedRoom.members}
-        currentMembers={temp ? tempCurrentMembers : activeMembers}
+        // currentMembers={temp ? tempCurrentMembers : activeMembers}
+        currentMembers={
+          temp
+            ? tempCurrentMembers
+            : populatedRoom.getCurrentMembers(activeMembers)
+        }
         activeMember={controlledBy}
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
@@ -1033,7 +1076,10 @@ class Workspace extends Component {
         goToReplayer={this.goToReplayer}
         createActivity={this.beginCreatingActivity}
         connectionStatus={connectionStatus}
-        resetRoom={this.resetRoom}
+        resetRoom={(...args) => {
+          // don't allow admins to do a force reset
+          if (!user.inAdminMode) resetRoom(...args);
+        }}
       />
     );
     const graphs = currentTabs.map((tab) => {
@@ -1268,13 +1314,31 @@ class Workspace extends Component {
 }
 
 Workspace.propTypes = {
-  populatedRoom: PropTypes.shape({}).isRequired,
+  populatedRoom: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    instructions: PropTypes.string,
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    tabs: PropTypes.arrayOf(PropTypes.shape({ _id: PropTypes.string })),
+    log: PropTypes.arrayOf(PropTypes.shape({})),
+    controlledBy: PropTypes.string,
+    currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
+    settings: PropTypes.shape({ participantsCanCreateTabs: PropTypes.bool }),
+    getCurrentMembers: PropTypes.func.isRequired,
+    adjustUser: PropTypes.func.isRequired,
+  }).isRequired,
   tempCurrentMembers: PropTypes.arrayOf(PropTypes.shape({})),
   tempMembers: PropTypes.arrayOf(PropTypes.shape({})),
   lastMessage: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    _id: PropTypes.string,
+    isAdmin: PropTypes.bool,
+    inAdminMode: PropTypes.bool,
+    username: PropTypes.string,
+  }).isRequired,
   temp: PropTypes.bool,
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func, goBack: PropTypes.func })
+    .isRequired,
   save: PropTypes.func,
   connectUpdateRoom: PropTypes.func.isRequired,
   connectUpdatedRoom: PropTypes.func.isRequired,
@@ -1292,22 +1356,18 @@ Workspace.defaultProps = {
   temp: false,
   resetRoom: () => {},
 };
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   return {
-    user: state.user._id ? state.user : ownProps.user, // with tempWorkspace we won't have a user in the store
     loading: state.loading.loading,
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    connectUpdateUser: updateUser,
-    connectUpdateRoom: updateRoom,
-    connectUpdatedRoom: updatedRoom,
-    connectUpdatedRoomTab: updatedRoomTab,
-    connectUpdateRoomTab: updateRoomTab,
-    connectSetRoomStartingPoint: setRoomStartingPoint,
-    connectUpdateUserSettings: updateUserSettings,
-  }
-)(Workspace);
+export default connect(mapStateToProps, {
+  connectUpdateUser: updateUser,
+  connectUpdateRoom: updateRoom,
+  connectUpdatedRoom: updatedRoom,
+  connectUpdatedRoomTab: updatedRoomTab,
+  connectUpdateRoomTab: updateRoomTab,
+  connectSetRoomStartingPoint: setRoomStartingPoint,
+  connectUpdateUserSettings: updateUserSettings,
+})(Workspace);

@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
 import { CSVReader } from 'react-papaparse';
-import { suggestUniqueUsername, validateExistingField } from 'utils/validators';
+import { validateEmail, validateUsername, findMatchingUsers } from 'utils';
 import { NavLink } from 'react-router-dom';
 import { Button } from 'Components';
 import ImportModal from './ImportModal';
-import ResolutionButton from './ResolutionButton';
 import classes from './importer.css';
 
 export default function Importer(props) {
@@ -13,9 +13,34 @@ export default function Importer(props) {
   const [importedData, setImportedData] = React.useState([]);
   const [validationErrors, setValidationErrors] = React.useState([]);
   const [sponsors, setSponsors] = React.useState({});
-  const [rowConfig, setRowConfig] = React.useState([]);
-  const [resolveSelections, setResolveSelections] = React.useState({});
   const buttonRef = React.createRef();
+  // Interestingly enough, when I made cachedData a state variable, it didn't update in time for the validation.
+  const cachedData = React.useRef([]);
+
+  const validateExistingField = (field, value) => {
+    return Promise.resolve(
+      cachedData.current.find((elt) => elt[field] === value)
+    ); // using a Promise to minimize code changes for now
+  };
+
+  const allValues = (field, data) =>
+    data
+      .map((elt) =>
+        typeof elt[field] === 'string' ? elt[field].toLowerCase() : elt[field]
+      )
+      .filter((val) => val && val !== '');
+
+  const preCacheData = async (data) => {
+    const usernames = Array.from(
+      new Set(allValues('username', data).concat(allValues('sponsor', data)))
+    );
+    const emails = Array.from(new Set(allValues('email', data)));
+    const results = await findMatchingUsers(
+      ['username', 'email'],
+      [...usernames, ...emails]
+    );
+    cachedData.current = results || [];
+  };
 
   const handleOpenDialog = (e) => {
     // Note that the ref is set async, so it might be null at some point
@@ -81,7 +106,7 @@ export default function Importer(props) {
 
   // Called when the user clicks on 'Submit' in the modal. Revalidate all the data. If there are any issues, update the data
   // and highligt any relevant cells. If no issues, update the data, create any new users, and invite them to the course.
-  const handleOnSubmit = (data) => {
+  const handleOnSubmit = async (data) => {
     if (validationErrors.length > 0) {
       validateData(data).then(([newData, newValidationErrors]) => {
         setImportedData(newData);
@@ -104,10 +129,11 @@ export default function Importer(props) {
    * by email (only if the emailalready exists), in which case the username for that email is filled in, (c) create a new user.
    * In case (c), if the username exists a new one is suggested. If the email exists, we clear it out (new user will have no
    * email).
-   * 2. Duplicate usernames or emails in the import list.
-   * 3. If a new user, first and last names must be there.
-   * 4. If a sponsor is given, it must be an existing user.
-   * 5. If an email is blank, this cannot be a gmail account.
+   * 2. Usernames and emails are structured as per the validation patterns
+   * 3. Duplicate usernames or emails in the import list.
+   * 4. If a new user, first and last names must be there.
+   * 5. If a sponsor is given, it must be an existing user.
+   * 6. If an email is blank, this cannot be a gmail account.
    */
   const validateDataRow = async (dataRow, rowIndex) => {
     // initialization, including default username if needed
@@ -121,13 +147,8 @@ export default function Importer(props) {
     if (d.email) {
       d.email = d.email.toLowerCase().trim();
     }
-    setResolveSelections((prevSelections) => {
-      prevSelections[rowIndex] = null;
-      return prevSelections;
-    });
 
     // 1. handle validating whether username/email exists, whether they are consistent, and the resolution thereof
-    clearChoices(rowIndex);
     const userFromUsername = await validateExistingField(
       'username',
       d.username
@@ -136,33 +157,50 @@ export default function Importer(props) {
       ? await validateExistingField('email', d.email)
       : null;
     const isMatch =
-      userFromUsername &&
-      userFromEmail &&
-      userFromUsername._id === userFromEmail._id;
+      (userFromUsername &&
+        userFromEmail &&
+        userFromUsername._id === userFromEmail._id) ||
+      (userFromUsername && userFromUsername.email === d.email);
     const isNewUser = !userFromEmail && !userFromUsername;
 
     if (!isMatch && !isNewUser) {
-      d.comment += 'Username-email mismatch. ';
       newValidationErrors.push(
         { rowIndex, property: 'username' },
         { rowIndex, property: 'email' }
       );
-      suggestUniqueUsername(d.username).then((name) => {
-        const newUser = {
-          username: name,
-          email: userFromEmail ? '<enter an email>' : d.email,
-        };
-        const choices = {
-          newUser,
-          userFromUsername,
-          userFromEmail,
-          original: { ...d },
-        };
-        setupChoices(choices, rowIndex);
-      });
+      if (userFromUsername)
+        d.comment += `* Existing user ${d.username} should have email ${
+          userFromUsername.email !== '' ? userFromUsername.email : '<blank>'
+        }\n`;
+      if (userFromEmail)
+        d.comment += `* Existing email ${d.email} should be for user ${userFromEmail.username}\n`;
     }
 
-    // 2. handle duplicate email or usernames in the list
+    // 2. handle validating the structure of usernames and emails
+    const [emailResults, usernameResults] = await Promise.all([
+      // if no email, don't generate an error
+      validateEmail(d.email || 'dummy@dummy.com'),
+      validateUsername(d.username),
+    ]);
+
+    // eslint-disable-next-line no-unused-vars
+    const [emailError, validatedEmail] = emailResults;
+
+    // eslint-disable-next-line no-unused-vars
+    const [usernameError, validatedUsername] = usernameResults;
+
+    if (emailError) {
+      d.comment +=
+        '* Email is incorrectly formatted or has illegal characters\n';
+      newValidationErrors.push({ rowIndex, property: 'email' });
+    }
+
+    if (usernameError) {
+      d.comment += '* Username has illegal characters or is too long\n ';
+      newValidationErrors.push({ rowIndex, property: 'username' });
+    }
+
+    // 3. handle duplicate email or usernames in the list
     let emailDup = 0;
     let usernameDup = 0;
     importedData.forEach((u) => {
@@ -175,44 +213,44 @@ export default function Importer(props) {
     });
 
     if (emailDup > 1) {
-      d.comment += 'Email duplicated in list. ';
+      d.comment += '* Email duplicated in list\n';
       newValidationErrors.push({ rowIndex, property: 'email' });
     }
 
     if (usernameDup > 1) {
-      d.comment += 'Username duplicated in list. ';
+      d.comment += '* Username duplicated in list\n';
       newValidationErrors.push({ rowIndex, property: 'username' });
     }
 
-    // 3. handle validating that new users must have first and last names specified
+    // 4. handle validating that new users must have first and last names specified
     if (isNewUser && (!d.firstName || !d.lastName)) {
-      d.comment += 'First and last names are required. ';
+      d.comment += '* First and last names are required\n ';
       if (!d.firstName)
         newValidationErrors.push({ rowIndex, property: 'firstName' });
       if (!d.lastName)
         newValidationErrors.push({ rowIndex, property: 'lastName' });
     }
 
-    // 4. handle validating that any specified sponsors must be existing users
+    // 5. handle validating that any specified sponsors must be existing users
     if (d.sponsor && d.sponsor !== '') {
-      const { _id: sponsor_id } = await validateExistingField(
+      const { _id: sponsor_id } = (await validateExistingField(
         'username',
         d.sponsor
-      );
+      )) || { _id: undefined };
       if (sponsor_id)
         setSponsors((prevState) => ({
           ...prevState.sponsors,
           [d.username]: sponsor_id,
         }));
       else {
-        d.comment += 'No such sponsor username. ';
+        d.comment += "* Sponsor's username does not exist\n";
         newValidationErrors.push({ rowIndex, property: 'sponsor' });
       }
     }
 
-    // 5. handle validating that a blank email cannot be a gmail account
+    // 6. handle validating that a blank email cannot be a gmail account
     if (d.email === '' && d.isGmail) {
-      d.comment += 'Google login may only be used if an email is specified. ';
+      d.comment += '* Google login may only be used if an email is specified\n';
       newValidationErrors.push(
         { rowIndex, property: 'email' },
         { rowIndex, property: 'isGmail' }
@@ -230,6 +268,7 @@ export default function Importer(props) {
   //
   // The rows argument is optional. If not given, goes through all data
   const validateData = async (data, rows) => {
+    await preCacheData(data);
     // first check for validation issues on all requested rows of the provided data, in parallel.
     const validatedInfo = await Promise.all(
       rows === undefined
@@ -250,55 +289,6 @@ export default function Importer(props) {
     return [validatedData, newErrors];
   };
 
-  /**
-   * The user needs to resolve a mismatch between username and email. Update rowConfig to place a ResolutionButton at that
-   * row, containing the buttons needed (some combination of username, email, new user). As each selection is made, update
-   * the data so that appropriate usernames and emails are shown.  NOTE: only change username and email; don't change any
-   * other data in the row.
-   *
-   * Note: We have to keep the resolution state here because the package used by ImportModal unmounts and remounts elements
-   * on each refresh. @TODO: Switch to another package for rendering an editable table.
-   */
-
-  const setupChoices = (choices, rowIndex) => {
-    const action = () => (
-      <ResolutionButton
-        usernameChoice={choices.userFromUsername || null}
-        emailChoice={choices.userFromEmail || null}
-        newUserChoice={choices.newUser || null}
-        selection={() => resolveSelections[rowIndex] || null}
-        onSelect={(choice) => {
-          if (!choice) {
-            choice = {
-              username: choices.original.username,
-              email: choices.original.email,
-            };
-          }
-          setImportedData((prevState) => {
-            const newData = [...prevState];
-            newData[rowIndex].username = choice.username;
-            newData[rowIndex].email = choice.email;
-            return newData;
-          });
-          setResolveSelections((prevState) => ({
-            ...prevState,
-            [rowIndex]: choice,
-          }));
-        }}
-      />
-    );
-    setRowConfig((prevState) => [...prevState, { rowIndex, action }]);
-  };
-
-  // Remove any buttons from the previous validation
-  const clearChoices = (rowIndex) => {
-    setRowConfig((prevState) =>
-      prevState
-        ? prevState.filter((config) => config.rowIndex !== rowIndex)
-        : []
-    );
-  };
-
   const createAndInviteMembers = async () => {
     const { user: creator, onImport } = props;
     const userObjects = await Promise.all(
@@ -307,12 +297,13 @@ export default function Importer(props) {
           'username',
           user.username
         );
-        const { organization, identifier, ...rest } = user;
+        const { organization, identifier, isGmail, ...rest } = user;
         return existingUser
           ? {
               ...existingUser,
               metadata: { organization, identifier },
               sponsor: sponsors[user.username] || creator._id,
+              isGmail,
             }
           : {
               accountType: 'pending',
@@ -355,7 +346,7 @@ export default function Importer(props) {
           { property: 'firstName', header: 'First Name*' },
           {
             property: 'lastName',
-            header: 'Last Name* (full, inital, or other)',
+            header: 'Last Name* (full, initial, or other)',
           },
           { property: 'organization', header: 'Affiliation' },
           { property: 'identifier', header: 'Student or Org ID' },
@@ -363,12 +354,11 @@ export default function Importer(props) {
           {
             property: 'comment',
             header: 'Comments (* req)',
-            style: { color: 'red' },
+            style: { color: 'red', textAlign: 'left', whiteSpace: 'pre-wrap' },
             readOnly: true,
           },
         ]}
         highlights={validationErrors}
-        rowConfig={rowConfig}
         onChanged={handleOnChanged}
         onSubmit={handleOnSubmit}
         onCancel={handleOnCancel}
@@ -379,7 +369,7 @@ export default function Importer(props) {
 
   return (
     <Fragment>
-      {importModal()}
+      {showModal && importModal()}
       <div className={classes.Instructions}>
         <i className="far fa-question-circle fa-2x" />
         <div className={classes.TooltipContent}>
@@ -417,3 +407,8 @@ export default function Importer(props) {
     </Fragment>
   );
 }
+
+Importer.propTypes = {
+  user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
+  onImport: PropTypes.func.isRequired,
+};

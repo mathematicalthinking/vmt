@@ -8,12 +8,7 @@ const {
 const { apiToken } = require('../constants/sso');
 const { signJwt } = require('../middleware/utils/request');
 
-let secret;
-if (process.env.NODE_ENV === 'test') {
-  secret = process.env.MT_USER_JWT_SECRET_TEST;
-} else {
-  secret = process.env.MT_USER_JWT_SECRET;
-}
+const secret = process.env.MT_USER_JWT_SECRET;
 
 const BASE_URL = getMtSsoUrl();
 
