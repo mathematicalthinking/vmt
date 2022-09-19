@@ -75,10 +75,11 @@ const WebSketch = (props) => {
     }
   };
 
-  function handleJump(ind, prevInd) {
+  async function handleJump(ind, prevInd) {
     // timer can be used to 'show' changes applied in fast-forward - must make func async!
-    // const timer = (ms) => new Promise((res) => setTimeout(res, ms));
+    const timer = (ms) => new Promise((res) => setTimeout(res, ms));
     setJumping(true);
+    await timer(0);
     // jumping forward
     if (ind > prevInd) {
       for (let i = prevInd + 1; i <= ind; i++) {
@@ -86,7 +87,7 @@ const WebSketch = (props) => {
         if (newData) {
           const updatesState = JSON.parse(newData);
           handleMessage(updatesState);
-          // await timer(0);
+          await timer(0); // optional to show changes
         }
       }
     } else {
@@ -97,6 +98,7 @@ const WebSketch = (props) => {
         if (newData) {
           const updatesState = JSON.parse(newData);
           handleMessage(updatesState);
+          // await timer(0); // optional to show changes
         }
       }
     }
@@ -229,6 +231,25 @@ const WebSketch = (props) => {
     return desc;
   };
 
+  const initSketchPage = () => {
+    // Refresh vars and handlers for a new sketch page
+    // This needs to be called any time the sketch page is regenerated, for instance,
+    // due to a page change, undo or redo, or confirmed or aborted toolplay
+    // Ideally we'd like every such operation to clean up after itself by calling
+    // initSketch, but the possibility of asynchronous operations suggests that
+    // it may be safest to call getSketch(): a function that returns the sketch
+    // object from the sketchDoc.
+    if (!$sketch) {
+      const $ = window.jQuery;
+      $sketch = $('#sketch');
+    }
+    if ($sketch.data('document') !== sketchDoc) {
+      console.error('follow: initSketchPage found invalid sketchDoc');
+      window.GSP.createError('follow: initSketchPage found invalid sketchDoc.');
+    }
+    sketch = sketchDoc.focusPage;
+  };
+
   const gobjDesc = (gobj, cur, max) => {
     // Returns a gobj-description string suitable for a list of form
     // "Point #1, Point B, Circle #4, ..."
@@ -337,10 +358,16 @@ const WebSketch = (props) => {
         });
         setHighLights([]);
       }
-      if (!gobjs) return; // Nothing to do
+      if (!gobjs) return;
       gobjs.forEach((gobj) => {
         // this may be a gobj, or may be a gobj id
-        gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
+        if (typeof gobj === 'string') {
+          console.log('STRING GOBJ: ', gobj, sketch.gobjList);
+          if (sketch && sketch.gobjList && sketch.gobjList.gobjects) {
+            gobj = sketch.gobjList.gobjects[gobj];
+          }
+        }
+        if (!gobj) return; // Nothing to do
         const { state } = gobj;
         if (!state) return;
         if (on) {
@@ -410,7 +437,7 @@ const WebSketch = (props) => {
     }
     // A gobj moved, so move the same gobj in the follower sketch
     let moveList = JSON.parse(data);
-    sketch = sketchDoc.focusPage;
+    initSketchPage();
     if (!sketch) {
       console.log("Messaging error: this follower's sketch is not loaded.");
       return;
