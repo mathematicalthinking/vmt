@@ -104,20 +104,66 @@ const WebSketch = (props) => {
   }
 
   const buildDescription = (username, updates) => {
-    // TODO: build helper to parse WSP event types and event data to plain text
-    let actionText = 'interacted with the Activity';
+    let { attr } = updates;
+    if (typeof attr === 'string') {
+      attr = JSON.parse(attr);
+    }
+    // console.log('Description: ', updates, ' attr: ', attr);
+    // TODO: build helper to parse WSP event types and event data to plain text - parseWSPevent in draft
+    let actionText = parseWSPevent(updates);
     let actionDetailText = '';
     if (!updates) {
       console.log('No updates! desc called', username, updates);
       return `${username} ${actionText} ${actionDetailText}`;
     }
-    if (updates.action === 'updateGobj') {
-      actionText = 'moved a point';
-    }
-    if (updates.data) {
-      actionDetailText = updates.data;
-    }
     return `${username} ${actionText} ${actionDetailText}`;
+  };
+
+  const parseWSPevent = (update) => {
+    let { attr } = update;
+    if (typeof attr === 'string') {
+      attr = JSON.parse(attr);
+    }
+    let gobjId;
+    if (attr.gobjId) {
+      gobjId = attr.gobjId;
+    } else {
+      if (Object.keys(attr).length > 1) {
+        gobjId = `${Object.keys(attr).length} gobjs`;
+      }
+      gobjId = Object.keys(attr)[0];
+    }
+    switch (update.name) {
+      case 'WillChangeCurrentPage':
+        return 'initiated a page change';
+      case 'DidChangeCurrentPage':
+        return `changed to page ${attr.pageId}`;
+      case 'GobjsUpdated': // gobjs have moved to new locations
+      case 'StartDragConfirmed': // highlight the dragged gobj
+        return `started dragging gobj ${gobjId}`;
+      case 'EndDrag': // the drag ended
+        return `stopped dragging gobj ${gobjId}`;
+      case 'WillPlayTool': // controlling sketch will play a tool
+        return `started using ${attr.tool.name} tool`;
+      case 'ToolPlayed': // controlling sketch has played a tool
+        return `used ${attr.tool.name} tool`;
+      case 'ToolAborted': // controlling sketch has aborted a tool
+        return `stopped using ${attr.tool.name} tool`;
+      case 'MergeGobjs': // controlling sketch has merged a gobj
+        return `Merged gobj ${gobjId}`;
+      case 'WillUndoRedo': // controlling sketch will undo or redo
+        return `Performing ${attr.type}`;
+      case 'StartEditParameter': // These messages notify the user; an update message actually performs the update
+        return 'initiated a parameter edit';
+      case 'CancelEditParameter': // These messages notify the user; an update message actually performs the update
+        return 'cancelled a parameter edit';
+      case 'EditParameter':
+        return 'edited a parameter';
+      case 'ClearTraces':
+      case 'UndoRedo':
+      default:
+        return 'intereacted with the sketch';
+    }
   };
 
   const initSketchPage = () => {
@@ -391,7 +437,7 @@ const WebSketch = (props) => {
     }
     if (cur === max) {
       retVal = ', ...';
-    } else if (cur < max) {
+    } else if (cur < max && gobj) {
       retVal = gobj.kind + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
       if (cur > 0) {
         retVal = ', ' + retVal;
@@ -404,48 +450,6 @@ const WebSketch = (props) => {
     // msg has three properties: name, time, and data
     // for most events, data is the attributes of the WSP event
     const { attr } = msg;
-    function put(obj, path, value) {
-      const parts = path.split && path.split('.');
-      let subPath;
-      if (!obj || !parts) return;
-      while (obj && parts.length) {
-        subPath = parts.shift();
-        if (!obj[subPath]) {
-          obj[subPath] = {};
-        }
-        if (!parts.length) {
-          obj[subPath] = value;
-        } else {
-          obj = obj[subPath];
-        }
-      }
-      return obj[subPath];
-    }
-
-    const mergeGobjDesc = (attr) => {
-      // given a merged gobj and info about what it was merged to
-      // Three options for attr; all include gobjId.
-      // point-point or param-value: mergeToId
-      // point-path: pathId & pathValue
-      // point-intersection: path1Id & path2Id
-      let desc = gobjDesc(attr.gobjId) + ' to ';
-      const mergeTo = attr.mergeToId || attr.pathId;
-      const value = [attr.gobjId];
-      const highlitGobjs = put(attr, 'options.highlitGobjs', value);
-      if (mergeTo) {
-        desc += gobjDesc(mergeTo);
-        highlitGobjs.push(mergeTo);
-      } else {
-        // must be a point to intersection merge
-        desc +=
-          ' the intersection of ' +
-          gobjDesc(attr.path1Id) +
-          ' and ' +
-          gobjDesc(attr.path2Id);
-        highlitGobjs.push(attr.path1Id, attr.path2Id);
-      }
-      return desc;
-    };
     if (attr.gobjId) {
       attr.gobj = sketch.gobjList.gobjects[attr.gobjId];
       if (!attr.gobj)
@@ -536,6 +540,31 @@ const WebSketch = (props) => {
     }
   };
 
+  const mergeGobjDesc = (attr) => {
+    // given a merged gobj and info about what it was merged to
+    // Three options for attr; all include gobjId.
+    // point-point or param-value: mergeToId
+    // point-path: pathId & pathValue
+    // point-intersection: path1Id & path2Id
+    let desc = gobjDesc(attr.gobjId) + ' to ';
+    const mergeTo = attr.mergeToId || attr.pathId;
+    const value = [attr.gobjId];
+    const highlitGobjs = window.GSP._put(attr, 'options.highlitGobjs', value);
+    if (mergeTo) {
+      desc += gobjDesc(mergeTo);
+      highlitGobjs.push(mergeTo);
+    } else {
+      // must be a point to intersection merge
+      desc +=
+        ' the intersection of ' +
+        gobjDesc(attr.path1Id) +
+        ' and ' +
+        gobjDesc(attr.path2Id);
+      highlitGobjs.push(attr.path1Id, attr.path2Id);
+    }
+    return desc;
+  };
+
   function handleWidgetMessage(msg) {
     const name = msg.name.substring(0, msg.name.indexOf('Widget'));
     const { attr } = msg;
@@ -578,8 +607,8 @@ const WebSketch = (props) => {
   const notify = (text, options) => {
     // options.duration must be a non-zero number or 'persist'
     // options.prepend causes the message to be prepended to the normal notify div
-    // duration is 2000 if not specified
-    let duration = 2000;
+    // duration is 2500 if not specified
+    let duration = 2500;
     let gobjs;
     let callback;
     let prepend = false;
@@ -600,6 +629,7 @@ const WebSketch = (props) => {
     }
 
     const highlight = (on) => {
+      console.log('highlight:', text, 'options:', options, 'on:', on);
       if (highLights.length > 0) {
         // Whether on or off, remove previous highlights
         highLights.forEach((gobj) => {
@@ -613,7 +643,7 @@ const WebSketch = (props) => {
         setHighLights([]);
       }
       if (!gobjs) return; // Nothing to do
-      gobjs.forEach(function(gobj) {
+      gobjs.forEach((gobj) => {
         // this may be a gobj, or may be a gobj id
         gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
         const { state } = gobj;
@@ -623,11 +653,14 @@ const WebSketch = (props) => {
             state.oldRenderState = state.renderState; // track the previous renderState
           }
           state.renderState = 'targetHighlit';
+          setHighLights(...highLights, gobj); // track this gobj as highlighted
         } else {
           // off
           if (state.renderState === 'targetHighlit') {
-            setHighLights(...highLights, gobj); // track this gobj as highlighted
-            if (state.oldRenderState) {
+            if (
+              state.oldRenderState &&
+              state.oldRenderState !== 'targetHighlit'
+            ) {
               // prev renderState existed, so restore it
               state.renderState = state.oldRenderState;
             } else {
@@ -636,7 +669,7 @@ const WebSketch = (props) => {
             }
           }
           delete state.oldRenderState; // delete tracked prev value, if any
-          // setHighLights([]);
+          setHighLights([]);
         }
         gobj.invalidateAppearance();
       });
