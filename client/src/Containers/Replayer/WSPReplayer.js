@@ -782,16 +782,24 @@ const WebSketch = (props) => {
         //   height: '890px', // @TODO this needs to be adjusted based on the Player instance.
         // }}
       >
-        <div className="sketch_canvas" id="sketch" ref={wspSketch} />
-        {/* <div className="buttonPane">
+        <div
+          className="sketch_canvas"
+          id="sketch"
+          ref={wspSketch}
+          style={{
+            overflow: 'auto',
+            pointerEvents: 'none',
+          }}
+        />
+        <div className="buttonPane">
           <div
             className="page_buttons"
             style={{
               overflow: 'auto',
-              pointerEvents: !_hasControl() ? 'none' : 'auto',
+              pointerEvents: 'none',
             }}
           />
-        </div> */}
+        </div>
       </div>
     </Fragment>
   );
