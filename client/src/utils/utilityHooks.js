@@ -6,7 +6,7 @@ import { useQuery } from 'react-query';
 import API from 'utils/apiRequests';
 import buildLog from 'utils/buildLog';
 
-const timeFrames = {
+const timeFrameFcns = {
   all: () => true,
   lastDay: (diff) => diff <= 24 * 60 * 60 * 1000,
   lastWeek: (diff) => diff <= 7 * 24 * 60 * 60 * 1000,
@@ -18,6 +18,20 @@ const timeFrames = {
   after2Weeks: (diff) => diff > 2 * 7 * 24 * 60 * 60 * 1000,
   afterMonth: (diff) => diff > 30 * 24 * 60 * 60 * 1000,
   afterYear: (diff) => diff > 356 * 24 * 60 * 60 * 1000,
+};
+
+export const timeFrames = {
+  ALL: 'all',
+  LASTDAY: 'lastDay',
+  LASTWEEK: 'lastWeek',
+  LAST2WEEKS: 'last2Weeks',
+  LASTMONTH: 'lastMonth',
+  LASTYEAR: 'lastYear',
+  AFTERDAY: 'afterDay',
+  AFTERWEEK: 'afterWeek',
+  AFTER2WEEKS: 'after2Weeks',
+  AFTERMONTH: 'afterMonth',
+  AFTERYEAR: 'afterYear',
 };
 
 /**
@@ -38,13 +52,15 @@ export const useSortableData = (items, config = null) => {
       !sortConfig ||
       !item[sortConfig.key] ||
       !sortConfig.filter ||
-      !timeFrames[sortConfig.filter]
+      !sortConfig.filter.timeframe ||
+      !sortConfig.filter.key ||
+      !timeFrameFcns[sortConfig.filter.timeframe]
     )
       return true;
     const now = new Date();
-    const then = new Date(item[sortConfig.key]);
+    const then = new Date(item[sortConfig.filter.key]);
     return then.toString() !== 'Invalid Date'
-      ? timeFrames[sortConfig.filter](Math.abs(then - now))
+      ? timeFrameFcns[sortConfig.filter.timeframe](Math.abs(then - now))
       : true;
   };
 
