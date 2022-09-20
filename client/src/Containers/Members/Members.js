@@ -116,7 +116,7 @@ class Members extends PureComponent {
     connectInviteToCourse(parentResource, userId, username, {
       guest: true,
     });
-    connectInviteToRoom(resourceId, userId, username, color, {});
+    connectInviteToRoom(resourceId, userId, username, color);
     this.setState({
       confirmingInvitation: false,
       username: null,
@@ -166,6 +166,8 @@ class Members extends PureComponent {
       resourceType,
       connectUpdateRoomMembers,
       connectUpdateCourseMembers,
+      courseRoomsMembers,
+      connectInviteToRoom,
     } = this.props;
     const updatedMembers = classList.map((member) => {
       return member.user._id === info.user._id
@@ -174,6 +176,24 @@ class Members extends PureComponent {
     });
     if (resourceType === 'course') {
       connectUpdateCourseMembers(resourceId, updatedMembers);
+      if (courseRoomsMembers && info.role === 'facilitator') {
+        Object.keys(courseRoomsMembers).forEach((roomId) => {
+          if (courseRoomsMembers[roomId].includes(info.user._id)) {
+            connectUpdateRoomMembers(roomId, updatedMembers);
+          } else
+            connectInviteToRoom(
+              roomId,
+              info.user._id,
+              info.user.username,
+              undefined, // color
+              info.role
+            );
+        });
+      } else if (courseRoomsMembers && info.role === 'participant') {
+        Object.keys(courseRoomsMembers).forEach((roomId) =>
+          connectUpdateRoomMembers(roomId, updatedMembers)
+        );
+      }
     } else connectUpdateRoomMembers(resourceId, updatedMembers);
   };
 
@@ -467,7 +487,7 @@ Members.propTypes = {
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
-  courseMembers: PropTypes.arrayOf({}),
+  courseMembers: PropTypes.arrayOf(PropTypes.shape({})),
   owner: PropTypes.bool.isRequired,
   parentResource: PropTypes.string,
   classList: PropTypes.arrayOf(PropTypes.shape({})),
@@ -479,6 +499,7 @@ Members.propTypes = {
   connectClearNotification: PropTypes.func.isRequired,
   connectRemoveRoomMember: PropTypes.func.isRequired,
   connectRemoveCourseMember: PropTypes.func.isRequired,
+  courseRoomsMembers: PropTypes.shape({}),
 };
 
 Members.defaultProps = {
@@ -487,6 +508,7 @@ Members.defaultProps = {
   courseMembers: null,
   notifications: null,
   parentResource: null,
+  courseRoomsMembers: null,
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -495,12 +517,19 @@ const mapStateToProps = (state, ownProps) => {
   const allUsers = getAllUsersInStore(state, usersToExclude);
   const userIds = [...allUsers.userIds].slice(0, 5);
   const usernames = [...allUsers.usernames].slice(0, 5);
+  const course = (ownProps.course &&
+    state.courses.byId[ownProps.course._id]) || {
+    rooms: [],
+  };
   return {
     searchedUsers: userIds.map((id, i) => ({
       _id: id,
       username: usernames[i],
     })),
     user: state.user,
+    courseRoomsMembers: course.rooms.reduce((acc, roomId) => {
+      return { ...acc, [roomId]: state.rooms.byId[roomId].members };
+    }, {}),
   };
 };
 

@@ -431,16 +431,23 @@ export const populateRoom = (id, opts) => {
   };
 };
 
-export const inviteToRoom = (roomId, toUserId, toUserUsername, color) => {
+export const inviteToRoom = (
+  roomId,
+  toUserId,
+  toUserUsername,
+  color,
+  role = 'participant'
+) => {
   return (dispatch) => {
     dispatch(
       addRoomMember(roomId, {
         user: { _id: toUserId, username: toUserUsername },
-        role: 'participant',
+        role,
         color,
       })
     );
-    API.grantAccess(toUserId, 'room', roomId, 'invitation')
+    const options = { role };
+    API.grantAccess(toUserId, 'room', roomId, 'invitation', options)
       .then()
       .catch((err) => {
         // eslint-disable-next-line no-console

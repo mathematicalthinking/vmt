@@ -367,7 +367,20 @@ module.exports = {
           room = res;
           // TODO refactor with room member states to change color assignment to state
           const color = colorMap[room.members.length];
-          room.members.push({ user, role, color });
+          const newMember = { user, role, color };
+
+          const newMemberIndex = room.members.findIndex((mem) => {
+            return mem.user.toString() === user;
+          });
+          if (newMemberIndex >= 0) {
+            room.members[newMemberIndex] = {
+              _id: room.members[newMemberIndex]._id,
+              user,
+              role,
+              color,
+            };
+          } else room.members.push(newMember);
+
           return room.save();
         })
         .then((savedRoom) => {
