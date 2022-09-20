@@ -107,8 +107,14 @@ const ResourceList = ({
   const sortUserResources = (resources) => {
     const facilitatorList = [];
     const participantList = [];
-    if (resources) {
-      resources.forEach((userResource) => {
+    // check for duplicates
+    const obj =
+      resources &&
+      resources.reduce((acc, curr) => {
+        return { ...acc, [curr._id]: curr };
+      }, {});
+    if (obj) {
+      Object.values(obj).forEach((userResource) => {
         if (userResource) {
           if (
             userResource.myRole === 'facilitator' ||
