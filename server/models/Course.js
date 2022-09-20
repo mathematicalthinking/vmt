@@ -28,14 +28,18 @@ const Course = new mongoose.Schema(
     metadata: { type: Object },
     image: { type: String }, // URL
     isTrashed: { type: Boolean, default: false },
-    groupings: [
-      {
-        _id: false,
-        activity: { type: ObjectId, ref: 'Activity' },
-        timestamp: { type: Number },
-        rooms: [{ type: ObjectId, ref: 'Room' }],
-      },
-    ],
+    groupings: {
+      type: [
+        {
+          _id: false,
+          activity: { type: ObjectId, ref: 'Activity' },
+          activityName: { type: String },
+          timestamp: { type: Number },
+          rooms: [{ type: ObjectId, ref: 'Room' }],
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );

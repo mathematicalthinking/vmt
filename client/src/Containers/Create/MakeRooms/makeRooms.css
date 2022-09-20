@@ -70,6 +70,11 @@
   color: blue;
 }
 
+.SelectionMade,
+.SelectionMade:hover {
+  background-color: #bbb;
+}
+
 .EvenParticipant {
   background-color: #ddd;
 }
@@ -101,9 +106,10 @@
   position: sticky;
 
   /* Displayed on top of other rows when scrolling */
-  z-index: 90;
+  z-index: 87;
   /* reduce column size w/Participants' names */
   width: 150px;
+  cursor: default;
 }
 
 .Caption {
@@ -116,7 +122,8 @@
   background-color: #ddd;
   position: sticky;
   top: 0;
-  z-index: 100;   
+  z-index: 100;
+  cursor: default;
 }
 
 .LockedBottom {
@@ -124,7 +131,7 @@
   position: sticky;
   bottom: 0;
   border-top: 2px solid black;
-  z-index: 100;
+  z-index: 89;
 }
 
 .LockedBottom:hover {
@@ -252,9 +259,11 @@
   background: #2d91f2;
   color: white;
   border: 2px solid #ddd;
-  min-width: 250px;
+  min-width: 200px;
   /* width: max-content; */
   max-width: 85%;
+  font-family: 'Lato', 'sans-serif';
+  font-weight: 400;
   transition: 0.2s;
 }
 

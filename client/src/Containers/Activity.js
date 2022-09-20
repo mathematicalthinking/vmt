@@ -77,7 +77,7 @@ class Activity extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { activity, loading, user, match } = this.props;
+    const { activity, loading, user } = this.props;
     if (!activity) {
       return;
     }
@@ -151,7 +151,7 @@ class Activity extends Component {
     this.setState({ trashing: true });
   };
 
-  checkAccess() {
+  checkAccess = () => {
     const { activity, user } = this.props;
     const canEdit = activity.creator === user._id || user.isAdmin;
 
@@ -160,7 +160,7 @@ class Activity extends Component {
     const canAccess = canEdit || activity.privacySetting === 'public';
 
     this.setState({ owner: canEdit, canAccess });
-  }
+  };
 
   viewActivity = () => {
     const { history, activity } = this.props;
@@ -206,7 +206,7 @@ class Activity extends Component {
               user: { _id: user._id, username: user.username },
             }}
             label="Edit:"
-            defaultOption={{ label: 'Change Room Assignments', value: [] }}
+            defaultOption={{ label: 'Select a room assignment...', value: [] }}
             toolTip="Editing assignments allows you to easily change the rooms that members are assigned to. You can also change the due date, the prefix for the room names, and whether or not to anonymize members while they're in the room."
             AssignmentComponent={EditRooms}
             optionsGenerator={createEditableAssignments}
@@ -227,7 +227,10 @@ class Activity extends Component {
               user: { _id: user._id, username: user.username },
             }}
             label="Create:"
-            defaultOption={{ label: 'New Grouping', value: [] }}
+            defaultOption={{
+              label: 'Select "new" or an existing grouping...',
+              value: [],
+            }}
             toolTip="Create rooms for members to do math in. You can reuse the member groups that you create here."
             AssignmentComponent={MakeRooms}
             optionsGenerator={createPreviousAssignments}
@@ -441,11 +444,36 @@ class Activity extends Component {
 }
 
 Activity.propTypes = {
-  match: PropTypes.shape({}).isRequired,
-  activity: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
-  course: PropTypes.shape({}),
-  history: PropTypes.shape({}).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      activity_id: PropTypes.string,
+      resource: PropTypes.string,
+    }),
+  }).isRequired,
+  activity: PropTypes.shape({
+    _id: PropTypes.string,
+    creator: PropTypes.string,
+    image: PropTypes.string,
+    name: PropTypes.string,
+    description: PropTypes.string,
+    instructions: PropTypes.string,
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    privacySetting: PropTypes.bool,
+  }),
+  user: PropTypes.shape({
+    _id: PropTypes.string,
+    username: PropTypes.string,
+    notifications: PropTypes.arrayOf(PropTypes.shape({})),
+    isAdmin: PropTypes.bool,
+  }).isRequired,
+  course: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+  }),
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   loading: PropTypes.bool.isRequired,
   updateFail: PropTypes.bool.isRequired,
   updateKeys: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,

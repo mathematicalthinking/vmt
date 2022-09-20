@@ -21,6 +21,7 @@ module.exports = function() {
 
   io.sockets.on('connection', (socket) => {
     socketMetricInc('connect');
+    // socketMetricInc('connectionByUser',sock)
 
     // io.sockets.adapter.on('join-room', (room, id) => {
     //   console.log('join-room', room, id);
@@ -156,9 +157,7 @@ module.exports = function() {
       // maintains the users in the room (and who is in control) until a join or leave event. That way, if a disconnection
       // and reconnection occurs quickly, none of the users notice.
 
-      const users = await usersInRoom(data.roomId);
-
-      const message = {
+      const message = new Message({
         _id: data._id,
         user: { _id: data.userId, username: 'VMTbot' },
         room: data.roomId,
@@ -167,20 +166,19 @@ module.exports = function() {
         messageType: 'JOINED_ROOM',
         color: data.color,
         timestamp: new Date().getTime(),
-      };
+      });
 
       try {
-        const results = await Promise.all([
-          controllers.messages.post(message),
-          controllers.rooms.setCurrentUsers(data.roomId, users), // update the DB to be consistent with the sockets
-        ]);
+        await message.save();
+        const { room, releasedControl } = await killZombies(data.roomId);
         socket.to(data.roomId).emit('USER_JOINED', {
-          currentMembers: results[1].currentMembers,
+          currentMembers: room.currentMembers,
           message,
+          releasedControl,
           username: data.username,
           userId: data.userId,
         });
-        return cb({ room: results[1], message, user }, null);
+        return cb({ room, message, user }, null);
       } catch (err) {
         console.log('ERROR JOINING ROOM for user: ', data.userId, err);
         return cb(null, err);
@@ -189,6 +187,7 @@ module.exports = function() {
 
     socket.on('disconnecting', (reason) => {
       socketMetricInc('disconnect');
+      socketMetricInc('disconnectionByUser', socket.user_id);
       console.log(
         'socket disconnect from user: ',
         socket.user_id,
@@ -207,7 +206,7 @@ module.exports = function() {
       socketMetricInc('sync');
       if (!_id) {
         // console.log('unknown user connected: ', socket.id);
-        cb(null, 'NO USER');
+        cb(null, 'NO USER ID GIVEN TO SYNC_SOCKET');
         return;
       }
       socket.user_id = _id;
@@ -274,10 +273,10 @@ module.exports = function() {
       callback(null, {});
     });
 
-    socket.on('SEND_EVENT', async (data, callback) => {
+    socket.on('SEND_EVENT', async (data, lastEventId, callback) => {
       socketMetricInc('eventsend');
       try {
-        socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data);
+        socket.broadcast.to(data.room).emit('RECEIVE_EVENT', data, lastEventId);
         await controllers.events.post(data);
         if (callback) callback();
       } catch (err) {
@@ -336,26 +335,22 @@ module.exports = function() {
 
       await killZombies(roomId);
 
-      // only emit message to user who did the reset
-      socket.emit('RESET_COMPLETE');
+      // only emit message to everyone
+      io.in(roomId).emit('RESET_COMPLETE');
     });
 
-    socket.on('LEAVE_ROOM', (roomId, color, cb) => {
+    socket.on('LEAVE_ROOM', async (roomId, color, cb) => {
       socketMetricInc('roomleave');
       socket.leave(roomId);
       const messageText = `${socket.username} left the room`;
-      usersInRoom(roomId).then((users) =>
-        leaveRoom(roomId, users, color, messageText, cb)
-      );
+      leaveRoom(roomId, color, messageText, cb);
     });
 
     socket.on('LEAVE_ROOM_QUICKCHAT', (roomId, color, cb) => {
       socketMetricInc('roomleave_quickchatx');
       socket.leave(roomId);
       const messageText = `QUICKCHAT: ${socket.username} left the room`;
-      usersInRoom(roomId).then((users) =>
-        leaveRoom(roomId, users, color, messageText, cb)
-      );
+      leaveRoom(roomId, color, messageText, cb);
     });
 
     const killZombies = async (roomId) => {
@@ -393,7 +388,6 @@ module.exports = function() {
           socket.to(roomId).emit('RECEIVE_MESSAGE', message);
         });
       }
-
       const releasedControl =
         room.controlledBy &&
         !usersInSockets.includes(room.controlledBy.toString()); // parse to string because it is an objectId
@@ -415,7 +409,7 @@ module.exports = function() {
         controllers.rooms.put(roomId, { controlledBy: null });
       }
 
-      return room;
+      return { room, releasedControl };
     };
 
     const getUsername = (currMember, room) => {
@@ -438,59 +432,55 @@ module.exports = function() {
         ['socketId'],
         socketsInRoom
       );
+      if (answer.length !== usersInRoom.length)
+        console.log(
+          `There are ${socketsInRoom.length -
+            answer.length} sockets with unknown users`
+        );
       return (answer || []).map((user) => user._id.toString());
     };
 
-    const leaveRoom = async (room, users, color, messageText, cb) => {
-      controllers.rooms
-        .setCurrentUsers(room, users)
-        .then((res) => {
-          const message = new Message({
-            color,
-            room,
-            user: { _id: socket.user_id, username: 'VMTBot' },
-            text: messageText,
-            messageType: 'LEFT_ROOM',
-            autogenerated: true,
-            timestamp: new Date().getTime(),
-          });
-          // check whether the person alledgly in control is still in the room.
-          const releasedControl =
-            res.controlledBy && !users.includes(res.controlledBy.toString()); // parse to string because it is an objectId
-          if (releasedControl) {
-            controllers.rooms.put(room, { controlledBy: null });
-          }
-          message.save();
-          socket.to(room).emit('USER_LEFT', {
-            currentMembers: res.currentMembers,
-            releasedControl,
-            message,
-          });
-          if (cb) {
-            cb('exited!', null);
-          }
-        })
-        .catch((err) => {
-          if (socket.user) {
-            console.log(
-              'ERROR LEAVING ROOM ',
-              room,
-              ' user: ',
-              socket.user_id,
-              ' socketid: ',
-              socket.id
-            );
-          } else {
-            console.log(
-              'ERROR LEAVING ROOM ',
-              room,
-              ' user not found',
-              ' socketid: ',
-              socket.id
-            );
-          }
-          if (cb) cb(null, err);
+    const leaveRoom = async (roomId, color, messageText, cb) => {
+      try {
+        const { releasedControl, room } = await killZombies(roomId);
+        const message = new Message({
+          color,
+          room: roomId,
+          user: { _id: socket.user_id, username: 'VMTBot' },
+          text: messageText,
+          messageType: 'LEFT_ROOM',
+          autogenerated: true,
+          timestamp: new Date().getTime(),
         });
+        // check whether the person alledgly in control is still in the room.
+        message.save();
+        socket.to(roomId).emit('USER_LEFT', {
+          currentMembers: room.currentMembers,
+          releasedControl,
+          message,
+        });
+        if (cb) cb('exited!', null);
+      } catch (err) {
+        if (socket.user) {
+          console.log(
+            'ERROR LEAVING ROOM ',
+            roomId,
+            ' user: ',
+            socket.user_id,
+            ' socketid: ',
+            socket.id
+          );
+        } else {
+          console.log(
+            'ERROR LEAVING ROOM ',
+            roomId,
+            ' user not found',
+            ' socketid: ',
+            socket.id
+          );
+        }
+        if (cb) cb(null, err);
+      }
     };
   });
 };

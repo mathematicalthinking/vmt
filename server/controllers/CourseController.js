@@ -37,26 +37,15 @@ module.exports = {
         .populate('rooms')
         .populate({
           path: 'rooms',
-          populate: { path: 'creator', select: 'username' },
+          populate: {
+            path: 'creator members.user currentMembers course tabs',
+            select: 'username name tabType',
+          },
         })
         .populate({
-          path: 'rooms',
-          populate: { path: 'members.user', select: 'username' },
+          path: 'activities',
+          populate: { path: 'tabs', select: 'name tabType' },
         })
-        .populate({
-          path: 'rooms',
-          populate: { path: 'currentMembers', select: 'username' },
-        })
-        .populate({
-          path: 'rooms',
-          populate: { path: 'course', select: 'name' },
-        })
-        .populate({
-          path: 'rooms',
-          populate: { path: 'tabs' },
-        })
-        .populate('activities')
-        .populate({ path: 'activities', populate: { path: 'tabs' } })
         .then((course) => resolve(course))
         .catch((err) => reject(err));
     });

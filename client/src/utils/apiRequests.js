@@ -17,6 +17,12 @@ export default {
     });
   },
 
+  findAllMatchingIdsPopulated: (resource, ids, events) => {
+    return api.get(`/api/findAllMatchingIds/${resource}/populated`, {
+      params: { ids, events },
+    });
+  },
+
   search: (resource, text, exclude) => {
     return api.get(`/api/search/${resource}`, { params: { text, exclude } });
   },
@@ -130,7 +136,7 @@ export default {
     return api.put(`/api/${resource}s/${resourceId}/add`, {
       members: {
         user,
-        role: options && options.guest ? 'guest' : 'participant',
+        role: options && options.role ? options.role : 'participant',
       },
       ntfType,
     });

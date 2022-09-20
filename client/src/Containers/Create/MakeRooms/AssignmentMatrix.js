@@ -111,11 +111,20 @@ const AssignmentMatrix = (props) => {
           <tbody>
             {/* top row rooms list */}
             {list.map((participant, i) => {
-              const rowClass = requiredParticipants.some(
+              const isSelected = roomDrafts.some((room) =>
+                room.members.find(
+                  (mem) => mem.user._id === participant.user._id
+                )
+              );
+              const isRequired = requiredParticipants.some(
                 ({ user }) => user.username === participant.user.username
-              )
-                ? [classes.Participant, classes.Selected].join(' ')
-                : classes.Participant;
+              );
+              const rowClass = [
+                classes.Participant,
+                isRequired ? classes.Selected : '',
+                isSelected ? classes.SelectionMade : '',
+              ].join(' ');
+
               return (
                 <tr
                   className={rowClass}
