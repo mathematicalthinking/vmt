@@ -1240,16 +1240,25 @@ class Workspace extends Component {
           bottomRight={
             <Tools
               inControl={inControl}
-              goBack={this.goBack}
-              toggleControl={this.toggleControl}
+              onExit={this.goBack}
+              onClickControl={this.toggleControl}
               lastEvent={log[log.length - 1]}
               save={save}
               isSimplified={isSimplified}
-              toggleSimpleChat={this.toggleSimpleChat}
+              onToggleSimpleChat={this.toggleSimpleChat}
               referencing={referencing}
-              startNewReference={this.startNewReference}
-              clearReference={this.clearReference}
+              onToggleReference={
+                referencing ? this.clearReference : this.startNewReference
+              }
               inAdminMode={user.inAdminMode}
+              exitText="Exit Room"
+              // Cannot use referencing or control when in admin mode
+              {...(user.inAdminMode
+                ? {
+                    onToggleReference: undefined,
+                    onClickControl: undefined,
+                  }
+                : null)}
               // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
             />
           }

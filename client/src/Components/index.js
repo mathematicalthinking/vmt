@@ -21,6 +21,8 @@ export { default as Search } from './Search/Search';
 export { default as Avatar } from './UI/Avatar/Avatar';
 export { default as Backdrop } from './UI/Backdrop/Backdrop';
 export { default as Button } from './UI/Button/Button';
+export { default as Slider } from './UI/Button/Slider';
+export { default as ControlButton } from './UI/Button/ControlButton';
 export { default as ContentBox } from './UI/ContentBox/ContentBox';
 export { default as Member } from './UI/Member/Member';
 export { default as EditMember } from './UI/Member/EditMember';

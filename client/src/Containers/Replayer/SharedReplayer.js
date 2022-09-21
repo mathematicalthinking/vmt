@@ -627,13 +627,13 @@ class SharedReplayer extends Component {
           roomName={`${populatedRoom.name} Replayer`}
           bottomRight={
             <Tools
-              goBack={this.goBack}
-              toggleControl={this.toggleControl}
+              onExit={this.goBack}
               lastEvent={this.updatedLog[logIndex]}
               replayer
               createActivity={this.beginCreatingActivity}
               isSimplified={isSimplified}
-              toggleSimpleChat={this.toggleSimpleChat}
+              onToggleSimpleChat={this.toggleSimpleChat}
+              exitText="Exit Replayer"
             />
           }
           replayer
