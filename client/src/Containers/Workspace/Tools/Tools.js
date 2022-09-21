@@ -4,17 +4,28 @@ import { ControlButton, Slider, Button } from 'Components';
 import Awareness from './Awareness';
 import classes from './tools.css';
 
+/**
+ * Tools shows some user actions and information underneath the chat area in
+ * a replayer and a room.
+ *
+ * Recent changes (9/21/2022) to make Tools more of a configurable UI component (no business logic)
+ * - clarified the props that represent events (all named "onXXX")
+ * - removed the props that reflected different 'states' of Tools (replayer, inAdminMode). Instead, the clients of
+ *   tools configure what should appear or not via whether an event action is given (e.g., no onToggleReference action means don't show
+ *   Reference toggle).
+ * - created a ControlButton that accepts the control state from the client and knows what to do with it. This button gets reused within Workspace.
+ */
 const Tools = ({
   inControl,
   lastEvent,
-  save,
   referencing,
   isSimplified,
-  onExit,
+  onClickExit,
+  onClickSave,
   onClickControl,
   onToggleSimpleChat,
   onToggleReference,
-  createActivity,
+  onClickCreateActivity,
   exitText,
 }) => {
   // controlText is what gets displayed in the control-related button (either Take Control, Release Control, Request Control,
@@ -67,14 +78,14 @@ const Tools = ({
   return (
     <div className={classes.Container}>
       <div className={classes.Expanded}>
-        {save ? (
+        {onClickSave ? (
           <div className={classes.Save}>
             <div
               className={classes.SideButton}
               role="button"
               data-testid="save"
-              onClick={save}
-              onKeyPress={save}
+              onClick={onClickSave}
+              onKeyPress={onClickSave}
               tabIndex="-3"
             >
               save
@@ -123,16 +134,20 @@ const Tools = ({
                 onClick={checkControl}
               />
             ) : null}
-            {createActivity && (
+            {onClickCreateActivity && (
               <Button
                 theme="xs"
                 data-testid="create-resource"
-                click={createActivity}
+                click={onClickCreateActivity}
               >
                 Create Template
               </Button>
             )}
-            <Button theme="xs-cancel" click={onExit} data-testid="exit-room">
+            <Button
+              theme="xs-cancel"
+              click={onClickExit}
+              data-testid="exit-room"
+            >
               {exitText}
             </Button>
           </div>
@@ -146,14 +161,14 @@ const Tools = ({
 Tools.propTypes = {
   inControl: PropTypes.string,
   lastEvent: PropTypes.shape({}),
-  save: PropTypes.func,
+  onClickSave: PropTypes.func,
   referencing: PropTypes.bool,
   isSimplified: PropTypes.bool,
-  onExit: PropTypes.func.isRequired,
+  onClickExit: PropTypes.func.isRequired,
   onClickControl: PropTypes.func,
   onToggleSimpleChat: PropTypes.func,
   onToggleReference: PropTypes.func,
-  createActivity: PropTypes.func,
+  onClickCreateActivity: PropTypes.func,
   exitText: PropTypes.string.isRequired,
 };
 
@@ -165,8 +180,8 @@ Tools.defaultProps = {
   onToggleReference: null,
   lastEvent: null,
   inControl: null,
-  save: null,
-  createActivity: null,
+  onClickSave: null,
+  onClickCreateActivity: null,
 };
 
 export default Tools;

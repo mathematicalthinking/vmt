@@ -1240,10 +1240,10 @@ class Workspace extends Component {
           bottomRight={
             <Tools
               inControl={inControl}
-              onExit={this.goBack}
+              onClickExit={this.goBack}
               onClickControl={this.toggleControl}
               lastEvent={log[log.length - 1]}
-              save={save}
+              onClickSave={save}
               isSimplified={isSimplified}
               onToggleSimpleChat={this.toggleSimpleChat}
               referencing={referencing}
