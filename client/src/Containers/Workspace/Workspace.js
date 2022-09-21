@@ -1003,6 +1003,7 @@ class Workspace extends Component {
     if (currentScreen) eventData.currentScreen = currentScreen;
     const lastEventId = log[log.length - 1]._id;
     this.addToLog(eventData);
+    this.resetControlTimer();
     socket.emit('SEND_EVENT', eventData, lastEventId, () => {});
   };
 
@@ -1120,7 +1121,6 @@ class Workspace extends Component {
             key={tab._id}
             room={populatedRoom}
             user={user}
-            resetControlTimer={this.resetControlTimer}
             currentTabId={currentTabId}
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
@@ -1144,7 +1144,6 @@ class Workspace extends Component {
             key={tab._id}
             room={populatedRoom}
             user={user}
-            resetControlTimer={this.resetControlTimer}
             currentTabId={currentTabId}
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
@@ -1168,7 +1167,6 @@ class Workspace extends Component {
             key={tab._id}
             room={populatedRoom}
             user={user}
-            resetControlTimer={this.resetControlTimer}
             currentTabId={currentTabId}
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
@@ -1195,7 +1193,6 @@ class Workspace extends Component {
           addToLog={this.addToLog}
           updateRoom={connectUpdateRoom}
           updatedRoom={connectUpdatedRoom}
-          resetControlTimer={this.resetControlTimer}
           inControl={inControl}
           currentTabId={currentTabId}
           addNtfToTabs={this.addNtfToTabs}
