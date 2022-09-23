@@ -40,25 +40,26 @@ const Archive = (props) => {
       <div className={classes.Container}>
         <div className={classes.Header} ref={header}>
           <h3 className={classes.Title}>
-            Search for your archived Rooms and Courses
+            {/* Search for your archived Rooms and Courses */}
+            Search for your archived Rooms
           </h3>
           <div className={classes.ResourceOpts} data-testid="resource-tabs">
-            <div
+            {/* <div
               onClick={onTabChange}
               onKeyDown={onTabChange}
               tabIndex={-1}
               role="button"
             >
               <CustomLink to="/archive/rooms?&roomType=all">Rooms</CustomLink>
-            </div>
-            <div
+            </div> */}
+            {/* <div
               onClick={onTabChange}
               onKeyDown={onTabChange}
               tabIndex={-1}
               role="button"
             >
               <CustomLink to="/archive/courses?">Courses</CustomLink>
-            </div>
+            </div> */}
           </div>
           <div className={classes.Search}>
             <Search
