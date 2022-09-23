@@ -121,7 +121,7 @@ const Archive = (props) => {
               </InfoBox>
             ) : null}
             <InfoBox
-              title="Time Period -- More Than"
+              title="Time Period -- Last Updated More Than"
               icon={<i className="fas fa-filter" />}
             >
               <Fragment>

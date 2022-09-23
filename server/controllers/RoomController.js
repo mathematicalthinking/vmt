@@ -954,10 +954,14 @@ const convertSearchFilters = async (filters) => {
   }
 
   if (filters.roomType) {
-    const tabIds = await prefetchTabIds(filters.ids, filters.roomType);
+    const tabIds = await prefetchTabIds(
+      filters.ids.map((id) => new ObjectId(id)),
+      filters.roomType
+    );
+
     criteria.tabs = {
       $in: tabIds,
-    };
+    }; 
   }
   return criteria;
 };
