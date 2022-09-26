@@ -961,7 +961,7 @@ const convertSearchFilters = async (filters) => {
 
     criteria.tabs = {
       $in: tabIds,
-    }; 
+    };
   }
   return criteria;
 };

@@ -20,7 +20,8 @@ const Archive = () => {
   const { archive } = useStore().getState().user;
 
   const [searchText, setSearchText] = useState('');
-  const [dateRangePreset, setDateRangePreset] = useState('oneDay');
+  const [dateRangePreset, setDateRangePreset] = useState('all');
+  const [radioToDate, setRadioToDate] = useState(null);
   const [customFromDate, setCustomFromDate] = useState(null);
   const [customToDate, setCustomToDate] = useState(null);
   const [roomType, setRoomType] = useState('all');
@@ -45,7 +46,14 @@ const Archive = () => {
 
   useEffect(() => {
     debounceFetchData();
-  }, [searchText, resource, customToDate, customFromDate, roomType]);
+  }, [
+    searchText,
+    resource,
+    radioToDate,
+    customToDate,
+    customFromDate,
+    roomType,
+  ]);
 
   const debounceFetchData = debounce(() => fetchData(), 1000);
 
@@ -94,7 +102,17 @@ const Archive = () => {
     // handle from & to filters
     if (filter.indexOf('moreThan-') !== -1) {
       const unit = filter.split('-')[1];
-      filters.since = unit;
+      const calculateTo = {
+        all: 0,
+        afterDay: 24 * 60 * 60 * 1000,
+        afterWeek: 7 * 24 * 60 * 60 * 1000,
+        after2Weeks: 2 * 7 * 24 * 60 * 60 * 1000,
+        afterMonth: 30 * 24 * 60 * 60 * 1000,
+        afterYear: 356 * 24 * 60 * 60 * 1000,
+      };
+      filters.from = new Date('01 Jan 2018').getTime();
+      filters.to = new Date().getTime() - calculateTo[unit];
+      setRadioToDate(filters.to);
       setDateRangePreset(unit);
     }
 
@@ -121,6 +139,7 @@ const Archive = () => {
     if (updatedFilters.roomType === 'all') {
       delete updatedFilters.roomType;
     }
+
     API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
       ids: archive[resource],
       ...updatedFilters,

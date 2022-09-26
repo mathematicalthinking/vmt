@@ -128,41 +128,49 @@ const Archive = (props) => {
               <Fragment>
                 <div className={classes.FilterOpts}>
                   <RadioBtn
+                    data-testid="all"
+                    check={() => toggleFilter('moreThan-all')}
+                    checked={dateRangePreset === 'all'}
+                    name="all"
+                  >
+                    All
+                  </RadioBtn>
+                  <RadioBtn
                     data-testid="day"
-                    check={() => toggleFilter('moreThan-oneDay')}
-                    checked={dateRangePreset === 'oneDay'}
+                    check={() => toggleFilter('moreThan-afterDay')}
+                    checked={dateRangePreset === 'afterDay'}
                     name="oneDay"
                   >
                     1 Day
                   </RadioBtn>
                   <RadioBtn
                     data-testid="one-week"
-                    check={() => toggleFilter('moreThan-oneWeek')}
-                    checked={dateRangePreset === 'oneWeek'}
+                    check={() => toggleFilter('moreThan-afterWeek')}
+                    checked={dateRangePreset === 'afterWeek'}
                     name="oneWeek"
                   >
                     1 Week
                   </RadioBtn>
                   <RadioBtn
                     data-testid="two-weeks"
-                    check={() => toggleFilter('moreThan-twoWeeks')}
-                    checked={dateRangePreset === 'twoWeeks'}
+                    check={() => toggleFilter('moreThan-after2Weeks')}
+                    checked={dateRangePreset === 'after2Weeks'}
                     name="two-weeks"
                   >
                     2 Weeks
                   </RadioBtn>
                   <RadioBtn
                     data-testid="one-month"
-                    check={() => toggleFilter('moreThan-oneMonth')}
-                    checked={dateRangePreset === 'oneMonth'}
+                    check={() => toggleFilter('moreThan-afterMonth')}
+                    checked={dateRangePreset === 'afterMonth'}
                     name="one-month"
                   >
                     1 Month
                   </RadioBtn>
                   <RadioBtn
                     data-testid="one-year"
-                    check={() => toggleFilter('moreThan-oneYear')}
-                    checked={dateRangePreset === 'oneYear'}
+                    check={() => toggleFilter('moreThan-afterYear')}
+                    checked={dateRangePreset === 'afterYear'}
                     name="one-year"
                   >
                     1 Year
@@ -219,7 +227,7 @@ const Archive = (props) => {
               <span className={classes.dot3}>.</span>
             </div>
           ) : (
-            <Fragment>
+            <div style={{ margin: '0 auto' }}>
               <SelectableBoxList
                 list={visibleResources}
                 resource={resource}
@@ -233,7 +241,7 @@ const Archive = (props) => {
                   load more results
                 </Button>
               </div>
-            </Fragment>
+            </div>
           )}
         </div>
       </div>
@@ -255,8 +263,8 @@ Archive.propTypes = {
   loading: PropTypes.bool.isRequired,
   onTabChange: PropTypes.func.isRequired,
   dateRangePreset: PropTypes.string.isRequired,
-  customFromDate: PropTypes.string,
-  customToDate: PropTypes.string,
+  customFromDate: PropTypes.instanceOf(Date),
+  customToDate: PropTypes.instanceOf(Date),
   setToDate: PropTypes.func.isRequired,
   setFromDate: PropTypes.func.isRequired,
   icons: PropTypes.arrayOf(PropTypes.shape({})),
