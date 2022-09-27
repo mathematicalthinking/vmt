@@ -51,6 +51,7 @@ class Members extends PureComponent {
       (id) => !classIds.includes(id)
     );
     if (temporaryExclusion.length !== newExclusion.length)
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ temporaryExclusion: newExclusion });
   }
 
@@ -114,7 +115,8 @@ class Members extends PureComponent {
     const color = COLOR_MAP[classList.length];
     const { userId, username } = this.state;
     connectInviteToCourse(parentResource, userId, username, {
-      guest: true,
+      role: 'guest',
+      // guest: true,
     });
     connectInviteToRoom(resourceId, userId, username, color);
     this.setState({
@@ -183,7 +185,15 @@ class Members extends PureComponent {
               (member) => member.user._id === info.user._id
             )
           ) {
-            connectUpdateRoomMembers(roomId, updatedMembers); // @TODO needs to be just the room members
+            const updatedMemberList = courseRoomsMembers[roomId].map(
+              (member) => {
+                if (member.user._id === info.user._id)
+                  member.role = 'facilitator';
+                return member;
+              }
+            );
+
+            connectUpdateRoomMembers(roomId, updatedMemberList);
           } else
             connectInviteToRoom(
               roomId,
@@ -199,6 +209,7 @@ class Members extends PureComponent {
             if (member.user._id === info.user._id) member.role = 'participant';
             return member;
           });
+
           connectUpdateRoomMembers(roomId, updatedMemberList);
         });
       }
