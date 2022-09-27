@@ -9,6 +9,7 @@ export const controlStates = {
   ME: 'ME',
   OTHER: 'OTHER',
   REQUESTED: 'REQUESTED',
+  CANCELLED_REQUEST: 'CANCELLED_REQUEST',
   RESTRICTED_NONE: 'RESTRICTED_NONE', // for future use
   RESTRICTED_OTHER: 'RESTRICTED_OTHER', // for future use
 };
@@ -38,8 +39,11 @@ export const buttonConfigs = {
     text: 'Cancel Request',
     disabled: false,
   },
+  [controlStates.CANCELLED_REQUEST]: {
+    text: 'Request Control',
+    disabled: true,
+  },
 };
-
 /** ***************************************************************
  * actions taken when certain events occur
  ***************************************************************** */
@@ -165,89 +169,62 @@ export function useControlMachine(context) {
         id: 'control',
         initial,
         context,
+        on: {
+          [controlEvents.MSG_RELEASED_CONTROL]: {
+            target: controlStates.NONE,
+            actions: 'otherReleasesControl',
+          },
+          [controlEvents.MSG_TOOK_CONTROL]: {
+            target: controlStates.OTHER,
+            actions: 'otherTakesControl',
+          },
+        },
         states: {
           [controlStates.NONE]: {
-            entry: ['controlledByNone'],
+            entry: 'controlledByNone',
             on: {
               [controlEvents.CLICK]: {
                 target: controlStates.ME,
                 actions: 'iTakeControl',
               },
-              [controlEvents.MSG_RECEIVED]: {
-                target: controlStates.OTHER,
-                actions: 'otherTakesControl',
-              },
-              [controlEvents.MSG_TOOK_CONTROL]: {
-                target: controlStates.OTHER,
-                actions: 'otherTakesControl',
-              },
             },
           },
           [controlStates.ME]: {
-            entry: ['controlledByMe'],
+            entry: 'controlledByMe',
             on: {
               [controlEvents.CLICK]: {
                 target: controlStates.NONE,
                 actions: 'iReleaseControl',
               },
               [controlEvents.RESET]: controlStates.ME,
-              // These shouldn't happen, but might if there's a sync error
-              [controlEvents.MSG_RELEASED_CONTROL]: {
-                target: controlStates.NONE,
-                actions: 'otherReleasesControl',
-              },
-              [controlEvents.MSG_TOOK_CONTROL]: {
-                target: controlStates.OTHER,
-                actions: 'otherTakesControl',
-              },
             },
             after: {
               60000: { target: controlStates.NONE, actions: 'iTimeOut' },
             },
           },
           [controlStates.OTHER]: {
-            entry: ['controlledByOther'],
+            entry: 'controlledByOther',
             on: {
               [controlEvents.CLICK]: {
                 target: controlStates.REQUESTED,
                 actions: 'iRequestControl',
               },
-              [controlEvents.MSG_RECEIVED]: {
-                target: controlStates.NONE,
-                actions: 'otherReleasesControl',
-              },
-              [controlEvents.MSG_RELEASED_CONTROL]: {
-                target: controlStates.NONE,
-                actions: 'otherReleasesControl',
-              },
-              // This shouldn't happen but might if there's a sync error
-              [controlEvents.MSG_TOOK_CONTROL]: {
-                target: controlStates.OTHER,
-                actions: 'otherTakesControl',
-              },
             },
           },
           [controlStates.REQUESTED]: {
-            entry: ['controlRequested'],
+            entry: 'controlRequested',
             on: {
               [controlEvents.CLICK]: {
-                target: controlStates.OTHER,
+                target: controlStates.CANCELLED_REQUEST,
                 actions: 'iCancelRequest',
               },
-              [controlEvents.MSG_RECEIVED]: {
-                target: controlStates.NONE,
-                actions: 'otherReleasesControl',
-              },
-              [controlEvents.MSG_RELEASED_CONTROL]: {
-                target: controlStates.NONE,
-                actions: 'otherReleasesControl',
-              },
-              // This shouldn't happen but might if there's a sync error
-              [controlEvents.MSG_TOOK_CONTROL]: {
-                target: controlStates.OTHER,
-                actions: 'otherTakesControl',
-              },
             },
+            after: {
+              60000: controlStates.OTHER,
+            },
+          },
+          [controlStates.CANCELLED_REQUEST]: {
+            entry: 'cancelledRequest',
             after: {
               60000: controlStates.OTHER,
             },
@@ -277,6 +254,9 @@ export function useControlMachine(context) {
           }),
           controlRequested: assign({
             buttonConfig: buttonConfigs[controlStates.REQUESTED],
+          }),
+          cancelledRequest: assign({
+            buttonConfig: buttonConfigs[controlStates.CANCELLED_REQUEST],
           }),
         },
       }
