@@ -178,8 +178,12 @@ class Members extends PureComponent {
       connectUpdateCourseMembers(resourceId, updatedMembers);
       if (courseRoomsMembers && info.role === 'facilitator') {
         Object.keys(courseRoomsMembers).forEach((roomId) => {
-          if (courseRoomsMembers[roomId].includes(info.user._id)) {
-            connectUpdateRoomMembers(roomId, updatedMembers);
+          if (
+            courseRoomsMembers[roomId].find(
+              (member) => member.user._id === info.user._id
+            )
+          ) {
+            connectUpdateRoomMembers(roomId, updatedMembers); // @TODO needs to be just the room members
           } else
             connectInviteToRoom(
               roomId,
@@ -190,9 +194,13 @@ class Members extends PureComponent {
             );
         });
       } else if (courseRoomsMembers && info.role === 'participant') {
-        Object.keys(courseRoomsMembers).forEach((roomId) =>
-          connectUpdateRoomMembers(roomId, updatedMembers)
-        );
+        Object.keys(courseRoomsMembers).forEach((roomId) => {
+          const updatedMemberList = courseRoomsMembers[roomId].map((member) => {
+            if (member.user._id === info.user._id) member.role = 'participant';
+            return member;
+          });
+          connectUpdateRoomMembers(roomId, updatedMemberList);
+        });
       }
     } else connectUpdateRoomMembers(resourceId, updatedMembers);
   };
