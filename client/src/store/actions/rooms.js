@@ -439,16 +439,22 @@ export const inviteToRoom = (
   role = 'participant'
 ) => {
   return (dispatch) => {
-    dispatch(
-      addRoomMember(roomId, {
-        user: { _id: toUserId, username: toUserUsername },
-        role,
-        color,
-      })
-    );
     const options = { role };
     API.grantAccess(toUserId, 'room', roomId, 'invitation', options)
-      .then()
+      .then((res) =>
+        dispatch(
+          addRoomMember(roomId, {
+            user: { _id: toUserId, username: toUserUsername },
+            role,
+            color,
+            _id: (
+              res.data.find((mem) => mem.user && mem.user._id === toUserId) || {
+                _id: null,
+              }
+            )._id,
+          })
+        )
+      )
       .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
