@@ -161,7 +161,13 @@ router.get('/findAllMatchingIds/:resource/populated', (req, res) => {
 
   try {
     return Promise.all(
-      ids.map((id) => controller.getPopulatedById(id, { events }))
+      ids.map((id) =>
+        controller
+          .getPopulatedById(id, { events })
+          .select(
+            'creator user chat members currentMembers course activity tabs'
+          )
+      )
     ).then((results) => res.json({ results }));
   } catch (err) {
     console.error(`Error get ${resource}: ${err}`);

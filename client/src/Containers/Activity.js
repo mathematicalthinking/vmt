@@ -187,7 +187,14 @@ class Activity extends Component {
           />
         );
       case 'preview':
-        return <TemplatePreview activity={activity} />;
+        return (
+          <TemplatePreview
+            activity={{
+              ...activity,
+              rooms: activity.rooms.map((id) => rooms[id]),
+            }}
+          />
+        );
       case 'edit assignments':
         return (
           <SelectAssignments

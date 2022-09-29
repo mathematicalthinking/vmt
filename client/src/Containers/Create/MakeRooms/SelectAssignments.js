@@ -88,7 +88,6 @@ const SelectAssignments = ({
           userId={userId}
           close={close}
           participants={course ? course.members : [user]}
-          rooms={rooms}
           selectedAssignment={selectedAssignment}
         />
       )}
