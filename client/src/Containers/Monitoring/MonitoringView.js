@@ -2,10 +2,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { ToggleGroup } from 'Components';
+import { Loading, ToggleGroup } from 'Components';
 import { updateMonitorSelections } from 'store/actions';
 import { addUserRoleToResource } from 'store/utils';
-import { usePopulatedRoom } from 'utils';
+import { usePopulatedRooms } from 'utils';
 import ResourceTables from './ResourceTables';
 import RoomsMonitor from './RoomsMonitor';
 import classes from './monitoringView.css';
@@ -83,22 +83,9 @@ function MonitoringView({
   // initialization of queryStates (an object containing the states
   // for the API-retrieved data) at the top level rather than inside
   // of a useEffect.
-  const queryStates = {};
-  userResources.forEach((room) => {
-    queryStates[room._id] = usePopulatedRoom(
-      room._id,
-      viewOrSelect === constants.VIEW, // shouldbuildlog false on selection
-      // Check for updates every 10 sec. If we are viewing rooms (i.e., Chat, Thumbnail, or Graph), then we need
-      // to update only the currently selected rooms. If we are selecting rooms via the selection table, then we
-      // should try to update all rooms so that the "current in room" column remains correct.
-      {
-        refetchInterval: 10000, // 10 sec, @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
-        staleTime: 300000, // 5min, @TODO also experiment with adjusting stale time to use cached data upon revisiting monitoring
-        enabled:
-          (savedState.current && savedState.current[room._id]) ||
-          viewOrSelect === constants.SELECT,
-      }
-    );
+  const roomIds = userResources.map((room) => room._id);
+  const populatedRooms = usePopulatedRooms(roomIds, false, {
+    refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
   });
 
   /**
@@ -124,6 +111,9 @@ function MonitoringView({
     };
   }, []);
 
+  if (populatedRooms.isError) return <div>There was an error</div>;
+  if (!populatedRooms.isSuccess) return <Loading message="Getting the rooms" />;
+
   return (
     <div className={classes.Container}>
       <div className={classes.TogglesContainer}>
@@ -136,8 +126,8 @@ function MonitoringView({
       {viewOrSelect === constants.SELECT ? (
         <ResourceTables
           // So that we quickly display the table: use the data in userResources until we have more recent live data
-          data={userResources.map((room) =>
-            queryStates[room._id].isSuccess ? queryStates[room._id].data : room
+          data={Object.values(populatedRooms.data).map((room) =>
+            addUserRoleToResource(room, user._id)
           )}
           resource="rooms"
           selections={selections}
@@ -148,26 +138,7 @@ function MonitoringView({
           }}
         />
       ) : (
-        <RoomsMonitor
-          populatedRooms={userResources
-            .filter(
-              (room) => selections[room._id] && queryStates[room._id].isSuccess
-            )
-            .reduce(
-              (res, room) => ({
-                ...res,
-                // UserResources have the myRole property defined because that gets set when
-                // the user's data is pulled into the redux store from the DB (see store/actionsuser.js).
-                // However, we are polling the DB directly (via usePopulatedRoom), so have to assign the myRole property,
-                // which is needed for ResourceTables
-                [room._id]: addUserRoleToResource(
-                  queryStates[room._id].data,
-                  user._id
-                ),
-              }),
-              {}
-            )}
-        />
+        <RoomsMonitor populatedRooms={populatedRooms.data} />
       )}
     </div>
   );

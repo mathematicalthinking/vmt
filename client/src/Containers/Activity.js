@@ -189,7 +189,10 @@ class Activity extends Component {
       case 'preview':
         return (
           <TemplatePreview
-            activity={{ ...activity, rooms: Object.values(rooms) }}
+            activity={{
+              ...activity,
+              rooms: activity.rooms.map((id) => rooms[id]),
+            }}
           />
         );
       case 'edit assignments':
