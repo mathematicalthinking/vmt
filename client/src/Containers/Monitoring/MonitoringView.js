@@ -74,19 +74,23 @@ function MonitoringView({
   };
 
   const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
+  const [roomIds, setRoomIds] = React.useState(
+    userResources.map((room) => room._id)
+  );
   const [selections, setSelections] = React.useState(
     _initializeSelections(userResources)
   );
   const savedState = React.useRef(selections);
 
-  // Because "useQuery" is the equivalent of useState, do this
-  // initialization of queryStates (an object containing the states
-  // for the API-retrieved data) at the top level rather than inside
-  // of a useEffect.
-  const roomIds = userResources.map((room) => room._id);
   const populatedRooms = usePopulatedRooms(roomIds, false, {
     refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
   });
+
+  React.useEffect(() => {
+    const allIds = userResources.map((room) => room._id);
+    if (viewOrSelect === constants.SELECT) setRoomIds(allIds);
+    else setRoomIds(allIds.filter((id) => selections[id]));
+  }, [userResources.length, viewOrSelect]);
 
   /**
    * EFFECTS THAT ARE USED TO PERSIST STATE AFTER UNMOUNT
