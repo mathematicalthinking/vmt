@@ -197,6 +197,9 @@ const WebSketch = (props) => {
   const getSketch = () => {
     // Call this whenever the sketch doc may have changed.
     // e.g., page changes, start of toolplay, undo/redo, etc.
+    if (!$sketch) {
+      $sketch = $('#sketch');
+    }
     sketchDoc = $sketch.data('document');
     sketch = sketchDoc && sketchDoc.focusPage;
     if (!sketch) {
@@ -273,11 +276,11 @@ const WebSketch = (props) => {
       canvasNode = context.document.canvasNode[0];
       sender = { id: canvasNode.id, baseURI: canvasNode.baseURI };
     }
-    let msg = {
+    const msg = {
       name: event.type,
       time: event.timeStamp,
-      sender: sender,
-      attr: attr,
+      sender,
+      attr,
     };
     // msg is ready to post to follower
     setActivityData(msg);
@@ -286,8 +289,8 @@ const WebSketch = (props) => {
   // send msg and then reestablish listeners, could possibly be done for all events
   const reflectAndSync = (event, context, attr) => {
     reflectMessage(event, context, attr);
-    // getSketch();
-    sketch = sketchDoc.focusPage;
+    getSketch();
+    // sketch = sketchDoc.focusPage;
     syncToFollower();
   };
 
@@ -449,6 +452,9 @@ const WebSketch = (props) => {
     // cur > 3: ""
     let retVal = '';
     if (typeof gobj === 'string') {
+      if (!sketch) {
+        getSketch();
+      }
       gobj = sketch.gobjList.gobjects[gobj];
       if (!(gobj && gobj.id && gobj.kind))
         console.error('follow.gobjDesc() gobj param is neither string nor id.');
@@ -471,10 +477,9 @@ const WebSketch = (props) => {
   const handleMessage = (msg) => {
     // msg has three properties: name, time, and data
     // for most events, data is the attributes of the WSP event
-    const { attr } = msg;
+    const { attr, sender } = msg;
 
     function selfSent() {
-      const sender = msg.sender;
       let ret = false;
       if (sender) {
         const canvas = $sketch[0];
