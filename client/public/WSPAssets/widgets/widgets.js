@@ -257,15 +257,7 @@ var WIDGETS = (function() {
     targetGobj, // the currently-targeted sketch and gobj
     targetState = 'fadeInOut', // renderState used for targets of style widget
     activeWidget, // the currently active widget
-    preserveActiveWidget, // remember the last active widget in case of retargeting or hiding and showing widgets.
-    widgetEventNames = {
-      // Each widget name, with 'Widget" appended, corresponds to an events list entry in GSP.EventEmitter
-      style: 'Style',
-      trace: 'Trace',
-      label: 'Label',
-      visibility: 'Visibility',
-      deletion: 'Delete', // cannot use 'delete' as a key
-    };
+    preserveActiveWidget; // remember the last active widget in case of retargeting or hiding and showing widgets.
 
   // The following vars belong to the style widget
   var currentPointStyle = -1,
@@ -318,13 +310,10 @@ var WIDGETS = (function() {
   // Widget constructor: first define properties
   function Widget(name) {
     // All widgets have a button that must be appropriately shown (when enabled) and highlighted (when active)
-    var eventName = name;
-    if (name === 'delete') {
-      eventName = 'deletion';
-    }
     this.name = name;
-    this.eventName = widgetEventNames[eventName] + 'Widget';
-    this.domButtonSelector = '#widget_' + name + 'ButtonID'; // e.g., the dom object with id = "#widget_styleButtonID"
+    this.eventName = name + 'Widget';
+    this.domButtonSelector = '#widget_' + name + 'ButtonID'; // e.g., the dom object with id = "#widget_StyleButtonID"
+    this.promptSelector = '#w' + name + 'Prompt';
     this.enabled = true; // Don't show any widgets until they are activated.
   }
 
@@ -340,8 +329,9 @@ var WIDGETS = (function() {
   };
 
   // Define Widget methods on the prototype
-  Widget.prototype.activate = function(sketch, inst) {
+  Widget.prototype.activate = function(sketch, inst, restoring) {
     // must be a no-op if already active
+    var attr = { action: 'activate' };
     if (activeWidget && activeWidget !== inst) {
       activeWidget.deactivate();
     }
@@ -351,19 +341,23 @@ var WIDGETS = (function() {
     activeWidget = inst;
     inst.active = true;
     $(inst.domButtonSelector).addClass('widget_active');
+    if (!restoring) {
+      $(inst.promptSelector).css('display', 'block');
+      attr.promptDisplay = 'block';
+    }
     $('.widgetPane').on('keyup', function(e) {
       if (e.keyCode === 27) {
         activeWidget.deactivate();
       }
     });
-    inst.event({ widget: inst }, { action: 'activate' });
+    inst.event({ widget: inst }, attr);
     return true;
   };
 
   Widget.prototype.deactivate = function(inst) {
     // must be a no-op if not already active
     var context = { widget: inst },
-      attr = { action: 'deactivate' };
+      attr = { action: 'deactivate', promptDisplay: 'none' };
     if (inst === activeWidget) activeWidget = null;
     inst.active = false;
     $(inst.domButtonSelector).removeClass('widget_active');
@@ -418,10 +412,11 @@ var WIDGETS = (function() {
 
   TapWidget.prototype.postProcessGobj = function(gobj) {}; //Returns true if the gobj has been changed
 
-  TapWidget.prototype.activate = function(sketch, inst) {
+  TapWidget.prototype.activate = function(sketch, inst, restoring) {
     var canvasNodes = $('.sketch_canvas'),
       regime = sketch.hasTouchRegimes() && sketch.currentTouchRegime();
-    if (!Object.getPrototypeOf(this).activate(sketch, inst)) return false;
+    if (!Object.getPrototypeOf(this).activate(sketch, inst, restoring))
+      return false;
     canvasNodes = $('.sketch_canvas');
     canvasNodes.on('Tap.WSP', handleTap); // Detect taps for all sketches
     // Possible improvement: Toolplay in a different sketch calls targetControllerToDoc() if the toolplay sketch has widgets enabled.
@@ -459,23 +454,23 @@ var WIDGETS = (function() {
     else return null;
   };
 
-  var styleWidget = new TapWidget('style');
+  var styleWidget = new TapWidget('Style');
   styleWidget.cancelOnExit = false;
   styleWidget.defaultColor = { row: 0, column: 1 }; // red
   styleWidget.defaultPointStyle = 2;
   styleWidget.defaultLineThickness = 2;
   styleWidget.defaultLineStyle = 0;
 
-  var visibilityWidget = new TapWidget('visibility');
+  var visibilityWidget = new TapWidget('Visibility');
 
-  var labelWidget = new TapWidget('label');
+  var labelWidget = new TapWidget('Label');
   labelWidget.labelPoolSaved = false;
   labelWidget.touchPos = GSP.GeometricPoint(0, 0);
   labelWidget.textRule = null;
 
-  var traceWidget = new TapWidget('trace');
+  var traceWidget = new TapWidget('Trace');
 
-  var deleteWidget = new TapWidget('delete');
+  var deleteWidget = new TapWidget('Delete');
 
   // When adding a new widget, be sure to add the new widget to the authorPreferenceSpecs in document.js!
   var widgetList = [
@@ -587,10 +582,13 @@ var WIDGETS = (function() {
     }
 
     function restoreWidget() {
-      // restore and activate the preserved widget
+      // restore and activate the preserved widget, if it exists
+      // The prompt pane, if any, restores its visibility as preserved: either block or none.
+      var widget = preserveActiveWidget,
+        restoring = true;
       $('#widget').css({ opacity: 1, 'z-index': 'none' });
       if (preserveActiveWidget) {
-        preserveActiveWidget.activate(getSketch());
+        widget.activate(getSketch(), restoring);
         preserveActiveWidget = null;
       }
     }
@@ -684,7 +682,7 @@ var WIDGETS = (function() {
       buttonNode.show(); // With enabled widgets, always show the Widget button.
     }
     if (doShowWidget && preserveActiveWidget && preserveActiveWidget.enabled)
-      preserveActiveWidget.activate(newSketch, preserveActiveWidget);
+      preserveActiveWidget.activate(newSketch, preserveActiveWidget, true);
     preserveActiveWidget = null;
     return anyWidgetsEnabled && activeWidget; // if a widget is returned, it's the enabled active widget
   } // targetControllerToDoc
@@ -980,6 +978,11 @@ var WIDGETS = (function() {
   }
 
   function setColor(colorIndex, notify) {
+    // Desired enhancement: if both doGobj and doText are false, set the color
+    // to the color of the tapped gobj and turn on the objectColorBox.
+    // The purpose is to make it easy to copy an already-existing color to
+    // multiple other objects. But shouldn't the same strategy work for point
+    // sixze and for line style? How can we make this easy to do and intuitive?
     var newColor = getColorFromIndex(colorIndex),
       doGobj = styleWidget.objectColorBox.checked,
       doText = styleWidget.textColorBox.checked;
@@ -991,8 +994,9 @@ var WIDGETS = (function() {
     }
   }
 
-  styleWidget.activate = function(sketch) {
-    if (!Object.getPrototypeOf(this).activate(sketch, this)) return false;
+  styleWidget.activate = function(sketch, restoring) {
+    if (!Object.getPrototypeOf(this).activate(sketch, this, restoring))
+      return false;
     this.cancelOnExit = false;
     $('#wStylePane').css('display', 'block');
     // Should activation automatically target the existing targetGobj?
@@ -1116,10 +1120,10 @@ var WIDGETS = (function() {
    *  Each gobj's style.newHidden flag is true if it's currently faded, and undefined or false otherwise.
    */
 
-  visibilityWidget.activate = function(sketch) {
+  visibilityWidget.activate = function(sketch, restoring) {
     // To activate the visibility widget it's sufficient to call the prototype.
-    if (!Object.getPrototypeOf(this).activate(sketch, this)) return false;
-    $('#wVisibilityPrompt').css('display', 'block');
+    if (!Object.getPrototypeOf(this).activate(sketch, this, restoring))
+      return false;
     return true;
   };
 
@@ -1337,6 +1341,16 @@ var WIDGETS = (function() {
     this.oldStyle = null;
   };
 
+  labelWidget.setAction = function(newAction) {
+    // Track specific actions to describe them in LabelWidget events.
+    // We track only those worth communicating to a user or other watcher.
+    // The current action is reset to '' whenever an event is posted
+    // Integrate this with sendEvent in finalizeLabel.
+    this.prevAction = '';
+    this.prevAction = this.action;
+    this.action = newAction;
+  };
+
   labelWidget.clear = function(clearStyles) {
     this.emptyCache();
     forgetSavedPool();
@@ -1438,7 +1452,19 @@ var WIDGETS = (function() {
     return nameClass;
   }
 
-  function invalidateLabel(gobj) {
+  function notifyInvalidatedLabel(gobj, notify, msg) {
+    // Invalidates the appearance; if notify is true, sends an event with the action and the modified style.
+    gobj.invalidateAppearance();
+    if (notify) {
+      // NEED TO EXTEND THE CHANGES OBJECT WITH moreChanges if it exists
+      labelWidget.event(
+        { gobj: gobj },
+        { action: msg.action, changes: [{ id: gobj.id, style: gobj.style }] }
+      );
+    }
+  }
+
+  function invalidateLabel(gobj, action) {
     // The content or appearance of the text or label has been changed. Update the screen by modifying the DOM node and/or the sketch's renderRefCon
     // Should this be moved into core code?
     var gobjNode = $targetNode.find("[wsp-id='" + gobj.id + "']"),
@@ -1448,6 +1474,7 @@ var WIDGETS = (function() {
       sketch = gobj.sQuery.sketch,
       refCon = sketch.renderRefCon,
       gobjStyles = gobj.hasLabel ? refCon.label[gobj.id] : refCon.gobj[gobj.id],
+      msg = { label: gobj.label },
       gobjCSS,
       refRect;
     gobj.parsedMFS = null; // force reparsing of mfs
@@ -1492,7 +1519,10 @@ var WIDGETS = (function() {
         gobj.style.nameOrigin !== 'noVisibleName'
       );
     }
-    notifyInvalidatedStyle(gobj, 'notify', { label: gobj.label });
+    if (action) {
+      msg.action = action;
+    }
+    notifyInvalidatedLabel(gobj, 'notify', msg);
   }
 
   function changeText(newText, newOrigin) {
@@ -1793,6 +1823,8 @@ var WIDGETS = (function() {
           (dest.hasLabel ||
             src.kind === dest.kind ||
             (src.isOfKind('Measure') && dest.isOfKind('Measure')));
+        // if both have the same labelStyle, they should not be copied
+        retVal = retVal && !deepEquals(src.style.label, dest.style.label);
         // Finally, one of these conditions must hold: the tap is a labelTap, the toGobj doesn't have a label, or the toGobj's label is hidden.
         retVal =
           retVal &&
@@ -1866,7 +1898,7 @@ var WIDGETS = (function() {
       }
       showRadios(); // show or hide nameOrigin controls
       //  If copyStyle is true, need to invalidate the label bounds in case it's gotten larger.
-    }
+    } // initForNewGobj
 
     function handleLabeledGObj() {
       // If this object has (or can have) a label, track its settings
@@ -1958,14 +1990,17 @@ var WIDGETS = (function() {
 
   function toggleLabel(show) {
     // Toggle the visibility of this label and set checkbox
+    // Possible actions (to be passed to invalidateLabel) are none, generated, showed, hid, adjusted
     var gobj = targetGobj,
       labelCornerDelta = {},
       touch = labelWidget.touchPos,
       labelStyle = gobj.style.label,
-      prevState = labelStyle && labelStyle.showLabel;
+      prevState = labelStyle && labelStyle.showLabel,
+      action;
     if (gobj.hasLabel && !gobj.label) {
       // If it's neither transformed nor labeled, just label it
       generateNewLabel(gobj);
+      action = 'generated';
     }
     if (show === undefined) {
       if (gobj.hasLabel) {
@@ -1973,9 +2008,15 @@ var WIDGETS = (function() {
       } else if (labelWidget.nameClass && gobj.style.nameOrigin) {
         show = gobj.style.nameOrigin !== 'noVisibleName';
       }
+      if (show && !action) {
+        action = 'showed';
+      }
     }
     if (gobj.hasLabel) {
       labelStyle.showLabel = show;
+      if (!action && prevState !== show) {
+        action = show ? 'showed' : 'hid';
+      }
       if (show && !prevState) {
         if (gobj.isAPath()) {
           // If we've tapped a new location for the label, move it.
@@ -1987,6 +2028,7 @@ var WIDGETS = (function() {
           if (labelWidget.isTap) {
             labelCornerDelta.x = touch.x - gobj.labelRenderBounds.left;
             labelCornerDelta.y = touch.y - gobj.labelRenderBounds.top;
+            action = action || 'adjusted';
           }
         }
         if (labelWidget.isTap) {
@@ -2002,6 +2044,7 @@ var WIDGETS = (function() {
             };
           }
           gobj.setLabelPosition(touch, labelCornerDelta);
+          action = action || 'adjusted';
         }
         if (labelWidget.inputElt[0].value === '')
           // if input is empty when we show a label, set the input to the label
@@ -2011,16 +2054,16 @@ var WIDGETS = (function() {
       LabelControls.labelChanged(show ? gobj.label : '');
     }
     labelWidget.showLabelElt.prop('checked', show);
-    invalidateLabel(gobj);
-  }
+    invalidateLabel(gobj, action);
+  } // toggleLabel
 
-  labelWidget.activate = function(sketch) {
-    if (!Object.getPrototypeOf(this).activate(sketch, this)) return false;
+  labelWidget.activate = function(sketch, restoring) {
+    if (!Object.getPrototypeOf(this).activate(sketch, this, restoring))
+      return false;
     this.cancelOnExit = false;
     targetGobj = null;
     this.prevGobj = null;
     $('#wLabelPane').css('display', 'none');
-    $('#wLabelPrompt').css('display', 'block');
     if (!this.inputElt) {
       this.inputElt = $('#wLabelEditText');
       this.showLabelElt = $('#wLabelShow');
@@ -2156,15 +2199,21 @@ var WIDGETS = (function() {
     elt.setSelectionRange(finish, finish);
   }
 
-  /*  Trace Widget
-   */
+  /* ***** TRACE WIDGET ***** */
+
+  // The following vars belong to the trace widget
+  var enableBox,
+    fadeBox,
+    glowBox, // checkboxes for enabling, fading, and glowing
+    tracedGobjs; // a list (by gobj.id) of all traced objects in the sketch.
 
   /* The "glowBox" provides the user with glowing feedback to show which objects are traced and which are not.
    * When a glowing object moves, traces are irregular, so glowing is turned off when any objects are moving.
    * (It might be a nice to enhancement to turn glowing off only for moving objects.)
-   * Some of the operations below would be more efficient if the trace widget kept an array of all traced
-   * objects in the sketch. Given that the scan for all traced objects occurs only when a motion starts or
-   * stops, spending the time to implement such an array seems like overkill.
+   * A client may need to know whether glowing and fading are turned on or off.
+   * Main code already sends an event when traces are cleared, so no need for that here.
+   * In case a client needs to control tracing behavior, we expose
+   * setTraceEnabling, setTraceGlowing and setTraceFading.
    */
 
   function canTraceGobj(gobj) {
@@ -2195,26 +2244,12 @@ var WIDGETS = (function() {
     return true;
   }
 
-  function setTraceRenderState(state) {
-    // Sets the render state for every traced object
-    // The caller MUST pass the correct state based on the glowBox and whether any motions are active.
-    getSketch()
-      .sQuery('*')
-      .each(function(ix, gobj) {
-        if (gobj.style.traced && !gobj.style.hidden) {
-          gobj.setRenderState(state);
-        }
-      });
-  }
-
   function startGlowing() {
     // Makes all traced objects glow PROVIDED the glowBox is checked
     // AND EITHER there's no active motion OR tracing is disabled
-    if (
-      traceWidget.glowBox.checked &&
-      (noMotionActive() || !$('#wTraceEnabled')[0].checked)
-    ) {
-      setTraceRenderState('unmatchedGiven');
+    if (glowBox.checked && (noMotionActive() || !enableBox.checked)) {
+      traceWidget.setTraceRenderState(true);
+      traceWidget.event({}, { action: 'glowing', glowing: true });
     } else {
       stopGlowing('force');
     }
@@ -2223,16 +2258,18 @@ var WIDGETS = (function() {
   function stopGlowing(arg) {
     // Stops all traced objects from glowing, unless tracing is disabled
     // Pass arg = "force" to force the stop.
-    var enabled = $('#wTraceEnabled')[0].checked,
+    var enabled = enableBox.checked,
       forceStop = arg === 'force';
     if (enabled || forceStop) {
-      setTraceRenderState('none');
+      traceWidget.setTraceRenderState(false);
+      traceWidget.event({}, { action: 'glowing', glowing: false });
     }
   }
 
   function movementMessagesOn() {
     $targetNode.on('StartDragConfirmed.WSP', stopGlowing);
     $targetNode.on('EndDrag.WSP', startGlowing);
+    $targetNode.on('MergeGobjs.WSP', startGlowing);
     $targetNode.on('StartAnimate.WSP', stopGlowing);
     $targetNode.on('EndAnimate.WSP', startGlowing);
     $targetNode.on('StartMove.WSP', stopGlowing);
@@ -2242,15 +2279,71 @@ var WIDGETS = (function() {
   function movementMessagesOff() {
     $targetNode.off('StartDragConfirmed.WSP');
     $targetNode.off('EndDrag.WSP');
+    $targetNode.off('MergeGobjs.WSP');
     $targetNode.off('StartAnimate.WSP');
     $targetNode.off('EndAnimate.WSP');
     $targetNode.off('StartMove.WSP');
     $targetNode.off('EndMove.WSP');
   }
 
-  traceWidget.setGlowing = function() {
-    // Set the widget's behavior to match the Glow checkbox.
-    if (traceWidget.glowBox.checked) {
+  traceWidget.setTraceRenderState = function(state) {
+    // Sets the render state for every traced object
+    // state is true to display glowing behavior, or false to turn it off
+    $.each(tracedGobjs, function() {
+      this.setRenderState(state ? 'unmatchedGiven' : 'none');
+    });
+  };
+
+  traceWidget.setState = function(cBox, pref, action, newState) {
+    // Set the given checkbox element and pref to newState
+    // If newState is defined, the designated state and its checkbox are both set
+    // If newState is undefined, set the pref to the cBox checkbox value.
+    // Send an event with action and the new value
+    var prefs = getSketch().preferences,
+      attrs = { action: action };
+    if (newState === undefined) {
+      newState = cBox.checked;
+    } else {
+      cBox.checked = newState;
+    }
+    if (pref) {
+      prefs[pref] = newState;
+    }
+    if (action) {
+      attrs[action] = newState;
+      //WHY IS EVENT NOT SENT FOR CHANGE IN GLOWBOX?
+      this.event(
+        {},
+        attrs //e.g., {action: fading, fading: newState}
+      );
+    }
+    $('#wTracePrompt').css('display', 'none'); // Hide the prompt pane on first user interaction
+    return newState;
+  };
+
+  traceWidget.setGlowing = function(newState) {
+    // Set glowing behavior, and the checkbox, to newState.
+    // Because there's no pref, glowing behavior is determined by traceWidget.glowing (either true or false/undefined.)
+    // Use cases: setGlowing() is called by:
+    // glowBox's onClick handler (newstate undefined, TBD by glowBox.checked),
+    // widget activation (restores state from glowBox.checked),
+    // widget deactivation (cache current state in glowBox.checked and turn glowing off),
+    // an exterior client (newState must be true or false; set glowBox to match).
+    // Note that glowing is true only when the traceWidget is active AND glowBox.checked.
+    // Thus glowBox represents the desired setting of glowing while traceWidget is active,
+    // and traced objects glow only when glowing is true.
+    if (newState === undefined) {
+      newState = this.setState(
+        glowBox,
+        undefined /* no pref */,
+        'glowing',
+        undefined /* use checkbox state*/
+      );
+    } else {
+      this.setState(glowBox, undefined /* no pref */, 'glowing', newState);
+    }
+    this.glowing = newState;
+    if (newState) {
       movementMessagesOn();
       startGlowing();
     } else {
@@ -2259,44 +2352,47 @@ var WIDGETS = (function() {
     }
   };
 
-  traceWidget.toggleEnabling = function(enabled) {
-    var newState =
-      enabled !== undefined ? enabled : $('#wTraceEnabled')[0].checked;
-    getSketch().preferences.tracesEnabled = newState;
-    $('#wTraceEnabled').prop('checked', newState);
-    $('#wTracePrompt').css('display', 'none');
-    startGlowing(); // startGlowing will check motion and the state of the widget's Enabled and Glow boxes
+  traceWidget.setEnabling = function(newState) {
+    // set the enabled pref for traces
+    this.setState(enableBox, 'tracesEnabled', 'enabled', newState);
   };
 
-  traceWidget.toggleFading = function() {
-    var sketch = getSketch(),
-      prefs = sketch.preferences,
-      newState = $('#wTraceFading')[0].checked;
-    prefs.fadeTraces = newState;
-    if (newState) {
-      sketch.traces.fadeStartTime = Date.now();
-      sketch.startFadeJob();
-    } else {
-      sketch.stopFadeJob();
+  traceWidget.setFading = function(newState) {
+    // set the fading pref for traces
+    this.setState(fadeBox, 'fadeTraces', 'fading', newState);
+  };
+
+  traceWidget.activate = function(sketch, restoring) {
+    function listTracedGobjs() {
+      var ret = {};
+      getSketch()
+        .sQuery('*')
+        .each(function() {
+          if (this.style.traced && !this.style.hidden) {
+            ret[this.id] = this;
+          }
+        });
+      return ret;
     }
-    $('#wTracePrompt').css('display', 'none');
-  };
 
-  traceWidget.activate = function(sketch) {
-    traceWidget.glowBox = $('#wTracesGlowing')[0];
-    if (!Object.getPrototypeOf(this).activate(sketch, this)) return false;
-    $('#wTracePrompt').css('display', 'block');
-    $('#wTraceEnabled').prop('checked', getSketch().preferences.tracesEnabled);
-    $('#wTraceFading').prop('checked', getSketch().preferences.fadeTraces);
+    enableBox = $('#wTraceEnabled')[0];
+    fadeBox = $('#wTraceFading')[0];
+    glowBox = $('#wTracesGlowing')[0];
+    tracedGobjs = listTracedGobjs(); // a list, by id, of the traced gobjs
+    //this.glowing = glowBox.checked; // prefs determine other settings, but there's no pref for glowing
+    if (!Object.getPrototypeOf(this).activate(sketch, this, restoring))
+      return false;
+    enableBox.checked = getSketch().preferences.tracesEnabled;
+    fadeBox.checked = getSketch().preferences.fadeTraces;
+    this.setGlowing(glowBox.checked);
     this.cancelOnExit = false;
     $('#wTracePane').css('display', 'block');
-    traceWidget.setGlowing();
     traceWidget.autoEnabled = false; // first tap after activation will check the Enabled box
     return true;
   };
 
   traceWidget.deactivate = function() {
-    if (traceWidget.glowBox.checked) {
+    if (glowBox.checked) {
       stopGlowing('force');
     }
     Object.getPrototypeOf(this).deactivate(this); // Call multiple levels of post-processing
@@ -2343,35 +2439,42 @@ var WIDGETS = (function() {
     }
   };
 
+  traceWidget.toggleGobjTracing = function(gobj, newState) {
+    // if newState is defined, use it; otherwise toggle the style
+    var style = gobj.style;
+    style.traced = newState === undefined ? !style.traced : newState;
+    if (style.traced) {
+      tracedGobjs[gobj.id] = gobj;
+    } else {
+      delete tracedGobjs[gobj.id];
+    }
+    getSketch().event(
+      traceWidget.eventName,
+      { gobj: gobj },
+      { action: 'changed', traced: style.traced }
+    );
+    if (!style.traced) {
+      gobj.setRenderState('none');
+    } else {
+      if (!traceWidget.autoEnabled) {
+        traceWidget.setEnabling(true);
+        traceWidget.autoEnabled = true;
+      }
+      if (glowBox.checked) {
+        gobj.setRenderState('unmatchedGiven');
+      }
+    }
+    $('#wTracePrompt').css('display', 'none');
+    if (!glowBox.checked) {
+      traceWidget.signalChangedTraceState(gobj);
+    }
+  };
+
   traceWidget.handleTap = function(event, context) {
-    var gobj = Object.getPrototypeOf(traceWidget).handleTap(event, context),
-      change = { id: gobj.id },
-      style;
+    var gobj = Object.getPrototypeOf(traceWidget).handleTap(event, context);
     if (!canTraceGobj(gobj)) return; // ignore taps on untraceable objects
     if (gobj) {
-      style = gobj.style;
-      style.traced = !style.traced;
-      change.traced = style.traced;
-      getSketch().event(
-        traceWidget.eventName,
-        { gobj: gobj },
-        { action: 'changed', changes: [change] }
-      );
-      if (!style.traced) {
-        gobj.setRenderState('none');
-      } else {
-        if (!traceWidget.autoEnabled) {
-          traceWidget.toggleEnabling(true);
-          traceWidget.autoEnabled = true;
-        }
-        if (traceWidget.glowBox.checked) {
-          gobj.setRenderState('unmatchedGiven');
-        }
-      }
-      $('#wTracePrompt').css('display', 'none');
-      if (!traceWidget.glowBox.checked) {
-        traceWidget.signalChangedTraceState(gobj);
-      }
+      this.toggleGobjTracing(gobj);
     }
   };
 
@@ -2389,30 +2492,31 @@ var WIDGETS = (function() {
     });
   }
 
-  deleteWidget.deleteProgeny = function() {
+  deleteWidget.deleteWithProgeny = function(gobj, progeny) {
     // The Delete Widget posts an undo delta and emits an event with each deletion
     var sketch = getSketch(),
       delta,
       preDelta = sketch.document.getRecentChangesDelta(); // capture changes since last undo event
-    sketch.gobjList.removeGObjects(deleteWidget.progenyList, sketch);
+    sketch.gobjList.removeGObjects(progeny, sketch);
     delta = sketch.document.pushConfirmedSketchOpDelta(preDelta);
     sketch.document.changedUIMode();
     // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
-    sketch.event(
-      this.eventName,
+    this.event(
+      {},
       {
-        'deleted gobjs': deleteWidget.progenyList,
-      },
-      {
-        delta: delta,
+        action: 'deleteConfirm',
+        gobj: this.gobj.id,
+        deletedIds: Object.keys(progeny),
+        preDelta: preDelta, // needed?
+        delta: delta, // needed?
       }
     );
   };
 
-  deleteWidget.activate = function(sketch) {
-    if (!Object.getPrototypeOf(this).activate(sketch, this)) return false;
+  deleteWidget.activate = function(sketch, restoring) {
+    if (!Object.getPrototypeOf(this).activate(sketch, this, restoring))
+      return false;
     this.cancelOnExit = false;
-    $('#wDeletePrompt').css('display', 'block');
     return true;
   };
 
@@ -2420,6 +2524,8 @@ var WIDGETS = (function() {
     Object.getPrototypeOf(this).deactivate(this); // Call multiple levels of post-processing
     $('#wDeletePrompt').css('display', 'none');
     this.cancelOnExit = false;
+    delete deleteWidget.gobj;
+    delete deleteWidget.progenyList;
   };
 
   deleteWidget.handleTap = function(event, context) {
@@ -2427,6 +2533,7 @@ var WIDGETS = (function() {
       $blur = $('#delete-confirm-modal'),
       $dialog = $blur.find('.util-popup-content');
     if (gobj) {
+      deleteWidget.gobj = gobj;
       deleteWidget.progenyList = gobj.sQuery.sketch.gobjList.compileDescendants(
         gobj
       );
@@ -2439,14 +2546,12 @@ var WIDGETS = (function() {
 
   deleteWidget.deleteConfirm = function() {
     $('#delete-confirm-modal').css('display', 'none');
-    deleteWidget.deleteProgeny();
-    delete deleteWidget.progenyList;
+    deleteWidget.deleteWithProgeny(deleteWidget.gobj, deleteWidget.progenyList);
   };
 
   deleteWidget.deleteCancel = function() {
     $('#delete-confirm-modal').css('display', 'none');
     setRenderStates(deleteWidget.progenyList, 'none');
-    delete deleteWidget.progenyList;
   };
 
   function makeWidgetHTML() {
@@ -2456,11 +2561,11 @@ var WIDGETS = (function() {
       '<div id="widget" class="clearfix">\
     <div id="widget_control" class="widget_controlWidth">\
       <div class="widget_handle"></div>\
-      <button id="widget_styleButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleStyleModality();"><span class="widgettiptext">Style Widget</span><img class="widget_controlIcon" src="./widgets/style-icon.png"></button>\
-      <button id="widget_traceButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleTraceModality();"><span class="widgettiptext">Trace Widget</span><img class="widget_controlIcon" src="./widgets/trace-icon.png"></button>\
-      <button id="widget_labelButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleLabelModality();"><span class="widgettiptext">Label Widget</span><img class="widget_controlIcon" src="./widgets/label-icon.png"></button>\
-      <button id="widget_visibilityButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleVisibilityModality();"><span class="widgettiptext">Visibility Widget</span><img class="widget_controlIcon" src="./widgets/visibility-icon.png"></button>\
-      <button id="widget_deleteButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleObjectModality();"><span class="widgettiptext">Delete Widget</span><img class="widget_controlIcon" src="./widgets/delete-icon.png"></button>\
+      <button id="widget_StyleButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleStyleModality();"><span class="widgettiptext">Style Widget</span><img class="widget_controlIcon" src="./widgets/style-icon.png"></button>\
+      <button id="widget_TraceButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleTraceModality();"><span class="widgettiptext">Trace Widget</span><img class="widget_controlIcon" src="./widgets/trace-icon.png"></button>\
+      <button id="widget_LabelButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleLabelModality();"><span class="widgettiptext">Label Widget</span><img class="widget_controlIcon" src="./widgets/label-icon.png"></button>\
+      <button id="widget_VisibilityButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleVisibilityModality();"><span class="widgettiptext">Visibility Widget</span><img class="widget_controlIcon" src="./widgets/visibility-icon.png"></button>\
+      <button id="widget_DeleteButtonID" class="widget_controlButton widgettip" onclick="WIDGETS.toggleObjectModality();"><span class="widgettiptext">Delete Widget</span><img class="widget_controlIcon" src="./widgets/delete-icon.png"></button>\
     </div>\
     <div id="wStylePane">\
       <div class="widgetPane widget_pointPaneWidth">\
@@ -2540,14 +2645,14 @@ var WIDGETS = (function() {
       <div class="wTraceControls widgetPane">\
         Tracing:<br>\
         <label>\
-          <input type="checkbox" id="wTraceEnabled" value="off" onClick="WIDGETS.toggleTraceEnabling ()"> Enabled\
+          <input type="checkbox" id="wTraceEnabled" value="off" onClick="WIDGETS.setTraceEnabling(this.checked)"> Enabled\
         </label>\
         <label>\
-          <input type="checkbox" id="wTraceFading" value="off" onClick="WIDGETS.toggleTraceFading ();"> Fading\
+          <input type="checkbox" id="wTraceFading" value="off" onClick="WIDGETS.setTraceFading(this.checked);"> Fading\
         </label><br>\
         <button type="button" id="wEraseTraces" onClick="WIDGETS.clearTraces();">Erase Traces</button><br>\
         <label>\
-          <input type="checkbox" id="wTracesGlowing" onClick="WIDGETS.setTraceGlowing ();"> Traced Objects Glow\
+          <input type="checkbox" id="wTracesGlowing" onClick="WIDGETS.setTraceGlowing(this.checked);"> Traced Objects Glow\
         </label>\
       </div>\
       <div id="wTracePrompt" class="widgetPane wPrompt" onclick="this.style.display = \'none\';">\
@@ -2899,7 +3004,7 @@ var WIDGETS = (function() {
       if (activeWidget === styleWidget) {
         styleWidget.deactivate(this);
       } else {
-        styleWidget.activate(getSketch(), styleWidget);
+        styleWidget.activate(getSketch());
       }
     },
 
@@ -2907,44 +3012,46 @@ var WIDGETS = (function() {
       if (activeWidget === visibilityWidget)
         visibilityWidget.deactivate(visibilityWidget);
       else if (targetNode && $targetNode.data('document'))
-        visibilityWidget.activate(getSketch(), visibilityWidget);
+        visibilityWidget.activate(getSketch());
     },
 
     toggleLabelModality: function() {
       if (activeWidget === labelWidget) labelWidget.deactivate(labelWidget);
       else if (targetNode && $targetNode.data('document'))
-        labelWidget.activate(getSketch(), labelWidget);
+        labelWidget.activate(getSketch());
     },
 
     toggleObjectModality: function() {
       if (activeWidget === deleteWidget) deleteWidget.deactivate(deleteWidget);
       else if (targetNode && $targetNode.data('document'))
-        deleteWidget.activate(getSketch(), deleteWidget);
+        deleteWidget.activate(getSketch());
     },
 
     toggleTraceModality: function() {
       if (activeWidget === traceWidget) traceWidget.deactivate(traceWidget);
       else if (targetNode && $targetNode.data('document'))
-        traceWidget.activate(getSketch(), traceWidget);
+        traceWidget.activate(getSketch());
     },
 
-    setTraceGlowing: function() {
-      // Match behavior to the current setting of the Reveal checkbox
-      traceWidget.setGlowing();
-      $('#wTracePrompt').css('display', 'none');
+    setTraceEnabling: function(newState) {
+      traceWidget.setEnabling(newState);
     },
 
-    toggleTraceFading: function() {
-      traceWidget.toggleFading();
+    setTraceFading: function(newState) {
+      traceWidget.setFading(newState);
     },
 
-    toggleTraceEnabling: function() {
-      traceWidget.toggleEnabling();
+    setTraceGlowing: function(newState) {
+      traceWidget.setGlowing(newState);
     },
 
     clearTraces: function() {
       getSketch().clearTraces();
       $('#wTracePrompt').css('display', 'none');
+    },
+
+    toggleGobjTracing: function(gobj, newState) {
+      traceWidget.toggleGobjTracing(gobj, newState);
     },
 
     pointCheckClicked: function() {
@@ -3031,6 +3138,16 @@ var WIDGETS = (function() {
 
     labelToggled: function() {
       toggleLabel(labelWidget.showLabelElt.prop('checked'));
+    },
+
+    deleteWithProgeny: function(gobjId, progenyIds) {
+      var gobjects = getSketch().gobjList.gobjects,
+        gobj = gobjects[gobjId],
+        progeny = {};
+      progenyIds.forEach(function(id) {
+        progeny[id] = gobjects[id];
+      });
+      deleteWidget.deleteWithProgeny(gobj, progeny);
     },
 
     deleteConfirm: function() {
