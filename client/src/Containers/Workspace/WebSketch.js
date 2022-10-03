@@ -115,31 +115,45 @@ const WebSketch = (props) => {
     return `${username} ${actionText} ${actionDetailText}`;
   };
 
-  const parseWSPevent = (update) => {
-    if (!update) return '';
-    let { attr } = update;
+  const parseWSPevent = (msg) => {
+    if (!msg) return '';
+
+    let { attr } = msg;
     if (typeof attr === 'string') {
       attr = JSON.parse(attr);
     }
-    let gobjId;
+    console.log('parse event: ', msg);
     if (attr.gobjId) {
-      gobjId = attr.gobjId;
-    } else {
-      gobjId = Object.keys(attr)[0];
-      if (Object.keys(attr).length > 1) {
-        gobjId += ` and ${Object.keys(attr).length} other gobjs`;
+      // if (!sketchDoc || !sketch) {
+      //   console.log('Setting sketc doc');
+      //   const sketchEl = window.jQuery('#sketch');
+      //   sketchDoc = sketchEl.data('document');
+      //   sketch = sketchDoc.focusPage;
+      // }
+      if (sketch) {
+        attr.gobj = sketch.gobjList.gobjects[attr.gobjId];
       }
+      if (!attr.gobj)
+        console.error('follow.handleMessage(): msg.attr has a bad gobj.');
     }
-    switch (update.name) {
+    // if (attr.gobjId) {
+    //   gobjId = attr.gobjId;
+    // } else {
+    //   gobjId = Object.keys(attr)[0];
+    //   if (Object.keys(attr).length > 1) {
+    //     gobjId += ` and ${Object.keys(attr).length} other gobjs`;
+    //   }
+    // }
+    switch (msg.name) {
       case 'WillChangeCurrentPage':
-        return 'initiated a page change';
+        return `changed to page ${attr.pageId}`;
       case 'DidChangeCurrentPage':
         return `changed to page ${attr.pageId}`;
       case 'GobjsUpdated': // gobjs have moved to new locations
       case 'StartDragConfirmed': // highlight the dragged gobj
-        return `started dragging gobj ${gobjId}`;
+        return `started dragging ${gobjDesc(attr.gobj)}`;
       case 'EndDrag': // the drag ended
-        return `stopped dragging gobj ${gobjId}`;
+        return `stopped dragging ${gobjDesc(attr.gobj)}`;
       case 'WillPlayTool': // controlling sketch will play a tool
         return `started using ${attr.tool.name} tool`;
       case 'ToolPlayed': // controlling sketch has played a tool
@@ -147,7 +161,7 @@ const WebSketch = (props) => {
       case 'ToolAborted': // controlling sketch has aborted a tool
         return `stopped using ${attr.tool.name} tool`;
       case 'MergeGobjs': // controlling sketch has merged a gobj
-        return `Merged gobj ${gobjId}`;
+        return `Merged gobj ${mergeGobjDesc(attr)}`;
       case 'WillUndoRedo': // controlling sketch will undo or redo
         return `Performing ${attr.type}`;
       case 'StartEditParameter': // These messages notify the user; an update message actually performs the update
