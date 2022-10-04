@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221003034914
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221003205813
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -16533,7 +16533,7 @@
       
       _fadeTracesJob: null,
       
-      startFadeJob: function () { // Starts the fade job if it's not already running
+      startFadeJob: function (restart) { // Starts the fade job if it's not already running
         var sketch = this,
             options = {
               repeat: true,
@@ -16542,7 +16542,7 @@
               }
             };
         this.traces.saturation = 1.0;
-        if (this.traces.appliedAlpha < this.preferences.fadeSaturationFloor) {
+        if (this.traces.appliedAlpha < this.preferences.fadeSaturationFloor || restart) {
           this.traces.appliedAlpha = 1.0;
           this.traces.fadeStartTime = Date.now();
         }

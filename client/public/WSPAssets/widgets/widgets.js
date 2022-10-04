@@ -2360,6 +2360,9 @@ var WIDGETS = (function() {
   traceWidget.setFading = function(newState) {
     // set the fading pref for traces
     this.setState(fadeBox, 'fadeTraces', 'fading', newState);
+    if (newState) {
+      getSketch().startFadeJob(true); // force a restart
+    }
   };
 
   traceWidget.activate = function(sketch, restoring) {
