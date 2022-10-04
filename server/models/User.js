@@ -30,8 +30,11 @@ const User = new mongoose.Schema(
     tokenExpiryDate: { type: Date }, // // For Authentication Encompass users
     isTrashed: { type: Boolean, default: false },
     archive: {
-      rooms: { type: [{ type: ObjectId, ref: 'Room' }], default: [] },
-      courses: { type: [{ type: ObjectId, ref: 'Course' }], default: [] },
+      type: {
+        rooms: { type: [{ type: ObjectId, ref: 'Room' }], default: [] },
+        courses: { type: [{ type: ObjectId, ref: 'Course' }], default: [] },
+      },
+      default: { rooms: [], courses: [] },
     },
     isGmail: { type: Boolean, default: false },
     sponsor: { type: ObjectId, ref: 'User' },

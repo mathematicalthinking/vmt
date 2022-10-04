@@ -17,7 +17,7 @@ import {
   Dashboard,
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
-import { PrivateRoute, ErrorToast, Loading } from '../Components';
+import { PrivateRoute, ErrorToast } from '../Components';
 import { Confirmation, FacilitatorIntro } from '../Layout';
 import ErrorBoundary from '../ErrorBoundary';
 import { updateUser } from '../store/actions/user';
