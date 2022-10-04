@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { updateRoom } from 'store/actions';
-import { updateGroupings } from 'store/actions/rooms';
+import {
+  inviteToRoom,
+  removeRoomMember,
+  updateGroupings,
+} from 'store/actions/rooms';
 import { Button, Modal } from 'Components';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
@@ -70,6 +74,50 @@ const EditRooms = (props) => {
       : setShowWarning(true);
   };
 
+  const deleteRemovedRoomMembers = (
+    previousRoomMembers,
+    roomMembersToUpdate,
+    roomId
+  ) => {
+    const prevUsersIds = previousRoomMembers.map((prevMem) => prevMem.user._id);
+    const newUsersIds = roomMembersToUpdate.map((mem) => mem.user._id);
+    const membersToRemove = prevUsersIds.filter(
+      (prevUserId) => !newUsersIds.includes(prevUserId) && prevUserId
+    );
+
+    if (membersToRemove.length > 0) {
+      membersToRemove.forEach((memId) =>
+        removeRoomMember(roomId, memId)(dispatch)
+      );
+    }
+  };
+
+  const inviteNewRoomMembers = (
+    previousRoomMembers,
+    newRoomMembers,
+    roomId
+  ) => {
+    const prevUsers = previousRoomMembers.map((prevMem) => prevMem.user._id);
+    const newUsers = newRoomMembers.map((mem) => mem.user._id);
+    const membersToInvite = newUsers.filter(
+      (newUser) => !prevUsers.includes(newUser)
+    );
+
+    if (membersToInvite.length > 0) {
+      const newUsersObj = newRoomMembers.reduce((acc, curr) => {
+        return { ...acc, [curr.user._id]: curr };
+      }, {});
+      membersToInvite.forEach((newMemId) => {
+        inviteToRoom(
+          roomId,
+          newMemId,
+          newUsersObj[newMemId].user.username,
+          undefined
+        )(dispatch);
+      });
+    }
+  };
+
   const editPreviousAssignment = ({
     aliasMode,
     dueDate,
@@ -100,13 +148,31 @@ const EditRooms = (props) => {
         user: mem.user,
       }));
 
-      const body = {
-        members: membersToUpdate,
-        settings: { displayAliasedUsernames: aliasMode },
-        dueDate,
-        name: `${roomName}: ${i + 1}`,
-      };
-      dispatch(updateRoom(oldRoomDraft.room, body));
+      const previousMembers = oldRoomDraft.members.map((prevMem) => ({
+        role: prevMem.role,
+        color: prevMem.color,
+        user: prevMem.user,
+      }));
+
+      deleteRemovedRoomMembers(
+        previousMembers,
+        membersToUpdate,
+        oldRoomDraft.room
+      );
+
+      inviteNewRoomMembers(previousMembers, membersToUpdate, oldRoomDraft.room);
+
+      if (aliasMode !== selectedAssignment.aliasMode) {
+        dispatch(
+          updateRoom(oldRoomDraft.room, {
+            settings: { displayAliasedUsernames: aliasMode },
+          })
+        );
+      }
+
+      if (dueDate !== selectedAssignment.dueDate) {
+        dispatch(updateRoom(oldRoomDraft.room, { dueDate }));
+      }
     });
 
     // if roomName has changed, update the grouping in the store/db

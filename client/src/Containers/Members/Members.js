@@ -547,7 +547,12 @@ const mapStateToProps = (state, ownProps) => {
     })),
     user: state.user,
     courseRoomsMembers: course.rooms.reduce((acc, roomId) => {
-      return { ...acc, [roomId]: state.rooms.byId[roomId].members };
+      return (
+        state.rooms.byId[roomId] && {
+          ...acc,
+          [roomId]: state.rooms.byId[roomId].members,
+        }
+      );
     }, {}),
   };
 };

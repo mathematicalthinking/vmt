@@ -459,9 +459,9 @@ Activity.propTypes = {
     description: PropTypes.string,
     instructions: PropTypes.string,
     members: PropTypes.arrayOf(PropTypes.shape({})),
-    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+    rooms: PropTypes.arrayOf(PropTypes.string),
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
-    privacySetting: PropTypes.bool,
+    privacySetting: PropTypes.string,
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
