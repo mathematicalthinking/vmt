@@ -1082,12 +1082,23 @@ const WebSketch = (props) => {
         initializeListeners();
       },
     });
+
     const data = $sketch.data('document');
     console.log('Found data: ', data);
     const sketchWidth = data.metadata.width;
     console.log('Sketch width: ', sketchWidth);
     sketchDoc = data;
     sketch = data.focusPage;
+    checkWidgets();
+  };
+
+  const checkWidgets = async () => {
+    await new Promise((r) => setTimeout(r, 350));
+    if (!document.getElementById('widget')) {
+      console.log('~~~~ No Widget id! ~~~~~');
+      // window.location.reload();
+      WSPLoader(loadSketch);
+    }
   };
 
   const getSketchConfig = (tab) => {
