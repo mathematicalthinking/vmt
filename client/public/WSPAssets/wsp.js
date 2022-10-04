@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20220917022230
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221003205813
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -16533,7 +16533,7 @@
       
       _fadeTracesJob: null,
       
-      startFadeJob: function () { // Starts the fade job if it's not already running
+      startFadeJob: function (restart) { // Starts the fade job if it's not already running
         var sketch = this,
             options = {
               repeat: true,
@@ -16542,7 +16542,7 @@
               }
             };
         this.traces.saturation = 1.0;
-        if (this.traces.appliedAlpha < this.preferences.fadeSaturationFloor) {
+        if (this.traces.appliedAlpha < this.preferences.fadeSaturationFloor || restart) {
           this.traces.appliedAlpha = 1.0;
           this.traces.fadeStartTime = Date.now();
         }
@@ -37501,11 +37501,13 @@
           // This means that we draw in high def coords - the graphics system
           // will just blast those high-def pixes to the screen. This gives
           // more detail / better anti-aliasing.
-          
+          // However, we need to set the canvas dimensions to integer values;
+          // non-integer values can cause fading traces to creep a fraction of
+          // a pixel on each pass of the fading loop.
           devicePixelRatio = window.devicePixelRatio;
           if (devicePixelRatio) {
-            canvasWidth *= devicePixelRatio;
-            canvasHeight *= devicePixelRatio;
+            canvasWidth = Math.round(canvasWidth * devicePixelRatio);
+            canvasHeight = Math.round(canvasHeight * devicePixelRatio);
           }
           
           element = $('<canvas aria-hidden="true" width="' + canvasWidth + '" height="'
@@ -38324,8 +38326,8 @@
                   // size the offscreen canvas based on the estimated size of the text
                   fontSpec = getFontSpec();
                   sizeEstimate = getSizePreEstimate( ctx, fontSpec, drawRefCon.parsedMFS);
-                  drawRefCon.mfsImage.width = sizeEstimate.width * devicePixelRatio;
-                  drawRefCon.mfsImage.height = sizeEstimate.height * devicePixelRatio;
+                  drawRefCon.mfsImage.width = Math.round(sizeEstimate.width * devicePixelRatio);
+                  drawRefCon.mfsImage.height = Math.round(sizeEstimate.height * devicePixelRatio);
                   tmpCtx = drawRefCon.mfsImage.getContext('2d');
                   // scale the canvas for HiDPI displays (e.g. retina) and for browser zoom
                   tmpCtx.scale( devicePixelRatio, devicePixelRatio);
@@ -45127,7 +45129,8 @@
       },
       
       touchEnded: function (pos, touch) {
-        var didMerge;
+        var isTap = this.isTap() && this.distanceMoved(pos) < this.kMaxTapMovement,
+            didMerge;
         if (this.gobj.style.selectable) {
           this.motionManager.ApplyCurrent();
           this.motionManager.EndMotion(this.motionId);
@@ -45139,7 +45142,7 @@
             if (this.possibleMerge) { 
               didMerge = (this.touchEnded.base[this.dragMergeBaseIndex] || arguments.callee.base).call(this, pos, touch);
             }
-            if (!didMerge && this.sendTouchEvents) { // No MergeGobjs event, so send EndDrag.
+            if (!didMerge && !isTap) { // No MergeGobjs event, no Tap event, so send EndDrag.
               this.sketch.event("EndDrag", {
                 gobj: this.gobj,
                 position: pos,
@@ -45153,8 +45156,7 @@
           this.gobj.doubleClicked(touch);
         }
         // Note: A tap event fires on each tap of a double tap.
-        if (this.sendTouchEvents &&
-            this.isTap() && this.distanceMoved(pos) < this.kMaxTapMovement) {
+        if (this.sendTouchEvents && isTap) {
           this.sketch.event("Tap", {
             gobj: this.gobj,
             position: pos,
@@ -48526,6 +48528,12 @@
           kGrowthAmt = 0.7;
         }
         else if (isInterior) {
+          // If an opaque gobj is traced without fading, varying the opacity has no visible effect.
+          // Might it be better to vary the saturation rather than opacity?
+          // If we convert to HSV and clamp the original saturation to [0.3..0.7] and vary it
+          // by 0.3 up and down, that should work well for a variety of interior colors,
+          // provided the opacity is not 0. (Should we also set opacity to a minimum value
+          // such as 0.25 and restore it at the end of the job?)
           kGrowthAmt = 0.6;
           oldValue = style.opacity;
           // The basevalue must be between 0 and 1-kGrowthAmt, ideally centered on oldValue.

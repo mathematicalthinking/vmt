@@ -75,10 +75,11 @@ const WebSketch = (props) => {
     }
   };
 
-  function handleJump(ind, prevInd) {
+  async function handleJump(ind, prevInd) {
     // timer can be used to 'show' changes applied in fast-forward - must make func async!
-    // const timer = (ms) => new Promise((res) => setTimeout(res, ms));
+    const timer = (ms) => new Promise((res) => setTimeout(res, ms));
     setJumping(true);
+    await timer(0);
     // jumping forward
     if (ind > prevInd) {
       for (let i = prevInd + 1; i <= ind; i++) {
@@ -86,7 +87,7 @@ const WebSketch = (props) => {
         if (newData) {
           const updatesState = JSON.parse(newData);
           handleMessage(updatesState);
-          // await timer(0);
+          await timer(0); // optional to show changes
         }
       }
     } else {
@@ -97,6 +98,7 @@ const WebSketch = (props) => {
         if (newData) {
           const updatesState = JSON.parse(newData);
           handleMessage(updatesState);
+          // await timer(0); // optional to show changes
         }
       }
     }
@@ -113,6 +115,21 @@ const WebSketch = (props) => {
       sketch = sketchDoc.focusPage;
     }
     const { attr } = msg;
+    function selfSent() {
+      const sender = msg.sender;
+      let ret = false;
+      if (sender) {
+        const canvas = $sketch[0];
+        const receiver = { id: canvas.id, baseURI: canvas.baseURI };
+        ret = sender.id === receiver.id && sender.baseURI === receiver.baseURI;
+        if (ret)
+          GSP.createError(
+            'follow: handleMessage: received a self-sent message.'
+          );
+      }
+      return ret;
+    }
+    if (selfSent()) return; // ignore messages from this follower sketch
 
     if (attr.gobjId) {
       attr.gobj = sketch.gobjList.gobjects[attr.gobjId];
@@ -146,9 +163,10 @@ const WebSketch = (props) => {
           imposeGobjUpdates(attr);
           break;
         case 'StartDragConfirmed': // highlight the dragged gobj
-          // DO WE GET THIS DURING TOOLPLAY? IF SO, HOW TO HANDLE IT?
+          // Do we need to turn glowing off during the drag?
           notify('Dragging ' + gobjDesc(attr.gobj), {
             persist: true,
+            dragging: true,
             highlitGobjs: attr.gobj,
           });
           break;
@@ -229,6 +247,25 @@ const WebSketch = (props) => {
     return desc;
   };
 
+  const initSketchPage = () => {
+    // Refresh vars and handlers for a new sketch page
+    // This needs to be called any time the sketch page is regenerated, for instance,
+    // due to a page change, undo or redo, or confirmed or aborted toolplay
+    // Ideally we'd like every such operation to clean up after itself by calling
+    // initSketch, but the possibility of asynchronous operations suggests that
+    // it may be safest to call getSketch(): a function that returns the sketch
+    // object from the sketchDoc.
+    if (!$sketch) {
+      const $ = window.jQuery;
+      $sketch = $('#sketch');
+    }
+    if ($sketch.data('document') !== sketchDoc) {
+      console.error('follow: initSketchPage found invalid sketchDoc');
+      window.GSP.createError('follow: initSketchPage found invalid sketchDoc.');
+    }
+    sketch = sketchDoc.focusPage;
+  };
+
   const gobjDesc = (gobj, cur, max) => {
     // Returns a gobj-description string suitable for a list of form
     // "Point #1, Point B, Circle #4, ..."
@@ -263,7 +300,7 @@ const WebSketch = (props) => {
   function handleWidgetMessage(msg) {
     const name = msg.name.substring(0, msg.name.indexOf('Widget'));
     const { attr } = msg;
-    const handlePrePost = ['Style', 'Visibility'];
+    const handlePrePost = ['Style', 'Visibility', 'Trace'];
     function doHandleWidget() {
       switch (name) {
         case 'Style':
@@ -286,6 +323,12 @@ const WebSketch = (props) => {
       }
     }
 
+    function handlePrompt(display) {
+      // attr includes the display style for the widget prompt
+      var sel = '#w' + name + 'Prompt';
+      $(sel).css('display', display);
+    }
+
     if (attr.action === 'activate') {
       notify(name + ' widget activated:', { persist: true, prepend: true });
     } else if (attr.action === 'deactivate') {
@@ -297,12 +340,16 @@ const WebSketch = (props) => {
     if (handlePrePost.indexOf(name) >= 0) {
       doHandleWidget(); // Some widgets (e.g., style, visibility) need to handle activate/deactivate messages.
     }
+    if (attr.promptDisplay) {
+      handlePrompt(attr.promptDisplay);
+    }
   }
 
   const notify = (text, options) => {
-    // options.duration must be a non-zero number or 'persist'
+    // options are duration, highlightGobjs, prepend, and dragging
     // options.prepend causes the message to be prepended to the normal notify div
-    // duration is 2500 if not specified
+    // options.duration must be a non-zero number or 'persist'; it's 2500 if not specified
+    // options.dragging prevents highlighting of a traced dragged gobj (which interferes with tracing)
     let duration = 2500;
     let gobjs;
     let callback;
@@ -324,7 +371,7 @@ const WebSketch = (props) => {
     }
 
     const highlight = (on) => {
-      console.log('highlight:', text, 'options:', options, 'on:', on);
+      // console.log('highlight:', text, 'options:', options, 'on:', on);
       if (highLights.length > 0) {
         // Whether on or off, remove previous highlights
         highLights.forEach((gobj) => {
@@ -337,13 +384,20 @@ const WebSketch = (props) => {
         });
         setHighLights([]);
       }
-      if (!gobjs) return; // Nothing to do
+      if (!gobjs) return;
       gobjs.forEach((gobj) => {
         // this may be a gobj, or may be a gobj id
-        gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
+        if (typeof gobj === 'string') {
+          console.log('STRING GOBJ: ', gobj, sketch.gobjList);
+          if (sketch && sketch.gobjList && sketch.gobjList.gobjects) {
+            gobj = sketch.gobjList.gobjects[gobj];
+          }
+        }
+        if (!gobj) return; // Nothing to do
         const { state } = gobj;
         if (!state) return;
-        if (on) {
+        // highlighting interferes with tracing: don't highlight a traced dragged gobj
+        if (on && !(gobj.style.traced && options.dragging)) {
           if (state.renderState && !state.oldRenderState) {
             state.oldRenderState = state.renderState; // track the previous renderState
           }
@@ -410,7 +464,7 @@ const WebSketch = (props) => {
     }
     // A gobj moved, so move the same gobj in the follower sketch
     let moveList = JSON.parse(data);
-    sketch = sketchDoc.focusPage;
+    initSketchPage();
     if (!sketch) {
       console.log("Messaging error: this follower's sketch is not loaded.");
       return;
@@ -546,11 +600,12 @@ const WebSketch = (props) => {
   };
 
   const handleStyleWidget = (attr) => {
-    let note;
     let gobjCount = 0;
     const gobjIds = [];
     const maxCount = 4;
-    note = attr.canceled ? 'Canceled style changes for ' : 'Changed style for ';
+    let note = attr.canceled
+      ? 'Canceled style changes for '
+      : 'Changed style for ';
     // eslint-disable-next-line
     console.log('attr changes: ', attr);
     if (attr.changes && attr.changes.length > 0) {
@@ -571,15 +626,57 @@ const WebSketch = (props) => {
   };
 
   function handleTraceWidget(attr) {
-    const change = attr.changes[0]; // Note the assumption: there's only a single gobj being changed
-    const gobj = sketch.gobjList.gobjects[change.id];
-    const note =
-      'Tracing turned ' +
-      (change.traced ? 'on' : 'off') +
-      ' for ' +
-      gobjDesc(gobj, 0, 1);
-    gobj.style.traced = change.traced;
-    notify(note, { duration: 2000, highlitGobjs: [gobj.id] });
+    let gobj = sketch.gobjList.gobjects[attr.gobjId];
+    let options = { duration: 2500 };
+    let note;
+    let toggled;
+    let cBox;
+    console.log('Handling Trace Message:', attr);
+    if (gobj) {
+      options.highlitGobjs = [gobj.id];
+    }
+    switch (attr.action) {
+      case 'activate':
+      case 'deactivate':
+        WIDGETS.toggleTraceModality();
+        toggled = true;
+        break;
+      case 'changed':
+        gobj = sketch.gobjList.gobjects[attr.gobjId];
+        WIDGETS.toggleGobjTracing(gobj, attr.traced);
+        note =
+          'Tracing turned ' +
+          (attr.traced ? 'on' : 'off') +
+          ' for ' +
+          gobjDesc(gobj, 0, 1);
+        break;
+      case 'enabled':
+        cBox = $('#wTraceEnabled')[0];
+        toggled = !attr.enabled != !cBox.checked; // set toggled only if the value will be changed
+        if (toggled) {
+          WIDGETS.setTraceEnabling(attr.enabled);
+          cBox.checked = attr.enabled;
+          note = 'Tracing ' + (attr.enabled ? 'enabled' : 'disabled') + '.';
+        }
+        break;
+      case 'fading':
+        WIDGETS.setTraceFading(attr.fading);
+        note = 'Trace fading turned ' + (attr.fading ? 'on' : 'off') + '.';
+        break;
+      case 'glowing':
+        // glowing action is sent when glowing is turned on or off for traced gobjs
+        // The controller also turns off glowing during a drag; does the follower need to do so also?
+        note =
+          'Glowing for traced objects turned ' +
+          (attr.glowing ? 'on' : 'off') +
+          '.';
+        WIDGETS.setTraceGlowing(attr.glowing);
+        break;
+    }
+    if (!toggled && note) {
+      $('#wTracePrompt').css('display', 'none');
+      notify(note, options);
+    }
   }
 
   function handleLabelWidget(attr) {
@@ -630,7 +727,7 @@ const WebSketch = (props) => {
   }
 
   function handleDeleteWidget(attr) {
-    let note = 'Deleted ';
+    let note = ' ';
     const deletedGobjs = {};
     let thisDelta;
     let gobjCount = 0;
@@ -646,12 +743,13 @@ const WebSketch = (props) => {
     // TODO - refactor
     $.each(attr.deletedIds, function() {
       const gobj = sketch.gobjList.gobjects[this];
+      if (!note) {
+        note = 'Deleted ' + gobjDesc(gobj);
+      }
       deletedGobjs[this] = gobj;
-      note += gobjDesc(gobj, gobjCount, maxCount);
-      gobjCount += 1;
     });
 
-    notify(note, {
+    notify(note + ' and its descendants.', {
       duration: 3000,
       highlitGobjs: attr.deletedIds,
       callback: doDelete,
@@ -755,16 +853,24 @@ const WebSketch = (props) => {
         //   height: '890px', // @TODO this needs to be adjusted based on the Player instance.
         // }}
       >
-        <div className="sketch_canvas" id="sketch" ref={wspSketch} />
-        {/* <div className="buttonPane">
+        <div
+          className="sketch_canvas"
+          id="sketch"
+          ref={wspSketch}
+          style={{
+            overflow: 'auto',
+            pointerEvents: 'none',
+          }}
+        />
+        <div className="buttonPane">
           <div
             className="page_buttons"
             style={{
               overflow: 'auto',
-              pointerEvents: !_hasControl() ? 'none' : 'auto',
+              pointerEvents: 'none',
             }}
           />
-        </div> */}
+        </div>
       </div>
     </Fragment>
   );
