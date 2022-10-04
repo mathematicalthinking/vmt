@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "3.0.4",
+  "version": "3.0.7",
   "private": true,
   "dependencies": {
     "@xstate/react": "^3.0.1",
