@@ -237,6 +237,7 @@ class Dashboard extends Component {
       })
       .catch((err) => {
         this.stopManageUser();
+        // eslint-disable-next-line no-console
         console.log({ err });
       });
   };
@@ -253,6 +254,7 @@ class Dashboard extends Component {
       })
       .catch((err) => {
         this.stopManageUser();
+        // eslint-disable-next-line no-console
         console.log({ err });
       });
   };
@@ -269,6 +271,7 @@ class Dashboard extends Component {
       })
       .catch((err) => {
         this.stopManageUser();
+        // eslint-disable-next-line no-console
         console.log({ err });
       });
   };
@@ -350,10 +353,10 @@ class Dashboard extends Component {
           toggleFilter={this.toggleFilter}
           totalCounts={totalCounts}
           setSinceDate={this.setSinceDate}
+          setToDate={this.setToDate}
           dateRangePreset={dateRangePreset}
           customSinceDate={customSinceDate}
           customToDate={customToDate}
-          setToDate={this.setToDate}
           manageUser={this.manageUser}
           ownUserId={user._id}
         />
@@ -386,12 +389,15 @@ class Dashboard extends Component {
 
 Dashboard.propTypes = {
   courses: PropTypes.shape({}).isRequired,
-  history: PropTypes.shape({}).isRequired,
-  location: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  location: PropTypes.shape({ search: PropTypes.string }).isRequired,
   activities: PropTypes.shape({}).isRequired,
   rooms: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
-  match: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({ resource: PropTypes.string }),
+    url: PropTypes.string,
+  }).isRequired,
 };
 
 const mapStateToProps = (store) => {
@@ -406,7 +412,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  null
-)(Dashboard);
+export default connect(mapStateToProps, null)(Dashboard);

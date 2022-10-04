@@ -115,6 +115,14 @@ class Community extends Component {
                     All
                   </RadioBtn>
                   <RadioBtn
+                    data-testid="desmos-activity-filter"
+                    check={() => toggleFilter('desmosActivity')}
+                    checked={filters.roomType === 'desmosActivity'}
+                    name="DesmosActivity"
+                  >
+                    Desmos Activity
+                  </RadioBtn>
+                  <RadioBtn
                     data-testid="geogebra-filter"
                     check={() => toggleFilter('geogebra')}
                     checked={filters.roomType === 'geogebra'}
@@ -129,14 +137,6 @@ class Community extends Component {
                     name="Desmos"
                   >
                     Desmos
-                  </RadioBtn>
-                  <RadioBtn
-                    data-testid="desmos-activity-filter"
-                    check={() => toggleFilter('desmosActivity')}
-                    checked={filters.roomType === 'desmosActivity'}
-                    name="DesmosActivity"
-                  >
-                    Desmos Activity
                   </RadioBtn>
                   {window.env.REACT_APP_PYRET_MODE &&
                     window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (

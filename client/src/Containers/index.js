@@ -15,9 +15,7 @@ export { default as Logout } from './Logout';
 export { default as GgbGraph } from './Workspace/GgbGraph';
 export { default as DesmosGraph } from './Workspace/DesmosGraph';
 export { default as GgbActivityGraph } from './Workspace/GgbActivityGraph';
-export {
-  default as DesmosActivityGraph,
-} from './Workspace/DesmosActivityGraph';
+export { default as DesmosActivityGraph } from './Workspace/DesmosActivityGraph';
 export { default as DesmosActivity } from './Workspace/DesmosActivity';
 export { default as Chat } from './Workspace/Chat';
 export { default as GgbReplayer } from './Replayer/GgbReplayer';
@@ -37,3 +35,4 @@ export { default as Chart } from './Stats/Chart';
 export { default as statsReducer, initialState } from './Stats/statsReducer';
 export { default as MonitoringView } from './Monitoring/MonitoringView';
 export { default as RoomPreview } from './Monitoring/RoomPreview';
+export { default as Archive } from './Archive';

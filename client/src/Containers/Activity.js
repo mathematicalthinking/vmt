@@ -176,7 +176,7 @@ class Activity extends Component {
       case 'rooms':
         return (
           <DashboardContent
-            userResources={activity.rooms.map((roomId) => rooms[roomId])}
+            userResources={activity.rooms}
             notifications={[]}
             user={user}
             resource={resource}
@@ -187,11 +187,7 @@ class Activity extends Component {
           />
         );
       case 'preview':
-        return (
-          <TemplatePreview
-            activity={{ ...activity, rooms: Object.values(rooms) }}
-          />
-        );
+        return <TemplatePreview activity={activity} />;
       case 'edit assignments':
         return (
           <SelectAssignments
@@ -459,9 +455,9 @@ Activity.propTypes = {
     description: PropTypes.string,
     instructions: PropTypes.string,
     members: PropTypes.arrayOf(PropTypes.shape({})),
-    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+    rooms: PropTypes.arrayOf(PropTypes.string),
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
-    privacySetting: PropTypes.bool,
+    privacySetting: PropTypes.string,
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
@@ -496,10 +492,7 @@ const mapStateToProps = (state, ownProps) => {
   const { activity_id, course_id } = ownProps.match.params;
   const activity = state.activities.byId[activity_id];
   return {
-    activity,
-    populatedActivity: state.activities.byId[activity_id]
-      ? populateResource(state, 'activities', activity_id, ['rooms'])
-      : {},
+    activity: populateResource(state, 'activities', activity_id, ['rooms']),
     course:
       state.courses.byId[course_id] ||
       (activity && activity.course

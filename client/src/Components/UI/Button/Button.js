@@ -16,6 +16,7 @@ const Button = (props) => {
       style={{ margin: m }}
       onClick={click}
       id={id}
+      // eslint-disable-next-line react/button-has-type
       type={type}
       tabIndex={tabIndex}
       // eslint-disable-next-line react/destructuring-assignment

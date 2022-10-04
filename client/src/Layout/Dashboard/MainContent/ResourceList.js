@@ -1,10 +1,16 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
 import { useSortableData, timeFrames } from 'utils';
+import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
+import { Button, Modal, BigModal, Search, ToolTip } from 'Components';
+import { RoomPreview } from 'Containers';
+import { updateRoom } from 'store/actions';
+import { STATUS } from 'constants.js';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
-import Search from '../../../Components/Search/Search';
 import classes from './resourceList.css';
 
 const ResourceList = ({
@@ -16,14 +22,22 @@ const ResourceList = ({
   notifications,
   resourceState,
   setResourceState,
+  selectableBoxList,
 }) => {
   const initialConfig = {
     key: 'updatedAt',
     direction: 'descending',
     filter: { timeframe: timeFrames.LASTWEEK, key: 'updatedAt' },
   };
+
+  const history = useHistory();
+  const dispatch = useDispatch();
   const [fList, setFacilitatorList] = useState([]);
   const [pList, setParticipantList] = useState([]);
+  const [archiveComponent, setArchiveComponent] = useState(null);
+  const [showArchiveComponent, setShowArchiveComponent] = useState(false);
+  const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
+  const [showRoomPreview, setShowRoomPreview] = useState(false);
   const previousSearch = useRef({
     criteria: '',
     facilitatorFilter: initialConfig.filter,
@@ -163,100 +177,288 @@ const ResourceList = ({
    * I feel like we are checking roles...which requires looping through the resources members each time.
    */
 
-  return (
-    <div>
-      {/* @TODO don't show create options for participants */}
-      <div className={classes.Controls}>
-        <div className={classes.Search}>
-          <Search _search={search} data-testid="search" />
-        </div>
-        {create}
-      </div>
-      {fList.length > 0 && pList.length > 0 ? (
-        <div className={classes.Row}>
-          <div className={classes.Col}>
-            <h2 className={classes.ResourceHeader}>
-              {displayResource} I Manage
-            </h2>
-            {fList.length >= 1 && setResourceState && (
-              <SortUI
-                keys={keys}
-                sortFn={facilitatorRequestSort}
-                sortConfig={resourceState.facilitatorConfig || initialConfig}
-              />
-            )}
+  const archiveButton = {
+    title: 'Archive',
+    onClick: (e, id) => {
+      e.preventDefault();
+      if (!id.length) return;
+      setShowArchiveComponent(true);
+      handleArchive(id);
+    },
+    icon: (
+      <ToolTip text="Archive" delay={600}>
+        <span
+          className={`material-symbols-outlined ${classes.CustomIcon}`}
+          data-testid="Archive"
+          style={{ fontSize: '23px' }}
+        >
+          input
+        </span>
+      </ToolTip>
+    ),
+  };
 
-            <BoxList
-              list={facilitatorItems}
-              linkPath={linkPath}
-              linkSuffix={linkSuffix}
-              notifications={notifications}
-              resource={resource}
-              listType="private"
-              parentResourec={parentResource}
-              // draggable
-            />
+  const customIcons = [
+    {
+      title: 'Preview',
+      onClick: (e, id) => {
+        e.preventDefault();
+        setShowRoomPreview(true);
+        goToRoomPreview(id);
+      },
+      // icon: <i className="fas fa-external-link-alt" />,
+      icon: (
+        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+          open_in_new
+        </span>
+      ),
+    },
+    {
+      title: 'Replayer',
+      onClick: (e, id) => {
+        e.preventDefault();
+        goToReplayer(id);
+      },
+      icon: (
+        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+          replay
+        </span>
+      ),
+    },
+    {
+      title: 'Archive',
+      onClick: (e, id) => {
+        e.preventDefault();
+        setShowArchiveComponent(true);
+        handleArchive(id);
+      },
+      icon: (
+        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+          input
+        </span>
+      ),
+    },
+  ];
+
+  // create a handle multiple fn that calls this fn
+  // get rid of singleResource
+  const handleArchive = (id) => {
+    let showModal = true;
+    let res;
+    let singleResource = true;
+    if (Array.isArray(id)) {
+      // display each name in list
+      singleResource = false;
+      res = getResourceNames(id).join(', ');
+    }
+    // or display single name
+    else
+      res = facilitatorItems
+        .concat(participantItems)
+        .filter((el) => el._id === id)[0].name;
+
+    const dispatchArchive = () => {
+      if (singleResource) {
+        const rtnObj = {
+          ...userResources.find((userResource) => userResource._id === id),
+          status: STATUS.ARCHIVED,
+        };
+        dispatch(updateRoom(id, rtnObj));
+      } else {
+        id.forEach((resId) => {
+          dispatch(
+            updateRoom(resId, {
+              ...userResources.find(
+                (userResource) => userResource._id === resId
+              ),
+              status: STATUS.ARCHIVED,
+            })
+          );
+        });
+      }
+    };
+
+    setArchiveComponent(
+      <Modal
+        show={showModal}
+        closeModal={() => {
+          showModal = false;
+          setShowArchiveComponent(false);
+        }}
+      >
+        <span>
+          Are you sure you want to archive{' '}
+          <span style={{ fontWeight: 'bolder' }}>{res}</span>?
+        </span>
+        <div>
+          <Button
+            data-testid="archive-resource"
+            click={() => {
+              dispatchArchive();
+              showModal = false;
+              setShowArchiveComponent(false);
+            }}
+            m={5}
+          >
+            Yes
+          </Button>
+          <Button
+            data-testid="cancel-manage-user"
+            click={() => {
+              showModal = false;
+              setShowArchiveComponent(false);
+            }}
+            theme="Cancel"
+            m={5}
+          >
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+    );
+  };
+
+  const goToReplayer = (roomId) => {
+    history.push(`/myVMT/workspace/${roomId}/replayer`);
+  };
+
+  const goToRoomPreview = (roomId) => {
+    let showM = true;
+    setShowRoomPreview(true);
+    setRoomPreviewComponent(
+      <BigModal
+        show={showM}
+        closeModal={() => {
+          setShowRoomPreview(false);
+          showM = false;
+        }}
+      >
+        <RoomPreview roomId={roomId} />
+      </BigModal>
+    );
+  };
+
+  const getResourceNames = (ids) => {
+    return facilitatorItems
+      .concat(participantItems)
+      .filter((res) => ids.includes(res._id))
+      .map((res) => res.name);
+  };
+
+  const selectActions = [archiveButton];
+
+  return (
+    <React.Fragment>
+      {showRoomPreview && roomPreviewComponent}
+      {showArchiveComponent && archiveComponent}
+      <div>
+        {/* @TODO don't show create options for participants */}
+        <div className={classes.Controls}>
+          <div className={classes.Search}>
+            <Search _search={search} data-testid="search" />
           </div>
-          <div className={classes.Col}>
-            <h2 className={classes.ResourceHeader}>
-              {displayResource} I&#39;m a member of
-            </h2>
-            {pList.length >= 1 && setResourceState && (
+          {create}
+        </div>
+        {fList.length > 0 || pList.length > 0 ? (
+          <div className={classes.Row}>
+            <div className={classes.Col}>
+              <h2 className={classes.ResourceHeader}>
+                {displayResource} I Manage
+              </h2>
+              {fList.length >= 1 && setResourceState && (
+                <SortUI
+                  keys={keys}
+                  sortFn={facilitatorRequestSort}
+                  sortConfig={resourceState.facilitatorConfig || initialConfig}
+                />
+              )}
+
+              {selectableBoxList &&
+              resource !== 'activities' &&
+              resource !== 'courses' ? (
+                <SelectableBoxList
+                  list={facilitatorItems}
+                  resource={resource}
+                  listType="private"
+                  linkPath={linkPath}
+                  linkSuffix={linkSuffix}
+                  notifications={notifications}
+                  parentResourec={parentResource}
+                  icons={customIcons}
+                  selectActions={selectActions}
+                />
+              ) : (
+                <BoxList
+                  list={facilitatorItems}
+                  resource={resource}
+                  listType="private"
+                  linkPath={linkPath}
+                  linkSuffix={linkSuffix}
+                  notifications={notifications}
+                  parentResourec={parentResource}
+                />
+              )}
+            </div>
+            <div className={classes.Col}>
+              <h2 className={classes.ResourceHeader}>
+                {displayResource} I&#39;m a member of
+              </h2>
+              {pList.length >= 1 && setResourceState && (
+                <SortUI
+                  keys={keys}
+                  sortFn={participantRequestSort}
+                  sortConfig={resourceState.participantConfig || initialConfig}
+                />
+              )}
+              <BoxList
+                list={participantItems}
+                linkPath={linkPath}
+                linkSuffix={linkSuffix}
+                notifications={notifications}
+                resource={resource}
+                listType="private"
+                parentResourec={parentResource}
+                // draggable
+              />
+            </div>
+          </div>
+        ) : (
+          <Fragment>
+            {fList.length > 0 ? (
+              <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
+            ) : (
+              <h2 className={classes.ResourceHeader}>
+                {displayResource} I&#39;m a member of
+              </h2>
+            )}
+            {(fList.length >= 1 || pList.length >= 1) && setResourceState && (
               <SortUI
                 keys={keys}
-                sortFn={participantRequestSort}
-                sortConfig={resourceState.participantConfig || initialConfig}
+                sortFn={
+                  fList.length > 0
+                    ? facilitatorRequestSort
+                    : participantRequestSort
+                }
+                sortConfig={
+                  fList.length > 0
+                    ? resourceState.facilitatorConfig || initialConfig
+                    : resourceState.participantConfig || initialConfig
+                }
               />
             )}
             <BoxList
-              list={participantItems}
+              list={facilitatorItems.concat(participantItems)}
               linkPath={linkPath}
               linkSuffix={linkSuffix}
               notifications={notifications}
               resource={resource}
               listType="private"
               parentResourec={parentResource}
-              // draggable
             />
-          </div>
-        </div>
-      ) : (
-        <Fragment>
-          {fList.length > 0 ? (
-            <h2 className={classes.ResourceHeader}>My {displayResource}</h2>
-          ) : (
-            <h2 className={classes.ResourceHeader}>
-              {displayResource} I&#39;m a member of
-            </h2>
-          )}
-          {(fList.length >= 1 || pList.length >= 1) && setResourceState && (
-            <SortUI
-              keys={keys}
-              sortFn={
-                fList.length > 0
-                  ? facilitatorRequestSort
-                  : participantRequestSort
-              }
-              sortConfig={
-                fList.length > 0
-                  ? resourceState.facilitatorConfig || initialConfig
-                  : resourceState.participantConfig || initialConfig
-              }
-            />
-          )}
-          <BoxList
-            list={facilitatorItems.concat(participantItems)}
-            linkPath={linkPath}
-            linkSuffix={linkSuffix}
-            notifications={notifications}
-            resource={resource}
-            listType="private"
-            parentResourec={parentResource}
-            // draggable
-          />
-        </Fragment>
-      )}
-    </div>
+          </Fragment>
+        )}
+      </div>
+    </React.Fragment>
   );
 };
 
@@ -272,6 +474,7 @@ ResourceList.propTypes = {
     participantConfig: PropTypes.shape({}),
   }),
   setResourceState: PropTypes.func,
+  selectableBoxList: PropTypes.bool,
 };
 
 ResourceList.defaultProps = {
@@ -279,6 +482,7 @@ ResourceList.defaultProps = {
   parentResourceId: null,
   resourceState: {},
   setResourceState: null,
+  selectableBoxList: false,
 };
 
 export default ResourceList;

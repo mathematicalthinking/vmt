@@ -1,4 +1,4 @@
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   blue: blue;
   red: red;
   green: green;
@@ -7,7 +7,7 @@
 }
 
 .Container {
-  width: 100%;
+  width: 620px;
   position: relative;
   display: flex;
   padding: 5px;
@@ -47,17 +47,18 @@
 
 .Container:hover {
   box-shadow: lightShadow;
-  font-weight: 500;
 }
 
-.Title {
+.Title,
+.TitleLink {
   font-size: 1.5em;
   margin-right: 10px;
   text-align: center;
   vertical-align: middle;
   color: blue;
-  max-width: 450px;
+  width: 350px;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .Expand {
@@ -118,4 +119,9 @@
 
 .TabTypes {
   text-transform: capitalize;
+}
+
+.TitleLink:hover {
+  cursor: pointer;
+  font-weight: 500;
 }

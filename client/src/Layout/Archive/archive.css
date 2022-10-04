@@ -1,0 +1,174 @@
+:import('../../colors.css') {
+    green: green;
+    lightShadow: lightShadow;
+    darkShadow: darkShadow;
+    backgroundGray: backgroundGray;
+    darkGray: darkGray;
+    lightGray: lightGray;
+    navbarHeight: navbarHeight;
+  }
+  :root {
+    --margin-top: 48px;
+  }
+  .Container {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    /* margin-top: 20px; */
+    align-self: center;
+  }
+  
+  .Header {
+    padding-top: 25px;
+    position: fixed;
+    width: 100%;
+    max-width: 1100px;
+    z-index: 320;
+    color: #444;
+    background: #f8f8f8;
+    /* box-shadow: 10px 10px 10px 2px #f8f8f8, -10px 0 10px 2px #f8f8f8; */
+  }
+  
+  .Title {
+    font-size: 30px;
+    text-align: center;
+    border-bottom: none;
+    width: auto;
+  }
+  
+  .ResourceOpts {
+    display: flex;
+    width: 300px;
+    justify-content: space-between;
+    margin-top: 25px;
+  }
+  
+  .Search {
+    margin: 12px 0;
+  }
+  
+  .Filters {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+  }
+  
+  .Filters > * {
+    margin-right: 12px;
+  }
+  
+  .FilterIcon {
+    font-size: 50px;
+    color: darkGray;
+    flex: 0;
+  }
+  
+  .FilterGroup {
+    display: flex;
+    flex-direction: column;
+    margin-left: 26px;
+    border: 1px solid lightGray;
+    /* flex: 2; */
+  }
+  
+  .FilterTitle {
+    color: #5e5e5e;
+    padding: 4px;
+    border-bottom: 1px solid #5e5e5e;
+    margin-bottom: 4px;
+  }
+  
+  .FilterOpts {
+    padding-left: 12px;
+    display: flex;
+    /* justify-content: space-between; */
+    /* flex: 1; */
+  }
+  
+  .FilterOpts > * {
+    margin-right: 8px;
+  }
+  
+  .List {
+    margin-top: 260px;
+    display: flex;
+    flex-flow: column;
+  }
+  
+  .LoadMore {
+    align-self: center;
+  }
+  
+  .Pending {
+    /* background-color: white; */
+    margin-top: 20px;
+    font-size: 20px;
+    transition: 0.1s;
+  }
+  
+  .dot1 {
+    animation: visibility 2s linear infinite;
+  }
+  @keyframes visibility {
+    0% {
+      opacity: 1;
+    }
+    65% {
+      opacity: 1;
+    }
+    66% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  
+  .dot2 {
+    animation: visibility2 2s linear infinite;
+  }
+  @keyframes visibility2 {
+    0% {
+      opacity: 0;
+    }
+    21% {
+      opacity: 0;
+    }
+    22% {
+      opacity: 1;
+    }
+    65% {
+      opacity: 1;
+    }
+    66% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  
+  .dot3 {
+    animation: visibility3 2s linear infinite;
+  }
+  @keyframes visibility3 {
+    0% {
+      opacity: 0;
+    }
+    43% {
+      opacity: 0;
+    }
+    44% {
+      opacity: 1;
+    }
+    65% {
+      opacity: 1;
+    }
+    66% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  
