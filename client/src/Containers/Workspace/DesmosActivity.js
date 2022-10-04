@@ -7,7 +7,6 @@ import classes from './graph.css';
 import { Button } from '../../Components';
 // import { Player } from '../../external/js/api.full.es';
 import socket from '../../utils/sockets';
-import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 // import CheckboxModal from '../../Components/UI/Modal/CheckboxModal';
 import { fetchConfigData } from './Tools/DesActivityHelpers';
@@ -108,7 +107,7 @@ const DesmosActivity = (props) => {
     const transient = type === 'transient';
     if (initializing) return;
     // console.log('Receiving data: ', receivingData);
-    const { user, emitEvent, resetControlTimer } = props;
+    const { user, emitEvent } = props;
     const currentState = {
       desmosState: updates,
       screen: getCurrentScreen(),
@@ -128,7 +127,6 @@ const DesmosActivity = (props) => {
       };
       // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
       emitEvent(newData);
-      resetControlTimer();
       if (!currentState.transient) putState();
     }
     receivingData = false;
@@ -415,7 +413,6 @@ DesmosActivity.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  resetControlTimer: PropTypes.func.isRequired,
   updatedRoom: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
   toggleControl: PropTypes.func.isRequired,
