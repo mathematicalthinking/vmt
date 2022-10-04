@@ -122,7 +122,7 @@ const WebSketch = (props) => {
     if (typeof attr === 'string') {
       attr = JSON.parse(attr);
     }
-    console.log('parse event: ', msg);
+    // console.log('parse event: ', msg);
     if (attr.gobjId) {
       // if (!sketchDoc || !sketch) {
       //   console.log('Setting sketc doc');
@@ -479,20 +479,6 @@ const WebSketch = (props) => {
     // for most events, data is the attributes of the WSP event
     const { attr, sender } = msg;
 
-    function selfSent() {
-      let ret = false;
-      if (sender) {
-        const canvas = $sketch[0];
-        const receiver = { id: canvas.id, baseURI: canvas.baseURI };
-        ret = sender.id === receiver.id && sender.baseURI === receiver.baseURI;
-        if (ret)
-          GSP.createError(
-            'follow: handleMessage: received a self-sent message.'
-          );
-      }
-      return ret;
-    }
-    if (selfSent()) return; // ignore messages from this follower sketch
     if (attr.gobjId) {
       attr.gobj = sketch.gobjList.gobjects[attr.gobjId];
       if (!attr.gobj)
@@ -996,6 +982,9 @@ const WebSketch = (props) => {
   function handleLabelWidget(attr) {
     // attr: gobjId is always present, other properties only if changed:
     // text (the label or text), styleJson (stringified), and autoGenerate (for shouldAutogenerateLabel).
+    if (!sketch) {
+      getSketch();
+    }
     const gobj =
       sketch.gobjList.gobjects[attr.sketch.gobjList.gobjects[attr.gobjId]];
     const labelChanged = attr.label !== 'gobj.label';
@@ -1120,11 +1109,19 @@ const WebSketch = (props) => {
 
   const loadSketch = () => {
     const { tab } = props;
-
+    const isWidgetLoaded = () => {
+      return !!(
+        window.UTILMENU &&
+        !!window.UTILMENU.initUtils &&
+        window.PAGENUM &&
+        !!window.PAGENUM.initPageControls &&
+        window.WIDGETS &&
+        !!window.WIDGETS.initWidget
+      );
+    };
     // When should this call happen, before or after loading the sketch?
-    let isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
-    console.log('Widgets?: ', isWidgetLoaded);
-    if (isWidgetLoaded) {
+    console.log('Widgets?: ', isWidgetLoaded());
+    if (isWidgetLoaded()) {
       window.WIDGETS.initWidget();
       window.PAGENUM.initPageControls();
       window.UTILMENU.initUtils();
@@ -1133,13 +1130,12 @@ const WebSketch = (props) => {
       syncToFollower();
     } else {
       const pollDOM = () => {
-        isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
-        console.log('Widgets recheck: ', isWidgetLoaded);
-        if (isWidgetLoaded) {
+        console.log('Widgets recheck: ', isWidgetLoaded());
+        if (isWidgetLoaded()) {
           loadSketchDoc(getSketchConfig(tab));
           syncToFollower();
         } else {
-          setTimeout(pollDOM, 100); // try again in 100 milliseconds
+          setTimeout(pollDOM, 150); // try again in 150 milliseconds
         }
       };
       pollDOM();

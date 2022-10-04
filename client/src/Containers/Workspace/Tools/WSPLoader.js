@@ -51,7 +51,7 @@ const WSPLoader = (callback) => {
     } else {
       const script = document.createElement('script');
       script.src = '/WSPAssets/wsp-runner.js';
-      script.id = 'wspscript';
+      script.id = 'wsprunner';
       script.type = 'text/javascript';
       script.onload = () => {
         console.log('Loaded WSP-Runner... ');
@@ -62,12 +62,22 @@ const WSPLoader = (callback) => {
   };
 
   const loadWidgets = () => {
-    // if (
-    //   document.getElementById('widgetsjs') &&
-    //   document.getElementById('widgetscss')
-    // ) {
-    //   console.log('Widgets already loaded!');
-    // } else {
+    if (
+      document.getElementById('widgetsjs') &&
+      document.getElementById('widgetscss') &&
+      document.getElementById('tiny-draggable')
+    ) {
+      console.log('Reloadin Widgets!');
+      if (document.getElementById('widgetsjs')) {
+        document.getElementById('widgetsjs').remove();
+      }
+      if (document.getElementById('tiny-draggable')) {
+        document.getElementById('tiny-draggable').remove();
+      }
+      if (document.getElementById('widgetscss')) {
+        document.getElementById('widgetscss').remove();
+      }
+    }
     const script1 = document.createElement('script');
     script1.src = '/WSPAssets/widgets/jquery.tiny-draggable.js';
     script1.id = 'tiny-draggable';
@@ -88,11 +98,12 @@ const WSPLoader = (callback) => {
         console.log('Core WSP assets loaded: Ready to create script!');
         callback();
       };
-      document.body.appendChild(script).appendChild(link);
+      document.body.appendChild(script);
+      document.body.appendChild(link);
     };
     document.body.appendChild(script1);
   };
-  //   };
+
   // initiate load sequence
   loadJquery();
 };

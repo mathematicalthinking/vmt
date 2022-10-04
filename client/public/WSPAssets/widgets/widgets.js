@@ -2885,6 +2885,7 @@ var WIDGETS = (function() {
     if ($widget) {
       $widget.remove();
       console.log('makeWidget() should not be called twice.');
+      return; // VMT escape due to possibly calling twice
     }
     $data.append(data);
     $widget = $data.find('#widget');
