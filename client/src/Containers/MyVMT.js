@@ -104,6 +104,10 @@ class MyVMT extends Component {
       rooms: user.rooms.length,
       activities: user.activities.length,
     };
+
+    if (user.archive && user.archive.rooms && user.archive.rooms.length)
+      additionalDetails['archived rooms'] = user.archive.rooms.length;
+
     const resourceTypes = [
       'rooms',
       'courses',
@@ -131,6 +135,7 @@ class MyVMT extends Component {
         }
         user={user}
         resource={resource}
+        selectableBoxList
         context="myVMT"
       />
     );
@@ -152,7 +157,7 @@ class MyVMT extends Component {
         }
         sidePanel={
           <SidePanel
-            image={user.profilePic}
+            // image={user.profilePic}
             name={user.username}
             subTitle={`${user.firstName} ${user.lastName}`}
             additionalDetails={additionalDetails}
@@ -170,7 +175,9 @@ class MyVMT extends Component {
 }
 
 MyVMT.propTypes = {
-  match: PropTypes.shape({}).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({ resource: PropTypes.string }),
+  }).isRequired,
   user: PropTypes.shape({
     courses: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]) // allows for an id or a populated object
@@ -181,6 +188,12 @@ MyVMT.propTypes = {
     activities: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
     ),
+    archive: PropTypes.shape({ rooms: PropTypes.arrayOf(PropTypes.string) }),
+    notifications: PropTypes.arrayOf(PropTypes.shape({})),
+    username: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    accountType: PropTypes.string,
   }).isRequired,
 };
 

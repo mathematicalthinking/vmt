@@ -6,6 +6,8 @@ const Course = require('./Course');
 const Image = require('./Image');
 const Notification = require('./Notification');
 const Activity = require('./Activity');
+const STATUS = require('../constants/status');
+const ROLE = require('../constants/role');
 
 const colorMap = require('../constants/colorMap.js');
 
@@ -28,7 +30,10 @@ const Room = new mongoose.Schema(
           type: String,
           default: colorMap[0],
         },
-        role: { type: String, enum: ['participant', 'facilitator', 'guest'] },
+        role: {
+          type: String,
+          enum: [ROLE.PARTICIPANT, ROLE.FACILITATOR, ROLE.GUEST],
+        },
         alias: { type: String },
       },
     ],
@@ -53,6 +58,11 @@ const Room = new mongoose.Schema(
     isTrashed: { type: Boolean, default: false },
     snapshot: {},
     groupId: { type: String },
+    status: {
+      type: String,
+      enum: [STATUS.ARCHIVED, STATUS.TRASHED, STATUS.DEFAULT],
+      default: STATUS.DEFAULT,
+    },
   },
   { timestamps: true }
 );
@@ -82,7 +92,7 @@ Room.pre('save', function(next) {
         // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
         // console.log(this)
       } else if (field === 'isTrashed' && this.isTrashed) {
-        // delete all ntfs related to this resource
+        // delete all ntfs related to this resource. Is this redundant with what happens in RoomController?
         Notification.find({ resourceId: this._id })
           .then((ntfs) => {
             Promise.all(

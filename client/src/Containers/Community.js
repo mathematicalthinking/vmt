@@ -243,7 +243,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  null
-)(Community);
+export default connect(mapStateToProps, null)(Community);

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import PropTypes from 'prop-types';
 import { MonitoringView } from 'Containers';
 import { useDispatch, useStore } from 'react-redux';

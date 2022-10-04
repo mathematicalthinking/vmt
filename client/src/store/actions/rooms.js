@@ -1,4 +1,5 @@
 import { initializeNewDesmosActivity } from 'Containers/Workspace/Tools/DesActivityHelpers';
+import { STATUS } from 'constants.js';
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
@@ -94,6 +95,14 @@ export const removeUserRooms = (roomIdsArr) => {
     roomIdsArr,
   };
 };
+
+export const addRoomToArchive = (roomId) => {
+  return {
+    type: actionTypes.ADD_ROOM_TO_ARCHIVE,
+    roomId,
+  };
+};
+
 export const addActivityRooms = (activityId, roomIdsArr) => {
   return {
     type: actionTypes.ADD_ACTIVITY_ROOMS,
@@ -313,25 +322,37 @@ export const createRoomFromActivity = (
 export const updateRoom = (id, body) => {
   return (dispatch, getState) => {
     const room = { ...getState().rooms.byId[id] };
-    if (body.isTrashed) {
+    if (body.status === STATUS.ARCHIVED) {
+      dispatch(addRoomToArchive(id));
+    }
+    if (
+      body.isTrashed ||
+      body.status === STATUS.TRASHED ||
+      body.status === STATUS.ARCHIVED
+    ) {
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
+      dispatch(updatedRoom(id, body)); // Optimistically update the UI
     } else {
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
     }
     API.put('rooms', id, body)
       .then()
       .catch(() => {
-        if (body.isTrashed) {
+        if (
+          body.isTrashed ||
+          body.status === STATUS.TRASHED ||
+          body.status === STATUS.ARCHIVED
+        ) {
           dispatch(addUserRooms([id]));
           dispatch(createdRoom(room));
+          dispatch(updatedRoom(id, { ...body, status: STATUS.DEFAULT }));
         }
         const prevRoom = {};
         const keys = Object.keys(body);
         keys.forEach((key) => {
           prevRoom[key] = room[key];
         });
-
         dispatch(updatedRoom(id, prevRoom));
         dispatch(loading.updateFail('room', keys));
         setTimeout(() => {
@@ -476,6 +497,7 @@ export const updateRoomMembers = (roomId, updatedMembers) => {
   };
 };
 
+// unused
 export const removeRoom = (roomId) => {
   return (dispatch) => {
     dispatch(loading.start());
@@ -485,10 +507,14 @@ export const removeRoom = (roomId) => {
         if (res.data.result.course) {
           dispatch(removeCourseRooms(res.data.result.course, [roomId]));
         }
+        // if (res.data.result.activity) {
+        //   dispatch(removeActivityRooms(res.data.result.activity, [roomId]));
+        // }
         dispatch(removedRoom(roomId));
         dispatch(loading.success());
       })
       .catch((err) => {
+        // @todo: if fail, restore room
         dispatch(loading.fail());
         // eslint-disable-next-line no-console
         console.log(err);
@@ -508,5 +534,29 @@ export const updateMonitorSelections = (selections) => {
       type: actionTypes.UPDATE_MONITOR_SELECTIONS,
       monitorSelections: selections,
     });
+  };
+};
+
+export const restoreArchivedRoom = (id) => {
+  return async (dispatch) => {
+    const roomData = await API.get('rooms', { _id: id });
+    const room = await roomData.data.results[0];
+    dispatch(removeRoomFromArchive(id)); // do this for each facilitator
+    // dispatch(addUserRooms([id]));
+    const roomToUpdate = { ...room, status: STATUS.DEFAULT, unarchive: true };
+    // add room to store
+    dispatch(updateRoom(id, roomToUpdate));
+    // updates room status & unarchives room from db
+    // dispatchNewRoom(updatedRoom, dispatch);
+
+    // change room in db API.put('rooms', id, status.defualt)
+    // in catch undo everything
+  };
+};
+
+const removeRoomFromArchive = (id) => {
+  return {
+    type: actionTypes.REMOVE_ROOM_FROM_ARCHIVE,
+    id,
   };
 };

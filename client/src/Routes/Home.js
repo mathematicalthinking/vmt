@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 import { HomeNav, Modal, Navbar } from '../Components';
 import {
@@ -14,6 +15,7 @@ import {
   ResetPassword,
   ConfirmEmail,
   Unconfirmed,
+  Archive,
 } from '../Containers';
 import {
   Confirmation,
@@ -77,6 +79,7 @@ class Home extends PureComponent {
       <Aux>
         {location.pathname.indexOf('community') > -1 ||
         location.pathname.indexOf('profile') > -1 ||
+        location.pathname.indexOf('archive') > -1 ||
         location.pathname.indexOf('dashboard') > -1 ? (
           <Navbar fixed user={user} toggleAdmin={this.toggleAdmin} />
         ) : (
@@ -127,6 +130,7 @@ class Home extends PureComponent {
             <Route path="/faq" component={Faq} />
             <Route path="/contact" component={Contact} />
             <Route path="/community/:resource" component={Community} />
+            <Route path="/archive/:resource" component={Archive} />
             <Route exact path="/logout" component={Logout} />
             <Route path="/login" component={Login} />
             <Route path="/signup" component={Signup} />
@@ -150,3 +154,11 @@ class Home extends PureComponent {
 export default connect((state) => ({ user: state.user }), {
   connectUpdateUser: updateUser,
 })(Home);
+
+Home.propTypes = {
+  user: PropTypes.shape({
+    inAdminMode: PropTypes.bool,
+  }).isRequired,
+  location: PropTypes.shape({ pathname: PropTypes.string }).isRequired,
+  connectUpdateUser: PropTypes.func.isRequired,
+};
