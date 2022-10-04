@@ -263,23 +263,9 @@ const ResourceList = ({
           ...userResources.find((userResource) => userResource._id === id),
           status: STATUS.ARCHIVED,
         };
-
-        console.group();
-        console.log('id', id);
-        console.log('rtnObj');
-        console.log(rtnObj);
-        console.log(`dispatch(updateRoom(id, rtnObj))`);
-        console.groupEnd();
-
         dispatch(updateRoom(id, rtnObj));
       } else {
         id.forEach((resId) => {
-          console.log(
-            '...userResources.find((userResource) => userResource._id === resId)'
-          );
-          console.log(
-            ...userResources.find((userResource) => userResource._id === resId)
-          );
           dispatch(
             updateRoom(resId, {
               ...userResources.find(
@@ -304,7 +290,7 @@ const ResourceList = ({
           Are you sure you want to archive{' '}
           <span style={{ fontWeight: 'bolder' }}>{res}</span>?
         </span>
-        <div className={''}>
+        <div>
           <Button
             data-testid="archive-resource"
             click={() => {
@@ -355,7 +341,7 @@ const ResourceList = ({
   const getResourceNames = (ids) => {
     return facilitatorItems
       .concat(participantItems)
-      .filter((resource) => ids.includes(resource._id))
+      .filter((res) => ids.includes(res._id))
       .map((res) => res.name);
   };
 
@@ -488,6 +474,7 @@ ResourceList.propTypes = {
     participantConfig: PropTypes.shape({}),
   }),
   setResourceState: PropTypes.func,
+  selectableBoxList: PropTypes.bool,
 };
 
 ResourceList.defaultProps = {
@@ -495,6 +482,7 @@ ResourceList.defaultProps = {
   parentResourceId: null,
   resourceState: {},
   setResourceState: null,
+  selectableBoxList: false,
 };
 
 export default ResourceList;
@@ -604,9 +592,7 @@ SortUI.propTypes = {
       timeframe: PropTypes.string,
     }),
   }),
-  selectableBoxList: PropTypes.bool,
 };
 SortUI.defaultProps = {
   sortConfig: {},
-  selectableBoxList: false,
 };

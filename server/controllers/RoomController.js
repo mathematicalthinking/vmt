@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
-const { ObjectId } = require('mongodb');
-// const { ObjectID } = require('mongoose')
+// const { ObjectId } = require('mongodb');
+const { Types } = require('mongoose');
 const db = require('../models');
 const STATUS = require('../constants/status');
 const ROLE = require('../constants/role');
@@ -10,6 +10,7 @@ const ROLE = require('../constants/role');
 const { Tab } = db;
 const { Room } = db;
 const { Event } = db;
+const { ObjectId } = Types;
 
 const colorMap = require('../constants/colorMap');
 
