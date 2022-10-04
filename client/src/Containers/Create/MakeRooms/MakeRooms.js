@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { BigModal, Button, Modal } from 'Components';
-import { createGrouping } from 'store/actions';
+import { createGrouping, inviteToCourse } from 'store/actions';
 import COLOR_MAP from 'utils/colorMap';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
@@ -28,6 +28,7 @@ const MakeRooms = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const submitArgs = React.useRef(); // used for passing along submit info
+  const membersToInviteToCourse = React.useRef(null);
 
   // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
   // changed props.  However, the correct way of detecting and responding to a changed state is to act when the
@@ -196,6 +197,10 @@ const MakeRooms = (props) => {
     );
   };
 
+  const handleMembersToInvite = (memsToInvite) => {
+    membersToInviteToCourse.current = memsToInvite;
+  };
+
   const setNumber = (numberOfParticipants) => {
     // Make sure that number of participants is between 1 and the number of participants
     const newNumberOfParticipants = Math.max(
@@ -264,14 +269,6 @@ const MakeRooms = (props) => {
         color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
       }));
 
-      // if (!course) {
-      //   members.unshift({
-      //     user: userId,
-      //     role: 'facilitator',
-      //     color: COLOR_MAP[0],
-      //   });
-      // }
-
       currentRoom.members = members;
       currentRoom.name = `${roomName}: ${i + 1}`;
       roomsToCreate.push(currentRoom);
@@ -286,6 +283,17 @@ const MakeRooms = (props) => {
 
     if (course) {
       dispatch(createGrouping(roomsToCreate, activity, course));
+      // if user was added via AddParticipants (showModal),
+      // invite them to the course
+      if (membersToInviteToCourse.current) {
+        membersToInviteToCourse.current.forEach((memToInvite) => {
+          inviteToCourse(
+            course._id,
+            memToInvite.user._id,
+            memToInvite.user.username
+          )(dispatch);
+        });
+      }
     } else {
       dispatch(createGrouping(roomsToCreate, activity));
     }
@@ -321,13 +329,12 @@ const MakeRooms = (props) => {
         >
           <AddParticipants
             participants={participants}
-            updateList={setParticipants}
             userId={userId}
-            courseId={course ? course._id : null}
+            updateList={setParticipants}
             close={() => {
               setShowModal(false);
             }}
-            sortParticipants={sortParticipants}
+            updateMembersToInvite={handleMembersToInvite}
           />
         </BigModal>
       )}

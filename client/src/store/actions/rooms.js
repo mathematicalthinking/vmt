@@ -441,7 +441,7 @@ export const inviteToRoom = (
   return (dispatch) => {
     const options = { role };
     API.grantAccess(toUserId, 'room', roomId, 'invitation', options)
-      .then((res) =>
+      .then((res) => {
         dispatch(
           addRoomMember(roomId, {
             user: { _id: toUserId, username: toUserUsername },
@@ -453,8 +453,8 @@ export const inviteToRoom = (
               }
             )._id,
           })
-        )
-      )
+        );
+      })
       .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);

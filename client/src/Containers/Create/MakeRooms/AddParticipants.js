@@ -1,26 +1,20 @@
 /* eslint-disable no-console */
 /* eslint-disable react/no-did-update-set-state */
 import React, { useState, Fragment } from 'react';
-import { useDispatch } from 'react-redux';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import SearchResults from 'Containers/Members/SearchResults';
 import API from 'utils/apiRequests';
 import { Button, InfoBox, Search, Member } from 'Components';
-import { updateCourseMembers } from 'store/actions';
-import ParticipantList from './ParticipantList';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
   const {
     participants,
     userId,
-    courseId,
     updateList,
     close,
-    sortParticipants,
+    updateMembersToInvite,
   } = props;
-
-  const dispatch = useDispatch();
 
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -57,7 +51,7 @@ const AddParticipants = (props) => {
     }
   };
 
-  const addParticipant = (_id, username, email) => {
+  const addParticipant = (_id, username) => {
     setNewParticipants((prevState) => [
       ...prevState,
       { role: 'participant', user: { _id, username } },
@@ -74,6 +68,7 @@ const AddParticipants = (props) => {
     );
 
     // add mem back to the search results list?
+    // eslint-disable-next-line no-restricted-syntax
     for (const user of initialSearchResults) {
       if (user._id === mem.user._id) {
         setSearchResults((prevState) =>
@@ -96,12 +91,8 @@ const AddParticipants = (props) => {
     const newList = [...prevParticipants, ...newParticipants]
       .sort((a, b) => a.user.username.localeCompare(b.user.username))
       .concat(facilitators);
-
     updateList(newList);
-
-    if (courseId) {
-      dispatch(updateCourseMembers(courseId, newList));
-    }
+    updateMembersToInvite(newParticipants);
     close();
   };
 
@@ -157,15 +148,12 @@ const AddParticipants = (props) => {
   );
 };
 
-// AddParticipants.propTypes = {
-//   userId: PropTypes.string.isRequired,
-//   course: PropTypes.string,
-//   participants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-//   //   setParticipants: PropTypes.func.isRequired,
-// };
-
-// AddParticipants.defaultProps = {
-//   course: null,
-// };
+AddParticipants.propTypes = {
+  participants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  userId: PropTypes.string.isRequired,
+  updateList: PropTypes.func.isRequired,
+  close: PropTypes.func.isRequired,
+  updateMembersToInvite: PropTypes.func.isRequired,
+};
 
 export default AddParticipants;
