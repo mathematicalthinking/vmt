@@ -16,7 +16,6 @@ import {
   requestAccess,
   grantAccess,
   updateUser,
-  updatedCourse,
 } from '../store/actions';
 import {
   DashboardLayout,
@@ -391,6 +390,7 @@ class Course extends Component {
             )}
             parentResource="courses"
             parentResourceId={course._id}
+            context="course"
           />
         );
       } else if (resource === 'members') {
@@ -398,12 +398,14 @@ class Course extends Component {
           <Members
             user={user}
             classList={this.sortParticipants(course.members)}
+            courseMembers={course.members}
             owner={course.myRole === 'facilitator' || isAdmin}
             resourceType="course"
             resourceId={course._id}
             notifications={
               notifications.filter((ntf) => ntf.resourceId === course._id) || []
             }
+            course={course}
           />
         );
       } else if (resource === 'preview') {

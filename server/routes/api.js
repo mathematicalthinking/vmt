@@ -47,7 +47,7 @@ router.post('/:resource/code', (req, res) => {
     );
   }
 
-  controller
+  return controller
     .getByCode(code)
     .then((result) => res.json({ result }))
     .catch((err) => {
@@ -152,6 +152,26 @@ router.get('/findAllMatching/:resource', (req, res) => {
       }
       return errors.sendError.InternalError(msg, res);
     });
+});
+
+router.get('/findAllMatchingIds/:resource/populated', (req, res) => {
+  const resource = getResource(req);
+  const controller = controllers[resource];
+  const { ids = [], events = false } = req.query;
+
+  try {
+    return Promise.all(
+      ids.map((id) => controller.getPopulatedById(id, { events }))
+    ).then((results) => res.json({ results }));
+  } catch (err) {
+    console.error(`Error get ${resource}: ${err}`);
+    let msg = null;
+
+    if (typeof err === 'string') {
+      msg = err;
+    }
+    return errors.sendError.InternalError(msg, res);
+  }
 });
 
 router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {

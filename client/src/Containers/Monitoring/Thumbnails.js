@@ -142,6 +142,7 @@ export default function Thumbnails({
               setScreenSelection(0);
             }}
             placeholder="Select a Tab..."
+            isSearchable={false}
           />
         )}
         {screenOptions.length > 1 && (
@@ -149,8 +150,9 @@ export default function Thumbnails({
             className={classes.Select}
             options={screenOptions}
             value={screenSelection}
-            onChange={(selectedOption) => setScreenSelection(selectedOption)}
+            onChange={setScreenSelection}
             placeholder="Select a Screen..."
+            isSearchable={false}
           />
         )}
       </div>

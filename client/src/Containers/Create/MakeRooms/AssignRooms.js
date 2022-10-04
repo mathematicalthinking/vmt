@@ -70,7 +70,7 @@ const AssignRooms = (props) => {
             <div className={classes.AliasTooltipContent}>
               When selected, members in the room will be given a random
               username. When not selected, members in the room will have their
-              normal usernames{' '}
+              normal usernames.{' '}
             </div>
           </Checkbox>
         </div>
@@ -88,6 +88,7 @@ const AssignRooms = (props) => {
             else setDueDate(datePicked);
           }}
           value={dueDate}
+          hover
         />
         <div className={classes.RoomNameInput}>
           {/* New room name input */}

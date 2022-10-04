@@ -69,3 +69,7 @@
 /* .Input:focus + .Label{
   color: blue;
 } */
+
+.Hover:hover {
+  cursor: pointer;
+}

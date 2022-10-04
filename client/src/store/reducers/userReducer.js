@@ -135,6 +135,13 @@ const reducer = (state = initialState, action) => {
         presumptiveEmailAddress,
       };
     }
+    case actionTypes.UPDATE_RESOURCELIST_STATE: {
+      const { context, newState } = action;
+      return {
+        ...state,
+        resourceListState: { ...state.resourceListState, [context]: newState },
+      };
+    }
     default:
       return state;
   }

@@ -40,8 +40,10 @@ const AssignmentMatrix = (props) => {
       _id: data.participant.user._id,
       user: data.participant.user,
     };
+
     if (user._id && roomIndex >= 0) {
-      const roomsUpdate = [...roomDrafts];
+      // create a deep copy of roomDrafts to avoid reference sharing
+      const roomsUpdate = JSON.parse(JSON.stringify(roomDrafts));
       const index = checkUser(roomIndex, user);
       if (index < 0) {
         roomsUpdate[roomIndex].members.push({ ...user });
@@ -49,6 +51,7 @@ const AssignmentMatrix = (props) => {
       if (index >= 0) {
         roomsUpdate[roomIndex].members.splice(index, 1);
       }
+
       select(roomsUpdate);
     }
   };
@@ -87,7 +90,9 @@ const AssignmentMatrix = (props) => {
                       role="button"
                     >
                       <div className={classes.AliasTooltipContent}>
-                        Add participants to this assignment.
+                        Add participants. If you are within a Course,
+                        participants added here will be added to the Course
+                        members list.
                       </div>
                     </i>
                   </div>
@@ -109,11 +114,20 @@ const AssignmentMatrix = (props) => {
           <tbody>
             {/* top row rooms list */}
             {list.map((participant, i) => {
-              const rowClass = requiredParticipants.some(
+              const isSelected = roomDrafts.some((room) =>
+                room.members.find(
+                  (mem) => mem.user._id === participant.user._id
+                )
+              );
+              const isRequired = requiredParticipants.some(
                 ({ user }) => user.username === participant.user.username
-              )
-                ? [classes.Participant, classes.Selected].join(' ')
-                : classes.Participant;
+              );
+              const rowClass = [
+                classes.Participant,
+                isRequired ? classes.Selected : '',
+                isSelected ? classes.SelectionMade : '',
+              ].join(' ');
+
               return (
                 <tr
                   className={rowClass}

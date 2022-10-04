@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
-import mongoIdGenerator from '../../utils/createMongoId';
 import API from '../../utils/apiRequests';
 import classes from './graph.css';
 
@@ -94,12 +93,14 @@ const CodePyretOrg = (props) => {
     if (_hasControl()) {
       handleResponseData(activityUpdates);
     }
+
+    return () => socket.removeAllListeners('RECEIVE_EVENT');
   }, [activityUpdates]);
 
   const handleResponseData = (updates) => {
     console.log('Response data processing: ', updates);
     if (initializing) return;
-    const { room, user, myColor, tab, resetControlTimer } = props;
+    const { emitEvent, user, resetControlTimer } = props;
     const currentState = {
       cpoState: updates,
     };
@@ -113,21 +114,11 @@ const CodePyretOrg = (props) => {
       const currentStateString = JSON.stringify(currentState);
       // console.log(this.calculator.getState());
       const newData = {
-        _id: mongoIdGenerator(),
-        room: room._id,
-        tab: tab._id,
         currentState: currentStateString, // desmos events use the currentState field on Event model
-        color: myColor,
-        user: {
-          _id: user._id,
-          username: user.username,
-        },
-        timestamp: new Date().getTime(),
         description,
       };
       // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
-      props.addToLog(newData);
-      socket.emit('SEND_EVENT', newData, () => {});
+      emitEvent(newData);
       console.log('Sent event... ', newData);
       resetControlTimer();
       putState();
@@ -147,7 +138,6 @@ const CodePyretOrg = (props) => {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
 
-    socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
       console.log('Socket: Received data: ', data);
       addToLog(data);

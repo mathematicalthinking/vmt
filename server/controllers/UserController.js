@@ -50,9 +50,12 @@ module.exports = {
         })
         .populate({
           path: 'activities',
-          populate: { path: 'tabs' },
+          populate: { path: 'tabs', select: 'name tabType' },
         })
-        .populate({ path: 'notifications', populate: { path: 'fromUser' } })
+        .populate({
+          path: 'notifications',
+          populate: { path: 'fromUser', select: '_id username' },
+        })
         .then((user) => resolve(user))
         .catch((err) => reject(err));
     });

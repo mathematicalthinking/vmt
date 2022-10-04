@@ -274,7 +274,7 @@ class Workspace extends Component {
     const { currentTabId, tabs } = this.state;
     const currentTab = tabs.find((tab) => tab._id === currentTabId);
 
-    if (currentTab && currentTab.tabType !== 'desmosActivity') {
+    if (currentTab && currentTab.tabType === 'desmosActivity') {
       // set screen in state
       this.setState({ currentScreen: screenNum }, () => {
         // takeSnap if needed
@@ -335,7 +335,7 @@ class Workspace extends Component {
           if (err) {
             // eslint-disable-next-line no-console
             console.log('Error joining room');
-            console.log(err); // HOW SHOULD WE HANDLE THIS
+            console.log(err);
             this.goBack();
             return;
           }
@@ -359,17 +359,20 @@ class Workspace extends Component {
     }
 
     socket.on('USER_JOINED', (data) => {
-      const { currentMembers, message } = data;
+      const { controlledBy: currentControl } = this.state;
+      const { currentMembers, message, releasedControl } = data;
+      const controlledBy = releasedControl ? null : currentControl;
       const currMems = populatedRoom.getCurrentMembers(currentMembers);
       this.setState(
         {
-          // currentMembers : populatedRoom.getCurrentMembers(currentMembers),
-          // currentMembers: currentMembers,
           currentMembers: currMems,
+          controlledBy,
         },
         () =>
-          connectUpdatedRoom(populatedRoom._id, { currentMembers: currMems })
-        // () => populatedRoom.setCurrentMembers(currentMembers)
+          connectUpdatedRoom(populatedRoom._id, {
+            currentMembers: currMems,
+            controlledBy,
+          })
       );
       this.addToLog(message);
     });
@@ -420,6 +423,19 @@ class Workspace extends Component {
 
     socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
       this.setState({ eventsWithRefs: data });
+    });
+
+    socket.on('RECEIVE_EVENT', (data, lastEventId) => {
+      const { log } = this.state;
+      const lastEvent = log.findLast((event) => !event.messageType);
+      if (lastEvent && lastEvent._id && lastEvent._id !== lastEventId) {
+        // log that state is out of sync
+        console.log(
+          `State is out of sync. lastEventId: ${lastEventId}, last log id: ${
+            log[log.length - 1]._id
+          }`
+        );
+      }
     });
 
     // helper to determine latency
@@ -971,6 +987,25 @@ class Workspace extends Component {
     return Object.keys(results).length !== 0 ? results : false;
   };
 
+  emitEvent = (eventInfo) => {
+    const { currentTabId, currentScreen, myColor, log } = this.state;
+    const { populatedRoom, user } = this.props;
+    const eventData = {
+      ...eventInfo,
+      _id: mongoIdGenerator(),
+      room: populatedRoom._id,
+      tab: currentTabId,
+      color: myColor,
+      user: { _id: user._id, username: user.username },
+      timestamp: new Date().getTime(),
+    };
+
+    if (currentScreen) eventData.currentScreen = currentScreen;
+    const lastEventId = log[log.length - 1]._id;
+    this.addToLog(eventData);
+    socket.emit('SEND_EVENT', eventData, lastEventId, () => {});
+  };
+
   render() {
     const {
       populatedRoom,
@@ -1090,7 +1125,6 @@ class Workspace extends Component {
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
             inControl={inControl}
-            myColor={myColor}
             toggleControl={this.toggleControl}
             updatedRoom={connectUpdatedRoom}
             addNtfToTabs={this.addNtfToTabs}
@@ -1099,6 +1133,7 @@ class Workspace extends Component {
             referencing={referencing}
             updateUserSettings={connectUpdateUserSettings}
             addToLog={this.addToLog}
+            emitEvent={this.emitEvent}
           />
         );
       }
@@ -1114,7 +1149,6 @@ class Workspace extends Component {
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
             inControl={inControl}
-            myColor={myColor}
             toggleControl={this.toggleControl}
             updatedRoom={connectUpdatedRoom}
             addNtfToTabs={this.addNtfToTabs}
@@ -1124,6 +1158,7 @@ class Workspace extends Component {
             updateUserSettings={connectUpdateUserSettings}
             addToLog={this.addToLog}
             onScreenChange={this.handleScreenChange}
+            emitEvent={this.emitEvent}
           />
         );
       }
@@ -1138,7 +1173,6 @@ class Workspace extends Component {
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
             inControl={inControl}
-            myColor={myColor}
             toggleControl={this.toggleControl}
             updatedRoom={connectUpdatedRoom}
             addNtfToTabs={this.addNtfToTabs}
@@ -1147,6 +1181,7 @@ class Workspace extends Component {
             referencing={referencing}
             updateUserSettings={connectUpdateUserSettings}
             addToLog={this.addToLog}
+            emitEvent={this.emitEvent}
           />
         );
       }
@@ -1156,7 +1191,6 @@ class Workspace extends Component {
           room={populatedRoom}
           tab={tab}
           user={user}
-          myColor={myColor}
           role={role}
           addToLog={this.addToLog}
           updateRoom={connectUpdateRoom}
@@ -1177,6 +1211,7 @@ class Workspace extends Component {
           log={log}
           eventsWithRefs={eventsWithRefs}
           updateEventsWithReferences={this.updateEventsWithReferences}
+          emitEvent={this.emitEvent}
         />
       );
     });

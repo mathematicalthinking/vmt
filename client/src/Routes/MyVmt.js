@@ -17,7 +17,7 @@ import {
   Dashboard,
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
-import { PrivateRoute, ErrorToast } from '../Components';
+import { PrivateRoute, ErrorToast, Loading } from '../Components';
 import { Confirmation, FacilitatorIntro } from '../Layout';
 import ErrorBoundary from '../ErrorBoundary';
 import { updateUser } from '../store/actions/user';
@@ -92,6 +92,7 @@ const MyVmt = ({
 
   const doRedirectToUnconfirmed =
     loggedIn && email.length > 0 && !isEmailConfirmed;
+
   return (
     <ErrorBoundary>
       <Navbar user={user} toggleAdmin={toggleAdmin} />

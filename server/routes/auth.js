@@ -74,9 +74,12 @@ const login = async (req, res) => {
       })
       .populate({
         path: 'activities',
-        populate: { path: 'tabs' },
+        populate: { path: 'tabs', select: 'tabsType name' },
       })
-      .populate({ path: 'notifications', populate: { path: 'fromUser' } })
+      .populate({
+        path: 'notifications',
+        populate: { path: 'fromUser', select: '_id username' },
+      })
       .lean()
       .exec();
 
@@ -267,13 +270,19 @@ router.post('/resetPassword/:token', async (req, res) => {
       .populate({
         path: 'rooms',
         select: '-currentState',
-        populate: { path: 'tabs members.user', select: 'username tabType' },
+        populate: {
+          path: 'tabs members.user',
+          select: 'username name tabType',
+        },
       })
       .populate({
         path: 'activities',
-        populate: { path: 'tabs' },
+        populate: { path: 'tabs', select: 'name tabType' },
       })
-      .populate({ path: 'notifications', populate: { path: 'fromUser' } })
+      .populate({
+        path: 'notifications',
+        populate: { path: 'fromUser', select: '_id username' },
+      })
       .lean()
       .exec();
 

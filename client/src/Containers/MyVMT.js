@@ -136,6 +136,7 @@ class MyVMT extends Component {
         user={user}
         resource={resource}
         selectableBoxList
+        context="myVMT"
       />
     );
     // resource 404 error display

@@ -3,6 +3,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { NavLink } from 'react-router-dom';
 import { Member, Search, Modal, Button, InfoBox } from 'Components';
 import Slider from 'Components/UI/Button/Slider';
 import COLOR_MAP from 'utils/colorMap';
@@ -37,12 +38,11 @@ class Members extends PureComponent {
     };
   }
 
-
-  // When a Member is added to a Classlist, 
+  // When a Member is added to a Classlist,
   // Remove them from the temporaryExclusion list.
   // See Room.js: if the refresh rate is too long,
   // Members could have been added to a Classlist multiple times
-  componentDidUpdate(prevProps) {
+  componentDidUpdate() {
     const { classList } = this.props;
     const { temporaryExclusion } = this.state;
     const classIds = classList.map((member) => member.user && member.user._id);
@@ -51,6 +51,7 @@ class Members extends PureComponent {
       (id) => !classIds.includes(id)
     );
     if (temporaryExclusion.length !== newExclusion.length)
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ temporaryExclusion: newExclusion });
   }
 
@@ -114,9 +115,10 @@ class Members extends PureComponent {
     const color = COLOR_MAP[classList.length];
     const { userId, username } = this.state;
     connectInviteToCourse(parentResource, userId, username, {
-      guest: true,
+      role: 'guest',
+      // guest: true,
     });
-    connectInviteToRoom(resourceId, userId, username, color, {});
+    connectInviteToRoom(resourceId, userId, username, color);
     this.setState({
       confirmingInvitation: false,
       username: null,
@@ -135,6 +137,25 @@ class Members extends PureComponent {
       connectRemoveCourseMember(resourceId, info.user._id);
     } else connectRemoveRoomMember(resourceId, info.user._id);
   };
+
+  removeAllMembers = () => {
+    const {
+      resourceId,
+      resourceType,
+      courseMembers,
+      connectRemoveCourseMember,
+    } = this.props;
+    if (resourceType !== 'course') return;
+    const membersToRemove = courseMembers.filter(
+      (mem) => mem.role !== 'facilitator'
+    );
+    Promise.all(
+      membersToRemove.map((mem) =>
+        connectRemoveCourseMember(resourceId, mem.user._id)
+      )
+    );
+  };
+
   /**
    * @method changeRole
    * @param  {Object} info - member obj { color, _id, role, {_id, username}}
@@ -147,6 +168,8 @@ class Members extends PureComponent {
       resourceType,
       connectUpdateRoomMembers,
       connectUpdateCourseMembers,
+      courseRoomsMembers,
+      connectInviteToRoom,
     } = this.props;
     const updatedMembers = classList.map((member) => {
       return member.user._id === info.user._id
@@ -155,6 +178,41 @@ class Members extends PureComponent {
     });
     if (resourceType === 'course') {
       connectUpdateCourseMembers(resourceId, updatedMembers);
+      if (courseRoomsMembers && info.role === 'facilitator') {
+        Object.keys(courseRoomsMembers).forEach((roomId) => {
+          if (
+            courseRoomsMembers[roomId].find(
+              (member) => member.user._id === info.user._id
+            )
+          ) {
+            const updatedMemberList = courseRoomsMembers[roomId].map(
+              (member) => {
+                if (member.user._id === info.user._id)
+                  member.role = 'facilitator';
+                return member;
+              }
+            );
+
+            connectUpdateRoomMembers(roomId, updatedMemberList);
+          } else
+            connectInviteToRoom(
+              roomId,
+              info.user._id,
+              info.user.username,
+              undefined, // color
+              info.role
+            );
+        });
+      } else if (courseRoomsMembers && info.role === 'participant') {
+        Object.keys(courseRoomsMembers).forEach((roomId) => {
+          const updatedMemberList = courseRoomsMembers[roomId].map((member) => {
+            if (member.user._id === info.user._id) member.role = 'participant';
+            return member;
+          });
+
+          connectUpdateRoomMembers(roomId, updatedMemberList);
+        });
+      }
     } else connectUpdateRoomMembers(resourceId, updatedMembers);
   };
 
@@ -336,7 +394,45 @@ class Members extends PureComponent {
               icon={<i className="fas fa-user-plus" />}
               rightIcons={
                 resourceType === 'course' ? (
-                  <Importer user={user} onImport={this.handleImport} />
+                  <div
+                    style={{
+                      display: 'flex',
+                      width: '475px',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div className={classes.Instructions}>
+                      <i className="far fa-question-circle fa-2x" />
+                      <div className={classes.TooltipContent}>
+                        <p>
+                          The search bar allows for the searching and addition
+                          of existing VMT Users. By using the Import feature,
+                          new users can be created for your course. <br /> For
+                          csv formatting and importing guides, please see the
+                          VMT{' '}
+                          <NavLink
+                            exact
+                            to="/instructions"
+                            className={classes.Link}
+                            activeStyle={{ borderBottom: '1px solid #2d91f2' }}
+                          >
+                            Instructions
+                          </NavLink>
+                        </p>
+                      </div>
+                    </div>
+                    <Importer
+                      user={user}
+                      buttonText="Import New Users"
+                      onImport={this.handleImport}
+                    />
+                    <Importer
+                      user={user}
+                      onImport={this.handleImport}
+                      buttonText="Import to Replace"
+                      preImportAction={this.removeAllMembers}
+                    />
+                  </div>
                 ) : null
               }
             >
@@ -410,7 +506,7 @@ Members.propTypes = {
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
-  courseMembers: PropTypes.arrayOf({}),
+  courseMembers: PropTypes.arrayOf(PropTypes.shape({})),
   owner: PropTypes.bool.isRequired,
   parentResource: PropTypes.string,
   classList: PropTypes.arrayOf(PropTypes.shape({})),
@@ -422,6 +518,7 @@ Members.propTypes = {
   connectClearNotification: PropTypes.func.isRequired,
   connectRemoveRoomMember: PropTypes.func.isRequired,
   connectRemoveCourseMember: PropTypes.func.isRequired,
+  courseRoomsMembers: PropTypes.shape({}),
 };
 
 Members.defaultProps = {
@@ -430,6 +527,7 @@ Members.defaultProps = {
   courseMembers: null,
   notifications: null,
   parentResource: null,
+  courseRoomsMembers: null,
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -438,12 +536,24 @@ const mapStateToProps = (state, ownProps) => {
   const allUsers = getAllUsersInStore(state, usersToExclude);
   const userIds = [...allUsers.userIds].slice(0, 5);
   const usernames = [...allUsers.usernames].slice(0, 5);
+  const course = (ownProps.course &&
+    state.courses.byId[ownProps.course._id]) || {
+    rooms: [],
+  };
   return {
     searchedUsers: userIds.map((id, i) => ({
       _id: id,
       username: usernames[i],
     })),
     user: state.user,
+    courseRoomsMembers: course.rooms.reduce((acc, roomId) => {
+      return (
+        state.rooms.byId[roomId] && {
+          ...acc,
+          [roomId]: state.rooms.byId[roomId].members,
+        }
+      );
+    }, {}),
   };
 };
 
