@@ -1206,6 +1206,7 @@ class Workspace extends Component {
             referencing={referencing}
             updateUserSettings={connectUpdateUserSettings}
             addToLog={this.addToLog}
+            emitEvent={this.emitEvent}
           />
         );
       }
