@@ -4,7 +4,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import classes from './roomInfo.css';
 import { EditableText } from '../../Components';
 import ToolTip from '../../Components/ToolTip/ToolTip';
-import Expand from '../../Components/UI/ContentBox/expand';
 
 class RoomInfo extends Component {
   state = {
@@ -46,7 +45,7 @@ class RoomInfo extends Component {
     const tabDisplayName = currentTab.name || '';
     let tabDisplayInstructions = (currentTab && currentTab.instructions) || '';
 
-    if (!tabDisplayInstructions && (currentTabIx === 0 && room.instructions)) {
+    if (!tabDisplayInstructions && currentTabIx === 0 && room.instructions) {
       tabDisplayInstructions = room.instructions;
     }
     return (
@@ -74,7 +73,7 @@ class RoomInfo extends Component {
               transform: expanded ? `rotate(0)` : `rotate(90deg)`,
             }}
           >
-            <Expand clickHandler={() => {}} />
+            <i className="fas fa-chevron-up" />
           </div>
         </div>
         <div

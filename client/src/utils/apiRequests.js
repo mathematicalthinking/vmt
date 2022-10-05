@@ -136,7 +136,7 @@ export default {
     return api.put(`/api/${resource}s/${resourceId}/add`, {
       members: {
         user,
-        role: options && options.guest ? 'guest' : 'participant',
+        role: options && options.role ? options.role : 'participant',
       },
       ntfType,
     });
