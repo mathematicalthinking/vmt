@@ -108,29 +108,10 @@ const WebSketch = (props) => {
   const handleMessage = (msg) => {
     // msg has three properties: name, time, and data
     // for most events, data is the attributes of the WSP event
-    if (!sketchDoc) {
-      console.log('Setting sketc doc');
-      const sketchEl = window.jQuery('#sketch');
-      sketchDoc = sketchEl.data('document');
-      sketch = sketchDoc.focusPage;
+    const { attr, sender } = msg;
+    if (!sketch) {
+      getSketch();
     }
-    const { attr } = msg;
-    function selfSent() {
-      const sender = msg.sender;
-      let ret = false;
-      if (sender) {
-        const canvas = $sketch[0];
-        const receiver = { id: canvas.id, baseURI: canvas.baseURI };
-        ret = sender.id === receiver.id && sender.baseURI === receiver.baseURI;
-        if (ret)
-          GSP.createError(
-            'follow: handleMessage: received a self-sent message.'
-          );
-      }
-      return ret;
-    }
-    if (selfSent()) return; // ignore messages from this follower sketch
-
     if (attr.gobjId) {
       attr.gobj = sketch.gobjList.gobjects[attr.gobjId];
       if (!attr.gobj)
@@ -259,6 +240,9 @@ const WebSketch = (props) => {
       const $ = window.jQuery;
       $sketch = $('#sketch');
     }
+    if (!sketchDoc) {
+      sketchDoc = $sketch.data('document');
+    }
     if ($sketch.data('document') !== sketchDoc) {
       console.error('follow: initSketchPage found invalid sketchDoc');
       window.GSP.createError('follow: initSketchPage found invalid sketchDoc.');
@@ -276,6 +260,9 @@ const WebSketch = (props) => {
     // cur = 2: ", Circle #4"
     // cur = 3: ", ..."
     // cur > 3: ""
+    if (!sketch) {
+      getSketch();
+    }
     let retVal = '';
     if (typeof gobj === 'string') {
       gobj = sketch.gobjList.gobjects[gobj];
@@ -384,15 +371,13 @@ const WebSketch = (props) => {
         });
         setHighLights([]);
       }
-      if (!gobjs) return;
+      if (!gobjs) return; // Nothing to do
+      if (!sketch) {
+        getSketch();
+      }
       gobjs.forEach((gobj) => {
         // this may be a gobj, or may be a gobj id
-        if (typeof gobj === 'string') {
-          console.log('STRING GOBJ: ', gobj, sketch.gobjList);
-          if (sketch && sketch.gobjList && sketch.gobjList.gobjects) {
-            gobj = sketch.gobjList.gobjects[gobj];
-          }
-        }
+        gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
         if (!gobj) return; // Nothing to do
         const { state } = gobj;
         if (!state) return;
@@ -464,10 +449,8 @@ const WebSketch = (props) => {
     }
     // A gobj moved, so move the same gobj in the follower sketch
     let moveList = JSON.parse(data);
-    initSketchPage();
     if (!sketch) {
-      console.log("Messaging error: this follower's sketch is not loaded.");
-      return;
+      initSketchPage();
     }
     console.log('Handling Gobjs: ', moveList);
 
@@ -512,7 +495,9 @@ const WebSketch = (props) => {
 
   const startFollowerTool = (name) => {
     let tool;
-
+    if (!sketchDoc) {
+      getSketch();
+    }
     if (
       sketchDoc.tools.some((aTool) => {
         if (aTool.metadata.name === name) {
@@ -527,6 +512,9 @@ const WebSketch = (props) => {
   };
 
   const abortFollowerTool = () => {
+    if (!sketchDoc) {
+      getSketch();
+    }
     // What is no tool is active?
     sketch.toolController.abortActiveTool();
   };
@@ -540,7 +528,7 @@ const WebSketch = (props) => {
     // If data contains a preDelta, ignore it as it should be in our current history as well.
     // console.log('Tool played: ', data);
     if (!sketch || !sketchDoc) {
-      console.log('NO Sketch to play tool on! ', sketch);
+      getSketch();
     }
     const controller = sketch.toolController;
     const history = sketchDoc.getCurrentPageData().session.history;
@@ -600,6 +588,9 @@ const WebSketch = (props) => {
   };
 
   const handleStyleWidget = (attr) => {
+    if (!sketch) {
+      getSketch();
+    }
     let gobjCount = 0;
     const gobjIds = [];
     const maxCount = 4;
@@ -626,6 +617,19 @@ const WebSketch = (props) => {
   };
 
   function handleTraceWidget(attr) {
+    // const change = attr.changes[0]; // Note the assumption: there's only a single gobj being changed
+    // const gobj = sketch.gobjList.gobjects[change.id];
+    // const note =
+    //   'Tracing turned ' +
+    //   (change.traced ? 'on' : 'off') +
+    //   ' for ' +
+    //   gobjDesc(gobj, 0, 1);
+    // gobj.style.traced = change.traced;
+    // notify(note, { duration: 2000, highlitGobjs: [gobj.id] });
+    if (!sketch) {
+      getSketch();
+    }
+    const WIDGETS = window.WIDGETS;
     let gobj = sketch.gobjList.gobjects[attr.gobjId];
     let options = { duration: 2500 };
     let note;
@@ -682,6 +686,9 @@ const WebSketch = (props) => {
   function handleLabelWidget(attr) {
     // attr: gobjId is always present, other properties only if changed:
     // text (the label or text), styleJson (stringified), and autoGenerate (for shouldAutogenerateLabel).
+    if (!sketch) {
+      getSketch();
+    }
     const gobj =
       sketch.gobjList.gobjects[attr.sketch.gobjList.gobjects[attr.gobjId]];
     const labelChanged = attr.label !== 'gobj.label';
@@ -705,6 +712,9 @@ const WebSketch = (props) => {
   }
 
   function handleVisibilityWidget(attr) {
+    if (!sketch) {
+      getSketch();
+    }
     let note;
     // This handler handles activate/deactivate actions
     if (attr.action.match('activate')) {
@@ -727,11 +737,12 @@ const WebSketch = (props) => {
   }
 
   function handleDeleteWidget(attr) {
+    if (!sketch) {
+      getSketch();
+    }
     let note = ' ';
     const deletedGobjs = {};
     let thisDelta;
-    let gobjCount = 0;
-    const maxCount = 6;
 
     function doDelete() {
       sketch.gobjList.removeGObjects(deletedGobjs, sketch);
@@ -757,6 +768,9 @@ const WebSketch = (props) => {
   }
 
   function paramEdit(reason, attr) {
+    if (!sketch) {
+      getSketch();
+    }
     // state is editStarted, changesNotAccepted, or changesAccepted
     const gobj = sketch.gobjList.gobjects[attr.gobjId];
     let note = reason;
@@ -805,14 +819,33 @@ const WebSketch = (props) => {
     console.log('Found data: ', data);
     sketchDoc = data;
     sketch = data.focusPage;
+    checkWidgets();
+  };
+
+  const checkWidgets = async () => {
+    await new Promise((r) => setTimeout(r, 350));
+    if (!document.getElementById('widget')) {
+      console.log('~~~~ No Widget id! ~~~~~');
+      // window.location.reload();
+      WSPLoader(loadSketch);
+    }
   };
 
   const loadSketch = () => {
     const { tab } = props;
 
-    let isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
-    console.log('Widgets?: ', isWidgetLoaded);
-    if (isWidgetLoaded) {
+    const isWidgetLoaded = () => {
+      return !!(
+        window.UTILMENU &&
+        !!window.UTILMENU.initUtils &&
+        window.PAGENUM &&
+        !!window.PAGENUM.initPageControls &&
+        window.WIDGETS &&
+        !!window.WIDGETS.initWidget
+      );
+    };
+    console.log('Widgets?: ', isWidgetLoaded());
+    if (isWidgetLoaded()) {
       window.WIDGETS.initWidget();
       window.PAGENUM.initPageControls();
       window.UTILMENU.initUtils();
@@ -822,18 +855,18 @@ const WebSketch = (props) => {
       props.setTabLoaded(tab._id);
     } else {
       const pollDOM = () => {
-        isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
-        console.log('Widgets recheck: ', isWidgetLoaded);
-        if (isWidgetLoaded) {
+        console.log('Widgets recheck: ', isWidgetLoaded());
+        if (isWidgetLoaded()) {
           loadSKetchDoc(getSketchConfig(tab));
           props.setTabLoaded(tab._id);
         } else {
-          setTimeout(pollDOM, 100); // try again in 100 milliseconds
+          setTimeout(pollDOM, 150); // try again in 100 milliseconds
         }
       };
       pollDOM();
     }
   };
+
   return (
     <Fragment>
       {(activityMessage || persistMessage) && (

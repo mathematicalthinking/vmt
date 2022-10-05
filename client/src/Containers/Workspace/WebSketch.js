@@ -14,7 +14,6 @@ import testConfig from './Tools/test.json';
 import WSPLoader from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests';
-import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 
 import classes from './graph.css';
@@ -925,6 +924,7 @@ const WebSketch = (props) => {
     if (gobj) {
       options.highlitGobjs = [gobj.id];
     }
+    const WIDGETS = window.WIDGETS;
     switch (attr.action) {
       case 'activate':
       case 'deactivate':

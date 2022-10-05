@@ -1377,7 +1377,6 @@ var WIDGETS = (function() {
     function sendEvent(gobj) {
       // Was gobj changed? If so, emit an event.
       var currentText = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label,
-        styleJson,
         attr = {};
       if (currentText !== self.oldLabel) {
         attr.text = currentText;
@@ -1385,12 +1384,10 @@ var WIDGETS = (function() {
       if (self.oldAutogenerate !== gobj.shouldAutogenerateLabel) {
         attr.autoGenerate = gobj.shouldAutogenerateLabel;
       }
-      if (!deepEquals(self.oldStyle, gobj.style)) {
-        styleJson = JSON.stringify(gobj.style);
-        attr.styleJson = styleJson;
+      if (!deepEquals(self.oldStyle.label, gobj.style.label)) {
+        attr.labelStyleJson = JSON.stringify(gobj.style.label);
       }
       if (Object.keys(attr).length) {
-        // Change this event call to use the new event() in the Widget prototype.
         self.event({ gobj: gobj }, attr);
       }
     }
@@ -1398,7 +1395,6 @@ var WIDGETS = (function() {
     if (!targetGobj) {
       return;
     }
-    sendEvent(targetGobj);
     if (targetGobj.hasLabel && targetGobj.style.nameOrigin) {
       // The following check applies only to geometric objects with labels and nameOrigins
       properOrigin = LabelControls.originFromText(targetGobj.label); // User may have set origin to manual while label is still in the form corresponding to a particular origin.
@@ -1406,6 +1402,7 @@ var WIDGETS = (function() {
         targetGobj.style.nameOrigin = properOrigin;
       }
     }
+    sendEvent(targetGobj);
     delete this.oldLabel;
     delete this.oldAutogenerate;
     delete this.oldStyle;
@@ -1459,7 +1456,12 @@ var WIDGETS = (function() {
       // NEED TO EXTEND THE CHANGES OBJECT WITH moreChanges if it exists
       labelWidget.event(
         { gobj: gobj },
-        { action: msg.action, changes: [{ id: gobj.id, style: gobj.style }] }
+        {
+          action: msg.action,
+          id: gobj.id,
+          text: gobj.label,
+          labelStyle: gobj.style.label,
+        }
       );
     }
   }
@@ -1954,7 +1956,7 @@ var WIDGETS = (function() {
       return;
     }
     // Tap is on a new object.
-    labelWidget.finalizeLabel();
+    labelWidget.finalizeLabel(); // finalize the current target before switching to the new one
     initForNewGobj();
     if (targetGobj.hasLabel) {
       handleLabeledGObj();
@@ -2888,7 +2890,6 @@ var WIDGETS = (function() {
     if ($widget) {
       $widget.remove();
       console.log('makeWidget() should not be called twice.');
-      return; // VMT escape due to possibly calling twice
     }
     $data.append(data);
     $widget = $data.find('#widget');
