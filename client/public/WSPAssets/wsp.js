@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221003205813
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221006032208
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -16534,6 +16534,7 @@
       _fadeTracesJob: null,
       
       startFadeJob: function (restart) { // Starts the fade job if it's not already running
+        // clients (e.g., VMT) may need to force starting from scratch after traces are cleared.
         var sketch = this,
             options = {
               repeat: true,
@@ -17773,14 +17774,17 @@
       },
   
       findPotentialIntersection: function (path1, candidates, pos, hitSlop) {
-        var returnedIntersectionInfo;
+        // When a tool given or drag merge is near several intersections,
+        // we prefer intersections of like kinds (straight/straight or circle-arc/circle-arc)
+        var thisIntersection,  // current best choice
+            returnedIntersectionInfo;
         
         function isSupportedIntersectionPath(gobj) {
           //The only currently supported intersection types are
           //Circle, Straight, and Arc
-          return gobj.isOfKind("Circle") || 
+          return gobj.isOfKind("Circle") || // are circle interiors ok?
                  gobj.isOfKind("Straight") || 
-                 gobj.isOfKind("Arc");
+                 gobj.kind === "Arc"; // don't allow arc interiors
         }
       
     
@@ -17791,11 +17795,13 @@
           var path2GeomObj = path2IsStraightKind ? path2 : path2.getGeometricArc();
           var path1IsStraight = path1IsStraightKind || (path1GeomObj.orientation === 0);
           var path2IsStraight = path2IsStraightKind || (path2GeomObj.orientation === 0);
-          var location, locationArray, useSecondIntersection, swapPathParents, constraint;
+          var location, locationArray, useSecondIntersection, swapPathParents, constraint,
+              match;  // if both are straights or both circles, prefer this match
            
           if (path1IsStraight) {
             if (path2IsStraight) {
               location = GSP.Geom.LineLineIntersection(path1GeomObj, path2GeomObj);
+              match = true;
             } else {
               //path1 == straight, path2 == circle.  Switch them
               swapPathParents = true;
@@ -17808,6 +17814,7 @@
             } else {
               //Both are circles or arcs
               locationArray = GSP.Geom.CircleCircleIntersection(path1GeomObj, path2GeomObj);
+              match = true; // Should we distinguish circle/circle from arc/arc? There's no demonstrated need just yet.
             }
           }
           
@@ -17832,22 +17839,31 @@
                 constraint = "Intersection1";
               }
             }
-            
-            returnedIntersectionInfo = {
-              //path1 is normalized to be the circle if its a circle/line intersection
-              path1: swapPathParents ?  path2 : path1,
-              path2: swapPathParents ?  path1 : path2,
-              location: location,
-              constraint: constraint
-            };
+            thisIntersection = {
+                //path1 is normalized to be the circle if its a circle/line intersection
+                path1: swapPathParents ?  path2 : path1,
+                path2: swapPathParents ?  path1 : path2,
+                location: location,
+                constraint: constraint
+              };
           }
-    
-          return returnedIntersectionInfo ? true : false;  
-        }
+          if (match && thisIntersection) {
+            returnedIntersectionInfo = thisIntersection;
+            return true; // we're done; we've found an intersection of matched kinds
+          } else if (!returnedIntersectionInfo) {
+            // if no matched kinds, return the first intersection with unmatched kinds
+            returnedIntersectionInfo = thisIntersection;        
+          }
+          // keep searching possible paths
+        } // checkForIntersectingPath
         
+        // body of findPotentialIntersection
         if (!isSupportedIntersectionPath(path1)) {
           return;
         }
+        // Both paths are already close to pos, so allow doubled hitSlop for the intersection,
+        // which isn't so easy to for the user to find if the paths are anywhere close to tangency
+        hitSlop *= 2;
         
         var hitTest, 
             options = {
@@ -17867,14 +17883,15 @@
           "right": pos.x + hitSlop
         }, options);
     
-     
+        // If multiple returned objects in hitArray, need to check for the preferred path
         if (returnedIntersectionInfo && pos.distance(returnedIntersectionInfo.location) < hitSlop) {
           return returnedIntersectionInfo;
         } // else return undefined
-      },
+      }, // findPotentialIntersection
       
       findIntersections: function (candidates, pos, hitSlop) {
         // Returns an array of returnedIntersectionInfo elements
+        // We assume caller has already filtered the candidates to make sure they're within hitSlop of pos
         var arr = candidates.slice (0),
             returnedInfo = [],
             gobj, intersection, ix;
@@ -41513,7 +41530,6 @@
           newDragPos = dragPos.add(adjustedDeltaToGiven.subtract(this.deltaToGiven));
           this.deltaToGiven = adjustedDeltaToGiven;
         }
-        console.log ("updateDeltaToGiven: new value = ", this.deltaToGiven);
         return newDragPos;
       },
       
@@ -41890,7 +41906,7 @@
         }
         container.toggleClass("wsp-ok-cancel-mode", false);
       },
-  
+      
       /**
        * Aborts the active tool, if there is one.  It cancels any tool in progress.
        * This does the job of cleaning up any associated ui.
@@ -41902,13 +41918,21 @@
         if (regime && this.activeTool) {
           // Original code tested for activeTool AFTER popping, so never generated an event
           // Create event msg before popping (while activeTool exists)
-          msgContent = {tool: {name: this.activeTool.metadata.name}};
+          msgContent = {tool: {name: this.activeTool.metadata.name}};      
           //Popping the regime will trigger our delegate who performs all of the cleanup
           this.sketch.popAllTouchRegimesIncluding(regime);
           this.sketch.event('ToolAborted', {}, msgContent);
         }
+        this.sketch.event(
+          'ToolAborted',
+          {},
+          {
+            tool: {
+              name: name
+            }
+          });
       },
-  
+      
       /**
        * confirms the active tool, and cleans up any associated ui.  No-op if there is no
        * active tool.
@@ -41997,7 +42021,8 @@
               name: tool.metadata.name
             },
             preToolDelta: this.preToolDelta
-          });
+          }
+        );
         this.activeTool = tool;
         tool.$element.addClass("wsp-tool-active");
         
@@ -42018,8 +42043,9 @@
                 name: tool.metadata.name
               },
               newObjIds: newObjIds
-            });
-           toolRegime.delegate = self;
+            }
+          );
+          toolRegime.delegate = self;
           this.sketch.pushTouchRegime(toolRegime);
           this.activeRegime = toolRegime;
           if (!toolRegime.confirmToolWhenReady ()) {  // If it's a one-shot tool, no need to change UI
@@ -69107,7 +69133,7 @@
   "/* For now, these are not in less. Just import them raw. */\n"+
   "/*!\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.home/20220830162558\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221006020352\n"+
   "*/\n"+
   "\n"+
   "/*\n"+
@@ -69780,7 +69806,7 @@
   ".wsp-version-4-8-0 {\n"+
   "  /*\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.home/20220830162558\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221006020352\n"+
   "*/\n"+
   "  /* Section Start: wsp-Button */\n"+
   "  /*\n"+
