@@ -108,7 +108,7 @@ const DesmosActivity = (props) => {
     const transient = type === 'transient';
     if (initializing) return;
     // console.log('Receiving data: ', receivingData);
-    const { room, user, myColor, tab, resetControlTimer } = props;
+    const { user, emitEvent, resetControlTimer } = props;
     const currentState = {
       desmosState: updates,
       screen: getCurrentScreen(),
@@ -123,24 +123,11 @@ const DesmosActivity = (props) => {
 
       const currentStateString = JSON.stringify(currentState);
       const newData = {
-        _id: mongoIdGenerator(),
-        room: room._id,
-        tab: tab._id,
         currentState: currentStateString, // desmos events use the currentState field on Event model
-        color: myColor,
-        user: {
-          _id: user._id,
-          username: user.username,
-        },
-        timestamp: new Date().getTime(),
         description,
       };
       // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
-      props.addToLog(newData);
-      socket.emit('SEND_EVENT', newData, () => {
-        // console.log(`USER: ${user.username} NEW DATA:`);
-        // console.log(newData);
-      });
+      emitEvent(newData);
       resetControlTimer();
       if (!currentState.transient) putState();
     }
@@ -428,18 +415,16 @@ DesmosActivity.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  myColor: PropTypes.string.isRequired,
   resetControlTimer: PropTypes.func.isRequired,
   updatedRoom: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,
-  // referencing: PropTypes.bool.isRequired,
-  // updateUserSettings: PropTypes.func,
   addToLog: PropTypes.func.isRequired,
   onScreenChange: PropTypes.func,
   temp: PropTypes.bool,
+  emitEvent: PropTypes.func.isRequired,
 };
 
 DesmosActivity.defaultProps = {

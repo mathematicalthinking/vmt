@@ -55,6 +55,9 @@ const WebSketch = (props) => {
   const updateSketch = () => {
     // consider comparing to previous index and handling large jumps forward/backward with squashed updates from initial
     // Take updated player data with new Player state to update
+    if (index === 0) {
+      loadSKetchDoc(getSketchConfig(tab));
+    }
     const newData = log[index] ? log[index].currentState : null;
     if (newData) {
       const updatesState = JSON.parse(newData);
@@ -108,31 +111,13 @@ const WebSketch = (props) => {
   const handleMessage = (msg) => {
     // msg has three properties: name, time, and data
     // for most events, data is the attributes of the WSP event
-    if (!sketchDoc) {
-      console.log('Setting sketc doc');
-      const sketchEl = window.jQuery('#sketch');
-      sketchDoc = sketchEl.data('document');
-      sketch = sketchDoc.focusPage;
+    const { attr, sender } = msg;
+    if (!sketch) {
+      getSketch();
     }
-    const { attr } = msg;
-    function selfSent() {
-      const sender = msg.sender;
-      let ret = false;
-      if (sender) {
-        const canvas = $sketch[0];
-        const receiver = { id: canvas.id, baseURI: canvas.baseURI };
-        ret = sender.id === receiver.id && sender.baseURI === receiver.baseURI;
-        if (ret)
-          GSP.createError(
-            'follow: handleMessage: received a self-sent message.'
-          );
-      }
-      return ret;
-    }
-    if (selfSent()) return; // ignore messages from this follower sketch
-
     if (attr.gobjId) {
-      attr.gobj = sketch.gobjList.gobjects[attr.gobjId];
+      attr.gobj =
+        sketch && sketch.gobjList && sketch.gobjList.gobjects[attr.gobjId];
       if (!attr.gobj)
         console.error('follow.handleMessage(): msg.attr has a bad gobj.');
     }
@@ -213,7 +198,9 @@ const WebSketch = (props) => {
           break;
         case 'ClearTraces':
           notify('Traces cleared.');
-          sketch.clearTraces();
+          sketch
+            ? sketch.clearTraces()
+            : console.error('Traces clear called, but no sketch found!');
           break;
         default:
           // Other messages to be defined: gobjEdited, gobjStyled, etc.
@@ -259,6 +246,9 @@ const WebSketch = (props) => {
       const $ = window.jQuery;
       $sketch = $('#sketch');
     }
+    if (!sketchDoc) {
+      sketchDoc = $sketch.data('document');
+    }
     if ($sketch.data('document') !== sketchDoc) {
       console.error('follow: initSketchPage found invalid sketchDoc');
       window.GSP.createError('follow: initSketchPage found invalid sketchDoc.');
@@ -276,9 +266,13 @@ const WebSketch = (props) => {
     // cur = 2: ", Circle #4"
     // cur = 3: ", ..."
     // cur > 3: ""
+
     let retVal = '';
     if (typeof gobj === 'string') {
-      gobj = sketch.gobjList.gobjects[gobj];
+      if (!sketch) {
+        getSketch();
+      }
+      gobj = sketch && sketch.gobjList && sketch.gobjList.gobjects[gobj];
       if (!(gobj && gobj.id && gobj.kind))
         console.error('follow.gobjDesc() gobj param is neither string nor id.');
     }
@@ -384,15 +378,20 @@ const WebSketch = (props) => {
         });
         setHighLights([]);
       }
-      if (!gobjs) return;
+      if (!gobjs) return; // Nothing to do
+      if (!sketch) {
+        getSketch();
+      }
       gobjs.forEach((gobj) => {
-        // this may be a gobj, or may be a gobj id
-        if (typeof gobj === 'string') {
-          console.log('STRING GOBJ: ', gobj, sketch.gobjList);
-          if (sketch && sketch.gobjList && sketch.gobjList.gobjects) {
-            gobj = sketch.gobjList.gobjects[gobj];
-          }
+        if (!sketch) {
+          // getSketch failed, return?
+          return;
         }
+        // this may be a gobj, or may be a gobj id
+        gobj =
+          typeof gobj === 'string'
+            ? sketch.gobjList && sketch.gobjList.gobjects[gobj]
+            : gobj;
         if (!gobj) return; // Nothing to do
         const { state } = gobj;
         if (!state) return;
@@ -464,17 +463,15 @@ const WebSketch = (props) => {
     }
     // A gobj moved, so move the same gobj in the follower sketch
     let moveList = JSON.parse(data);
-    initSketchPage();
     if (!sketch) {
-      console.log("Messaging error: this follower's sketch is not loaded.");
-      return;
+      initSketchPage();
     }
     console.log('Handling Gobjs: ', moveList);
 
     // eslint-disable-next-line
     for (let id in moveList) {
       const gobjInfo = moveList[id];
-      const destGobj = sketch.gobjList.gobjects[id];
+      const destGobj = sketch && sketch.gobjList.gobjects[id];
       if (!destGobj) {
         console.log('No destination Gobj found to handle the move data!');
         continue; // The moveList might be out of date during toolplay,
@@ -512,10 +509,12 @@ const WebSketch = (props) => {
 
   const startFollowerTool = (name) => {
     let tool;
-
+    if (!sketchDoc) {
+      getSketch();
+    }
     if (
       sketchDoc.tools.some((aTool) => {
-        if (aTool.metadata.name === name) {
+        if (aTool && aTool.metadata.name === name) {
           tool = aTool;
           return true;
         }
@@ -527,6 +526,9 @@ const WebSketch = (props) => {
   };
 
   const abortFollowerTool = () => {
+    if (!sketchDoc) {
+      getSketch();
+    }
     // What is no tool is active?
     sketch.toolController.abortActiveTool();
   };
@@ -540,7 +542,7 @@ const WebSketch = (props) => {
     // If data contains a preDelta, ignore it as it should be in our current history as well.
     // console.log('Tool played: ', data);
     if (!sketch || !sketchDoc) {
-      console.log('NO Sketch to play tool on! ', sketch);
+      getSketch();
     }
     const controller = sketch.toolController;
     const history = sketchDoc.getCurrentPageData().session.history;
@@ -557,19 +559,27 @@ const WebSketch = (props) => {
     // But the follower has nothing to undo, so just needs to redo the passed delta.
     // (This will lose any remaining redo deltas, thus matching up with the controller.)
     // If data contains a preDelta, figure out what to do.
-    const history = sketchDoc.getCurrentPageData().session.history;
-    let current = history.current;
-    if (data.preDelta) {
-      current.next = { delta: data.preDelta, prev: current, next: null };
-      history.redo();
-      current = history.current; // history.redo() changes current.
-    }
-    current.next = { delta: data.delta, prev: current, next: null };
-    sketchDoc.redo();
-    getSketch(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
-    if (data.newId) {
-      // newId exists only if the original gobj has changed its id
-      data.gobjId = data.newId;
+    try {
+      const history = sketchDoc.getCurrentPageData().session.history;
+      let current = history.current;
+      if (data.preDelta) {
+        current.next = { delta: data.preDelta, prev: current, next: null };
+        history.redo();
+        current = history.current; // history.redo() changes current.
+      }
+      current.next = { delta: data.delta, prev: current, next: null };
+      try {
+        sketchDoc.redo();
+      } catch (e) {
+        console.error('Failed to call redo on sketchDoc ', e);
+      }
+      getSketch(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
+      if (data.newId) {
+        // newId exists only if the original gobj has changed its id
+        data.gobjId = data.newId;
+      }
+    } catch (e) {
+      console.error('GobjsMerged failed! ', e);
     }
   };
 
@@ -600,6 +610,9 @@ const WebSketch = (props) => {
   };
 
   const handleStyleWidget = (attr) => {
+    if (!sketch) {
+      getSketch();
+    }
     let gobjCount = 0;
     const gobjIds = [];
     const maxCount = 4;
@@ -626,7 +639,11 @@ const WebSketch = (props) => {
   };
 
   function handleTraceWidget(attr) {
-    let gobj = sketch.gobjList.gobjects[attr.gobjId];
+    if (!sketch) {
+      getSketch();
+    }
+    const WIDGETS = window.WIDGETS;
+    let gobj = sketch && sketch.gobjList.gobjects[attr.gobjId];
     let options = { duration: 2500 };
     let note;
     let toggled;
@@ -638,30 +655,50 @@ const WebSketch = (props) => {
     switch (attr.action) {
       case 'activate':
       case 'deactivate':
-        WIDGETS.toggleTraceModality();
+        try {
+          WIDGETS.toggleTraceModality();
+        } catch (e) {
+          console.error('Failed during WIDGETS.toggleTraceModality call ', e);
+        }
         toggled = true;
         break;
       case 'changed':
-        gobj = sketch.gobjList.gobjects[attr.gobjId];
-        WIDGETS.toggleGobjTracing(gobj, attr.traced);
-        note =
-          'Tracing turned ' +
-          (attr.traced ? 'on' : 'off') +
-          ' for ' +
-          gobjDesc(gobj, 0, 1);
+        gobj = sketch && sketch.gobjList.gobjects[attr.gobjId];
+        try {
+          WIDGETS.toggleGobjTracing(gobj, attr.traced);
+          note =
+            'Tracing turned ' +
+            (attr.traced ? 'on' : 'off') +
+            ' for ' +
+            gobjDesc(gobj, 0, 1);
+        } catch (e) {
+          console.error(
+            `Error in Widgets.js when calling 'toggleGobjTracing' for ${gobj}`,
+            e
+          );
+        }
+
         break;
       case 'enabled':
         cBox = $('#wTraceEnabled')[0];
         toggled = !attr.enabled != !cBox.checked; // set toggled only if the value will be changed
         if (toggled) {
-          WIDGETS.setTraceEnabling(attr.enabled);
-          cBox.checked = attr.enabled;
-          note = 'Tracing ' + (attr.enabled ? 'enabled' : 'disabled') + '.';
+          try {
+            WIDGETS.setTraceEnabling(attr.enabled);
+            cBox.checked = attr.enabled;
+            note = 'Tracing ' + (attr.enabled ? 'enabled' : 'disabled') + '.';
+          } catch (e) {
+            console.error('failed during WIDGETS.setTraceEnabling ', e);
+          }
         }
         break;
       case 'fading':
-        WIDGETS.setTraceFading(attr.fading);
-        note = 'Trace fading turned ' + (attr.fading ? 'on' : 'off') + '.';
+        try {
+          WIDGETS.setTraceFading(attr.fading);
+          note = 'Trace fading turned ' + (attr.fading ? 'on' : 'off') + '.';
+        } catch (e) {
+          console.error('failed during WIDGETS.setTraceFading ', e);
+        }
         break;
       case 'glowing':
         // glowing action is sent when glowing is turned on or off for traced gobjs
@@ -670,7 +707,14 @@ const WebSketch = (props) => {
           'Glowing for traced objects turned ' +
           (attr.glowing ? 'on' : 'off') +
           '.';
-        WIDGETS.setTraceGlowing(attr.glowing);
+        try {
+          WIDGETS.setTraceGlowing(attr.glowing);
+        } catch (e) {
+          console.error('failed during WIDGETS.setTraceGlowing ', e);
+        }
+        break;
+      default:
+        console.error('No trace case found! ', attr.action);
         break;
     }
     if (!toggled && note) {
@@ -682,6 +726,9 @@ const WebSketch = (props) => {
   function handleLabelWidget(attr) {
     // attr: gobjId is always present, other properties only if changed:
     // text (the label or text), styleJson (stringified), and autoGenerate (for shouldAutogenerateLabel).
+    if (!sketch) {
+      getSketch();
+    }
     const gobj =
       sketch.gobjList.gobjects[attr.sketch.gobjList.gobjects[attr.gobjId]];
     const labelChanged = attr.label !== 'gobj.label';
@@ -705,6 +752,9 @@ const WebSketch = (props) => {
   }
 
   function handleVisibilityWidget(attr) {
+    if (!sketch) {
+      getSketch();
+    }
     let note;
     // This handler handles activate/deactivate actions
     if (attr.action.match('activate')) {
@@ -727,11 +777,12 @@ const WebSketch = (props) => {
   }
 
   function handleDeleteWidget(attr) {
+    if (!sketch) {
+      getSketch();
+    }
     let note = ' ';
     const deletedGobjs = {};
     let thisDelta;
-    let gobjCount = 0;
-    const maxCount = 6;
 
     function doDelete() {
       sketch.gobjList.removeGObjects(deletedGobjs, sketch);
@@ -757,6 +808,9 @@ const WebSketch = (props) => {
   }
 
   function paramEdit(reason, attr) {
+    if (!sketch) {
+      getSketch();
+    }
     // state is editStarted, changesNotAccepted, or changesAccepted
     const gobj = sketch.gobjList.gobjects[attr.gobjId];
     let note = reason;
@@ -777,6 +831,7 @@ const WebSketch = (props) => {
     sketch = sketchDoc && sketchDoc.focusPage;
     if (!sketch) {
       console.error('getSketch() failed to find the sketch.');
+      initSketchPage();
     }
     return sketch;
   };
@@ -805,14 +860,33 @@ const WebSketch = (props) => {
     console.log('Found data: ', data);
     sketchDoc = data;
     sketch = data.focusPage;
+    checkWidgets();
+  };
+
+  const checkWidgets = async () => {
+    await new Promise((r) => setTimeout(r, 350));
+    if (!document.getElementById('widget')) {
+      console.log('~~~~ No Widget id! ~~~~~');
+      // window.location.reload();
+      WSPLoader(loadSketch);
+    }
   };
 
   const loadSketch = () => {
     const { tab } = props;
 
-    let isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
-    console.log('Widgets?: ', isWidgetLoaded);
-    if (isWidgetLoaded) {
+    const isWidgetLoaded = () => {
+      return !!(
+        window.UTILMENU &&
+        !!window.UTILMENU.initUtils &&
+        window.PAGENUM &&
+        !!window.PAGENUM.initPageControls &&
+        window.WIDGETS &&
+        !!window.WIDGETS.initWidget
+      );
+    };
+    console.log('Widgets?: ', isWidgetLoaded());
+    if (isWidgetLoaded()) {
       window.WIDGETS.initWidget();
       window.PAGENUM.initPageControls();
       window.UTILMENU.initUtils();
@@ -822,18 +896,18 @@ const WebSketch = (props) => {
       props.setTabLoaded(tab._id);
     } else {
       const pollDOM = () => {
-        isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
-        console.log('Widgets recheck: ', isWidgetLoaded);
-        if (isWidgetLoaded) {
+        console.log('Widgets recheck: ', isWidgetLoaded());
+        if (isWidgetLoaded()) {
           loadSKetchDoc(getSketchConfig(tab));
           props.setTabLoaded(tab._id);
         } else {
-          setTimeout(pollDOM, 100); // try again in 100 milliseconds
+          setTimeout(pollDOM, 150); // try again in 100 milliseconds
         }
       };
       pollDOM();
     }
   };
+
   return (
     <Fragment>
       {(activityMessage || persistMessage) && (

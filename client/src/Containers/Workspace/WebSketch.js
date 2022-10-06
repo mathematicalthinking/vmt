@@ -14,7 +14,6 @@ import testConfig from './Tools/test.json';
 import WSPLoader from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests';
-import mongoIdGenerator from '../../utils/createMongoId';
 import ControlWarningModal from './ControlWarningModal';
 
 import classes from './graph.css';
@@ -382,27 +381,17 @@ const WebSketch = (props) => {
   // sends an update msg object for the user in control
   const handleEventData = (updates, type) => {
     if (initializing) return;
-    const { room, user, myColor, tab, resetControlTimer } = props;
+    const { user, emitEvent, resetControlTimer } = props;
     if (!receivingData) {
       const description = buildDescription(user.username, updates);
       console.log('Sent message: ', updates);
 
       const currentStateString = JSON.stringify(updates);
       const newData = {
-        _id: mongoIdGenerator(),
-        room: room._id,
-        tab: tab._id,
         currentState: currentStateString,
-        color: myColor,
-        user: {
-          _id: user._id,
-          username: user.username,
-        },
-        timestamp: new Date().getTime(),
         description,
       };
-      props.addToLog(newData);
-      socket.emit('SEND_EVENT', newData, () => {});
+      emitEvent(newData);
       resetControlTimer();
       // putState(); // save to db?
       debouncedUpdate();
@@ -935,6 +924,7 @@ const WebSketch = (props) => {
     if (gobj) {
       options.highlitGobjs = [gobj.id];
     }
+    const WIDGETS = window.WIDGETS;
     switch (attr.action) {
       case 'activate':
       case 'deactivate':
@@ -1247,6 +1237,7 @@ WebSketch.propTypes = {
   inControl: PropTypes.string.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,
   addToLog: PropTypes.func.isRequired,
+  emitEvent: PropTypes.func.isRequired,
 };
 
 export default WebSketch;
