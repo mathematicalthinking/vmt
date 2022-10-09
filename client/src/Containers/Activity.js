@@ -183,7 +183,6 @@ class Activity extends Component {
             parentResource={course ? 'courses' : 'activities'}
             parentResourceId={course ? course._id : activity._id}
             activityOwner={owner || user.isAdmin}
-            context="activity"
           />
         );
       case 'preview':

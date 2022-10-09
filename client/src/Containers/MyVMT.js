@@ -131,7 +131,6 @@ class MyVMT extends Component {
         }
         user={user}
         resource={resource}
-        context="myVMT"
       />
     );
     // resource 404 error display
