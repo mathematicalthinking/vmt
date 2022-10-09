@@ -270,14 +270,11 @@ router.post('/resetPassword/:token', async (req, res) => {
       .populate({
         path: 'rooms',
         select: '-currentState',
-        populate: {
-          path: 'tabs members.user',
-          select: 'username name tabType',
-        },
+        populate: { path: 'tabs members.user', select: 'username tabType' },
       })
       .populate({
         path: 'activities',
-        populate: { path: 'tabs', select: 'name tabType' },
+        populate: { path: 'tabs' },
       })
       .populate({
         path: 'notifications',

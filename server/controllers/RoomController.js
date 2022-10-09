@@ -367,20 +367,7 @@ module.exports = {
           room = res;
           // TODO refactor with room member states to change color assignment to state
           const color = colorMap[room.members.length];
-          const newMember = { user, role, color };
-
-          const newMemberIndex = room.members.findIndex((mem) => {
-            return mem.user.toString() === user;
-          });
-          if (newMemberIndex >= 0) {
-            room.members[newMemberIndex] = {
-              _id: room.members[newMemberIndex]._id,
-              user,
-              role,
-              color,
-            };
-          } else room.members.push(newMember);
-
+          room.members.push({ user, role, color });
           return room.save();
         })
         .then((savedRoom) => {
@@ -725,6 +712,7 @@ module.exports = {
           members: 1,
           tempRoom: 1,
           chat: 1,
+          messagesCount: { $size: '$chat' },
         },
       },
     ];
@@ -740,32 +728,6 @@ module.exports = {
         },
       });
     }
-    pipeline.push(
-      {
-        $lookup: {
-          from: 'tabs',
-          localField: 'tabs',
-          foreignField: '_id',
-          as: 'tabObject',
-        },
-      },
-      { $unwind: '$tabObject' },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          image: { $first: '$image' },
-          privacySetting: { $first: '$privacySetting' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tempRoom: { $first: '$tempRoom' },
-          chat: { $first: '$chat' },
-          tabs: { $push: '$tabObject' },
-        },
-      }
-    );
     pipeline.push({
       $facet: {
         paginatedResults: [
@@ -779,12 +741,13 @@ module.exports = {
               instructions: 1,
               description: 1,
               image: 1,
+              tabs: 1,
               privacySetting: 1,
               updatedAt: 1,
               members: 1,
+              eventsCount: 1,
               tempRoom: 1,
-              messagesCount: { $size: '$chat' },
-              'tabs.tabType': 1,
+              messagesCount: 1,
             },
           },
         ],

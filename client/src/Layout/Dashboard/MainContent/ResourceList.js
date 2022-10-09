@@ -1,7 +1,7 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
-import { useSortableData, timeFrames } from 'utils';
+import { useSortableData } from 'utils';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 import Search from '../../../Components/Search/Search';
@@ -20,15 +20,10 @@ const ResourceList = ({
   const initialConfig = {
     key: 'updatedAt',
     direction: 'descending',
-    filter: { timeframe: timeFrames.LASTWEEK, key: 'updatedAt' },
+    filter: 'last2Weeks',
   };
   const [fList, setFacilitatorList] = useState([]);
   const [pList, setParticipantList] = useState([]);
-  const previousSearch = useRef({
-    criteria: '',
-    facilitatorFilter: initialConfig.filter,
-    participantFilter: initialConfig.filter,
-  });
 
   // Use useSortableData hook to enable user-controlled sorting
   const {
@@ -71,28 +66,6 @@ const ResourceList = ({
   }, [facilitatorSortConfig, participantSortConfig]);
 
   const search = (criteria) => {
-    if (criteria !== '' && previousSearch.current.criteria === '') {
-      previousSearch.current = {
-        criteria,
-        facilitatorFilter: facilitatorSortConfig.filter,
-        participantFilter: participantSortConfig.filter,
-      };
-      facilitatorRequestSort({
-        filter: { timeframe: timeFrames.ALL, key: 'updatedAt' },
-      });
-      participantRequestSort({
-        filter: { timeframe: timeFrames.ALL, key: 'updatedAt' },
-      });
-    } else if (criteria === '' && previousSearch.current.criteria !== '') {
-      facilitatorRequestSort({
-        filter: previousSearch.current.facilitatorFilter,
-      });
-      participantRequestSort({
-        filter: previousSearch.current.participantFilter,
-      });
-      previousSearch.current.criteria = '';
-    }
-
     let { facilitatorList, participantList } = sortUserResources(userResources);
     facilitatorList = facilitatorList.filter((res) => {
       return res.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
@@ -107,14 +80,8 @@ const ResourceList = ({
   const sortUserResources = (resources) => {
     const facilitatorList = [];
     const participantList = [];
-    // check for duplicates
-    const obj =
-      resources &&
-      resources.reduce((acc, curr) => {
-        return { ...acc, [curr._id]: curr };
-      }, {});
-    if (obj) {
-      Object.values(obj).forEach((userResource) => {
+    if (resources) {
+      resources.forEach((userResource) => {
         if (userResource) {
           if (
             userResource.myRole === 'facilitator' ||
@@ -288,17 +255,17 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
   const upArrow = <i className="fas fa-solid fa-arrow-up" />;
   const downArrow = <i className="fas fa-solid fa-arrow-down" />;
   const timeFrameOptions = [
-    { label: 'All', value: timeFrames.ALL },
-    { label: 'Last Day', value: timeFrames.LASTDAY },
-    { label: 'Last Week', value: timeFrames.LASTWEEK },
-    { label: 'Last Two Weeks', value: timeFrames.LAST2WEEKS },
-    { label: 'Last Month', value: timeFrames.LASTMONTH },
-    { label: 'Last Year', value: timeFrames.LASTYEAR },
-    { label: 'More than a Day', value: timeFrames.AFTERDAY },
-    { label: 'More than a Week', value: timeFrames.AFTERWEEK },
-    { label: 'More than Two Weeks', value: timeFrames.AFTER2WEEKS },
-    { label: 'More than a Month', value: timeFrames.AFTERMONTH },
-    { label: 'More than a Year', value: timeFrames.AFTERYEAR },
+    { label: 'All', value: 'all' },
+    { label: 'Last Day', value: 'lastDay' },
+    { label: 'Last Week', value: 'lastWeek' },
+    { label: 'Last Two Weeks', value: 'last2Weeks' },
+    { label: 'Last Month', value: 'lastMonth' },
+    { label: 'Last Year', value: 'lastYear' },
+    { label: 'More than a Day', value: 'afterDay' },
+    { label: 'More than a Week', value: 'afterWeek' },
+    { label: 'More than Two Weeks', value: 'after2Weeks' },
+    { label: 'More than a Month', value: 'afterMonth' },
+    { label: 'More than a Year', value: 'afterYear' },
   ];
 
   const optionForValue = (value) => {
@@ -310,38 +277,40 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
     return matchingKey ? matchingKey.name : defaultName;
   };
 
-  const labelSuffix = Math.ceil(Math.random() * 1000);
+  React.useEffect(() => {
+    if (!['updatedAt', 'createdAt', 'dueDate'].includes(sortConfig.key))
+      sortFn({ filter: 'all' });
+  }, [sortConfig.key]);
 
   return (
     <div className={classes.SortUIContainer}>
-      <div className={classes.SortSelection}>
-        <label htmlFor={`sortUI-${labelSuffix}`} className={classes.Label}>
-          Sort by:
-          <Select
-            className={classes.Select}
-            inputId={`sortUI-${labelSuffix}`}
-            placeholder="Select..."
-            onChange={(selectedOption) => {
-              sortFn({
-                key: selectedOption.value,
-                direction: sortConfig.direction,
-              });
-            }}
-            value={{
-              // eslint-disable-next-line react/prop-types
-              label: keyName(keys[0].name),
-              // eslint-disable-next-line react/prop-types
-              value: sortConfig.key || keys[0].property,
-            }}
-            options={keys.map((key) => ({
-              value: key.property,
-              label: key.name,
-            }))}
-            isSearchable={false}
-          />{' '}
-        </label>
+      <label htmlFor="sortTable" className={classes.Label}>
+        Sort by:&nbsp;&nbsp;
+        <Select
+          placeholder="Select..."
+          className={classes.Select}
+          name="sortUI"
+          id="sortTable"
+          onChange={(selectedOption) => {
+            sortFn({
+              key: selectedOption.value,
+              direction: sortConfig.direction,
+            });
+          }}
+          value={{
+            // eslint-disable-next-line react/prop-types
+            label: keyName(keys[0].name),
+            // eslint-disable-next-line react/prop-types
+            value: sortConfig.key || keys[0].property,
+          }}
+          options={keys.map((key) => ({
+            value: key.property,
+            label: key.name,
+          }))}
+          isSearchable={false}
+        />
         <span
-          style={{ padding: '0 5px' }}
+          style={{ paddingRight: '5px' }}
           onClick={() => sortFn({ key: sortConfig.key })}
           onKeyDown={() => sortFn({ key: sortConfig.key })}
           role="button"
@@ -349,28 +318,25 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
         >
           {sortConfig.direction === 'descending' ? downArrow : upArrow}{' '}
         </span>
-      </div>
-      <div className={classes.FilterSelection}>
-        <label htmlFor={`filterUI-${labelSuffix}`} className={classes.Label}>
-          Updated:
+      </label>
+      {['updatedAt', 'createdAt', 'dueDate'].includes(sortConfig.key) && (
+        // eslint-disable-next-line jsx-a11y/label-has-associated-control
+        <label htmlFor="filterTable" className={classes.Label}>
+          Filter by:
           <Select
             placeholder="Timeframe"
             className={classes.Select}
-            inputId={`filterUI-${labelSuffix}`}
+            name="filterUI"
+            id="filterTable"
             onChange={(selectedOption) => {
-              sortFn({
-                filter: {
-                  ...sortConfig.filter,
-                  timeframe: selectedOption.value,
-                },
-              });
+              sortFn({ filter: selectedOption.value });
             }}
-            value={optionForValue(sortConfig.filter.timeframe)}
+            value={optionForValue(sortConfig.filter)}
             options={timeFrameOptions}
             isSearchable={false}
-          />{' '}
+          />
         </label>
-      </div>
+      )}
     </div>
   );
 };
@@ -383,10 +349,7 @@ SortUI.propTypes = {
   sortConfig: PropTypes.shape({
     key: PropTypes.string,
     direction: PropTypes.string,
-    filter: PropTypes.shape({
-      key: PropTypes.string,
-      timeframe: PropTypes.string,
-    }),
+    filter: PropTypes.string,
   }),
 };
 SortUI.defaultProps = {

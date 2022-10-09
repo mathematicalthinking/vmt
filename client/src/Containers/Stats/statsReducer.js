@@ -201,7 +201,6 @@ export default (state = initialState, action) => {
 
     case 'GENERATE_COURSE_DATA': {
       let { data } = action;
-      if (data.length === 0) return state;
       const { users, events } = state;
       const start = Math.min(...data.map((d) => d.timestamp));
       const end = Math.max(...data.map((d) => d.timestamp));

@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import getResourceTabTypes from 'utils/getResourceTabTypes';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
+import Expand from './expand';
 import Notification from '../../Notification/Notification';
+import getResourceTabTypes from 'utils/getResourceTabTypes';
 
 class ContentBox extends PureComponent {
   state = {
@@ -18,7 +19,9 @@ class ContentBox extends PureComponent {
     const { roomType } = this.props;
 
     if (roomType) {
-      const { tabTypes, isPlural } = getResourceTabTypes(roomType);
+      const { tabTypes, isPlural } = getResourceTabTypes(
+        roomType
+      );
       const tempTypeKeyword = isPlural ? 'Tab Types' : 'Tab Type';
       this.setState({ typeKeyword: tempTypeKeyword, tabTypes });
     }
@@ -87,12 +90,8 @@ class ContentBox extends PureComponent {
                 style={{
                   transform: expanded ? `rotate(180deg)` : `rotate(0)`,
                 }}
-                role="button"
-                tabIndex={-1}
-                onClick={this.toggleExpand}
-                onKeyDown={this.toggleExpand}
               >
-                <i className="fas fa-chevron-up" />
+                <Expand clickHandler={this.toggleExpand} />
               </div>
             </div>
             <div className={classes.Content}>

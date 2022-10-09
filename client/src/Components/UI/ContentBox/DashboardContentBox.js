@@ -140,15 +140,9 @@ class DashboardContentBox extends PureComponent {
               : null}
             <div
               className={classes.Expand}
-              style={{
-                transform: expanded ? `rotate(180deg)` : `rotate(0)`,
-              }}
-              role="button"
-              tabIndex={-1}
-              onClick={this.toggleExpand}
-              onKeyDown={this.toggleExpand}
+              style={{ transform: expanded ? `rotate(180deg)` : `rotate(0)` }}
             >
-              <i className="fas fa-chevron-up" />
+              <Expand clickHandler={this.toggleExpand} />
             </div>
           </div>
         </div>

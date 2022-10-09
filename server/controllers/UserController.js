@@ -50,7 +50,7 @@ module.exports = {
         })
         .populate({
           path: 'activities',
-          populate: { path: 'tabs', select: 'name tabType' },
+          populate: { path: 'tabs' },
         })
         .populate({
           path: 'notifications',

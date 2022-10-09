@@ -45,7 +45,7 @@ class Activity extends Component {
       owner: false,
       tabs: [
         { name: 'Assign' },
-        { name: 'Edit Assignments' },
+        // { name: 'Edit Assignments' },
         { name: 'Rooms' },
         { name: 'Preview' },
       ],
@@ -57,6 +57,7 @@ class Activity extends Component {
       canAccess: false,
       roomType: '',
       isPlural: false,
+      showAssignments: false,
     };
   }
 
@@ -77,7 +78,7 @@ class Activity extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { activity, loading, user } = this.props;
+    const { activity, loading, user, match } = this.props;
     if (!activity) {
       return;
     }
@@ -151,7 +152,7 @@ class Activity extends Component {
     this.setState({ trashing: true });
   };
 
-  checkAccess = () => {
+  checkAccess() {
     const { activity, user } = this.props;
     const canEdit = activity.creator === user._id || user.isAdmin;
 
@@ -160,7 +161,7 @@ class Activity extends Component {
     const canAccess = canEdit || activity.privacySetting === 'public';
 
     this.setState({ owner: canEdit, canAccess });
-  };
+  }
 
   viewActivity = () => {
     const { history, activity } = this.props;
@@ -169,7 +170,7 @@ class Activity extends Component {
 
   mainContent = () => {
     const { match, activity, course, rooms, user } = this.props;
-    const { owner } = this.state;
+    const { owner, showAssignments } = this.state;
     const { resource } = match.params;
 
     switch (resource) {
@@ -206,36 +207,59 @@ class Activity extends Component {
               user: { _id: user._id, username: user.username },
             }}
             label="Edit:"
-            defaultOption={{ label: 'Select a room assignment...', value: [] }}
+            defaultOption={{ label: 'Change Room Assignments', value: [] }}
             toolTip="Editing assignments allows you to easily change the rooms that members are assigned to. You can also change the due date, the prefix for the room names, and whether or not to anonymize members while they're in the room."
             AssignmentComponent={EditRooms}
             optionsGenerator={createEditableAssignments}
           />
         );
       default:
-        return (
-          <SelectAssignments
-            // keys are needed so that React doesn't re-use these two SelectAssignments (treating them as one)
-            // see https://reactjs.org/docs/reconciliation.html
-            key="addSelect"
+        return showAssignments ? (
+          // <SelectAssignments
+          //   // keys are needed so that React doesn't re-use these two SelectAssignments (treating them as one)
+          //   // see https://reactjs.org/docs/reconciliation.html
+          //   key="addSelect"
+          //   activity={activity}
+          //   course={course || null}
+          //   rooms={rooms}
+          //   userId={user._id}
+          //   user={{
+          //     role: 'facilitator',
+          //     user: { _id: user._id, username: user.username },
+          //   }}
+          //   label="Create:"
+          //   defaultOption={{ label: 'New Grouping', value: [] }}
+          //   toolTip="Create rooms for members to do math in. You can reuse the member groups that you create here."
+          //   AssignmentComponent={MakeRooms}
+          //   optionsGenerator={createPreviousAssignments}
+          //   firstOption={{ label: 'New Grouping', value: [] }}
+          // />
+          <MakeRooms
             activity={activity}
             course={course || null}
-            rooms={rooms}
             userId={user._id}
-            user={{
-              role: 'facilitator',
-              user: { _id: user._id, username: user.username },
-            }}
-            label="Create:"
-            defaultOption={{
-              label: 'Select "new" or an existing grouping...',
-              value: [],
-            }}
-            toolTip="Create rooms for members to do math in. You can reuse the member groups that you create here."
-            AssignmentComponent={MakeRooms}
-            optionsGenerator={createPreviousAssignments}
-            firstOption={{ label: 'New Grouping', value: [] }}
+            close={() => this.setState({ showAssignments: false })}
+            participants={
+              course
+                ? course.members
+                : [
+                    {
+                      role: 'facilitator',
+                      user: { _id: user._id, username: user.username },
+                    },
+                  ]
+            }
+            rooms={rooms}
           />
+        ) : (
+          <div>
+            <Button
+              click={() => this.setState({ showAssignments: true })}
+              m={5}
+            >
+              Assign Template
+            </Button>
+          </div>
         );
     }
   };
@@ -444,36 +468,12 @@ class Activity extends Component {
 }
 
 Activity.propTypes = {
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      activity_id: PropTypes.string,
-      resource: PropTypes.string,
-    }),
-  }).isRequired,
-  activity: PropTypes.shape({
-    _id: PropTypes.string,
-    creator: PropTypes.string,
-    image: PropTypes.string,
-    name: PropTypes.string,
-    description: PropTypes.string,
-    instructions: PropTypes.string,
-    members: PropTypes.arrayOf(PropTypes.shape({})),
-    rooms: PropTypes.arrayOf(PropTypes.shape({})),
-    tabs: PropTypes.arrayOf(PropTypes.shape({})),
-    privacySetting: PropTypes.bool,
-  }),
-  user: PropTypes.shape({
-    _id: PropTypes.string,
-    username: PropTypes.string,
-    notifications: PropTypes.arrayOf(PropTypes.shape({})),
-    isAdmin: PropTypes.bool,
-  }).isRequired,
-  course: PropTypes.shape({
-    _id: PropTypes.string,
-    name: PropTypes.string,
-    members: PropTypes.arrayOf(PropTypes.shape({})),
-  }),
-  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  match: PropTypes.shape({}).isRequired,
+  activity: PropTypes.shape({}),
+  user: PropTypes.shape({ _id: PropTypes.string, username: PropTypes.string })
+    .isRequired,
+  course: PropTypes.shape({ members: PropTypes.shape({}) }),
+  history: PropTypes.shape({}).isRequired,
   loading: PropTypes.bool.isRequired,
   updateFail: PropTypes.bool.isRequired,
   updateKeys: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,

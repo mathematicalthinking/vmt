@@ -239,36 +239,28 @@ export const updateGroupings = (course, activity, groupingId, newName) => {
   const activityGroupingsIndex = activity.groupings.findIndex(
     (grouping) => grouping._id === groupingId
   );
+  const courseGroupingsIndex = course.groupings.findIndex(
+    (grouping) => grouping._id === groupingId
+  );
 
   const updatedGrouping = {
     ...activity.groupings[activityGroupingsIndex],
     activityName: newName,
     timestamp,
   };
+
+  const newCourseGroupings = [...course.groupings];
+  newCourseGroupings[courseGroupingsIndex] = updatedGrouping;
+
   const newActivityGroupings = [...activity.groupings];
   newActivityGroupings[activityGroupingsIndex] = updatedGrouping;
-
-  if (course) {
-    const courseGroupingsIndex = course.groupings.findIndex(
-      (grouping) => grouping._id === groupingId
-    );
-
-    const newCourseGroupings = [...course.groupings];
-    newCourseGroupings[courseGroupingsIndex] = updatedGrouping;
-
-    return (dispatch, getState) => {
-      updateActivity(activity._id, {
-        groupings: newActivityGroupings,
-      })(dispatch, getState);
-      updateCourse(course._id, {
-        groupings: newCourseGroupings,
-      })(dispatch, getState);
-    };
-  }
 
   return (dispatch, getState) => {
     updateActivity(activity._id, {
       groupings: newActivityGroupings,
+    })(dispatch, getState);
+    updateCourse(course._id, {
+      groupings: newCourseGroupings,
     })(dispatch, getState);
   };
 };
@@ -431,23 +423,16 @@ export const populateRoom = (id, opts) => {
   };
 };
 
-export const inviteToRoom = (
-  roomId,
-  toUserId,
-  toUserUsername,
-  color,
-  role = 'participant'
-) => {
+export const inviteToRoom = (roomId, toUserId, toUserUsername, color) => {
   return (dispatch) => {
     dispatch(
       addRoomMember(roomId, {
         user: { _id: toUserId, username: toUserUsername },
-        role,
+        role: 'participant',
         color,
       })
     );
-    const options = { role };
-    API.grantAccess(toUserId, 'room', roomId, 'invitation', options)
+    API.grantAccess(toUserId, 'room', roomId, 'invitation')
       .then()
       .catch((err) => {
         // eslint-disable-next-line no-console
