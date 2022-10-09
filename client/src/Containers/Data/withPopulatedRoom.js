@@ -113,9 +113,6 @@ function withPopulatedRoom(WrappedComponent) {
           console.log(
             'we should probably just go back to the previous page? maybe display the error'
           );
-          const { history } = this.props;
-          window.alert('There was error loading the room');
-          history.goBack();
         });
     }
 
@@ -250,8 +247,8 @@ function withPopulatedRoom(WrappedComponent) {
     match: PropTypes.shape({
       params: PropTypes.shape({ room_id: PropTypes.string }),
     }).isRequired,
-    history: PropTypes.shape({ goBack: PropTypes.func }).isRequired,
-    user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
+    history: PropTypes.shape({}).isRequired,
+    user: PropTypes.shape({}).isRequired,
   };
 
   const mapStateToProps = (state) => {

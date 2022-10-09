@@ -70,11 +70,6 @@
   color: blue;
 }
 
-.SelectionMade,
-.SelectionMade:hover {
-  background-color: #bbb;
-}
-
 .EvenParticipant {
   background-color: #ddd;
 }
@@ -109,7 +104,6 @@
   z-index: 87;
   /* reduce column size w/Participants' names */
   width: 150px;
-  cursor: default;
 }
 
 .Caption {
@@ -122,8 +116,7 @@
   background-color: #ddd;
   position: sticky;
   top: 0;
-  z-index: 100;
-  cursor: default;
+  z-index: 100;   
 }
 
 .LockedBottom {

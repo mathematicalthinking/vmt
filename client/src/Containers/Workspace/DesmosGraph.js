@@ -7,6 +7,7 @@ import findLast from 'lodash/findLast';
 import startCase from 'lodash/startCase';
 import difference from 'lodash/difference';
 import find from 'lodash/find';
+import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import ControlWarningModal from './ControlWarningModal';
 import socket from '../../utils/sockets';
@@ -114,7 +115,6 @@ class DesmosGraph extends Component {
       this.calculator.destroy();
     }
     window.removeEventListener('keydown', this.allowKeypressCheck);
-    socket.removeAllListeners('RECEIVE_EVENT');
   }
 
   allowKeypressCheck = (event) => {
@@ -406,7 +406,7 @@ class DesmosGraph extends Component {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog } = this.props;
     this.calculator.observeEvent('change', () => {
-      const { emitEvent, user, resetControlTimer, inControl } = this.props;
+      const { room, user, myColor, resetControlTimer, inControl } = this.props;
       if (this.initializing) return;
       if (this.undoing) {
         this.undoing = false;
@@ -431,11 +431,21 @@ class DesmosGraph extends Component {
         const currentStateString = JSON.stringify(currentState);
         // console.log(this.calculator.getState());
         const newData = {
+          _id: mongoIdGenerator(),
+          room: room._id,
+          tab: tab._id,
           currentState: currentStateString, // desmos events use the currentState field on Event model
+          color: myColor,
+          user: {
+            _id: user._id,
+            username: user.username,
+          },
+          timestamp: new Date().getTime(),
           description,
         };
         // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
-        emitEvent(newData);
+        addToLog(newData);
+        socket.emit('SEND_EVENT', newData, () => {});
         resetControlTimer();
         // if (this.debouncedUpdate) {
         //   this.debouncedUpdate.cancel();
@@ -446,6 +456,7 @@ class DesmosGraph extends Component {
       this.graph = currentState.graph;
       this.receivingData = false;
     });
+    socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
       addToLog(data);
       const { room } = this.props;
@@ -663,6 +674,7 @@ DesmosGraph.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
+  myColor: PropTypes.string.isRequired,
   resetControlTimer: PropTypes.func.isRequired,
   updatedRoom: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
@@ -672,7 +684,6 @@ DesmosGraph.propTypes = {
   referencing: PropTypes.bool.isRequired,
   updateUserSettings: PropTypes.func,
   addToLog: PropTypes.func.isRequired,
-  emitEvent: PropTypes.func.isRequired,
 };
 
 export default DesmosGraph;

@@ -16,6 +16,7 @@ import {
   requestAccess,
   grantAccess,
   updateUser,
+  updatedCourse,
 } from '../store/actions';
 import {
   DashboardLayout,
@@ -404,7 +405,6 @@ class Course extends Component {
             notifications={
               notifications.filter((ntf) => ntf.resourceId === course._id) || []
             }
-            course={course}
           />
         );
       } else if (resource === 'preview') {
