@@ -390,7 +390,6 @@ class Course extends Component {
             )}
             parentResource="courses"
             parentResourceId={course._id}
-            context="course"
           />
         );
       } else if (resource === 'members') {
