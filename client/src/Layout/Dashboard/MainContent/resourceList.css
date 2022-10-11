@@ -48,16 +48,22 @@
 
 .Label {
   font-weight: lighter; /* contrast font weight with .Select */
+  display: inline-block;
+  width: 16rem;
 }
 
 .Select {
-  display: inline-block;
-  width: 16rem;
-  margin: 0 1rem;
+  margin: .5rem 0;
   font-weight: normal !important; /* !important to be normal font weight here */
 }
 
 .SortUIContainer {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
+  z-index: 350; /* Content box has z-index of 300 */
+}
+
+.SortSelection, .FilterSelection {
+  z-index: 350;
 }

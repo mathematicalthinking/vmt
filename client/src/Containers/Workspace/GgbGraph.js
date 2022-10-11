@@ -1258,21 +1258,8 @@ class GgbGraph extends Component {
       return;
     }
 
-    const {
-      room,
-      tab,
-      user,
-      myColor,
-      addToLog,
-      resetControlTimer,
-    } = this.props;
+    const { addToLog, resetControlTimer, emitEvent } = this.props;
     const eventData = {
-      _id: mongoIdGenerator(),
-      room: room._id,
-      tab: tab._id,
-      color: myColor,
-      user: { _id: user._id, username: user.username },
-      timestamp: new Date().getTime(),
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode() // all ggbApplet get methods are too slow for dragging...right?
     };
@@ -1294,7 +1281,8 @@ class GgbGraph extends Component {
       clearTimeout(this.updatingTab);
       this.updatingTab = null;
     }
-    socket.emit('SEND_EVENT', eventData);
+
+    emitEvent(eventData);
 
     this.updatingTab = setTimeout(
       this.updateConstructionState.bind(this, event),
@@ -2143,13 +2131,12 @@ class GgbGraph extends Component {
   }
 }
 GgbGraph.defaultProps = {
-  myColor: 'blue',
   referToEl: {},
 };
 GgbGraph.propTypes = {
   room: PropTypes.shape({
     _id: PropTypes.string.isRequired,
-    log: PropTypes.arrayOf(PropTypes.object),
+    log: PropTypes.arrayOf(PropTypes.shape({})),
     controlledBy: PropTypes.string,
   }).isRequired,
   user: PropTypes.shape({
@@ -2158,7 +2145,6 @@ GgbGraph.propTypes = {
     connected: PropTypes.bool.isRequired,
   }).isRequired,
   tab: PropTypes.shape({}).isRequired,
-  myColor: PropTypes.string,
   addToLog: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   resetControlTimer: PropTypes.func.isRequired,
@@ -2173,9 +2159,10 @@ GgbGraph.propTypes = {
   setToElAndCoords: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
   setGraphCoords: PropTypes.func.isRequired,
-  log: PropTypes.arrayOf(PropTypes.object).isRequired,
-  eventsWithRefs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  eventsWithRefs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   updateEventsWithReferences: PropTypes.func.isRequired,
+  emitEvent: PropTypes.func.isRequired,
 };
 
 export default GgbGraph;

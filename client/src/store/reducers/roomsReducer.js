@@ -98,8 +98,17 @@ const reducer = (state = initialState, action) => {
       };
 
     case actionTypes.ADD_ROOM_MEMBER: {
+      const newMember = action.body;
       const updatedMembers = [...state.byId[action.roomId].members] || [];
-      updatedMembers.push(action.body);
+      // make sure newUser isn't already in room members
+      // if they are, change their object to newMember
+      const newMemberIndex = updatedMembers.findIndex(
+        (mem) => mem.user._id === newMember.user._id
+      );
+      if (newMemberIndex >= 0) {
+        updatedMembers[newMemberIndex] = newMember;
+      } else updatedMembers.push(action.body);
+
       return {
         ...state,
         byId: {
