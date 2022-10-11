@@ -45,7 +45,7 @@ class Activity extends Component {
       owner: false,
       tabs: [
         { name: 'Assign' },
-        { name: 'Edit Assignments' },
+        // { name: 'Edit Assignments' },
         { name: 'Rooms' },
         { name: 'Preview' },
       ],
