@@ -5,7 +5,6 @@ import { parseString } from 'xml2js';
 import throttle from 'lodash/throttle';
 import isFinite from 'lodash/isFinite';
 import find from 'lodash/find';
-import mongoIdGenerator from '../../utils/createMongoId';
 import classes from './graph.css';
 import { blankEditorState, setCodeBase } from './ggbUtils';
 import ControlWarningModal from './ControlWarningModal';
@@ -1258,7 +1257,7 @@ class GgbGraph extends Component {
       return;
     }
 
-    const { addToLog, resetControlTimer, emitEvent } = this.props;
+    const { emitEvent } = this.props;
     const eventData = {
       // currentState: this.ggbApplet.getXML(), // @TODO could we get away with not doing this? just do it when someone leaves?
       // mode: this.ggbApplet.getMode() // all ggbApplet get methods are too slow for dragging...right?
@@ -1275,7 +1274,7 @@ class GgbGraph extends Component {
     }
 
     eventData.description = this.buildDescription(event);
-    addToLog(eventData);
+    // addToLog(eventData); // emitEvent already adds to the log
 
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
@@ -1292,7 +1291,6 @@ class GgbGraph extends Component {
 
     this.timer = null;
     this.movingGeos = false;
-    resetControlTimer();
   };
   /**
    * @method buildDescription - takes information passed to send event and builds
@@ -2147,7 +2145,6 @@ GgbGraph.propTypes = {
   tab: PropTypes.shape({}).isRequired,
   addToLog: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
-  resetControlTimer: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
   currentTabId: PropTypes.string.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,

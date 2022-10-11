@@ -88,6 +88,7 @@ const AssignRooms = (props) => {
             else setDueDate(datePicked);
           }}
           value={dueDate}
+          hover
         />
         <div className={classes.RoomNameInput}>
           {/* New room name input */}

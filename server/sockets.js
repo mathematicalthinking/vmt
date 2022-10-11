@@ -250,17 +250,17 @@ module.exports = function() {
           controllers.rooms.put(data.room, { controlledBy: data.user._id }),
         ]);
       } catch (err) {
-        callback(err, null);
+        if (callback) callback(err, null);
       }
       socket.to(data.room).emit('TOOK_CONTROL', data);
       controllers.rooms
         .getCurrentState(data.room)
         .then(() => {
-          // socket.emit('FORCE_SYNC', room);
+          if (callback) callback(null, 'Success');
         })
         .catch((err) => {
           console.error(err);
-          callback(err, null);
+          if (callback) callback(err, null);
         });
     });
 
@@ -270,7 +270,7 @@ module.exports = function() {
       controllers.messages.post(data);
       controllers.rooms.put(data.room, { controlledBy: null });
       socket.to(data.room).emit('RELEASED_CONTROL', data);
-      callback(null, {});
+      if (callback) callback(null, {});
     });
 
     socket.on('SEND_EVENT', async (data, lastEventId, callback) => {

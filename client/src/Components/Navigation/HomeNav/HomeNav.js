@@ -72,6 +72,9 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
             {user.isAdmin ? (
               <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
             ) : null}
+            {loggedIn ? (
+              <NavItem link="/archive/rooms?roomType=all" name="Archive" />
+            ) : null}
             <DropdownNavItem
               name={<span>Info</span>}
               list={aboutList}
@@ -99,7 +102,12 @@ Navbar.propTypes = {
   page: PropTypes.string.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   isDark: PropTypes.bool,
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({
+    inAdminMode: PropTypes.bool,
+    isAdmin: PropTypes.bool,
+    username: PropTypes.string,
+    notifications: PropTypes.arrayOf(PropTypes.shape({})),
+  }),
   toggleAdmin: PropTypes.func.isRequired,
 };
 

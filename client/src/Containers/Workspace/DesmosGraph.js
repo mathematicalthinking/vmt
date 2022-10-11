@@ -406,7 +406,7 @@ class DesmosGraph extends Component {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog } = this.props;
     this.calculator.observeEvent('change', () => {
-      const { emitEvent, user, resetControlTimer, inControl } = this.props;
+      const { emitEvent, user, inControl } = this.props;
       if (this.initializing) return;
       if (this.undoing) {
         this.undoing = false;
@@ -436,7 +436,6 @@ class DesmosGraph extends Component {
         };
         // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
         emitEvent(newData);
-        resetControlTimer();
         // if (this.debouncedUpdate) {
         //   this.debouncedUpdate.cancel();
         // }
@@ -663,7 +662,6 @@ DesmosGraph.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  resetControlTimer: PropTypes.func.isRequired,
   updatedRoom: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
   toggleControl: PropTypes.func.isRequired,
