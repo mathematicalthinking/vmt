@@ -123,7 +123,6 @@ const AssignRooms = (props) => {
             m={5}
             click={onCancel} // change the react-select back to defaulValues
             data-testid="assign-rooms"
-            disabled={roomName === ''}
           >
             Cancel
           </Button>

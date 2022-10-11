@@ -282,7 +282,7 @@ const MakeRooms = (props) => {
     }
 
     if (course) {
-      dispatch(createGrouping(roomsToCreate, activity, course));
+      dispatch(createGrouping(roomsToCreate, activity, course, roomName));
       // if user was added via AddParticipants (showModal),
       // invite them to the course
       if (membersToInviteToCourse.current) {
@@ -295,7 +295,7 @@ const MakeRooms = (props) => {
         });
       }
     } else {
-      dispatch(createGrouping(roomsToCreate, activity));
+      dispatch(createGrouping(roomsToCreate, activity, roomName));
     }
     close();
     const { pathname: url } = history.location;
