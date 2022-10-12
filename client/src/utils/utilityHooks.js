@@ -325,12 +325,12 @@ export function usePopulatedRooms(
 
 /**
  * Hook to an app-level modal that can be called from anywhere.
- * @param {Component} Element - the React component to put inside the modal
- * @param {Object} [options = {}] - props to apply to the containing modal
- * @returns { Object } {
- *    show - function to show the modal
- *    hide - function to hide the modal
- *}
+ * @returns { Object }
+ * {
+ *    show - function to show the modal. Takes a component (e.g., JSX) and a set of options that get handed to the Modal
+ *    showBig - same as show, except renders the component inside of a BigModal
+ *    hide - function to hide the modal/bigModal
+ * }
  */
 
 export function useAppModal() {
