@@ -343,7 +343,10 @@ export const updateRoom = (id, body) => {
     }
     API.put('rooms', id, body)
       .then()
-      .catch(() => {
+      .catch((e) => {
+        // eslint-disable-next-line no-console
+        console.log(e);
+
         if (
           body.isTrashed ||
           body.status === STATUS.TRASHED ||
@@ -385,7 +388,11 @@ export const removeRoomMember = (roomId, userId) => {
         }
         dispatch(loading.success());
       })
-      .catch((err) => dispatch(loading.fail(err)));
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.log(err);
+        dispatch(loading.fail(err));
+      });
   };
 };
 

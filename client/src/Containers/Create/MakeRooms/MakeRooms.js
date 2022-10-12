@@ -295,7 +295,7 @@ const MakeRooms = (props) => {
         });
       }
     } else {
-      dispatch(createGrouping(roomsToCreate, activity, roomName));
+      dispatch(createGrouping(roomsToCreate, activity, null, roomName));
     }
     close();
     const { pathname: url } = history.location;
@@ -358,7 +358,7 @@ const MakeRooms = (props) => {
         initialAliasMode={selectedAssignment.aliasMode || false}
         initialDueDate={selectedAssignment.dueDate || ''}
         initialRoomName={
-          selectedAssignment.roomName ||
+          selectedAssignment.label ||
           `${activity.name} (${new Date().toLocaleDateString()})`
         }
         participantsPerRoom={participantsPerRoom}
@@ -376,7 +376,7 @@ MakeRooms.propTypes = {
   selectedAssignment: PropTypes.shape({
     aliasMode: PropTypes.bool,
     dueDate: PropTypes.string,
-    roomName: PropTypes.string,
+    label: PropTypes.string,
     value: PropTypes.arrayOf(PropTypes.shape({})),
   }),
   activity: PropTypes.shape({

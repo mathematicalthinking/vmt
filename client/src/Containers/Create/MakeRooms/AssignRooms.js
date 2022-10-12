@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput, Button, Checkbox } from 'Components';
 import classes from './makeRooms.css';
@@ -19,6 +19,10 @@ const AssignRooms = (props) => {
   const [aliasMode, setAliasMode] = React.useState(initialAliasMode);
   const [dueDate, setDueDate] = React.useState(initialDueDate);
   const [roomName, setRoomName] = React.useState(initialRoomName);
+
+  useEffect(() => {
+    setRoomName(initialRoomName);
+  }, [initialRoomName]);
 
   const restoreNameClick = () => setRoomName(initialRoomName);
   const restoreNameKeyDown = (event) => {
