@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -8,6 +8,7 @@ import COLOR_MAP from 'utils/colorMap';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
+import { useAppModal } from 'utils';
 
 const MakeRooms = (props) => {
   const {
@@ -26,9 +27,9 @@ const MakeRooms = (props) => {
   const [participants, setParticipants] = useState(initialParticipants);
   const [roomDrafts, setRoomDrafts] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
   const submitArgs = React.useRef(); // used for passing along submit info
   const membersToInviteToCourse = React.useRef(null);
+  const { show: showTheWarning, hide: hideTheWarning } = useAppModal();
 
   // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
   // changed props.  However, the correct way of detecting and responding to a changed state is to act when the
@@ -228,7 +229,7 @@ const MakeRooms = (props) => {
           )
         )
     );
-    return everyoneAssigned ? submit(submitInfo) : setShowWarning(true);
+    return everyoneAssigned ? submit(submitInfo) : showWarning();
   };
 
   const submit = ({ aliasMode, dueDate, roomName }) => {
@@ -318,6 +319,31 @@ const MakeRooms = (props) => {
     />
   );
 
+  const showWarning = () => {
+    showTheWarning(
+      <Fragment>
+        <div>
+          There are unassigned participants. Do you want to continue with this
+          assignment?
+        </div>
+        <div>
+          <Button
+            m={10}
+            click={() => {
+              submit(submitArgs.current);
+              hideTheWarning();
+            }}
+          >
+            Assign
+          </Button>
+          <Button m={10} theme="Cancel" click={hideTheWarning}>
+            Cancel
+          </Button>
+        </div>
+      </Fragment>
+    );
+  };
+
   return (
     <React.Fragment>
       {showModal && (
@@ -337,22 +363,6 @@ const MakeRooms = (props) => {
             updateMembersToInvite={handleMembersToInvite}
           />
         </BigModal>
-      )}
-      {showWarning && (
-        <Modal show={showWarning} closeModal={() => setShowWarning(false)}>
-          <div>
-            There are unassigned participants. Do you want to continue with this
-            assignment?
-          </div>
-          <div>
-            <Button m={10} click={() => submit(submitArgs.current)}>
-              Assign
-            </Button>
-            <Button m={10} theme="Cancel" click={() => setShowWarning(false)}>
-              Cancel
-            </Button>
-          </div>
-        </Modal>
       )}
       <AssignRooms
         initialAliasMode={selectedAssignment.aliasMode || false}
