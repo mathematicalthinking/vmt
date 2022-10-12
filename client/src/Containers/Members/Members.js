@@ -51,6 +51,7 @@ class Members extends PureComponent {
       (id) => !classIds.includes(id)
     );
     if (temporaryExclusion.length !== newExclusion.length)
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ temporaryExclusion: newExclusion });
   }
 
@@ -114,7 +115,8 @@ class Members extends PureComponent {
     const color = COLOR_MAP[classList.length];
     const { userId, username } = this.state;
     connectInviteToCourse(parentResource, userId, username, {
-      guest: true,
+      role: 'guest',
+      // guest: true,
     });
     connectInviteToRoom(resourceId, userId, username, color);
     this.setState({
@@ -178,8 +180,20 @@ class Members extends PureComponent {
       connectUpdateCourseMembers(resourceId, updatedMembers);
       if (courseRoomsMembers && info.role === 'facilitator') {
         Object.keys(courseRoomsMembers).forEach((roomId) => {
-          if (courseRoomsMembers[roomId].includes(info.user._id)) {
-            connectUpdateRoomMembers(roomId, updatedMembers);
+          if (
+            courseRoomsMembers[roomId].find(
+              (member) => member.user._id === info.user._id
+            )
+          ) {
+            const updatedMemberList = courseRoomsMembers[roomId].map(
+              (member) => {
+                if (member.user._id === info.user._id)
+                  member.role = 'facilitator';
+                return member;
+              }
+            );
+
+            connectUpdateRoomMembers(roomId, updatedMemberList);
           } else
             connectInviteToRoom(
               roomId,
@@ -190,9 +204,14 @@ class Members extends PureComponent {
             );
         });
       } else if (courseRoomsMembers && info.role === 'participant') {
-        Object.keys(courseRoomsMembers).forEach((roomId) =>
-          connectUpdateRoomMembers(roomId, updatedMembers)
-        );
+        Object.keys(courseRoomsMembers).forEach((roomId) => {
+          const updatedMemberList = courseRoomsMembers[roomId].map((member) => {
+            if (member.user._id === info.user._id) member.role = 'participant';
+            return member;
+          });
+
+          connectUpdateRoomMembers(roomId, updatedMemberList);
+        });
       }
     } else connectUpdateRoomMembers(resourceId, updatedMembers);
   };
@@ -528,7 +547,12 @@ const mapStateToProps = (state, ownProps) => {
     })),
     user: state.user,
     courseRoomsMembers: course.rooms.reduce((acc, roomId) => {
-      return { ...acc, [roomId]: state.rooms.byId[roomId].members };
+      return (
+        state.rooms.byId[roomId] && {
+          ...acc,
+          [roomId]: state.rooms.byId[roomId].members,
+        }
+      );
     }, {}),
   };
 };
