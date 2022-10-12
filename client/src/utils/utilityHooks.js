@@ -1,10 +1,11 @@
 /* eslint-disable prettier/prettier */
-import React from 'react';
+import React, { useContext } from 'react';
 import html2canvas from 'html2canvas';
 import { debounce } from 'lodash';
 import { useQuery } from 'react-query';
 import API from 'utils/apiRequests';
 import buildLog from 'utils/buildLog';
+import { ModalContext } from 'Components';
 
 const timeFrameFcns = {
   all: () => true,
@@ -320,4 +321,24 @@ export function usePopulatedRooms(
         }),
     options
   );
+}
+
+/**
+ * Hook to an app-level modal that can be called from anywhere.
+ * @param {Component} Element - the React component to put inside the modal
+ * @param {Object} [options = {}] - props to apply to the containing modal
+ * @returns { Object } {
+ *    show - function to show the modal
+ *    hide - function to hide the modal
+ *}
+ */
+
+export function useAppModal() {
+  const modalContext = useContext(ModalContext);
+
+  return {
+    show: modalContext.show,
+    showBig: modalContext.showBig,
+    hide: modalContext.hide,
+  };
 }
