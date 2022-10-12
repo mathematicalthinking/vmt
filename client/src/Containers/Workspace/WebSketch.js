@@ -514,18 +514,25 @@ const WebSketch = (props) => {
           break;
         // case 'ToolPlayBegan':
         case 'WillPlayTool': // controlling sketch will play a tool
-          notify('Playing ' + attr.tool.name + ' Tool');
+          // Notification persists until the tool finishes or is canceled
+          notify('Playing ' + attr.tool.name + ' Tool', {
+            prepend: true,
+            persist: true,
+          });
           startFollowerTool(attr.tool.name);
           break;
         // Ignore ToolPlayBegan, as we simulate only user drags (not matches) during toolplay
         // To get all the internals right, we'd need to duplicate every snap and unsnap.
         // We still may need to keep a record of snapped gobjs to get the drags right.
         case 'ToolPlayed': // controlling sketch has played a tool
+          notify('Finished playing ' + attr.tool.name + ' Tool', {
+            prepend: true,
+          });
           toolPlayed(attr);
           notify('');
           break;
         case 'ToolAborted': // controlling sketch has aborted a tool
-          notify('Canceled ' + attr.tool.name + ' Tool');
+          notify('Canceled ' + attr.tool.name + ' Tool', { prepend: true });
           abortFollowerTool();
           break;
         case 'MergeGobjs': // controlling sketch has merged a gobj
@@ -551,6 +558,11 @@ const WebSketch = (props) => {
         case 'ClearTraces':
           notify('Traces cleared.');
           sketch.clearTraces();
+          if (sketch._fadeTracesJob) {
+            // Restart; otherwise current job will delay tracing until it ends
+            sketch.stopFadeJob();
+            sketch.startFadeJob(true);
+          }
           break;
         default:
           // Other messages to be defined: gobjEdited, gobjStyled, etc.
@@ -984,8 +996,8 @@ const WebSketch = (props) => {
       // ADD SUPPORT HERE FOR CHANGING TEXT OBJECTS (E.G., CAPTIONS)
     }
     note += gobjDesc(gobj) + ' label.';
-    if (attr.styleJson) {
-      gobj.style = JSON.parse(attr.styleJson);
+    if (attr.labelStyle) {
+      gobj.style.label = attr.labelStyle;
     }
     if (attr.autoGenerate) {
       gobj.shouldAutogenerateLabel = attr.autoGenerate;

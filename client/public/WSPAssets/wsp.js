@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221006032208
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-macbook-pro-2.local/20221009165200
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -41914,23 +41914,14 @@
        */
       abortActiveTool: function() {
         var regime = this.activeRegime,
-            msgContent;
-        if (regime && this.activeTool) {
+            name = GSP._get(this.activeTool, 'metadata.name');
+        if (regime) {
           // Original code tested for activeTool AFTER popping, so never generated an event
-          // Create event msg before popping (while activeTool exists)
-          msgContent = {tool: {name: this.activeTool.metadata.name}};      
+          // Now we get tool name before popping (while activeTool exists)
           //Popping the regime will trigger our delegate who performs all of the cleanup
           this.sketch.popAllTouchRegimesIncluding(regime);
-          this.sketch.event('ToolAborted', {}, msgContent);
         }
-        this.sketch.event(
-          'ToolAborted',
-          {},
-          {
-            tool: {
-              name: name
-            }
-          });
+        this.sketch.event('ToolAborted', {}, {tool: {name: name}});
       },
       
       /**
