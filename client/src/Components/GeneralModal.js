@@ -18,11 +18,11 @@ export default function GeneralModal({ children }) {
   // @TODO Ugh...this function should take a 'type' as parameter, whether Modal or BigModal, and the return/render below should create a component of that type.
   // Unfortunately, I couldn't get that more extensible approach to work in the short time I tried.
   const _show = (makeBig) => {
-    return (component, newOptions) => {
+    return (component, newOptions = {}) => {
       setChild(component);
       setShow(true);
       setIsBig(makeBig);
-      if (newOptions) setOptions(newOptions);
+      setOptions(newOptions);
     };
   };
 
