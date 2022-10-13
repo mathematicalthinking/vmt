@@ -87,7 +87,6 @@ const EditRooms = (props) => {
 
     if (membersToRemove.length > 0) {
       membersToRemove.forEach((memId) =>
-        // removeRoomMember(roomId, memId)(dispatch)
         dispatch(removeRoomMember(roomId, memId))
       );
     }
@@ -110,12 +109,7 @@ const EditRooms = (props) => {
       }, {});
       membersToInvite.forEach((newMemId) => {
         dispatch(
-          inviteToRoom(
-            roomId,
-            newMemId,
-            newUsersObj[newMemId].user.username,
-            undefined
-          )
+          inviteToRoom(roomId, newMemId, newUsersObj[newMemId].user.username)
         );
       });
     }
