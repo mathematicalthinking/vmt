@@ -140,29 +140,34 @@ const Archive = () => {
       delete updatedFilters.roomType;
     }
 
-    API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
-      ids: archive[resource],
-      ...updatedFilters,
-      // roomType: updatedFilters.roomType,
-    })
-      .then((res) => {
-        const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
-        setLoading(false);
-        setMoreAvailable(isMoreAvailable);
-        setVisibleResources((prevState) =>
-          concat
-            ? [...prevState.visibleResources].concat(res.data.results)
-            : res.data.results
-        );
+    if (archive && archive[resource] && archive[resource].length > 0) {
+      API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
+        ids: archive[resource],
+        ...updatedFilters,
+        // roomType: updatedFilters.roomType,
       })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.log(err);
-        // eslint-disable-next-line no-alert
-        window.alert(
-          'Error loading the results. Please refresh the page and try again.'
-        );
-      });
+        .then((res) => {
+          const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
+          setLoading(false);
+          setMoreAvailable(isMoreAvailable);
+          setVisibleResources((prevState) =>
+            concat
+              ? [...prevState.visibleResources].concat(res.data.results)
+              : res.data.results
+          );
+        })
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+          // eslint-disable-next-line no-alert
+          window.alert(
+            'Error loading the results. Please refresh the page and try again.'
+          );
+        });
+    } else {
+      setLoading(false);
+      setMoreAvailable(false);
+    }
   };
 
   const setSkipState = () => {
