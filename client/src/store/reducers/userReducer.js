@@ -84,11 +84,13 @@ const reducer = (state = initialState, action) => {
       return { ...state, rooms };
     }
     case actionTypes.ADD_ROOM_TO_ARCHIVE: {
+      // create a default structure if one doesn't exist
+      const prevArchivedRooms = state.archive && state.archive.rooms ? [...state.archive.rooms] : [];
       return {
         ...state,
         archive: {
           ...state.archive,
-          rooms: [...state.archive.rooms, action.roomId],
+          rooms: [...prevArchivedRooms, action.roomId],
         },
         rooms: state.rooms.filter((room) => room !== action.roomId),
       };
