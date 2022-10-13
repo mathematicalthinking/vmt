@@ -140,7 +140,15 @@ const AddParticipants = (props) => {
         </InfoBox>
       )}
       <div className={classes.ModalButton}>
-        <Button m={5} click={submit} data-testid="next-step-assign">
+        <Button m={5} click={close} data-testid="next-step-assign">
+          Cancel
+        </Button>
+        <Button
+          m={5}
+          click={submit}
+          disabled={newParticipants.length === 0}
+          data-testid="next-step-assign"
+        >
           Add Participants
         </Button>
       </div>

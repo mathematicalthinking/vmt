@@ -87,7 +87,7 @@ const EditRooms = (props) => {
 
     if (membersToRemove.length > 0) {
       membersToRemove.forEach((memId) =>
-        removeRoomMember(roomId, memId)(dispatch)
+        dispatch(removeRoomMember(roomId, memId))
       );
     }
   };
@@ -108,12 +108,9 @@ const EditRooms = (props) => {
         return { ...acc, [curr.user._id]: curr };
       }, {});
       membersToInvite.forEach((newMemId) => {
-        inviteToRoom(
-          roomId,
-          newMemId,
-          newUsersObj[newMemId].user.username,
-          undefined
-        )(dispatch);
+        dispatch(
+          inviteToRoom(roomId, newMemId, newUsersObj[newMemId].user.username)
+        );
       });
     }
   };
@@ -170,8 +167,19 @@ const EditRooms = (props) => {
         );
       }
 
-      if (dueDate !== selectedAssignment.dueDate) {
+      if (
+        dueDate !== selectedAssignment.dueDate && // if new dueDate
+        !(!dueDate && !selectedAssignment.dueDate) // and dueDates have value
+      ) {
         dispatch(updateRoom(oldRoomDraft.room, { dueDate }));
+      }
+
+      // if roomName has changed,
+      // update the room name for each room in selectedAssignment
+      if (roomName !== initialRoomName) {
+        dispatch(
+          updateRoom(oldRoomDraft.room, { name: `${roomName}: ${i + 1}` })
+        );
       }
     });
 

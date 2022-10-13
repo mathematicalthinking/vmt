@@ -271,3 +271,7 @@
   display: flex;
   animation: showDropdown 0.2s;
 }
+
+.ModalButton {
+  display: flex;
+}
