@@ -358,7 +358,7 @@ const MakeRooms = (props) => {
         initialAliasMode={selectedAssignment.aliasMode || false}
         initialDueDate={selectedAssignment.dueDate || ''}
         initialRoomName={
-          selectedAssignment.label ||
+          selectedAssignment.roomName ||
           `${activity.name} (${new Date().toLocaleDateString()})`
         }
         participantsPerRoom={participantsPerRoom}
@@ -378,6 +378,7 @@ MakeRooms.propTypes = {
     dueDate: PropTypes.string,
     label: PropTypes.string,
     value: PropTypes.arrayOf(PropTypes.shape({})),
+    roomName: PropTypes.string,
   }),
   activity: PropTypes.shape({
     name: PropTypes.string,

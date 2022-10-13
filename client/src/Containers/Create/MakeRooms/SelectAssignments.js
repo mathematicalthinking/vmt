@@ -50,8 +50,11 @@ const SelectAssignments = ({
       _id: assignment._id,
       aliasMode: assignment.aliasMode,
       dueDate: assignment.dueDate,
-      label: assignment.name,
+      label: `${assignment.name}: ${new Date(
+        assignment.timestamp
+      ).toLocaleString()}`,
       value: assignment.roomDrafts,
+      roomName: assignment.name,
     }));
     return firstOption ? [firstOption].concat(assignments) : assignments;
   };

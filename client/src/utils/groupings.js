@@ -64,7 +64,14 @@ export const createPreviousAssignments = (groupings, rooms) => {
       return roomDraft;
     });
 
-    return { name, roomDrafts, dueDate, aliasMode, _id };
+    return {
+      name,
+      roomDrafts,
+      dueDate,
+      aliasMode,
+      _id,
+      timestamp: grouping.timestamp,
+    };
   });
 
   return previousAssignments;

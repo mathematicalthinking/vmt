@@ -244,7 +244,7 @@ const EditRooms = (props) => {
         initialAliasMode={selectedAssignment.aliasMode || false}
         initialDueDate={selectedAssignment.dueDate || ''}
         initialRoomName={
-          selectedAssignment.label ||
+          selectedAssignment.roomName ||
           `${activity.name} (${new Date().toLocaleDateString()})`
         }
         assignmentMatrix={assignmentMatrix}
