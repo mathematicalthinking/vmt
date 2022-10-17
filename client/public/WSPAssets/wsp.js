@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-macbook-pro-2.local/20221009165200
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221012155002
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -10500,6 +10500,7 @@
         "StartDragConfirmed",
         "MoveDrag",
         "EndDrag",
+        "EndLabelDrag",
         "MergeGobjs",
         "StartAnimate",
         "EndAnimate",
@@ -45515,6 +45516,17 @@
             touch: touch,
             isLabelTap: true
           });
+        } else {
+          this.sketch.event(
+            "EndLabelDrag",
+            {
+              gobj: this.gobj
+            },
+            { newPos: GSP.GeometricPoint(pos.x, pos.y),
+              cornerDelta: this.labelCornerDelta,
+              action: 'Dragged' // Label event actions have " label of point A" appended.
+            }
+          );
         }
   
         // Tell the longPress job we are done and gone.

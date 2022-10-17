@@ -121,6 +121,7 @@ const WebSketchEditor = (props) => {
       { event: 'DidChangeCurrentPage.WSP', handler: reflectAndSync },
       { event: 'StartDragConfirmed.WSP', handler: reflectMessage },
       { event: 'EndDrag.WSP', handler: reflectMessage },
+      { event: 'EndLabelDrag.WSP', handler: reflectMessage },
       { event: 'WillPlayTool.WSP', handler: reflectMessage },
       { event: 'ToolPlayed.WSP', handler: reflectAndSync },
       { event: 'ToolPlayBegan.WSP', handler: syncGobjUpdates }, // Tool objects are instantiated, so track them

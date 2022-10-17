@@ -341,10 +341,9 @@ var WIDGETS = (function() {
     activeWidget = inst;
     inst.active = true;
     $(inst.domButtonSelector).addClass('widget_active');
-    if (!restoring) {
-      $(inst.promptSelector).css('display', 'block');
-      attr.promptDisplay = 'block';
-    }
+    attr.restoring = restoring;
+    $(inst.promptSelector).css('display', 'block');
+    attr.promptDisplay = 'block';
     $('.widgetPane').on('keyup', function(e) {
       if (e.keyCode === 27) {
         activeWidget.deactivate();
@@ -588,8 +587,12 @@ var WIDGETS = (function() {
         restoring = true;
       $('#widget').css({ opacity: 1, 'z-index': 'none' });
       if (preserveActiveWidget) {
-        widget.activate(getSketch(), restoring);
-        preserveActiveWidget = null;
+        // Delay 0.005 sec before activating to allow ToolPlayed or ToolAborted to propagate
+        // first, before the activation message.
+        setTimeout(function() {
+          widget.activate(getSketch(), restoring);
+          preserveActiveWidget = null;
+        }, 5);
       }
     }
 
@@ -653,11 +656,6 @@ var WIDGETS = (function() {
     }
     if (sketchChanged) {
       // even if the node's not changed, a page switch detaches the widgets
-      if ($widgetParent.parent().length) {
-        console.log(
-          'targetControllerToDoc found the widgets still attached after the sketch was changed!'
-        );
-      }
       $sketch.prepend($widgetParent);
     }
     // setupDropdownHandlers ();  THIS IS NEEDED ONLY DURING WIDGET INTIALIZATION
@@ -882,7 +880,7 @@ var WIDGETS = (function() {
     if (retVal) {
       setDomColor(color, gobj);
     }
-    invalidateLabel(gobj);
+    invalidateLabel(gobj, 'Set color for');
     return retVal;
   }
 
@@ -1429,7 +1427,7 @@ var WIDGETS = (function() {
         gobj.shouldAutogenerateLabel = labelWidget.oldAutogenerate;
       }
       restoreSavedPool();
-      invalidateLabel(gobj);
+      invalidateLabel(gobj, 'Restored ');
     }
     this.emptyCache();
   };
@@ -1468,6 +1466,7 @@ var WIDGETS = (function() {
 
   function invalidateLabel(gobj, action) {
     // The content or appearance of the text or label has been changed. Update the screen by modifying the DOM node and/or the sketch's renderRefCon
+    // The action parameter is a string to describe the action to a user; the string will be prepended to "label of point A" (e.g.)
     // Should this be moved into core code?
     var gobjNode = $targetNode.find("[wsp-id='" + gobj.id + "']"),
       font = fontProperty(gobj)['font-family'],
@@ -1601,7 +1600,7 @@ var WIDGETS = (function() {
         }
       }
     } // !hasLabel
-    invalidateLabel(gobj);
+    invalidateLabel(gobj, 'Changed');
     return newText;
   }
 
@@ -1628,13 +1627,18 @@ var WIDGETS = (function() {
       sizeElt = labelWidget.sizeElt,
       fontElt = labelWidget.fontElt,
       position = GSP.GeometricPoint(context.position.x, context.position.y),
-      newTarget = Object.getPrototypeOf(labelWidget).handleTap(event, context);
+      newTarget = Object.getPrototypeOf(labelWidget).handleTap(event, context),
+      action;
     labelWidget.touchPos = position;
     labelWidget.isTap = true;
 
     function initForNewGobj() {
       //  Handle the first tap on the current gobj or label
-      var toGobj, fromGobj, copyStyle, editingDisabled; //source and dest for copying font, size, & nameOrigin
+      var toGobj,
+        fromGobj,
+        copyStyle,
+        editingDisabled, //source and dest for copying font, size, & nameOrigin
+        ret = 'Tapped'; // Will be prepended to " label of Point A" in a user message.
 
       function showRadios() {
         // Show or hide the radios panel based on the target's nameClass, and (if showing) set them based on copyStyle
@@ -1897,15 +1901,16 @@ var WIDGETS = (function() {
         !toGobj.label
       ) {
         generateNewLabel(toGobj);
+        ret = 'Generated';
       }
       showRadios(); // show or hide nameOrigin controls
-      //  If copyStyle is true, need to invalidate the label bounds in case it's gotten larger.
+      return ret;
     } // initForNewGobj
 
-    function handleLabeledGObj() {
+    function handleLabeledGObj(action) {
       // If this object has (or can have) a label, track its settings
       showElt.prop('disabled', false);
-      toggleLabel(true);
+      toggleLabel(true, action);
       showElt.prop('checked', true);
     }
 
@@ -1957,9 +1962,9 @@ var WIDGETS = (function() {
     }
     // Tap is on a new object.
     labelWidget.finalizeLabel(); // finalize the current target before switching to the new one
-    initForNewGobj();
+    action = initForNewGobj();
     if (targetGobj.hasLabel) {
-      handleLabeledGObj();
+      handleLabeledGObj(action);
     } else {
       handleTextGObj();
     }
@@ -1990,19 +1995,18 @@ var WIDGETS = (function() {
     }
   }
 
-  function toggleLabel(show) {
+  function toggleLabel(show, action) {
     // Toggle the visibility of this label and set checkbox
-    // Possible actions (to be passed to invalidateLabel) are none, generated, showed, hid, adjusted
+    // Possible actions (to be passed to invalidateLabel) are none, Generated, Showed, Hid, Changed, etc.
     var gobj = targetGobj,
       labelCornerDelta = {},
       touch = labelWidget.touchPos,
       labelStyle = gobj.style.label,
-      prevState = labelStyle && labelStyle.showLabel,
-      action;
+      prevState = labelStyle && labelStyle.showLabel;
     if (gobj.hasLabel && !gobj.label) {
       // If it's neither transformed nor labeled, just label it
       generateNewLabel(gobj);
-      action = 'generated';
+      action = 'Generated';
     }
     if (show === undefined) {
       if (gobj.hasLabel) {
@@ -2010,14 +2014,13 @@ var WIDGETS = (function() {
       } else if (labelWidget.nameClass && gobj.style.nameOrigin) {
         show = gobj.style.nameOrigin !== 'noVisibleName';
       }
-      if (show && !action) {
-        action = 'showed';
-      }
+      action = action || show ? 'Showed' : 'Hid'; // an already-defined action (e.g., 'Generated') may take precedence
     }
     if (gobj.hasLabel) {
       labelStyle.showLabel = show;
-      if (!action && prevState !== show) {
-        action = show ? 'showed' : 'hid';
+      if ((!action || action === 'Tapped') && prevState !== show) {
+        // if state changed on a tap, prefer the specific action.
+        action = show ? 'Showed' : 'Hid';
       }
       if (show && !prevState) {
         if (gobj.isAPath()) {
@@ -2030,7 +2033,7 @@ var WIDGETS = (function() {
           if (labelWidget.isTap) {
             labelCornerDelta.x = touch.x - gobj.labelRenderBounds.left;
             labelCornerDelta.y = touch.y - gobj.labelRenderBounds.top;
-            action = action || 'adjusted';
+            action = action || 'Moved';
           }
         }
         if (labelWidget.isTap) {
@@ -2046,7 +2049,7 @@ var WIDGETS = (function() {
             };
           }
           gobj.setLabelPosition(touch, labelCornerDelta);
-          action = action || 'adjusted';
+          action = action || 'Modified';
         }
         if (labelWidget.inputElt[0].value === '')
           // if input is empty when we show a label, set the input to the label
@@ -2123,7 +2126,7 @@ var WIDGETS = (function() {
     val = +val;
     if (textStyle['font-size'] !== val) {
       textStyle['font-size'] = val;
-      invalidateLabel(targetGobj);
+      invalidateLabel(targetGobj, 'Set size for');
     }
   };
 
@@ -2146,7 +2149,7 @@ var WIDGETS = (function() {
       oldFont = textStyle['font-family'];
     if (oldFont !== newFont) {
       textStyle['font-family'] = newFont;
-      invalidateLabel(targetGobj);
+      invalidateLabel(targetGobj, 'Set font for');
       //  Add this font to the fontList
     }
   };
@@ -3143,6 +3146,10 @@ var WIDGETS = (function() {
 
     labelToggled: function() {
       toggleLabel(labelWidget.showLabelElt.prop('checked'));
+    },
+
+    invalidateLabel: function(gobj, action) {
+      invalidateLabel(gobj, action);
     },
 
     deleteWithProgeny: function(gobjId, progenyIds) {

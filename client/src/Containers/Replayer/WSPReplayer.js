@@ -115,11 +115,12 @@ const WebSketch = (props) => {
     if (!sketch) {
       getSketch();
     }
+    console.log('Follower received msg:', msg.name, msg.attr);
     if (attr.gobjId) {
       attr.gobj =
         sketch && sketch.gobjList && sketch.gobjList.gobjects[attr.gobjId];
-      if (!attr.gobj)
-        console.error('follow.handleMessage(): msg.attr has a bad gobj.');
+      // if (!attr.gobj)
+      //   console.error('follow.handleMessage(): msg.attr has a bad gobj.');
     }
     if (msg.name.match('Widget')) {
       handleWidgetMessage(msg);
@@ -160,7 +161,15 @@ const WebSketch = (props) => {
             highlitGobjs: attr.gobj,
           });
           break;
-        /// case 'ToolPlayBegan':
+        case 'EndLabelDrag': // a label drag ended
+          // Is it worthwhile tracking the label drag in process? Probably not.
+          attr.gobj.setLabelPosition(attr.newPos, attr.cornerDelta);
+          window.WIDGETS.invalidateLabel(attr.gobj);
+          notify(attr.action + ' label of ' + gobjDesc(attr.gobj), {
+            highlitGobjs: attr.gobj,
+          });
+          break;
+        // case 'ToolPlayBegan':
         case 'WillPlayTool': // controlling sketch will play a tool
           // Notification persists until the tool finishes or is canceled
           notify('Playing ' + attr.tool.name + ' Tool', {
@@ -189,7 +198,7 @@ const WebSketch = (props) => {
           notify('Merged ' + mergeGobjDesc(attr), attr.options);
           break;
         case 'WillUndoRedo': // controlling sketch will undo or redo
-          notify('Performing ' + attr.type);
+          notify('Performed ' + attr.type);
           break;
         case 'UndoRedo':
           undoRedo(attr);
@@ -283,8 +292,8 @@ const WebSketch = (props) => {
         getSketch();
       }
       gobj = sketch && sketch.gobjList && sketch.gobjList.gobjects[gobj];
-      if (!(gobj && gobj.id && gobj.kind))
-        console.error('follow.gobjDesc() gobj param is neither string nor id.');
+      // if (!(gobj && gobj.id && gobj.kind))
+      //   console.error('follow.gobjDesc() gobj param is neither string nor id.');
     }
     if (typeof cur === 'undefined') {
       cur = 0;
@@ -305,6 +314,8 @@ const WebSketch = (props) => {
     const name = msg.name.substring(0, msg.name.indexOf('Widget'));
     const { attr } = msg;
     const handlePrePost = ['Style', 'Visibility', 'Trace'];
+    let note = name + ' Widget ';
+    let persist;
     function doHandleWidget() {
       switch (name) {
         case 'Style':
@@ -334,13 +345,15 @@ const WebSketch = (props) => {
     }
 
     if (attr.action === 'activate') {
-      notify(name + ' widget activated:', { persist: true, prepend: true });
+      persist = true;
+      note += attr.restoring ? 'restored:' : 'activated:';
     } else if (attr.action === 'deactivate') {
-      notify(name + ' widget deactivated.', { prepend: true });
+      note += 'deactivated.';
     } else {
       doHandleWidget(); // Neither activate nor deactivate
       return;
     } // Only activate & deactivate left
+    notify(note, { persist: persist, prepend: true });
     if (handlePrePost.indexOf(name) >= 0) {
       doHandleWidget(); // Some widgets (e.g., style, visibility) need to handle activate/deactivate messages.
     }
@@ -741,13 +754,12 @@ const WebSketch = (props) => {
     }
     const gobj =
       sketch.gobjList.gobjects[attr.sketch.gobjList.gobjects[attr.gobjId]];
-    const labelChanged = attr.label !== 'gobj.label';
-    let note = (note = 'Modified ');
+    let note = attr.action || 'Modified';
     if (attr.text) {
       gobj.setLabel(attr.text);
       // ADD SUPPORT HERE FOR CHANGING TEXT OBJECTS (E.G., CAPTIONS)
     }
-    note += gobjDesc(gobj) + ' label.';
+    note += ' label of ' + gobjDesc(gobj) + '.';
     if (attr.labelStyle) {
       gobj.style.label = attr.labelStyle;
     }
@@ -758,7 +770,8 @@ const WebSketch = (props) => {
     if (attr.autoGenerateLabel) {
       gobj.autoGenerateLabel = attr.autoGenerateLabel;
     }
-    gobj.invalidateAppearance();
+    window.WIDGETS.invalidateLabel(gobj);
+    //gobj.invalidateAppearance();
   }
 
   function handleVisibilityWidget(attr) {
