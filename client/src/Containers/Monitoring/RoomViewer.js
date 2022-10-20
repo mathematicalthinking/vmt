@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { SimpleChat, ToggleGroup, CurrentMembers } from 'Components';
+import { SimpleChat, CurrentMembers, Slider } from 'Components';
 import Thumbnails from './Thumbnails';
 import classes from './roomViewer.css';
 
@@ -24,12 +24,7 @@ import classes from './roomViewer.css';
  */
 
 function RoomViewer({ populatedRoom }) {
-  const constants = {
-    SIMPLE: 'Simple Chat',
-    DETAILED: 'Detailed Chat',
-  };
-
-  const [chatType, setChatType] = React.useState(constants.DETAILED);
+  const [isSimplified, setIsSimplified] = React.useState(false);
 
   const toTimelineString = (timestamp) => {
     const oneWeekAgo = moment().subtract(7, 'days');
@@ -71,16 +66,17 @@ function RoomViewer({ populatedRoom }) {
             Chat
           </div>
           <div className={classes.Chat}>
-            <SimpleChat
-              isSimplified={chatType === constants.SIMPLE}
-              log={populatedRoom.chat}
+            <SimpleChat isSimplified={isSimplified} log={populatedRoom.chat} />
+          </div>
+          <div className={!isSimplified ? classes.SliderOn : classes.Slider}>
+            Detailed Chat
+            <Slider
+              data-testid="simple-chat"
+              action={() => setIsSimplified(!isSimplified)}
+              isOn={!isSimplified}
+              name="isSimplified"
             />
           </div>
-          <ToggleGroup
-            buttons={[constants.DETAILED, constants.SIMPLE]}
-            value={chatType}
-            onChange={setChatType}
-          />
         </div>
         <div className={classes.AttendanceSection}>
           <div

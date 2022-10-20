@@ -64,4 +64,21 @@
     letter-spacing: 1.12px;
     cursor: pointer;
   }
+
+  .Slider {
+    margin: 5px auto;
+    padding: 5px;
+    border-radius: 3px;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: lightShadow;
+    align-self: auto;
+    flex: 0 0 auto;
+    transition: 0.2s;
+  }
+  
+  .SliderOn {
+    composes: Slider;
+    font-weight: 600;
+  }
   
