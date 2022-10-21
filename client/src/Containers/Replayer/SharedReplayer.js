@@ -383,7 +383,7 @@ class SharedReplayer extends Component {
     const { populatedRoom } = this.props;
     const { _id } = populatedRoom;
     const { history } = this.props;
-    history.push(`/myVMT/rooms/${_id}/details`);
+    history.goBack();
   };
 
   toggleFullscreen = () => {
@@ -626,14 +626,14 @@ class SharedReplayer extends Component {
           currentTabId={currentTabId}
           roomName={`${populatedRoom.name} Replayer`}
           bottomRight={
+            // 21 Sep 2022: note that Tools no longer needs a replayer prop. Instead, we just don't give event props for buttons that shouldn't appear.
             <Tools
-              goBack={this.goBack}
-              toggleControl={this.toggleControl}
+              onClickExit={this.goBack}
               lastEvent={this.updatedLog[logIndex]}
-              replayer
-              createActivity={this.beginCreatingActivity}
+              onCreateActivity={this.beginCreatingActivity}
               isSimplified={isSimplified}
-              toggleSimpleChat={this.toggleSimpleChat}
+              onToggleSimpleChat={this.toggleSimpleChat}
+              exitText="Exit Replayer"
             />
           }
           replayer
@@ -666,10 +666,16 @@ class SharedReplayer extends Component {
 SharedReplayer.propTypes = {
   encompass: PropTypes.bool,
   // match: PropTypes.shape({}).isRequired,
-  populatedRoom: PropTypes.shape({}).isRequired,
+  populatedRoom: PropTypes.shape({
+    _id: PropTypes.string,
+    log: PropTypes.arrayOf(PropTypes.shape({})),
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    name: PropTypes.string,
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
   user: PropTypes.shape({}).isRequired,
   updateEnc: PropTypes.func,
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
 };
 
 SharedReplayer.defaultProps = {

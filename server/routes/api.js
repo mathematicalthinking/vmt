@@ -115,6 +115,26 @@ router.get('/searchPaginated/:resource', (req, res) => {
     });
 });
 
+router.get('/searchPaginatedArchive/:resource', (req, res) => {
+  const resource = getResource(req);
+  const controller = controllers[resource];
+  const { searchText, skip, filters } = req.query;
+  const regex = searchText ? new RegExp(searchText, 'i') : '';
+  controller
+    .searchPaginatedArchive(regex, skip, JSON.parse(filters))
+    .then((results) => {
+      res.json({ results });
+    })
+    .catch((err) => {
+      console.error(`Error search paginated archive ${resource}: ${err}`);
+      let msg = null;
+      if (typeof err === 'string') {
+        msg = err;
+      }
+      errors.sendError.InternalError(msg, res);
+    });
+});
+
 // Return records that have any of the values in any of the fields
 router.get('/findAllMatching/:resource', (req, res) => {
   const resource = getResource(req);
@@ -141,7 +161,13 @@ router.get('/findAllMatchingIds/:resource/populated', (req, res) => {
 
   try {
     return Promise.all(
-      ids.map((id) => controller.getPopulatedById(id, { events }))
+      ids.map((id) =>
+        controller
+          .getPopulatedById(id, { events })
+          .select(
+            'creator user chat members currentMembers course activity tabs createdAt updatedAt name'
+          )
+      )
     ).then((results) => res.json({ results }));
   } catch (err) {
     console.error(`Error get ${resource}: ${err}`);

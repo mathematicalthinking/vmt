@@ -1,0 +1,127 @@
+:import('../../../colors.css') {
+  blue: blue;
+  red: red;
+  green: green;
+  lightShadow: lightShadow;
+  lightestShadow: lightestShadow;
+}
+
+.Container {
+  width: 620px;
+  position: relative;
+  display: flex;
+  padding: 5px;
+  background: white;
+  border: 1px solid #d8d9da;
+  box-shadow: lightestShadow;
+  transition: all 0.2s;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.SubContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+.TopBanner {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.BannerLeft {
+  display: flex;
+  align-items: space-between;
+}
+
+.TitleIcons {
+  display: flex;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.Container:hover {
+  box-shadow: lightShadow;
+}
+
+.Title,
+.TitleLink {
+  font-size: 1.5em;
+  margin-right: 10px;
+  text-align: center;
+  vertical-align: middle;
+  color: blue;
+  width: 350px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.Expand {
+  color: black;
+  padding: 5px;
+  z-index: 300;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.Expand:hover {
+  background: #ddd;
+}
+
+.Content {
+  flex-grow: 4;
+  flex-flow: column;
+  overflow-y: auto;
+}
+
+.Expanded {
+  margin-top: 5px;
+  padding: 10px;
+}
+
+.Icons {
+  display: flex;
+  width: 4rem;
+  justify-content: space-around;
+  align-items: center;
+  margin-right: 10px;
+  color: #666;
+}
+
+.Notification {
+  position: relative;
+  top: 2px;
+  left: 5px;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  background-color: red;
+  color: white;
+  text-align: center;
+  vertical-align: center;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.NotificationCount {
+  position: relative;
+  top: 3px;
+}
+
+.TabTypes {
+  text-transform: capitalize;
+}
+
+.TitleLink:hover {
+  cursor: pointer;
+  font-weight: 500;
+}

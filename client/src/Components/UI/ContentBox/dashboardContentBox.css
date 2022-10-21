@@ -85,8 +85,8 @@
 
 .Icons {
   display: flex;
-  width: 95px;
-  flex-justify-content: space-between;
+  width: 4rem;
+  justify-content: space-around;
   align-items: center;
   margin-right: 10px;
   color: #666;

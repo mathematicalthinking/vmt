@@ -4,7 +4,7 @@ module.exports = {
   get: (params) => {
     return new Promise((resolve, reject) => {
       db.Activity.find(params)
-        .populate({ path: 'tabs', select: 'name tabType' })
+        .populate('tabs')
         .then((activities) => {
           resolve(activities);
         })
@@ -15,7 +15,7 @@ module.exports = {
   getById: (id) => {
     return new Promise((resolve, reject) => {
       db.Activity.findById(id)
-        .populate({ path: 'tabs', select: 'name tabType' })
+        .populate('tabs')
         .then((activity) => resolve(activity))
         .catch((err) => reject(err));
     });
@@ -141,7 +141,7 @@ module.exports = {
           const activities = await db.Activity.find({
             _id: { $in: body.activities },
           })
-            .populate({ path: 'tabs', select: '_id' })
+            .populate('tabs')
             .lean()
             .exec();
           existingTabs = activities.reduce((acc, activity) => {
@@ -238,13 +238,13 @@ module.exports = {
               createdActivity._id,
               { $addToSet: { tabs: tab.map((t) => t._id) } },
               { new: true }
-            ).populate({ path: 'tabs', select: 'name tabType' });
+            ).populate('tabs');
           }
           return db.Activity.findByIdAndUpdate(
             createdActivity._id,
             { $addToSet: { tabs: tab._id } },
             { new: true }
-          ).populate({ path: 'tabs', select: 'name tabType' });
+          ).populate('tabs');
         })
         .then((activity) => {
           resolve(activity);

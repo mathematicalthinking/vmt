@@ -216,7 +216,6 @@ class ActivityWorkspace extends Component {
             updatedActivity={connectUpdatedActivity}
             updateActivityTab={connectUpdateActivityTab}
             copyActivity={this.addToMyActivities}
-            inControl
             activity
             createNewTab={this.createNewTab}
             changeTab={this.changeTab}
@@ -269,13 +268,10 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 export default withRouter(
-  connect(
-    mapStateToProps,
-    {
-      connectUpdatedActivity: updatedActivity,
-      connectSetActivityStartingPoint: setActivityStartingPoint,
-      connectGetCurrentActivity: getCurrentActivity,
-      connectUpdateActivityTab: updateActivityTab,
-    }
-  )(ActivityWorkspace)
+  connect(mapStateToProps, {
+    connectUpdatedActivity: updatedActivity,
+    connectSetActivityStartingPoint: setActivityStartingPoint,
+    connectGetCurrentActivity: getCurrentActivity,
+    connectUpdateActivityTab: updateActivityTab,
+  })(ActivityWorkspace)
 );

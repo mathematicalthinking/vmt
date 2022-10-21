@@ -100,7 +100,7 @@ const CodePyretOrg = (props) => {
   const handleResponseData = (updates) => {
     console.log('Response data processing: ', updates);
     if (initializing) return;
-    const { emitEvent, user, resetControlTimer } = props;
+    const { emitEvent, user } = props;
     const currentState = {
       cpoState: updates,
     };
@@ -120,7 +120,6 @@ const CodePyretOrg = (props) => {
       // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
       emitEvent(newData);
       console.log('Sent event... ', newData);
-      resetControlTimer();
       putState();
     }
     receivingData = false;
@@ -309,7 +308,6 @@ CodePyretOrg.propTypes = {
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   myColor: PropTypes.string.isRequired,
-  resetControlTimer: PropTypes.func.isRequired,
   updatedRoom: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
