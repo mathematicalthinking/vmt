@@ -10,7 +10,7 @@ const ControlWarningModal = ({
   showControlWarning,
   inAdminMode,
 }) => {
-  let msg = `You can't make updates when you're not in control. Click "Take Control" first.`;
+  let msg = `You can't make updates when you're not in control.`;
   let cancelText = 'Cancel';
   let cancelTheme = 'Cancel';
 
@@ -39,7 +39,7 @@ const ControlWarningModal = ({
       }
     })();
 
-    return { text, default: false };
+    return { text, disabled: false };
   };
 
   return (
