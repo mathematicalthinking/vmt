@@ -1,25 +1,24 @@
 import React from 'react';
 import { findMatchingUsers } from 'utils';
 
+/**
+ * useDataValidation is a custom hook for validating (and correcting) imported user data.  The hook provides two functions, validateData (takes a data array
+ * and returns an array of validatedData, errors, and a new sponsor object) and getUser (takes a username and returns the user object from the cache, if it exists).
+ *
+ * Note: This hook could be made more React-like if it worked as follows:
+ *    const {validatedData, validationErrors, sponsors, getUser} = useDataValidation(importedData)
+ *
+ *    Each time importedData changes, validation would automatically run, in turn updating validatedData, validationErrors, and sponsors.
+ */
+
 export default function useDataValidation() {
   const [sponsors, setSponsors] = React.useState({});
   const cachedData = React.useRef([]);
 
-  const validateExistingFieldAsync = (field, value) => {
-    return Promise.resolve(validateExistingField(field, value)); // using a Promise to minimize code changes for now
-  };
+  // ================ FUNCTIONS RELATED TO THE CACHE =========================
 
-  const validateExistingField = (field, value) => {
-    return cachedData.current.find((elt) => elt[field] === value);
-  };
-
-  const allValues = (field, data) =>
-    data
-      .map((elt) =>
-        typeof elt[field] === 'string' ? elt[field].toLowerCase() : elt[field]
-      )
-      .filter((val) => val && val !== '');
-
+  // Before each validation, we cache from the DB any users objects that correspond to any of the usernames, emails, or sponsors in
+  // the imported data.
   const preCacheData = async (data) => {
     const usernames = Array.from(
       new Set(allValues('username', data).concat(allValues('sponsor', data)))
@@ -30,6 +29,62 @@ export default function useDataValidation() {
       [...usernames, ...emails]
     );
     cachedData.current = results || [];
+  };
+
+  const allValues = (field, data) =>
+    data
+      .map((elt) =>
+        typeof elt[field] === 'string' ? elt[field].toLowerCase() : elt[field]
+      )
+      .filter((val) => val && val !== '');
+
+  // Returns a user object if it exists in the cache. Used by the client to determine whether any of the imported rows reflects an existing user
+  const getUserAsync = (value) => {
+    return Promise.resolve(validateExistingField('username', value));
+  };
+
+  // Returns the user object from the cache corresponding to the given field and value. This way, we can determine whether a user object
+  // was found via username or email
+  const validateExistingField = (field, value) => {
+    return cachedData.current.find((elt) => elt[field] === value);
+  };
+
+  // ================ FUNCTIONS AND OBJECTS RELATED TO VALIDATION OF USERNAMES AND EMAILS =========================
+
+  // Translates the state of the username (blank, reflects existing user, or new) and email (blank, reflects existing user, or new)
+  // into a unique code, which is used as the reference to usernameEmailStrategy.
+  //
+  //   Username    Email    Code
+  //    blank      blank      0
+  //    blank      existing   1
+  //    blank      new        2
+  //    existing   blank      3
+  //    existing   existing   4
+  //    existing   new        5
+  //    new        blank      6
+  //    new        existing   7
+  //    new        new        8
+  //
+
+  const getUsernameEmailCode = (username, email) => {
+    const userFromUsername = username
+      ? validateExistingField('username', username)
+      : null;
+    const userFromEmail = email ? validateExistingField('email', email) : null;
+
+    let userState;
+    if (userFromUsername) userState = 1;
+    else if (username === '') userState = 0;
+    else userState = 2;
+
+    let emailState;
+    if (userFromEmail) emailState = 1;
+    else if (email === '') emailState = 0;
+    else emailState = 2;
+
+    const state = userState * 3 + emailState;
+
+    return [userFromUsername, userFromEmail, state];
   };
 
   const dummyStrategy = {
@@ -104,29 +159,37 @@ export default function useDataValidation() {
     8: () => ({ ...dummyStrategy }),
   };
 
-  const getUsernameEmailState = (username, email) => {
-    const userFromUsername = username
-      ? validateExistingField('username', username)
-      : null;
-    const userFromEmail = email ? validateExistingField('email', email) : null;
+  // ================ FUNCTIONS RELATED TO DETECTING DUPLICATE USERNAMES AND EMAILS =========================
 
-    let userState;
-    if (userFromUsername) userState = 1;
-    else if (username === '') userState = 0;
-    else userState = 2;
-
-    let emailState;
-    if (userFromEmail) emailState = 1;
-    else if (email === '') emailState = 0;
-    else emailState = 2;
-
-    const state = userState * 3 + emailState;
-
-    return [userFromUsername, userFromEmail, state];
+  // return an error array for duplicates in all the properties columns of the data.
+  const findDuplicates = (data, properties) => {
+    return properties.reduce(
+      (acc, property) => [...acc, ...duplicateFinder(data, property)],
+      []
+    );
   };
 
+  // return an error array for any duplicates in the 'property' column of the data.
+  const duplicateFinder = (data, property) => {
+    const values = data.map((dataRow) => dataRow[property]);
+    const duplicatedRows = data.reduce((acc, dataRow, rowIndex) => {
+      const loc = values.indexOf(dataRow[property]);
+      if (loc !== rowIndex) {
+        acc.add(loc);
+        acc.add(rowIndex);
+      }
+      return acc;
+    }, new Set());
+    return Array.from(duplicatedRows).map((rowIndex) => ({
+      rowIndex,
+      property,
+    }));
+  };
+
+  // ================ FUNCTIONS RELATED TO VALIDATION =========================
+
   /**
-   * Checks the data in a row of a table. Returns an array with two elements:
+   * Called by validateData. Checks the data in a row of a table. Returns an array with two elements:
    * 1. the row of data (with any changes, such as comments)
    * 2. an array of errors.
    *
@@ -154,7 +217,7 @@ export default function useDataValidation() {
       userFromUsername,
       userFromEmail,
       usernameEmailState,
-    ] = getUsernameEmailState(d.username, d.email);
+    ] = getUsernameEmailCode(d.username, d.email);
 
     const strategy = usernameEmailStrategy[usernameEmailState](
       rowIndex,
@@ -208,31 +271,7 @@ export default function useDataValidation() {
     return [d, newValidationErrors];
   };
 
-  // return an error array for any duplicates in the 'property' column of the data.
-  const duplicateFinder = (data, property) => {
-    const values = data.map((dataRow) => dataRow[property]);
-    const duplicatedRows = data.reduce((acc, dataRow, rowIndex) => {
-      const loc = values.indexOf(dataRow[property]);
-      if (loc !== rowIndex) {
-        acc.add(loc);
-        acc.add(rowIndex);
-      }
-      return acc;
-    }, new Set());
-    return Array.from(duplicatedRows).map((rowIndex) => ({
-      rowIndex,
-      property,
-    }));
-  };
-
-  // return an error array for duplicates in all the properties columns of the data.
-  const findDuplicates = (data, properties) => {
-    return properties.reduce(
-      (acc, property) => [...acc, ...duplicateFinder(data, property)],
-      []
-    );
-  };
-
+  // THE MAIN FUNCTION FOR THIS CUSTOM HOOK.
   // Checks each row of the data for validation issues, returning an array of three elements:
   // 1. the data with any changes (e.g., comments about what's wrong)
   // 2. an array of pointers to the data that were problematic. Each element of the array is of the
@@ -285,6 +324,6 @@ export default function useDataValidation() {
     return [validatedData, newErrors, sponsors];
   };
 
-  // return validateExistingField as an async function because in the future, it might be one.
-  return { validateData, validateExistingField: validateExistingFieldAsync };
+  // Note: return getUser as an async function because in the future, it might be one.
+  return { validateData, getUser: getUserAsync };
 }

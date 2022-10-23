@@ -13,7 +13,7 @@ export default function Importer(props) {
   const [validationErrors, setValidationErrors] = React.useState([]);
   const [sponsors, setSponsors] = React.useState({});
   const buttonRef = React.createRef();
-  const { validateData, validateExistingField } = useDataValidation();
+  const { validateData, getUser } = useDataValidation();
 
   const handleOpenDialog = (e) => {
     // Note that the ref is set async, so it might be null at some point
@@ -86,10 +86,7 @@ export default function Importer(props) {
     const { user: creator, onImport } = props;
     const userObjects = await Promise.all(
       importedData.map(async (user) => {
-        const existingUser = await validateExistingField(
-          'username',
-          user.username
-        );
+        const existingUser = await getUser(user.username);
         const { organization, identifier, isGmail, ...rest } = user;
         return existingUser
           ? {
