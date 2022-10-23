@@ -14,6 +14,8 @@ const ControlWarningModal = ({
   let cancelText = 'Cancel';
   let cancelTheme = 'Cancel';
 
+  if (inControl === 'REQUESTED') msg += ` You've already requested control.`;
+
   if (inAdminMode) {
     msg = "You can't make updates when you're in admin mode.";
     cancelText = 'Okay';
