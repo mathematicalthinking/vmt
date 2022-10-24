@@ -2,13 +2,8 @@ import React from 'react';
 import { findMatchingUsers } from 'utils';
 
 /**
- * useDataValidation is a custom hook for validating (and correcting) imported user data.  The hook provides two functions, validateData (takes a data array
- * and returns an array of validatedData, errors, and a new sponsor object) and getUser (takes a username and returns the user object from the cache, if it exists).
- *
- * Note: This hook could be made more React-like if it worked as follows:
- *    const {validatedData, validationErrors, sponsors} = useDataValidation(importedData)
- *
- *    Each time importedData changes, validation would automatically run, in turn updating validatedData, validationErrors, and sponsors.
+ * useDataValidation is a custom hook for validating (and correcting) imported user data.  Given importedData, the hook provides the updated data, errors, and sponsors.
+ * The hook also provides getUser, a function that gets a user object from the 'db' (actually a cache) if it exists.
  */
 
 export default function useDataValidation(importedData) {
