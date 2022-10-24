@@ -10,10 +10,13 @@ export default function Importer(props) {
 
   const [showModal, setShowModal] = React.useState(false);
   const [importedData, setImportedData] = React.useState([]);
-  const [validationErrors, setValidationErrors] = React.useState([]);
-  const [sponsors, setSponsors] = React.useState({});
   const buttonRef = React.createRef();
-  const { validateData, getUser } = useDataValidation();
+  const {
+    validatedData,
+    validationErrors,
+    sponsors,
+    getUser,
+  } = useDataValidation(importedData);
 
   const handleOpenDialog = (e) => {
     // Note that the ref is set async, so it might be null at some point
@@ -26,11 +29,8 @@ export default function Importer(props) {
     const extractedData = data
       .map((d) => d.data)
       .filter((d) => Object.values(d).some((val) => val !== '')); // ignore any blank lines
-    const [newData, newErrors, newSponsors] = await validateData(extractedData);
+    setImportedData(extractedData);
     setShowModal(true);
-    setImportedData(newData);
-    setValidationErrors(newErrors);
-    setSponsors(newSponsors);
   };
 
   const handleOnError = (err) => {
@@ -40,12 +40,7 @@ export default function Importer(props) {
   const handleOnDeleteRow = (row) => {
     const newData = [...importedData];
     newData.splice(row, 1);
-    setImportedData(newData, async () => {
-      const [imports, errors, newSponsors] = await validateData(newData);
-      setImportedData(imports);
-      setValidationErrors(errors);
-      setSponsors(newSponsors);
-    });
+    setImportedData(newData);
   };
 
   // 'changes' is an array of objects of the form {rowIndex, property: value}.
@@ -57,11 +52,7 @@ export default function Importer(props) {
         (newData[rowIndex] = { ...newData[rowIndex], ...rest })
     );
 
-    validateData(newData).then(([validatedData, errors, newSponsors]) => {
-      setImportedData(validatedData);
-      setValidationErrors(errors);
-      setSponsors(newSponsors);
-    });
+    setImportedData(newData);
   };
 
   const handleOnCancel = () => setShowModal(false);
@@ -70,11 +61,7 @@ export default function Importer(props) {
   // and highligt any relevant cells. If no issues, update the data, create any new users, and invite them to the course.
   const handleOnSubmit = async (data) => {
     if (validationErrors.length > 0) {
-      validateData(data).then(([newData, newValidationErrors, newSponsors]) => {
-        setImportedData(newData);
-        setValidationErrors(newValidationErrors);
-        setSponsors(newSponsors);
-      });
+      setImportedData(data);
     } else {
       if (preImportAction) await preImportAction();
       createAndInviteMembers();
@@ -124,7 +111,7 @@ export default function Importer(props) {
     return (
       <ImportModal
         show={showModal}
-        data={importedData}
+        data={validatedData}
         columnConfig={[
           { property: 'username', header: 'Username*' },
           { property: 'email', header: 'Email' },

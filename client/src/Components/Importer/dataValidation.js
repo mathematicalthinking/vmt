@@ -6,14 +6,25 @@ import { findMatchingUsers } from 'utils';
  * and returns an array of validatedData, errors, and a new sponsor object) and getUser (takes a username and returns the user object from the cache, if it exists).
  *
  * Note: This hook could be made more React-like if it worked as follows:
- *    const {validatedData, validationErrors, sponsors, getUser} = useDataValidation(importedData)
+ *    const {validatedData, validationErrors, sponsors} = useDataValidation(importedData)
  *
  *    Each time importedData changes, validation would automatically run, in turn updating validatedData, validationErrors, and sponsors.
  */
 
-export default function useDataValidation() {
+export default function useDataValidation(importedData) {
   const [sponsors, setSponsors] = React.useState({});
+  const [validatedData, setValidatedData] = React.useState([]);
+  const [validationErrors, setValidationErrors] = React.useState([]);
   const cachedData = React.useRef([]);
+
+  React.useEffect(async () => {
+    setValidatedData(importedData);
+    const [newValidatedData, newValidationErrors] = await validateData(
+      importedData
+    );
+    setValidatedData(newValidatedData);
+    setValidationErrors(newValidationErrors);
+  }, [importedData]);
 
   // ================ FUNCTIONS RELATED TO THE CACHE =========================
 
@@ -72,22 +83,22 @@ export default function useDataValidation() {
       : null;
     const userFromEmail = email ? validateExistingField('email', email) : null;
 
-    let userState;
-    if (userFromUsername) userState = 1;
-    else if (username === '') userState = 0;
-    else userState = 2;
+    let userCode;
+    if (userFromUsername) userCode = 1;
+    else if (username === '') userCode = 0;
+    else userCode = 2;
 
-    let emailState;
-    if (userFromEmail) emailState = 1;
-    else if (email === '') emailState = 0;
-    else emailState = 2;
+    let emailCode;
+    if (userFromEmail) emailCode = 1;
+    else if (email === '') emailCode = 0;
+    else emailCode = 2;
 
-    const state = userState * 3 + emailState;
+    const code = userCode * 3 + emailCode;
 
-    return [userFromUsername, userFromEmail, state];
+    return [userFromUsername, userFromEmail, code];
   };
 
-  const dummyStrategy = {
+  const noOpStrategy = {
     validationErrors: [],
     comment: '',
     setProperties: [],
@@ -98,29 +109,29 @@ export default function useDataValidation() {
   const usernameEmailStrategy = {
     // username and email blank
     0: (rowIndex) => ({
-      ...dummyStrategy,
+      ...noOpStrategy,
       validationErrors: [{ rowIndex, property: 'username' }],
       comment: '* Must specify username for a new user.\n',
     }),
     // username blank, email of existing user
     1: (rowIndex, userFromUsername, userFromEmail) => ({
-      ...dummyStrategy,
+      ...noOpStrategy,
       validationErrors: [{ rowIndex, property: 'username' }],
       comment: '* Username filled in from existing user (based on email).\n',
       setProperties: [{ property: 'username', value: userFromEmail.username }],
     }),
     // username blank, email is new
     2: (rowIndex) => ({
-      ...dummyStrategy,
+      ...noOpStrategy,
       validationErrors: [{ rowIndex, property: 'username' }],
       comment: '* Must specify username for a new user.\n',
     }),
     // username is of existing user, email is blank. If email supposed to be blank, it's a valid situation.
-    3: (rowIndex, userFromUsername, userFromEmail) =>
+    3: (rowIndex, userFromUsername) =>
       userFromUsername.email === ''
-        ? { ...dummyStrategy }
+        ? { ...noOpStrategy }
         : {
-            ...dummyStrategy,
+            ...noOpStrategy,
             validationErrors: [{ rowIndex, property: 'email' }],
             comment:
               '* Email filled in from existing user (based on username).\n',
@@ -131,9 +142,9 @@ export default function useDataValidation() {
     // username is of existing user, email is of existing user. If they match, it's a valid situation
     4: (rowIndex, userFromUsername, userFromEmail) =>
       userFromUsername._id === userFromEmail._id
-        ? { ...dummyStrategy }
+        ? { ...noOpStrategy }
         : {
-            ...dummyStrategy,
+            ...noOpStrategy,
             validationErrors: [
               { rowIndex, property: 'email' },
               { rowIndex, property: 'username' },
@@ -141,13 +152,13 @@ export default function useDataValidation() {
             comment: `* Username-email mismatch. Replace username with ${userFromEmail.username} or email with ${userFromUsername.email}.\n`,
           },
     // username is of existing user, email is new
-    5: (rowIndex, userFromUsername, userFromEmail) => ({
+    5: (rowIndex, userFromUsername) => ({
       validationErrors: [{ rowIndex, property: 'email' }],
       comment: `* Imported email corrected for existing user ${userFromUsername.username}.\n`,
       setProperties: [{ property: 'email', value: userFromUsername.email }],
     }),
     // username is new, email is blank (valid situation)
-    6: () => ({ ...dummyStrategy }),
+    6: () => ({ ...noOpStrategy }),
     // username is new, email is of existing user
     7: (rowIndex, userFromUsername, userFromEmail) => ({
       validationErrors: [{ rowIndex, property: 'username' }],
@@ -156,7 +167,7 @@ export default function useDataValidation() {
       setProperties: [{ property: 'username', value: userFromEmail.username }],
     }),
     // username is new, email is new (valid situation)
-    8: () => ({ ...dummyStrategy }),
+    8: () => ({ ...noOpStrategy }),
   };
 
   // ================ FUNCTIONS RELATED TO DETECTING DUPLICATE USERNAMES AND EMAILS =========================
@@ -216,10 +227,10 @@ export default function useDataValidation() {
     const [
       userFromUsername,
       userFromEmail,
-      usernameEmailState,
+      usernameEmailCode,
     ] = getUsernameEmailCode(d.username, d.email);
 
-    const strategy = usernameEmailStrategy[usernameEmailState](
+    const strategy = usernameEmailStrategy[usernameEmailCode](
       rowIndex,
       userFromUsername,
       userFromEmail
@@ -295,11 +306,11 @@ export default function useDataValidation() {
         }),
         {}
       );
-      const validatedData = data.map((dataRow, index) => ({
+      const newValidatedData = data.map((dataRow, index) => ({
         ...dataRow,
         comment: commentsForDuplicates[index] || '',
       }));
-      return [validatedData, duplicateErrors, sponsors];
+      return [newValidatedData, duplicateErrors, sponsors];
     }
 
     // check for validation issues on all requested rows of the provided data, in parallel.
@@ -314,16 +325,16 @@ export default function useDataValidation() {
     // gathered above. validatedData will be an array of each row. For validationsErrors, because there can be
     // more than one error on each row, we have to use a spread operator in accumulation so that we
     // end up wth a simple array of errors.
-    const [validatedData, newErrors] = await validatedInfo.reduce(
+    const [newValidatedData, newErrors] = await validatedInfo.reduce(
       ([accData, accErrors], [dataRow, rowErrors]) => [
         [...accData, dataRow],
         [...accErrors, ...rowErrors],
       ],
       [[], []]
     );
-    return [validatedData, newErrors, sponsors];
+    return [newValidatedData, newErrors];
   };
 
   // Note: return getUser as an async function because in the future, it might be one.
-  return { validateData, getUser: getUserAsync };
+  return { validatedData, validationErrors, sponsors, getUser: getUserAsync };
 }
