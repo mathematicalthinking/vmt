@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221012155002
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221019015632
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -21676,18 +21676,21 @@
       };
       
     return function (x, y) {
+      // Create a GeometricPoint from the x and y values, or from a single param with x and y attributes
       var GeometricPoint;
-      if (typeof x === "string") {
-          x = Number(x);
+      if (x && x.x && x.y && y === undefined) {
+        // single param has both x and y
+        return GSP.GeometricPoint(x.x, x.y);
       }
-      if (typeof x !== "number") {
-          x = NaN;
+      if (typeof x === "string") {
+        x = Number(x);
+      } else if (typeof x !== "number") {
+        x = NaN;
       }
       if (typeof y === "string") {
-          y = Number(y);
-      }
-      if (typeof y !== "number") {
-          y = NaN;
+        y = Number(y);
+      } else if (typeof y !== "number") {
+        y = NaN;
       }
       GeometricPoint = Object.create (GeometricPointPrototype);
       

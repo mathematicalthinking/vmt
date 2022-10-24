@@ -163,7 +163,10 @@ const WebSketch = (props) => {
           break;
         case 'EndLabelDrag': // a label drag ended
           // Is it worthwhile tracking the label drag in process? Probably not.
-          attr.gobj.setLabelPosition(attr.newPos, attr.cornerDelta);
+          attr.gobj.setLabelPosition(
+            window.GSP.GeometricPoint(attr.newPos),
+            window.GSP.GeometricPoint(attr.cornerDelta)
+          );
           window.WIDGETS.invalidateLabel(attr.gobj);
           notify(attr.action + ' label of ' + gobjDesc(attr.gobj), {
             highlitGobjs: attr.gobj,
@@ -597,10 +600,6 @@ const WebSketch = (props) => {
         console.error('Failed to call redo on sketchDoc ', e);
       }
       getSketch(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
-      if (data.newId) {
-        // newId exists only if the original gobj has changed its id
-        data.gobjId = data.newId;
-      }
     } catch (e) {
       console.error('GobjsMerged failed! ', e);
     }
@@ -666,7 +665,7 @@ const WebSketch = (props) => {
       getSketch();
     }
     const WIDGETS = window.WIDGETS;
-    let gobj = sketch && sketch.gobjList.gobjects[attr.gobjId];
+    let gobj = attr.gobj;
     let options = { duration: 2500 };
     let note;
     let toggled;
@@ -752,25 +751,30 @@ const WebSketch = (props) => {
     if (!sketch) {
       getSketch();
     }
-    const gobj =
-      sketch.gobjList.gobjects[attr.sketch.gobjList.gobjects[attr.gobjId]];
+    console.log('Sketch: ', sketch, ' Attr: ', attr);
+    const gobj = attr.gobj;
     let note = attr.action || 'Modified';
-    if (attr.text) {
-      gobj.setLabel(attr.text);
-      // ADD SUPPORT HERE FOR CHANGING TEXT OBJECTS (E.G., CAPTIONS)
-    }
-    note += ' label of ' + gobjDesc(gobj) + '.';
     if (attr.labelStyle) {
       gobj.style.label = attr.labelStyle;
     }
     if (attr.autoGenerate) {
       gobj.shouldAutogenerateLabel = attr.autoGenerate;
     }
-    notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
+    if (attr.labelSpec && attr.labelSpec.location) {
+      gobj.labelSpec.location = window.GSP.GeometricPoint(
+        attr.labelSpec.location
+      );
+    }
     if (attr.autoGenerateLabel) {
       gobj.autoGenerateLabel = attr.autoGenerateLabel;
     }
+    if (attr.text) {
+      gobj.setLabel(attr.text);
+      // ADD SUPPORT HERE FOR CHANGING TEXT OBJECTS (E.G., CAPTIONS)
+    }
     window.WIDGETS.invalidateLabel(gobj);
+    note += ' label of ' + gobjDesc(gobj) + '.';
+    notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
     //gobj.invalidateAppearance();
   }
 
@@ -835,9 +839,7 @@ const WebSketch = (props) => {
       getSketch();
     }
     // state is editStarted, changesNotAccepted, or changesAccepted
-    const gobj = sketch.gobjList.gobjects[attr.gobjId];
-    let note = reason;
-    note += ' parameter edit: <em>' + gobj.label + '</em>';
+    const note = reason + ' parameter edit: <em>' + attr.gobj.label + '</em>';
     notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
   }
 

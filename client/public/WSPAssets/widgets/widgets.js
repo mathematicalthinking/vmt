@@ -319,12 +319,22 @@ var WIDGETS = (function() {
 
   // Send Widget events via the sketch event() function.
   Widget.prototype.event = function(context, attr) {
-    // Each widget sends events using its own eventName.
-    // The action param distinguishes (e.g.) "activate" from "deactivate".
-    // Parameters context and attr are optional.
+    // Widget-specific messages use the widget's eventName.
+    // Most events pass an empty object as the context; here we add the widget itself and the target gobj,
+    // and we add the targetGobj.id to attr.
+    // The sketch event will provide additional context values.
+    // The attr param typically uses attr.action to distinguish the specific nature of the event.
+    // For instance, each widget sends events with attr.action values of "activate" and "deactivate".
     attr = attr || {};
     context = context || {};
     context.widget = this;
+    if (targetGobj) {
+      context.target = targetGobj;
+      if (!attr.gobjId) {
+        // One known caller (invalidateLabel) is called externally for a gobj other than the current target.
+        attr.gobjId = targetGobj.id;
+      }
+    }
     getSketch().event(this.eventName, context, attr);
   };
 
@@ -843,13 +853,12 @@ var WIDGETS = (function() {
     }
   }
 
-  function notifyInvalidatedStyle(gobj, notify, moreChanges) {
+  function notifyInvalidatedStyle(notify) {
     // Invalidates the appearance and optionalLy sends an event with the modified style.
-    gobj.invalidateAppearance();
+    targetGobj.invalidateAppearance();
     if (notify) {
-      // NEED TO EXTEND THE CHANGES OBJECT WITH moreChanges if it exists
       styleWidget.event(
-        { gobj: gobj },
+        {},
         { action: 'changed', changes: [{ id: gobj.id, style: gobj.style }] }
       );
     }
@@ -940,7 +949,7 @@ var WIDGETS = (function() {
           retVal = gobj.style.color !== color;
           if (retVal) {
             gobj.style.color = color; // Set the color of a geometric object, a text object, or a button handle
-            notifyInvalidatedStyle(gobj, notify);
+            notifyInvalidatedStyle(notify);
           }
           gobj.setRenderState(targetState);
         }
@@ -956,7 +965,7 @@ var WIDGETS = (function() {
       gobj.setRenderState('none');
       gobj.style.radius = radiusValue[currentPointStyle];
       gobj.setRenderState(targetState);
-      notifyInvalidatedStyle(gobj, notify);
+      notifyInvalidatedStyle(notify);
     }
   }
 
@@ -971,7 +980,7 @@ var WIDGETS = (function() {
       if (gobj.style.width && currentLineThickness >= 0)
         gobj.style.width = pathWidthValue[currentLineThickness];
       gobj.setRenderState(targetState);
-      notifyInvalidatedStyle(gobj, notify);
+      notifyInvalidatedStyle(notify);
     }
   }
 
@@ -1047,7 +1056,7 @@ var WIDGETS = (function() {
       // A change record includes the gobj's id along with any gobj properties that have changed
       change.id = gobj.id;
       change.style = gobj.style;
-      this.event({ gobj: gobj }, { action: 'changed', changes: [change] });
+      this.event({}, { action: 'changed', changes: [change] });
     } // if (gobj)
   };
 
@@ -1240,7 +1249,7 @@ var WIDGETS = (function() {
       // Send a change record including the gobj's id and style
       change.id = gobj.id;
       change.style = gobj.style;
-      this.event({ gobj: gobj }, { action: 'changed', changes: [change] });
+      this.event({}, { action: 'changed', changes: [change] });
     }
   };
 
@@ -1335,15 +1344,15 @@ var WIDGETS = (function() {
 
   labelWidget.emptyCache = function() {
     // Empty the cache
-    this.oldLabel = null;
-    this.oldStyle = null;
+    delete this.oldLabel;
+    delete this.oldAutogenerate;
+    delete this.oldStyle;
   };
 
   labelWidget.setAction = function(newAction) {
     // Track specific actions to describe them in LabelWidget events.
     // We track only those worth communicating to a user or other watcher.
     // The current action is reset to '' whenever an event is posted
-    // Integrate this with sendEvent in finalizeLabel.
     this.prevAction = '';
     this.prevAction = this.action;
     this.action = newAction;
@@ -1370,40 +1379,33 @@ var WIDGETS = (function() {
     // styleJson (stringified), and
     // autoGenerate (for shouldAutogenerateLabel).
     var properOrigin,
-      self = this;
-
-    function sendEvent(gobj) {
-      // Was gobj changed? If so, emit an event.
-      var currentText = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label,
-        attr = {};
-      if (currentText !== self.oldLabel) {
-        attr.text = currentText;
-      }
-      if (self.oldAutogenerate !== gobj.shouldAutogenerateLabel) {
-        attr.autoGenerate = gobj.shouldAutogenerateLabel;
-      }
-      if (!deepEquals(self.oldStyle.label, gobj.style.label)) {
-        attr.labelStyleJson = JSON.stringify(gobj.style.label);
-      }
-      if (Object.keys(attr).length) {
-        self.event({ gobj: gobj }, attr);
-      }
-    }
-
-    if (!targetGobj) {
+      text,
+      attr,
+      gobj = targetGobj;
+    if (!gobj) {
       return;
     }
-    if (targetGobj.hasLabel && targetGobj.style.nameOrigin) {
+    attr = { action: 'Finalized' };
+    text = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label;
+    if (text !== this.oldLabel) {
+      attr.text = text;
+    }
+    if (this.oldAutogenerate !== gobj.shouldAutogenerateLabel) {
+      attr.autoGenerate = gobj.shouldAutogenerateLabel;
+    }
+    if (!deepEquals(this.oldStyle.label, gobj.style.label)) {
+      attr.labelStyleJson = JSON.stringify(gobj.style.label);
+    }
+    if (gobj.hasLabel && gobj.style.nameOrigin) {
       // The following check applies only to geometric objects with labels and nameOrigins
-      properOrigin = LabelControls.originFromText(targetGobj.label); // User may have set origin to manual while label is still in the form corresponding to a particular origin.
-      if (properOrigin && targetGobj.style.nameOrigin !== properOrigin) {
-        targetGobj.style.nameOrigin = properOrigin;
+      properOrigin = LabelControls.originFromText(gobj.label); // User may have set origin to manual while label is still in the form corresponding to a particular origin.
+      if (properOrigin && gobj.style.nameOrigin !== properOrigin) {
+        gobj.style.nameOrigin = properOrigin;
+        attr.nameOrigin = properOrigin;
       }
     }
-    sendEvent(targetGobj);
-    delete this.oldLabel;
-    delete this.oldAutogenerate;
-    delete this.oldStyle;
+    this.event({}, attr);
+    this.emptyCache();
   };
 
   labelWidget.restoreLabel = function(gobj) {
@@ -1447,27 +1449,12 @@ var WIDGETS = (function() {
     return nameClass;
   }
 
-  function notifyInvalidatedLabel(gobj, notify, msg) {
-    // Invalidates the appearance; if notify is true, sends an event with the action and the modified style.
-    gobj.invalidateAppearance();
-    if (notify) {
-      // NEED TO EXTEND THE CHANGES OBJECT WITH moreChanges if it exists
-      labelWidget.event(
-        { gobj: gobj },
-        {
-          action: msg.action,
-          id: gobj.id,
-          text: gobj.label,
-          labelStyle: gobj.style.label,
-        }
-      );
-    }
-  }
-
   function invalidateLabel(gobj, action) {
     // The content or appearance of the text or label has been changed. Update the screen by modifying the DOM node and/or the sketch's renderRefCon
     // The action parameter is a string to describe the action to a user; the string will be prepended to "label of point A" (e.g.)
-    // Should this be moved into core code?
+    // Unlike most widget functionality, WIDGETS.invalidateLabel() may be called externally, so we explicitly pass attr.gobjId
+    // when we call event().
+    // Related, perhaps this function should be moved into core code.
     var gobjNode = $targetNode.find("[wsp-id='" + gobj.id + "']"),
       font = fontProperty(gobj)['font-family'],
       size = fontProperty(gobj)['font-size'],
@@ -1523,7 +1510,17 @@ var WIDGETS = (function() {
     if (action) {
       msg.action = action;
     }
-    notifyInvalidatedLabel(gobj, 'notify', msg);
+    gobj.invalidateAppearance();
+    labelWidget.event(
+      {},
+      {
+        action: action,
+        gobjId: gobj.id,
+        text: gobj.label,
+        labelStyle: gobj.style.label,
+        labelSpec: gobj.labelSpec,
+      }
+    );
   }
 
   function changeText(newText, newOrigin) {
@@ -2316,7 +2313,6 @@ var WIDGETS = (function() {
     }
     if (action) {
       attrs[action] = newState;
-      //WHY IS EVENT NOT SENT FOR CHANGE IN GLOWBOX?
       this.event(
         {},
         attrs //e.g., {action: fading, fading: newState}
@@ -2456,10 +2452,9 @@ var WIDGETS = (function() {
     } else {
       delete tracedGobjs[gobj.id];
     }
-    getSketch().event(
-      traceWidget.eventName,
-      { gobj: gobj },
-      { action: 'changed', traced: style.traced }
+    this.event(
+      {},
+      { action: 'changed', gobjId: gobj.id, traced: style.traced }
     );
     if (!style.traced) {
       gobj.setRenderState('none');
@@ -2891,8 +2886,8 @@ var WIDGETS = (function() {
     var $data = $('<div>');
     scriptPath = getScriptPath();
     if ($widget) {
-      $widget.remove();
       console.log('makeWidget() should not be called twice.');
+      return;
     }
     $data.append(data);
     $widget = $data.find('#widget');
