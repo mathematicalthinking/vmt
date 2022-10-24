@@ -233,10 +233,10 @@ const WebSketch = (props) => {
       { event: 'LabelWidget.WSP', handler: reflectMessage },
       { event: 'VisibilityWidget.WSP', handler: reflectMessage },
       { event: 'DeleteWidget.WSP', handler: reflectAndSync },
-      { event: 'StartEditParameter.WSP', handler: reflectMessage },
-      { event: 'CancelEditParameter.WSP', handler: reflectMessage },
-      { event: 'EditParameter.WSP', handler: reflectMessage },
+      // We now use a single EditExpression message type for editing param, calc, and function gobjs
+      { event: 'EditExpression.WSP', handler: reflectMessage },
       { event: 'ClearTraces.WSP', handler: reflectMessage },
+      { event: 'PrefChanged.WSP', handler: reflectMessage },
     ];
     handlers.forEach((el) => {
       $sketch.off(el.event, el.handler);
@@ -326,12 +326,19 @@ const WebSketch = (props) => {
             gobjInfo.loc = gobj.geom.loc;
           }
           if (window.GSP.isParameter(gobj)) {
+            // can we distinguish an edited param from a dragged param?
             gobjInfo.expression = gobj.expression;
+          } else {
+            break; // Params should fall through; free points should not
           }
-        // break;
-        // Params should fall through, and there's no harm to points falling through as they don't have values.
         /* falls through */
-        case 'Calculation': // Calculations have values; how do we distinguish which has been changed?
+        case 'Calculation':
+        case 'Function':
+          // All of these objects have locations, and all can be edited; dragging and editing both generate updates
+          if (gobj.geom.loc) {
+            // All have locations; update if needed.
+            gobjInfo.loc = gobj.geom.loc;
+          }
           if (gobj.value) {
             // free expressions (params and calcs) have values
             gobjInfo.value = gobj.value; // free parameter or calculation
@@ -445,12 +452,14 @@ const WebSketch = (props) => {
     // cur = 2: ", Circle #4"
     // cur = 3: ", ..."
     // cur > 3: ""
+
     let retVal = '';
+    let title = gobj.kind;
     if (typeof gobj === 'string') {
       if (!sketch) {
         getSketch();
       }
-      gobj = sketch.gobjList.gobjects[gobj];
+      gobj = sketch && sketch.gobjList && sketch.gobjList.gobjects[gobj];
       // if (!(gobj && gobj.id && gobj.kind))
       //   console.error('follow.gobjDesc() gobj param is neither string nor id.');
     }
@@ -461,7 +470,15 @@ const WebSketch = (props) => {
     if (cur === max) {
       retVal = ', ...';
     } else if (cur < max && gobj) {
-      retVal = gobj.kind + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
+      if (gobj.isParameter()) {
+        title = gobj.genus.replace(/(.*)(Parameter)/, '$1 $2');
+      } else if (
+        gobj.constraint === 'Calculation' ||
+        gobj.constraint === 'Function'
+      ) {
+        title = gobj.constraint;
+      }
+      retVal = title + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
       if (cur > 0) {
         retVal = ', ' + retVal;
       }
@@ -472,12 +489,17 @@ const WebSketch = (props) => {
   const handleMessage = (msg) => {
     // msg has three properties: name, time, and data
     // for most events, data is the attributes of the WSP event
-    const { attr, sender } = msg;
+    const { attr } = msg;
+    let gobj;
+    if (!sketch) {
+      getSketch();
+    }
     console.log('Follower received msg:', msg.name, msg.attr);
-    if (attr.gobjId) {
-      attr.gobj = sketch.gobjList.gobjects[attr.gobjId];
-      // if (!attr.gobj)
-      //   console.error('follow.handleMessage(): msg.attr has a bad gobj.');
+    // If msg references a gobj, find it and attach to attr so handlers can access it.
+    const id = attr.newId ? attr.newId : attr.gobjId;
+    if (id) {
+      gobj = sketch.gobjList.gobjects[id];
+      attr.gobj = gobj;
     }
     if (msg.name.match('Widget')) {
       handleWidgetMessage(msg);
@@ -563,14 +585,8 @@ const WebSketch = (props) => {
         case 'UndoRedo':
           undoRedo(attr);
           break;
-        case 'StartEditParameter': // These messages notify the user; an update message actually performs the update
-          paramEdit('Started', attr);
-          break;
-        case 'CancelEditParameter': // These messages notify the user; an update message actually performs the update
-          paramEdit('Canceled', attr);
-          break;
-        case 'EditParameter':
-          paramEdit('Finished', attr);
+        case 'EditExpression': // handles start, confirm, cancel for editing of params, calcs, and functions.
+          editExpression(attr);
           break;
         case 'ClearTraces':
           notify('Traces cleared.');
@@ -580,6 +596,9 @@ const WebSketch = (props) => {
             sketch.stopFadeJob();
             sketch.startFadeJob(true);
           }
+          break;
+        case 'PrefChanged':
+          prefChanged(attr);
           break;
         default:
           // Other messages to be defined: gobjEdited, gobjStyled, etc.
@@ -1081,14 +1100,51 @@ const WebSketch = (props) => {
     });
   }
 
-  function paramEdit(reason, attr) {
-    if (!sketch) {
-      getSketch();
+  function editExpression(attr) {
+    // handles start, confirm, cancel for editing of params, calcs, and functions.
+    const action = attr.action;
+    const gobj = attr.gobj;
+    const gobjects = sketch.gobjList.gobjects;
+    notify(action + ' editing ' + gobjDesc(gobj), {
+      duration: 2000,
+      highlitGobjs: [gobj],
+    });
+    // For 'Started' or 'Canceled', the notification is all that's needed.
+    if (attr.action === 'Confirmed') {
+      if (attr.parentIds) {
+        attr.parentIds.forEach(function(par, ix) {
+          gobj.parents[ix] = gobjects[par];
+        });
+      }
+      if (attr.expression) {
+        gobj.expression = attr.expression;
+      }
+      if (attr.expressionType) {
+        gobj.expressionType = attr.expressionType;
+      }
+      if (attr.functionExpr) {
+        gobj.functionExpr = attr.functionExpr;
+      }
+      if (attr.infix) {
+        gobj.parsedInfix = attr.infix;
+      }
+      if (gobj.isParameter()) {
+        gobj.setEditedValue(attr.expression); // This works for params; does it work for others?
+      } else {
+        // Function or Calculation
+        gobj.expressionAndParentsWereUpdated();
+      }
     }
-    // state is editStarted, changesNotAccepted, or changesAccepted
-    const note = reason + ' parameter edit: ' + attr.gobj.label + '';
-    notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
   }
+
+  // function paramEdit(reason, attr) {
+  //   if (!sketch) {
+  //     getSketch();
+  //   }
+  //   // state is editStarted, changesNotAccepted, or changesAccepted
+  //   const note = reason + ' parameter edit: ' + attr.gobj.label + '';
+  //   notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
+  // }
 
   // --- Initialization functions ---
 

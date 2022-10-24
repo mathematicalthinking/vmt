@@ -219,6 +219,97 @@ var PREF = (function() {
     }
   }
 
+  function setUnitPref($sketchNode, unit, newValue) {
+    // Set a new unit pref for unit 'length' or 'angle'
+    var doc = $sketchNode.data('document'),
+      sketch = doc.focusPage,
+      prefs = sketch.sQuery().prefs(),
+      oldValue = prefs.units[unit],
+      oldPrecision = prefs.precision[unit],
+      deltaP = 0,
+      gobjSel = {
+        length:
+          '[genus="DistanceMeasure"],[genus="DistanceParameter"],[genus="AreaMeasure"],[genus="Function"]',
+        angle:
+          '[genus="AngleMeasure"],[genus="AngleParameter"],[genus="Function"]',
+      },
+      newPrecision,
+      gobjs,
+      gobj;
+    maxPrecision = 7; // 7 decimal digits at the most.
+
+    function clampPrecision(value) {
+      return value < 0 ? 0 : value > maxPrecision ? maxPrecision : value;
+    }
+
+    function adjustUnitsObjAndPrecision(gobj, unitsObj, newUnit, deltaP) {
+      // Sets both the unitsObj unit to newUnit and style.precision accordingly, for either angle or length units.
+      // The unitObj has the unit and power for both length and angle units that apply (e.g., cm^2/degree)
+      // When called, either length or angle unit has changed, but not both. Weird units may cause
+      // unexpected results. For instance, if the example (cm^2/degree) has precision 2 and is changed to pix and rad units,
+      // the change to pix reduces precision by 4, to -2, which is then clamped to 0. The subsequent change to rad
+      // increases the precision by 2, leaving the result at 2 (the original value) rather than 0 (the desired value).
+      // It would be better to let the precision flaot freely and only clamp at the end, when displaying the value.
+      unitsObj.unit = newUnit;
+      gobj.style.precision = clampPrecision(
+        gobj.style.precision + unitsObj.power * deltaP
+      );
+      gobj.state.forceDomParse = true;
+      gobj.labelHasChanged();
+    }
+
+    if (newValue === oldValue) return; // nothing to do
+    if (newValue === 'pix' || oldValue === 'rad') {
+      deltaP = -2;
+    } else if (oldValue === 'pix' || newValue === 'rad') {
+      deltaP = 2;
+    }
+    prefs.units[unit] = newValue;
+    sketch.spec.preferences.units[unit] = newValue;
+    doc.pageData[sketch.metadata.id].spec.preferences.units[unit] = newValue;
+    if (deltaP) {
+      // update the sketch-wide default precision
+      newPrecision = clampPrecision(oldPrecision + deltaP);
+      prefs.precision[unit] = newPrecision;
+      sketch.spec.preferences.precision[unit] = newPrecision;
+      doc.pageData[sketch.metadata.id].spec.preferences.precision[
+        unit
+      ] = newPrecision;
+    }
+    gobjs = doc.sQuery(gobjSel[unit]);
+    for (var i = 0; i < gobjs.length; i++) {
+      gobj = gobjs[i];
+      if (gobj.unitsObject[unit]) {
+        adjustUnitsObjAndPrecision(
+          gobj,
+          gobj.unitsObject[unit],
+          newValue,
+          deltaP
+        );
+        if (GSP.isParameter(gobj) && gobj.unitsObject[unit]) {
+          // update the multiplier used to display correct values
+          gobj.unitMultiplier = GSP.units.convertToBaseFromUnitObject(
+            1,
+            gobj.unitsObject
+          );
+          gobj.isExpressionDirty = true;
+          gobj.fnExpression = undefined;
+          gobj.parsedInfix = undefined;
+          gobj.uValue = gobj.value / gobj.unitMultiplier;
+        }
+        if (gobj.fnUnits) {
+          gobj.fnUnits = gobj.sQuery().prefs().units;
+        }
+      }
+      gobj.invalidateGeom();
+    }
+    sketch.event(
+      'PrefChanged',
+      {},
+      { category: 'units', pref: unit, oldValue: oldValue, newValue: newValue }
+    );
+  } // setUnitPref
+
   return {
     // Each array element should be of form {category: "widget", name: "style", sketches: "sketch2", pages: "1, 3, 5"}
     // For legacy reasons, we allow elements like {widget: "style", sketches: "all"}, which becomes {category: "widget", name: "style", sketches: "all"}
@@ -241,8 +332,14 @@ var PREF = (function() {
     getPref: function(doc, name, cat) {
       return getPref(doc, name, cat);
     },
+
+    // Set a new unit pref for unit 'length' or 'angle'
+    // This should probably be a more general utility for changing any of the sketch prefs.
+    setUnitPref: function(sketch, unit, newValue) {
+      setUnitPref(sketch, unit, newValue);
+    },
   };
-})();
+})(); // PREF
 
 var WIDGETS = (function() {
   //define the WIDGETS namespace
@@ -859,7 +956,10 @@ var WIDGETS = (function() {
     if (notify) {
       styleWidget.event(
         {},
-        { action: 'changed', changes: [{ id: gobj.id, style: gobj.style }] }
+        {
+          action: 'changed',
+          changes: [{ id: targetGobj.id, style: targetGobj.style }],
+        }
       );
     }
   }
@@ -2399,6 +2499,7 @@ var WIDGETS = (function() {
     if (glowBox.checked) {
       stopGlowing('force');
     }
+    this.setGlowing(false); // glowing behavior occurs only when the traceWidget is active
     Object.getPrototypeOf(this).deactivate(this); // Call multiple levels of post-processing
     $('#wTracePane').css('display', 'none');
     this.cancelOnExit = false;
@@ -2712,18 +2813,19 @@ var WIDGETS = (function() {
             </div>\
             <div class="wCharDropdownContent dragExclude">\
               <div class="column">\
-                <div>△</div>\
-                <div>⟂</div>\
-                <div>‖</div>\
-                <div>∠</div>\
-                <div>⊙</div>\
-                <div>°</div>\
-                <div>≅</div>\
-                <div>≈</div>\
-                <div>≠</div>\
-                <div>≤</div>\
-                <div>≥</div>\
-                <div>∼</div>\
+                <div>&#9651;</div>\
+                <div>&#9651;</div>\
+                <div>&#10178;</div>\
+                <div>&#8214;</div>\
+                <div>&ang;</div>\
+                <div>&#8857;</div>\
+                <div>&deg;</div>\
+                <div>&cong;</div>\
+                <div>&asymp;</div>\
+                <div>&ne;</div>\
+                <div>&le;</div>\
+                <div>&ge;</div>\
+                <div>&sim;</div>\
               </div>\
               <div class="column">\
                 <div>&pi;</div>\
@@ -2735,23 +2837,23 @@ var WIDGETS = (function() {
                 <div>&epsilon;</div>\
                 <div>&phi;</div>\
                 <div>&tau;</div>\
-                <div>Δ</div>\
+                <div>&Delta;</div>\
                 <div>&Sigma;</div>\
                 <div>&Pi;</div>\
               </div>\
               <div class="column">\
-                <div>–</div>\
-                <div>·</div>\
-                <div>±</div>\
-                <div>÷</div>\
-                <div>∫</div>\
-                <div>•</div>\
-                <div>→</div>\
-                <div>⇒</div>\
-                <div>∴</div>\
-                <div>∃</div>\
-                <div>∀</div>\
-                <div>∞</div>\
+                <div>&ndash;</div>\
+                <div>&middot;</div>\
+                <div>&plusmn;</div>\
+                <div>&divide;</div>\
+                <div>&int;</div>\
+                <div>&bull;</div>\
+                <div>&rarr;</div>\
+                <div>&rArr;</div>\
+                <div>&there4;</div>\
+                <div>&exist;</div>\
+                <div>&forall;</div>\
+                <div>&infin;</div>\
               </div>\
             </div>\
           </div>\
@@ -2873,7 +2975,7 @@ var WIDGETS = (function() {
     var $chars = $widget.find('.wCharDropdownContent .column div');
     if (!$._data($chars[0], 'events')) {
       // don't add more handlers if they're already present
-      $('.wCharDropdownContent .column div').click(function() {
+      $chars.click(function() {
         labelReplaceSelection(this.innerText);
       });
     } else {
@@ -2958,19 +3060,19 @@ var WIDGETS = (function() {
       }
     },
 
-    relatedSketchNode: function(node, target) {
+    relatedSketchNode: function(node) {
       // node is an element associated with a sketch_canvas: a widget button, page control, util menu, etc.
       // returns the sketch_canvas element associated with node
       var $node = $(node),
-        $sketchNode = $node.filter(target);
+        $sketchNode = $node.filter('.sketch_canvas');
       while ($node.length && !$sketchNode.length) {
         // target isn't $sketchNode, so search prev sibs and then ancestors
-        $sketchNode = $node.prevAll(target);
+        $sketchNode = $node.prevAll('.sketch_canvas');
         $node = $node.parent();
       }
       if (!$sketchNode.length)
         throw GSP.createError(
-          "relatedSketchNode() couldn't find the target: " + target
+          "relatedSketchNode() couldn't find the target sketch_canvas"
         );
       return $sketchNode[0];
     },
@@ -2979,7 +3081,7 @@ var WIDGETS = (function() {
       // toggles the visibility of the entire widget. If node differs from the currently-targeted sketchNode, leave the widget visible and just retarget it.
       // If node is the widget button, look for a previous sketch_canvas sibling or a previous sketch_canvas sibling of the button's parent.
       var doShow = $widget.css('display') === 'none',
-        sketchNode = WIDGETS.relatedSketchNode(node, '.sketch_canvas');
+        sketchNode = WIDGETS.relatedSketchNode(node);
       if (!sketchNode)
         throw GSP.createError(
           "toggleWidgets called for an element that's neither a sketch_canvas nor a widget_button"
@@ -3662,10 +3764,21 @@ var PAGENUM = (function() {
     $(window).off('keydown'); // turn off any already-active keydown handler
     $(window).on('keydown', { node: sketchNode }, function(e) {
       var key = e.which;
+      if (key === 13) {
+        // return key
+        hidePopup(e.data.node);
+        return false;
+      }
       if (key >= 37 && key <= 40) {
-        // eat arrow keys, ignore others
+        // arrow keys
         if (key <= 38) goPage(e.data.node, -1, true);
-        else goPage(e.data.node, +1, true);
+        // left and up arrows
+        else goPage(e.data.node, +1, true); // right and down arrows
+        return false;
+      }
+      if (key > 48 && key < 58) {
+        // digits 1 thru 9
+        goPage(e.data.node, key - 48);
         return false;
       }
     });
@@ -3689,12 +3802,12 @@ var PAGENUM = (function() {
 
     resetPage: function(btn) {
       // button handler for the Reset Sketch button
-      var sketchNode = WIDGETS.relatedSketchNode(btn, '.sketch_canvas');
+      var sketchNode = WIDGETS.relatedSketchNode(btn);
       getDoc(sketchNode).resetActivePage();
     },
 
     gotoPage: function(btn, pageNum) {
-      var sketchNode = WIDGETS.relatedSketchNode(btn, '.sketch_canvas');
+      var sketchNode = WIDGETS.relatedSketchNode(btn);
       getDoc(sketchNode).switchPage(pageNum);
     },
 
@@ -3719,32 +3832,14 @@ var UTILMENU = (function() {
   // (If there is no .util-men-btn div, the Utility menu does not appear.)
 
   var curSketchNode; // The sketch_canvas to which the commands apply.
-  var maxPrecision = 7; // 7 decimal digits at the most.
-
-  // The next two functions should probably be moved to WIDGETS and used both there and here.
-  function sketchDocFromContainerEl($el) {
-    // return the sketch doc in the common parent of $el and the sketch
-    var found, $canvas;
-    $el = $($el); // in case $el isn't jQuery
-    while (!found && $el.length) {
-      $canvas = $el.find('.sketch_canvas');
-      found = $el && $canvas.length;
-      if (found) {
-        return $canvas.data('document');
-      } else {
-        $el = $el.parent();
-      }
-    }
-    return; // undefined: no such sketch document exists.
-  }
 
   function createUtilMenu() {
     // Create the menu itself and returns the file-content div
     var scriptPath = WIDGETS.getScriptPath(),
+      $canvas = $(this),
+      doc = $canvas.data('document'),
       newContent = '<div class="util-menu-btn util-menu">',
-      $button = $(this)
-        .parent()
-        .find('.util-menu-btn');
+      $button = $canvas.parent().find('.util-menu-btn');
 
     function distItem(units, name) {
       // cm, inches, or pixels
@@ -3768,156 +3863,6 @@ var UTILMENU = (function() {
         units +
         '</div>'
       );
-    }
-
-    function clampPrecision(value) {
-      return value < 0 ? 0 : value > maxPrecision ? maxPrecision : value;
-    }
-
-    function adjustUnitsObjAndPrecision(gobj, unitsObj, newUnit, deltaP) {
-      // Sets both the unitsObj unit to newUnit and style.precision accordingly, for either angle or length units.
-      // The unitObj has the unit and power for both length and angle units that apply (e.g., cm^2/degree)
-      // When called, either length or angle unit has changed, but not both. Weird units may cause
-      // unexpected results. For instance, if the example (cm^2/degree) has precision 2 and is changed to pix and rad units,
-      // the change to pix reduces precision by 4, to -2, which is then clamped to 0. The subsequent change to rad
-      // increases the precision by 2, leaving the result at 2 (the original value) rather than 0 (the desired value).
-      // It would be better to let the precision flaot freely and only clamp at the end, when displaying the value.
-      unitsObj.unit = newUnit;
-      gobj.style.precision = clampPrecision(
-        gobj.style.precision + unitsObj.power * deltaP
-      );
-      gobj.state.forceDomParse = true;
-      gobj.labelHasChanged();
-    }
-
-    function setLengthPref(event) {
-      var doc = sketchDocFromContainerEl(event.target),
-        sketch = doc.focusPage,
-        prefs = sketch.sQuery().prefs(),
-        newUnit = $(event.target).data('unit'),
-        oldUnit = prefs.units.length,
-        oldPrecision = prefs.precision.angle,
-        deltaP = 0,
-        newPrecision,
-        gobjs,
-        gobj;
-      if (newUnit && newUnit !== oldUnit) {
-        // Update the unit in the sketch and the spec, to save it on export
-        if (newUnit === 'pix') {
-          deltaP = -2;
-        } else if (oldUnit === 'pix') {
-          deltaP = 2;
-        }
-        prefs.units.length = newUnit;
-        sketch.spec.preferences.units.length = newUnit;
-        doc.pageData[
-          sketch.metadata.id
-        ].spec.preferences.units.length = newUnit;
-        if (deltaP) {
-          // update the sketch-wide default precision
-          newPrecision = clampPrecision(oldPrecision + deltaP);
-          prefs.precision.length = newPrecision;
-          sketch.spec.preferences.precision.length = newPrecision;
-          doc.pageData[
-            sketch.metadata.id
-          ].spec.preferences.precision.length = newPrecision;
-        }
-        gobjs = doc.sQuery(
-          '[genus="DistanceMeasure"],[genus="DistanceParameter"],[genus="AreaMeasure"],[genus="Function"]'
-        );
-        for (var i = 0; i < gobjs.length; i++) {
-          gobj = gobjs[i];
-          if (gobj.unitsObject.length) {
-            adjustUnitsObjAndPrecision(
-              gobj,
-              gobj.unitsObject.length,
-              newUnit,
-              deltaP
-            );
-            if (GSP.isParameter(gobj) && gobj.unitsObject.length) {
-              // update the multiplier used to display correct values
-              gobj.unitMultiplier = GSP.units.convertToBaseFromUnitObject(
-                1,
-                gobj.unitsObject
-              );
-              gobj.isExpressionDirty = true;
-              gobj.fnExpression = undefined;
-              gobj.parsedInfix = undefined;
-              gobj.uValue = gobj.value / gobj.unitMultiplier;
-            }
-            if (gobj.fnUnits) {
-              gobj.fnUnits = gobj.sQuery().prefs().units;
-            }
-          }
-          gobj.invalidateGeom();
-        }
-        updateUnitPrefs(event.target);
-      }
-    }
-
-    function setAnglePref(event) {
-      var doc = sketchDocFromContainerEl(event.target),
-        sketch = doc.focusPage,
-        prefs = sketch.preferences,
-        newUnit = $(event.target).data('unit'),
-        oldUnit = prefs.units.angle,
-        oldPrecision = prefs.precision.angle,
-        deltaP = 0,
-        newPrecision,
-        gobjs,
-        gobj;
-      if (newUnit && newUnit !== oldUnit) {
-        // Update the unit in the sketch and the spec, to save it on export
-        if (newUnit === 'rad') {
-          deltaP = 2;
-        } else if (oldUnit === 'rad') {
-          deltaP = -2;
-        }
-        prefs.units.angle = newUnit;
-        sketch.spec.preferences.units.angle = newUnit;
-        doc.pageData[sketch.metadata.id].spec.preferences.units.angle = newUnit;
-        if (deltaP) {
-          newPrecision = clampPrecision(oldPrecision + deltaP);
-          prefs.precision.angle = newPrecision;
-          sketch.spec.preferences.precision.angle = newPrecision;
-          doc.pageData[
-            sketch.metadata.id
-          ].spec.preferences.precision.angle = newPrecision;
-        }
-        gobjs = doc.sQuery(
-          '[genus="AngleMeasure"],[genus="AngleParameter"],[genus="Function"]'
-        );
-        for (var i = 0; i < gobjs.length; i++) {
-          gobj = gobjs[i];
-          // there's no clear documentation of where angle units can appear in various kinds and genera of gobjs,
-          // so we do our best here to find them and set them to the new unit and precision.
-          if (gobj.unitsObject.angle) {
-            // angle measure
-            adjustUnitsObjAndPrecision(
-              gobj,
-              gobj.unitsObject.angle,
-              newUnit,
-              deltaP
-            );
-            if (GSP.isParameter(gobj) && gobj.unitsObject.angle) {
-              // update the multiplier used to display correct values
-              gobj.unitMultiplier = GSP.units.convertToBaseFromUnitObject(
-                1,
-                gobj.unitsObject
-              );
-              gobj.isExpressionDirty = true;
-              gobj.fnExpression = undefined;
-              gobj.parsedInfix = undefined;
-              gobj.uValue = gobj.value / gobj.unitMultiplier;
-            }
-            if (gobj.fnUnits) {
-              gobj.fnUnits = gobj.sQuery().prefs().units;
-            }
-          }
-          gobj.invalidateGeom();
-        }
-        updateUnitPrefs(event.target);
-      }
     }
 
     if (!$button.length) {
@@ -3949,26 +3894,28 @@ var UTILMENU = (function() {
     newContent += '</div>'; // util-menu-content
     newContent += '</div>'; // util-menu-btn
     $button.replaceWith(newContent);
-    $(this)
+    $canvas
       .parent()
       .find('.util-length')
       .click(function() {
-        setLengthPref(event);
+        PREF.setUnitPref($canvas, 'length', $(event.target).data('unit'));
+        updateUnitPrefs(event.target);
       });
-    $(this)
+    $canvas
       .parent()
       .find('.util-angle')
       .click(function() {
-        setAnglePref(event);
+        PREF.setUnitPref($canvas, 'angle', $(event.target).data('unit'));
+        updateUnitPrefs(event.target);
       });
-    $(this)
+    $canvas
       .parent()
       .find('.util-menu-content')
       .mouseleave(hideUtilMenu);
   }
 
   function enableFileCommands(event, context) {
-    // hide/show the upload/download commands on LoadDocumnent.WSP
+    // hide/show the upload/download commands on LoadDocument.WSP
     // Create the menu if it doesn't exist.
     var doc = context.document,
       $button = $(doc.canvasNode)
@@ -3996,7 +3943,7 @@ var UTILMENU = (function() {
 
   function updateUnitPrefs($button) {
     // check preferred units on DidChangeCurrentPage.WSP. $button can be the utility button or a descendant.
-    var nbsp = '\u00A0 '; // prefix for non-checked items
+    var nbsp = '&nbsp; '; // prefix for non-checked items
     var $canvas, doc, prefs, target, $units;
     $button = $($button); // in case it's not already jQuery
     $button = $button.closest('.util-menu-btn');
@@ -4029,11 +3976,11 @@ var UTILMENU = (function() {
     function adjust() {
       var st = this.innerText.substring(2);
       if (st === target) {
-        st = '√ ' + st;
+        st = '&check; ' + st;
       } else {
         st = nbsp + st;
       }
-      this.innerText = st;
+      this.innerHTML = st;
     }
 
     $units = $button.find('.util-length');
@@ -4105,7 +4052,7 @@ var UTILMENU = (function() {
       .find('.util-popup-content')
       .tinyDraggable({ exclude: '.dragExclude' });
     $fName.select();
-    UTILMENU.checkFName($fName.validity.valid);
+    UTILMENU.checkFName($fName[0].validity.valid);
   }
 
   function prepareUpload() {
@@ -4277,7 +4224,7 @@ var UTILMENU = (function() {
 
     download: function(ev) {
       hideUtilMenu();
-      curSketchNode = WIDGETS.relatedSketchNode(ev.target, '.sketch_canvas');
+      curSketchNode = WIDGETS.relatedSketchNode(ev.target);
       if ($('#download-modal').data('callSave')) {
         $('#download-modal').removeData('callSave');
       }
@@ -4330,7 +4277,7 @@ var UTILMENU = (function() {
 
     upload: function(ev) {
       hideUtilMenu();
-      doUpload(WIDGETS.relatedSketchNode(ev.target, '.sketch_canvas'));
+      doUpload(WIDGETS.relatedSketchNode(ev.target));
     },
 
     menuBtnClicked: function(inst) {

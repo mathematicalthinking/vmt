@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221019015632
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221023195947
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -8299,7 +8299,7 @@
           numpadCt = 0,   // The index of numeric keypads. Keypads are created
                           // as needed and assigned a unique index.
           keyMap = {      // Maps modified keycodes to names. Modified keycodes
-                          // incorporate which modifier keys are also actie
+                          // incorporate which modifier keys are also active
               '8': 'backspace',
               // '9': 'tab', // Remove by magic, it cause problem with screen reader tab key navigation
               // '13': 'submit', // sumbit needs special handling - for accessibility, generally 'enter' means activate current button.
@@ -8723,9 +8723,9 @@
                 var numpadRegime =
                   GSP.NumpadEditRegime.createWithGObj(gobj);
                   
-                gobj.sQuery.sketch.event("StartEditParameter",
+                gobj.sQuery.sketch.event("EditExpression",
                     { gobj: gobj},
-                    {
+                    { action: 'Started',
                       value: gobj.value,
                       expression: this.text
                     });
@@ -8803,17 +8803,16 @@
             this.text = oldValue.toString();
           }
           gobj.setEditedValue(this.text); 
-          gobj.state.selected=false;
+          gobj.state.selected = false;
           if (gobj.value === oldValue) {
-            this.gobj.sQuery.sketch.event("CancelEditParameter",
+            this.gobj.sQuery.sketch.event("EditExpression",
                 { gobj: this.gobj},
-                {
-                  value: gobj.value
+                { action: 'Canceled'
                 });
           } else {
-            this.gobj.sQuery.sketch.event("EditParameter",
+            this.gobj.sQuery.sketch.event("EditExpression",
                 { gobj: this.gobj},
-                {
+                { action: 'Confirmed',
                   oldValue: oldValue,
                   expression: this.text,
                   newValue: this.gobj.value
@@ -9099,13 +9098,38 @@
      * and push a new touch regime for back-clicking.
      */
     CalculatorEditor.prototype.prepare = function() {
-        var editor = this;
+        var editor = this,
+            gobj = this.gobj,
+            sketch = gobj.sQuery.sketch;
   
         editor.finishEditing = function () {
-            editor.cleanupCalculatorState();
-            if (editor.calculatorDidClose) {
-              editor.calculatorDidClose(editor.closeReason || "changesNotAccepted");
-            }
+          console.log('finishEditing called for ', gobj, editor);
+          var parentIds = [];
+          editor.cleanupCalculatorState();
+          if (editor.closeReason === 'changesAccepted') {
+            gobj.parentsList.forEach(function (par) {
+              parentIds.push(par.id);
+            });
+            sketch.event("EditExpression",
+                { gobj: gobj},
+                { action: 'Confirmed',
+                  infix: gobj.parsedInfix,
+                  expressionType: gobj.expressionType,
+                  expression: gobj.expression,
+                  functionExpr: gobj.functionExpr,
+                  parentIds: parentIds
+                  // This may differ for a calculation!!
+                }
+            );
+          } else {
+            sketch.event("EditExpression",
+                { gobj: gobj},
+                {action: 'Canceled'}
+            );
+          }
+          if (editor.calculatorDidClose) {
+            editor.calculatorDidClose(editor.closeReason || "changesNotAccepted");
+          }
           editor.closeReason = null;
         };
   
@@ -9124,11 +9148,17 @@
         var backClickRegime =
               GSP.BackClickRegime.createWithEditor(editor);
   
+    
         backClickRegime.delegate = editor;
         editor.gobj.sQuery.sketch.pushTouchRegime(backClickRegime);
         editor.touchRegime = backClickRegime;
   
         editor.gobj.sQuery().sketch.document.changedUIMode();
+        
+        editor.gobj.sQuery.sketch.event("EditExpression",
+            {gobj: editor.gobj},
+            {action: 'Started'}
+        );
       };
   
       /* Touch regime delegate implementation */
@@ -9481,10 +9511,10 @@
           // mathquill uses fancy symbols, but we need plain ones for
           // the infix parser.
           function fixUp(val) {
-            return val.replace('·', '*')
-              .replace("⋅", '*')
-              .replace('\u2212', '-')
-              .replace('\u0192', 'f')
+            return val.replace("\u22C5", '*')  // dot operator
+              .replace('\u00B7', '*')  // middle dot
+              .replace('\u2212', '-')  // minus sign
+              .replace('\u0192', 'f')  // small f with hook (function)
               .replace('\xa0', ''); // space
           }
           var ret = [];
@@ -10044,7 +10074,7 @@
               separator(),
               mkIndependentVariableOption(),
               separator(),
-              mkOption("pi", "π", true),
+              mkOption("pi", "\u03C0", true),
               mkOption("e", "e", true)
             ]).addClass('wsp-Calculator-topmost-select-for-insert'),
             selectFunction = forInsert(select("functions", "Functions", [
@@ -10305,8 +10335,8 @@
             var self = this;
               if (this.hasVFocus) {
                   this.numpad.editor.unsetCursor();
+                  this.hasVFocus = false; // do this before calling finishEditing, which might generate another call to vBlur
                   this.numpad.editor.finishEditing();
-                  this.hasVFocus = false;
                   // hide the number pad
                   setTimeout(function() {
                     self.editedEl.focus();
@@ -10515,15 +10545,14 @@
         "MoveScroll",
         "EndScroll",
         "PressButton",
-        "StartEditParameter",
-        "CancelEditParameter",
-        "EditParameter",
+        "EditExpression",  // handles start, confirm, cancel for editing of params, calcs, and functions.
         "ClearTraces",
         "StyleWidget",
         "TraceWidget",
         "LabelWidget", 
         "VisibilityWidget",
-        "DeleteWidget"
+        "DeleteWidget",
+        "PrefChanged"
       ],
   
       /**
@@ -41015,7 +41044,8 @@
           this.generatedLabels = undefined;        
         }
         //  Show the Calculator, _unless_ it was already shown at the end of toolplay.
-        if (calcPresent && !$(".wsp-Calculator").is(":visible")) {
+        // and _unless_ the sketchDoc's UI is disabled.
+        if (calcPresent && !$(".wsp-Calculator").is(":visible") && !self.sketch.document.disableUI) {
           calcPresent.presentUI();
         }
       },
