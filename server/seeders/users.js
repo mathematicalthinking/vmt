@@ -108,6 +108,7 @@ module.exports = [
     courses: [ObjectId('5bbf4e5ec1b6d84cb0a4ded8')],
     rooms: [],
     activities: [],
+    archive: { rooms: [], courses: [] },
     notifications: [],
     bothRoles: false,
     isAdmin: false,

@@ -26,14 +26,13 @@ rooms:
 export const createPreviousAssignments = (groupings, rooms) => {
   if (!groupings || !rooms) return [];
 
-  const previousAssignments = groupings.map((grouping, i) => {
-    const _id = grouping._id;
-    const date = new Date(grouping.timestamp).toLocaleString();
-    const name = `${i + 1}: ${grouping.activityName} ${date}`;
+  const previousAssignments = groupings.map((grouping) => {
+    const { _id } = grouping;
+    const name = grouping.activityName;
     let dueDate;
     let hasDueDate = false;
     let aliasMode;
-    let hasAliasMode = false;
+    const hasAliasMode = false;
     const roomDrafts = grouping.rooms.map((roomId) => {
       const room = rooms[roomId];
       // the following line is here b/c we don't remove rooms from
@@ -65,7 +64,14 @@ export const createPreviousAssignments = (groupings, rooms) => {
       return roomDraft;
     });
 
-    return { name, roomDrafts, dueDate, aliasMode, _id };
+    return {
+      name,
+      roomDrafts,
+      dueDate,
+      aliasMode,
+      _id,
+      timestamp: grouping.timestamp,
+    };
   });
 
   return previousAssignments;

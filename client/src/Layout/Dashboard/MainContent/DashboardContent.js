@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useEffect, useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { MonitoringView } from 'Containers';
 import { useDispatch, useStore } from 'react-redux';
@@ -15,12 +15,14 @@ export default function DashboardContent(props) {
   const [resourceState, setResourceState] = useState(
     (resourceStates && resourceStates[context]) || {}
   );
+
+  // ref that mirrors the resourceState so that we can return it on unmount
+  // cf. https://stackoverflow.com/a/65840250/14894260
   const returnState = React.useRef({});
   const dispatch = useDispatch();
 
   useEffect(() => {
     return () => {
-      // need to use a ref for return value bc this return function becomes a closure (thus storing original resourceState value)
       dispatch(updateResourceListState(context, returnState.current));
     };
   }, []);
@@ -32,6 +34,9 @@ export default function DashboardContent(props) {
       // ex: course: facilitatorConfig: { key: 'updatedAt', direction: 'ascending' }, participantConfig: { key: 'updatedAt', direction: 'ascending' },
     };
     setResourceState(update);
+    // normally set state functions should be pure, without side effects, so the updating of
+    // returnState would be in a useEffect. However, in this case, our update function needs to
+    // rework its argument, so I'm ok with updating returnState here.
     returnState.current = update;
   };
 

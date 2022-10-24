@@ -14,9 +14,7 @@ class TextInput extends Component {
       this.textInput.current.focus();
     }
 
-    this.textInput.current.style.height = `${
-      this.textInput.current.scrollHeight
-    }px`;
+    this.textInput.current.style.height = `${this.textInput.current.scrollHeight}px`;
   }
 
   componentDidUpdate() {
@@ -40,6 +38,7 @@ class TextInput extends Component {
       size,
       label,
       title,
+      hover,
     } = this.props;
     const styles = light ? lightClasses : classes;
     let derivedAutoComplete = autoComplete || type;
@@ -58,9 +57,7 @@ class TextInput extends Component {
         title={title}
         onChange={(event) => {
           change(event);
-          this.textInput.current.style.height = `${
-            this.textInput.current.scrollHeight
-          }px`;
+          this.textInput.current.style.height = `${this.textInput.current.scrollHeight}px`;
         }}
         onKeyDown={onKeyDown}
         style={{
@@ -78,7 +75,7 @@ class TextInput extends Component {
         <input
           ref={this.textInput}
           autoComplete={derivedAutoComplete}
-          className={styles.Input}
+          className={`${styles.Input} ${hover ? styles.Hover : ''}`}
           type={type}
           id={name}
           name={name}
@@ -114,6 +111,7 @@ TextInput.propTypes = {
   size: PropTypes.string,
   label: PropTypes.string,
   title: PropTypes.string,
+  hover: PropTypes.bool,
 };
 
 TextInput.defaultProps = {
@@ -127,6 +125,7 @@ TextInput.defaultProps = {
   light: false,
   value: undefined,
   title: undefined,
+  hover: false,
 };
 
 export default TextInput;

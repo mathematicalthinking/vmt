@@ -40,8 +40,10 @@ const AssignmentMatrix = (props) => {
       _id: data.participant.user._id,
       user: data.participant.user,
     };
+
     if (user._id && roomIndex >= 0) {
-      const roomsUpdate = [...roomDrafts];
+      // create a deep copy of roomDrafts to avoid reference sharing
+      const roomsUpdate = JSON.parse(JSON.stringify(roomDrafts));
       const index = checkUser(roomIndex, user);
       if (index < 0) {
         roomsUpdate[roomIndex].members.push({ ...user });
@@ -49,6 +51,7 @@ const AssignmentMatrix = (props) => {
       if (index >= 0) {
         roomsUpdate[roomIndex].members.splice(index, 1);
       }
+
       select(roomsUpdate);
     }
   };

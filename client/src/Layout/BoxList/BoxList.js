@@ -15,6 +15,10 @@ const boxList = (props) => {
     draggable,
     maxHeight,
     scrollable,
+    selectable,
+    selectedIds,
+    onSelect,
+    icons,
   } = props;
 
   const timeDiff = (ts) => {
@@ -42,15 +46,17 @@ const boxList = (props) => {
       if (item) {
         let details = {
           description: item.description,
-          createdAt: item.createdAt ? item.createdAt.split('T')[0].toLocaleString() : '',
+          createdAt: item.createdAt
+            ? item.createdAt.split('T')[0].toLocaleString()
+            : '',
           dueDate: item.dueDate,
           facilitators: item.members
-          ? item.members
-          .filter((member) => member.role === 'facilitator')
-          .map(
-            (member, x, arr) =>
-            `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
-            )
+            ? item.members
+                .filter((member) => member.role === 'facilitator')
+                .map(
+                  (member, x, arr) =>
+                    `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
+                )
             : [],
           sinceUpdated: timeDiff(item.updatedAt),
         };
@@ -67,7 +73,7 @@ const boxList = (props) => {
               }
             });
           }
-          details.entryCode = item.entryCode
+          details.entryCode = item.entryCode;
         } else if (item.creator) {
           details.creator = item.creator.username;
         }
@@ -76,10 +82,17 @@ const boxList = (props) => {
             {!draggable ? (
               <ContentBox
                 title={item.name}
-                link={`${linkPath}${item._id}${linkSuffix}`}
+                link={
+                  linkPath !== null
+                    ? `${linkPath}${item._id}${linkSuffix}`
+                    : null
+                }
                 key={item._id}
                 id={item._id}
-                image={item.image}
+                // image={item.image}
+                selectable={selectable}
+                isChecked={selectedIds.includes(item._id)}
+                onSelect={onSelect}
                 notifications={notificationCount}
                 roomType={
                   item && item.tabs ? item.tabs.map((tab) => tab.tabType) : null
@@ -87,13 +100,19 @@ const boxList = (props) => {
                 locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
                 listType={listType}
+                customIcons={icons}
+                resource={resource}
               >
                 {item.description}
               </ContentBox>
             ) : (
               <DragContentBox
                 title={item.name}
-                link={`${linkPath}${item._id}${linkSuffix}`}
+                link={
+                  linkPath !== null
+                    ? `${linkPath}${item._id}${linkSuffix}`
+                    : null
+                }
                 key={item._id}
                 id={item._id}
                 notifications={notifications}
@@ -135,18 +154,28 @@ boxList.propTypes = {
   listType: PropTypes.string.isRequired,
   resource: PropTypes.string.isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
-  linkPath: PropTypes.string.isRequired,
-  linkSuffix: PropTypes.string.isRequired,
+  linkPath: PropTypes.string,
+  linkSuffix: PropTypes.string,
   draggable: PropTypes.bool,
   maxHeight: PropTypes.number,
   scrollable: PropTypes.bool,
+  selectable: PropTypes.bool,
+  selectedIds: PropTypes.arrayOf(PropTypes.string),
+  onSelect: PropTypes.func,
+  icons: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 boxList.defaultProps = {
   draggable: false,
   maxHeight: null,
   scrollable: false,
+  selectable: false,
+  selectedIds: [],
+  onSelect: null,
   notifications: [],
+  icons: null,
+  linkPath: null,
+  linkSuffix: null,
 };
 
 export default boxList;

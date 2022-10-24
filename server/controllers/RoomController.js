@@ -1,11 +1,16 @@
 const _ = require('lodash');
 const moment = require('moment');
+// const { ObjectId } = require('mongodb');
+const { Types } = require('mongoose');
 const db = require('../models');
+const STATUS = require('../constants/status');
+const ROLE = require('../constants/role');
 // const { areObjectIdsEqual } = require('../middleware/utils/helpers');
 
 const { Tab } = db;
 const { Room } = db;
 const { Event } = db;
+const { ObjectId } = Types;
 
 const colorMap = require('../constants/colorMap');
 
@@ -108,7 +113,11 @@ module.exports = {
   },
 
   searchPaginated: async (criteria, skip, filters) => {
-    const initialFilter = { tempRoom: false, isTrashed: false };
+    const initialFilter = {
+      tempRoom: false,
+      isTrashed: false,
+      status: STATUS.DEFAULT,
+    };
 
     const allowedPrivacySettings = ['private', 'public'];
 
@@ -133,7 +142,7 @@ module.exports = {
               input: '$members',
               as: 'member',
               cond: {
-                $eq: ['$$member.role', 'facilitator'],
+                $eq: ['$$member.role', ROLE.FACILITATOR],
               },
             },
           },
@@ -175,7 +184,7 @@ module.exports = {
           tabs: { $first: '$tabs' },
           updatedAt: { $first: '$updatedAt' },
           members: {
-            $push: { user: '$facilitatorObject', role: 'facilitator' },
+            $push: { user: '$facilitatorObject', role: ROLE.FACILITATOR },
           },
         },
       },
@@ -289,7 +298,6 @@ module.exports = {
         delete body.ggbFiles;
       }
       const room = new Room(body);
-      // console.log('Creating new room: ', body);
       if (existingTabs) {
         tabModels = existingTabs.map((tab) => {
           const newTab = new Tab({
@@ -414,6 +422,7 @@ module.exports = {
     });
   },
 
+  // NOT USED??? This function is misnamed. It is used to remove a user from a room (rather than to remove a room)
   remove: (id, body) => {
     return new Promise((resolve, reject) => {
       db.Notification.find({ resourceId: id })
@@ -454,7 +463,8 @@ module.exports = {
           .catch((err) => {
             reject(err);
           });
-      } else if (body.checkAccess) {
+      }
+      if (body.checkAccess) {
         let roomToPopulate;
         let fromUser;
         db.Room.findById(id)
@@ -480,7 +490,7 @@ module.exports = {
             // Add this member to the room
             room.members.push({
               user: userId,
-              role: 'participant',
+              role: ROLE.PARTICIPANT,
               color: colorMap[room.members.length],
             });
             try {
@@ -498,7 +508,7 @@ module.exports = {
             // create notifications
             roomToPopulate = updatedRoom;
             const facilitators = updatedRoom.members.filter((m) => {
-              return m.role === 'facilitator';
+              return m.role === ROLE.FACILITATOR;
             });
             return Promise.all(
               facilitators.map((f) => {
@@ -534,53 +544,16 @@ module.exports = {
             reject(err);
           }
         });
-      } else if (body.isTrashed) {
-        let updatedRoom;
-        db.Room.findById(id)
-          .then(async (room) => {
-            room.isTrashed = true;
-            try {
-              updatedRoom = await room.save();
-            } catch (err) {
-              reject(err);
-            }
-            const userIds = room.members.map((member) => member.user);
-            // Delete any notifications associated with this room
-            return db.Notification.find({ resourceId: id }).then((ntfs) => {
-              const ntfIds = ntfs.map((ntf) => ntf._id);
-              const promises = [
-                db.User.update(
-                  { _id: { $in: userIds } },
-                  {
-                    $pull: {
-                      rooms: id,
-                      notifications: { $in: ntfIds },
-                    },
-                  },
-                  { multi: true }
-                ),
-              ];
-              promises.push(
-                db.Notification.deleteMany({ _id: { $in: ntfIds } })
-              );
-              // delete this room from any courses
-              if (room.course) {
-                promises.push(
-                  db.Course.findByIdAndUpdate(room.course, {
-                    $pull: { rooms: id },
-                  })
-                );
-              }
-              return Promise.all(promises);
-            });
-          })
-          .then(() => {
-            resolve(updatedRoom);
-          })
-          .catch((err) => {
-            reject(err);
-          });
+      } else if (body.isTrashed || body.status === STATUS.TRASHED) {
+        removeAndChangeStatus(id, STATUS.TRASHED, reject, resolve);
+      } else if (body.status === STATUS.ARCHIVED) {
+        removeAndChangeStatus(id, STATUS.ARCHIVED, reject, resolve);
       } else {
+        // unarchive is flag is set
+        if (body.unarchive) {
+          delete body.unarchive;
+          unarchive(id);
+        }
         const doUpdateTabVisitors =
           typeof body.instructions === 'string' && body.instructions.length > 0;
         db.Room.findByIdAndUpdate(id, body, { new: true })
@@ -698,7 +671,6 @@ module.exports = {
     }
     const initialFilter = { updatedAt: { $gte: new Date(since) } };
     // eslint-disable-next-line no-unused-vars
-    let eventsFilter = { $gte: ['$$e.timestamp', since] };
     if (to && since && to > since) {
       let toMomentObj = moment(to, 'x', true);
       if (!toMomentObj.isValid()) {
@@ -706,9 +678,6 @@ module.exports = {
       }
       to = Number(toMomentObj.endOf('day').format('x'));
       initialFilter.updatedAt.$lte = new Date(to);
-      eventsFilter = {
-        $and: [eventsFilter, { $lte: ['$$e.timestamp', to] }],
-      };
     }
     const pipeline = [
       { $match: initialFilter },
@@ -855,4 +824,234 @@ module.exports = {
       { totalCount: totalCount && totalCount[0] ? totalCount[0].count : 0 },
     ];
   },
+
+  // criteria will be various filters selected by the user as an object. searchText is the string the user types.
+  // ids is an array of room ids
+  // skip is a number specifying the starting result to return.
+  searchPaginatedArchive: async (searchText, skip, filters) => {
+    const criteria = await convertSearchFilters(filters);
+    criteria.status = STATUS.ARCHIVED;
+    const initialMatch = searchText
+      ? {
+          $and: [
+            criteria,
+            {
+              $or: [
+                { name: searchText },
+                { description: searchText },
+                { instructions: searchText },
+              ],
+            },
+          ],
+        }
+      : criteria;
+    const roomsPipeline = [
+      {
+        // $match: initialMatch,
+        $match: initialMatch,
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'userObject',
+        },
+      },
+      {
+        $project: {
+          updatedAt: 1,
+          createdAt: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          'members.role': 1,
+          'userObject.username': 1,
+          'userObject._id': 1,
+          messagesCount: { $size: '$chat' },
+        },
+      },
+      { $sort: { updatedAt: -1 } },
+      { $skip: skip ? parseInt(skip, 10) : 0 },
+      { $limit: 20 },
+    ];
+
+    const rooms = await Room.aggregate(roomsPipeline);
+    const roomIds = rooms.map((room) => room._id);
+    const tabsPipeline = [
+      {
+        $match: {
+          room: { $in: roomIds },
+        },
+      },
+      {
+        $project: {
+          tabType: 1,
+          eventCount: { $size: '$events' },
+          room: 1,
+        },
+      },
+      {
+        $group: {
+          _id: '$room',
+          tabTypes: { $addToSet: '$tabType' },
+          eventCount: { $sum: '$eventCount' },
+        },
+      },
+    ];
+    const tabs = await Tab.aggregate(tabsPipeline);
+    const updatedRooms = rooms.map((room) => {
+      const tab = tabs.find((t) => String(t._id) === String(room._id));
+      if (room.members && room.userObject) {
+        room.members.forEach(
+          // eslint-disable-next-line no-return-assign
+          (member, idx) => (member.user = room.userObject[idx])
+        );
+      }
+      delete room.userObject;
+      return {
+        ...room,
+        tabTypes: tab.tabTypes,
+        eventCount: tab.eventCount,
+      };
+    });
+
+    return updatedRooms;
+  },
+};
+
+// When the status is changed to something indicating the hiding of a room (right now, trashed or archived),
+// we need to (a) change the status in the DB, (b) remove the room and any notifications about the room from all room members,
+// (c) delete those notifications, and (d) remove that room from its course.
+
+// In the case of archiving, we also need to (e) add the room to the list of archived rooms for each room member who is a room facilitator.
+const removeAndChangeStatus = (id, status, reject, resolve) => {
+  let updatedRoom;
+  db.Room.findById(id)
+    .then(async (room) => {
+      room.status = status;
+      try {
+        updatedRoom = await room.save();
+      } catch (err) {
+        reject(err);
+      }
+      const userIds = room.members.map((member) => member.user);
+      // Delete any notifications associated with this room
+      return db.Notification.find({ resourceId: id }).then((ntfs) => {
+        const ntfIds = ntfs.map((ntf) => ntf._id);
+        const promises = [
+          db.User.updateMany(
+            { _id: { $in: userIds } },
+            {
+              $pull: {
+                rooms: id,
+                notifications: { $in: ntfIds },
+              },
+            }
+          ),
+        ];
+        promises.push(db.Notification.deleteMany({ _id: { $in: ntfIds } }));
+
+        // add the room to the list of archived rooms for any facilitators
+        if (status === STATUS.ARCHIVED) {
+          const facilitatorIds = room.members
+            .filter((member) => member.role === ROLE.FACILITATOR)
+            .map((member) => member.user);
+          promises.push(
+            db.User.updateMany(
+              { _id: { $in: facilitatorIds } },
+              { $addToSet: { 'archive.rooms': id } }
+            )
+          );
+        }
+
+        // delete this room from any courses
+        if (room.course) {
+          promises.push(
+            db.Course.findByIdAndUpdate(room.course, {
+              $pull: { rooms: id },
+            })
+          );
+        }
+        return Promise.all(promises);
+      });
+    })
+    .then(() => {
+      resolve(updatedRoom);
+    })
+    .catch((err) => {
+      reject(err);
+    });
+};
+
+// takes a filters as an object and returns an object that can be used in a Mongoose query.
+const convertSearchFilters = async (filters) => {
+  const criteria = {
+    tempRoom: false,
+    isTrashed: false,
+  };
+  if (filters.ids && Array.isArray(filters.ids)) {
+    criteria._id = { $in: filters.ids.map((id) => new ObjectId(id)) };
+  }
+  if (filters.to || filters.from) {
+    criteria.updatedAt = {};
+    if (filters.from)
+      criteria.updatedAt = { $gte: new Date(Number(filters.from)) };
+    if (filters.to) criteria.updatedAt = { $lte: new Date(Number(filters.to)) };
+  }
+
+  if (filters.roomType) {
+    const tabIds = await prefetchTabIds(
+      filters.ids.map((id) => new ObjectId(id)),
+      filters.roomType
+    );
+
+    criteria.tabs = {
+      $in: tabIds,
+    };
+  }
+  return criteria;
+};
+
+// if filters.roomType, search tab collection (if we have filters.ids, match by room field), looking for tabTYpe = roomType.
+// extract the tab ids from the results. When we do the rooms search, include {tabs: {$in: tabIds}} in the initial match.
+
+const prefetchTabIds = async (roomIds, tabType) => {
+  const tabsPipeline = roomIds
+    ? [{ $match: { room: { $in: roomIds }, tabType } }]
+    : [{ $match: { tabType } }];
+
+  const tabs = await Tab.aggregate(tabsPipeline);
+  return tabs.map((tab) => tab._id);
+};
+
+const unarchive = (id) => {
+  db.Room.findById(id).then(async (room) => {
+    const userIds = room.members.map((member) => member.user);
+    try {
+      // remove the room from the list of archived rooms for members in the room
+      // add the room to the list of rooms for members in the room
+      userIds.forEach((userId) => {
+        db.User.bulkWrite([
+          {
+            updateOne: {
+              filter: { _id: userId },
+              update: {
+                $pull: { 'archive.rooms': id },
+                $addToSet: { rooms: id },
+              },
+            },
+          },
+          {
+            updateOne: {
+              filter: { _id: userId },
+              update: { $addToSet: { rooms: id } },
+            },
+          },
+        ]);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  });
 };

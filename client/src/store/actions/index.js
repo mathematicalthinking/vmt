@@ -58,6 +58,7 @@ export {
   removeCourseRooms,
   updateMonitorSelections,
   createGrouping,
+  restoreArchivedRoom,
 } from './rooms';
 export {
   getCourses,
