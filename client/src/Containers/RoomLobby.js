@@ -511,7 +511,7 @@ class Room extends Component {
             }
             sidePanel={
               <SidePanel
-                image={room.image}
+                // image={room.image}
                 alt={name}
                 editing={editing}
                 name={
@@ -543,18 +543,26 @@ class Room extends Component {
                 owner={room.myRole === 'facilitator'}
                 additionalDetails={additionalDetails}
                 buttons={
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
                     <div style={{ display: 'flex', marginBottom: '2rem' }}>
-                      <span>
-                        <Button
-                          theme={loading.loading ? 'SmallCancel' : 'Small'}
-                          m={10}
-                          data-testid="Enter"
-                          click={!loading.loading ? this.goToWorkspace : null}
-                        >
-                          Enter
-                        </Button>
-                      </span>
+                      <ToolTip text="Enter this room" delay={600}>
+                        <span>
+                          <Button
+                            theme={loading.loading ? 'SmallCancel' : 'Small'}
+                            m={10}
+                            data-testid="Enter"
+                            click={!loading.loading ? this.goToWorkspace : null}
+                          >
+                            Enter
+                          </Button>
+                        </span>
+                      </ToolTip>
                     </div>
                     <div
                       style={{
@@ -575,6 +583,7 @@ class Room extends Component {
                           role="button"
                           tabIndex={-1}
                           className={`material-symbols-outlined ${classes.CustomIcon}`}
+                          style={{ paddingRight: '0.5rem' }}
                         >
                           replay
                         </span>
@@ -593,7 +602,7 @@ class Room extends Component {
                             role="button"
                             tabIndex={-1}
                           >
-                            archive
+                            input
                           </span>
                         </ToolTip>
                       )}
