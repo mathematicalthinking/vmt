@@ -2,7 +2,7 @@ import { initializeNewDesmosActivity } from 'Containers/Workspace/Tools/DesActiv
 import { STATUS } from 'constants.js';
 import * as actionTypes from './actionTypes';
 import API from '../../utils/apiRequests';
-import { normalize } from '../utils';
+import { addUserRoleToResource, normalize } from '../utils';
 import * as loading from './loading';
 import { updateActivity } from './activities';
 import { updateCourse } from './courses';
@@ -371,6 +371,25 @@ export const updateRoom = (id, body) => {
   };
 };
 
+export const archiveRooms = (ids) => {
+  return (dispatch) => {
+    ids.forEach((id) => {
+      dispatch(addRoomToArchive(id));
+      dispatch(removeUserRooms([id]));
+      dispatch(roomsRemoved([id]));
+      dispatch(updatedRoom(id, { status: STATUS.ARCHIVED })); // Optimistically update the UI
+    });
+
+    for (let i = 0; i < ids.length; i += 50) {
+      const newIds = ids.slice(i, i + 50);
+      API.archiveRooms(newIds).catch((e) => {
+        // eslint-disable-next-line no-console
+        console.log(e);
+      });
+    }
+  };
+};
+
 export const updateRoomTab = (roomId, tabId, body) => {
   return (dispatch) => {
     dispatch(updatedRoomTab(roomId, tabId, body));
@@ -550,12 +569,20 @@ export const updateMonitorSelections = (selections) => {
 };
 
 export const restoreArchivedRoom = (id) => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     const roomData = await API.get('rooms', { _id: id });
     const room = await roomData.data.results[0];
+    const userId = getState().user._id;
     dispatch(removeRoomFromArchive(id)); // do this for each facilitator
     // dispatch(addUserRooms([id]));
-    const roomToUpdate = { ...room, status: STATUS.DEFAULT, unarchive: true };
+    const roomToUpdate = addUserRoleToResource(
+      {
+        ...room,
+        status: STATUS.DEFAULT,
+        unarchive: true,
+      },
+      userId
+    );
     // add room to store
     dispatch(updateRoom(id, roomToUpdate));
     // updates room status & unarchives room from db

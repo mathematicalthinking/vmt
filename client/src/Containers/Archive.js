@@ -55,7 +55,14 @@ const Archive = () => {
     roomType,
   ]);
 
-  const debounceFetchData = debounce(() => fetchData(), 1000);
+  useEffect(() => {
+    if (skip > 0) debounceFetchData(true);
+  }, [skip]);
+
+  const debounceFetchData = debounce(
+    (concat = false) => fetchData(concat),
+    1000
+  );
 
   const debouncedSetCriteria = debounce((criteria) => {
     const filters = getQueryParams();
@@ -133,7 +140,6 @@ const Archive = () => {
   const fetchData = (concat = false) => {
     setLoading(true);
     const filters = getQueryParams();
-    // if filter = all we're not actually filtering...we want all
     const updatedFilters = { ...filters };
 
     if (updatedFilters.roomType === 'all') {
@@ -142,18 +148,14 @@ const Archive = () => {
 
     if (archive && archive[resource] && archive[resource].length > 0) {
       API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
-        ids: archive[resource],
         ...updatedFilters,
-        // roomType: updatedFilters.roomType,
       })
         .then((res) => {
           const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
           setLoading(false);
           setMoreAvailable(isMoreAvailable);
           setVisibleResources((prevState) =>
-            concat
-              ? [...prevState.visibleResources].concat(res.data.results)
-              : res.data.results
+            concat ? [...prevState].concat(res.data.results) : res.data.results
           );
         })
         .catch((err) => {
@@ -171,14 +173,7 @@ const Archive = () => {
   };
 
   const setSkipState = () => {
-    setSkip(
-      (prevState) => ({
-        skip: prevState.skip + SKIP_VALUE,
-      }),
-      () => {
-        fetchData(true);
-      }
-    );
+    setSkip((prevState) => prevState + SKIP_VALUE);
   };
 
   const clearSearch = () => {
@@ -230,7 +225,7 @@ const Archive = () => {
 
   const getResourceNames = (ids) => {
     return visibleResources
-      .filter((resource) => ids.includes(resource._id))
+      .filter((res) => ids.includes(res._id))
       .map((res) => res.name);
   };
 
@@ -286,7 +281,7 @@ const Archive = () => {
           Are you sure you want to restore{' '}
           <span style={{ fontWeight: 'bolder' }}>{resourceNames}</span>
         </span>
-        <div className={''}>
+        <div className="">
           <Button
             data-testid="restore-resource"
             click={() => {
