@@ -140,7 +140,6 @@ const Archive = () => {
   const fetchData = (concat = false) => {
     setLoading(true);
     const filters = getQueryParams();
-    // if filter = all we're not actually filtering...we want all
     const updatedFilters = { ...filters };
 
     if (updatedFilters.roomType === 'all') {
@@ -149,9 +148,7 @@ const Archive = () => {
 
     if (archive && archive[resource] && archive[resource].length > 0) {
       API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
-        // ids: archive[resource], // do this server side
         ...updatedFilters,
-        // roomType: updatedFilters.roomType,
       })
         .then((res) => {
           const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
@@ -160,7 +157,6 @@ const Archive = () => {
           setVisibleResources((prevState) =>
             concat ? [...prevState].concat(res.data.results) : res.data.results
           );
-          // concat ? setVisibleResources((prevState) [...prevState.v])
         })
         .catch((err) => {
           // eslint-disable-next-line no-console
@@ -178,8 +174,6 @@ const Archive = () => {
 
   const setSkipState = () => {
     setSkip((prevState) => prevState + SKIP_VALUE);
-    // skip.current += SKIP_VALUE;
-    // console.log(`setSkipState, skip.current: ${skip.current}`);
   };
 
   const clearSearch = () => {
