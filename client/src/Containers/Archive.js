@@ -55,7 +55,14 @@ const Archive = () => {
     roomType,
   ]);
 
-  const debounceFetchData = debounce(() => fetchData(), 1000);
+  useEffect(() => {
+    if (skip > 0) debounceFetchData(true);
+  }, [skip]);
+
+  const debounceFetchData = debounce(
+    (concat = false) => fetchData(concat),
+    1000
+  );
 
   const debouncedSetCriteria = debounce((criteria) => {
     const filters = getQueryParams();
@@ -142,7 +149,7 @@ const Archive = () => {
 
     if (archive && archive[resource] && archive[resource].length > 0) {
       API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
-        ids: archive[resource],
+        // ids: archive[resource], // do this server side
         ...updatedFilters,
         // roomType: updatedFilters.roomType,
       })
@@ -151,10 +158,9 @@ const Archive = () => {
           setLoading(false);
           setMoreAvailable(isMoreAvailable);
           setVisibleResources((prevState) =>
-            concat
-              ? [...prevState.visibleResources].concat(res.data.results)
-              : res.data.results
+            concat ? [...prevState].concat(res.data.results) : res.data.results
           );
+          // concat ? setVisibleResources((prevState) [...prevState.v])
         })
         .catch((err) => {
           // eslint-disable-next-line no-console
@@ -171,14 +177,9 @@ const Archive = () => {
   };
 
   const setSkipState = () => {
-    setSkip(
-      (prevState) => ({
-        skip: prevState.skip + SKIP_VALUE,
-      }),
-      () => {
-        fetchData(true);
-      }
-    );
+    setSkip((prevState) => prevState + SKIP_VALUE);
+    // skip.current += SKIP_VALUE;
+    // console.log(`setSkipState, skip.current: ${skip.current}`);
   };
 
   const clearSearch = () => {
@@ -230,7 +231,7 @@ const Archive = () => {
 
   const getResourceNames = (ids) => {
     return visibleResources
-      .filter((resource) => ids.includes(resource._id))
+      .filter((res) => ids.includes(res._id))
       .map((res) => res.name);
   };
 
@@ -286,7 +287,7 @@ const Archive = () => {
           Are you sure you want to restore{' '}
           <span style={{ fontWeight: 'bolder' }}>{resourceNames}</span>
         </span>
-        <div className={''}>
+        <div className="">
           <Button
             data-testid="restore-resource"
             click={() => {

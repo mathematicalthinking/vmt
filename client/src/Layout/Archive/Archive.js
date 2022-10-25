@@ -10,7 +10,7 @@ const Archive = (props) => {
     visibleResources,
     resource,
     searchValue,
-    setSkipState,
+    setSkip,
     setCriteria,
     moreAvailable,
     filters,
@@ -237,7 +237,7 @@ const Archive = (props) => {
                 selectActions={selectActions}
               />
               <div className={classes.LoadMore}>
-                <Button m={20} disabled={!moreAvailable} click={setSkipState}>
+                <Button m={20} disabled={!moreAvailable} click={setSkip}>
                   load more results
                 </Button>
               </div>
@@ -253,7 +253,7 @@ Archive.propTypes = {
   visibleResources: PropTypes.arrayOf(PropTypes.shape({})),
   resource: PropTypes.string.isRequired,
   searchValue: PropTypes.string,
-  setSkipState: PropTypes.func,
+  setSkip: PropTypes.func,
   setCriteria: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
   filters: PropTypes.shape({
@@ -278,7 +278,7 @@ Archive.propTypes = {
 Archive.defaultProps = {
   visibleResources: [],
   searchValue: '',
-  setSkipState: () => {},
+  setSkip: () => {},
   customFromDate: null,
   customToDate: null,
   roomPreviewComponent: null,
