@@ -253,10 +253,16 @@ const Archive = () => {
   const handleRestore = (id) => {
     let showModal = true;
     let resourceNames;
+    let msg = 'Are you sure you want to restore ';
     let singleResource = true;
     if (Array.isArray(id)) {
       singleResource = false;
-      resourceNames = getResourceNames(id).join(', ');
+      if (id.length <= 5) {
+        resourceNames = getResourceNames(id).join(', ');
+      } else {
+        resourceNames = `${id.length} rooms`;
+        msg += ' these ';
+      }
     } else
       resourceNames = visibleResources.filter((el) => el._id === id)[0].name;
 
@@ -283,8 +289,8 @@ const Archive = () => {
         }}
       >
         <span>
-          Are you sure you want to restore{' '}
-          <span style={{ fontWeight: 'bolder' }}>{resourceNames}</span>
+          {msg}
+          <span style={{ fontWeight: 'bolder' }}>{resourceNames}</span>?
         </span>
         <div className={''}>
           <Button
