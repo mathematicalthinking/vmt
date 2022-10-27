@@ -1,4 +1,4 @@
-import React, { useRef, Fragment } from 'react';
+import React, { useRef, Fragment, useLayoutEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import PropTypes from 'prop-types';
 import { SelectableBoxList } from 'Layout';
@@ -31,6 +31,23 @@ const Archive = (props) => {
   } = props;
 
   const header = useRef();
+  const shouldScrollToBottom = useRef(false);
+
+  useLayoutEffect(() => {
+    // this keeps the page scrolled to bottom
+    // if i set .current to false, it doesn't scroll
+    // because of page re-renders / reload
+    // the aim is to scroll after clicking "load more results"
+
+    if (shouldScrollToBottom.current === true) {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        left: 0,
+        behavior: 'auto',
+      });
+      // shouldScrollToBottom.current = false;
+    }
+  });
 
   return (
     <React.Fragment>
@@ -237,7 +254,14 @@ const Archive = (props) => {
                 selectActions={selectActions}
               />
               <div className={classes.LoadMore}>
-                <Button m={20} disabled={!moreAvailable} click={setSkip}>
+                <Button
+                  m={20}
+                  disabled={!moreAvailable}
+                  click={() => {
+                    setSkip();
+                    shouldScrollToBottom.current = true;
+                  }}
+                >
                   load more results
                 </Button>
               </div>
