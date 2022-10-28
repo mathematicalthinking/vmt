@@ -7,7 +7,7 @@
 }
 
 .Container {
-  width: 620px;
+  max-width: 620px;
   position: relative;
   display: flex;
   padding: 5px;
