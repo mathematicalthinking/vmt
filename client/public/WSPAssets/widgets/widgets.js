@@ -1525,7 +1525,7 @@ var WIDGETS = (function() {
         // Call changeText() to restore the old label. But first, make sure gobj.label is different from oldLabel.
         // Otherwise changeText() will think there's nothing to do.
         gobj.label = labelWidget.oldLabel ? '' : ' ';
-        changeText(labelWidget.oldLabel, gobj.style.nameOrigin);
+        changeText(targetGobj, labelWidget.oldLabel, gobj.style.nameOrigin);
         gobj.shouldAutogenerateLabel = labelWidget.oldAutogenerate;
       }
       restoreSavedPool();
@@ -1602,10 +1602,13 @@ var WIDGETS = (function() {
         .css('font-family', font);
       gobj.state.forceDomParse = true; // forceParse rebuilds the DOM element from the parsedMFS
       gobj.descendantLabelGraphHasChanged(); // Need to call this if we're not calling setLabel()
-      labelWidget.showLabelElt.prop(
-        'checked',
-        gobj.style.nameOrigin !== 'noVisibleName'
-      );
+      if (labelWidget.showlabelElt) {
+        // There may be external callers before showLabelElt is defined
+        labelWidget.showLabelElt.prop(
+          'checked',
+          gobj.style.nameOrigin !== 'noVisibleName'
+        );
+      }
     }
     if (action) {
       msg.action = action;
@@ -1623,10 +1626,10 @@ var WIDGETS = (function() {
     );
   }
 
-  function changeText(newText, newOrigin) {
+  function changeText(gobj, newText, newOrigin) {
     // Respond to a user's change of the gobj's text or nameOrigin. Return the resulting text.
-    var gobj = targetGobj,
-      newTextEmpty = !newText || newText === '',
+    // Most callers pass targetGobj, but making the gobj an explicit param allows external callers to access this logic.
+    var newTextEmpty = !newText || newText === '',
       ignoreOrigin =
         gobj.style.nameOrigin === undefined ||
         newOrigin === gobj.style.nameOrigin;
@@ -1655,7 +1658,7 @@ var WIDGETS = (function() {
     }
 
     if (!newText) newText = '';
-    if (targetGobj.label === newText && ignoreOrigin) return newText; // Text hasn't changed, so nothing to do.
+    if (gobj.label === newText && ignoreOrigin) return newText; // Text hasn't changed, so nothing to do.
 
     if (newTextEmpty)
       // if newText is empty and it came from the label pool, restore the pool
@@ -2076,7 +2079,7 @@ var WIDGETS = (function() {
       } else {
         var newLabel = inputElt.val();
         if (newLabel.length > 0) {
-          changeText(newLabel);
+          changeText(targetGobj, newLabel);
         } else if (targetGobj.isOfKind('Button')) {
           setLabelInput(' ');
         }
@@ -3228,16 +3231,20 @@ var WIDGETS = (function() {
       highlightColorGrid(column, row);
     },
 
-    labelChanged: function(newLabel) {
+    labelChanged: function(newLabel, gobj) {
+      // external callers can specify the gobj whose label should be changed
+      if (!gobj) {
+        gobj = targetGobj;
+      }
       if (!LabelControls.labelChanged(newLabel)) {
         // Give LabelControls a chance to handle this event
-        changeText(newLabel); // LabelControls didn't handle it, so call changeText()
+        changeText(gobj, newLabel); // LabelControls didn't handle it, so call changeText()
       }
     },
 
     controlCallback: function(newLabel, newOrigin) {
       // Called when the user has pressed a button
-      newLabel = changeText(newLabel, newOrigin);
+      newLabel = changeText(targetGobj, newLabel, newOrigin);
       return newLabel;
     },
 

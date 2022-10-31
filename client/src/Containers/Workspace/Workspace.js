@@ -1092,7 +1092,6 @@ class Workspace extends Component {
             key={tab._id}
             room={populatedRoom}
             user={user}
-            resetControlTimer={this.resetControlTimer}
             currentTabId={currentTabId}
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}

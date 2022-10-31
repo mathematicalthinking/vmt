@@ -222,6 +222,9 @@ const WebSketch = (props) => {
         case 'PrefChanged':
           prefChanged(attr);
           break;
+        case 'PressButton':
+          pressButton(attr);
+          break;
         default:
           // Other messages to be defined: gobjEdited, gobjStyled, etc.
           throw new Error(`Unkown message type: ${msg.name}`);
@@ -272,6 +275,9 @@ const WebSketch = (props) => {
     if (!sketchDoc) {
       sketchDoc = $sketch.data('document');
     }
+    sketchDoc.isRemote = true;
+    // Set this flag to prevent activating a numpad/calculator UI at the end of toolplay.
+    // "isRemote" indicates that this sketchDoc is controlled remotely, not by the containing page.
     if ($sketch.data('document') !== sketchDoc) {
       console.error('follow: initSketchPage found invalid sketchDoc');
       window.GSP.createError('follow: initSketchPage found invalid sketchDoc.');
@@ -291,7 +297,7 @@ const WebSketch = (props) => {
     // cur > 3: ""
 
     let retVal = '';
-    let title = gobj.kind;
+    let title = gobj ? gobj.kind : 'generic';
     if (typeof gobj === 'string') {
       if (!sketch) {
         getSketch();
@@ -307,7 +313,7 @@ const WebSketch = (props) => {
     if (cur === max) {
       retVal = ', ...';
     } else if (cur < max && gobj) {
-      if (gobj.isParameter()) {
+      if (!!gobj.isParameter && gobj.isParameter()) {
         title = gobj.genus.replace(/(.*)(Parameter)/, '$1 $2');
       } else if (
         gobj.constraint === 'Calculation' ||
@@ -386,7 +392,7 @@ const WebSketch = (props) => {
     let prepend = false;
     if (options) {
       if (options.duration) {
-        duration = options.duration;
+        ({ duration } = options);
       }
       if (options.prepend) {
         // need seperate div + handling for 'prenotify'
@@ -397,7 +403,7 @@ const WebSketch = (props) => {
         // if a single gobj is passed, make an array.
         gobjs = [gobjs];
       }
-      callback = options.callback;
+      ({ callback } = options);
     }
 
     const highlight = (on) => {
@@ -513,31 +519,17 @@ const WebSketch = (props) => {
         continue; // The moveList might be out of date during toolplay,
         // and could include a gobj that no longer exists.
       }
-      switch (gobjInfo.constraint) {
-        // case 'Calculation':
-        case 'Free':
-          if (gobjInfo.loc) {
-            setLoc(destGobj.geom.loc, gobjInfo.loc);
-          }
-          if (gobjInfo.value) {
-            destGobj.value = gobjInfo.value;
-          }
-          if (gobjInfo.expression) {
-            // Update param after it's changed
-            destGobj.expression = gobjInfo.expression;
-          }
-          break;
-        case 'PointOnPath':
-        case 'PointOnPolygonEdge':
-          destGobj.value = gobjInfo.value;
-          break;
-        case 'Calculation':
-          break;
-        default:
-          console.log(
-            'follower does not handle constraint',
-            gobjInfo.constraint
-          );
+      // Use the properties of gobjInfo to determine what needs updating
+      if (gobjInfo.loc) {
+        setLoc(destGobj.geom.loc, gobjInfo.loc);
+      }
+      if (gobjInfo.value) {
+        destGobj.value = gobjInfo.value;
+      }
+      if (gobjInfo.expression) {
+        // Update param after it's changed
+        destGobj.expression = gobjInfo.expression;
+        // Is there anything else to do for an expression?
       }
       destGobj.invalidateGeom();
     }
@@ -779,13 +771,16 @@ const WebSketch = (props) => {
       gobj.autoGenerateLabel = attr.autoGenerateLabel;
     }
     if (attr.text) {
-      gobj.setLabel(attr.text);
+      window.WIDGETS.labelChanged(attr.text, gobj);
+      // gobj.setLabel() exists only for gobjs with gobj.hasLabel === true
+      // WIDGETS.LabelChanged applies to all labeled gobjs (e.g. functions)
+      // gobj.setLabel(attr.text);
       // ADD SUPPORT HERE FOR CHANGING TEXT OBJECTS (E.G., CAPTIONS)
     }
     window.WIDGETS.invalidateLabel(gobj);
     note += ' label of ' + gobjDesc(gobj) + '.';
     notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
-    //gobj.invalidateAppearance();
+    // gobj.invalidateAppearance();
   }
 
   function handleVisibilityWidget(attr) {
@@ -880,13 +875,34 @@ const WebSketch = (props) => {
       }
     }
   }
-  function paramEdit(reason, attr) {
-    if (!sketch) {
-      getSketch();
+
+  function prefChanged(attr) {
+    // attr has category, pref, oldValue, & newValue
+    const note =
+      'Changed ' +
+      attr.pref +
+      ' preference from ' +
+      attr.oldValue +
+      ' to ' +
+      attr.newValue;
+    if (attr.category === 'units') {
+      window.PREF.setUnitPref($sketch, attr.pref, attr.newValue);
+      notify(note, { duration: 2000 });
+    } else {
+      window.GSP.createError(
+        'follow: prefChanged cannot handle category ' + attr.category
+      );
     }
-    // state is editStarted, changesNotAccepted, or changesAccepted
-    const note = reason + ' parameter edit: <em>' + attr.gobj.label + '</em>';
-    notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
+  }
+
+  function pressButton(attr) {
+    // attr has category, pref, oldValue, & newValue
+    const note = 'Pressed ' + attr.gobj.label + ' button';
+    notify(note, { duration: 2000, highlitGobjs: [attr.gobj] });
+    // How can we tell start from stop, or rather, how can we use attr
+    // to transmit the button's render state (and whether to turn it on or off)
+    // Animate and Move, for instance, are very different in how they stop.
+    // attr.gobj.press();
   }
 
   // --- Initialization functions ---
@@ -931,6 +947,7 @@ const WebSketch = (props) => {
     console.log('Found data: ', data);
     sketchDoc = data;
     sketch = data.focusPage;
+    sketchDoc.isRemote = true;
     checkWidgets();
   };
 

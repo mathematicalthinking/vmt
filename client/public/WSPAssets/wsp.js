@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221023195947
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221027201207
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -10335,7 +10335,7 @@
             var self = this;
               if (this.hasVFocus) {
                   this.numpad.editor.unsetCursor();
-                  this.hasVFocus = false; // do this before calling finishEditing, which might generate another call to vBlur
+                  this.hasVFocus = false; // do this before calling finishEditing, which otherwise generates a recursive call to vBlur
                   this.numpad.editor.finishEditing();
                   // hide the number pad
                   setTimeout(function() {
@@ -41044,8 +41044,8 @@
           this.generatedLabels = undefined;        
         }
         //  Show the Calculator, _unless_ it was already shown at the end of toolplay.
-        // and _unless_ the sketchDoc's UI is disabled.
-        if (calcPresent && !$(".wsp-Calculator").is(":visible") && !self.sketch.document.disableUI) {
+        // and _unless_ the sketchDoc's is remotely controlled
+        if (calcPresent && !$(".wsp-Calculator").is(":visible") && !self.sketch.document.isRemote) {
           calcPresent.presentUI();
         }
       },
