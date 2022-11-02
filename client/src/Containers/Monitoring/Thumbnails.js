@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
@@ -39,25 +38,38 @@ export default function Thumbnails({
     ) {
       setTabSelection(_tabOptions(populatedRoom.tabs)[initialTabIndex]);
     }
-    if (initialScreen !== -1) setScreenSelection(initialScreen);
+    if (initialScreen !== -1) setScreenSelection(_screenOption(initialScreen));
   }, [initialTabIndex, initialScreen]);
 
   // Update the thumbnail either when the selection changes or when new data come in (potentially a new snapshot)
   React.useEffect(() => {
-    let snapshot;
-    if (!screenSelection) {
-      snapshot = _getMostRecentSnapshot(tabSelection && tabSelection.value);
-    } else {
-      snapshot = getSnapshot({
-        // if there's not a current tab selection, then just grab the first (and only) tab id.
+    // if there's no tabselection, get the most recent snapshot among any snapshot
+    // if there is a tabselection but no screenselection, get the most recent from among the tab's screens (if any,
+    //        if it has no screens, just leave things as they are)
+    // if there's both a tab and screen selection, set the thumbnail appropriately
+
+    let key;
+    if (!tabSelection) {
+      key = _getMostRecentSnapshotKey() || {
+        currentTabId: 'dummy',
+        currentScreen: 0,
+      };
+      setTabSelection(
+        _tabOptions(populatedRoom.tabs).find(
+          (option) => option.value === key.currentTabId
+        )
+      );
+    } else if (!screenSelection) {
+      key = _getMostRecentSnapshotKey(tabSelection && tabSelection.value);
+      setScreenSelection(_screenOption(key.currentScreen));
+    } else
+      key = {
         currentTabId: tabSelection
           ? tabSelection.value
           : getKeys()[0].currentTabId,
-        currentScreen: screenSelection && screenSelection.value,
-      });
-    }
-
-    setThumbnail(snapshot);
+        currentScreen: screenSelection.value,
+      };
+    setThumbnail(getSnapshot(key));
   }, [tabSelection, screenSelection, populatedRoom]);
 
   /**
@@ -66,7 +78,7 @@ export default function Thumbnails({
    *
    */
 
-  const _getMostRecentSnapshot = (tabId) => {
+  const _getMostRecentSnapshotKey = (tabId) => {
     let relevantKeys = getKeys(); // if no tabId, return the most recent of all the room's snapshots
     if (tabId) {
       relevantKeys = relevantKeys.filter((key) => key.currentTabId === tabId);
@@ -76,7 +88,7 @@ export default function Thumbnails({
     relevantKeys.forEach((key) => {
       if (getTimestamp(key) > maxSoFar) {
         maxSoFar = getTimestamp(key);
-        result = getSnapshot(key);
+        result = key;
       }
     });
     return result;
@@ -94,11 +106,17 @@ export default function Thumbnails({
    *
    */
 
-  const _tabOptions = (tabs) => {
+  const _tabOptions = (tabs = []) => {
     return tabs.map((tab) => {
       return { value: tab._id, label: tab.name };
     });
   };
+
+  const _screenOption = (screen) => ({
+    value: screen,
+    label: `Screen ${screen + 1}`,
+  });
+
   const _tabsAndScreens = () => {
     const tabs = populatedRoom.tabs || [];
     const tabOptions = _tabOptions(tabs);
@@ -112,9 +130,7 @@ export default function Thumbnails({
 
     const screenOptions = screens
       .sort((a, b) => a - b)
-      .map((screen) => {
-        return { value: screen, label: `Screen ${screen + 1}` };
-      });
+      .map((screen) => _screenOption(screen));
 
     // Display something only if there's a tab selection, screen selection, or default label
     return tabOptions.length > 1 || screenOptions.length > 1 || defaultLabel ? (
@@ -139,7 +155,7 @@ export default function Thumbnails({
             onChange={(selectedOption) => {
               setTabSelection(selectedOption);
               // reset the screen selection when a tab is selected
-              setScreenSelection(0);
+              setScreenSelection(null);
             }}
             placeholder="Select a Tab..."
             isSearchable={false}
