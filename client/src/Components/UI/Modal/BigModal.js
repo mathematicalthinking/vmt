@@ -31,7 +31,10 @@ const BigModal = ({ show, closeModal, message, children, height, testId }) => (
               data-testid="close-modal"
               className={classes.Close}
               onClick={closeModal}
-              onKeyPress={closeModal}
+              onKeyPress={(e) => {
+                closeModal();
+                if (e.key === 'Escape') closeModal();
+              }}
               tabIndex="-2"
               role="button"
             >
