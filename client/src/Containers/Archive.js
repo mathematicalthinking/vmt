@@ -232,6 +232,7 @@ const Archive = () => {
   const restoreButton = {
     title: 'Unarchive',
     onClick: (e, id) => {
+      if (!id.length) return;
       e.preventDefault();
       setShowRestoreComponent(true);
       handleRestore(id);
