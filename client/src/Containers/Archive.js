@@ -55,12 +55,8 @@ const Archive = () => {
     roomType,
   ]);
 
-  useEffect(() => {
-    if (skip > 0) debounceFetchData(true);
-  }, [skip]);
-
   const debounceFetchData = debounce(
-    (concat = false) => fetchData(concat),
+    (concat = false, callback = null) => fetchData(concat, callback),
     1000
   );
 
@@ -137,7 +133,7 @@ const Archive = () => {
     setQueryParams(filters);
   };
 
-  const fetchData = (concat = false) => {
+  const fetchData = (concat = false, callback = null) => {
     setLoading(true);
     const filters = getQueryParams();
     const updatedFilters = { ...filters };
@@ -157,6 +153,7 @@ const Archive = () => {
           setVisibleResources((prevState) =>
             concat ? [...prevState].concat(res.data.results) : res.data.results
           );
+          if (callback) callback();
         })
         .catch((err) => {
           // eslint-disable-next-line no-console
@@ -172,8 +169,9 @@ const Archive = () => {
     }
   };
 
-  const setSkipState = () => {
+  const handleLoadMore = (callback) => {
     setSkip((prevState) => prevState + SKIP_VALUE);
+    if (skip > 0) fetchData(true, callback);
   };
 
   const clearSearch = () => {
@@ -367,7 +365,7 @@ const Archive = () => {
       visibleResources={visibleResources}
       resource={match.params.resource}
       searchValue={searchText}
-      setSkip={setSkipState}
+      onLoadMore={handleLoadMore}
       setCriteria={setSearchCriteria}
       moreAvailable={moreAvailable}
       filters={getQueryParams()}

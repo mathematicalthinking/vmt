@@ -1,4 +1,4 @@
-import React, { useRef, Fragment, useLayoutEffect } from 'react';
+import React, { Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import PropTypes from 'prop-types';
 import { SelectableBoxList } from 'Layout';
@@ -10,7 +10,7 @@ const Archive = (props) => {
     visibleResources,
     resource,
     searchValue,
-    setSkip,
+    onLoadMore,
     setCriteria,
     moreAvailable,
     filters,
@@ -30,32 +30,13 @@ const Archive = (props) => {
     restoreComponent,
   } = props;
 
-  const header = useRef();
-  const shouldScrollToBottom = useRef(false);
-
-  useLayoutEffect(() => {
-    // this keeps the page scrolled to bottom
-    // if i set .current to false, it doesn't scroll
-    // because of page re-renders / reload
-    // the aim is to scroll after clicking "load more results"
-
-    if (shouldScrollToBottom.current === true) {
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        left: 0,
-        behavior: 'auto',
-      });
-      // shouldScrollToBottom.current = false;
-    }
-  });
-
   return (
     <React.Fragment>
       {showRoomPreview && roomPreviewComponent}
       {showRestoreComponent && restoreComponent}
 
       <div className={classes.Container}>
-        <div className={classes.Header} ref={header}>
+        <div className={classes.Header}>
           <h3 className={classes.Title}>
             {/* Search for your archived Rooms and Courses */}
             Search for your archived Rooms
@@ -229,11 +210,11 @@ const Archive = (props) => {
         </div>
         <div
           className={classes.List}
-          style={{
-            marginTop: header.current
-              ? header.current.getBoundingClientRect().height
-              : 260,
-          }}
+          // style={{
+          //   marginTop: header.current
+          //     ? header.current.getBoundingClientRect().height
+          //     : 260,
+          // }}
         >
           {/* Check to see if visibleResources is undef, which is the loading state */}
           {loading ? (
@@ -258,8 +239,9 @@ const Archive = (props) => {
                   m={20}
                   disabled={!moreAvailable}
                   click={() => {
-                    setSkip();
-                    shouldScrollToBottom.current = true;
+                    onLoadMore(() =>
+                      window.scrollTo(0, document.body.scrollHeight)
+                    );
                   }}
                 >
                   load more results
@@ -277,7 +259,7 @@ Archive.propTypes = {
   visibleResources: PropTypes.arrayOf(PropTypes.shape({})),
   resource: PropTypes.string.isRequired,
   searchValue: PropTypes.string,
-  setSkip: PropTypes.func,
+  onLoadMore: PropTypes.func,
   setCriteria: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
   filters: PropTypes.shape({
@@ -302,7 +284,7 @@ Archive.propTypes = {
 Archive.defaultProps = {
   visibleResources: [],
   searchValue: '',
-  setSkip: () => {},
+  onLoadMore: () => {},
   customFromDate: null,
   customToDate: null,
   roomPreviewComponent: null,
