@@ -45,6 +45,7 @@ const Archive = () => {
   }, []);
 
   useEffect(() => {
+    skip.current = 0;
     debounceFetchData();
   }, [
     searchText,
@@ -84,6 +85,7 @@ const Archive = () => {
 
   const setQueryParams = (filters) => {
     const { roomType, search, from, to } = filters;
+    skip.current = 0;
     history.push({
       pathname: match.url,
       search: `&roomType=${roomType || 'all'}&from=${from ||
