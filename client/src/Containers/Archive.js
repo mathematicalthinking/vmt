@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useStore } from 'react-redux';
 import debounce from 'lodash/debounce';
@@ -28,13 +28,13 @@ const Archive = () => {
   const [loading, setLoading] = useState(true);
   const [visibleResources, setVisibleResources] = useState([]);
   const [moreAvailable, setMoreAvailable] = useState(true);
-  const [skip, setSkip] = useState(0);
   const [selected, setSelected] = useState([]);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [showRoomPreview, setShowRoomPreview] = useState(false);
   const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
   const [showRestoreComponent, setShowRestoreComponent] = useState(false);
   const [restoreComponent, setRestoreComponent] = useState(null);
+  const skip = useRef(0);
 
   useEffect(() => {
     debounceFetchData();
@@ -143,9 +143,14 @@ const Archive = () => {
     }
 
     if (archive && archive[resource] && archive[resource].length > 0) {
-      API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
-        ...updatedFilters,
-      })
+      API.searchPaginatedArchive(
+        resource,
+        updatedFilters.search,
+        skip.current,
+        {
+          ...updatedFilters,
+        }
+      )
         .then((res) => {
           const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
           setLoading(false);
@@ -170,8 +175,8 @@ const Archive = () => {
   };
 
   const handleLoadMore = (callback) => {
-    setSkip((prevState) => prevState + SKIP_VALUE);
-    if (skip > 0) fetchData(true, callback);
+    skip.current += SKIP_VALUE;
+    if (skip.current > 0) fetchData(true, callback);
   };
 
   const clearSearch = () => {
