@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
-import { useDispatch, useStore } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
 import { API } from 'utils';
@@ -17,7 +17,7 @@ const Archive = () => {
   const dispatch = useDispatch();
   const match = useRouteMatch(); // and not url from match
   const { resource } = useParams();
-  const { archive } = useStore().getState().user;
+  const archive = useSelector((state) => state.user && state.user.archive);
 
   const [searchText, setSearchText] = useState('');
   const [dateRangePreset, setDateRangePreset] = useState('all');
@@ -88,8 +88,8 @@ const Archive = () => {
     skip.current = 0;
     history.push({
       pathname: match.url,
-      search: `&roomType=${roomType || 'all'}&from=${from ||
-        'oneDay'}&to=${to || ''}&search=${search || ''}`,
+      search: `&roomType=${roomType || 'all'}&from=${from || '0'}&to=${to ||
+        ''}&search=${search || ''}`,
     });
   };
 
@@ -115,7 +115,7 @@ const Archive = () => {
         afterMonth: 30 * 24 * 60 * 60 * 1000,
         afterYear: 356 * 24 * 60 * 60 * 1000,
       };
-      filters.from = new Date('01 Jan 2018').getTime();
+      filters.from = 0;
       filters.to = new Date().getTime() - calculateTo[unit];
       setRadioToDate(filters.to);
       setDateRangePreset(unit);
