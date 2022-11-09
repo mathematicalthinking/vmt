@@ -6,7 +6,7 @@ export { default as COLOR_MAP } from './colorMap';
 export { default as createMongoId } from './createMongoId';
 export { default as withPopulatedCourse } from './withPopulatedCourse';
 export { loadState, saveState } from './localStorage';
-export { default as notifications } from './notifications';
+export { default as getUserNotifications } from './notifications';
 export { default as socket } from './sockets';
 export * from './validators';
 export { default as getResourceTabTypes } from './getResourceTabTypes';
