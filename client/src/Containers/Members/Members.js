@@ -158,10 +158,10 @@ class Members extends PureComponent {
 
   /**
    * @method changeRole
-   * @param  {Object} updatedMember - member obj { color, _id, role, {_id, username}}
+   * @param  {Object} info - member obj { color, _id, role, {_id, username}}
    */
 
-  changeRole = (updatedMember) => {
+  changeRole = (info) => {
     const {
       classList,
       resourceId,
@@ -171,40 +171,23 @@ class Members extends PureComponent {
       courseRoomsMembers,
       connectInviteToRoom,
     } = this.props;
-
-    // create a new classList containing the updatedMember (with a new role). Because we are
-    // sending this to the db, reduce the user field down to just the _id
-    const updatedClassList = classList.map((member) => {
-      return member.user._id === updatedMember.user._id
-        ? { ...updatedMember, user: updatedMember.user._id }
-        : { ...member, user: member.user._id };
+    const updatedMembers = classList.map((member) => {
+      return member.user._id === info.user._id
+        ? { role: info.role, user: info.user._id, color: info.color }
+        : { role: member.role, user: member.user._id, color: member.color };
     });
-
-    // If we are inside of a course, we have to update the course members' roles
-    // If we are upgrading a member into a course facilitator, we must:
-    // - check whether that course member is a member of each room in the course. For each room that they are a member of, change their role.
-    //   For each room that they aren't a member of, invite them to that room (which adds them to the room list and adds the room to
-    //   the user's list of rooms).
-    // - invite that member to each template/activity in the course (which should add them to the activity user list and add
-    //   the activity to the user's list of activities)
-    // If we are downgrading a member into a course participant, we must:
-    // - change that member to be a participant of each room in the course that they are a member of
-    // - disinvite the user from all course template/activities:
-    //   remove that member from the list of users who can access each template/activity and remove all course
-    //   templates/activities from the user's list of templates/activities.
-
     if (resourceType === 'course') {
-      connectUpdateCourseMembers(resourceId, updatedClassList);
-      if (courseRoomsMembers && updatedMember.role === 'facilitator') {
+      connectUpdateCourseMembers(resourceId, updatedMembers);
+      if (courseRoomsMembers && info.role === 'facilitator') {
         Object.keys(courseRoomsMembers).forEach((roomId) => {
           if (
             courseRoomsMembers[roomId].find(
-              (member) => member.user._id === updatedMember.user._id
+              (member) => member.user._id === info.user._id
             )
           ) {
             const updatedMemberList = courseRoomsMembers[roomId].map(
               (member) => {
-                if (member.user._id === updatedMember.user._id)
+                if (member.user._id === info.user._id)
                   member.role = 'facilitator';
                 return member;
               }
@@ -214,25 +197,23 @@ class Members extends PureComponent {
           } else
             connectInviteToRoom(
               roomId,
-              updatedMember.user._id,
-              updatedMember.user.username,
+              info.user._id,
+              info.user.username,
               undefined, // color
-              updatedMember.role
+              info.role
             );
         });
-      } else if (courseRoomsMembers && updatedMember.role === 'participant') {
+      } else if (courseRoomsMembers && info.role === 'participant') {
         Object.keys(courseRoomsMembers).forEach((roomId) => {
           const updatedMemberList = courseRoomsMembers[roomId].map((member) => {
-            if (member.user._id === updatedMember.user._id)
-              member.role = 'participant';
+            if (member.user._id === info.user._id) member.role = 'participant';
             return member;
           });
 
           connectUpdateRoomMembers(roomId, updatedMemberList);
         });
       }
-      // if we are in the member list of a room, just update the room with the updated members array
-    } else connectUpdateRoomMembers(resourceId, updatedClassList);
+    } else connectUpdateRoomMembers(resourceId, updatedMembers);
   };
 
   // Consider finding a way to NOT duplicate this in MakeRooms and also now in Profile
@@ -525,11 +506,9 @@ Members.propTypes = {
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
-  courseMembers: PropTypes.arrayOf(PropTypes.shape({})), // the (unsorted) course members array or null, if we aren't in a course
+  courseMembers: PropTypes.arrayOf(PropTypes.shape({})),
   owner: PropTypes.bool.isRequired,
   parentResource: PropTypes.string,
-  // if a course, classList is the course members array, sorted with participants then facilitators.
-  // If a room, this is just the members array
   classList: PropTypes.arrayOf(PropTypes.shape({})),
   connectGrantAccess: PropTypes.func.isRequired,
   connectUpdateCourseMembers: PropTypes.func.isRequired,
@@ -539,7 +518,6 @@ Members.propTypes = {
   connectClearNotification: PropTypes.func.isRequired,
   connectRemoveRoomMember: PropTypes.func.isRequired,
   connectRemoveCourseMember: PropTypes.func.isRequired,
-  // if a course, keys are room ids, values are the array of room members. If a room, this is an empty array
   courseRoomsMembers: PropTypes.shape({}),
 };
 
