@@ -260,3 +260,28 @@ export const createdActivityConfirmed = () => {
     type: actionTypes.CREATE_ACTIVITY_CONFIRMED,
   };
 };
+
+export const inviteToActivity = (activityId, userId) => {
+  // this function is parallel to inviteToCourse (actions/course.js) or inviteToRoom (actions/rooms.js).
+  // Just as in those functions, it should call API.grantAccess, providing similar information in a similar format.
+  // After the API call resolves, it should dispatch addUserToActivity, which will add the user to the actions in the
+  // redux store.
+  // Note that for this to work, an 'add' function must be created on the server side in ActivityController.js. That add
+  // function should be similar to the add function in RoomController or CourseController. Of course, for Activities, we
+  // aren't adding members, but users. But such a minor change can be handled in the add function (i.e., no need to change
+  // the signature of grantAccess or add). Note that one of the things that add does is to create a notification.  We should
+  // do that as well.
+};
+
+export const removeFromActivity = (activityId, userId) => {
+  /*
+  This function does the reverse of above. It will require a new API function, maybe 'revokeAccess', that will send a 
+  'remove' API request (just like grantAccess sends an add API request to the server). After the API call resolves, it should
+  dispatch removeUserFromActivity.
+
+  For this to work, a 'remove' function must be created on the server side in ActivityController.js. Note that we have
+  remove function in RoomController (designed to remove a user from room membership), although it is never used, I believe.
+
+
+  */
+};

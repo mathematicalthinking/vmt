@@ -95,5 +95,7 @@ export {
   updatedActivityTab,
   addUserToActivity,
   removeUserFromActivity,
+  inviteToActivity,
+  removeFromActivity,
 } from './activities';
 export { joinWithCode, requestAccess, grantAccess } from './access';

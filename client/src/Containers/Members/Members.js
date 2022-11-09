@@ -170,7 +170,10 @@ class Members extends PureComponent {
       connectUpdateCourseMembers,
       courseRoomsMembers,
       connectInviteToRoom,
+      onChangeRole,
     } = this.props;
+
+    if (onChangeRole) onChangeRole(updatedMember);
 
     // create a new classList containing the updatedMember (with a new role). Because we are
     // sending this to the db, reduce the user field down to just the _id
@@ -541,6 +544,7 @@ Members.propTypes = {
   connectRemoveCourseMember: PropTypes.func.isRequired,
   // if a course, keys are room ids, values are the array of room members. If a room, this is an empty array
   courseRoomsMembers: PropTypes.shape({}),
+  onChangeRole: PropTypes.func,
 };
 
 Members.defaultProps = {
@@ -550,6 +554,7 @@ Members.defaultProps = {
   notifications: null,
   parentResource: null,
   courseRoomsMembers: null,
+  onChangeRole: null,
 };
 
 const mapStateToProps = (state, ownProps) => {
