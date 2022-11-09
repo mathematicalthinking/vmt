@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221027201207
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102172944
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -15888,6 +15888,10 @@
        * Applies constraints to each gobject instance in topological sort order.
        * Basically, this gives the gobject instances a chance to correct their
        * state in response to events that have been processed for their parents.
+       * For some parents, changes to their geometry affects children.
+       * But for value-based parents, only the value, not the geometry, affects children.
+       * Such parents (dragged parameters, calculations, measurements, functions, buttons)
+       * do not cause their children to be reconstrained.
        */
       constrain: function () {
         if (this.state === "stopped") {
@@ -15897,13 +15901,18 @@
   
         // gobj.state.constraintFrame = Max( [gobj, gobj.parents]).state.constraintFrame
         function updateOneConstraintFrame(index, gobj, sketch) {
-          var i, parentGObj;
+          var i, parentGObj, parentDragged, parentChanged;
           for( i = 0 ; i < gobj.numParents(); i++) {
             parentGObj = gobj.parentsList[i];
-  
-            if( parentGObj.state.constraintFrame > gobj.state.constraintFrame) {
+            // has gobj been changed in a way that affects descendants, via geom or value?
+            parentChanged = parentGObj.state.constraintFrame > gobj.state.constraintFrame;
+            // has gobj been dragged without affecting descendants?
+            parentDragged = parentGObj.state.dragFrame > gobj.state.dragFrame;
+            if (parentChanged) { //only parentChanged affects descendants
               gobj.state.constraintFrame = parentGObj.state.constraintFrame;
-              // Invalidating an object invalidates its previous (last-rendered) bounds.
+            }
+            if (parentChanged || parentDragged) {
+              // Invalidating an object (even dragging a value object) invalidates its previous (last-rendered) bounds.
               sketch.invalidateRect( sketch.renderRefCon.renderBounds[gobj.id]);
               sketch.invalidateRect( sketch.renderRefCon.labelBounds[gobj.id]);
               sketch.isDirty = true;
@@ -15914,7 +15923,9 @@
         function constrainOneGObj(index, gobj, sketch) {
           var id, dc;
           try {
-            if ((gobj.state.constraintFrame >= sketch.constraintFrame) && gobj.checkParentsExist()) {
+            if ((gobj.state.constraintFrame >= sketch.constraintFrame ||
+                 gobj.state.dragFrame >= sketch.constraintFrame) &&
+                 gobj.checkParentsExist()) {
               gobj.constrain(sketch);
               // Constraining an object invalidates its current (to-be-rendered) bounds
               if( !gobj.style.hidden) {
@@ -16008,14 +16019,36 @@
        * @param {Object} gobj -- the GObj whose geometry is to be invalidated
        * @return {GSP.Sketch} the sketch
        */
-      invalidateGeom: function(gobj) {
-        if( gobj) {
-          gobj.state.constraintFrame = this.constraintFrame;
+      invalidateGeom: function(gobj, source) {
+        
+        function dragDoesntContrain(gobj) { // Identify gobjs that can be dragged w/o affecting children
+          // turn these tests into flags defined by various kind/genus/constraint files 
+          var ret;
+          ret = GSP.isParameter(gobj) ||
+                GSP.isCalculation(gobj) ||
+                gobj.isOfKind("Measure") ||
+                gobj.isOfKind("Button") ||
+                gobj.isOfKind("Text") ||
+                gobj.isOfKind("Expression");
+          return ret;
+        }
+        
+        if (gobj) {
+          //if (source === 'drag' && gobj.nonGeom) {
+          if (source === 'drag' && dragDoesntContrain(gobj)) { // extend to other draggable gobjs
+            // non-geometric gobjs (parameters, functions, buttons, etc.) can be dragged
+            // without effect on their children, so don't set constraintFrame
+            // Setting dragFrame signals the constraintLoop to rerender them w/o
+            // constraining their children.
+            gobj.state.dragFrame = this.constraintFrame;
+          } else {
+            gobj.state.constraintFrame = this.constraintFrame;
+          }
           this.invalidateAppearance(gobj);
         }
         return this;
       },
-  
+      
       /**
         Notify client/container that a particular event has occurred.
         Currently forwards to GSP.event() but may notify differently at some point.
@@ -21442,7 +21475,7 @@
                 }
             }
   
-            gobj.sQuery.sketch.invalidateGeom(gobj);
+            gobj.sQuery.sketch.invalidateGeom(gobj, 'drag'); // invalidated due to a drag
           }
         } 
       },
@@ -38013,7 +38046,7 @@
             renderAttrs.renderable = true;
             renderAttrs.visibility= "visible";
             renderAttrs.opacity = 1;
-            renderAttrs.constraintFrame = 0;
+            renderAttrs.frame = 0;  // Change constraintFrame to frame, as a new frame may be required by dragFrame
   
             ctx.save();
             ctx.beginPath();
@@ -38361,10 +38394,10 @@
                 fontSize = drawRefCon['font-size'] || kDefaultFontSize,
                 fontSpec,
                 sizeEstimate;
-            // Check the following change, adding forceDomParse to the constraintFrame test. forceDomParse is set
+            // Check the following change, adding forceDomParse to the frame test. forceDomParse is set
             // when the MFS has changed in the absence of reconstraining the sketch (as in relabeling a gobj or button)
             // This change works with the html engine; it seems likely that it will work here also.
-            if (renderAttrs.constraintFrame !== drawRefCon.constraintFrame || renderAttrs.forceDomParse) {
+            if (renderAttrs.frame !== drawRefCon.frame || renderAttrs.forceDomParse) {
               if( renderAttrs.parsedMFS !== drawRefCon.parsedMFS) {
                 drawRefCon.parsedMFS = renderAttrs.parsedMFS;
                 
@@ -38383,7 +38416,7 @@
                   tmpCtx.scale( devicePixelRatio, devicePixelRatio);
                 }
               }
-              drawRefCon.constraintFrame = renderAttrs.constraintFrame;
+              drawRefCon.frame = renderAttrs.frame;
             }
   
             /*
@@ -39646,9 +39679,9 @@
                 /*jshint +W116*/
                 // If forceDomParse is true, reparse the MFS (via updateFromModel) even if the sketch has not been reconstrained.
                 // This handles MFS changes due to changing a label.
-                if (renderAttrs.constraintFrame !== this.constraintFrame || renderAttrs.forceDomParse) {
+                if (renderAttrs.frame !== this.frame || renderAttrs.forceDomParse) {
                   this.updateFromModel(renderAttrs);
-                  this.constraintFrame = renderAttrs.constraintFrame;
+                  this.frame = renderAttrs.frame;
                 }
                 this.updateModelToViewTransform(drawContext.modelToViewTransform);
   
@@ -50129,10 +50162,12 @@
                 displayObject = drawRefCon,
                 attrs = {
                     visibility: visibility,
-                    constraintFrame: this.state.constraintFrame,
+                    frame: this.state.constraintFrame,
                     zIndex: renderArgs.zIndex
                 };
-  
+            if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
+              attrs.frame = this.state.dragFrame;
+            }
             this.updateButtonSpeakableText(this.oldText, this.label);
   
             if (renderable) {
@@ -52639,7 +52674,7 @@
             attrs = {
                 visibility: visibility,
                 measurable: renderable || this.latentVisibility,
-                constraintFrame: this.state.constraintFrame,
+                frame: this.state.constraintFrame,
                 opacity: this.calculateOpacity(),
                 zIndex: renderArgs.zIndex,
                 wspSays: this.isGobjExistInWSPSays(),
@@ -52650,6 +52685,9 @@
             // which we'll need not just to render, but also to measure
             // and if latentVisibility, then measuring is potentially going to happen
             // in toolplay autoplacement.
+            if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
+              attrs.frame = this.state.dragFrame;
+            }
   
         if( this.nameMFSOverride) {
           attrs.width = this.nameMFSOverride.width;
@@ -53316,11 +53354,13 @@
   
           attrs = {
             visibility: visibility,
-            constraintFrame: this.state.constraintFrame,
+            frame: this.state.constraintFrame,
             opacity: this.calculateOpacity(),
             zIndex: renderArgs.zIndex
           };
-  
+      if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
+        attrs.frame = this.state.dragFrame;
+      }
       attrs.x = this.geom.loc.getX();
       attrs.y = this.geom.loc.getY();
   
@@ -69169,7 +69209,7 @@
   "/* For now, these are not in less. Just import them raw. */\n"+
   "/*!\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221006020352\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102161158\n"+
   "*/\n"+
   "\n"+
   "/*\n"+
@@ -69842,7 +69882,7 @@
   ".wsp-version-4-8-0 {\n"+
   "  /*\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221006020352\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102161158\n"+
   "*/\n"+
   "  /* Section Start: wsp-Button */\n"+
   "  /*\n"+

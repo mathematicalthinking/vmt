@@ -1565,6 +1565,7 @@ var WIDGETS = (function() {
       msg = { label: gobj.label },
       gobjCSS,
       refRect;
+    labelWidget.defineControls(); // initialize UI elements in case of external callers
     gobj.parsedMFS = null; // force reparsing of mfs
     if (gobj.hasLabel) {
       // This gobj is on the canvas, so set the refcon
@@ -1602,13 +1603,10 @@ var WIDGETS = (function() {
         .css('font-family', font);
       gobj.state.forceDomParse = true; // forceParse rebuilds the DOM element from the parsedMFS
       gobj.descendantLabelGraphHasChanged(); // Need to call this if we're not calling setLabel()
-      if (labelWidget.showlabelElt) {
-        // There may be external callers before showLabelElt is defined
-        labelWidget.showLabelElt.prop(
-          'checked',
-          gobj.style.nameOrigin !== 'noVisibleName'
-        );
-      }
+      labelWidget.showLabelElt.prop(
+        'checked',
+        gobj.style.nameOrigin !== 'noVisibleName'
+      );
     }
     if (action) {
       msg.action = action;
@@ -1657,6 +1655,7 @@ var WIDGETS = (function() {
       gobj.textMFS = "<VL<T'" + newText + "'>>";
     }
 
+    labelWidget.defineControls(); // initialize UI elements in case of external callers
     if (!newText) newText = '';
     if (gobj.label === newText && ignoreOrigin) return newText; // Text hasn't changed, so nothing to do.
 
@@ -2162,19 +2161,23 @@ var WIDGETS = (function() {
     invalidateLabel(gobj, action);
   } // toggleLabel
 
-  labelWidget.activate = function(sketch, restoring) {
-    if (!Object.getPrototypeOf(this).activate(sketch, this, restoring))
-      return false;
-    this.cancelOnExit = false;
-    targetGobj = null;
-    this.prevGobj = null;
-    $('#wLabelPane').css('display', 'none');
+  labelWidget.defineControls = function() {
     if (!this.inputElt) {
       this.inputElt = $('#wLabelEditText');
       this.showLabelElt = $('#wLabelShow');
       this.sizeElt = $('#wLabelFontSize');
       this.fontElt = $('#wLabelFont');
     }
+  };
+
+  labelWidget.activate = function(sketch, restoring) {
+    if (!Object.getPrototypeOf(this).activate(sketch, this, restoring))
+      return false;
+    this.cancelOnExit = false;
+    targetGobj = null;
+    this.prevGobj = null;
+    this.defineControls();
+    $('#wLabelPane').css('display', 'none');
     this.inputElt.on('click', function() {
       $(this).focus(); // In a mobile device, a click in the text box should bring up the keyboard.
     });

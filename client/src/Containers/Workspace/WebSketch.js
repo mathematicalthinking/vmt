@@ -72,6 +72,17 @@ const WebSketch = (props) => {
         } else {
           sketchDoc.isRemote = false;
         }
+        const sketch = sketchDoc.focusPage;
+        if (sketch.toolController.activeRegime) {
+          sketch.toolController.abortActiveTool();
+        }
+        window.WIDGETS.cancelModality();
+        const buttons = sketch.sQuery('Button');
+        buttons.forEach((button) => {
+          if (button.state.isActive) {
+            button.press(sketch);
+          }
+        });
       }
     }
   }, [props.inControl]);
