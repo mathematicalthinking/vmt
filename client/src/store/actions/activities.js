@@ -60,6 +60,22 @@ export const removeUserActivities = (activityIdsArr) => {
   };
 };
 
+export const addUserToActivity = (activityId, userId) => {
+  return {
+    type: actionTypes.ADD_ACTIVITY_USER,
+    activityId,
+    userId,
+  };
+};
+
+export const removeUserFromActivity = (activityId, userId) => {
+  return {
+    type: actionTypes.REMOVE_ACTIVITY_USER,
+    activityId,
+    userId,
+  };
+};
+
 export const setActivityStartingPoint = (id) => {
   return (dispatch, getState) => {
     const tabs = getState().activities.byId[id].tabs.map((tab) => {

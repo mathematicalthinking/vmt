@@ -93,5 +93,7 @@ export {
   setActivityStartingPoint,
   updateActivityTab,
   updatedActivityTab,
+  addUserToActivity,
+  removeUserFromActivity,
 } from './activities';
 export { joinWithCode, requestAccess, grantAccess } from './access';
