@@ -1,4 +1,4 @@
-import React, { useRef, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import PropTypes from 'prop-types';
 import { SelectableBoxList } from 'Layout';
@@ -10,7 +10,7 @@ const Archive = (props) => {
     visibleResources,
     resource,
     searchValue,
-    setSkipState,
+    onLoadMore,
     setCriteria,
     moreAvailable,
     filters,
@@ -24,21 +24,15 @@ const Archive = (props) => {
     setFromDate,
     icons,
     selectActions,
-    showRoomPreview,
-    roomPreviewComponent,
-    showRestoreComponent,
-    restoreComponent,
+    actionComponent,
   } = props;
-
-  const header = useRef();
 
   return (
     <React.Fragment>
-      {showRoomPreview && roomPreviewComponent}
-      {showRestoreComponent && restoreComponent}
+      {actionComponent}
 
       <div className={classes.Container}>
-        <div className={classes.Header} ref={header}>
+        <div className={classes.Header}>
           <h3 className={classes.Title}>
             {/* Search for your archived Rooms and Courses */}
             Search for your archived Rooms
@@ -212,11 +206,11 @@ const Archive = (props) => {
         </div>
         <div
           className={classes.List}
-          style={{
-            marginTop: header.current
-              ? header.current.getBoundingClientRect().height
-              : 260,
-          }}
+          // style={{
+          //   marginTop: header.current
+          //     ? header.current.getBoundingClientRect().height
+          //     : 260,
+          // }}
         >
           {/* Check to see if visibleResources is undef, which is the loading state */}
           {loading ? (
@@ -227,7 +221,7 @@ const Archive = (props) => {
               <span className={classes.dot3}>.</span>
             </div>
           ) : (
-            <div style={{ margin: '0 auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               <SelectableBoxList
                 list={visibleResources}
                 resource={resource}
@@ -237,7 +231,15 @@ const Archive = (props) => {
                 selectActions={selectActions}
               />
               <div className={classes.LoadMore}>
-                <Button m={20} disabled={!moreAvailable} click={setSkipState}>
+                <Button
+                  m={20}
+                  disabled={!moreAvailable}
+                  click={() => {
+                    onLoadMore(() =>
+                      window.scrollTo(0, document.body.scrollHeight)
+                    );
+                  }}
+                >
                   load more results
                 </Button>
               </div>
@@ -253,7 +255,7 @@ Archive.propTypes = {
   visibleResources: PropTypes.arrayOf(PropTypes.shape({})),
   resource: PropTypes.string.isRequired,
   searchValue: PropTypes.string,
-  setSkipState: PropTypes.func,
+  onLoadMore: PropTypes.func,
   setCriteria: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
   filters: PropTypes.shape({
@@ -269,20 +271,16 @@ Archive.propTypes = {
   setFromDate: PropTypes.func.isRequired,
   icons: PropTypes.arrayOf(PropTypes.shape({})),
   selectActions: PropTypes.arrayOf(PropTypes.shape({})),
-  showRoomPreview: PropTypes.bool.isRequired,
-  roomPreviewComponent: PropTypes.func,
-  showRestoreComponent: PropTypes.bool.isRequired,
-  restoreComponent: PropTypes.shape({}),
+  actionComponent: PropTypes.node,
 };
 
 Archive.defaultProps = {
   visibleResources: [],
   searchValue: '',
-  setSkipState: () => {},
+  onLoadMore: () => {},
   customFromDate: null,
   customToDate: null,
-  roomPreviewComponent: null,
-  restoreComponent: null,
+  actionComponent: null,
   icons: [],
   selectActions: [],
 };

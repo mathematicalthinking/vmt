@@ -25,6 +25,14 @@ const getResource = (req) => {
   return _.propertyOf(req)('params.resource');
 };
 
+const setResource = (req, resource) => {
+  return { ...req, params: { resource } };
+};
+
+const setParamsId = (req, id) => {
+  return { ...req, params: { ...req.params, id } };
+};
+
 const getParamsId = (req) => {
   return _.propertyOf(req)('params.id');
 };
@@ -141,7 +149,9 @@ const signJwt = (payload, secret, options) => {
 
 module.exports.getUser = getUser;
 module.exports.getResource = getResource;
+module.exports.setResource = setResource;
 module.exports.getParamsId = getParamsId;
+module.exports.setParamsId = setParamsId;
 module.exports.isValidMongoId = isValidMongoId;
 module.exports.isModifyRequest = isModifyRequest;
 module.exports.schemaHasProperty = schemaHasProperty;

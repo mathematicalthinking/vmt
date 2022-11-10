@@ -1,11 +1,11 @@
 .Container {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   justify-content: flex-start;
   overflow-x: visible;
   font-weight: 300;
   font-size: 16px;
-  width: 650px;
 }
 
 .Header {
@@ -30,7 +30,9 @@
 }
 
 .ContentBox {
-  width: 100%;
+  width: 36vw;
+  /* min-width: 497px; */
+  /* max-width: 33vw; */
   margin: 2px 2px 2px 0;
   transition: 0.2s;
 }

@@ -59,6 +59,7 @@ export {
   updateMonitorSelections,
   createGrouping,
   restoreArchivedRoom,
+  archiveRooms,
 } from './rooms';
 export {
   getCourses,

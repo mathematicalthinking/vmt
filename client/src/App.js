@@ -5,6 +5,7 @@ import { QueryClientProvider, QueryClient } from 'react-query';
 import MyVmt from './Routes/MyVmt';
 import Home from './Routes/Home';
 import SocketProvider from './Components/HOC/SocketProvider';
+import GeneralModal from './Components/GeneralModal';
 
 import configureStore from './configureStore';
 import './global.css';
@@ -34,10 +35,12 @@ const App = () => (
           <div
             style={{ display: 'flex', flexFlow: 'column', minHeight: '100vh' }}
           >
-            <Switch>
-              <Route path="/myVMT" component={MyVmt} />
-              <Route path="/" component={Home} />
-            </Switch>
+            <GeneralModal>
+              <Switch>
+                <Route path="/myVMT" component={MyVmt} />
+                <Route path="/" component={Home} />
+              </Switch>
+            </GeneralModal>
           </div>
         </Router>
       </QueryClientProvider>

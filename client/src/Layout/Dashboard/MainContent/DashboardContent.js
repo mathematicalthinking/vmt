@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
-import React, {  useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { MonitoringView } from 'Containers';
-import { useDispatch, useStore } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateResourceListState } from 'store/actions/user';
 import ResourceList from './ResourceList';
 
@@ -11,7 +11,9 @@ export default function DashboardContent(props) {
 
   // create a state for Rooms, Courses, Activity, & other possible Resources
   // pass it to ResourceList w/a function to update the state
-  const resourceStates = useStore().getState().user.resourceListState;
+  const resourceStates = useSelector(
+    (state) => state.user && state.user.resourceListState
+  );
   const [resourceState, setResourceState] = useState(
     (resourceStates && resourceStates[context]) || {}
   );

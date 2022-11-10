@@ -47,3 +47,4 @@ export { default as Iframe } from './Iframe/Iframe';
 export { default as ToolTip } from './ToolTip/ToolTip';
 export { default as Loading } from './Loading/Loading';
 export { default as InfoBox } from './InfoBox/InfoBox';
+export { ModalContext } from './GeneralModal';
