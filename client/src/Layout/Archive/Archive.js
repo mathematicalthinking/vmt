@@ -1,4 +1,4 @@
-import React, { useRef, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import PropTypes from 'prop-types';
 import { SelectableBoxList } from 'Layout';
@@ -10,7 +10,7 @@ const Archive = (props) => {
     visibleResources,
     resource,
     searchValue,
-    setSkip,
+    onLoadMore,
     setCriteria,
     moreAvailable,
     filters,
@@ -27,14 +27,12 @@ const Archive = (props) => {
     actionComponent,
   } = props;
 
-  const header = useRef();
-
   return (
     <React.Fragment>
       {actionComponent}
 
       <div className={classes.Container}>
-        <div className={classes.Header} ref={header}>
+        <div className={classes.Header}>
           <h3 className={classes.Title}>
             {/* Search for your archived Rooms and Courses */}
             Search for your archived Rooms
@@ -208,11 +206,11 @@ const Archive = (props) => {
         </div>
         <div
           className={classes.List}
-          style={{
-            marginTop: header.current
-              ? header.current.getBoundingClientRect().height
-              : 260,
-          }}
+          // style={{
+          //   marginTop: header.current
+          //     ? header.current.getBoundingClientRect().height
+          //     : 260,
+          // }}
         >
           {/* Check to see if visibleResources is undef, which is the loading state */}
           {loading ? (
@@ -233,7 +231,15 @@ const Archive = (props) => {
                 selectActions={selectActions}
               />
               <div className={classes.LoadMore}>
-                <Button m={20} disabled={!moreAvailable} click={setSkip}>
+                <Button
+                  m={20}
+                  disabled={!moreAvailable}
+                  click={() => {
+                    onLoadMore(() =>
+                      window.scrollTo(0, document.body.scrollHeight)
+                    );
+                  }}
+                >
                   load more results
                 </Button>
               </div>
@@ -249,7 +255,7 @@ Archive.propTypes = {
   visibleResources: PropTypes.arrayOf(PropTypes.shape({})),
   resource: PropTypes.string.isRequired,
   searchValue: PropTypes.string,
-  setSkip: PropTypes.func,
+  onLoadMore: PropTypes.func,
   setCriteria: PropTypes.func.isRequired,
   moreAvailable: PropTypes.bool.isRequired,
   filters: PropTypes.shape({
@@ -271,7 +277,7 @@ Archive.propTypes = {
 Archive.defaultProps = {
   visibleResources: [],
   searchValue: '',
-  setSkip: () => {},
+  onLoadMore: () => {},
   customFromDate: null,
   customToDate: null,
   actionComponent: null,

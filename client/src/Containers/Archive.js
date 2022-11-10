@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
-import { useDispatch, useStore } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
 import { API } from 'utils';
@@ -17,7 +17,7 @@ const Archive = () => {
   const dispatch = useDispatch();
   const match = useRouteMatch(); // and not url from match
   const { resource } = useParams();
-  const { archive } = useStore().getState().user;
+  const archive = useSelector((state) => state.user && state.user.archive);
 
   const [searchText, setSearchText] = useState('');
   const [dateRangePreset, setDateRangePreset] = useState('all');
@@ -28,7 +28,7 @@ const Archive = () => {
   const [loading, setLoading] = useState(true);
   const [visibleResources, setVisibleResources] = useState([]);
   const [moreAvailable, setMoreAvailable] = useState(true);
-  const [skip, setSkip] = useState(0);
+  const skip = useRef(0);
   // const [selected, setSelected] = useState([]);
   // const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [actionComponent, setActionComponent] = useState(null);
@@ -42,6 +42,7 @@ const Archive = () => {
   }, []);
 
   useEffect(() => {
+    skip.current = 0;
     debounceFetchData();
   }, [
     searchText,
@@ -52,12 +53,8 @@ const Archive = () => {
     roomType,
   ]);
 
-  useEffect(() => {
-    if (skip > 0) debounceFetchData(true);
-  }, [skip]);
-
   const debounceFetchData = debounce(
-    (concat = false) => fetchData(concat),
+    (concat = false, callback = null) => fetchData(concat, callback),
     1000
   );
 
@@ -85,6 +82,7 @@ const Archive = () => {
 
   const setQueryParams = (filters) => {
     const { roomType: newRoomType, search, from, to } = filters;
+    skip.current = 0;
     history.push({
       pathname: match.url,
       search: `&roomType=${newRoomType || 'all'}&from=${from ||
@@ -114,7 +112,7 @@ const Archive = () => {
         afterMonth: 30 * 24 * 60 * 60 * 1000,
         afterYear: 356 * 24 * 60 * 60 * 1000,
       };
-      filters.from = new Date('01 Jan 2018').getTime();
+      filters.from = 0;
       filters.to = new Date().getTime() - calculateTo[unit];
       setRadioToDate(filters.to);
       setDateRangePreset(unit);
@@ -134,7 +132,7 @@ const Archive = () => {
     setQueryParams(filters);
   };
 
-  const fetchData = (concat = false) => {
+  const fetchData = (concat = false, callback = null) => {
     setLoading(true);
     const filters = getQueryParams();
     const updatedFilters = { ...filters };
@@ -144,9 +142,14 @@ const Archive = () => {
     }
 
     if (archive && archive[resource] && archive[resource].length > 0) {
-      API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
-        ...updatedFilters,
-      })
+      API.searchPaginatedArchive(
+        resource,
+        updatedFilters.search,
+        skip.current,
+        {
+          ...updatedFilters,
+        }
+      )
         .then((res) => {
           const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
           setLoading(false);
@@ -154,6 +157,7 @@ const Archive = () => {
           setVisibleResources((prevState) =>
             concat ? [...prevState].concat(res.data.results) : res.data.results
           );
+          if (callback) callback();
         })
         .catch((err) => {
           // eslint-disable-next-line no-console
@@ -169,8 +173,9 @@ const Archive = () => {
     }
   };
 
-  const setSkipState = () => {
-    setSkip((prevState) => prevState + SKIP_VALUE);
+  const handleLoadMore = (callback) => {
+    skip.current += SKIP_VALUE;
+    if (skip.current > 0) fetchData(true, callback);
   };
 
   const clearSearch = () => {
@@ -361,7 +366,7 @@ const Archive = () => {
       visibleResources={visibleResources}
       resource={match.params.resource}
       searchValue={searchText}
-      setSkip={setSkipState}
+      onLoadMore={handleLoadMore}
       setCriteria={setSearchCriteria}
       moreAvailable={moreAvailable}
       filters={getQueryParams()}
