@@ -3,7 +3,7 @@
 }
 
 .Container {
-  overflow: hidden;
+  /* overflow: hidden; */
   text-overflow: ellipsis;
 }
 
