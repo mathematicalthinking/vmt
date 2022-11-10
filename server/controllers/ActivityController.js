@@ -299,4 +299,11 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
+
+  add: (id, body) => {
+    return new Promise((resolve, reject) => {
+      // Send a notification to user that they've been granted access to
+      // a new activity, and add the user to the activities users array
+    });
+  },
 };

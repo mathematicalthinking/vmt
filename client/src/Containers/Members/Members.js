@@ -17,6 +17,7 @@ import {
   clearNotification,
   removeCourseMember,
   removeRoomMember,
+  inviteToActivity,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
 import Importer from '../../Components/Importer/Importer';
@@ -170,7 +171,9 @@ class Members extends PureComponent {
       connectUpdateCourseMembers,
       courseRoomsMembers,
       connectInviteToRoom,
+      connectInviteToActivity,
       onChangeRole,
+      course,
     } = this.props;
 
     if (onChangeRole) onChangeRole(updatedMember);
@@ -222,6 +225,14 @@ class Members extends PureComponent {
               undefined, // color
               updatedMember.role
             );
+          // if the course has activities, invite the new facilitator to them
+          if (course.activities.length) {
+            course.activities.forEach((activity) => {
+              connectInviteToActivity(activity._id, updatedMember.user._id, {
+                role: 'facilitator',
+              });
+            });
+          }
         });
       } else if (courseRoomsMembers && updatedMember.role === 'participant') {
         Object.keys(courseRoomsMembers).forEach((roomId) => {
@@ -539,6 +550,7 @@ Members.propTypes = {
   connectUpdateRoomMembers: PropTypes.func.isRequired,
   connectInviteToCourse: PropTypes.func.isRequired,
   connectInviteToRoom: PropTypes.func.isRequired,
+  connectInviteToActivity: PropTypes.func.isRequired,
   connectClearNotification: PropTypes.func.isRequired,
   connectRemoveRoomMember: PropTypes.func.isRequired,
   connectRemoveCourseMember: PropTypes.func.isRequired,
@@ -591,6 +603,7 @@ export default connect(mapStateToProps, {
   connectUpdateRoomMembers: updateRoomMembers,
   connectInviteToCourse: inviteToCourse,
   connectInviteToRoom: inviteToRoom,
+  connectInviteToActivity: inviteToActivity,
   connectClearNotification: clearNotification,
   connectRemoveRoomMember: removeRoomMember,
   connectRemoveCourseMember: removeCourseMember,
