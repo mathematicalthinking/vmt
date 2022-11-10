@@ -1,4 +1,4 @@
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   blue: blue;
   red: red;
   green: green;
@@ -8,6 +8,7 @@
 
 .Container {
   width: 100%;
+  min-width: 447px;
   position: relative;
   display: flex;
   padding: 5px;
@@ -56,8 +57,9 @@
   text-align: center;
   vertical-align: middle;
   color: blue;
-  max-width: 450px;
+  max-width: 375px;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .Expand {

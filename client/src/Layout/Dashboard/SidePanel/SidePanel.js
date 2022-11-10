@@ -33,14 +33,16 @@ const SidePanel = ({
   return (
     <Aux>
       <div className={classes.Top}>
-        {image ? (
+        {/* {image ? (
           <img className={classes.Image} src={image} alt={alt} />
         ) : (
           <Avatar className={classes.Image} size="large" />
-        )}
+        )} */}
+
         <div className={classes.Details}>
           <div className={classes.spMain}>{name}</div>
           <div className={classes.spSecondary}>{subTitle}</div>
+          <div className={classes.spButtons}>{buttons}</div>
           <div className={classes.spAdditional}>{details}</div>
           {editButton ? (
             <div className={editing ? classes.EditActive : classes.Edit}>
@@ -48,7 +50,6 @@ const SidePanel = ({
             </div>
           ) : null}
         </div>
-        <div className={classes.spButtons}>{buttons}</div>
         <div className={classes.ViewOpts} />
       </div>
       <div className={classes.Bottom}>

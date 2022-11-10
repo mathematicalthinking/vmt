@@ -172,7 +172,9 @@ export default function Thumbnails({
 }
 
 Thumbnails.propTypes = {
-  populatedRoom: PropTypes.shape({}).isRequired,
+  populatedRoom: PropTypes.shape({
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
   defaultLabel: PropTypes.string,
   initialTabIndex: PropTypes.number,
   initialScreen: PropTypes.number,

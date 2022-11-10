@@ -3,6 +3,8 @@
 }
 
 .Container {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ToolTipText {

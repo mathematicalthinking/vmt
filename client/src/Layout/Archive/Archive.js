@@ -24,16 +24,12 @@ const Archive = (props) => {
     setFromDate,
     icons,
     selectActions,
-    showRoomPreview,
-    roomPreviewComponent,
-    showRestoreComponent,
-    restoreComponent,
+    actionComponent,
   } = props;
 
   return (
     <React.Fragment>
-      {showRoomPreview && roomPreviewComponent}
-      {showRestoreComponent && restoreComponent}
+      {actionComponent}
 
       <div className={classes.Container}>
         <div className={classes.Header}>
@@ -225,7 +221,7 @@ const Archive = (props) => {
               <span className={classes.dot3}>.</span>
             </div>
           ) : (
-            <div style={{ margin: '0 auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               <SelectableBoxList
                 list={visibleResources}
                 resource={resource}
@@ -275,10 +271,7 @@ Archive.propTypes = {
   setFromDate: PropTypes.func.isRequired,
   icons: PropTypes.arrayOf(PropTypes.shape({})),
   selectActions: PropTypes.arrayOf(PropTypes.shape({})),
-  showRoomPreview: PropTypes.bool.isRequired,
-  roomPreviewComponent: PropTypes.func,
-  showRestoreComponent: PropTypes.bool.isRequired,
-  restoreComponent: PropTypes.shape({}),
+  actionComponent: PropTypes.node,
 };
 
 Archive.defaultProps = {
@@ -287,8 +280,7 @@ Archive.defaultProps = {
   onLoadMore: () => {},
   customFromDate: null,
   customToDate: null,
-  roomPreviewComponent: null,
-  restoreComponent: null,
+  actionComponent: null,
   icons: [],
   selectActions: [],
 };
