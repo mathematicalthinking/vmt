@@ -227,7 +227,7 @@ const Archive = (props) => {
               <span className={classes.dot3}>.</span>
             </div>
           ) : (
-            <div style={{ margin: '0 auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               <SelectableBoxList
                 list={visibleResources}
                 resource={resource}
