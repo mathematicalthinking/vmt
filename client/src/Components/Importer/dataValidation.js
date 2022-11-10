@@ -11,15 +11,86 @@ export default function useDataValidation(importedData) {
   const [validatedData, setValidatedData] = React.useState([]);
   const [validationErrors, setValidationErrors] = React.useState([]);
   const cachedData = React.useRef([]);
+  const newUsernames = React.useRef({});
 
   React.useEffect(async () => {
-    setValidatedData(importedData);
-    const [newValidatedData, newValidationErrors] = await validateData(
-      importedData
-    );
-    setValidatedData(newValidatedData);
-    setValidationErrors(newValidationErrors);
+    if (importedData && importedData.length > 0) {
+      setValidatedData(importedData);
+      const [newValidatedData, newValidationErrors] = await validateData(
+        importedData
+      );
+      setValidatedData(newValidatedData);
+      setValidationErrors(newValidationErrors);
+    }
   }, [importedData]);
+
+  // ================ FUNCTIONS RELATED TO GENERATING SAMPLE USERNAMES =========================
+
+  const preValidation = async (data) => {
+    // Generate new usernames
+    const sampleUsernames = getSampleUsernames(data); // returns {0: [name1, name2, name3, name4, name5], 5: [name6, name7,name8, name9, name10], etc.}
+
+    // do the precache on the data plus the generated usernames
+    const additionalData = Object.values(sampleUsernames)
+      .flat()
+      .map((username) => ({ username }));
+    await preCacheData([...data, ...additionalData]);
+
+    // For each row, check the sample usernames, finding one that hasn't been used before, and put them in the newUsernames ref.
+    // newUsernames gets used by the usernameEmailStrategy
+    newUsernames.current = Object.keys(sampleUsernames).reduce(
+      (acc, rowIndex) => {
+        const uniqueUsername = sampleUsernames[rowIndex].find(
+          (username) => !validateExistingField('username', username)
+        );
+        if (uniqueUsername) acc[rowIndex] = uniqueUsername;
+        return acc;
+      },
+      {}
+    );
+  };
+
+  // Get a sample of usernames for every blank username in the data. Return an object with key of rowIndex and value [username, username, username...]
+  const getSampleUsernames = (data) => {
+    const NUMBER_OF_SAMPLES = 5;
+    return data.reduce((acc, dataRow, rowIndex) => {
+      if (dataRow.username === '')
+        acc[rowIndex] = [...Array(NUMBER_OF_SAMPLES)].map(() =>
+          generateUsername(dataRow.firstName, dataRow.lastName)
+        );
+      return acc;
+    }, {});
+  };
+
+  // returns a zero prefix string represent a random number with the requested
+  // number of digits
+  const random = (digits) => {
+    if (digits === 0) return '';
+    const number = Math.floor(Math.random() * 10 ** digits);
+    return number.toString().padStart(digits, '0');
+  };
+
+  const generateUsername = (first = '', last = '') => {
+    // if there's a first and last name, use <first><last initials><#><#>
+    // if there's only a first name, use <first><#><#><#><#>
+    // if there's only a last name, use <lastname><#><#><#><#>
+    // if neither first nor last name, return x<#><#><#><#><#><#>
+
+    if (first === '' && last === '') return `x${random(6)}`;
+    if (first === '' || last === '')
+      return `${first.toLowerCase().trim()}${last.toLowerCase().trim()}${random(
+        4
+      )}`;
+
+    const lastInitials = last
+      .split(/[-\s]/)
+      .map((name) => name.charAt(0))
+      .join('');
+
+    return `${first
+      .toLowerCase()
+      .trim()}${lastInitials.toLowerCase().trim()}${random(2)}`;
+  };
 
   // ================ FUNCTIONS RELATED TO THE CACHE =========================
 
@@ -106,7 +177,12 @@ export default function useDataValidation(importedData) {
     0: (rowIndex) => ({
       ...noOpStrategy,
       validationErrors: [{ rowIndex, property: 'username' }],
-      comment: '* Must specify username for a new user.\n',
+      comment: newUsernames.current[rowIndex]
+        ? '* A username has been generated.\n'
+        : '* Must specify username for a new user.\n',
+      setProperties: [
+        { property: 'username', value: newUsernames.current[rowIndex] || '' },
+      ],
     }),
     // username blank, email of existing user
     1: (rowIndex, userFromUsername, userFromEmail) => ({
@@ -119,7 +195,12 @@ export default function useDataValidation(importedData) {
     2: (rowIndex) => ({
       ...noOpStrategy,
       validationErrors: [{ rowIndex, property: 'username' }],
-      comment: '* Must specify username for a new user.\n',
+      comment: newUsernames.current[rowIndex]
+        ? '* A username has been generated.\n'
+        : '* Must specify username for a new user.\n',
+      setProperties: [
+        { property: 'username', value: newUsernames.current[rowIndex] || '' },
+      ],
     }),
     // username is of existing user, email is blank. If email supposed to be blank, it's a valid situation.
     3: (rowIndex, userFromUsername) =>
@@ -175,10 +256,11 @@ export default function useDataValidation(importedData) {
     );
   };
 
-  // return an error array for any duplicates in the 'property' column of the data.
+  // return an error array for any duplicates in the 'property' column of the data. Ignore any blank cells.
   const duplicateFinder = (data, property) => {
     const values = data.map((dataRow) => dataRow[property]);
     const duplicatedRows = data.reduce((acc, dataRow, rowIndex) => {
+      if (!dataRow[property]) return acc;
       const loc = values.indexOf(dataRow[property]);
       if (loc !== rowIndex) {
         acc.add(loc);
@@ -217,6 +299,7 @@ export default function useDataValidation(importedData) {
     if (d.email) {
       d.email = d.email.toLowerCase().trim();
     }
+    if (d.sponsor) d.sponsor = d.sponsor.toLowerCase().trim();
 
     // 1. handle validating whether username/email exists, whether they are consistent, and the resolution thereof
     const [
@@ -287,7 +370,7 @@ export default function useDataValidation(importedData) {
   //
   // The rows argument is optional. If not given, we go through all data
   const validateData = async (data, rows) => {
-    await preCacheData(data);
+    await preValidation(data);
 
     // check for duplicates; don't do any other validation if we find duplicates
     const duplicateErrors = findDuplicates(data, ['username', 'email']);

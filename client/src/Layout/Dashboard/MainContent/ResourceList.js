@@ -7,7 +7,7 @@ import { useSortableData, timeFrames } from 'utils';
 import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
 import { Button, Modal, BigModal, Search, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
-import { updateRoom } from 'store/actions';
+import { updateRoom, archiveRooms } from 'store/actions';
 import { STATUS } from 'constants.js';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
@@ -267,21 +267,11 @@ const ResourceList = ({
     const dispatchArchive = () => {
       if (singleResource) {
         const rtnObj = {
-          ...userResources.find((userResource) => userResource._id === id),
           status: STATUS.ARCHIVED,
         };
         dispatch(updateRoom(id, rtnObj));
       } else {
-        id.forEach((resId) => {
-          dispatch(
-            updateRoom(resId, {
-              ...userResources.find(
-                (userResource) => userResource._id === resId
-              ),
-              status: STATUS.ARCHIVED,
-            })
-          );
-        });
+        dispatch(archiveRooms(id));
       }
     };
 
