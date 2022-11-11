@@ -754,7 +754,10 @@ class Room extends Component {
 Room.propTypes = {
   room: PropTypes.shape({
     _id: PropTypes.string,
-    course: PropTypes.arrayOf(PropTypes.shape({})),
+    course: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.shape({})),
+    ]), // course might be an id or a populated object
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
     members: PropTypes.arrayOf(PropTypes.shape({})),
     privacySetting: PropTypes.string,
@@ -765,14 +768,18 @@ Room.propTypes = {
     entryCode: PropTypes.string,
     image: PropTypes.string,
     instructions: PropTypes.string,
-    settings: PropTypes.arrayOf(PropTypes.shape({})),
+    settings: PropTypes.shape({}),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
     username: PropTypes.string,
     firstName: PropTypes.string,
-    notifications: PropTypes.arrayOf(PropTypes.string),
-    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+    notifications: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ), // might be an id (string) or a populated object
+    rooms: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
     inAdminMode: PropTypes.bool,
     isAdmin: PropTypes.bool,
   }).isRequired,

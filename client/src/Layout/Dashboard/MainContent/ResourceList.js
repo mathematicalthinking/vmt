@@ -245,11 +245,18 @@ const ResourceList = ({
   const handleArchive = (id) => {
     let showModal = true;
     let res;
+    let msg = 'Are you sure you want to archive ';
     let singleResource = true;
     if (Array.isArray(id)) {
       // display each name in list
       singleResource = false;
-      res = getResourceNames(id).join(', ');
+      // only dipslay first 5 resources names, otherwise total number
+      if (id.length <= 5) {
+        res = getResourceNames(id).join(', ');
+      } else {
+        res = `${id.length} rooms`;
+        msg += ' these ';
+      }
     }
     // or display single name
     else
@@ -277,7 +284,7 @@ const ResourceList = ({
         }}
       >
         <span>
-          Are you sure you want to archive{' '}
+          {msg}
           <span style={{ fontWeight: 'bolder' }}>{res}</span>?
         </span>
         <div>

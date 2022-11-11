@@ -1,6 +1,6 @@
 .Container {
   display: flex;
-  /* flex: 1; */
+  flex-direction: column;
   flex-wrap: wrap;
   justify-content: flex-start;
   overflow-x: visible;
@@ -8,16 +8,12 @@
   margin-top: 10px;
   font-size: 16px;
   margin-bottom: 25px;
-  width: 650px;
 }
 
-/* .Container > div {
-  flex: 1 1 auto;
-} */
-
 .ContentBox {
-  /* max-width: 252px; */
-  width: 100%;
+  width: 36vw;
+  /* min-width: 497px; */
+  /* max-width: 33vw; */
   margin: 2px;
   transition: 0.2s;
 }

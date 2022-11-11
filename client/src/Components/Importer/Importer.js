@@ -60,9 +60,8 @@ export default function Importer(props) {
   // Called when the user clicks on 'Submit' in the modal. Revalidate all the data. If there are any issues, update the data
   // and highligt any relevant cells. If no issues, update the data, create any new users, and invite them to the course.
   const handleOnSubmit = async (data) => {
-    if (validationErrors.length > 0) {
-      setImportedData(data);
-    } else {
+    setImportedData(data);
+    if (validationErrors.length === 0) {
       if (preImportAction) await preImportAction();
       createAndInviteMembers();
       setShowModal(false);
@@ -72,7 +71,7 @@ export default function Importer(props) {
   const createAndInviteMembers = async () => {
     const { user: creator, onImport } = props;
     const userObjects = await Promise.all(
-      importedData.map(async (user) => {
+      validatedData.map(async (user) => {
         const existingUser = await getUser(user.username);
         const { organization, identifier, isGmail, ...rest } = user;
         return existingUser

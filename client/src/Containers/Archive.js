@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
-import { useDispatch, useStore } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
 import { API } from 'utils';
@@ -17,7 +17,7 @@ const Archive = () => {
   const dispatch = useDispatch();
   const match = useRouteMatch(); // and not url from match
   const { resource } = useParams();
-  const { archive } = useStore().getState().user;
+  const archive = useSelector((state) => state.user && state.user.archive);
 
   const [searchText, setSearchText] = useState('');
   const [dateRangePreset, setDateRangePreset] = useState('all');
@@ -28,13 +28,10 @@ const Archive = () => {
   const [loading, setLoading] = useState(true);
   const [visibleResources, setVisibleResources] = useState([]);
   const [moreAvailable, setMoreAvailable] = useState(true);
-  const [skip, setSkip] = useState(0);
-  const [selected, setSelected] = useState([]);
-  const [selectAllChecked, setSelectAllChecked] = useState(false);
-  const [showRoomPreview, setShowRoomPreview] = useState(false);
-  const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
-  const [showRestoreComponent, setShowRestoreComponent] = useState(false);
-  const [restoreComponent, setRestoreComponent] = useState(null);
+  const skip = useRef(0);
+  // const [selected, setSelected] = useState([]);
+  // const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [actionComponent, setActionComponent] = useState(null);
 
   useEffect(() => {
     debounceFetchData();
@@ -45,6 +42,7 @@ const Archive = () => {
   }, []);
 
   useEffect(() => {
+    skip.current = 0;
     debounceFetchData();
   }, [
     searchText,
@@ -55,12 +53,8 @@ const Archive = () => {
     roomType,
   ]);
 
-  useEffect(() => {
-    if (skip > 0) debounceFetchData(true);
-  }, [skip]);
-
   const debounceFetchData = debounce(
-    (concat = false) => fetchData(concat),
+    (concat = false, callback = null) => fetchData(concat, callback),
     1000
   );
 
@@ -87,10 +81,11 @@ const Archive = () => {
   };
 
   const setQueryParams = (filters) => {
-    const { roomType, search, from, to } = filters;
+    const { roomType: newRoomType, search, from, to } = filters;
+    skip.current = 0;
     history.push({
       pathname: match.url,
-      search: `&roomType=${roomType || 'all'}&from=${from ||
+      search: `&roomType=${newRoomType || 'all'}&from=${from ||
         'oneDay'}&to=${to || ''}&search=${search || ''}`,
     });
   };
@@ -117,7 +112,7 @@ const Archive = () => {
         afterMonth: 30 * 24 * 60 * 60 * 1000,
         afterYear: 356 * 24 * 60 * 60 * 1000,
       };
-      filters.from = new Date('01 Jan 2018').getTime();
+      filters.from = 0;
       filters.to = new Date().getTime() - calculateTo[unit];
       setRadioToDate(filters.to);
       setDateRangePreset(unit);
@@ -137,7 +132,7 @@ const Archive = () => {
     setQueryParams(filters);
   };
 
-  const fetchData = (concat = false) => {
+  const fetchData = (concat = false, callback = null) => {
     setLoading(true);
     const filters = getQueryParams();
     const updatedFilters = { ...filters };
@@ -147,9 +142,14 @@ const Archive = () => {
     }
 
     if (archive && archive[resource] && archive[resource].length > 0) {
-      API.searchPaginatedArchive(resource, updatedFilters.search, skip, {
-        ...updatedFilters,
-      })
+      API.searchPaginatedArchive(
+        resource,
+        updatedFilters.search,
+        skip.current,
+        {
+          ...updatedFilters,
+        }
+      )
         .then((res) => {
           const isMoreAvailable = res.data.results.length >= SKIP_VALUE;
           setLoading(false);
@@ -157,6 +157,7 @@ const Archive = () => {
           setVisibleResources((prevState) =>
             concat ? [...prevState].concat(res.data.results) : res.data.results
           );
+          if (callback) callback();
         })
         .catch((err) => {
           // eslint-disable-next-line no-console
@@ -172,8 +173,9 @@ const Archive = () => {
     }
   };
 
-  const setSkipState = () => {
-    setSkip((prevState) => prevState + SKIP_VALUE);
+  const handleLoadMore = (callback) => {
+    skip.current += SKIP_VALUE;
+    if (skip.current > 0) fetchData(true, callback);
   };
 
   const clearSearch = () => {
@@ -198,30 +200,30 @@ const Archive = () => {
     setQueryParams(filters);
   };
 
-  const handleSelectAll = (event) => {
-    const { checked } = event.target;
-    if (!checked) {
-      setSelectAllChecked(false);
-      setSelected([]);
-    } else {
-      const ids = visibleResources.map((res) => res._id);
-      setSelectAllChecked(true);
-      setSelected(ids);
-    }
-  };
+  // const handleSelectAll = (event) => {
+  //   const { checked } = event.target;
+  //   if (!checked) {
+  //     setSelectAllChecked(false);
+  //     setSelected([]);
+  //   } else {
+  //     const ids = visibleResources.map((res) => res._id);
+  //     setSelectAllChecked(true);
+  //     setSelected(ids);
+  //   }
+  // };
 
-  const handleSelectOne = (event, id) => {
-    const { checked } = event.target;
-    if (checked) {
-      setSelected((prevState) => [...prevState, id]);
-      if (selected.length + 1 === visibleResources.length) {
-        setSelectAllChecked(true);
-      } else setSelectAllChecked(false);
-    } else {
-      setSelected((prevState) => [...prevState.filter((el) => id !== el)]);
-      setSelectAllChecked(false);
-    }
-  };
+  // const handleSelectOne = (event, id) => {
+  //   const { checked } = event.target;
+  //   if (checked) {
+  //     setSelected((prevState) => [...prevState, id]);
+  //     if (selected.length + 1 === visibleResources.length) {
+  //       setSelectAllChecked(true);
+  //     } else setSelectAllChecked(false);
+  //   } else {
+  //     setSelected((prevState) => [...prevState.filter((el) => id !== el)]);
+  //     setSelectAllChecked(false);
+  //   }
+  // };
 
   const getResourceNames = (ids) => {
     return visibleResources
@@ -232,8 +234,8 @@ const Archive = () => {
   const restoreButton = {
     title: 'Unarchive',
     onClick: (e, id) => {
+      if (!id.length) return;
       e.preventDefault();
-      setShowRestoreComponent(true);
       handleRestore(id);
     },
     icon: (
@@ -246,12 +248,17 @@ const Archive = () => {
   };
 
   const handleRestore = (id) => {
-    let showModal = true;
     let resourceNames;
+    let msg = 'Are you sure you want to restore ';
     let singleResource = true;
     if (Array.isArray(id)) {
       singleResource = false;
-      resourceNames = getResourceNames(id).join(', ');
+      if (id.length <= 5) {
+        resourceNames = getResourceNames(id).join(', ');
+      } else {
+        resourceNames = `${id.length} rooms`;
+        msg += ' these ';
+      }
     } else
       resourceNames = visibleResources.filter((el) => el._id === id)[0].name;
 
@@ -267,27 +274,24 @@ const Archive = () => {
       debounceFetchData();
     };
 
-    setRestoreComponent(
+    setActionComponent(
       <Modal
-        // show={showRestoreComponent} // doesn't work
-        show={showModal}
+        show
         closeModal={() => {
           // showRestoreComponent = false;
-          showModal = false;
-          setShowRestoreComponent(false);
+          setActionComponent(null);
         }}
       >
         <span>
-          Are you sure you want to restore{' '}
-          <span style={{ fontWeight: 'bolder' }}>{resourceNames}</span>
+          {msg}
+          <span style={{ fontWeight: 'bolder' }}>{resourceNames}</span>?
         </span>
         <div className="">
           <Button
             data-testid="restore-resource"
             click={() => {
               dispatchRestore();
-              showModal = false;
-              setShowRestoreComponent(false);
+              setActionComponent(null);
             }}
             m={5}
           >
@@ -296,8 +300,7 @@ const Archive = () => {
           <Button
             data-testid="cancel-manage-user"
             click={() => {
-              showModal = false;
-              setShowRestoreComponent(false);
+              setActionComponent(null);
             }}
             theme="Cancel"
             m={5}
@@ -314,14 +317,11 @@ const Archive = () => {
   };
 
   const goToRoomPreview = (roomId) => {
-    let showM = true;
-    setShowRoomPreview(true);
-    setRoomPreviewComponent(
+    setActionComponent(
       <BigModal
-        show={showM}
+        show
         closeModal={() => {
-          setShowRoomPreview(false);
-          showM = false;
+          setActionComponent(null);
         }}
       >
         <RoomPreview roomId={roomId} />
@@ -334,7 +334,6 @@ const Archive = () => {
       title: 'Preview',
       onClick: (e, id) => {
         e.preventDefault();
-        setShowRoomPreview(true);
         goToRoomPreview(id);
       },
       // icon: <i className="fas fa-external-link-alt" />,
@@ -367,7 +366,7 @@ const Archive = () => {
       visibleResources={visibleResources}
       resource={match.params.resource}
       searchValue={searchText}
-      setSkip={setSkipState}
+      onLoadMore={handleLoadMore}
       setCriteria={setSearchCriteria}
       moreAvailable={moreAvailable}
       filters={getQueryParams()}
@@ -380,11 +379,8 @@ const Archive = () => {
       setToDate={setToDate}
       setFromDate={setFromDate}
       icons={customIcons}
-      showRoomPreview={showRoomPreview}
-      roomPreviewComponent={roomPreviewComponent}
-      showRestoreComponent={showRestoreComponent}
-      restoreComponent={restoreComponent}
       selectActions={selectActions}
+      actionComponent={actionComponent}
     />
   );
 };
