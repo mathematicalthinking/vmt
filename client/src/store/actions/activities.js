@@ -261,7 +261,7 @@ export const createdActivityConfirmed = () => {
   };
 };
 
-export const inviteToActivity = (activityId, userId, options) => {
+export const inviteToActivity = (activityId, userId) => {
   // this function is parallel to inviteToCourse (actions/course.js) or inviteToRoom (actions/rooms.js).
   // Just as in those functions, it should call API.grantAccess, providing similar information in a similar format.
   // After the API call resolves, it should dispatch addUserToActivity, which will add the user to the actions in the
@@ -271,8 +271,13 @@ export const inviteToActivity = (activityId, userId, options) => {
   // aren't adding members, but users. But such a minor change can be handled in the add function (i.e., no need to change
   // the signature of grantAccess or add). Note that one of the things that add does is to create a notification.  We should
   // do that as well.
+
+  // NOTE: we specifiy the resource as "activitie" because grantAccess
+  // pluralizes the resource by adding an "s".
   return (dispatch) => {
-    API.grantAccess(userId, 'activity', activityId, 'invitation', options)
+    API.grantAccess(userId, 'activitie', activityId, 'invitation', {
+      role: 'facilitator',
+    })
       .then(() => dispatch(addUserToActivity(activityId, userId)))
       .catch((err) => console.log(err));
   };

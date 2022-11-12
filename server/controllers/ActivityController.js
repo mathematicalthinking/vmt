@@ -300,10 +300,24 @@ module.exports = {
     });
   },
 
-  add: (id, body) => {
-    return new Promise((resolve, reject) => {
-      // Send a notification to user that they've been granted access to
-      // a new activity, and add the user to the activities users array
+  add: async (id, body) => {
+    // Send a notification to user that they've been granted access to
+    // a new activity, and add the user to the activities users array
+
+    const { ntfType, members } = body;
+    const { user: userId } = members;
+
+    const activity = await db.Activity.findByIdAndUpdate(id, {
+      $addToSet: { users: userId },
     });
+    await db.User.findByIdAndUpdate(userId, { $addToSet: { activities: id } });
+    // await db.Notification.create({
+    //   resourceType: 'activity',
+    //   resourceId: id,
+    //   toUser: userId,
+    //   notificationType: ntfType,
+    //   parentResource: activity.course,
+    // });
+    return activity.users;
   },
 };
