@@ -15,7 +15,8 @@ const ControlWarningModal = ({
   let cancelTheme = 'Cancel';
 
   if (inControl === 'REQUESTED') {
-    msg += ` You've already requested control.`;
+    msg =
+      'Your request has already been received. Use "Cancel Request" if you no longer want control. Use "Okay" if you still want control to be released.';
     cancelText = 'Okay';
   }
 
