@@ -320,4 +320,24 @@ module.exports = {
     // });
     return activity.users;
   },
+
+  remove: async (id, body) => {
+    const { user } = body;
+    const { userId } = user;
+
+    // remove the user from the activity's user array
+    const activity = await db.Activity.findByIdAndUpdate(id, {
+      $pull: { users: { $in: [id] } },
+    });
+
+    // remove activity from user's list of activities
+    await db.User.findByIdAndUpdate(userId, {
+      $pull: { activities: { $in: [id] } },
+    });
+
+    // @TODO: remove notifications for this activity from user's list of ntfs
+    // currently, we do not send ntfs for activities
+
+    return activity.users;
+  },
 };

@@ -291,7 +291,11 @@ export const removeFromActivity = (activityId, userId) => {
 
   For this to work, a 'remove' function must be created on the server side in ActivityController.js. Note that we have
   remove function in RoomController (designed to remove a user from room membership), although it is never used, I believe.
-
-
   */
+
+  return (dispatch) => {
+    API.revokeAccess(userId, 'activitie', activityId)
+      .then(() => dispatch(removeUserFromActivity(activityId, userId)))
+      .catch((err) => console.log(err));
+  };
 };

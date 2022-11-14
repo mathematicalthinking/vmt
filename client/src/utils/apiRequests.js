@@ -152,6 +152,15 @@ export default {
     });
   },
 
+  revokeAccess: (userId, resource, resourceId) => {
+    return (
+      api.put(`/api/${resource}s/${resourceId}/remove`),
+      {
+        user: { userId },
+      }
+    );
+  },
+
   updateMembers: (resource, resourceId, updatedMembers) => {
     return api.put(`/api/${resource}/${resourceId}`, {
       members: updatedMembers,
