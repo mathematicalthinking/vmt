@@ -587,24 +587,17 @@ const WebSketch = (props) => {
     // But the follower has nothing to undo, so just needs to redo the passed delta.
     // (This will lose any remaining redo deltas, thus matching up with the controller.)
     // If data contains a preDelta, figure out what to do.
-    try {
-      const history = sketchDoc.getCurrentPageData().session.history;
-      let current = history.current;
-      if (data.preDelta) {
-        current.next = { delta: data.preDelta, prev: current, next: null };
-        history.redo();
-        current = history.current; // history.redo() changes current.
-      }
-      current.next = { delta: data.delta, prev: current, next: null };
-      try {
-        sketchDoc.redo();
-      } catch (e) {
-        console.error('Failed to call redo on sketchDoc ', e);
-      }
-      getSketch(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
-    } catch (e) {
-      console.error('GobjsMerged failed! ', e);
+    const history = sketchDoc.getCurrentPageData().session.history;
+    let { current } = history;
+    if (data.preDelta) {
+      current.next = { delta: data.preDelta, prev: current, next: null };
+      history.redo();
+      current = history.current; // history.redo() changes current.
     }
+    current.next = { delta: data.delta, prev: current, next: null };
+    sketchDoc.redo();
+    data.gobjId = data.newId;
+    getSketch(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
   };
 
   const undoRedo = (data) => {
@@ -809,9 +802,6 @@ const WebSketch = (props) => {
   }
 
   function handleDeleteWidget(attr) {
-    if (!sketch) {
-      getSketch();
-    }
     let note = ' ';
     const deletedGobjs = {};
     let thisDelta;
@@ -823,13 +813,12 @@ const WebSketch = (props) => {
       console.log('Delete delta: ', thisDelta, ' vs ', attr.delta);
       sketch.document.changedUIMode();
     }
-    // TODO - refactor
-    $.each(attr.deletedIds, function() {
-      const gobj = sketch.gobjList.gobjects[this];
+    attr.deletedIds.forEach((id) => {
+      const gobj = sketch.gobjList.gobjects[id];
       if (!note) {
         note = 'Deleted ' + gobjDesc(gobj);
       }
-      deletedGobjs[this] = gobj;
+      deletedGobjs[id] = gobj;
     });
 
     notify(note + ' and its descendants.', {
@@ -849,7 +838,7 @@ const WebSketch = (props) => {
       highlitGobjs: [gobj],
     });
     // For 'Started' or 'Canceled', the notification is all that's needed.
-    if (attr.action === 'Confirmed') {
+    if (attr.action === 'Confirmed' && gobj) {
       if (attr.parentIds) {
         attr.parentIds.forEach(function(par, ix) {
           gobj.parents[ix] = gobjects[par];
@@ -897,7 +886,9 @@ const WebSketch = (props) => {
 
   function pressButton(attr) {
     // attr has category, pref, oldValue, & newValue
-    const note = 'Pressed ' + attr.gobj.label + ' button';
+    const note = attr.gobj
+      ? 'Pressed ' + attr.gobj.label + ' button'
+      : 'Button pressed';
     notify(note, { duration: 2000, highlitGobjs: [attr.gobj] });
     // How can we tell start from stop, or rather, how can we use attr
     // to transmit the button's render state (and whether to turn it on or off)

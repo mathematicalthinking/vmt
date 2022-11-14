@@ -72,7 +72,15 @@ const WebSketch = (props) => {
         } else {
           sketchDoc.isRemote = false;
         }
-        const sketch = sketchDoc.focusPage;
+        sketch = sketchDoc.focusPage;
+        if (!$) {
+          console.warn('$ not set for jQuery!');
+          $ = window.jQuery;
+        }
+        const $numPadCancel = $('.wsp-Numberpad-cancel:visible');
+        const $calcButtons = $(
+          'button.wsp-Calculator-textual.wsp-Calculator-bottom-button:visible'
+        );
         if (sketch.toolController.activeRegime) {
           sketch.toolController.abortActiveTool();
         }
@@ -83,6 +91,17 @@ const WebSketch = (props) => {
             button.press(sketch);
           }
         });
+        if ($numPadCancel.length) {
+          $numPadCancel.click();
+        }
+        if ($calcButtons.length) {
+          console.log('Found calcButtons: ', $calcButtons);
+          $.each($calcButtons, function() {
+            if (this.innerText === 'Cancel') {
+              $(this).click();
+            }
+          });
+        }
       }
     }
   }, [props.inControl]);
@@ -483,6 +502,7 @@ const WebSketch = (props) => {
     // cur = 2: ", Circle #4"
     // cur = 3: ", ..."
     // cur > 3: ""
+
     if (typeof gobj === 'string') {
       if (!sketch) {
         getSketch();
@@ -492,7 +512,12 @@ const WebSketch = (props) => {
       //   console.error('follow.gobjDesc() gobj param is neither string nor id.');
     }
     let retVal = '';
-    let title = gobj.kind;
+    let title = '';
+    if (!gobj) {
+      console.error('No gobj defined for desc!');
+    } else {
+      title = gobj.kind;
+    }
     if (typeof cur === 'undefined') {
       cur = 0;
       max = 1;
@@ -759,7 +784,9 @@ const WebSketch = (props) => {
       if (!gobjs) return; // Nothing to do
       gobjs.forEach((gobj) => {
         // this may be a gobj, or may be a gobj id
+        console.log('Notifying: ', gobj);
         gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
+        if (!gobj) return;
         const { state } = gobj;
         if (!state) return;
         // highlighting interferes with tracing: don't highlight a traced dragged gobj
@@ -909,7 +936,7 @@ const WebSketch = (props) => {
     // (This will lose any remaining redo deltas, thus matching up with the controller.)
     // If data contains a preDelta, figure out what to do.
     const history = sketchDoc.getCurrentPageData().session.history;
-    let current = history.current;
+    let { current } = history;
     if (data.preDelta) {
       current.next = { delta: data.preDelta, prev: current, next: null };
       history.redo();
@@ -917,6 +944,7 @@ const WebSketch = (props) => {
     }
     current.next = { delta: data.delta, prev: current, next: null };
     sketchDoc.redo();
+    data.gobjId = data.newId;
     getSketch(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
   };
 
@@ -1106,13 +1134,12 @@ const WebSketch = (props) => {
       console.log('Delete delta: ', thisDelta, ' vs ', attr.delta);
       sketch.document.changedUIMode();
     }
-    // TODO - refactor
-    $.each(attr.deletedIds, function() {
-      const gobj = sketch.gobjList.gobjects[this];
+    attr.deletedIds.forEach((id) => {
+      const gobj = sketch.gobjList.gobjects[id];
       if (!note) {
         note = 'Deleted ' + gobjDesc(gobj);
       }
-      deletedGobjs[this] = gobj;
+      deletedGobjs[id] = gobj;
     });
 
     notify(note + ' and its descendants.', {
@@ -1132,7 +1159,7 @@ const WebSketch = (props) => {
       highlitGobjs: [gobj],
     });
     // For 'Started' or 'Canceled', the notification is all that's needed.
-    if (attr.action === 'Confirmed') {
+    if (attr.action === 'Confirmed' && gobj) {
       if (attr.parentIds) {
         attr.parentIds.forEach(function(par, ix) {
           gobj.parents[ix] = gobjects[par];
@@ -1180,7 +1207,9 @@ const WebSketch = (props) => {
 
   function pressButton(attr) {
     // attr has category, pref, oldValue, & newValue
-    const note = 'Pressed ' + attr.gobj.label + ' button';
+    const note = attr.gobj
+      ? 'Pressed ' + attr.gobj.label + ' button'
+      : 'Button pressed';
     notify(note, { duration: 2000, highlitGobjs: [attr.gobj] });
     // How can we tell start from stop, or rather, how can we use attr
     // to transmit the button's render state (and whether to turn it on or off)
