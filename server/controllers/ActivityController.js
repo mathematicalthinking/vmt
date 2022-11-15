@@ -327,7 +327,7 @@ module.exports = {
 
     // remove the user from the activity's user array
     const activity = await db.Activity.findByIdAndUpdate(id, {
-      $pull: { users: { $in: [id] } },
+      $pull: { users: { $in: [userId] } },
     });
 
     // remove activity from user's list of activities
