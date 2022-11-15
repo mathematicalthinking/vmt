@@ -2,13 +2,13 @@ import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { BigModal, Button, Modal } from 'Components';
+import { BigModal, Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
-import COLOR_MAP from 'utils/colorMap';
+import { useAppModal, COLOR_MAP } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
-import { useAppModal } from 'utils';
+import { select } from 'd3';
 
 const MakeRooms = (props) => {
   const {
@@ -69,6 +69,18 @@ const MakeRooms = (props) => {
   useEffect(() => {
     if (selectedAssignment && Array.isArray(selectedAssignment.value)) {
       setRoomDrafts(selectedAssignment.value);
+      // sort participants by their room assignments (as best as possible)
+      const sortedParticipants = selectedAssignment.value
+        .map((room) => room.members)
+        .flat()
+        .reduce(
+          (acc, mem) => ({
+            ...acc,
+            [mem.user._id]: mem,
+          }),
+          {}
+        );
+      setParticipants(Object.values(sortedParticipants));
       if (selectedAssignment.value.length !== 0) {
         setParticipantsPerRoom(
           Math.max(
