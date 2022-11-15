@@ -288,6 +288,7 @@ class Course extends Component {
         })
         .catch((err) => {
           this.setState({ errorMessage: err.response.data.errorMessage });
+          // eslint-disable-next-line no-console
           console.log('API err: ', err);
         });
     } else {

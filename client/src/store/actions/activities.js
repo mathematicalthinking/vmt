@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import * as actionTypes from './actionTypes';
-import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
+import API from '../../utils/apiRequests';
 import * as loading from './loading';
 
 export const gotActivities = (activities) => ({
