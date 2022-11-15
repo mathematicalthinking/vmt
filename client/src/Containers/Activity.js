@@ -57,6 +57,7 @@ class Activity extends Component {
       canAccess: false,
       roomType: '',
       isPlural: false,
+      desmosActivityCode: '',
     };
   }
 
@@ -65,6 +66,12 @@ class Activity extends Component {
 
     if (activity && activity.tabs) {
       const tabsInRoom = activity.tabs.map((tab) => tab.tabType);
+      if (
+        tabsInRoom.includes('desmosActivity') &&
+        activity.desmosLink &&
+        activity.desmosLink !== ''
+      )
+        this.setState({ desmosActivityCode: activity.desmosLink });
       const { tabTypes, isPlural } = getResourceTabTypes(tabsInRoom);
       this.setState({ roomType: tabTypes, isPlural });
     }
@@ -259,6 +266,7 @@ class Activity extends Component {
       canAccess,
       roomType,
       isPlural,
+      desmosActivityCode,
     } = this.state;
     if (activity && canAccess) {
       const keyword = isPlural ? 'types' : 'type';
@@ -279,6 +287,9 @@ class Activity extends Component {
             </EditText>
           </Error>
         ),
+        ...(desmosActivityCode !== ''
+          ? { 'Desmos Activity Code': desmosActivityCode }
+          : null),
       };
 
       let crumbs = [{ title: 'My VMT', link: '/myVMT/activities' }];
@@ -458,6 +469,7 @@ Activity.propTypes = {
     rooms: PropTypes.arrayOf(PropTypes.shape({})),
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
     privacySetting: PropTypes.string,
+    desmosLink: PropTypes.string,
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
