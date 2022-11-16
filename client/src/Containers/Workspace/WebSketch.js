@@ -94,8 +94,8 @@ const WebSketch = (props) => {
         if ($numPadCancel.length) {
           $numPadCancel.click();
         }
+
         if ($calcButtons.length) {
-          console.log('Found calcButtons: ', $calcButtons);
           $.each($calcButtons, function() {
             if (this.innerText === 'Cancel') {
               $(this).click();
@@ -1123,10 +1123,10 @@ const WebSketch = (props) => {
   }
 
   function handleDeleteWidget(attr) {
-    let note = ' ';
+    let note = '';
     const deletedGobjs = {};
     let thisDelta;
-
+    let descendantsExist = false;
     function doDelete() {
       sketch.gobjList.removeGObjects(deletedGobjs, sketch);
       thisDelta = sketch.document.pushConfirmedSketchOpDelta(attr.preDelta);
@@ -1138,6 +1138,9 @@ const WebSketch = (props) => {
       const gobj = sketch.gobjList.gobjects[id];
       if (!note) {
         note = 'Deleted ' + gobjDesc(gobj);
+      } else if (!descendantsExist) {
+        note += ' and its descendants.'; // append this on second gobj
+        descendantsExist = true;
       }
       deletedGobjs[id] = gobj;
     });
