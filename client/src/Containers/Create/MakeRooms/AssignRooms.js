@@ -137,7 +137,9 @@ const AssignRooms = (props) => {
           )}
           <Button
             m={5}
-            click={() => onSubmit({ aliasMode, dueDate, roomName })}
+            click={() =>
+              onSubmit({ aliasMode, dueDate, roomName, initialRoomName })
+            }
             data-testid="assign-rooms"
             disabled={roomName === ''}
           >
