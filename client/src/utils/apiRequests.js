@@ -203,4 +203,8 @@ export default {
   reinstateUser: (userId) => {
     return api.post(`/admin/reinstateUser/${userId}`);
   },
+
+  archiveRooms: (ids) => {
+    return api.put(`/api/archiveRooms`, { ids });
+  },
 };

@@ -513,7 +513,7 @@ class Room extends Component {
             }
             sidePanel={
               <SidePanel
-                image={room.image}
+                // image={room.image}
                 alt={name}
                 editing={editing}
                 name={
@@ -545,18 +545,26 @@ class Room extends Component {
                 owner={room.myRole === 'facilitator'}
                 additionalDetails={additionalDetails}
                 buttons={
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
                     <div style={{ display: 'flex', marginBottom: '2rem' }}>
-                      <span>
-                        <Button
-                          theme={loading.loading ? 'SmallCancel' : 'Small'}
-                          m={10}
-                          data-testid="Enter"
-                          click={!loading.loading ? this.goToWorkspace : null}
-                        >
-                          Enter
-                        </Button>
-                      </span>
+                      <ToolTip text="Enter this room" delay={600}>
+                        <span>
+                          <Button
+                            theme={loading.loading ? 'SmallCancel' : 'Small'}
+                            m={10}
+                            data-testid="Enter"
+                            click={!loading.loading ? this.goToWorkspace : null}
+                          >
+                            Enter
+                          </Button>
+                        </span>
+                      </ToolTip>
                     </div>
                     <div
                       style={{
@@ -577,6 +585,7 @@ class Room extends Component {
                           role="button"
                           tabIndex={-1}
                           className={`material-symbols-outlined ${classes.CustomIcon}`}
+                          style={{ paddingRight: '0.5rem' }}
                         >
                           replay
                         </span>
@@ -595,7 +604,7 @@ class Room extends Component {
                             role="button"
                             tabIndex={-1}
                           >
-                            archive
+                            input
                           </span>
                         </ToolTip>
                       )}
@@ -747,7 +756,10 @@ class Room extends Component {
 Room.propTypes = {
   room: PropTypes.shape({
     _id: PropTypes.string,
-    course: PropTypes.arrayOf(PropTypes.shape({})),
+    course: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.shape({})),
+    ]), // course might be an id or a populated object
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
     members: PropTypes.arrayOf(PropTypes.shape({})),
     privacySetting: PropTypes.string,
@@ -758,14 +770,18 @@ Room.propTypes = {
     entryCode: PropTypes.string,
     image: PropTypes.string,
     instructions: PropTypes.string,
-    settings: PropTypes.arrayOf(PropTypes.shape({})),
+    settings: PropTypes.shape({}),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
     username: PropTypes.string,
     firstName: PropTypes.string,
-    notifications: PropTypes.arrayOf(PropTypes.string),
-    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+    notifications: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ), // might be an id (string) or a populated object
+    rooms: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
     inAdminMode: PropTypes.bool,
     isAdmin: PropTypes.bool,
   }).isRequired,

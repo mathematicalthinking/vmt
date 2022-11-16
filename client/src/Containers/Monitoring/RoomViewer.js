@@ -109,6 +109,7 @@ RoomViewer.propTypes = {
     chat: PropTypes.arrayOf(PropTypes.shape({})),
     members: PropTypes.arrayOf(PropTypes.shape({})),
     currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
+    updatedAt: PropTypes.number,
   }),
 };
 
