@@ -155,9 +155,7 @@ const WebSketch = (props) => {
 
   const buildDescription = (username, updates) => {
     // TODO: build helper to parse WSP event types and event data to plain text - parseWSPevent in draft
-    // let actionText = 'intereacted with the sketch';
-    // let actionText = parseWSPevent(updates);
-    let actionText = 'edited the gobj ';
+    let actionText = parseWSPevent(updates) || 'interacted with the sketch';
     let actionDetailText = '';
     if (!updates) {
       console.log('No updates! desc called', username, updates);
@@ -167,65 +165,83 @@ const WebSketch = (props) => {
   };
 
   const parseWSPevent = (msg) => {
-    if (!msg) return '';
-
+    if (!msg) return;
     let { attr } = msg;
+    let gobj;
     if (typeof attr === 'string') {
       attr = JSON.parse(attr);
     }
-    // console.log('parse event: ', msg);
     if (attr.gobjId) {
-      // if (!sketchDoc || !sketch) {
-      //   console.log('Setting sketc doc');
-      //   const sketchEl = window.jQuery('#sketch');
-      //   sketchDoc = sketchEl.data('document');
-      //   sketch = sketchDoc.focusPage;
-      // }
-      if (sketch) {
-        attr.gobj = sketch.gobjList.gobjects[attr.gobjId];
+      if (!sketch) {
+        getSketch();
       }
-      // if (!attr.gobj)
-      //   console.error('follow.handleMessage(): msg.attr has a bad gobj.');
+      if (sketch) {
+        gobj = sketch.gobjList.gobjects[attr.gobjId];
+      }
+    } else {
+      gobj = Object.keys(attr)[0];
     }
-    // if (attr.gobjId) {
-    //   gobjId = attr.gobjId;
-    // } else {
-    //   gobjId = Object.keys(attr)[0];
-    //   if (Object.keys(attr).length > 1) {
-    //     gobjId += ` and ${Object.keys(attr).length} other gobjs`;
-    //   }
-    // }
-    // switch (msg.name) {
-    //   case 'WillChangeCurrentPage':
-    //     return `changed to page ${attr.pageId}`;
-    //   case 'DidChangeCurrentPage':
-    //     return `changed to page ${attr.pageId}`;
-    //   case 'GobjsUpdated': // gobjs have moved to new locations
-    //   case 'StartDragConfirmed': // highlight the dragged gobj
-    //     return `started dragging ${gobjDesc(attr.gobj)}`;
-    //   case 'EndDrag': // the drag ended
-    //     return `stopped dragging ${gobjDesc(attr.gobj)}`;
-    //   case 'WillPlayTool': // controlling sketch will play a tool
-    //     return `started using ${attr.tool.name} tool`;
-    //   case 'ToolPlayed': // controlling sketch has played a tool
-    //     return `used ${attr.tool.name} tool`;
-    //   case 'ToolAborted': // controlling sketch has aborted a tool
-    //     return `stopped using ${attr.tool.name} tool`;
-    //   case 'MergeGobjs': // controlling sketch has merged a gobj
-    //     return `Merged gobj ${mergeGobjDesc(attr)}`;
-    //   case 'WillUndoRedo': // controlling sketch will undo or redo
-    //     return `Performing ${attr.type}`;
-    //   case 'StartEditParameter': // These messages notify the user; an update message actually performs the update
-    //     return 'initiated a parameter edit';
-    //   case 'CancelEditParameter': // These messages notify the user; an update message actually performs the update
-    //     return 'cancelled a parameter edit';
-    //   case 'EditParameter':
-    //     return 'edited a parameter';
-    //   case 'ClearTraces':
-    //   case 'UndoRedo':
-    //   default:
-    //     return 'intereacted with the sketch';
-    // }
+    switch (msg.name) {
+      case 'WillChangeCurrentPage':
+        return `changed to page ${attr.pageId}`;
+      case 'DidChangeCurrentPage':
+        return `changed to page ${attr.pageId}`;
+      case 'GobjsUpdated': // gobjs have moved to new locations
+      case 'StartDragConfirmed': // highlight the dragged gobj
+        return `dragged ${gobjDesc(gobj)}`;
+      case 'EndDrag': // the drag ended
+        return `stopped dragging ${gobjDesc(gobj)}`;
+      case 'WillPlayTool': // controlling sketch will play a tool
+        return `started using ${attr.tool.name} tool`;
+      case 'ToolPlayed': // controlling sketch has played a tool
+        return `used ${attr.tool.name} tool`;
+      case 'ToolAborted': // controlling sketch has aborted a tool
+        return `stopped using ${attr.tool.name} tool`;
+      case 'MergeGobjs': // controlling sketch has merged a gobj
+        return `Merged gobj ${mergeGobjDesc(attr)}`;
+      case 'WillUndoRedo': // controlling sketch will undo or redo
+        return `Performing ${attr.type}`;
+      case 'StartEditParameter': // These messages notify the user; an update message actually performs the update
+        return 'initiated a parameter edit';
+      case 'CancelEditParameter': // These messages notify the user; an update message actually performs the update
+        return 'cancelled a parameter edit';
+      case 'EditParameter':
+        return 'edited a parameter';
+      case 'ClearTraces':
+        return 'cleared traces';
+      case 'UndoRedo':
+        return `performed ${
+          attr.type == 'undo' ? 'an undo' : `a ${attr.type}`
+        } action`;
+      case 'PressButton':
+        return `pressed ${gobjDesc(gobj)}`;
+      case 'EditExpression':
+        return `${attr.action} editing ${gobjDesc(gobj)}`;
+      case 'StyleWidget':
+        return `${
+          attr.action != 'changed' ? attr.action : 'change'
+        }d the style widget`;
+      case 'TraceWidget':
+        return `${
+          attr.action != 'glowing' ? attr.action : 'activate'
+        }d the trace widget`;
+      case 'LabelWidget':
+        return `${
+          attr.action != 'finalized' ? attr.action : 'finalize'
+        }d the label widget`;
+      case 'VisibilityWidget':
+        return `${
+          attr.action != 'changed' ? attr.action : 'change'
+        }d the visibility widget`;
+      case 'DeleteWidget':
+        return `${
+          attr.action != 'deleteConfirm' ? attr.action : 'delete confirme'
+        }d the delete widget`;
+      case 'PrefChanged':
+      default:
+        console.warn('Unimplemented action! ', msg, attr);
+        return 'interacted with the sketch';
+    }
   };
 
   const initSketchPage = () => {
