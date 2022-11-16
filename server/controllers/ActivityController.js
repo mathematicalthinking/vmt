@@ -322,17 +322,17 @@ module.exports = {
   },
 
   remove: async (id, body) => {
-    const { user } = body;
-    const { userId } = user;
+    const { members } = body;
+    const { user: userId } = members;
 
     // remove the user from the activity's user array
     const activity = await db.Activity.findByIdAndUpdate(id, {
-      $pull: { users: { $in: [userId] } },
+      $pull: { users: userId },
     });
 
     // remove activity from user's list of activities
     await db.User.findByIdAndUpdate(userId, {
-      $pull: { activities: { $in: [id] } },
+      $pull: { activities: id },
     });
 
     // @TODO: remove notifications for this activity from user's list of ntfs
