@@ -19,7 +19,7 @@ const testFunctions = {
     const initialFilter = {
       tempRoom: false,
       isTrashed: false,
-      status: { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] },
+      status: STATUS.DEFAULT,
     };
 
     const allowedPrivacySettings = ['private', 'public'];
@@ -153,6 +153,7 @@ const testFunctions = {
     const initialFilter = {
       tempRoom: false,
       isTrashed: false,
+      status: STATUS.DEFAULT,
     };
 
     const allowedPrivacySettings = ['private', 'public'];
@@ -184,100 +185,8 @@ const testFunctions = {
           },
         },
       },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'members.user',
-          foreignField: '_id',
-          as: 'facilitatorObject',
-        },
-      },
-
-      { $unwind: '$facilitatorObject' },
     ];
 
-    if (criteria) {
-      aggregationPipeline.push({
-        $match: {
-          $or: [
-            { name: criteria },
-            { description: criteria },
-            { instructions: criteria },
-            { 'facilitatorObject.username': criteria },
-          ],
-        },
-      });
-    }
-    aggregationPipeline = aggregationPipeline.concat([
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          tabs: { $first: '$tabs' },
-          updatedAt: { $first: '$updatedAt' },
-          members: {
-            $push: { user: '$facilitatorObject', role: ROLE.FACILITATOR },
-          },
-        },
-      },
-      {
-        $lookup: {
-          from: 'tabs',
-          localField: 'tabs',
-          foreignField: '_id',
-          as: 'tabObject',
-        },
-      },
-      { $unwind: '$tabObject' },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tabs: { $push: '$tabObject' },
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          instructions: 1,
-          description: 1,
-          image: 1,
-          'tabs.tabType': 1,
-          privacySetting: 1,
-          updatedAt: 1,
-          'members.role': 1,
-          'members.user.username': 1,
-          'members.user._id': 1,
-        },
-      },
-    ]);
-
-    if (filters.roomType) {
-      aggregationPipeline.push({
-        $match: {
-          tabs: {
-            $elemMatch: { tabType: filters.roomType },
-          },
-        },
-      });
-    }
-    aggregationPipeline.push({ $sort: { updatedAt: -1 } });
-
-    if (skip) {
-      aggregationPipeline.push({ $skip: parseInt(skip, 10) });
-    }
-    aggregationPipeline.push({ $limit: 20 });
     const rooms = await Room.aggregate(aggregationPipeline).allowDiskUse(true);
     return rooms;
   },
