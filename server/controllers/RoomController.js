@@ -14,105 +14,8 @@ const { ObjectId } = Types;
 
 const colorMap = require('../constants/colorMap');
 
-module.exports = {
-  get: (params) => {
-    if (params && params.constructor === Array) {
-      params = { _id: { $in: params } };
-    } else {
-      params = params || {};
-      params.tempRoom = false; // we don't want any temporary rooms
-    }
-    return new Promise((resolve, reject) => {
-      db.Room.find(params)
-        .sort('-createdAt')
-        .populate({ path: 'members.user', select: 'username' })
-        .populate({ path: 'currentMembers', select: 'username' })
-        .populate({ path: 'tabs', select: 'name tabType' })
-        .then((rooms) => {
-          // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
-          resolve(rooms);
-        })
-        .catch((err) => reject(err));
-    });
-  },
-
-  getById: (id) => {
-    return new Promise((resolve, reject) => {
-      db.Room.findById(id)
-        .populate({ path: 'creator', select: 'username' })
-        // .populate({
-        //   path: 'chat',
-        //   populate: { path: 'user', select: 'username' },
-        //   select: '-room',
-        // })
-        .populate({ path: 'members.user', select: 'username' })
-        // .populate({ path: 'currentMembers.user', select: 'username' })
-        .populate({ path: 'course', select: 'name' })
-        // .populate({
-        //   path: 'tabs',
-        //   populate: { path: params.events ? 'events' : '' },
-        // })
-        .populate({ path: 'graphImage', select: 'imageData' })
-        .populate({ path: 'tabs', select: 'tabType name' })
-        .select(
-          'name creator activity members course graphImage privacySetting _id'
-        )
-        .then((room) => {
-          resolve(room);
-        })
-        .catch((err) => reject(err));
-    });
-  },
-
-  getPopulatedById: (id, params) => {
-    return db.Room.findById(id)
-      .populate({ path: 'creator', select: 'username' })
-      .populate({
-        path: 'chat',
-        // options: { limit: 25 }, // Eventually we'll need to paginate this
-        populate: { path: 'user', select: 'username' },
-        // allow messages to have roomIds, like events do
-        // select: '-room',
-      })
-      .populate({ path: 'members.user', select: 'username' })
-      .populate({ path: 'currentMembers', select: 'username' })
-      .populate({ path: 'course', select: 'name' })
-      .populate({ path: 'activity', select: 'name' })
-      .populate(
-        params.events === 'true'
-          ? {
-              path: 'tabs',
-              populate: {
-                path: 'events',
-                populate: { path: 'user', select: 'username color' },
-              },
-            }
-          : {
-              path: 'tabs',
-              select: 'name tabType snapshot',
-            }
-      )
-      .lean();
-    // options: { limit: 25 },
-  },
-
-  // returns the current state for each tab...does not return events or any other information
-  getCurrentState: (id) => {
-    return new Promise((resolve, reject) => {
-      db.Room.findById(id)
-        .select('tabs')
-        .populate({ path: 'tabs', select: 'currentState' })
-        .lean()
-        .then((room) => {
-          resolve(room);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  },
-
-  searchPaginated: async (criteria, skip, filters) => {
+const testFunctions = {
+  searchPaginatedOrig: async (criteria, skip, filters) => {
     const initialFilter = {
       tempRoom: false,
       isTrashed: false,
@@ -244,6 +147,381 @@ module.exports = {
     aggregationPipeline.push({ $limit: 20 });
     const rooms = await Room.aggregate(aggregationPipeline).allowDiskUse(true);
     return rooms;
+  },
+
+  searchPaginated1: async (criteria, skip, filters) => {
+    const initialFilter = {
+      tempRoom: false,
+      isTrashed: false,
+      status: STATUS.DEFAULT,
+    };
+
+    const allowedPrivacySettings = ['private', 'public'];
+
+    if (allowedPrivacySettings.includes(filters.privacySetting)) {
+      initialFilter.privacySetting = filters.privacySetting;
+    }
+
+    let aggregationPipeline = [
+      { $match: initialFilter },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', ROLE.FACILITATOR],
+              },
+            },
+          },
+        },
+      },
+    ];
+
+    const rooms = await Room.aggregate(aggregationPipeline).allowDiskUse(true);
+    return rooms;
+  },
+
+  searchPaginated2: async (criteria, skip, filters) => {
+    const initialFilter = {
+      tempRoom: false,
+      isTrashed: false,
+      status: STATUS.DEFAULT,
+    };
+
+    const allowedPrivacySettings = ['private', 'public'];
+
+    if (allowedPrivacySettings.includes(filters.privacySetting)) {
+      initialFilter.privacySetting = filters.privacySetting;
+    }
+
+    let aggregationPipeline = [
+      { $match: initialFilter },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', ROLE.FACILITATOR],
+              },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'facilitatorObject',
+        },
+      },
+
+      { $unwind: '$facilitatorObject' },
+    ];
+
+    if (criteria) {
+      aggregationPipeline.push({
+        $match: {
+          $or: [
+            { name: criteria },
+            { description: criteria },
+            { instructions: criteria },
+            { 'facilitatorObject.username': criteria },
+          ],
+        },
+      });
+    }
+    aggregationPipeline = aggregationPipeline.concat([
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          tabs: { $first: '$tabs' },
+          updatedAt: { $first: '$updatedAt' },
+          members: {
+            $push: { user: '$facilitatorObject', role: ROLE.FACILITATOR },
+          },
+        },
+      },
+    ]);
+
+    const rooms = await Room.aggregate(aggregationPipeline).allowDiskUse(true);
+    return rooms;
+  },
+
+  searchPaginated3: async (criteria, skip, filters) => {
+    const initialFilter = {
+      tempRoom: false,
+      isTrashed: false,
+      status: STATUS.DEFAULT,
+    };
+
+    const allowedPrivacySettings = ['private', 'public'];
+
+    if (allowedPrivacySettings.includes(filters.privacySetting)) {
+      initialFilter.privacySetting = filters.privacySetting;
+    }
+
+    let aggregationPipeline = [
+      { $match: initialFilter },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', ROLE.FACILITATOR],
+              },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'facilitatorObject',
+        },
+      },
+
+      { $unwind: '$facilitatorObject' },
+    ];
+
+    if (criteria) {
+      aggregationPipeline.push({
+        $match: {
+          $or: [
+            { name: criteria },
+            { description: criteria },
+            { instructions: criteria },
+            { 'facilitatorObject.username': criteria },
+          ],
+        },
+      });
+    }
+    aggregationPipeline = aggregationPipeline.concat([
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          tabs: { $first: '$tabs' },
+          updatedAt: { $first: '$updatedAt' },
+          members: {
+            $push: { user: '$facilitatorObject', role: ROLE.FACILITATOR },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'tabs',
+          localField: 'tabs',
+          foreignField: '_id',
+          as: 'tabObject',
+        },
+      },
+      { $unwind: '$tabObject' },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          updatedAt: { $first: '$updatedAt' },
+          members: { $first: '$members' },
+          tabs: { $push: '$tabObject' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          'tabs.tabType': 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          'members.role': 1,
+          'members.user.username': 1,
+          'members.user._id': 1,
+        },
+      },
+    ]);
+
+    const rooms = await Room.aggregate(aggregationPipeline).allowDiskUse(true);
+    return rooms;
+  },
+};
+
+module.exports = {
+  get: (params) => {
+    if (params && params.constructor === Array) {
+      params = { _id: { $in: params } };
+    } else {
+      params = params || {};
+      params.tempRoom = false; // we don't want any temporary rooms
+    }
+    return new Promise((resolve, reject) => {
+      db.Room.find(params)
+        .sort('-createdAt')
+        .populate({ path: 'members.user', select: 'username' })
+        .populate({ path: 'currentMembers', select: 'username' })
+        .populate({ path: 'tabs', select: 'name tabType' })
+        .then((rooms) => {
+          // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
+          resolve(rooms);
+        })
+        .catch((err) => reject(err));
+    });
+  },
+
+  getById: (id) => {
+    return new Promise((resolve, reject) => {
+      db.Room.findById(id)
+        .populate({ path: 'creator', select: 'username' })
+        // .populate({
+        //   path: 'chat',
+        //   populate: { path: 'user', select: 'username' },
+        //   select: '-room',
+        // })
+        .populate({ path: 'members.user', select: 'username' })
+        // .populate({ path: 'currentMembers.user', select: 'username' })
+        .populate({ path: 'course', select: 'name' })
+        // .populate({
+        //   path: 'tabs',
+        //   populate: { path: params.events ? 'events' : '' },
+        // })
+        .populate({ path: 'graphImage', select: 'imageData' })
+        .populate({ path: 'tabs', select: 'tabType name' })
+        .select(
+          'name creator activity members course graphImage privacySetting _id'
+        )
+        .then((room) => {
+          resolve(room);
+        })
+        .catch((err) => reject(err));
+    });
+  },
+
+  getPopulatedById: (id, params) => {
+    return db.Room.findById(id)
+      .populate({ path: 'creator', select: 'username' })
+      .populate({
+        path: 'chat',
+        // options: { limit: 25 }, // Eventually we'll need to paginate this
+        populate: { path: 'user', select: 'username' },
+        // allow messages to have roomIds, like events do
+        // select: '-room',
+      })
+      .populate({ path: 'members.user', select: 'username' })
+      .populate({ path: 'currentMembers', select: 'username' })
+      .populate({ path: 'course', select: 'name' })
+      .populate({ path: 'activity', select: 'name' })
+      .populate(
+        params.events === 'true'
+          ? {
+              path: 'tabs',
+              populate: {
+                path: 'events',
+                populate: { path: 'user', select: 'username color' },
+              },
+            }
+          : {
+              path: 'tabs',
+              select: 'name tabType snapshot',
+            }
+      )
+      .lean();
+    // options: { limit: 25 },
+  },
+
+  // returns the current state for each tab...does not return events or any other information
+  getCurrentState: (id) => {
+    return new Promise((resolve, reject) => {
+      db.Room.findById(id)
+        .select('tabs')
+        .populate({ path: 'tabs', select: 'currentState' })
+        .lean()
+        .then((room) => {
+          resolve(room);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  searchPaginated: async (criteria, skip, filters) => {
+    // return testFunctions.searchPaginatedOrig(criteria, skip, filters);
+    return [
+      {
+        name: `$orig: ${
+          (await testFunctions.searchPaginatedOrig(criteria, skip, filters))
+            .length
+        }`,
+      },
+      {
+        name: `1: ${
+          (await testFunctions.searchPaginated1(criteria, skip, filters)).length
+        }`,
+      },
+      {
+        name: `2: ${
+          (await testFunctions.searchPaginated2(criteria, skip, filters)).length
+        }`,
+      },
+      {
+        name: `3: ${
+          (await testFunctions.searchPaginated3(criteria, skip, filters)).length
+        }`,
+      },
+    ];
+    // return Promise.all([{name: `$orig: ${testFunctions.searchPaginatedOrig(criteria, skip, filters).length}`}
+    //   testFunctions.searchPaginatedOrig(criteria, skip, filters),
+    //   testFunctions.searchPaginated1(criteria, skip, filters),
+    //   testFunctions.searchPaginated2(criteria, skip, filters),
+    //   testFunctions.searchPaginated3(criteria, skip, filters),
+    // ]);
   },
 
   /**
