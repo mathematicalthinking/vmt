@@ -299,4 +299,45 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
+
+  add: async (id, body) => {
+    // Send a notification to user that they've been granted access to
+    // a new activity, and add the user to the activities users array
+
+    const { ntfType, members } = body;
+    const { user: userId } = members;
+
+    const activity = await db.Activity.findByIdAndUpdate(id, {
+      $addToSet: { users: userId },
+    });
+    await db.User.findByIdAndUpdate(userId, { $addToSet: { activities: id } });
+    // await db.Notification.create({
+    //   resourceType: 'activity',
+    //   resourceId: id,
+    //   toUser: userId,
+    //   notificationType: ntfType,
+    //   parentResource: activity.course,
+    // });
+    return activity.users;
+  },
+
+  remove: async (id, body) => {
+    const { members } = body;
+    const { user: userId } = members;
+
+    // remove the user from the activity's user array
+    const activity = await db.Activity.findByIdAndUpdate(id, {
+      $pull: { users: userId },
+    });
+
+    // remove activity from user's list of activities
+    await db.User.findByIdAndUpdate(userId, {
+      $pull: { activities: id },
+    });
+
+    // @TODO: remove notifications for this activity from user's list of ntfs
+    // currently, we do not send ntfs for activities
+
+    return activity.users;
+  },
 };

@@ -14,7 +14,7 @@ const Activity = new mongoose.Schema(
       default: [],
       _id: false,
     },
-    users: { type: [{ type: ObjectId, ref: 'User' }], default: [], _id: false }, // WHAT IS THIS FIELD FOR? maybe people who can edit???
+    users: { type: [{ type: ObjectId, ref: 'User' }], default: [], _id: false }, // This field is the users who can edit and use the activity
     dueDate: { type: Date },
     roomType: { type: String, default: 'geogebra' }, // deprecated
     privacySetting: {

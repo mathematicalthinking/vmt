@@ -30,7 +30,9 @@ const mapStateToProps = (store) => ({
   error: store.loading.errorMessage,
 });
 
-export default connect(
-  mapStateToProps,
-  { requestAccess, grantAccess, joinWithCode, clearError }
-)(Access);
+export default connect(mapStateToProps, {
+  requestAccess,
+  grantAccess,
+  joinWithCode,
+  clearError,
+})(Access);
