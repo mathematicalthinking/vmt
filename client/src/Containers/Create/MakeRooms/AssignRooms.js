@@ -14,6 +14,7 @@ const AssignRooms = (props) => {
     onSubmit,
     onShuffle,
     onCancel,
+    isCreator,
   } = props;
 
   const [aliasMode, setAliasMode] = React.useState(initialAliasMode);
@@ -141,7 +142,7 @@ const AssignRooms = (props) => {
               onSubmit({ aliasMode, dueDate, roomName, initialRoomName })
             }
             data-testid="assign-rooms"
-            disabled={roomName === ''}
+            disabled={roomName === '' || !isCreator}
           >
             Assign
           </Button>
@@ -161,6 +162,7 @@ AssignRooms.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onShuffle: PropTypes.func,
   onCancel: PropTypes.func.isRequired,
+  isCreator: PropTypes.string.isRequired,
 };
 
 AssignRooms.defaultProps = {
