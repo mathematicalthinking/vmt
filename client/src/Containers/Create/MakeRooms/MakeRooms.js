@@ -377,6 +377,7 @@ const MakeRooms = (props) => {
         onSubmit={checkBeforeSubmit}
         onShuffle={shuffleParticipants}
         onCancel={close}
+        isCreator={userId === activity.creator}
       />
     </React.Fragment>
   );
@@ -400,6 +401,7 @@ MakeRooms.propTypes = {
     image: PropTypes.string,
     instructions: PropTypes.string,
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    creator: PropTypes.string,
   }).isRequired,
   course: PropTypes.shape({ _id: PropTypes.string }),
   userId: PropTypes.string.isRequired,

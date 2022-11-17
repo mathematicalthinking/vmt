@@ -22,3 +22,6 @@ client/encompassBuild
 production/
 staging/
 *.zip
+
+# ignore redis dumps
+dump.rdb 

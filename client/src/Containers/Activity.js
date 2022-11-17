@@ -160,7 +160,10 @@ class Activity extends Component {
 
   checkAccess = () => {
     const { activity, user } = this.props;
-    const canEdit = activity.creator === user._id || user.isAdmin;
+    const canEdit =
+      activity.creator === user._id ||
+      user.isAdmin ||
+      activity.users.includes(user._id);
 
     // Need to develop this criteria for accessing/editing activities
     // For now just prevent non creators/admins from seeing private activities
@@ -439,13 +442,14 @@ class Activity extends Component {
         userId={user._id}
         username={user.username}
         privacySetting={activity ? activity.privacySetting : 'private'}
-        owners={
-          activity && activity.members
-            ? activity.members
-                .filter((member) => member.role.toLowerCase() === 'facilitator')
-                .map((member) => member.user)
-            : []
-        }
+        owners={activity && activity.creator ? activity.creator : ''}
+        // owners={
+        //   activity && activity.members
+        //     ? activity.members
+        //         .filter((member) => member.role.toLowerCase() === 'facilitator')
+        //         .map((member) => member.user)
+        //     : []
+        // }
       />
     );
   }
@@ -470,6 +474,7 @@ Activity.propTypes = {
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
     privacySetting: PropTypes.string,
     desmosLink: PropTypes.string,
+    users: PropTypes.arrayOf(PropTypes.string),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
