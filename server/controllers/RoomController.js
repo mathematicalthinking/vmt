@@ -391,6 +391,153 @@ const testFunctions = {
     const rooms = await Room.aggregate(aggregationPipeline).allowDiskUse(true);
     return rooms;
   },
+
+  searchPaginated4: async (criteria, skip, filters) => {
+    const initialFilter = {
+      tempRoom: false,
+      isTrashed: false,
+      // status: STATUS.DEFAULT,
+    };
+
+    const allowedPrivacySettings = ['private', 'public'];
+
+    if (allowedPrivacySettings.includes(filters.privacySetting)) {
+      initialFilter.privacySetting = filters.privacySetting;
+    }
+
+    let aggregationPipeline = [
+      { $match: initialFilter },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', ROLE.FACILITATOR],
+              },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'facilitatorObject',
+        },
+      },
+
+      { $unwind: '$facilitatorObject' },
+    ];
+
+    if (criteria) {
+      aggregationPipeline.push({
+        $match: {
+          $or: [
+            { name: criteria },
+            { description: criteria },
+            { instructions: criteria },
+            { 'facilitatorObject.username': criteria },
+          ],
+        },
+      });
+    }
+    aggregationPipeline = aggregationPipeline.concat([
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          tabs: { $first: '$tabs' },
+          updatedAt: { $first: '$updatedAt' },
+          members: {
+            $push: { user: '$facilitatorObject', role: ROLE.FACILITATOR },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'tabs',
+          localField: 'tabs',
+          foreignField: '_id',
+          as: 'tabObject',
+        },
+      },
+      { $unwind: '$tabObject' },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          instructions: { $first: '$instructions' },
+          description: { $first: '$description' },
+          privacySetting: { $first: '$privacySetting' },
+          image: { $first: '$image' },
+          updatedAt: { $first: '$updatedAt' },
+          members: { $first: '$members' },
+          tabs: { $push: '$tabObject' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          'tabs.tabType': 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          'members.role': 1,
+          'members.user.username': 1,
+          'members.user._id': 1,
+        },
+      },
+    ]);
+
+    const rooms = await Room.aggregate(aggregationPipeline).allowDiskUse(true);
+    return rooms;
+  },
+  searchPaginated5: async (criteria, skip, filters) => {
+    let aggregationPipeline = [
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', ROLE.FACILITATOR],
+              },
+            },
+          },
+        },
+      },
+    ];
+
+    const rooms = await Room.aggregate(aggregationPipeline).allowDiskUse(true);
+    return rooms;
+  },
 };
 
 module.exports = {
@@ -513,6 +660,16 @@ module.exports = {
       {
         name: `3: ${
           (await testFunctions.searchPaginated3(criteria, skip, filters)).length
+        }`,
+      },
+      {
+        name: `4: ${
+          (await testFunctions.searchPaginated4(criteria, skip, filters)).length
+        }`,
+      },
+      {
+        name: `5: ${
+          (await testFunctions.searchPaginated5(criteria, skip, filters)).length
         }`,
       },
     ];
