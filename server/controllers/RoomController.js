@@ -116,7 +116,7 @@ module.exports = {
     const initialFilter = {
       tempRoom: false,
       isTrashed: false,
-      status: STATUS.DEFAULT,
+      status: { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] },
     };
 
     const allowedPrivacySettings = ['private', 'public'];
