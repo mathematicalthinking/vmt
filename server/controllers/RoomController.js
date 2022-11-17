@@ -4,7 +4,6 @@ const moment = require('moment');
 const { Types } = require('mongoose');
 const db = require('../models');
 const STATUS = require('../constants/status');
-const ROLE = require('../constants/role');
 // const { areObjectIdsEqual } = require('../middleware/utils/helpers');
 
 const { Tab } = db;
@@ -142,7 +141,7 @@ module.exports = {
               input: '$members',
               as: 'member',
               cond: {
-                $eq: ['$$member.role', ROLE.FACILITATOR],
+                $eq: ['$$member.role', 'facilitator'],
               },
             },
           },
@@ -184,7 +183,7 @@ module.exports = {
           tabs: { $first: '$tabs' },
           updatedAt: { $first: '$updatedAt' },
           members: {
-            $push: { user: '$facilitatorObject', role: ROLE.FACILITATOR },
+            $push: { user: '$facilitatorObject', role: 'facilitator' },
           },
         },
       },
@@ -490,7 +489,7 @@ module.exports = {
             // Add this member to the room
             room.members.push({
               user: userId,
-              role: ROLE.PARTICIPANT,
+              role: 'participant',
               color: colorMap[room.members.length],
             });
             try {
@@ -508,7 +507,7 @@ module.exports = {
             // create notifications
             roomToPopulate = updatedRoom;
             const facilitators = updatedRoom.members.filter((m) => {
-              return m.role === ROLE.FACILITATOR;
+              return m.role === 'facilitator';
             });
             return Promise.all(
               facilitators.map((f) => {
@@ -955,7 +954,7 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
         // add the room to the list of archived rooms for any facilitators
         if (status === STATUS.ARCHIVED) {
           const facilitatorIds = room.members
-            .filter((member) => member.role === ROLE.FACILITATOR)
+            .filter((member) => member.role === 'facilitator')
             .map((member) => member.user);
           promises.push(
             db.User.updateMany(
