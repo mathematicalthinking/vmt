@@ -57,6 +57,7 @@ class Activity extends Component {
       canAccess: false,
       roomType: '',
       isPlural: false,
+      desmosActivityCode: '',
     };
   }
 
@@ -65,6 +66,12 @@ class Activity extends Component {
 
     if (activity && activity.tabs) {
       const tabsInRoom = activity.tabs.map((tab) => tab.tabType);
+      if (
+        tabsInRoom.includes('desmosActivity') &&
+        activity.desmosLink &&
+        activity.desmosLink !== ''
+      )
+        this.setState({ desmosActivityCode: activity.desmosLink });
       const { tabTypes, isPlural } = getResourceTabTypes(tabsInRoom);
       this.setState({ roomType: tabTypes, isPlural });
     }
@@ -153,7 +160,10 @@ class Activity extends Component {
 
   checkAccess = () => {
     const { activity, user } = this.props;
-    const canEdit = activity.creator === user._id || user.isAdmin;
+    const canEdit =
+      activity.creator === user._id ||
+      user.isAdmin ||
+      activity.users.includes(user._id);
 
     // Need to develop this criteria for accessing/editing activities
     // For now just prevent non creators/admins from seeing private activities
@@ -259,6 +269,7 @@ class Activity extends Component {
       canAccess,
       roomType,
       isPlural,
+      desmosActivityCode,
     } = this.state;
     if (activity && canAccess) {
       const keyword = isPlural ? 'types' : 'type';
@@ -279,6 +290,9 @@ class Activity extends Component {
             </EditText>
           </Error>
         ),
+        ...(desmosActivityCode !== ''
+          ? { 'Desmos Activity Code': desmosActivityCode }
+          : null),
       };
 
       let crumbs = [{ title: 'My VMT', link: '/myVMT/activities' }];
@@ -428,13 +442,14 @@ class Activity extends Component {
         userId={user._id}
         username={user.username}
         privacySetting={activity ? activity.privacySetting : 'private'}
-        owners={
-          activity && activity.members
-            ? activity.members
-                .filter((member) => member.role.toLowerCase() === 'facilitator')
-                .map((member) => member.user)
-            : []
-        }
+        owners={activity && activity.creator ? activity.creator : ''}
+        // owners={
+        //   activity && activity.members
+        //     ? activity.members
+        //         .filter((member) => member.role.toLowerCase() === 'facilitator')
+        //         .map((member) => member.user)
+        //     : []
+        // }
       />
     );
   }
@@ -458,6 +473,8 @@ Activity.propTypes = {
     rooms: PropTypes.arrayOf(PropTypes.shape({})),
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
     privacySetting: PropTypes.string,
+    desmosLink: PropTypes.string,
+    users: PropTypes.arrayOf(PropTypes.string),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,

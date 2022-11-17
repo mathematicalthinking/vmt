@@ -18,7 +18,11 @@ const Notification = new mongoose.Schema(
       ],
       required: true,
     },
-    resourceType: { type: String, enum: ['room', 'course'], required: true },
+    resourceType: {
+      type: String,
+      enum: ['room', 'course', 'activity'],
+      required: true,
+    },
     resourceId: {
       type: String,
       validate: {

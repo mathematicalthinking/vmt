@@ -142,11 +142,11 @@ PrivateAccess.propTypes = {
   resourceId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   requestAccess: PropTypes.func.isRequired,
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({ isAdmin: PropTypes.bool }).isRequired,
   setAdmin: PropTypes.func,
   username: PropTypes.string.isRequired,
   joinWithCode: PropTypes.func.isRequired,
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   error: PropTypes.string,
   clearError: PropTypes.func.isRequired,
 };

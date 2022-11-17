@@ -1,25 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { TabList, BreadCrumbs } from 'Components';
+import { getUserNotifications } from 'utils';
 import {
   DashboardLayout,
   SidePanel,
   DashboardContent,
 } from '../Layout/Dashboard';
-import {
-  TabList,
-  BreadCrumbs,
-  // Avatar,
-} from '../Components';
-// import {
-//   getRooms,
-//   getActivities,
-//   getCourses,
-//   getUser,
-//   toggleJustLoggedIn,
-// } from '../store/actions';
-
-import getUserNotifications from '../utils/notifications';
 
 class MyVMT extends Component {
   state = {
