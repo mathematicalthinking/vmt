@@ -7,6 +7,7 @@ const Image = require('./Image');
 const Notification = require('./Notification');
 const Activity = require('./Activity');
 const STATUS = require('../constants/status');
+const ROLE = require('../constants/role');
 
 const colorMap = require('../constants/colorMap.js');
 
@@ -31,7 +32,7 @@ const Room = new mongoose.Schema(
         },
         role: {
           type: String,
-          enum: ['participant', 'facilitator', 'guest'],
+          enum: [ROLE.PARTICIPANT, ROLE.FACILITATOR, ROLE.GUEST],
         },
         alias: { type: String },
       },
