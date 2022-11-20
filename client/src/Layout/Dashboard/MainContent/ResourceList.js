@@ -141,10 +141,6 @@ const ResourceList = ({
               // with other facilitators' groupings
               return;
             }
-            console.log(
-              `userResource.creator: ${userResource.creator},  user._id: ${user._id}, userResource:`
-            );
-            console.log(userResource);
             facilitatorList.push(userResource);
           } else {
             participantList.push(userResource);
