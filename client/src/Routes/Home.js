@@ -15,7 +15,7 @@ import {
   ResetPassword,
   ConfirmEmail,
   Unconfirmed,
-  Archive,
+  // Archive,
 } from '../Containers';
 import {
   Confirmation,
@@ -79,7 +79,7 @@ class Home extends PureComponent {
       <Aux>
         {location.pathname.indexOf('community') > -1 ||
         location.pathname.indexOf('profile') > -1 ||
-        location.pathname.indexOf('archive') > -1 ||
+        // location.pathname.indexOf('archive') > -1 ||
         location.pathname.indexOf('dashboard') > -1 ? (
           <Navbar fixed user={user} toggleAdmin={this.toggleAdmin} />
         ) : (
@@ -130,7 +130,7 @@ class Home extends PureComponent {
             <Route path="/faq" component={Faq} />
             <Route path="/contact" component={Contact} />
             <Route path="/community/:resource" component={Community} />
-            <Route path="/archive/:resource" component={Archive} />
+            {/* <Route path="/archive/:resource" component={Archive} /> */}
             <Route exact path="/logout" component={Logout} />
             <Route path="/login" component={Login} />
             <Route path="/signup" component={Signup} />
