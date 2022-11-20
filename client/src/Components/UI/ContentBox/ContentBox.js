@@ -87,17 +87,9 @@ class ContentBox extends PureComponent {
                 {title}
               </div>
             </ToolTip>
-            {notificationElements}
           </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              width: '100%',
-              padding: '0 1rem',
-            }}
-          >
+          <div className={classes.CustomIconContainer}>
+            {notificationElements}
             {customIcons &&
               customIcons.map((icon) => (
                 <div
@@ -107,19 +99,20 @@ class ContentBox extends PureComponent {
                   role="button"
                   title={icon.title}
                   key={`icon-${icon.title}-${id}`}
-                  style={{ margin: '0 1rem', cursor: 'pointer' }}
+                  // style={{ margin: '0 1rem', cursor: 'pointer' }}
+                  className={classes.CustomIcon}
                 >
                   {icon.icon}
                 </div>
               ))}
-          </div>
-          <div
-            className={classes.Expand}
-            style={{
-              transform: expanded ? `rotate(180deg)` : `rotate(0)`,
-            }}
-          >
-            <Expand clickHandler={this.toggleExpand} />
+            <div
+              className={classes.Expand}
+              style={{
+                transform: expanded ? `rotate(180deg)` : `rotate(0)`,
+              }}
+            >
+              <Expand clickHandler={this.toggleExpand} />
+            </div>
           </div>
         </div>
         <div className={classes.Content}>
