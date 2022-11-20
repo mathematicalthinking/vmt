@@ -170,10 +170,10 @@ class Members extends PureComponent {
       connectUpdateCourseMembers,
       courseRoomsMembers,
       connectInviteToRoom,
-      onChangeRole,
+      // onChangeRole,
     } = this.props;
 
-    if (onChangeRole) onChangeRole(updatedMember);
+    // if (onChangeRole) onChangeRole(updatedMember);
 
     // create a new classList containing the updatedMember (with a new role). Because we are
     // sending this to the db, reduce the user field down to just the _id
