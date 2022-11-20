@@ -15,7 +15,7 @@ const Navbar = ({ user, location, toggleAdmin }) => {
   if (
     location.pathname.indexOf('community') > -1 ||
     location.pathname.indexOf('dashboard') > -1 ||
-    location.pathname.indexOf('archive') > -1 ||
+    // location.pathname.indexOf('archive') > -1 ||
     (location.pathname.indexOf('myVMT') > -1 &&
       location.pathname.indexOf('workspace') === -1 &&
       location.pathname.indexOf('explore') === -1)
@@ -74,9 +74,9 @@ const Navbar = ({ user, location, toggleAdmin }) => {
           {user.isAdmin ? (
             <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
           ) : null}
-          {user.loggedIn ? (
+          {/* {user.loggedIn ? (
             <NavItem link="/archive/rooms?roomType=all" name="Archive" />
-          ) : null}
+          ) : null} */}
           <DropdownNavItem name={<span>Info</span>} list={aboutList} />
 
           {user.loggedIn ? (

@@ -275,15 +275,15 @@ class Room extends Component {
     history.push(`/myVMT/workspace/${room._id}/replayer`);
   };
 
-  showArchiveModal = () => {
-    this.setState({ archiving: true });
-  };
+  // showArchiveModal = () => {
+  //   this.setState({ archiving: true });
+  // };
 
-  archiveRoom = () => {
-    const { room, connectUpdateRoom, history } = this.props;
-    connectUpdateRoom(room._id, { ...room, status: STATUS.ARCHIVED });
-    history.push(`/myVMT/rooms`);
-  };
+  // archiveRoom = () => {
+  //   const { room, connectUpdateRoom, history } = this.props;
+  //   connectUpdateRoom(room._id, { ...room, status: STATUS.ARCHIVED });
+  //   history.push(`/myVMT/rooms`);
+  // };
 
   fetchRoom = () => {
     const { connectGetRoom, match } = this.props;
@@ -482,7 +482,7 @@ class Room extends Component {
       }
       return (
         <Aux>
-          {archiving && (
+          {/* {archiving && (
             <Modal
               show={archiving}
               closeModal={() => this.setState({ archiving: false })}
@@ -503,7 +503,7 @@ class Room extends Component {
                 </Button>
               </div>
             </Modal>
-          )}
+          )} */}
           <DashboardLayout
             breadCrumbs={
               <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
@@ -587,7 +587,7 @@ class Room extends Component {
                           replay
                         </span>
                       </ToolTip>
-                      {room.myRole === 'facilitator' && (
+                      {/* {room.myRole === 'facilitator' && (
                         <ToolTip text="Archive This Room" delay={600}>
                           <span
                             data-testid="archive-room"
@@ -604,7 +604,7 @@ class Room extends Component {
                             input
                           </span>
                         </ToolTip>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 }

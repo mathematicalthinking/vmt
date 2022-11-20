@@ -17,7 +17,7 @@ const Archive = () => {
   const dispatch = useDispatch();
   const match = useRouteMatch(); // and not url from match
   const { resource } = useParams();
-  const archive = useSelector((state) => state.user && state.user.archive);
+  // const archive = useSelector((state) => state.user && state.user.archive);
 
   const [searchText, setSearchText] = useState('');
   const [dateRangePreset, setDateRangePreset] = useState('all');
