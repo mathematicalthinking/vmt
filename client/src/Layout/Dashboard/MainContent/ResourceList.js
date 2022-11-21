@@ -134,13 +134,6 @@ const ResourceList = ({
             userResource.myRole === 'facilitator' ||
             resource === 'activities'
           ) {
-            if (userResource.creator && userResource.creator !== user._id) {
-              // only show templates that the current user created
-              // templates that other facilitators created kinda break
-              // when other facliltators create templates and mix groupings
-              // with other facilitators' groupings
-              return;
-            }
             facilitatorList.push(userResource);
           } else {
             participantList.push(userResource);
