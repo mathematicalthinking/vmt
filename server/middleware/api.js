@@ -179,9 +179,18 @@ const canModifyResource = (req) => {
     .populate('members.user', 'members.role')
     .populate('room', 'creator members')
     .populate('activity', 'creator')
+    .populate('activity', 'users')
     .lean()
     .exec()
     .then((record) => {
+      console.log('record');
+      console.log(record);
+      console.log('user');
+      console.log(user);
+      if (record.users)
+        console.log(
+          `record.users.includes(user._id): ${record.users.includes(user._id)}`
+        );
       if (user.isAdmin) {
         results.canModify = true;
         return results;

@@ -284,7 +284,11 @@ module.exports = {
       } else {
         db.Activity.findByIdAndUpdate(id, body)
           .then((activity) => resolve(activity))
-          .catch((err) => reject(err));
+          .catch((err) => {
+            console.log(`id: ${id}, body`)
+            console.log(body)
+            reject(err);
+          });
       }
     });
   },

@@ -231,7 +231,8 @@ export const updateActivity = (id, body) => {
       .then(() => {
         // dispatch(loading.success())
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log(e)
         // Undo changes
         const keys = Object.keys(body);
         if (body.isTrashed) {

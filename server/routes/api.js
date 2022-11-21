@@ -462,6 +462,7 @@ const updateResource = (req, res) => {
     }
 
     if (!canModify) {
+      console.log('bloop bloop bloop can,t modify')
       return errors.sendError.NotAuthorizedError(
         'You do not have permission to modify this resource',
         res
