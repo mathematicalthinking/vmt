@@ -285,8 +285,6 @@ module.exports = {
         db.Activity.findByIdAndUpdate(id, body)
           .then((activity) => resolve(activity))
           .catch((err) => {
-            console.log(`id: ${id}, body`)
-            console.log(body)
             reject(err);
           });
       }

@@ -183,6 +183,7 @@ const canModifyResource = (req) => {
     .lean()
     .exec()
     .then((record) => {
+      // allow activity users to modify the activity
       let isInActivityUsers = false;
       if (record.users) {
         record.users.forEach((userId) => {
