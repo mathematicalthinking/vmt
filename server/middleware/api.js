@@ -183,14 +183,14 @@ const canModifyResource = (req) => {
     .lean()
     .exec()
     .then((record) => {
-      console.log('record');
-      console.log(record);
-      console.log('user');
-      console.log(user);
-      if (record.users)
-        console.log(
-          `record.users.includes(user._id): ${record.users.includes(user._id)}`
-        );
+      let isInActivityUsers = false;
+      if (record.users) {
+        record.users.forEach((userId) => {
+          if (String(user._id) === String(userId)) {
+            isInActivityUsers = true;
+          }
+        });
+      }
       if (user.isAdmin) {
         results.canModify = true;
         return results;
@@ -201,8 +201,8 @@ const canModifyResource = (req) => {
         results.doesRecordExist = false;
         return results;
       }
-      // user can modify if creator
-      if (_.isEqual(user._id, record.creator)) {
+      // user can modify if creator or if in activity.users
+      if (_.isEqual(user._id, record.creator) || isInActivityUsers) {
         results.canModify = true;
         results.details.isCreator = true;
         return results;
