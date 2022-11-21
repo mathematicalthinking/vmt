@@ -8,7 +8,6 @@ import { useAppModal, COLOR_MAP } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
-import { select } from 'd3';
 
 const MakeRooms = (props) => {
   const {
