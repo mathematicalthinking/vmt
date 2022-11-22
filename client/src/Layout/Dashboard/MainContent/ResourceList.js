@@ -34,8 +34,8 @@ const ResourceList = ({
   const dispatch = useDispatch();
   const [fList, setFacilitatorList] = useState([]);
   const [pList, setParticipantList] = useState([]);
-  // const [archiveComponent, setArchiveComponent] = useState(null);
-  // const [showArchiveComponent, setShowArchiveComponent] = useState(false);
+  const [archiveComponent, setArchiveComponent] = useState(null);
+  const [showArchiveComponent, setShowArchiveComponent] = useState(false);
   const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
   const [showRoomPreview, setShowRoomPreview] = useState(false);
   const previousSearch = useRef({
@@ -177,26 +177,26 @@ const ResourceList = ({
    * I feel like we are checking roles...which requires looping through the resources members each time.
    */
 
-  // const archiveButton = {
-  //   title: 'Archive',
-  //   onClick: (e, id) => {
-  //     e.preventDefault();
-  //     if (!id.length) return;
-  //     setShowArchiveComponent(true);
-  //     handleArchive(id);
-  //   },
-  //   icon: (
-  //     <ToolTip text="Archive" delay={600}>
-  //       <span
-  //         className={`material-symbols-outlined ${classes.CustomIcon}`}
-  //         data-testid="Archive"
-  //         style={{ fontSize: '23px' }}
-  //       >
-  //         input
-  //       </span>
-  //     </ToolTip>
-  //   ),
-  // };
+  const archiveButton = {
+    title: 'Archive',
+    onClick: (e, id) => {
+      e.preventDefault();
+      if (!id.length) return;
+      setShowArchiveComponent(true);
+      handleArchive(id);
+    },
+    icon: (
+      <ToolTip text="Archive" delay={600}>
+        <span
+          className={`material-symbols-outlined ${classes.CustomIcon}`}
+          data-testid="Archive"
+          style={{ fontSize: '23px' }}
+        >
+          input
+        </span>
+      </ToolTip>
+    ),
+  };
 
   const customIcons = [
     {
@@ -225,95 +225,95 @@ const ResourceList = ({
         </span>
       ),
     },
-    // {
-    //   title: 'Archive',
-    //   onClick: (e, id) => {
-    //     e.preventDefault();
-    //     setShowArchiveComponent(true);
-    //     handleArchive(id);
-    //   },
-    //   icon: (
-    //     <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-    //       input
-    //     </span>
-    //   ),
-    // },
+    {
+      title: 'Archive',
+      onClick: (e, id) => {
+        e.preventDefault();
+        setShowArchiveComponent(true);
+        handleArchive(id);
+      },
+      icon: (
+        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+          input
+        </span>
+      ),
+    },
   ];
 
   // create a handle multiple fn that calls this fn
   // get rid of singleResource
-  // const handleArchive = (id) => {
-  //   let showModal = true;
-  //   let res;
-  //   let msg = 'Are you sure you want to archive ';
-  //   let singleResource = true;
-  //   if (Array.isArray(id)) {
-  //     // display each name in list
-  //     singleResource = false;
-  //     // only dipslay first 5 resources names, otherwise total number
-  //     if (id.length <= 5) {
-  //       res = getResourceNames(id).join(', ');
-  //     } else {
-  //       res = `${id.length} rooms`;
-  //       msg += ' these ';
-  //     }
-  //   }
-  //   // or display single name
-  //   else
-  //     res = facilitatorItems
-  //       .concat(participantItems)
-  //       .filter((el) => el._id === id)[0].name;
+  const handleArchive = (id) => {
+    let showModal = true;
+    let res;
+    let msg = 'Are you sure you want to archive ';
+    let singleResource = true;
+    if (Array.isArray(id)) {
+      // display each name in list
+      singleResource = false;
+      // only dipslay first 5 resources names, otherwise total number
+      if (id.length <= 5) {
+        res = getResourceNames(id).join(', ');
+      } else {
+        res = `${id.length} rooms`;
+        msg += ' these ';
+      }
+    }
+    // or display single name
+    else
+      res = facilitatorItems
+        .concat(participantItems)
+        .filter((el) => el._id === id)[0].name;
 
-  //   const dispatchArchive = () => {
-  //     if (singleResource) {
-  //       const rtnObj = {
-  //         status: STATUS.ARCHIVED,
-  //       };
-  //       dispatch(updateRoom(id, rtnObj));
-  //     } else {
-  //       dispatch(archiveRooms(id));
-  //     }
-  //   };
+    const dispatchArchive = () => {
+      if (singleResource) {
+        const rtnObj = {
+          status: STATUS.ARCHIVED,
+        };
+        dispatch(updateRoom(id, rtnObj));
+      } else {
+        dispatch(archiveRooms(id));
+      }
+    };
 
-  //   setArchiveComponent(
-  //     <Modal
-  //       show={showModal}
-  //       closeModal={() => {
-  //         showModal = false;
-  //         setShowArchiveComponent(false);
-  //       }}
-  //     >
-  //       <span>
-  //         {msg}
-  //         <span style={{ fontWeight: 'bolder' }}>{res}</span>?
-  //       </span>
-  //       <div>
-  //         <Button
-  //           data-testid="archive-resource"
-  //           click={() => {
-  //             dispatchArchive();
-  //             showModal = false;
-  //             setShowArchiveComponent(false);
-  //           }}
-  //           m={5}
-  //         >
-  //           Yes
-  //         </Button>
-  //         <Button
-  //           data-testid="cancel-manage-user"
-  //           click={() => {
-  //             showModal = false;
-  //             setShowArchiveComponent(false);
-  //           }}
-  //           theme="Cancel"
-  //           m={5}
-  //         >
-  //           Cancel
-  //         </Button>
-  //       </div>
-  //     </Modal>
-  //   );
-  // };
+    setArchiveComponent(
+      <Modal
+        show={showModal}
+        closeModal={() => {
+          showModal = false;
+          setShowArchiveComponent(false);
+        }}
+      >
+        <span>
+          {msg}
+          <span style={{ fontWeight: 'bolder' }}>{res}</span>?
+        </span>
+        <div>
+          <Button
+            data-testid="archive-resource"
+            click={() => {
+              dispatchArchive();
+              showModal = false;
+              setShowArchiveComponent(false);
+            }}
+            m={5}
+          >
+            Yes
+          </Button>
+          <Button
+            data-testid="cancel-manage-user"
+            click={() => {
+              showModal = false;
+              setShowArchiveComponent(false);
+            }}
+            theme="Cancel"
+            m={5}
+          >
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+    );
+  };
 
   const goToReplayer = (roomId) => {
     history.push(`/myVMT/workspace/${roomId}/replayer`);
@@ -342,12 +342,12 @@ const ResourceList = ({
       .map((res) => res.name);
   };
 
-  // const selectActions = [archiveButton];
+  const selectActions = [archiveButton];
 
   return (
     <React.Fragment>
       {showRoomPreview && roomPreviewComponent}
-      {/* {showArchiveComponent && archiveComponent} */}
+      {showArchiveComponent && archiveComponent}
       <div>
         {/* @TODO don't show create options for participants */}
         <div className={classes.Controls}>
@@ -373,8 +373,7 @@ const ResourceList = ({
               {selectableBoxList &&
               resource !== 'activities' &&
               resource !== 'courses' ? (
-                // <SelectableBoxList
-                <BoxList
+                <SelectableBoxList
                   list={facilitatorItems}
                   resource={resource}
                   listType="private"
@@ -383,7 +382,7 @@ const ResourceList = ({
                   notifications={notifications}
                   parentResourec={parentResource}
                   icons={customIcons}
-                  // selectActions={selectActions}
+                  selectActions={selectActions}
                 />
               ) : (
                 <BoxList

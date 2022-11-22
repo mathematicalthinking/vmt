@@ -93,8 +93,8 @@ class MyVMT extends Component {
       activities: user.activities.length,
     };
 
-    // if (user.archive && user.archive.rooms && user.archive.rooms.length)
-    //   additionalDetails['archived rooms'] = user.archive.rooms.length;
+    if (user.archive && user.archive.rooms && user.archive.rooms.length)
+      additionalDetails['archived rooms'] = user.archive.rooms.length;
 
     const resourceTypes = [
       'rooms',
@@ -107,7 +107,7 @@ class MyVMT extends Component {
       <DashboardContent
         userResources={
           // simple ternary in case navigation beats props update
-          user[resource] && resource !== 'archive'
+          user[resource]
             ? user[resource]
                 // eslint-disable-next-line react/destructuring-assignment
                 .map((id) => this.props[resource].byId[id])
@@ -128,7 +128,7 @@ class MyVMT extends Component {
       />
     );
     // resource 404 error display
-    if (!resourceTypes.includes(resource) || resource === 'archive') {
+    if (!resourceTypes.includes(resource)) {
       bodyContent = (
         <div>
           Could not find &#39;{resource}&#39; as a resource, please check again!{' '}
