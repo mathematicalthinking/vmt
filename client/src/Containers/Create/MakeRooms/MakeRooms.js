@@ -388,7 +388,6 @@ const MakeRooms = (props) => {
         onSubmit={checkBeforeSubmit}
         onShuffle={shuffleParticipants}
         onCancel={close}
-        isCreator={userId === activity.creator}
       />
     </React.Fragment>
   );

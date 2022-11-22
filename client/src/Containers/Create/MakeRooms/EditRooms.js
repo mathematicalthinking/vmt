@@ -244,7 +244,6 @@ const EditRooms = (props) => {
         assignmentMatrix={assignmentMatrix}
         onSubmit={checkBeforeSubmit}
         onCancel={close}
-        isCreator={userId === activity.creator}
       />
     </Fragment>
   );
