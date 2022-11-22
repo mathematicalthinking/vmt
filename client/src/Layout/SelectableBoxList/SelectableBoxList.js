@@ -109,7 +109,11 @@ const SelectableBoxList = (props) => {
                   .filter((member) => member.role === 'facilitator')
                   .map(
                     (member, x, arr) =>
-                      `${member.user.username}${x < arr.length - 1 ? ', ' : ''}`
+                      `${
+                        member.user
+                          ? member.user.username
+                          : 'Username not found'
+                      }${x < arr.length - 1 ? ', ' : ''}`
                   )
               : [],
             sinceUpdated: timeDiff(item.updatedAt),
