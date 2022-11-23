@@ -179,9 +179,19 @@ const canModifyResource = (req) => {
     .populate('members.user', 'members.role')
     .populate('room', 'creator members')
     .populate('activity', 'creator')
+    .populate('activity', 'users')
     .lean()
     .exec()
     .then((record) => {
+      // allow activity users to modify the activity
+      let isInActivityUsers = false;
+      if (record.users) {
+        record.users.forEach((userId) => {
+          if (String(user._id) === String(userId)) {
+            isInActivityUsers = true;
+          }
+        });
+      }
       if (user.isAdmin) {
         results.canModify = true;
         return results;
@@ -192,8 +202,8 @@ const canModifyResource = (req) => {
         results.doesRecordExist = false;
         return results;
       }
-      // user can modify if creator
-      if (_.isEqual(user._id, record.creator)) {
+      // user can modify if creator or if in activity.users
+      if (_.isEqual(user._id, record.creator) || isInActivityUsers) {
         results.canModify = true;
         results.details.isCreator = true;
         return results;

@@ -4,11 +4,10 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { BigModal, Button, Modal } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
-import COLOR_MAP from 'utils/colorMap';
+import { useAppModal, COLOR_MAP } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
-import { useAppModal } from 'utils';
 
 const MakeRooms = (props) => {
   const {
@@ -69,6 +68,19 @@ const MakeRooms = (props) => {
   useEffect(() => {
     if (selectedAssignment && Array.isArray(selectedAssignment.value)) {
       setRoomDrafts(selectedAssignment.value);
+      // sort participants by their room assignments (as best as possible)
+      const sortedParticipants = selectedAssignment.value
+        .map((room) => room.members)
+        .flat()
+        .concat(participants) // make sure we at least have expected participants
+        .reduce(
+          (acc, mem) => ({
+            ...acc,
+            [mem.user._id]: mem,
+          }),
+          {}
+        );
+      setParticipants(Object.values(sortedParticipants));
       if (selectedAssignment.value.length !== 0) {
         setParticipantsPerRoom(
           Math.max(
@@ -377,7 +389,6 @@ const MakeRooms = (props) => {
         onSubmit={checkBeforeSubmit}
         onShuffle={shuffleParticipants}
         onCancel={close}
-        isCreator={userId === activity.creator}
       />
     </React.Fragment>
   );
