@@ -23,6 +23,8 @@ rooms:
     }
 */
 
+import { STATUS } from '../constants';
+
 export const createPreviousAssignments = (groupings, rooms) => {
   if (!groupings || !rooms) return [];
 
@@ -33,12 +35,15 @@ export const createPreviousAssignments = (groupings, rooms) => {
     let hasDueDate = false;
     let aliasMode;
     const hasAliasMode = false;
+
     const roomDrafts = grouping.rooms.map((roomId) => {
       const room = rooms[roomId];
       // the following line is here b/c we don't remove rooms from
       // groupings when rooms are deleted, which means
-      // the grouping contains room ids that aren't in the actuall list of rooms
-      if (!room) return [];
+      // the grouping contains room ids that aren't in the actual list of rooms
+
+      // ignore rooms that are archived
+      if (!room || room.status === STATUS.ARCHIVED) return [];
       const roomDraft = {
         activity: room.activity,
         members: room.members,
@@ -74,7 +79,15 @@ export const createPreviousAssignments = (groupings, rooms) => {
     };
   });
 
-  return previousAssignments;
+  // if the grouping has an archived room ignore it
+  // we can test this by making sure every room (roomId)
+  // in the roomDrafts has length
+  const unarchivedPreviousAssignments = previousAssignments.filter(
+    (assignment) =>
+      assignment.roomDrafts.every((roomDraft) => roomDraft.room.length > 0)
+  );
+
+  return unarchivedPreviousAssignments;
 };
 
 export const createEditableAssignments = (groups, rooms, id) => {
