@@ -65,6 +65,17 @@ export const useSortableData = (items, config = null) => {
       : true;
   };
 
+  const matchesCustomFilter = (item) => {
+    if (
+      !sortConfig ||
+      !sortConfig.filter ||
+      (!sortConfig.filter.filterFcn &&
+        typeof sortConfig.filter.filterFcn !== 'function')
+    )
+      return true;
+    return sortConfig.filter.filterFcn(item);
+  };
+
   const sortedItems = React.useMemo(() => {
     // eslint-disable-next-line prefer-const
     let sortableItems = [...items];
@@ -89,7 +100,9 @@ export const useSortableData = (items, config = null) => {
         return 0;
       });
     }
-    return sortableItems.filter(withinTimeframe);
+    return sortableItems.filter(
+      (item) => withinTimeframe(item) && matchesCustomFilter(item)
+    );
   }, [items, sortConfig]);
 
   const requestSort = (key) => {
