@@ -11,29 +11,21 @@ import {
   TrashModal,
   Error,
 } from 'Components';
-import { getResourceTabTypes } from 'utils';
 import {
-  SelectAssignments,
-  EditRooms,
-  MakeRooms,
-} from 'Containers/Create/MakeRooms';
-import {
-  createPreviousAssignments,
+  getResourceTabTypes,
   createEditableAssignments,
-} from 'utils/groupings';
-import {
-  DashboardLayout,
-  SidePanel,
-  DashboardContent,
-} from '../Layout/Dashboard';
+  createPreviousAssignments,
+} from 'utils';
+import { SelectAssignments, EditRooms, MakeRooms } from 'Containers';
+import { DashboardLayout, SidePanel, DashboardContent } from 'Layout';
 import {
   getCourses,
   getRooms,
   updateActivity,
   getActivities,
   getCurrentActivity,
-} from '../store/actions';
-import { populateResource } from '../store/reducers';
+} from 'store/actions';
+import { populateResource } from 'store/reducers';
 import Access from './Access';
 import TemplatePreview from './Monitoring/TemplatePreview';
 
