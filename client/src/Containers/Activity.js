@@ -21,6 +21,7 @@ import {
   createPreviousAssignments,
   createEditableAssignments,
 } from 'utils/groupings';
+import { getDesmosActivityUrl } from 'utils/appUrls';
 import {
   DashboardLayout,
   SidePanel,
@@ -291,7 +292,22 @@ class Activity extends Component {
           </Error>
         ),
         ...(desmosActivityCode !== ''
-          ? { 'Desmos Activity Code': desmosActivityCode }
+          ? {
+              'Desmos Activity Code': (
+                <a
+                  style={{
+                    color: 'blueviolet',
+                    textDecorationLine: 'underline',
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={getDesmosActivityUrl(desmosActivityCode)}
+                  data-testid="desmos-link"
+                >
+                  {desmosActivityCode}
+                </a>
+              ),
+            }
           : null),
       };
 

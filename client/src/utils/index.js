@@ -1,5 +1,5 @@
 export { default as API } from './apiRequests';
-export { getRedirectUrl, getMtSsoUrl, getGoogleUrl } from './appUrls';
+export * from './appUrls';
 export { default as auth } from './auth';
 export { default as buildLog } from './buildLog';
 export { default as COLOR_MAP } from './colorMap';
