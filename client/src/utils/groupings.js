@@ -44,10 +44,14 @@ const getRoomDraft = (room) => ({
 
 export const createPreviousAssignments = (groupings) => {
   const rooms = useSelector((store) => store.rooms.byId);
+  const userAchivedRooms = useSelector((store) => store.user.archive.rooms);
   if (!groupings || !rooms) return [];
   const assignmentsWithoutArchives = groupings.filter((grouping) =>
     grouping.rooms.every(
-      (roomId) => rooms[roomId] && rooms[roomId].status !== STATUS.ARCHIVED
+      (roomId) =>
+        rooms[roomId] &&
+        rooms[roomId].status !== STATUS.ARCHIVED &&
+        !userAchivedRooms.includes(roomId)
     )
   );
   const previousAssignments = assignmentsWithoutArchives.map((grouping) => {
