@@ -38,6 +38,7 @@ const WebSketch = (props) => {
   let sketchDoc = null; // The WSP document in which the websketch lives.
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
+  const hasWidgets = useRef(false);
   const pendingUpdate = React.createRef(null);
   let $ = window ? window.jQuery : undefined;
   const { setFirstTabLoaded } = props;
@@ -228,6 +229,7 @@ const WebSketch = (props) => {
       case 'LabelWidget':
         return `${
           attr.action != 'finalized' ? attr.action : 'finalize'
+          // handle changed - call 'edited'
         }d the label widget`;
       case 'VisibilityWidget':
         return `${
@@ -239,7 +241,7 @@ const WebSketch = (props) => {
         }d the delete widget`;
       case 'PrefChanged':
       default:
-        console.warn('Unimplemented action! ', msg, attr);
+        console.warn('Unimplemented description! ', msg, attr);
         return 'interacted with the sketch';
     }
   };
@@ -1260,7 +1262,9 @@ const WebSketch = (props) => {
     console.log('Sketch width: ', sketchWidth);
     sketchDoc = data;
     sketch = data.focusPage;
-    checkWidgets();
+    if (hasWidgets.current) {
+      checkWidgets();
+    }
   };
 
   const checkWidgets = async () => {
@@ -1286,7 +1290,19 @@ const WebSketch = (props) => {
       const { startingPointBase64 } = tab;
       config = JSON.parse(startingPointBase64);
     }
+    shouldLoadWidgets(config);
     return config;
+  };
+
+  const shouldLoadWidgets = ({ metadata }) => {
+    const { authorPreferences } = metadata;
+    if (authorPreferences) {
+      for (let [key, value] of Object.entries(authorPreferences)) {
+        if (key.includes('widget') && value !== 'none') {
+          hasWidgets.current = true;
+        }
+      }
+    }
   };
 
   const loadSketch = () => {
@@ -1410,7 +1426,6 @@ WebSketch.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  myColor: PropTypes.string.isRequired,
   updatedRoom: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
