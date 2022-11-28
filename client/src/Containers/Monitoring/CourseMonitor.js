@@ -12,6 +12,8 @@ import RoomsMonitor from './RoomsMonitor';
  */
 
 function CourseMonitor({ course }) {
+  const orderedRoomIds = React.useRef();
+
   // Because "useQuery" is the equivalent of useState, do this
   // initialization of queryStates (an object containing the states
   // for the API-retrieved data) at the top level rather than inside
@@ -23,10 +25,24 @@ function CourseMonitor({ course }) {
         new Date(b.updatedAt) - new Date(a.updatedAt)
     )
     .map((room) => room._id);
-  const populatedRooms = usePopulatedRooms(roomIds, false, {
-    refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
-  });
+  const populatedRooms = usePopulatedRooms(
+    orderedRoomIds.current || roomIds,
+    false,
+    {
+      refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+    }
+  );
 
+  React.useEffect(() => {
+    if (populatedRooms.isSuccess && !orderedRoomIds.current)
+      orderedRoomIds.current = Object.values(populatedRooms.data)
+        .sort(
+          (a, b) =>
+            // Sort the rooms into reverse chronological order (most recently changed first) as of when the course was loaded
+            new Date(b.updatedAt) - new Date(a.updatedAt)
+        )
+        .map((room) => room._id);
+  }, [populatedRooms.isSuccess]);
   if (populatedRooms.isError) return <div>There was an error</div>;
 
   return populatedRooms.isSuccess ? (
