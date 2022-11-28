@@ -13,4 +13,3 @@ export { default as getResourceTabTypes } from './getResourceTabTypes';
 export * from './utilityHooks';
 export * from './importing';
 export * from './controlMachine';
-export * from './groupings';
