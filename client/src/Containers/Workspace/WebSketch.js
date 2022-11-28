@@ -219,26 +219,15 @@ const WebSketch = (props) => {
       case 'EditExpression':
         return `${attr.action} editing ${gobjDesc(gobj)}`;
       case 'StyleWidget':
-        return `${
-          attr.action != 'changed' ? attr.action : 'change'
-        }d the style widget`;
+        return `modified the style widget`;
       case 'TraceWidget':
-        return `${
-          attr.action != 'glowing' ? attr.action : 'activate'
-        }d the trace widget`;
+        return `modified the trace widget`;
       case 'LabelWidget':
-        return `${
-          attr.action != 'finalized' ? attr.action : 'finalize'
-          // handle changed - call 'edited'
-        }d the label widget`;
+        return `modified the label widget`;
       case 'VisibilityWidget':
-        return `${
-          attr.action != 'changed' ? attr.action : 'change'
-        }d the visibility widget`;
+        return `modified the visibility widget`;
       case 'DeleteWidget':
-        return `${
-          attr.action != 'deleteConfirm' ? attr.action : 'delete confirme'
-        }d the delete widget`;
+        return `modified the delete widget`;
       case 'PrefChanged':
       default:
         console.warn('Unimplemented description! ', msg, attr);
