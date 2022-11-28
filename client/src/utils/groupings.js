@@ -3,72 +3,73 @@ previousAssignments: groups assigned to specific rooms
     [
         { // each object is a room w/an added grouping name
             name: <grouping name>
-            roomsDrafts: [ { activity, course, members, name }, ... ]
-            dueDate: <string>,
-            aliasMode: <boolean>,
-            timestamp: <number>
+            roomsDraft: [ { activity, course, members, name }, ... ]
         },
     ]
 
-groupings: collections of rooms generated from an activity
+groupings: collections of students
     [
-        { _id: groupId, 
-        activity: activityId, activityName: <string>, timestamp: <number>,
-        rooms: [room1ID, room2ID, ...]
+        {
+        _id: group1ID, activity: activityId, timestamp: XXXX,
+        // rooms: [room1ID, room2ID, ...]
+        groups: [[mem1, mem2, ...], [mem3, mem4, ...]]
         },
     ]
 
 rooms: 
     {   
         roomId: 
-            {entirety of room including members, activity, course, groupId},
+            {entirety of room including members, activityId, courseId, groupId},
     }
 */
 
-import { useSelector } from 'react-redux';
-import { STATUS } from '../constants';
-
-const getDueDate = (room) =>
-  room && room.dueDate ? room.dueDate.split('T', 1)[0] : null;
-
-const getAliasMode = (room) =>
-  (room && room.settings && room.settings.displayAliasedUsernames) || false;
-
-const getRoomDraft = (room) => ({
-  _id: room._id,
-  activity: room.activity,
-  members: room.members,
-  name: room.name,
-  course: room.course,
-});
-
-export const createPreviousAssignments = (groupings) => {
-  const rooms = useSelector((store) => store.rooms.byId);
-  const userAchivedRooms = useSelector((store) => store.user.archive.rooms);
+export const createPreviousAssignments = (groupings, rooms) => {
   if (!groupings || !rooms) return [];
-  const assignmentsWithoutArchives = groupings.filter((grouping) =>
-    grouping.rooms.every(
-      (roomId) =>
-        rooms[roomId] &&
-        rooms[roomId].status !== STATUS.ARCHIVED &&
-        !userAchivedRooms.includes(roomId)
-    )
-  );
-  const previousAssignments = assignmentsWithoutArchives.map((grouping) => {
-    const { _id, activityName: name } = grouping;
-    const dueDate = getDueDate(rooms[grouping.rooms[0]]);
-    const aliasMode = getAliasMode(rooms[grouping.rooms[0]]);
 
-    const roomDrafts = grouping.rooms.map((roomId) =>
-      getRoomDraft(rooms[roomId])
-    );
+  const previousAssignments = groupings.map((grouping) => {
+    const { _id } = grouping;
+    const name = grouping.activityName;
+    let dueDate;
+    let hasDueDate = false;
+    let aliasMode;
+    const hasAliasMode = false;
+    const roomDrafts = grouping.rooms.map((roomId) => {
+      const room = rooms[roomId];
+      // the following line is here b/c we don't remove rooms from
+      // groupings when rooms are deleted, which means
+      // the grouping contains room ids that aren't in the actuall list of rooms
+      if (!room) return [];
+      const roomDraft = {
+        activity: room.activity,
+        members: room.members,
+        name: room.name,
+        course: room.course,
+        room: room._id,
+      };
+
+      if (!hasDueDate) {
+        // <input type=date/> expects value format of: yyyy-mm-dd
+        dueDate =
+          (rooms[grouping.rooms[0]].dueDate &&
+            rooms[grouping.rooms[0]].dueDate.split('T', 1)[0]) ||
+          null;
+        hasDueDate = true;
+      }
+
+      if (!hasAliasMode) {
+        aliasMode =
+          rooms[grouping.rooms[0]].settings.displayAliasedUsernames || false;
+      }
+
+      return roomDraft;
+    });
 
     return {
-      _id,
       name,
       roomDrafts,
       dueDate,
       aliasMode,
+      _id,
       timestamp: grouping.timestamp,
     };
   });
@@ -76,8 +77,8 @@ export const createPreviousAssignments = (groupings) => {
   return previousAssignments;
 };
 
-export const createEditableAssignments = (groups, id) => {
-  return createPreviousAssignments(groups).filter(
+export const createEditableAssignments = (groups, rooms, id) => {
+  return createPreviousAssignments(groups, rooms).filter(
     (assignment) => id === assignment.roomDrafts[0].activity
   );
 };

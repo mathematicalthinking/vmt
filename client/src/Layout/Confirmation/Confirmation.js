@@ -15,7 +15,7 @@ const Confirmation = (props) => {
         <div>{success ? successMessage : errorMessage}</div>
         <Link onClick={connectClear} to="/myVMT/courses">
           <Button theme="Big" m={20} click={connectClear}>
-            Go to MyVMT
+            Go to your dashboard
           </Button>
         </Link>
       </div>
@@ -46,4 +46,7 @@ const mapDispatchToProps = (dispatch) => ({
   connectClear: () => dispatch(actions.clearLoadingInfo()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Confirmation);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Confirmation);

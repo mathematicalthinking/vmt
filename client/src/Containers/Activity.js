@@ -11,21 +11,29 @@ import {
   TrashModal,
   Error,
 } from 'Components';
+import { getResourceTabTypes } from 'utils';
 import {
-  getResourceTabTypes,
-  createEditableAssignments,
+  SelectAssignments,
+  EditRooms,
+  MakeRooms,
+} from 'Containers/Create/MakeRooms';
+import {
   createPreviousAssignments,
-} from 'utils';
-import { SelectAssignments, EditRooms, MakeRooms } from 'Containers';
-import { DashboardLayout, SidePanel, DashboardContent } from 'Layout';
+  createEditableAssignments,
+} from 'utils/groupings';
+import {
+  DashboardLayout,
+  SidePanel,
+  DashboardContent,
+} from '../Layout/Dashboard';
 import {
   getCourses,
   getRooms,
   updateActivity,
   getActivities,
   getCurrentActivity,
-} from 'store/actions';
-import { populateResource } from 'store/reducers';
+} from '../store/actions';
+import { populateResource } from '../store/reducers';
 import Access from './Access';
 import TemplatePreview from './Monitoring/TemplatePreview';
 
@@ -198,8 +206,9 @@ class Activity extends Component {
             key="editSelect"
             activity={activity}
             course={course || null}
+            rooms={rooms}
             userId={user._id}
-            member={{
+            user={{
               role: 'facilitator',
               user: { _id: user._id, username: user.username },
             }}
@@ -218,8 +227,9 @@ class Activity extends Component {
             key="addSelect"
             activity={activity}
             course={course || null}
+            rooms={rooms}
             userId={user._id}
-            member={{
+            user={{
               role: 'facilitator',
               user: { _id: user._id, username: user.username },
             }}
@@ -432,7 +442,7 @@ class Activity extends Component {
         userId={user._id}
         username={user.username}
         privacySetting={activity ? activity.privacySetting : 'private'}
-        owners={activity && activity.creator ? [activity.creator] : []}
+        owners={activity && activity.creator ? activity.creator : ''}
         // owners={
         //   activity && activity.members
         //     ? activity.members
@@ -481,7 +491,11 @@ Activity.propTypes = {
   loading: PropTypes.bool.isRequired,
   updateFail: PropTypes.bool.isRequired,
   updateKeys: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  rooms: PropTypes.shape({}).isRequired,
+  // connectGetCourses: PropTypes.func.isRequired,
+  // connectGetRooms: PropTypes.func.isRequired,
   connectUpdateActivity: PropTypes.func.isRequired,
+  // connectGetActivities: PropTypes.func.isRequired,
   connectGetCurrentActivity: PropTypes.func.isRequired,
 };
 
@@ -501,6 +515,8 @@ const mapStateToProps = (state, ownProps) => {
       (activity && activity.course
         ? state.courses.byId[activity.course]
         : null),
+    rooms: state.rooms.byId,
+    userId: state.user._id,
     user: state.user,
     loading: state.loading.loading,
     updateFail: state.loading.updateFail,

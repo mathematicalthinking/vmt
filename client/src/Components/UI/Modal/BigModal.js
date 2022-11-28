@@ -13,15 +13,16 @@ import classes from './bigModal.css';
 
 const BigModal = ({ show, closeModal, message, children, height, testId }) => {
   const mainDiv = React.createRef();
-  React.useEffect(() => show && mainDiv.current && mainDiv.current.focus());
+  React.useEffect(() => mainDiv.current && mainDiv.current.focus());
   return (
-    <Fragment>
+    <div
+      ref={mainDiv}
+      onKeyDown={(e) => e.key === 'Escape' && closeModal && closeModal()}
+      tabIndex="-1"
+      role="button"
+    >
       <Backdrop show={show} />
       <div
-        ref={mainDiv}
-        onKeyDown={(e) => e.key === 'Escape' && closeModal && closeModal()}
-        tabIndex="-1"
-        role="button"
         className={classes.Modal}
         data-testid={testId}
         style={{
@@ -56,7 +57,7 @@ const BigModal = ({ show, closeModal, message, children, height, testId }) => {
           </Fragment>
         )}
       </div>
-    </Fragment>
+    </div>
   );
 };
 
