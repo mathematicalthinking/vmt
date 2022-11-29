@@ -9,7 +9,7 @@
 }
 
 .Modal {
-  position: absolute;
+  position: fixed;
   float: left;
   top: 50%;
   left: 5%;
