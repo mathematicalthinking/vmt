@@ -117,15 +117,16 @@ export const useSortableData = (items, config = null) => {
     setSortConfig({ ...sortConfig, key, direction });
   };
 
-  const resetSort = ({ key, direction, filter }) => {
+  const resetSort = ({ key, direction, filter, ...others }) => {
     if (key && !direction && !filter) requestSort(key);
     else if (sortConfig)
       setSortConfig({
         key: key || sortConfig.key,
         direction: direction || sortConfig.direction,
         filter: filter || sortConfig.filter,
+        ...others,
       });
-    else setSortConfig({ key, direction, filter });
+    else setSortConfig({ key, direction, filter, ...others });
   };
 
   return { items: sortedItems, requestSort, sortConfig, resetSort };

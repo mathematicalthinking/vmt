@@ -459,7 +459,7 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
   ];
 
   const previousSearch = useRef({
-    criteria: '',
+    criteria: sortConfig.criteria || '',
     filter: sortConfig.filter,
   });
 
@@ -481,6 +481,7 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
         filter: sortConfig.filter,
       };
       sortFn({
+        criteria,
         filter: {
           ...sortConfig.filter,
           timeframe: timeFrames.ALL,
@@ -491,6 +492,7 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
       });
     } else if (criteria !== '' && previousSearch.current.criteria !== '') {
       sortFn({
+        criteria,
         filter: {
           ...sortConfig.filter,
           filterFcn: (item) =>
@@ -500,6 +502,7 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
       });
     } else if (criteria === '' && previousSearch.current.criteria !== '') {
       sortFn({
+        criteria,
         filter: previousSearch.current.filter,
       });
       previousSearch.current.criteria = '';
@@ -566,7 +569,12 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
         </label>
       </div>
       <div className={classes.Search}>
-        <Search _search={search} data-testid="search" />
+        <Search
+          isControlled
+          value={sortConfig.criteria || ''}
+          _search={search}
+          data-testid="search"
+        />
       </div>
     </div>
   );
@@ -578,6 +586,7 @@ SortUI.propTypes = {
   ).isRequired,
   sortFn: PropTypes.func.isRequired,
   sortConfig: PropTypes.shape({
+    criteria: PropTypes.string,
     key: PropTypes.string,
     direction: PropTypes.string,
     filter: PropTypes.shape({
