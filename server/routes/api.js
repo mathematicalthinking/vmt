@@ -12,8 +12,11 @@ const {
   getUser,
   getResource,
   getParamsId,
+  setResource,
+  setParamsId,
 } = require('../middleware/utils/request');
 const { findAllMatching } = require('../middleware/utils/helpers');
+const status = require('../constants/status');
 
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
@@ -26,6 +29,7 @@ router.get('/:resource', middleware.validateUser, (req, res) => {
     .get(req.query)
     .then((results) => res.json({ results }))
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error get ${resource}: ${err}`);
       let msg = null;
 
@@ -51,6 +55,7 @@ router.post('/:resource/code', (req, res) => {
     .getByCode(code)
     .then((result) => res.json({ result }))
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error: unable to retrieve resource via code`);
       let msg = null;
 
@@ -80,6 +85,7 @@ router.get('/search/:resource', (req, res) => {
       res.json({ results });
     })
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error search ${resource}: ${err}`);
       let msg = null;
       if (typeof err === 'string') {
@@ -106,7 +112,38 @@ router.get('/searchPaginated/:resource', (req, res) => {
       res.json({ results });
     })
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error search paginated${resource}: ${err}`);
+      let msg = null;
+      if (typeof err === 'string') {
+        msg = err;
+      }
+      errors.sendError.InternalError(msg, res);
+    });
+});
+
+router.get('/searchPaginatedArchive/:resource', (req, res) => {
+  const resource = getResource(req);
+  const controller = controllers[resource];
+  const { searchText, skip, filters } = req.query;
+  const regex = searchText ? new RegExp(searchText, 'i') : '';
+
+  // add user's archived ids from db onto filters
+  const user = getUser(req);
+  const archiveIds =
+    user.archive && user.archive[resource] ? user.archive[resource] : [];
+
+  const filtersAdjusted = JSON.parse(filters);
+  filtersAdjusted.ids = archiveIds;
+
+  controller
+    .searchPaginatedArchive(regex, skip, filtersAdjusted)
+    .then((results) => {
+      res.json({ results });
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(`Error search paginated archive ${resource}: ${err}`);
       let msg = null;
       if (typeof err === 'string') {
         msg = err;
@@ -124,6 +161,7 @@ router.get('/findAllMatching/:resource', (req, res) => {
   findAllMatching(controller, fields, values)
     .then((results) => res.json({ results }))
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error get ${resource}: ${err}`);
       let msg = null;
 
@@ -141,9 +179,16 @@ router.get('/findAllMatchingIds/:resource/populated', (req, res) => {
 
   try {
     return Promise.all(
-      ids.map((id) => controller.getPopulatedById(id, { events }))
+      ids.map((id) =>
+        controller
+          .getPopulatedById(id, { events })
+          .select(
+            'creator user chat members currentMembers course activity tabs createdAt updatedAt name'
+          )
+      )
     ).then((results) => res.json({ results }));
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(`Error get ${resource}: ${err}`);
     let msg = null;
 
@@ -182,6 +227,7 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
     .getRecentActivity(regex, skip, filters)
     .then((results) => res.json({ results }))
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error admin/dashboard/${resource}: ${err}`);
 
       let msg = null;
@@ -208,6 +254,7 @@ router.get(
         res.json({ result });
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.error(`Error get populated ${resource}/${id}: ${err}`);
         let msg = null;
 
@@ -229,6 +276,7 @@ router.get('/:resource/:id', middleware.validateUser, (req, res) => {
     .getById(id, req.query)
     .then((result) => res.json({ result }))
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error get ${resource}/${id}: ${err}`);
       let msg = null;
 
@@ -250,6 +298,7 @@ router.get('/:resource/:id/:tempRoom', (req, res) => {
     .getPopulatedById(id, req.query)
     .then((result) => res.json({ result }))
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error get ${resource}/${id}: ${err}`);
       let msg = null;
 
@@ -328,6 +377,7 @@ router.post(
       .post(req.body)
       .then((result) => res.json({ result }))
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.error(`Error post ${req.params.resource}: ${err}`);
 
         let msg = null;
@@ -369,6 +419,7 @@ router.put('/:resource/:id/add', middleware.validateUser, (req, res) => {
     })
     .then((result) => res.json(result))
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error put/add ${resource}/${id}: ${err}`);
 
       let msg = null;
@@ -407,6 +458,7 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res) => {
     })
     .then((result) => res.json(result))
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error put/remove/${resource}/${id}: ${err}`);
 
       let msg = null;
@@ -419,7 +471,8 @@ router.put('/:resource/:id/remove', middleware.validateUser, (req, res) => {
     });
 });
 
-router.put('/:resource/:id', middleware.validateUser, (req, res) => {
+// updateResource is a helper fn for the following 2 put methods
+const updateResource = (req, res) => {
   const id = getParamsId(req);
   const resource = getResource(req);
   const controller = controllers[resource];
@@ -429,26 +482,43 @@ router.put('/:resource/:id', middleware.validateUser, (req, res) => {
   if (resource === 'events') {
     return errors.sendError.BadMethodError('Events cannot be modified!', res);
   }
-  return middleware
-    .canModifyResource(req)
-    .then((results) => {
-      const { canModify, doesRecordExist, details } = results;
+  return middleware.canModifyResource(req).then((results) => {
+    const { canModify, doesRecordExist, details } = results;
 
-      if (!doesRecordExist) {
-        return errors.sendError.NotFoundError(null, res);
-      }
+    if (!doesRecordExist) {
+      return errors.sendError.NotFoundError(null, res);
+    }
 
-      if (!canModify) {
-        return errors.sendError.NotAuthorizedError(
-          'You do not have permission to modify this resource',
-          res
-        );
-      }
-      const prunedBody = middleware.prunePutBody(user, id, req.body, details);
-      return controller.put(id, prunedBody);
-    })
+    if (!canModify) {
+      return errors.sendError.NotAuthorizedError(
+        'You do not have permission to modify this resource',
+        res
+      );
+    }
+    const prunedBody = middleware.prunePutBody(user, id, req.body, details);
+    return controller.put(id, prunedBody);
+  });
+  // .then((result) => res.json(result))
+  // .catch((err) => {
+  //   console.error(`Error put ${resource}/${id}: ${err}`);
+
+  //   let msg = null;
+
+  //   if (typeof err === 'string') {
+  //     msg = err;
+  //   }
+
+  //   return errors.sendError.InternalError(msg, res);
+  // });
+};
+
+router.put('/:resource/:id', middleware.validateUser, (req, res) => {
+  const id = getParamsId(req);
+  const resource = getResource(req);
+  updateResource(req, res)
     .then((result) => res.json(result))
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(`Error put ${resource}/${id}: ${err}`);
 
       let msg = null;
@@ -459,6 +529,37 @@ router.put('/:resource/:id', middleware.validateUser, (req, res) => {
 
       return errors.sendError.InternalError(msg, res);
     });
+});
+
+router.put('/archiveRooms', (req, res) => {
+  const { ids = [] } = req.body;
+  const body = { status: status.ARCHIVED };
+
+  const updatedReq = setResource(req, 'rooms');
+
+  return Promise.all(
+    ids.map((id) => {
+      const newReq = setParamsId(updatedReq, id);
+      return updateResource(
+        {
+          ...newReq,
+          body,
+        },
+        res
+      ).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(`Error put rooms/${id}: ${err}`);
+
+        let msg = null;
+
+        if (typeof err === 'string') {
+          msg = err;
+        }
+
+        return errors.sendError.InternalError(msg, res);
+      });
+    })
+  ).then(() => res.sendStatus(200));
 });
 
 // router.delete("/:resource/:id", middleware.validateUser, (req, res, next) => {

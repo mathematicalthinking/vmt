@@ -18,6 +18,8 @@ const WebSketch = (props) => {
   let sketchDoc = null; // The WSP document in which the websketch lives.
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
+  const hasWidgets = useRef(false);
+
   const { index, log, tab } = props;
 
   useEffect(() => {
@@ -111,15 +113,17 @@ const WebSketch = (props) => {
   const handleMessage = (msg) => {
     // msg has three properties: name, time, and data
     // for most events, data is the attributes of the WSP event
-    const { attr, sender } = msg;
+    const { attr } = msg;
+    let gobj;
     if (!sketch) {
       getSketch();
     }
-    if (attr.gobjId) {
-      attr.gobj =
-        sketch && sketch.gobjList && sketch.gobjList.gobjects[attr.gobjId];
-      if (!attr.gobj)
-        console.error('follow.handleMessage(): msg.attr has a bad gobj.');
+    console.log('Follower received msg:', msg.name, msg.attr);
+    // If msg references a gobj, find it and attach to attr so handlers can access it.
+    const id = attr.newId ? attr.newId : attr.gobjId;
+    if (id) {
+      gobj = sketch.gobjList.gobjects[id];
+      attr.gobj = gobj;
     }
     if (msg.name.match('Widget')) {
       handleWidgetMessage(msg);
@@ -160,20 +164,38 @@ const WebSketch = (props) => {
             highlitGobjs: attr.gobj,
           });
           break;
+        case 'EndLabelDrag': // a label drag ended
+          // Is it worthwhile tracking the label drag in process? Probably not.
+          attr.gobj.setLabelPosition(
+            window.GSP.GeometricPoint(attr.newPos),
+            window.GSP.GeometricPoint(attr.cornerDelta)
+          );
+          window.WIDGETS.invalidateLabel(attr.gobj);
+          notify(attr.action + ' label of ' + gobjDesc(attr.gobj), {
+            highlitGobjs: attr.gobj,
+          });
+          break;
         // case 'ToolPlayBegan':
         case 'WillPlayTool': // controlling sketch will play a tool
-          notify('Playing ' + attr.tool.name + ' Tool');
+          // Notification persists until the tool finishes or is canceled
+          notify('Playing ' + attr.tool.name + ' Tool', {
+            prepend: true,
+            persist: true,
+          });
           startFollowerTool(attr.tool.name);
           break;
         // Ignore ToolPlayBegan, as we simulate only user drags (not matches) during toolplay
         // To get all the internals right, we'd need to duplicate every snap and unsnap.
         // We still may need to keep a record of snapped gobjs to get the drags right.
         case 'ToolPlayed': // controlling sketch has played a tool
+          notify('Finished playing ' + attr.tool.name + ' Tool', {
+            prepend: true,
+          });
           toolPlayed(attr);
           notify('');
           break;
         case 'ToolAborted': // controlling sketch has aborted a tool
-          notify('Canceled ' + attr.tool.name + ' Tool');
+          notify('Canceled ' + attr.tool.name + ' Tool', { prepend: true });
           abortFollowerTool();
           break;
         case 'MergeGobjs': // controlling sketch has merged a gobj
@@ -182,25 +204,28 @@ const WebSketch = (props) => {
           notify('Merged ' + mergeGobjDesc(attr), attr.options);
           break;
         case 'WillUndoRedo': // controlling sketch will undo or redo
-          notify('Performing ' + attr.type);
+          notify('Performed ' + attr.type);
           break;
         case 'UndoRedo':
           undoRedo(attr);
           break;
-        case 'StartEditParameter': // These messages notify the user; an update message actually performs the update
-          paramEdit('Started', attr);
-          break;
-        case 'CancelEditParameter': // These messages notify the user; an update message actually performs the update
-          paramEdit('Canceled', attr);
-          break;
-        case 'EditParameter':
-          paramEdit('Finished', attr);
+        case 'EditExpression': // handles start, confirm, cancel for editing of params, calcs, and functions.
+          editExpression(attr);
           break;
         case 'ClearTraces':
           notify('Traces cleared.');
-          sketch
-            ? sketch.clearTraces()
-            : console.error('Traces clear called, but no sketch found!');
+          sketch.clearTraces();
+          if (sketch._fadeTracesJob) {
+            // Restart; otherwise current job will delay tracing until it ends
+            sketch.stopFadeJob();
+            sketch.startFadeJob(true);
+          }
+          break;
+        case 'PrefChanged':
+          prefChanged(attr);
+          break;
+        case 'PressButton':
+          pressButton(attr);
           break;
         default:
           // Other messages to be defined: gobjEdited, gobjStyled, etc.
@@ -234,67 +259,12 @@ const WebSketch = (props) => {
     return desc;
   };
 
-  const initSketchPage = () => {
-    // Refresh vars and handlers for a new sketch page
-    // This needs to be called any time the sketch page is regenerated, for instance,
-    // due to a page change, undo or redo, or confirmed or aborted toolplay
-    // Ideally we'd like every such operation to clean up after itself by calling
-    // initSketch, but the possibility of asynchronous operations suggests that
-    // it may be safest to call getSketch(): a function that returns the sketch
-    // object from the sketchDoc.
-    if (!$sketch) {
-      const $ = window.jQuery;
-      $sketch = $('#sketch');
-    }
-    if (!sketchDoc) {
-      sketchDoc = $sketch.data('document');
-    }
-    if ($sketch.data('document') !== sketchDoc) {
-      console.error('follow: initSketchPage found invalid sketchDoc');
-      window.GSP.createError('follow: initSketchPage found invalid sketchDoc.');
-    }
-    sketch = sketchDoc.focusPage;
-  };
-
-  const gobjDesc = (gobj, cur, max) => {
-    // Returns a gobj-description string suitable for a list of form
-    // "Point #1, Point B, Circle #4, ..."
-    // cur is the 0-based item number in the list, max is the max allowed
-    // So with max = 3 the return values for cur = 1, 2,etc. are
-    // cur = 0: "Point #1"
-    // cur = 1: ", Point B"
-    // cur = 2: ", Circle #4"
-    // cur = 3: ", ..."
-    // cur > 3: ""
-
-    let retVal = '';
-    if (typeof gobj === 'string') {
-      if (!sketch) {
-        getSketch();
-      }
-      gobj = sketch && sketch.gobjList && sketch.gobjList.gobjects[gobj];
-      if (!(gobj && gobj.id && gobj.kind))
-        console.error('follow.gobjDesc() gobj param is neither string nor id.');
-    }
-    if (typeof cur === 'undefined') {
-      cur = 0;
-      max = 1;
-    }
-    if (cur === max) {
-      retVal = ', ...';
-    } else if (cur < max && gobj) {
-      retVal = gobj.kind + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
-      if (cur > 0) {
-        retVal = ', ' + retVal;
-      }
-    }
-    return retVal;
-  };
-
   function handleWidgetMessage(msg) {
     const name = msg.name.substring(0, msg.name.indexOf('Widget'));
     const { attr } = msg;
     const handlePrePost = ['Style', 'Visibility', 'Trace'];
+    let note = name + ' Widget ';
+    let persist;
     function doHandleWidget() {
       switch (name) {
         case 'Style':
@@ -324,13 +294,15 @@ const WebSketch = (props) => {
     }
 
     if (attr.action === 'activate') {
-      notify(name + ' widget activated:', { persist: true, prepend: true });
+      persist = true;
+      note += attr.restoring ? 'restored:' : 'activated:';
     } else if (attr.action === 'deactivate') {
-      notify(name + ' widget deactivated.', { prepend: true });
+      note += 'deactivated.';
     } else {
       doHandleWidget(); // Neither activate nor deactivate
       return;
     } // Only activate & deactivate left
+    notify(note, { persist: persist, prepend: true });
     if (handlePrePost.indexOf(name) >= 0) {
       doHandleWidget(); // Some widgets (e.g., style, visibility) need to handle activate/deactivate messages.
     }
@@ -338,6 +310,75 @@ const WebSketch = (props) => {
       handlePrompt(attr.promptDisplay);
     }
   }
+
+  const initSketchPage = () => {
+    // Refresh vars and handlers for a new sketch page
+    // This needs to be called any time the sketch page is regenerated, for instance,
+    // due to a page change, undo or redo, or confirmed or aborted toolplay
+    // Ideally we'd like every such operation to clean up after itself by calling
+    // initSketch, but the possibility of asynchronous operations suggests that
+    // it may be safest to call getSketch(): a function that returns the sketch
+    // object from the sketchDoc.
+    if (!$sketch) {
+      const $ = window.jQuery;
+      $sketch = $('#sketch');
+    }
+    if (!sketchDoc) {
+      sketchDoc = $sketch.data('document');
+    }
+    sketchDoc.isRemote = true;
+    // Set this flag to prevent activating a numpad/calculator UI at the end of toolplay.
+    // "isRemote" indicates that this sketchDoc is controlled remotely, not by the containing page.
+    if ($sketch.data('document') !== sketchDoc) {
+      console.error('follow: initSketchPage found invalid sketchDoc');
+      window.GSP.createError('follow: initSketchPage found invalid sketchDoc.');
+    }
+    sketch = sketchDoc.focusPage;
+  };
+
+  const gobjDesc = (gobj, cur, max) => {
+    // Returns a gobj-description string suitable for a list of form
+    // "Point #1, Point B, Circle #4, ..."
+    // cur is the 0-based item number in the list, max is the max allowed
+    // So with max = 3 the return values for cur = 1, 2,etc. are
+    // cur = 0: "Point #1"
+    // cur = 1: ", Point B"
+    // cur = 2: ", Circle #4"
+    // cur = 3: ", ..."
+    // cur > 3: ""
+
+    let retVal = '';
+    let title = gobj ? gobj.kind : 'generic';
+    if (typeof gobj === 'string') {
+      if (!sketch) {
+        getSketch();
+      }
+      gobj = sketch && sketch.gobjList && sketch.gobjList.gobjects[gobj];
+      // if (!(gobj && gobj.id && gobj.kind))
+      //   console.error('follow.gobjDesc() gobj param is neither string nor id.');
+    }
+    if (typeof cur === 'undefined') {
+      cur = 0;
+      max = 1;
+    }
+    if (cur === max) {
+      retVal = ', ...';
+    } else if (cur < max && gobj) {
+      if (!!gobj.isParameter && gobj.isParameter()) {
+        title = gobj.genus.replace(/(.*)(Parameter)/, '$1 $2');
+      } else if (
+        gobj.constraint === 'Calculation' ||
+        gobj.constraint === 'Function'
+      ) {
+        title = gobj.constraint;
+      }
+      retVal = title + ' ' + (gobj.label ? gobj.label : '#' + gobj.id);
+      if (cur > 0) {
+        retVal = ', ' + retVal;
+      }
+    }
+    return retVal;
+  };
 
   const notify = (text, options) => {
     // options are duration, highlightGobjs, prepend, and dragging
@@ -350,7 +391,7 @@ const WebSketch = (props) => {
     let prepend = false;
     if (options) {
       if (options.duration) {
-        duration = options.duration;
+        ({ duration } = options);
       }
       if (options.prepend) {
         // need seperate div + handling for 'prenotify'
@@ -361,10 +402,13 @@ const WebSketch = (props) => {
         // if a single gobj is passed, make an array.
         gobjs = [gobjs];
       }
-      callback = options.callback;
+      ({ callback } = options);
     }
 
     const highlight = (on) => {
+      if (!sketch) {
+        getSketch();
+      }
       // console.log('highlight:', text, 'options:', options, 'on:', on);
       if (highLights.length > 0) {
         // Whether on or off, remove previous highlights
@@ -379,20 +423,11 @@ const WebSketch = (props) => {
         setHighLights([]);
       }
       if (!gobjs) return; // Nothing to do
-      if (!sketch) {
-        getSketch();
-      }
       gobjs.forEach((gobj) => {
-        if (!sketch) {
-          // getSketch failed, return?
-          return;
-        }
         // this may be a gobj, or may be a gobj id
-        gobj =
-          typeof gobj === 'string'
-            ? sketch.gobjList && sketch.gobjList.gobjects[gobj]
-            : gobj;
-        if (!gobj) return; // Nothing to do
+        console.log('Notifying: ', gobj);
+        gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
+        if (!gobj) return;
         const { state } = gobj;
         if (!state) return;
         // highlighting interferes with tracing: don't highlight a traced dragged gobj
@@ -455,7 +490,6 @@ const WebSketch = (props) => {
       setActivityMessage('');
     }
   };
-
   const imposeGobjUpdates = (data) => {
     function setLoc(target, source) {
       target.x = source.x; // Avoid the need to create a new GSP.GeometricPoint
@@ -463,58 +497,46 @@ const WebSketch = (props) => {
     }
     // A gobj moved, so move the same gobj in the follower sketch
     let moveList = JSON.parse(data);
+    initSketchPage();
     if (!sketch) {
-      initSketchPage();
+      // console.log("Messaging error: this follower's sketch is not loaded.");
+      return;
     }
     console.log('Handling Gobjs: ', moveList);
 
     // eslint-disable-next-line
     for (let id in moveList) {
       const gobjInfo = moveList[id];
-      const destGobj = sketch && sketch.gobjList.gobjects[id];
+      const destGobj = sketch.gobjList.gobjects[id];
       if (!destGobj) {
         console.log('No destination Gobj found to handle the move data!');
         continue; // The moveList might be out of date during toolplay,
         // and could include a gobj that no longer exists.
       }
-      switch (gobjInfo.constraint) {
-        // case 'Calculation':
-        case 'Free':
-          if (gobjInfo.loc) {
-            setLoc(destGobj.geom.loc, gobjInfo.loc);
-          }
-          if (gobjInfo.value) {
-            destGobj.value = gobjInfo.value;
-          }
-          if (gobjInfo.expression) {
-            // Update param after it's changed
-            destGobj.expression = gobjInfo.expression;
-          }
-          break;
-        case 'PointOnPath':
-        case 'PointOnPolygonEdge':
-          destGobj.value = gobjInfo.value;
-          break;
-        case 'Calculation':
-          break;
-        default:
-          console.log(
-            'follower does not handle constraint',
-            gobjInfo.constraint
-          );
+      // Use the properties of gobjInfo to determine what needs updating
+      if (gobjInfo.loc) {
+        setLoc(destGobj.geom.loc, gobjInfo.loc);
+      }
+      if (gobjInfo.value) {
+        destGobj.value = gobjInfo.value;
+      }
+      if (gobjInfo.expression) {
+        // Update param after it's changed
+        destGobj.expression = gobjInfo.expression;
+        // Is there anything else to do for an expression?
       }
       destGobj.invalidateGeom();
     }
   };
 
   const startFollowerTool = (name) => {
-    let tool;
-    if (!sketchDoc) {
+    if (!sketch) {
       getSketch();
     }
+    let tool;
     if (
       sketchDoc.tools.some((aTool) => {
-        if (aTool && aTool.metadata.name === name) {
+        if (aTool.metadata.name === name) {
           tool = aTool;
           return true;
         }
@@ -526,7 +548,7 @@ const WebSketch = (props) => {
   };
 
   const abortFollowerTool = () => {
-    if (!sketchDoc) {
+    if (!sketch) {
       getSketch();
     }
     // What is no tool is active?
@@ -542,6 +564,7 @@ const WebSketch = (props) => {
     // If data contains a preDelta, ignore it as it should be in our current history as well.
     // console.log('Tool played: ', data);
     if (!sketch || !sketchDoc) {
+      console.log('NO Sketch to play tool on! ', sketch);
       getSketch();
     }
     const controller = sketch.toolController;
@@ -559,28 +582,17 @@ const WebSketch = (props) => {
     // But the follower has nothing to undo, so just needs to redo the passed delta.
     // (This will lose any remaining redo deltas, thus matching up with the controller.)
     // If data contains a preDelta, figure out what to do.
-    try {
-      const history = sketchDoc.getCurrentPageData().session.history;
-      let current = history.current;
-      if (data.preDelta) {
-        current.next = { delta: data.preDelta, prev: current, next: null };
-        history.redo();
-        current = history.current; // history.redo() changes current.
-      }
-      current.next = { delta: data.delta, prev: current, next: null };
-      try {
-        sketchDoc.redo();
-      } catch (e) {
-        console.error('Failed to call redo on sketchDoc ', e);
-      }
-      getSketch(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
-      if (data.newId) {
-        // newId exists only if the original gobj has changed its id
-        data.gobjId = data.newId;
-      }
-    } catch (e) {
-      console.error('GobjsMerged failed! ', e);
+    const history = sketchDoc.getCurrentPageData().session.history;
+    let { current } = history;
+    if (data.preDelta) {
+      current.next = { delta: data.preDelta, prev: current, next: null };
+      history.redo();
+      current = history.current; // history.redo() changes current.
     }
+    current.next = { delta: data.delta, prev: current, next: null };
+    sketchDoc.redo();
+    data.gobjId = data.newId;
+    getSketch(); // Required after changes in the sketch graph (toolplay, undo/redo, merge)
   };
 
   const undoRedo = (data) => {
@@ -642,8 +654,16 @@ const WebSketch = (props) => {
     if (!sketch) {
       getSketch();
     }
-    const WIDGETS = window.WIDGETS;
-    let gobj = sketch && sketch.gobjList.gobjects[attr.gobjId];
+    // const change = attr.changes[0]; // Note the assumption: there's only a single gobj being changed
+    // const gobj = sketch.gobjList.gobjects[change.id];
+    // const note =
+    //   'Tracing turned ' +
+    //   (change.traced ? 'on' : 'off') +
+    //   ' for ' +
+    //   gobjDesc(gobj, 0, 1);
+    // gobj.style.traced = change.traced;
+    // notify(note, { duration: 2000, highlitGobjs: [gobj.id] });
+    let gobj = attr.gobj;
     let options = { duration: 2500 };
     let note;
     let toggled;
@@ -652,53 +672,35 @@ const WebSketch = (props) => {
     if (gobj) {
       options.highlitGobjs = [gobj.id];
     }
+    const WIDGETS = window.WIDGETS;
+    // TODO- implement better error handling
     switch (attr.action) {
       case 'activate':
       case 'deactivate':
-        try {
-          WIDGETS.toggleTraceModality();
-        } catch (e) {
-          console.error('Failed during WIDGETS.toggleTraceModality call ', e);
-        }
+        WIDGETS.toggleTraceModality();
         toggled = true;
         break;
       case 'changed':
-        gobj = sketch && sketch.gobjList.gobjects[attr.gobjId];
-        try {
-          WIDGETS.toggleGobjTracing(gobj, attr.traced);
-          note =
-            'Tracing turned ' +
-            (attr.traced ? 'on' : 'off') +
-            ' for ' +
-            gobjDesc(gobj, 0, 1);
-        } catch (e) {
-          console.error(
-            `Error in Widgets.js when calling 'toggleGobjTracing' for ${gobj}`,
-            e
-          );
-        }
-
+        gobj = sketch.gobjList.gobjects[attr.gobjId];
+        WIDGETS.toggleGobjTracing(gobj, attr.traced);
+        note =
+          'Tracing turned ' +
+          (attr.traced ? 'on' : 'off') +
+          ' for ' +
+          gobjDesc(gobj, 0, 1);
         break;
       case 'enabled':
         cBox = $('#wTraceEnabled')[0];
         toggled = !attr.enabled != !cBox.checked; // set toggled only if the value will be changed
         if (toggled) {
-          try {
-            WIDGETS.setTraceEnabling(attr.enabled);
-            cBox.checked = attr.enabled;
-            note = 'Tracing ' + (attr.enabled ? 'enabled' : 'disabled') + '.';
-          } catch (e) {
-            console.error('failed during WIDGETS.setTraceEnabling ', e);
-          }
+          WIDGETS.setTraceEnabling(attr.enabled);
+          cBox.checked = attr.enabled;
+          note = 'Tracing ' + (attr.enabled ? 'enabled' : 'disabled') + '.';
         }
         break;
       case 'fading':
-        try {
-          WIDGETS.setTraceFading(attr.fading);
-          note = 'Trace fading turned ' + (attr.fading ? 'on' : 'off') + '.';
-        } catch (e) {
-          console.error('failed during WIDGETS.setTraceFading ', e);
-        }
+        WIDGETS.setTraceFading(attr.fading);
+        note = 'Trace fading turned ' + (attr.fading ? 'on' : 'off') + '.';
         break;
       case 'glowing':
         // glowing action is sent when glowing is turned on or off for traced gobjs
@@ -707,14 +709,7 @@ const WebSketch = (props) => {
           'Glowing for traced objects turned ' +
           (attr.glowing ? 'on' : 'off') +
           '.';
-        try {
-          WIDGETS.setTraceGlowing(attr.glowing);
-        } catch (e) {
-          console.error('failed during WIDGETS.setTraceGlowing ', e);
-        }
-        break;
-      default:
-        console.error('No trace case found! ', attr.action);
+        WIDGETS.setTraceGlowing(attr.glowing);
         break;
     }
     if (!toggled && note) {
@@ -729,26 +724,34 @@ const WebSketch = (props) => {
     if (!sketch) {
       getSketch();
     }
-    const gobj =
-      sketch.gobjList.gobjects[attr.sketch.gobjList.gobjects[attr.gobjId]];
-    const labelChanged = attr.label !== 'gobj.label';
-    let note = (note = 'Modified ');
-    if (attr.text) {
-      gobj.setLabel(attr.text);
-      // ADD SUPPORT HERE FOR CHANGING TEXT OBJECTS (E.G., CAPTIONS)
-    }
-    note += gobjDesc(gobj) + ' label.';
-    if (attr.styleJson) {
-      gobj.style = JSON.parse(attr.styleJson);
+    console.log('Sketch: ', sketch, ' Attr: ', attr);
+    const gobj = attr.gobj;
+    let note = attr.action || 'Modified';
+    if (attr.labelStyle) {
+      gobj.style.label = attr.labelStyle;
     }
     if (attr.autoGenerate) {
       gobj.shouldAutogenerateLabel = attr.autoGenerate;
     }
-    notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
+    if (attr.labelSpec && attr.labelSpec.location) {
+      gobj.labelSpec.location = window.GSP.GeometricPoint(
+        attr.labelSpec.location
+      );
+    }
     if (attr.autoGenerateLabel) {
       gobj.autoGenerateLabel = attr.autoGenerateLabel;
     }
-    gobj.invalidateAppearance();
+    if (attr.text) {
+      window.WIDGETS.labelChanged(attr.text, gobj);
+      // gobj.setLabel() exists only for gobjs with gobj.hasLabel === true
+      // WIDGETS.LabelChanged applies to all labeled gobjs (e.g. functions)
+      // gobj.setLabel(attr.text);
+      // ADD SUPPORT HERE FOR CHANGING TEXT OBJECTS (E.G., CAPTIONS)
+    }
+    window.WIDGETS.invalidateLabel(gobj);
+    note += ' label of ' + gobjDesc(gobj) + '.';
+    notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
+    // gobj.invalidateAppearance();
   }
 
   function handleVisibilityWidget(attr) {
@@ -777,13 +780,10 @@ const WebSketch = (props) => {
   }
 
   function handleDeleteWidget(attr) {
-    if (!sketch) {
-      getSketch();
-    }
-    let note = ' ';
+    let note = '';
     const deletedGobjs = {};
     let thisDelta;
-
+    let descendantsExist = false;
     function doDelete() {
       sketch.gobjList.removeGObjects(deletedGobjs, sketch);
       thisDelta = sketch.document.pushConfirmedSketchOpDelta(attr.preDelta);
@@ -791,13 +791,15 @@ const WebSketch = (props) => {
       console.log('Delete delta: ', thisDelta, ' vs ', attr.delta);
       sketch.document.changedUIMode();
     }
-    // TODO - refactor
-    $.each(attr.deletedIds, function() {
-      const gobj = sketch.gobjList.gobjects[this];
+    attr.deletedIds.forEach((id) => {
+      const gobj = sketch.gobjList.gobjects[id];
       if (!note) {
         note = 'Deleted ' + gobjDesc(gobj);
+      } else if (!descendantsExist) {
+        note += ' and its descendants.'; // append this on second gobj
+        descendantsExist = true;
       }
-      deletedGobjs[this] = gobj;
+      deletedGobjs[id] = gobj;
     });
 
     notify(note + ' and its descendants.', {
@@ -807,15 +809,72 @@ const WebSketch = (props) => {
     });
   }
 
-  function paramEdit(reason, attr) {
-    if (!sketch) {
-      getSketch();
+  function editExpression(attr) {
+    // handles start, confirm, cancel for editing of params, calcs, and functions.
+    const action = attr.action;
+    const gobj = attr.gobj;
+    const gobjects = sketch.gobjList.gobjects;
+    notify(action + ' editing ' + gobjDesc(gobj), {
+      duration: 2000,
+      highlitGobjs: [gobj],
+    });
+    // For 'Started' or 'Canceled', the notification is all that's needed.
+    if (attr.action === 'Confirmed' && gobj) {
+      if (attr.parentIds) {
+        attr.parentIds.forEach(function(par, ix) {
+          gobj.parents[ix] = gobjects[par];
+        });
+      }
+      if (attr.expression) {
+        gobj.expression = attr.expression;
+      }
+      if (attr.expressionType) {
+        gobj.expressionType = attr.expressionType;
+      }
+      if (attr.functionExpr) {
+        gobj.functionExpr = attr.functionExpr;
+      }
+      if (attr.infix) {
+        gobj.parsedInfix = attr.infix;
+      }
+      if (gobj.isParameter()) {
+        gobj.setEditedValue(attr.expression); // This works for params; does it work for others?
+      } else {
+        // Function or Calculation
+        gobj.expressionAndParentsWereUpdated();
+      }
     }
-    // state is editStarted, changesNotAccepted, or changesAccepted
-    const gobj = sketch.gobjList.gobjects[attr.gobjId];
-    let note = reason;
-    note += ' parameter edit: <em>' + gobj.label + '</em>';
-    notify(note, { duration: 2000, highlitGobjs: [attr.gobjId] });
+  }
+
+  function prefChanged(attr) {
+    // attr has category, pref, oldValue, & newValue
+    const note =
+      'Changed ' +
+      attr.pref +
+      ' preference from ' +
+      attr.oldValue +
+      ' to ' +
+      attr.newValue;
+    if (attr.category === 'units') {
+      window.PREF.setUnitPref($sketch, attr.pref, attr.newValue);
+      notify(note, { duration: 2000 });
+    } else {
+      window.GSP.createError(
+        'follow: prefChanged cannot handle category ' + attr.category
+      );
+    }
+  }
+
+  function pressButton(attr) {
+    // attr has category, pref, oldValue, & newValue
+    const note = attr.gobj
+      ? 'Pressed ' + attr.gobj.label + ' button'
+      : 'Button pressed';
+    notify(note, { duration: 2000, highlitGobjs: [attr.gobj] });
+    // How can we tell start from stop, or rather, how can we use attr
+    // to transmit the button's render state (and whether to turn it on or off)
+    // Animate and Move, for instance, are very different in how they stop.
+    // attr.gobj.press();
   }
 
   // --- Initialization functions ---
@@ -840,7 +899,19 @@ const WebSketch = (props) => {
     let config = tab.ggbFile
       ? JSON.parse(Buffer.from(tab.ggbFile, 'base64'))
       : testConfig;
+    shouldLoadWidgets(config);
     return config;
+  };
+
+  const shouldLoadWidgets = ({ metadata }) => {
+    const { authorPreferences } = metadata;
+    if (authorPreferences) {
+      for (let [key, value] of Object.entries(authorPreferences)) {
+        if (key.includes('widget') && value !== 'none') {
+          hasWidgets.current = true;
+        }
+      }
+    }
   };
 
   const loadSKetchDoc = (config) => {
@@ -860,7 +931,10 @@ const WebSketch = (props) => {
     console.log('Found data: ', data);
     sketchDoc = data;
     sketch = data.focusPage;
-    checkWidgets();
+    sketchDoc.isRemote = true;
+    if (hasWidgets.current) {
+      checkWidgets();
+    }
   };
 
   const checkWidgets = async () => {

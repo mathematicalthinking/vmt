@@ -30,24 +30,18 @@ import {
 import { Modal, CurrentMembers, Loading } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
-import { socket, useSnapshots, API } from '../../utils';
+import {
+  socket,
+  useSnapshots,
+  API,
+  controlStates,
+  controlEvents,
+} from '../../utils';
 
 class Workspace extends Component {
   constructor(props) {
     super(props);
     const { user, populatedRoom, tempCurrentMembers, temp } = this.props;
-    let myColor = '#f26247'; // default in the case of Temp rooms. @TODO The temp user from the server should be fully formed, with a color and inAdminMode property
-    if (populatedRoom.members) {
-      try {
-        myColor = populatedRoom.members.filter(
-          (member) => member.user._id === user._id
-        )[0].color;
-      } catch (err) {
-        if (user.isAdmin) {
-          myColor = '#ffd549';
-        }
-      }
-    }
 
     this.adminModeSwitched = false; // Needed if someone leaves a room by switching their admin mode
 
@@ -60,7 +54,7 @@ class Workspace extends Component {
       snapshotRef: React.createRef(),
       tabs: populatedRoom.tabs || [],
       log: populatedRoom.log || [],
-      myColor,
+      myColor: '#f26247', // default; gets reset if needed in componentDidMount
       controlledBy: populatedRoom.controlledBy,
       currentMembers: temp
         ? tempCurrentMembers
@@ -225,9 +219,6 @@ class Workspace extends Component {
     socket.removeAllListeners('USER_LEFT');
     socket.removeAllListeners('RELEASED_CONTROL');
     socket.removeAllListeners('TOOK_CONTROL');
-    if (this.controlTimer) {
-      clearTimeout(this.controlTimer);
-    }
 
     cancelSnapshots(); // if Workspace were a functional component, we'd do this directly in the custom hook.
     clearInterval(this.heartbeatInterval);
@@ -306,7 +297,13 @@ class Workspace extends Component {
   };
 
   initializeListeners = () => {
-    const { temp, populatedRoom, connectUpdatedRoom, user } = this.props;
+    const {
+      temp,
+      populatedRoom,
+      connectUpdatedRoom,
+      user,
+      sendControlEvent,
+    } = this.props;
     const { myColor } = this.state;
 
     if (!temp) {
@@ -344,13 +341,10 @@ class Workspace extends Component {
           const currMems = populatedRoom.getCurrentMembers(room.currentMembers);
           this.setState(
             {
-              // currentMembers: room.currentMembers,
-              // currentMembers: populatedRoom.getCurrentMembers(),
               currentMembers: currMems,
             },
             () =>
               connectUpdatedRoom(populatedRoom._id, {
-                // currentMembers: room.currentMembers,
                 currentMembers: currMems,
               })
           );
@@ -359,47 +353,35 @@ class Workspace extends Component {
       }
     }
 
-    socket.on('USER_JOINED', (data) => {
-      const { controlledBy: currentControl } = this.state;
+    const _handleJoinOrLeave = (data) => {
+      const { controlState } = this.props;
+      const { controlledBy: currentControl } = controlState;
       const { currentMembers, message, releasedControl } = data;
       const controlledBy = releasedControl ? null : currentControl;
       const currMems = populatedRoom.getCurrentMembers(currentMembers);
-      this.setState(
-        {
-          currentMembers: currMems,
-          controlledBy,
-        },
-        () =>
-          connectUpdatedRoom(populatedRoom._id, {
-            currentMembers: currMems,
-            controlledBy,
-          })
+      const newState = {
+        currentMembers: currMems,
+        ...(releasedControl ? { controlledBy } : null),
+      };
+      this.setState(newState, () =>
+        connectUpdatedRoom(populatedRoom._id, newState)
       );
       this.addToLog(message);
-    });
+      if (releasedControl) sendControlEvent(controlEvents.MSG_RELEASED_CONTROL);
+    };
 
-    socket.on('USER_LEFT', (data) => {
-      let { controlledBy } = this.state;
-      const { currentMembers, message } = data;
-      const currMems = populatedRoom.getCurrentMembers(currentMembers);
-      if (data.releasedControl) {
-        controlledBy = null;
-      }
-      this.setState({ controlledBy, currentMembers: currMems }, () =>
-        connectUpdatedRoom(populatedRoom._id, {
-          controlledBy,
-          currentMembers: currMems,
-        })
-      );
-      this.addToLog(message);
-    });
+    socket.on('USER_JOINED', _handleJoinOrLeave);
+
+    socket.on('USER_LEFT', _handleJoinOrLeave);
 
     socket.on('TOOK_CONTROL', (message) => {
       this.addToLog(message);
       this.setState({
         awarenessDesc: message.text,
         awarenessIcon: 'USER',
-        controlledBy: message.user._id,
+      });
+      sendControlEvent(controlEvents.MSG_TOOK_CONTROL, {
+        id: message.user._id,
       });
     });
 
@@ -408,8 +390,8 @@ class Workspace extends Component {
       this.setState({
         awarenessDesc: message.text,
         awarenessIcon: 'USER',
-        controlledBy: null,
       });
+      sendControlEvent(controlEvents.MSG_RELEASED_CONTROL);
     });
 
     socket.on('CREATED_TAB', (data) => {
@@ -430,7 +412,7 @@ class Workspace extends Component {
       const { log } = this.state;
       const lastEvent = log.findLast((event) => !event.messageType);
       if (lastEvent && lastEvent._id && lastEvent._id !== lastEventId) {
-        // log that state is out of sync
+        // log that the state is out of sync
         console.log(
           `State is out of sync. lastEventId: ${lastEventId}, last log id: ${
             log[log.length - 1]._id
@@ -472,7 +454,7 @@ class Workspace extends Component {
   };
 
   setHeartbeatTimer = () => {
-    // no heartbeat threshold
+    // threshold to determine whether no heartbeat
     const TIMEOUT = 150001;
     this.clearHeartbeatTimer();
     this.timer = setTimeout(() => {
@@ -526,9 +508,6 @@ class Workspace extends Component {
         // eslint-disable-next-line no-console
         console.log('something went wrong on the socket:', err);
       }
-      // this.props.updatedRoom(this.props.room._id, {
-      //   chat: [...this.props.room.chat, res.message]
-      // });
       this.addToLog(data);
     });
     const updatedTabs = activityOnOtherTabs.filter((tab) => tab !== id);
@@ -540,94 +519,28 @@ class Workspace extends Component {
     );
   };
 
-  toggleControl = (event, auto) => {
-    const { populatedRoom, user } = this.props;
-    const { controlledBy, myColor } = this.state;
-    if (!socket.connected && !auto) {
+  toggleControl = () => {
+    const { controlState, sendControlEvent } = this.props;
+    const { myColor } = this.state;
+    if (!socket.connected) {
       // i.e. if the user clicked the button manually instead of controll being toggled programatically
       window.alert(
         'You have disconnected from the server. Check your internet connection and try refreshing the page'
       );
     }
-    // console.log(
-    //   'toggling control..., currently controlled by you-',
-    //   controlledBy === user._id
-    // );
 
-    if (controlledBy === user._id) {
+    if (controlState.matches(controlStates.ME)) {
       const { takeSnapshot } = this.state;
       takeSnapshot(this._snapshotKey(), this._currentSnapshot());
-
-      // Releasing control
-      const message = {
-        _id: mongoIdGenerator(),
-        user: { _id: user._id, username: 'VMTBot' },
-        room: populatedRoom._id,
-        text: !auto
-          ? `${user.username} released control`
-          : `${user.username} control was released by system`,
-        autogenerated: true,
-        messageType: 'RELEASED_CONTROL',
-        color: myColor,
-        timestamp: new Date().getTime(),
-      };
-      this.addToLog(message);
-      this.setState({
-        awarenessDesc: message.text,
-        awarenessIcon: null,
-        controlledBy: null,
-      });
-      socket.emit('RELEASE_CONTROL', message, (err) => {
-        // eslint-disable-next-line no-console
-        if (err) console.log(err);
-      });
-      clearTimeout(this.controlTimer);
     }
 
-    // If room is controlled by someone else
-    else if (controlledBy) {
-      const message = {
-        _id: mongoIdGenerator(),
-        text: 'Can I take control?',
-        messageType: 'TEXT',
-        user: { _id: user._id, username: user.username },
-        room: populatedRoom._id,
-        color: myColor,
-        timestamp: new Date().getTime(),
-      };
-      socket.emit('SEND_MESSAGE', message, () => {
-        this.addToLog(message);
-      });
-    } else if (user.inAdminMode) {
-      this.setState({
-        showAdminWarning: true,
-      });
-      // } else if (!user.connected) {
-      // Let all of the state updates finish and then show an alert
-      // setTimeout(
-      //   () =>
-      //     window.alert(
-      //       'You have disconnected from the server. Check your internet connection and try refreshing the page'
-      //     ),
-      //   0
-      // );
-    } else {
-      // We're taking control
-      this.setState({ controlledBy: user._id, referencing: false });
-      this.resetControlTimer();
-      const message = {
-        _id: mongoIdGenerator(),
-        user: { _id: user._id, username: 'VMTBot' },
-        room: populatedRoom._id,
-        text: `${user.username} took control`,
-        messageType: 'TOOK_CONTROL',
-        autogenerated: true,
-        color: myColor,
-        timestamp: new Date().getTime(),
-      };
-      this.addToLog(message);
-      socket.emit('TAKE_CONTROL', message, () => {});
+    if (controlState.matches(controlStates.NONE)) {
+      this.setState({ referencing: false });
     }
+    sendControlEvent(controlEvents.CLICK, {
+      myColor,
+      callback: this.addToLog,
+    });
   };
 
   emitNewTab = (tabInfo) => {
@@ -638,15 +551,6 @@ class Workspace extends Component {
     socket.emit('NEW_TAB', tabInfo, () => {
       this.addToLog(tabInfo.message);
     });
-  };
-
-  resetControlTimer = () => {
-    this.time = Date.now();
-    clearTimeout(this.controlTimer);
-    this.controlTimer = setTimeout(() => {
-      this.toggleControl(null, true);
-      // one minute control timer
-    }, 60 * 1000);
   };
 
   startNewReference = () => {
@@ -974,9 +878,9 @@ class Workspace extends Component {
       results.log = newRoom.log;
     }
 
-    if (oldRoom.controlledBy !== newRoom.controlledBy) {
-      results.controlledBy = newRoom.controlledBy;
-    }
+    // if (oldRoom.controlledBy !== newRoom.controlledBy) {
+    //   results.controlledBy = newRoom.controlledBy;
+    // }
 
     if (
       JSON.stringify(oldRoom.currentMembers) !==
@@ -990,7 +894,7 @@ class Workspace extends Component {
 
   emitEvent = (eventInfo) => {
     const { currentTabId, currentScreen, myColor, log } = this.state;
-    const { populatedRoom, user } = this.props;
+    const { populatedRoom, user, sendControlEvent } = this.props;
     const eventData = {
       ...eventInfo,
       _id: mongoIdGenerator(),
@@ -1004,6 +908,7 @@ class Workspace extends Component {
     if (currentScreen) eventData.currentScreen = currentScreen;
     const lastEventId = log[log.length - 1]._id;
     this.addToLog(eventData);
+    sendControlEvent(controlEvents.RESET);
     socket.emit('SEND_EVENT', eventData, lastEventId, () => {});
   };
 
@@ -1020,12 +925,12 @@ class Workspace extends Component {
       connectUpdateUserSettings,
       resetRoom,
       user,
+      controlState,
     } = this.props;
     const {
       tabs: currentTabs,
       currentMembers: activeMembers,
       log,
-      controlledBy,
       membersExpanded,
       toolsExpanded,
       instructionsExpanded,
@@ -1052,9 +957,7 @@ class Workspace extends Component {
       isCreatingActivity,
       connectionStatus,
     } = this.state;
-    let inControl = 'OTHER';
-    if (controlledBy === user._id) inControl = 'ME';
-    else if (!controlledBy) inControl = 'NONE';
+    const inControl = controlState.inControl || controlStates.NONE;
 
     const currentMembers = (
       <CurrentMembers
@@ -1065,7 +968,7 @@ class Workspace extends Component {
             ? tempCurrentMembers
             : populatedRoom.getCurrentMembers(activeMembers)
         }
-        activeMember={controlledBy}
+        activeMember={controlState.controlledBy}
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
       />
@@ -1121,7 +1024,6 @@ class Workspace extends Component {
             key={tab._id}
             room={populatedRoom}
             user={user}
-            resetControlTimer={this.resetControlTimer}
             currentTabId={currentTabId}
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
@@ -1145,7 +1047,6 @@ class Workspace extends Component {
             key={tab._id}
             room={populatedRoom}
             user={user}
-            resetControlTimer={this.resetControlTimer}
             currentTabId={currentTabId}
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
@@ -1169,7 +1070,6 @@ class Workspace extends Component {
             key={tab._id}
             room={populatedRoom}
             user={user}
-            resetControlTimer={this.resetControlTimer}
             currentTabId={currentTabId}
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
@@ -1192,7 +1092,6 @@ class Workspace extends Component {
             key={tab._id}
             room={populatedRoom}
             user={user}
-            resetControlTimer={this.resetControlTimer}
             currentTabId={currentTabId}
             updateRoomTab={connectUpdateRoomTab}
             tab={tab}
@@ -1220,7 +1119,6 @@ class Workspace extends Component {
           addToLog={this.addToLog}
           updateRoom={connectUpdateRoom}
           updatedRoom={connectUpdatedRoom}
-          resetControlTimer={this.resetControlTimer}
           inControl={inControl}
           currentTabId={currentTabId}
           addNtfToTabs={this.addNtfToTabs}
@@ -1264,17 +1162,26 @@ class Workspace extends Component {
           loaded={isFirstTabLoaded}
           bottomRight={
             <Tools
-              inControl={inControl}
-              goBack={this.goBack}
-              toggleControl={this.toggleControl}
+              controlState={controlState.buttonConfig}
+              onClickExit={this.goBack}
+              onClickControl={this.toggleControl}
               lastEvent={log[log.length - 1]}
-              save={save}
+              onClickSave={save}
               isSimplified={isSimplified}
-              toggleSimpleChat={this.toggleSimpleChat}
+              onToggleSimpleChat={this.toggleSimpleChat}
               referencing={referencing}
-              startNewReference={this.startNewReference}
-              clearReference={this.clearReference}
+              onToggleReference={
+                referencing ? this.clearReference : this.startNewReference
+              }
               inAdminMode={user.inAdminMode}
+              exitText="Exit Room"
+              // Cannot use referencing or control when in admin mode
+              {...(user.inAdminMode
+                ? {
+                    onToggleReference: undefined,
+                    onClickControl: undefined,
+                  }
+                : null)}
               // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
             />
           }
@@ -1379,6 +1286,12 @@ Workspace.propTypes = {
   connectSetRoomStartingPoint: PropTypes.func.isRequired,
   connectUpdateUserSettings: PropTypes.func.isRequired,
   resetRoom: PropTypes.func,
+  controlState: PropTypes.shape({
+    buttonConfig: PropTypes.shape({}),
+    inControl: PropTypes.string,
+    controlledBy: PropTypes.string,
+  }),
+  sendControlEvent: PropTypes.func,
 };
 
 Workspace.defaultProps = {
@@ -1388,6 +1301,8 @@ Workspace.defaultProps = {
   save: null,
   temp: false,
   resetRoom: () => {},
+  controlState: { buttonConfig: null, inControl: null, controlledBy: null },
+  sendControlEvent: null,
 };
 const mapStateToProps = (state) => {
   return {

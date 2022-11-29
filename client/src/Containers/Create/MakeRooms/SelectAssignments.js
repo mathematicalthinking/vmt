@@ -6,9 +6,8 @@ import classes from './selectAssignment.css';
 const SelectAssignments = ({
   activity,
   course,
-  rooms,
   userId,
-  user,
+  member,
   label,
   defaultOption,
   toolTip,
@@ -20,13 +19,6 @@ const SelectAssignments = ({
   const [selectedAssignment, setSelectedAssignment] = React.useState(
     defaultOption
   );
-
-  // React.useEffect(() => {
-  //   close();
-  //   return () => {
-  //     close();
-  //   };
-  // }, [AssignmentComponent]);
 
   const close = () => {
     setShowAssignments(false);
@@ -42,7 +34,7 @@ const SelectAssignments = ({
     const courseGroupings = course && course.groupings;
     const activityGroupings = activity && activity.groupings;
     const groupings = courseGroupings || activityGroupings;
-    return groupings ? optionsGenerator(groupings, rooms, activity._id) : [];
+    return groupings ? optionsGenerator(groupings, activity._id) : [];
   };
 
   const options = () => {
@@ -50,8 +42,11 @@ const SelectAssignments = ({
       _id: assignment._id,
       aliasMode: assignment.aliasMode,
       dueDate: assignment.dueDate,
-      label: assignment.name,
+      label: `${assignment.name}: ${new Date(
+        assignment.timestamp
+      ).toLocaleString()}`,
       value: assignment.roomDrafts,
+      roomName: assignment.name,
     }));
     return firstOption ? [firstOption].concat(assignments) : assignments;
   };
@@ -87,8 +82,7 @@ const SelectAssignments = ({
           course={course}
           userId={userId}
           close={close}
-          participants={course ? course.members : [user]}
-          rooms={rooms}
+          participants={course ? course.members : [member]}
           selectedAssignment={selectedAssignment}
         />
       )}
@@ -111,8 +105,7 @@ SelectAssignments.propTypes = {
     members: PropTypes.arrayOf(PropTypes.shape({})),
     groupings: PropTypes.arrayOf(PropTypes.shape({})),
   }),
-  rooms: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
+  member: PropTypes.shape({}).isRequired,
   toolTip: PropTypes.string.isRequired,
   AssignmentComponent: PropTypes.func.isRequired,
   optionsGenerator: PropTypes.func.isRequired,

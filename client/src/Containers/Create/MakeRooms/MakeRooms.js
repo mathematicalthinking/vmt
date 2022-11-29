@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { BigModal, Button, Modal } from 'Components';
-import { createGrouping } from 'store/actions';
-import COLOR_MAP from 'utils/colorMap';
+import { BigModal, Button } from 'Components';
+import { createGrouping, inviteToCourse } from 'store/actions';
+import { useAppModal, COLOR_MAP } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
@@ -26,8 +26,9 @@ const MakeRooms = (props) => {
   const [participants, setParticipants] = useState(initialParticipants);
   const [roomDrafts, setRoomDrafts] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
   const submitArgs = React.useRef(); // used for passing along submit info
+  const membersToInviteToCourse = React.useRef(null);
+  const { show: showTheWarning, hide: hideTheWarning } = useAppModal();
 
   // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
   // changed props.  However, the correct way of detecting and responding to a changed state is to act when the
@@ -67,6 +68,19 @@ const MakeRooms = (props) => {
   useEffect(() => {
     if (selectedAssignment && Array.isArray(selectedAssignment.value)) {
       setRoomDrafts(selectedAssignment.value);
+      // sort participants by their room assignments (as best as possible)
+      const sortedParticipants = selectedAssignment.value
+        .map((room) => room.members)
+        .flat()
+        .concat(participants) // make sure we at least have expected participants
+        .reduce(
+          (acc, mem) => ({
+            ...acc,
+            [mem.user._id]: mem,
+          }),
+          {}
+        );
+      setParticipants(Object.values(sortedParticipants));
       if (selectedAssignment.value.length !== 0) {
         setParticipantsPerRoom(
           Math.max(
@@ -196,6 +210,10 @@ const MakeRooms = (props) => {
     );
   };
 
+  const handleMembersToInvite = (memsToInvite) => {
+    membersToInviteToCourse.current = memsToInvite;
+  };
+
   const setNumber = (numberOfParticipants) => {
     // Make sure that number of participants is between 1 and the number of participants
     const newNumberOfParticipants = Math.max(
@@ -223,7 +241,7 @@ const MakeRooms = (props) => {
           )
         )
     );
-    return everyoneAssigned ? submit(submitInfo) : setShowWarning(true);
+    return everyoneAssigned ? submit(submitInfo) : showWarning();
   };
 
   const submit = ({ aliasMode, dueDate, roomName }) => {
@@ -264,14 +282,6 @@ const MakeRooms = (props) => {
         color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
       }));
 
-      // if (!course) {
-      //   members.unshift({
-      //     user: userId,
-      //     role: 'facilitator',
-      //     color: COLOR_MAP[0],
-      //   });
-      // }
-
       currentRoom.members = members;
       currentRoom.name = `${roomName}: ${i + 1}`;
       roomsToCreate.push(currentRoom);
@@ -285,9 +295,20 @@ const MakeRooms = (props) => {
     }
 
     if (course) {
-      dispatch(createGrouping(roomsToCreate, activity, course));
+      dispatch(createGrouping(roomsToCreate, activity, course, roomName));
+      // if user was added via AddParticipants (showModal),
+      // invite them to the course
+      if (membersToInviteToCourse.current) {
+        membersToInviteToCourse.current.forEach((memToInvite) => {
+          inviteToCourse(
+            course._id,
+            memToInvite.user._id,
+            memToInvite.user.username
+          )(dispatch);
+        });
+      }
     } else {
-      dispatch(createGrouping(roomsToCreate, activity));
+      dispatch(createGrouping(roomsToCreate, activity, null, roomName));
     }
     close();
     const { pathname: url } = history.location;
@@ -310,6 +331,31 @@ const MakeRooms = (props) => {
     />
   );
 
+  const showWarning = () => {
+    showTheWarning(
+      <Fragment>
+        <div>
+          There are unassigned participants. Do you want to continue with this
+          assignment?
+        </div>
+        <div>
+          <Button
+            m={10}
+            click={() => {
+              submit(submitArgs.current);
+              hideTheWarning();
+            }}
+          >
+            Assign
+          </Button>
+          <Button m={10} theme="Cancel" click={hideTheWarning}>
+            Cancel
+          </Button>
+        </div>
+      </Fragment>
+    );
+  };
+
   return (
     <React.Fragment>
       {showModal && (
@@ -321,31 +367,14 @@ const MakeRooms = (props) => {
         >
           <AddParticipants
             participants={participants}
-            updateList={setParticipants}
             userId={userId}
-            courseId={course ? course._id : null}
+            updateList={setParticipants}
             close={() => {
               setShowModal(false);
             }}
-            sortParticipants={sortParticipants}
+            updateMembersToInvite={handleMembersToInvite}
           />
         </BigModal>
-      )}
-      {showWarning && (
-        <Modal show={showWarning} closeModal={() => setShowWarning(false)}>
-          <div>
-            There are unassigned participants. Do you want to continue with this
-            assignment?
-          </div>
-          <div>
-            <Button m={10} click={() => submit(submitArgs.current)}>
-              Assign
-            </Button>
-            <Button m={10} theme="Cancel" click={() => setShowWarning(false)}>
-              Cancel
-            </Button>
-          </div>
-        </Modal>
       )}
       <AssignRooms
         initialAliasMode={selectedAssignment.aliasMode || false}
@@ -369,8 +398,9 @@ MakeRooms.propTypes = {
   selectedAssignment: PropTypes.shape({
     aliasMode: PropTypes.bool,
     dueDate: PropTypes.string,
-    roomName: PropTypes.string,
+    label: PropTypes.string,
     value: PropTypes.arrayOf(PropTypes.shape({})),
+    roomName: PropTypes.string,
   }),
   activity: PropTypes.shape({
     name: PropTypes.string,
@@ -382,6 +412,7 @@ MakeRooms.propTypes = {
     image: PropTypes.string,
     instructions: PropTypes.string,
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    creator: PropTypes.string,
   }).isRequired,
   course: PropTypes.shape({ _id: PropTypes.string }),
   userId: PropTypes.string.isRequired,

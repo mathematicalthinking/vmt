@@ -7,8 +7,7 @@
 	font-size: 16px;
 	box-sizing: border-box;
   width: max-content;
-  z-index: 2; 
-   /* stay above the resize button */
+  z-index: 2; // stay above the resize button
 }
 
 #widget * {
@@ -394,6 +393,11 @@
 	font-size: 13px;
 }
 
+.wCharDropbtn {
+  height: 16px;
+  padding-top: 6px;
+}
+
 /* Char dropdown content (hidden by default) */
 .wCharDropdownContent {
   display: none;
@@ -581,12 +585,12 @@
 }
 
 .page_prevBtn {
-	background-image: url("./left-pointer.png");
+	background-image: url("left-pointer.png");
 	opacity: 0.4;
 }
 
 .page_nextBtn {
-	background-image: url("./right-pointer.png");
+	background-image: url("right-pointer.png");
 }
 
 .page_popup {
@@ -620,14 +624,14 @@ input + span {
 
 input:invalid+span:after {
   position: absolute;
-	content: '✖';
+	content: '\2716';
   padding-left: 5px;
 	padding-top: 2px;
 }
 
 input:valid+span:after {
   position: absolute;
-  content: '✓';
+  content: '\2713';
   padding-left: 6px;
 	padding-top: 2px;
 }
@@ -769,5 +773,5 @@ input.util-popup-button:focus {
   float: left;
   padding: 7px 5px 0;
   height: 16px;
-  content: url("./wsp-logo.png");
+  content: url("wsp-logo.png");
 }

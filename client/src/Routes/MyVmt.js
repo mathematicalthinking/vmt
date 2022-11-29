@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import withPopulatedCourse from 'utils/withPopulatedCourse';
+import { withControlMachine, withPopulatedCourse } from 'utils';
 import Navbar from '../Components/Navigation/Navbar';
 import {
   MyVMT,
@@ -17,7 +17,7 @@ import {
   Dashboard,
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
-import { PrivateRoute, ErrorToast, Loading } from '../Components';
+import { PrivateRoute, ErrorToast } from '../Components';
 import { Confirmation, FacilitatorIntro } from '../Layout';
 import ErrorBoundary from '../ErrorBoundary';
 import { updateUser } from '../store/actions/user';
@@ -64,7 +64,7 @@ const pages = [
   },
   {
     path: '/workspace/:room_id',
-    component: withPopulatedRoom(Workspace),
+    component: withPopulatedRoom(withControlMachine(Workspace)),
     redirectPath: '/signup',
   },
   {
@@ -115,7 +115,7 @@ const MyVmt = ({
         })}
         <Route
           path={`${path}/explore/:room_id`}
-          component={withPopulatedRoom(TempWorkspace)}
+          component={withPopulatedRoom(withControlMachine(TempWorkspace))}
         />
         <Route
           path="*"

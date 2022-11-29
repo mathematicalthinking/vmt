@@ -121,6 +121,7 @@ const WebSketchEditor = (props) => {
       { event: 'DidChangeCurrentPage.WSP', handler: reflectAndSync },
       { event: 'StartDragConfirmed.WSP', handler: reflectMessage },
       { event: 'EndDrag.WSP', handler: reflectMessage },
+      { event: 'EndLabelDrag.WSP', handler: reflectMessage },
       { event: 'WillPlayTool.WSP', handler: reflectMessage },
       { event: 'ToolPlayed.WSP', handler: reflectAndSync },
       { event: 'ToolPlayBegan.WSP', handler: syncGobjUpdates }, // Tool objects are instantiated, so track them
@@ -137,6 +138,7 @@ const WebSketchEditor = (props) => {
       { event: 'CancelEditParameter.WSP', handler: reflectMessage },
       { event: 'EditParameter.WSP', handler: reflectMessage },
       { event: 'ClearTraces.WSP', handler: reflectMessage },
+      { event: 'PressButton.WSP', handler: reflectMessage },
     ];
     handlers.forEach((el) => {
       $sketch.off(el.event, el.handler);
@@ -166,10 +168,6 @@ const WebSketchEditor = (props) => {
       gobjsToUpdate = sketch.sQuery(updateSel);
       gobjsToUpdate.on('update', setActivityUpdates);
     }
-    // Handlers do not yet exist for changes to a gobj's infix or parents, and in fact
-    // sQuery doesn't have an event that can be made to fire on changes to a gobj's infix or parents.
-    // There is a WSP message we can listen to for parameter edits: EditParameter.WSP
-    // We can listen for WSP messages when widgets are used to change a gobj's style, visibility, trace status, etc.
   };
 
   const reflectMessage = (event, context, attr) => {

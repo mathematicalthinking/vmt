@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import find from 'lodash/find';
-import { API } from 'utils';
+import { API, getUserNotifications } from 'utils';
 import CourseMonitor from './Monitoring/CourseMonitor';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
-import getUserNotifications from '../utils/notifications';
 
 import {
   removeCourseMember,
@@ -16,6 +15,8 @@ import {
   requestAccess,
   grantAccess,
   updateUser,
+  inviteToActivity,
+  removeFromActivity,
 } from '../store/actions';
 import {
   DashboardLayout,
@@ -287,6 +288,7 @@ class Course extends Component {
         })
         .catch((err) => {
           this.setState({ errorMessage: err.response.data.errorMessage });
+          // eslint-disable-next-line no-console
           console.log('API err: ', err);
         });
     } else {
@@ -324,6 +326,22 @@ class Course extends Component {
     return prevParticipants
       .sort((a, b) => a.user.username.localeCompare(b.user.username))
       .concat(facilitators);
+  };
+
+  changeMemberRole = (updatedMember) => {
+    const {
+      course,
+      connectInviteToActivity,
+      connectRemoveFromActivity,
+    } = this.props;
+    const takeAction =
+      updatedMember.role === 'facilitator'
+        ? connectInviteToActivity
+        : connectRemoveFromActivity;
+    course.activities.forEach(
+      (activity) =>
+        updatedMember.user && takeAction(activity._id, updatedMember.user._id)
+    );
   };
 
   render() {
@@ -406,6 +424,7 @@ class Course extends Component {
               notifications.filter((ntf) => ntf.resourceId === course._id) || []
             }
             course={course}
+            onChangeRole={this.changeMemberRole}
           />
         );
       } else if (resource === 'preview') {
@@ -423,6 +442,9 @@ class Course extends Component {
       const additionalDetails = {
         facilitators: course.members.filter(
           (member) => member.role === 'facilitator'
+        ).length,
+        participants: course.members.filter(
+          (member) => member.role === 'participant'
         ).length,
         activities: course.activities.length,
         rooms: course.rooms.length,
@@ -689,6 +711,8 @@ Course.propTypes = {
   connectRemoveCourseMember: PropTypes.func.isRequired,
   connectUpdateCourse: PropTypes.func.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
+  connectInviteToActivity: PropTypes.func.isRequired,
+  connectRemoveFromActivity: PropTypes.func.isRequired,
 };
 
 Course.defaultProps = {
@@ -697,7 +721,7 @@ Course.defaultProps = {
 };
 
 const combineResources = (resources) => {
-  // eslint-disable-next-line no-return-assign
+  // ensure no repeated resources
   const obj = resources.reduce((acc, res) => {
     acc[res._id] = res;
     return acc;
@@ -727,7 +751,7 @@ const mapStateToProps = (store, ownProps) => {
             ]),
           }
         : localCourse,
-    activities: store.activities.allIds,
+    activities: store.activities.allIds, // @TODO: Note that this prop is never used. It is all activities user has access to.
     rooms: store.rooms.allIds,
     user: store.user,
     // notifications: store.user.courseNotifications.access,
@@ -744,4 +768,6 @@ export default connect(mapStateToProps, {
   connectRequestAccess: requestAccess,
   connectGrantAccess: grantAccess,
   connectUpdateUser: updateUser,
+  connectInviteToActivity: inviteToActivity,
+  connectRemoveFromActivity: removeFromActivity,
 })(Course);

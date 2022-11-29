@@ -27,6 +27,16 @@ export default {
     return api.get(`/api/search/${resource}`, { params: { text, exclude } });
   },
 
+  searchPaginatedArchive: (
+    resource,
+    searchText = '',
+    skip = 0,
+    filters = {}
+  ) => {
+    const params = { searchText, skip, filters };
+    return api.get(`/api/searchPaginatedArchive/${resource}`, { params });
+  },
+
   searchPaginated: (resource, criteria, skip, filters) => {
     const { privacySetting, roomType } = filters;
     const params = criteria ? { criteria, skip } : { skip };
@@ -192,5 +202,9 @@ export default {
   },
   reinstateUser: (userId) => {
     return api.post(`/admin/reinstateUser/${userId}`);
+  },
+
+  archiveRooms: (ids) => {
+    return api.put(`/api/archiveRooms`, { ids });
   },
 };

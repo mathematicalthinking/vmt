@@ -43,3 +43,7 @@
   text-transform: uppercase;
   color: #666;
 }
+
+.Hover:hover {
+  cursor: pointer;
+}

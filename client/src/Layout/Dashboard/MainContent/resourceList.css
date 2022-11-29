@@ -25,6 +25,8 @@
   display: flex;
   flex-flow: column;
   flex: 1;
+  margin-bottom: 2rem;
+  min-width: 552px;
 }
 
 .Col:first-child {
@@ -66,4 +68,15 @@
 
 .SortSelection, .FilterSelection {
   z-index: 350;
+}
+
+.CustomIcon {
+  margin-top: 5px;
+  font-size: 20px;
+}
+
+.CustomIcon:hover {
+  cursor: pointer;
+  font-size: 21px;
+  font-weight: 600;
 }

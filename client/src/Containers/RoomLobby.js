@@ -18,6 +18,7 @@ import {
   EditText,
   TrashModal,
   Error,
+  ToolTip,
 } from 'Components';
 import {
   joinWithCode,
@@ -32,13 +33,14 @@ import {
   // populateRoom,
   updateUser,
 } from 'store/actions';
-import getUserNotifications from 'utils/notifications';
+import { getUserNotifications, getResourceTabTypes } from 'utils';
+import { STATUS } from 'constants.js';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
 import Access from './Access';
 import RoomPreview from './Monitoring/RoomPreview';
-import getResourceTabTypes from 'utils/getResourceTabTypes';
+import classes from './RoomLobby.css';
 
 class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
@@ -71,6 +73,7 @@ class Room extends Component {
       isAdmin: false,
       roomType: '',
       isPlural: false,
+      archiving: false,
     };
   }
 
@@ -275,6 +278,16 @@ class Room extends Component {
     history.push(`/myVMT/workspace/${room._id}/replayer`);
   };
 
+  showArchiveModal = () => {
+    this.setState({ archiving: true });
+  };
+
+  archiveRoom = () => {
+    const { room, connectUpdateRoom, history } = this.props;
+    connectUpdateRoom(room._id, { ...room, status: STATUS.ARCHIVED });
+    history.push(`/myVMT/rooms`);
+  };
+
   fetchRoom = () => {
     const { connectGetRoom, match } = this.props;
     connectGetRoom(match.params.room_id);
@@ -344,6 +357,7 @@ class Room extends Component {
       trashing,
       roomType,
       isPlural,
+      archiving,
     } = this.state;
     if (room && room.tabs && !guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
@@ -470,13 +484,35 @@ class Room extends Component {
       }
       return (
         <Aux>
+          {archiving && (
+            <Modal
+              show={archiving}
+              closeModal={() => this.setState({ archiving: false })}
+            >
+              <p>
+                Are you sure you want to archive{' '}
+                <span style={{ fontWeight: '800' }}>{room.name}</span>?
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <Button m="1rem" click={this.archiveRoom}>
+                  Yes
+                </Button>
+                <Button
+                  m="1rem"
+                  click={() => this.setState({ archiving: false })}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </Modal>
+          )}
           <DashboardLayout
             breadCrumbs={
               <BreadCrumbs crumbs={crumbs} notifications={user.notifications} />
             }
             sidePanel={
               <SidePanel
-                image={room.image}
+                // image={room.image}
                 alt={name}
                 editing={editing}
                 name={
@@ -508,28 +544,71 @@ class Room extends Component {
                 owner={room.myRole === 'facilitator'}
                 additionalDetails={additionalDetails}
                 buttons={
-                  <Aux>
-                    <span>
-                      <Button
-                        theme={loading.loading ? 'SmallCancel' : 'Small'}
-                        m={10}
-                        data-testid="Enter"
-                        click={!loading.loading ? this.goToWorkspace : null}
-                      >
-                        Enter
-                      </Button>
-                    </span>
-                    <span>
-                      <Button
-                        theme={loading.loading ? 'SmallCancel' : 'Small'}
-                        m={10}
-                        data-testid="Replayer"
-                        click={!loading.loading ? this.goToReplayer : null}
-                      >
-                        Replayer
-                      </Button>
-                    </span>
-                  </Aux>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div style={{ display: 'flex', marginBottom: '2rem' }}>
+                      <ToolTip text="Enter this room" delay={600}>
+                        <span>
+                          <Button
+                            theme={loading.loading ? 'SmallCancel' : 'Small'}
+                            m={10}
+                            data-testid="Enter"
+                            click={!loading.loading ? this.goToWorkspace : null}
+                          >
+                            Enter
+                          </Button>
+                        </span>
+                      </ToolTip>
+                    </div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        alignItems: 'flex-end',
+                      }}
+                    >
+                      <ToolTip text="Replayer" delay={600}>
+                        <span
+                          // theme={loading.loading ? 'SmallCancel' : 'Small'}
+                          // m={10}
+                          data-testid="Replayer"
+                          onClick={!loading.loading ? this.goToReplayer : null}
+                          onKeyDown={
+                            !loading.loading ? this.goToReplayer : null
+                          }
+                          role="button"
+                          tabIndex={-1}
+                          className={`material-symbols-outlined ${classes.CustomIcon}`}
+                          style={{ paddingRight: '0.5rem' }}
+                        >
+                          replay
+                        </span>
+                      </ToolTip>
+                      {room.myRole === 'facilitator' && (
+                        <ToolTip text="Archive This Room" delay={600}>
+                          <span
+                            data-testid="archive-room"
+                            onClick={
+                              !loading.loading ? this.showArchiveModal : null
+                            }
+                            onKeyDown={
+                              !loading.loading ? this.showArchiveModal : null
+                            }
+                            className={`material-symbols-outlined ${classes.CustomIcon}`}
+                            role="button"
+                            tabIndex={-1}
+                          >
+                            input
+                          </span>
+                        </ToolTip>
+                      )}
+                    </div>
+                  </div>
                 }
                 editButton={
                   room.myRole === 'facilitator' || isAdmin ? (
@@ -562,12 +641,14 @@ class Room extends Component {
                             Save
                           </Button>
                           <Button
+                            theme="Danger"
+                            m={10}
                             click={this.trashRoom}
                             data-testid="trash-room"
-                            theme="Danger"
                           >
                             <i className="fas fa-trash-alt" />
                           </Button>
+
                           <Button click={this.toggleEdit} theme="Cancel">
                             Cancel
                           </Button>
@@ -672,11 +753,49 @@ class Room extends Component {
 }
 
 Room.propTypes = {
-  room: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
-  course: PropTypes.shape({}),
-  history: PropTypes.shape({}).isRequired,
-  match: PropTypes.shape({}).isRequired,
+  room: PropTypes.shape({
+    _id: PropTypes.string,
+    course: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.shape({})),
+    ]), // course might be an id or a populated object
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+    privacySetting: PropTypes.string,
+    myRole: PropTypes.string,
+    name: PropTypes.string,
+    dueDate: PropTypes.string,
+    description: PropTypes.string,
+    entryCode: PropTypes.string,
+    image: PropTypes.string,
+    instructions: PropTypes.string,
+    settings: PropTypes.shape({}),
+  }),
+  user: PropTypes.shape({
+    _id: PropTypes.string,
+    username: PropTypes.string,
+    firstName: PropTypes.string,
+    notifications: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ), // might be an id (string) or a populated object
+    rooms: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
+    inAdminMode: PropTypes.bool,
+    isAdmin: PropTypes.bool,
+  }).isRequired,
+  course: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    members: PropTypes.arrayOf(PropTypes.shape({})),
+  }),
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      room_id: PropTypes.string,
+      resource: PropTypes.string,
+    }),
+  }).isRequired,
   loading: PropTypes.bool.isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   error: PropTypes.string,

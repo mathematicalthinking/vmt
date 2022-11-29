@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import * as actionTypes from './actionTypes';
-import API from '../../utils/apiRequests';
 import { normalize } from '../utils';
+import API from '../../utils/apiRequests';
 import * as loading from './loading';
 
 export const gotActivities = (activities) => ({
@@ -57,6 +57,22 @@ export const removeUserActivities = (activityIdsArr) => {
   return {
     type: actionTypes.REMOVE_USER_ACTIVITIES,
     activityIdsArr,
+  };
+};
+
+export const addUserToActivity = (activityId, userId) => {
+  return {
+    type: actionTypes.ADD_ACTIVITY_USER,
+    activityId,
+    userId,
+  };
+};
+
+export const removeUserFromActivity = (activityId, userId) => {
+  return {
+    type: actionTypes.REMOVE_ACTIVITY_USER,
+    activityId,
+    userId,
   };
 };
 
@@ -215,7 +231,7 @@ export const updateActivity = (id, body) => {
       .then(() => {
         // dispatch(loading.success())
       })
-      .catch(() => {
+      .catch((e) => {
         // Undo changes
         const keys = Object.keys(body);
         if (body.isTrashed) {
@@ -242,5 +258,26 @@ export const updateActivity = (id, body) => {
 export const createdActivityConfirmed = () => {
   return {
     type: actionTypes.CREATE_ACTIVITY_CONFIRMED,
+  };
+};
+
+// this function is parallel to inviteToCourse (actions/course.js) or inviteToRoom (actions/rooms.js).
+export const inviteToActivity = (activityId, userId) => {
+  // We specifiy the resource as "activitie" because grantAccess
+  // pluralizes the resource by adding an "s".
+  return (dispatch) => {
+    API.grantAccess(userId, 'activitie', activityId, 'invitation', {
+      role: 'facilitator',
+    })
+      .then(() => dispatch(addUserToActivity(activityId, userId)))
+      .catch((err) => console.log(err));
+  };
+};
+
+export const removeFromActivity = (activityId, userId) => {
+  return (dispatch) => {
+    API.removeMember('activities', activityId, userId)
+      .then(() => dispatch(removeUserFromActivity(activityId, userId)))
+      .catch((err) => console.log(err));
   };
 };

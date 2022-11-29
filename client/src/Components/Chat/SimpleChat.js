@@ -48,6 +48,8 @@ function SimpleChat({ log, isSimplified }) {
     // setMessages(newMessages);
   };
 
+  React.useEffect(resetMessages, [isSimplified]);
+
   React.useEffect(() => {
     _scrollToBottom();
   }, []);

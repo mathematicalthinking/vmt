@@ -58,6 +58,8 @@ export {
   removeCourseRooms,
   updateMonitorSelections,
   createGrouping,
+  restoreArchivedRoom,
+  archiveRooms,
 } from './rooms';
 export {
   getCourses,
@@ -91,5 +93,9 @@ export {
   setActivityStartingPoint,
   updateActivityTab,
   updatedActivityTab,
+  addUserToActivity,
+  removeUserFromActivity,
+  inviteToActivity,
+  removeFromActivity,
 } from './activities';
 export { joinWithCode, requestAccess, grantAccess } from './access';

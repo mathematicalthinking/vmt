@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button } from '../../Components';
+import { Modal, Button, ControlButton } from 'Components';
+import { buttonConfigs } from 'utils';
 
 const ControlWarningModal = ({
   inControl,
@@ -9,23 +10,54 @@ const ControlWarningModal = ({
   showControlWarning,
   inAdminMode,
 }) => {
-  let msg = `You can't make updates when you're not in control. Click "Take Control" first.`;
+  let msg = `You can't make updates when you're not in control.`;
   let cancelText = 'Cancel';
   let cancelTheme = 'Cancel';
+
+  if (inControl === 'REQUESTED') {
+    msg =
+      'Your request has already been received. Use "Cancel Request" if you no longer want control. Use "Okay" if you still want control to be released.';
+    cancelText = 'Okay';
+  }
 
   if (inAdminMode) {
     msg = "You can't make updates when you're in admin mode.";
     cancelText = 'Okay';
     cancelTheme = 'Small';
   }
+
+  const _controlState = () => {
+    if (buttonConfigs[inControl]) return buttonConfigs[inControl];
+
+    // Just in cases (cf. "Love, Actually")
+    const text = (() => {
+      switch (inControl) {
+        case 'NONE':
+          return 'Take Control';
+        case 'ME':
+          return 'Release Control';
+        case 'OTHER':
+          return 'Request Control';
+        case 'REQUESTED':
+          return 'Cancel Request';
+        default:
+          return 'Unknown';
+      }
+    })();
+
+    return { text, disabled: false };
+  };
+
   return (
     <Modal show={showControlWarning} closeModal={cancel}>
       <div data-testid="control-warning">{msg}</div>
       <div>
         {!inAdminMode ? (
-          <Button m={5} click={takeControl}>
-            {inControl === 'NONE' ? 'Take Control' : 'Request Control'}
-          </Button>
+          <ControlButton
+            m={5}
+            onClick={takeControl}
+            controlState={_controlState()}
+          />
         ) : null}
         <Button theme={cancelTheme} m={5} click={cancel} data-testid="cancel">
           {cancelText}

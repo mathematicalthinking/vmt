@@ -1,4 +1,4 @@
-:import("../../../colors.css") {
+:import('../../../colors.css') {
   blue: blue;
   red: red;
   green: green;
@@ -8,6 +8,7 @@
 
 .Container {
   width: 100%;
+  min-width: 540px;
   position: relative;
   display: flex;
   padding: 5px;
@@ -19,6 +20,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 600px;
 }
 
 .SubContainer {
@@ -37,6 +39,7 @@
 .BannerLeft {
   display: flex;
   align-items: space-between;
+  max-width: 66%;
 }
 
 .TitleIcons {
@@ -47,6 +50,7 @@
 
 .Container:hover {
   box-shadow: lightShadow;
+  font-weight: 500;
 }
 
 .Title {
@@ -55,6 +59,9 @@
   text-align: center;
   vertical-align: middle;
   color: blue;
+  max-width: 310px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .Expand {
@@ -85,8 +92,8 @@
 
 .Icons {
   display: flex;
-  width: 95px;
-  flex-justify-content: space-between;      /* ??????? */
+  width: 4rem;
+  justify-content: space-around;
   align-items: center;
   margin-right: 10px;
   color: #666;
@@ -115,4 +122,17 @@
 
 .TabTypes {
   text-transform: capitalize;
+}
+
+.CustomIconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 14rem;
+  /* padding: 0 1rem; */
+}
+
+.CustomIcon {
+  margin: 0 1rem;
+  cursor: pointer;
 }

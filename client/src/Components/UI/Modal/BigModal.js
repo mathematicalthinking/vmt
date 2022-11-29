@@ -11,46 +11,54 @@ import gif from './Ripple.gif';
 import Backdrop from '../Backdrop/Backdrop';
 import classes from './bigModal.css';
 
-const BigModal = ({ show, closeModal, message, children, height, testId }) => (
-  <Fragment>
-    <Backdrop show={show} />
-    <div
-      className={classes.Modal}
-      data-testid={testId}
-      style={{
-        transform: show ? 'translateY(-50%)' : 'translateY(-150vh)',
-        opacity: show ? '1' : '0',
-        height: height || 'auto',
-        // width: height || 'auto',
-      }}
-    >
-      {children ? (
-        <Fragment>
-          {closeModal && (
-            <div
-              data-testid="close-modal"
-              className={classes.Close}
-              onClick={closeModal}
-              onKeyPress={closeModal}
-              tabIndex="-2"
-              role="button"
-            >
-              <i className="fas fa-times" />
+const BigModal = ({ show, closeModal, message, children, height, testId }) => {
+  const mainDiv = React.createRef();
+  React.useEffect(() => show && mainDiv.current && mainDiv.current.focus());
+  return (
+    <Fragment>
+      <Backdrop show={show} />
+      <div
+        ref={mainDiv}
+        onKeyDown={(e) => e.key === 'Escape' && closeModal && closeModal()}
+        tabIndex="-1"
+        role="button"
+        className={classes.Modal}
+        data-testid={testId}
+        style={{
+          transform: show ? 'translateY(-50%)' : 'translateY(-150vh)',
+          opacity: show ? '1' : '0',
+          height: height || 'auto',
+          // width: height || 'auto',
+        }}
+      >
+        {children ? (
+          <Fragment>
+            {closeModal && (
+              <div
+                data-testid="close-modal"
+                className={classes.Close}
+                onClick={closeModal}
+                onKeyPress={closeModal}
+                tabIndex="-2"
+                role="button"
+              >
+                <i className="fas fa-times" />
+              </div>
+            )}
+            {children}
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="loader">
+              <img src={gif} alt="loading" />
             </div>
-          )}
-          {children}
-        </Fragment>
-      ) : (
-        <Fragment>
-          <div className="loader">
-            <img src={gif} alt="loading" />
-          </div>
-          <div className={classes.Message}>{message}</div>
-        </Fragment>
-      )}
-    </div>
-  </Fragment>
-);
+            <div className={classes.Message}>{message}</div>
+          </Fragment>
+        )}
+      </div>
+    </Fragment>
+  );
+};
 
 BigModal.propTypes = {
   show: PropTypes.bool.isRequired,

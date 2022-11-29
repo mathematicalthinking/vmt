@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221006032208
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102172944
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -8299,7 +8299,7 @@
           numpadCt = 0,   // The index of numeric keypads. Keypads are created
                           // as needed and assigned a unique index.
           keyMap = {      // Maps modified keycodes to names. Modified keycodes
-                          // incorporate which modifier keys are also actie
+                          // incorporate which modifier keys are also active
               '8': 'backspace',
               // '9': 'tab', // Remove by magic, it cause problem with screen reader tab key navigation
               // '13': 'submit', // sumbit needs special handling - for accessibility, generally 'enter' means activate current button.
@@ -8723,9 +8723,9 @@
                 var numpadRegime =
                   GSP.NumpadEditRegime.createWithGObj(gobj);
                   
-                gobj.sQuery.sketch.event("StartEditParameter",
+                gobj.sQuery.sketch.event("EditExpression",
                     { gobj: gobj},
-                    {
+                    { action: 'Started',
                       value: gobj.value,
                       expression: this.text
                     });
@@ -8803,17 +8803,16 @@
             this.text = oldValue.toString();
           }
           gobj.setEditedValue(this.text); 
-          gobj.state.selected=false;
+          gobj.state.selected = false;
           if (gobj.value === oldValue) {
-            this.gobj.sQuery.sketch.event("CancelEditParameter",
+            this.gobj.sQuery.sketch.event("EditExpression",
                 { gobj: this.gobj},
-                {
-                  value: gobj.value
+                { action: 'Canceled'
                 });
           } else {
-            this.gobj.sQuery.sketch.event("EditParameter",
+            this.gobj.sQuery.sketch.event("EditExpression",
                 { gobj: this.gobj},
-                {
+                { action: 'Confirmed',
                   oldValue: oldValue,
                   expression: this.text,
                   newValue: this.gobj.value
@@ -9099,13 +9098,38 @@
      * and push a new touch regime for back-clicking.
      */
     CalculatorEditor.prototype.prepare = function() {
-        var editor = this;
+        var editor = this,
+            gobj = this.gobj,
+            sketch = gobj.sQuery.sketch;
   
         editor.finishEditing = function () {
-            editor.cleanupCalculatorState();
-            if (editor.calculatorDidClose) {
-              editor.calculatorDidClose(editor.closeReason || "changesNotAccepted");
-            }
+          console.log('finishEditing called for ', gobj, editor);
+          var parentIds = [];
+          editor.cleanupCalculatorState();
+          if (editor.closeReason === 'changesAccepted') {
+            gobj.parentsList.forEach(function (par) {
+              parentIds.push(par.id);
+            });
+            sketch.event("EditExpression",
+                { gobj: gobj},
+                { action: 'Confirmed',
+                  infix: gobj.parsedInfix,
+                  expressionType: gobj.expressionType,
+                  expression: gobj.expression,
+                  functionExpr: gobj.functionExpr,
+                  parentIds: parentIds
+                  // This may differ for a calculation!!
+                }
+            );
+          } else {
+            sketch.event("EditExpression",
+                { gobj: gobj},
+                {action: 'Canceled'}
+            );
+          }
+          if (editor.calculatorDidClose) {
+            editor.calculatorDidClose(editor.closeReason || "changesNotAccepted");
+          }
           editor.closeReason = null;
         };
   
@@ -9124,11 +9148,17 @@
         var backClickRegime =
               GSP.BackClickRegime.createWithEditor(editor);
   
+    
         backClickRegime.delegate = editor;
         editor.gobj.sQuery.sketch.pushTouchRegime(backClickRegime);
         editor.touchRegime = backClickRegime;
   
         editor.gobj.sQuery().sketch.document.changedUIMode();
+        
+        editor.gobj.sQuery.sketch.event("EditExpression",
+            {gobj: editor.gobj},
+            {action: 'Started'}
+        );
       };
   
       /* Touch regime delegate implementation */
@@ -9481,10 +9511,10 @@
           // mathquill uses fancy symbols, but we need plain ones for
           // the infix parser.
           function fixUp(val) {
-            return val.replace('·', '*')
-              .replace("⋅", '*')
-              .replace('\u2212', '-')
-              .replace('\u0192', 'f')
+            return val.replace("\u22C5", '*')  // dot operator
+              .replace('\u00B7', '*')  // middle dot
+              .replace('\u2212', '-')  // minus sign
+              .replace('\u0192', 'f')  // small f with hook (function)
               .replace('\xa0', ''); // space
           }
           var ret = [];
@@ -10044,7 +10074,7 @@
               separator(),
               mkIndependentVariableOption(),
               separator(),
-              mkOption("pi", "π", true),
+              mkOption("pi", "\u03C0", true),
               mkOption("e", "e", true)
             ]).addClass('wsp-Calculator-topmost-select-for-insert'),
             selectFunction = forInsert(select("functions", "Functions", [
@@ -10305,8 +10335,8 @@
             var self = this;
               if (this.hasVFocus) {
                   this.numpad.editor.unsetCursor();
+                  this.hasVFocus = false; // do this before calling finishEditing, which otherwise generates a recursive call to vBlur
                   this.numpad.editor.finishEditing();
-                  this.hasVFocus = false;
                   // hide the number pad
                   setTimeout(function() {
                     self.editedEl.focus();
@@ -10500,6 +10530,7 @@
         "StartDragConfirmed",
         "MoveDrag",
         "EndDrag",
+        "EndLabelDrag",
         "MergeGobjs",
         "StartAnimate",
         "EndAnimate",
@@ -10514,15 +10545,14 @@
         "MoveScroll",
         "EndScroll",
         "PressButton",
-        "StartEditParameter",
-        "CancelEditParameter",
-        "EditParameter",
+        "EditExpression",  // handles start, confirm, cancel for editing of params, calcs, and functions.
         "ClearTraces",
         "StyleWidget",
         "TraceWidget",
         "LabelWidget", 
         "VisibilityWidget",
-        "DeleteWidget"
+        "DeleteWidget",
+        "PrefChanged"
       ],
   
       /**
@@ -15858,6 +15888,10 @@
        * Applies constraints to each gobject instance in topological sort order.
        * Basically, this gives the gobject instances a chance to correct their
        * state in response to events that have been processed for their parents.
+       * For some parents, changes to their geometry affects children.
+       * But for value-based parents, only the value, not the geometry, affects children.
+       * Such parents (dragged parameters, calculations, measurements, functions, buttons)
+       * do not cause their children to be reconstrained.
        */
       constrain: function () {
         if (this.state === "stopped") {
@@ -15867,13 +15901,18 @@
   
         // gobj.state.constraintFrame = Max( [gobj, gobj.parents]).state.constraintFrame
         function updateOneConstraintFrame(index, gobj, sketch) {
-          var i, parentGObj;
+          var i, parentGObj, parentDragged, parentChanged;
           for( i = 0 ; i < gobj.numParents(); i++) {
             parentGObj = gobj.parentsList[i];
-  
-            if( parentGObj.state.constraintFrame > gobj.state.constraintFrame) {
+            // has gobj been changed in a way that affects descendants, via geom or value?
+            parentChanged = parentGObj.state.constraintFrame > gobj.state.constraintFrame;
+            // has gobj been dragged without affecting descendants?
+            parentDragged = parentGObj.state.dragFrame > gobj.state.dragFrame;
+            if (parentChanged) { //only parentChanged affects descendants
               gobj.state.constraintFrame = parentGObj.state.constraintFrame;
-              // Invalidating an object invalidates its previous (last-rendered) bounds.
+            }
+            if (parentChanged || parentDragged) {
+              // Invalidating an object (even dragging a value object) invalidates its previous (last-rendered) bounds.
               sketch.invalidateRect( sketch.renderRefCon.renderBounds[gobj.id]);
               sketch.invalidateRect( sketch.renderRefCon.labelBounds[gobj.id]);
               sketch.isDirty = true;
@@ -15884,7 +15923,9 @@
         function constrainOneGObj(index, gobj, sketch) {
           var id, dc;
           try {
-            if ((gobj.state.constraintFrame >= sketch.constraintFrame) && gobj.checkParentsExist()) {
+            if ((gobj.state.constraintFrame >= sketch.constraintFrame ||
+                 gobj.state.dragFrame >= sketch.constraintFrame) &&
+                 gobj.checkParentsExist()) {
               gobj.constrain(sketch);
               // Constraining an object invalidates its current (to-be-rendered) bounds
               if( !gobj.style.hidden) {
@@ -15978,14 +16019,36 @@
        * @param {Object} gobj -- the GObj whose geometry is to be invalidated
        * @return {GSP.Sketch} the sketch
        */
-      invalidateGeom: function(gobj) {
-        if( gobj) {
-          gobj.state.constraintFrame = this.constraintFrame;
+      invalidateGeom: function(gobj, source) {
+        
+        function dragDoesntContrain(gobj) { // Identify gobjs that can be dragged w/o affecting children
+          // turn these tests into flags defined by various kind/genus/constraint files 
+          var ret;
+          ret = GSP.isParameter(gobj) ||
+                GSP.isCalculation(gobj) ||
+                gobj.isOfKind("Measure") ||
+                gobj.isOfKind("Button") ||
+                gobj.isOfKind("Text") ||
+                gobj.isOfKind("Expression");
+          return ret;
+        }
+        
+        if (gobj) {
+          //if (source === 'drag' && gobj.nonGeom) {
+          if (source === 'drag' && dragDoesntContrain(gobj)) { // extend to other draggable gobjs
+            // non-geometric gobjs (parameters, functions, buttons, etc.) can be dragged
+            // without effect on their children, so don't set constraintFrame
+            // Setting dragFrame signals the constraintLoop to rerender them w/o
+            // constraining their children.
+            gobj.state.dragFrame = this.constraintFrame;
+          } else {
+            gobj.state.constraintFrame = this.constraintFrame;
+          }
           this.invalidateAppearance(gobj);
         }
         return this;
       },
-  
+      
       /**
         Notify client/container that a particular event has occurred.
         Currently forwards to GSP.event() but may notify differently at some point.
@@ -21412,7 +21475,7 @@
                 }
             }
   
-            gobj.sQuery.sketch.invalidateGeom(gobj);
+            gobj.sQuery.sketch.invalidateGeom(gobj, 'drag'); // invalidated due to a drag
           }
         } 
       },
@@ -21675,18 +21738,21 @@
       };
       
     return function (x, y) {
+      // Create a GeometricPoint from the x and y values, or from a single param with x and y attributes
       var GeometricPoint;
-      if (typeof x === "string") {
-          x = Number(x);
+      if (x && x.x && x.y && y === undefined) {
+        // single param has both x and y
+        return GSP.GeometricPoint(x.x, x.y);
       }
-      if (typeof x !== "number") {
-          x = NaN;
+      if (typeof x === "string") {
+        x = Number(x);
+      } else if (typeof x !== "number") {
+        x = NaN;
       }
       if (typeof y === "string") {
-          y = Number(y);
-      }
-      if (typeof y !== "number") {
-          y = NaN;
+        y = Number(y);
+      } else if (typeof y !== "number") {
+        y = NaN;
       }
       GeometricPoint = Object.create (GeometricPointPrototype);
       
@@ -37980,7 +38046,7 @@
             renderAttrs.renderable = true;
             renderAttrs.visibility= "visible";
             renderAttrs.opacity = 1;
-            renderAttrs.constraintFrame = 0;
+            renderAttrs.frame = 0;  // Change constraintFrame to frame, as a new frame may be required by dragFrame
   
             ctx.save();
             ctx.beginPath();
@@ -38328,10 +38394,10 @@
                 fontSize = drawRefCon['font-size'] || kDefaultFontSize,
                 fontSpec,
                 sizeEstimate;
-            // Check the following change, adding forceDomParse to the constraintFrame test. forceDomParse is set
+            // Check the following change, adding forceDomParse to the frame test. forceDomParse is set
             // when the MFS has changed in the absence of reconstraining the sketch (as in relabeling a gobj or button)
             // This change works with the html engine; it seems likely that it will work here also.
-            if (renderAttrs.constraintFrame !== drawRefCon.constraintFrame || renderAttrs.forceDomParse) {
+            if (renderAttrs.frame !== drawRefCon.frame || renderAttrs.forceDomParse) {
               if( renderAttrs.parsedMFS !== drawRefCon.parsedMFS) {
                 drawRefCon.parsedMFS = renderAttrs.parsedMFS;
                 
@@ -38350,7 +38416,7 @@
                   tmpCtx.scale( devicePixelRatio, devicePixelRatio);
                 }
               }
-              drawRefCon.constraintFrame = renderAttrs.constraintFrame;
+              drawRefCon.frame = renderAttrs.frame;
             }
   
             /*
@@ -39613,9 +39679,9 @@
                 /*jshint +W116*/
                 // If forceDomParse is true, reparse the MFS (via updateFromModel) even if the sketch has not been reconstrained.
                 // This handles MFS changes due to changing a label.
-                if (renderAttrs.constraintFrame !== this.constraintFrame || renderAttrs.forceDomParse) {
+                if (renderAttrs.frame !== this.frame || renderAttrs.forceDomParse) {
                   this.updateFromModel(renderAttrs);
-                  this.constraintFrame = renderAttrs.constraintFrame;
+                  this.frame = renderAttrs.frame;
                 }
                 this.updateModelToViewTransform(drawContext.modelToViewTransform);
   
@@ -41011,7 +41077,8 @@
           this.generatedLabels = undefined;        
         }
         //  Show the Calculator, _unless_ it was already shown at the end of toolplay.
-        if (calcPresent && !$(".wsp-Calculator").is(":visible")) {
+        // and _unless_ the sketchDoc's is remotely controlled
+        if (calcPresent && !$(".wsp-Calculator").is(":visible") && !self.sketch.document.isRemote) {
           calcPresent.presentUI();
         }
       },
@@ -41914,23 +41981,14 @@
        */
       abortActiveTool: function() {
         var regime = this.activeRegime,
-            msgContent;
-        if (regime && this.activeTool) {
+            name = GSP._get(this.activeTool, 'metadata.name');
+        if (regime) {
           // Original code tested for activeTool AFTER popping, so never generated an event
-          // Create event msg before popping (while activeTool exists)
-          msgContent = {tool: {name: this.activeTool.metadata.name}};      
+          // Now we get tool name before popping (while activeTool exists)
           //Popping the regime will trigger our delegate who performs all of the cleanup
           this.sketch.popAllTouchRegimesIncluding(regime);
-          this.sketch.event('ToolAborted', {}, msgContent);
         }
-        this.sketch.event(
-          'ToolAborted',
-          {},
-          {
-            tool: {
-              name: name
-            }
-          });
+        this.sketch.event('ToolAborted', {}, {tool: {name: name}});
       },
       
       /**
@@ -45524,6 +45582,17 @@
             touch: touch,
             isLabelTap: true
           });
+        } else {
+          this.sketch.event(
+            "EndLabelDrag",
+            {
+              gobj: this.gobj
+            },
+            { newPos: GSP.GeometricPoint(pos.x, pos.y),
+              cornerDelta: this.labelCornerDelta,
+              action: 'Dragged' // Label event actions have " label of point A" appended.
+            }
+          );
         }
   
         // Tell the longPress job we are done and gone.
@@ -50093,10 +50162,12 @@
                 displayObject = drawRefCon,
                 attrs = {
                     visibility: visibility,
-                    constraintFrame: this.state.constraintFrame,
+                    frame: this.state.constraintFrame,
                     zIndex: renderArgs.zIndex
                 };
-  
+            if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
+              attrs.frame = this.state.dragFrame;
+            }
             this.updateButtonSpeakableText(this.oldText, this.label);
   
             if (renderable) {
@@ -52603,7 +52674,7 @@
             attrs = {
                 visibility: visibility,
                 measurable: renderable || this.latentVisibility,
-                constraintFrame: this.state.constraintFrame,
+                frame: this.state.constraintFrame,
                 opacity: this.calculateOpacity(),
                 zIndex: renderArgs.zIndex,
                 wspSays: this.isGobjExistInWSPSays(),
@@ -52614,6 +52685,9 @@
             // which we'll need not just to render, but also to measure
             // and if latentVisibility, then measuring is potentially going to happen
             // in toolplay autoplacement.
+            if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
+              attrs.frame = this.state.dragFrame;
+            }
   
         if( this.nameMFSOverride) {
           attrs.width = this.nameMFSOverride.width;
@@ -53280,11 +53354,13 @@
   
           attrs = {
             visibility: visibility,
-            constraintFrame: this.state.constraintFrame,
+            frame: this.state.constraintFrame,
             opacity: this.calculateOpacity(),
             zIndex: renderArgs.zIndex
           };
-  
+      if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
+        attrs.frame = this.state.dragFrame;
+      }
       attrs.x = this.geom.loc.getX();
       attrs.y = this.geom.loc.getY();
   
@@ -69133,7 +69209,7 @@
   "/* For now, these are not in less. Just import them raw. */\n"+
   "/*!\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221006020352\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102161158\n"+
   "*/\n"+
   "\n"+
   "/*\n"+
@@ -69806,7 +69882,7 @@
   ".wsp-version-4-8-0 {\n"+
   "  /*\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221006020352\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102161158\n"+
   "*/\n"+
   "  /* Section Start: wsp-Button */\n"+
   "  /*\n"+

@@ -83,6 +83,29 @@ const reducer = (state = initialState, action) => {
       const rooms = state.rooms.filter((id) => !action.roomIdsArr.includes(id));
       return { ...state, rooms };
     }
+    case actionTypes.ADD_ROOM_TO_ARCHIVE: {
+      // create a default structure if one doesn't exist
+      const prevArchivedRooms = state.archive && state.archive.rooms ? [...state.archive.rooms] : [];
+      return {
+        ...state,
+        archive: {
+          ...state.archive,
+          rooms: [...prevArchivedRooms, action.roomId],
+        },
+        rooms: state.rooms.filter((room) => room !== action.roomId),
+      };
+    }
+    case actionTypes.REMOVE_ROOM_FROM_ARCHIVE: {
+      const rooms = state.archive.rooms.filter((id) => id !== action.id);
+      return {
+        ...state,
+        archive: {
+          ...state.archive,
+          rooms,
+        },
+        rooms: [...state.rooms, action.id],
+      };
+    }
     case actionTypes.ADD_NOTIFICATION: {
       const newNotifications = [...state.notifications, action.ntf];
       return {

@@ -219,6 +219,97 @@ var PREF = (function() {
     }
   }
 
+  function setUnitPref($sketchNode, unit, newValue) {
+    // Set a new unit pref for unit 'length' or 'angle'
+    var doc = $sketchNode.data('document'),
+      sketch = doc.focusPage,
+      prefs = sketch.sQuery().prefs(),
+      oldValue = prefs.units[unit],
+      oldPrecision = prefs.precision[unit],
+      deltaP = 0,
+      gobjSel = {
+        length:
+          '[genus="DistanceMeasure"],[genus="DistanceParameter"],[genus="AreaMeasure"],[genus="Function"]',
+        angle:
+          '[genus="AngleMeasure"],[genus="AngleParameter"],[genus="Function"]',
+      },
+      newPrecision,
+      gobjs,
+      gobj;
+    maxPrecision = 7; // 7 decimal digits at the most.
+
+    function clampPrecision(value) {
+      return value < 0 ? 0 : value > maxPrecision ? maxPrecision : value;
+    }
+
+    function adjustUnitsObjAndPrecision(gobj, unitsObj, newUnit, deltaP) {
+      // Sets both the unitsObj unit to newUnit and style.precision accordingly, for either angle or length units.
+      // The unitObj has the unit and power for both length and angle units that apply (e.g., cm^2/degree)
+      // When called, either length or angle unit has changed, but not both. Weird units may cause
+      // unexpected results. For instance, if the example (cm^2/degree) has precision 2 and is changed to pix and rad units,
+      // the change to pix reduces precision by 4, to -2, which is then clamped to 0. The subsequent change to rad
+      // increases the precision by 2, leaving the result at 2 (the original value) rather than 0 (the desired value).
+      // It would be better to let the precision flaot freely and only clamp at the end, when displaying the value.
+      unitsObj.unit = newUnit;
+      gobj.style.precision = clampPrecision(
+        gobj.style.precision + unitsObj.power * deltaP
+      );
+      gobj.state.forceDomParse = true;
+      gobj.labelHasChanged();
+    }
+
+    if (newValue === oldValue) return; // nothing to do
+    if (newValue === 'pix' || oldValue === 'rad') {
+      deltaP = -2;
+    } else if (oldValue === 'pix' || newValue === 'rad') {
+      deltaP = 2;
+    }
+    prefs.units[unit] = newValue;
+    sketch.spec.preferences.units[unit] = newValue;
+    doc.pageData[sketch.metadata.id].spec.preferences.units[unit] = newValue;
+    if (deltaP) {
+      // update the sketch-wide default precision
+      newPrecision = clampPrecision(oldPrecision + deltaP);
+      prefs.precision[unit] = newPrecision;
+      sketch.spec.preferences.precision[unit] = newPrecision;
+      doc.pageData[sketch.metadata.id].spec.preferences.precision[
+        unit
+      ] = newPrecision;
+    }
+    gobjs = doc.sQuery(gobjSel[unit]);
+    for (var i = 0; i < gobjs.length; i++) {
+      gobj = gobjs[i];
+      if (gobj.unitsObject[unit]) {
+        adjustUnitsObjAndPrecision(
+          gobj,
+          gobj.unitsObject[unit],
+          newValue,
+          deltaP
+        );
+        if (GSP.isParameter(gobj) && gobj.unitsObject[unit]) {
+          // update the multiplier used to display correct values
+          gobj.unitMultiplier = GSP.units.convertToBaseFromUnitObject(
+            1,
+            gobj.unitsObject
+          );
+          gobj.isExpressionDirty = true;
+          gobj.fnExpression = undefined;
+          gobj.parsedInfix = undefined;
+          gobj.uValue = gobj.value / gobj.unitMultiplier;
+        }
+        if (gobj.fnUnits) {
+          gobj.fnUnits = gobj.sQuery().prefs().units;
+        }
+      }
+      gobj.invalidateGeom();
+    }
+    sketch.event(
+      'PrefChanged',
+      {},
+      { category: 'units', pref: unit, oldValue: oldValue, newValue: newValue }
+    );
+  } // setUnitPref
+
   return {
     // Each array element should be of form {category: "widget", name: "style", sketches: "sketch2", pages: "1, 3, 5"}
     // For legacy reasons, we allow elements like {widget: "style", sketches: "all"}, which becomes {category: "widget", name: "style", sketches: "all"}
@@ -241,8 +332,14 @@ var PREF = (function() {
     getPref: function(doc, name, cat) {
       return getPref(doc, name, cat);
     },
+
+    // Set a new unit pref for unit 'length' or 'angle'
+    // This should probably be a more general utility for changing any of the sketch prefs.
+    setUnitPref: function(sketch, unit, newValue) {
+      setUnitPref(sketch, unit, newValue);
+    },
   };
-})();
+})(); // PREF
 
 var WIDGETS = (function() {
   //define the WIDGETS namespace
@@ -319,12 +416,22 @@ var WIDGETS = (function() {
 
   // Send Widget events via the sketch event() function.
   Widget.prototype.event = function(context, attr) {
-    // Each widget sends events using its own eventName.
-    // The action param distinguishes (e.g.) "activate" from "deactivate".
-    // Parameters context and attr are optional.
+    // Widget-specific messages use the widget's eventName.
+    // Most events pass an empty object as the context; here we add the widget itself and the target gobj,
+    // and we add the targetGobj.id to attr.
+    // The sketch event will provide additional context values.
+    // The attr param typically uses attr.action to distinguish the specific nature of the event.
+    // For instance, each widget sends events with attr.action values of "activate" and "deactivate".
     attr = attr || {};
     context = context || {};
     context.widget = this;
+    if (targetGobj) {
+      context.target = targetGobj;
+      if (!attr.gobjId) {
+        // One known caller (invalidateLabel) is called externally for a gobj other than the current target.
+        attr.gobjId = targetGobj.id;
+      }
+    }
     getSketch().event(this.eventName, context, attr);
   };
 
@@ -341,10 +448,9 @@ var WIDGETS = (function() {
     activeWidget = inst;
     inst.active = true;
     $(inst.domButtonSelector).addClass('widget_active');
-    if (!restoring) {
-      $(inst.promptSelector).css('display', 'block');
-      attr.promptDisplay = 'block';
-    }
+    attr.restoring = restoring;
+    $(inst.promptSelector).css('display', 'block');
+    attr.promptDisplay = 'block';
     $('.widgetPane').on('keyup', function(e) {
       if (e.keyCode === 27) {
         activeWidget.deactivate();
@@ -588,8 +694,12 @@ var WIDGETS = (function() {
         restoring = true;
       $('#widget').css({ opacity: 1, 'z-index': 'none' });
       if (preserveActiveWidget) {
-        widget.activate(getSketch(), restoring);
-        preserveActiveWidget = null;
+        // Delay 0.005 sec before activating to allow ToolPlayed or ToolAborted to propagate
+        // first, before the activation message.
+        setTimeout(function() {
+          widget.activate(getSketch(), restoring);
+          preserveActiveWidget = null;
+        }, 5);
       }
     }
 
@@ -653,11 +763,6 @@ var WIDGETS = (function() {
     }
     if (sketchChanged) {
       // even if the node's not changed, a page switch detaches the widgets
-      if ($widgetParent.parent().length) {
-        console.log(
-          'targetControllerToDoc found the widgets still attached after the sketch was changed!'
-        );
-      }
       $sketch.prepend($widgetParent);
     }
     // setupDropdownHandlers ();  THIS IS NEEDED ONLY DURING WIDGET INTIALIZATION
@@ -845,14 +950,16 @@ var WIDGETS = (function() {
     }
   }
 
-  function notifyInvalidatedStyle(gobj, notify, moreChanges) {
+  function notifyInvalidatedStyle(notify) {
     // Invalidates the appearance and optionalLy sends an event with the modified style.
-    gobj.invalidateAppearance();
+    targetGobj.invalidateAppearance();
     if (notify) {
-      // NEED TO EXTEND THE CHANGES OBJECT WITH moreChanges if it exists
       styleWidget.event(
-        { gobj: gobj },
-        { action: 'changed', changes: [{ id: gobj.id, style: gobj.style }] }
+        {},
+        {
+          action: 'changed',
+          changes: [{ id: targetGobj.id, style: targetGobj.style }],
+        }
       );
     }
   }
@@ -882,7 +989,7 @@ var WIDGETS = (function() {
     if (retVal) {
       setDomColor(color, gobj);
     }
-    invalidateLabel(gobj);
+    invalidateLabel(gobj, 'Set color for');
     return retVal;
   }
 
@@ -942,7 +1049,7 @@ var WIDGETS = (function() {
           retVal = gobj.style.color !== color;
           if (retVal) {
             gobj.style.color = color; // Set the color of a geometric object, a text object, or a button handle
-            notifyInvalidatedStyle(gobj, notify);
+            notifyInvalidatedStyle(notify);
           }
           gobj.setRenderState(targetState);
         }
@@ -958,7 +1065,7 @@ var WIDGETS = (function() {
       gobj.setRenderState('none');
       gobj.style.radius = radiusValue[currentPointStyle];
       gobj.setRenderState(targetState);
-      notifyInvalidatedStyle(gobj, notify);
+      notifyInvalidatedStyle(notify);
     }
   }
 
@@ -973,7 +1080,7 @@ var WIDGETS = (function() {
       if (gobj.style.width && currentLineThickness >= 0)
         gobj.style.width = pathWidthValue[currentLineThickness];
       gobj.setRenderState(targetState);
-      notifyInvalidatedStyle(gobj, notify);
+      notifyInvalidatedStyle(notify);
     }
   }
 
@@ -1049,7 +1156,7 @@ var WIDGETS = (function() {
       // A change record includes the gobj's id along with any gobj properties that have changed
       change.id = gobj.id;
       change.style = gobj.style;
-      this.event({ gobj: gobj }, { action: 'changed', changes: [change] });
+      this.event({}, { action: 'changed', changes: [change] });
     } // if (gobj)
   };
 
@@ -1242,7 +1349,7 @@ var WIDGETS = (function() {
       // Send a change record including the gobj's id and style
       change.id = gobj.id;
       change.style = gobj.style;
-      this.event({ gobj: gobj }, { action: 'changed', changes: [change] });
+      this.event({}, { action: 'changed', changes: [change] });
     }
   };
 
@@ -1337,15 +1444,15 @@ var WIDGETS = (function() {
 
   labelWidget.emptyCache = function() {
     // Empty the cache
-    this.oldLabel = null;
-    this.oldStyle = null;
+    delete this.oldLabel;
+    delete this.oldAutogenerate;
+    delete this.oldStyle;
   };
 
   labelWidget.setAction = function(newAction) {
     // Track specific actions to describe them in LabelWidget events.
     // We track only those worth communicating to a user or other watcher.
     // The current action is reset to '' whenever an event is posted
-    // Integrate this with sendEvent in finalizeLabel.
     this.prevAction = '';
     this.prevAction = this.action;
     this.action = newAction;
@@ -1372,40 +1479,33 @@ var WIDGETS = (function() {
     // styleJson (stringified), and
     // autoGenerate (for shouldAutogenerateLabel).
     var properOrigin,
-      self = this;
-
-    function sendEvent(gobj) {
-      // Was gobj changed? If so, emit an event.
-      var currentText = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label,
-        attr = {};
-      if (currentText !== self.oldLabel) {
-        attr.text = currentText;
-      }
-      if (self.oldAutogenerate !== gobj.shouldAutogenerateLabel) {
-        attr.autoGenerate = gobj.shouldAutogenerateLabel;
-      }
-      if (!deepEquals(self.oldStyle.label, gobj.style.label)) {
-        attr.labelStyleJson = JSON.stringify(gobj.style.label);
-      }
-      if (Object.keys(attr).length) {
-        self.event({ gobj: gobj }, attr);
-      }
-    }
-
-    if (!targetGobj) {
+      text,
+      attr,
+      gobj = targetGobj;
+    if (!gobj) {
       return;
     }
-    if (targetGobj.hasLabel && targetGobj.style.nameOrigin) {
+    attr = { action: 'Finalized' };
+    text = gobj.genus === 'Caption' ? gobj.textMFS : gobj.label;
+    if (text !== this.oldLabel) {
+      attr.text = text;
+    }
+    if (this.oldAutogenerate !== gobj.shouldAutogenerateLabel) {
+      attr.autoGenerate = gobj.shouldAutogenerateLabel;
+    }
+    if (!deepEquals(this.oldStyle.label, gobj.style.label)) {
+      attr.labelStyleJson = JSON.stringify(gobj.style.label);
+    }
+    if (gobj.hasLabel && gobj.style.nameOrigin) {
       // The following check applies only to geometric objects with labels and nameOrigins
-      properOrigin = LabelControls.originFromText(targetGobj.label); // User may have set origin to manual while label is still in the form corresponding to a particular origin.
-      if (properOrigin && targetGobj.style.nameOrigin !== properOrigin) {
-        targetGobj.style.nameOrigin = properOrigin;
+      properOrigin = LabelControls.originFromText(gobj.label); // User may have set origin to manual while label is still in the form corresponding to a particular origin.
+      if (properOrigin && gobj.style.nameOrigin !== properOrigin) {
+        gobj.style.nameOrigin = properOrigin;
+        attr.nameOrigin = properOrigin;
       }
     }
-    sendEvent(targetGobj);
-    delete this.oldLabel;
-    delete this.oldAutogenerate;
-    delete this.oldStyle;
+    this.event({}, attr);
+    this.emptyCache();
   };
 
   labelWidget.restoreLabel = function(gobj) {
@@ -1425,11 +1525,11 @@ var WIDGETS = (function() {
         // Call changeText() to restore the old label. But first, make sure gobj.label is different from oldLabel.
         // Otherwise changeText() will think there's nothing to do.
         gobj.label = labelWidget.oldLabel ? '' : ' ';
-        changeText(labelWidget.oldLabel, gobj.style.nameOrigin);
+        changeText(targetGobj, labelWidget.oldLabel, gobj.style.nameOrigin);
         gobj.shouldAutogenerateLabel = labelWidget.oldAutogenerate;
       }
       restoreSavedPool();
-      invalidateLabel(gobj);
+      invalidateLabel(gobj, 'Restored ');
     }
     this.emptyCache();
   };
@@ -1449,26 +1549,12 @@ var WIDGETS = (function() {
     return nameClass;
   }
 
-  function notifyInvalidatedLabel(gobj, notify, msg) {
-    // Invalidates the appearance; if notify is true, sends an event with the action and the modified style.
-    gobj.invalidateAppearance();
-    if (notify) {
-      // NEED TO EXTEND THE CHANGES OBJECT WITH moreChanges if it exists
-      labelWidget.event(
-        { gobj: gobj },
-        {
-          action: msg.action,
-          id: gobj.id,
-          text: gobj.label,
-          labelStyle: gobj.style.label,
-        }
-      );
-    }
-  }
-
   function invalidateLabel(gobj, action) {
     // The content or appearance of the text or label has been changed. Update the screen by modifying the DOM node and/or the sketch's renderRefCon
-    // Should this be moved into core code?
+    // The action parameter is a string to describe the action to a user; the string will be prepended to "label of point A" (e.g.)
+    // Unlike most widget functionality, WIDGETS.invalidateLabel() may be called externally, so we explicitly pass attr.gobjId
+    // when we call event().
+    // Related, perhaps this function should be moved into core code.
     var gobjNode = $targetNode.find("[wsp-id='" + gobj.id + "']"),
       font = fontProperty(gobj)['font-family'],
       size = fontProperty(gobj)['font-size'],
@@ -1479,6 +1565,7 @@ var WIDGETS = (function() {
       msg = { label: gobj.label },
       gobjCSS,
       refRect;
+    labelWidget.defineControls(); // initialize UI elements in case of external callers
     gobj.parsedMFS = null; // force reparsing of mfs
     if (gobj.hasLabel) {
       // This gobj is on the canvas, so set the refcon
@@ -1524,13 +1611,23 @@ var WIDGETS = (function() {
     if (action) {
       msg.action = action;
     }
-    notifyInvalidatedLabel(gobj, 'notify', msg);
+    gobj.invalidateAppearance();
+    labelWidget.event(
+      {},
+      {
+        action: action,
+        gobjId: gobj.id,
+        text: gobj.label,
+        labelStyle: gobj.style.label,
+        labelSpec: gobj.labelSpec,
+      }
+    );
   }
 
-  function changeText(newText, newOrigin) {
+  function changeText(gobj, newText, newOrigin) {
     // Respond to a user's change of the gobj's text or nameOrigin. Return the resulting text.
-    var gobj = targetGobj,
-      newTextEmpty = !newText || newText === '',
+    // Most callers pass targetGobj, but making the gobj an explicit param allows external callers to access this logic.
+    var newTextEmpty = !newText || newText === '',
       ignoreOrigin =
         gobj.style.nameOrigin === undefined ||
         newOrigin === gobj.style.nameOrigin;
@@ -1558,8 +1655,9 @@ var WIDGETS = (function() {
       gobj.textMFS = "<VL<T'" + newText + "'>>";
     }
 
+    labelWidget.defineControls(); // initialize UI elements in case of external callers
     if (!newText) newText = '';
-    if (targetGobj.label === newText && ignoreOrigin) return newText; // Text hasn't changed, so nothing to do.
+    if (gobj.label === newText && ignoreOrigin) return newText; // Text hasn't changed, so nothing to do.
 
     if (newTextEmpty)
       // if newText is empty and it came from the label pool, restore the pool
@@ -1601,7 +1699,7 @@ var WIDGETS = (function() {
         }
       }
     } // !hasLabel
-    invalidateLabel(gobj);
+    invalidateLabel(gobj, 'Changed');
     return newText;
   }
 
@@ -1628,13 +1726,18 @@ var WIDGETS = (function() {
       sizeElt = labelWidget.sizeElt,
       fontElt = labelWidget.fontElt,
       position = GSP.GeometricPoint(context.position.x, context.position.y),
-      newTarget = Object.getPrototypeOf(labelWidget).handleTap(event, context);
+      newTarget = Object.getPrototypeOf(labelWidget).handleTap(event, context),
+      action;
     labelWidget.touchPos = position;
     labelWidget.isTap = true;
 
     function initForNewGobj() {
       //  Handle the first tap on the current gobj or label
-      var toGobj, fromGobj, copyStyle, editingDisabled; //source and dest for copying font, size, & nameOrigin
+      var toGobj,
+        fromGobj,
+        copyStyle,
+        editingDisabled, //source and dest for copying font, size, & nameOrigin
+        ret = 'Tapped'; // Will be prepended to " label of Point A" in a user message.
 
       function showRadios() {
         // Show or hide the radios panel based on the target's nameClass, and (if showing) set them based on copyStyle
@@ -1897,15 +2000,16 @@ var WIDGETS = (function() {
         !toGobj.label
       ) {
         generateNewLabel(toGobj);
+        ret = 'Generated';
       }
       showRadios(); // show or hide nameOrigin controls
-      //  If copyStyle is true, need to invalidate the label bounds in case it's gotten larger.
+      return ret;
     } // initForNewGobj
 
-    function handleLabeledGObj() {
+    function handleLabeledGObj(action) {
       // If this object has (or can have) a label, track its settings
       showElt.prop('disabled', false);
-      toggleLabel(true);
+      toggleLabel(true, action);
       showElt.prop('checked', true);
     }
 
@@ -1957,9 +2061,9 @@ var WIDGETS = (function() {
     }
     // Tap is on a new object.
     labelWidget.finalizeLabel(); // finalize the current target before switching to the new one
-    initForNewGobj();
+    action = initForNewGobj();
     if (targetGobj.hasLabel) {
-      handleLabeledGObj();
+      handleLabeledGObj(action);
     } else {
       handleTextGObj();
     }
@@ -1974,7 +2078,7 @@ var WIDGETS = (function() {
       } else {
         var newLabel = inputElt.val();
         if (newLabel.length > 0) {
-          changeText(newLabel);
+          changeText(targetGobj, newLabel);
         } else if (targetGobj.isOfKind('Button')) {
           setLabelInput(' ');
         }
@@ -1990,19 +2094,18 @@ var WIDGETS = (function() {
     }
   }
 
-  function toggleLabel(show) {
+  function toggleLabel(show, action) {
     // Toggle the visibility of this label and set checkbox
-    // Possible actions (to be passed to invalidateLabel) are none, generated, showed, hid, adjusted
+    // Possible actions (to be passed to invalidateLabel) are none, Generated, Showed, Hid, Changed, etc.
     var gobj = targetGobj,
       labelCornerDelta = {},
       touch = labelWidget.touchPos,
       labelStyle = gobj.style.label,
-      prevState = labelStyle && labelStyle.showLabel,
-      action;
+      prevState = labelStyle && labelStyle.showLabel;
     if (gobj.hasLabel && !gobj.label) {
       // If it's neither transformed nor labeled, just label it
       generateNewLabel(gobj);
-      action = 'generated';
+      action = 'Generated';
     }
     if (show === undefined) {
       if (gobj.hasLabel) {
@@ -2010,14 +2113,13 @@ var WIDGETS = (function() {
       } else if (labelWidget.nameClass && gobj.style.nameOrigin) {
         show = gobj.style.nameOrigin !== 'noVisibleName';
       }
-      if (show && !action) {
-        action = 'showed';
-      }
+      action = action || show ? 'Showed' : 'Hid'; // an already-defined action (e.g., 'Generated') may take precedence
     }
     if (gobj.hasLabel) {
       labelStyle.showLabel = show;
-      if (!action && prevState !== show) {
-        action = show ? 'showed' : 'hid';
+      if ((!action || action === 'Tapped') && prevState !== show) {
+        // if state changed on a tap, prefer the specific action.
+        action = show ? 'Showed' : 'Hid';
       }
       if (show && !prevState) {
         if (gobj.isAPath()) {
@@ -2030,7 +2132,7 @@ var WIDGETS = (function() {
           if (labelWidget.isTap) {
             labelCornerDelta.x = touch.x - gobj.labelRenderBounds.left;
             labelCornerDelta.y = touch.y - gobj.labelRenderBounds.top;
-            action = action || 'adjusted';
+            action = action || 'Moved';
           }
         }
         if (labelWidget.isTap) {
@@ -2046,7 +2148,7 @@ var WIDGETS = (function() {
             };
           }
           gobj.setLabelPosition(touch, labelCornerDelta);
-          action = action || 'adjusted';
+          action = action || 'Modified';
         }
         if (labelWidget.inputElt[0].value === '')
           // if input is empty when we show a label, set the input to the label
@@ -2059,19 +2161,23 @@ var WIDGETS = (function() {
     invalidateLabel(gobj, action);
   } // toggleLabel
 
-  labelWidget.activate = function(sketch, restoring) {
-    if (!Object.getPrototypeOf(this).activate(sketch, this, restoring))
-      return false;
-    this.cancelOnExit = false;
-    targetGobj = null;
-    this.prevGobj = null;
-    $('#wLabelPane').css('display', 'none');
+  labelWidget.defineControls = function() {
     if (!this.inputElt) {
       this.inputElt = $('#wLabelEditText');
       this.showLabelElt = $('#wLabelShow');
       this.sizeElt = $('#wLabelFontSize');
       this.fontElt = $('#wLabelFont');
     }
+  };
+
+  labelWidget.activate = function(sketch, restoring) {
+    if (!Object.getPrototypeOf(this).activate(sketch, this, restoring))
+      return false;
+    this.cancelOnExit = false;
+    targetGobj = null;
+    this.prevGobj = null;
+    this.defineControls();
+    $('#wLabelPane').css('display', 'none');
     this.inputElt.on('click', function() {
       $(this).focus(); // In a mobile device, a click in the text box should bring up the keyboard.
     });
@@ -2123,7 +2229,7 @@ var WIDGETS = (function() {
     val = +val;
     if (textStyle['font-size'] !== val) {
       textStyle['font-size'] = val;
-      invalidateLabel(targetGobj);
+      invalidateLabel(targetGobj, 'Set size for');
     }
   };
 
@@ -2146,7 +2252,7 @@ var WIDGETS = (function() {
       oldFont = textStyle['font-family'];
     if (oldFont !== newFont) {
       textStyle['font-family'] = newFont;
-      invalidateLabel(targetGobj);
+      invalidateLabel(targetGobj, 'Set font for');
       //  Add this font to the fontList
     }
   };
@@ -2313,7 +2419,6 @@ var WIDGETS = (function() {
     }
     if (action) {
       attrs[action] = newState;
-      //WHY IS EVENT NOT SENT FOR CHANGE IN GLOWBOX?
       this.event(
         {},
         attrs //e.g., {action: fading, fading: newState}
@@ -2400,6 +2505,7 @@ var WIDGETS = (function() {
     if (glowBox.checked) {
       stopGlowing('force');
     }
+    this.setGlowing(false); // glowing behavior occurs only when the traceWidget is active
     Object.getPrototypeOf(this).deactivate(this); // Call multiple levels of post-processing
     $('#wTracePane').css('display', 'none');
     this.cancelOnExit = false;
@@ -2453,10 +2559,9 @@ var WIDGETS = (function() {
     } else {
       delete tracedGobjs[gobj.id];
     }
-    getSketch().event(
-      traceWidget.eventName,
-      { gobj: gobj },
-      { action: 'changed', traced: style.traced }
+    this.event(
+      {},
+      { action: 'changed', gobjId: gobj.id, traced: style.traced }
     );
     if (!style.traced) {
       gobj.setRenderState('none');
@@ -2714,18 +2819,19 @@ var WIDGETS = (function() {
             </div>\
             <div class="wCharDropdownContent dragExclude">\
               <div class="column">\
-                <div>△</div>\
-                <div>⟂</div>\
-                <div>‖</div>\
-                <div>∠</div>\
-                <div>⊙</div>\
-                <div>°</div>\
-                <div>≅</div>\
-                <div>≈</div>\
-                <div>≠</div>\
-                <div>≤</div>\
-                <div>≥</div>\
-                <div>∼</div>\
+                <div>&#9651;</div>\
+                <div>&#9651;</div>\
+                <div>&#10178;</div>\
+                <div>&#8214;</div>\
+                <div>&ang;</div>\
+                <div>&#8857;</div>\
+                <div>&deg;</div>\
+                <div>&cong;</div>\
+                <div>&asymp;</div>\
+                <div>&ne;</div>\
+                <div>&le;</div>\
+                <div>&ge;</div>\
+                <div>&sim;</div>\
               </div>\
               <div class="column">\
                 <div>&pi;</div>\
@@ -2737,23 +2843,23 @@ var WIDGETS = (function() {
                 <div>&epsilon;</div>\
                 <div>&phi;</div>\
                 <div>&tau;</div>\
-                <div>Δ</div>\
+                <div>&Delta;</div>\
                 <div>&Sigma;</div>\
                 <div>&Pi;</div>\
               </div>\
               <div class="column">\
-                <div>–</div>\
-                <div>·</div>\
-                <div>±</div>\
-                <div>÷</div>\
-                <div>∫</div>\
-                <div>•</div>\
-                <div>→</div>\
-                <div>⇒</div>\
-                <div>∴</div>\
-                <div>∃</div>\
-                <div>∀</div>\
-                <div>∞</div>\
+                <div>&ndash;</div>\
+                <div>&middot;</div>\
+                <div>&plusmn;</div>\
+                <div>&divide;</div>\
+                <div>&int;</div>\
+                <div>&bull;</div>\
+                <div>&rarr;</div>\
+                <div>&rArr;</div>\
+                <div>&there4;</div>\
+                <div>&exist;</div>\
+                <div>&forall;</div>\
+                <div>&infin;</div>\
               </div>\
             </div>\
           </div>\
@@ -2875,7 +2981,7 @@ var WIDGETS = (function() {
     var $chars = $widget.find('.wCharDropdownContent .column div');
     if (!$._data($chars[0], 'events')) {
       // don't add more handlers if they're already present
-      $('.wCharDropdownContent .column div').click(function() {
+      $chars.click(function() {
         labelReplaceSelection(this.innerText);
       });
     } else {
@@ -2888,8 +2994,8 @@ var WIDGETS = (function() {
     var $data = $('<div>');
     scriptPath = getScriptPath();
     if ($widget) {
-      $widget.remove();
       console.log('makeWidget() should not be called twice.');
+      return;
     }
     $data.append(data);
     $widget = $data.find('#widget');
@@ -2960,19 +3066,19 @@ var WIDGETS = (function() {
       }
     },
 
-    relatedSketchNode: function(node, target) {
+    relatedSketchNode: function(node) {
       // node is an element associated with a sketch_canvas: a widget button, page control, util menu, etc.
       // returns the sketch_canvas element associated with node
       var $node = $(node),
-        $sketchNode = $node.filter(target);
+        $sketchNode = $node.filter('.sketch_canvas');
       while ($node.length && !$sketchNode.length) {
         // target isn't $sketchNode, so search prev sibs and then ancestors
-        $sketchNode = $node.prevAll(target);
+        $sketchNode = $node.prevAll('.sketch_canvas');
         $node = $node.parent();
       }
       if (!$sketchNode.length)
         throw GSP.createError(
-          "relatedSketchNode() couldn't find the target: " + target
+          "relatedSketchNode() couldn't find the target sketch_canvas"
         );
       return $sketchNode[0];
     },
@@ -2981,7 +3087,7 @@ var WIDGETS = (function() {
       // toggles the visibility of the entire widget. If node differs from the currently-targeted sketchNode, leave the widget visible and just retarget it.
       // If node is the widget button, look for a previous sketch_canvas sibling or a previous sketch_canvas sibling of the button's parent.
       var doShow = $widget.css('display') === 'none',
-        sketchNode = WIDGETS.relatedSketchNode(node, '.sketch_canvas');
+        sketchNode = WIDGETS.relatedSketchNode(node);
       if (!sketchNode)
         throw GSP.createError(
           "toggleWidgets called for an element that's neither a sketch_canvas nor a widget_button"
@@ -3128,21 +3234,29 @@ var WIDGETS = (function() {
       highlightColorGrid(column, row);
     },
 
-    labelChanged: function(newLabel) {
+    labelChanged: function(newLabel, gobj) {
+      // external callers can specify the gobj whose label should be changed
+      if (!gobj) {
+        gobj = targetGobj;
+      }
       if (!LabelControls.labelChanged(newLabel)) {
         // Give LabelControls a chance to handle this event
-        changeText(newLabel); // LabelControls didn't handle it, so call changeText()
+        changeText(gobj, newLabel); // LabelControls didn't handle it, so call changeText()
       }
     },
 
     controlCallback: function(newLabel, newOrigin) {
       // Called when the user has pressed a button
-      newLabel = changeText(newLabel, newOrigin);
+      newLabel = changeText(targetGobj, newLabel, newOrigin);
       return newLabel;
     },
 
     labelToggled: function() {
       toggleLabel(labelWidget.showLabelElt.prop('checked'));
+    },
+
+    invalidateLabel: function(gobj, action) {
+      invalidateLabel(gobj, action);
     },
 
     deleteWithProgeny: function(gobjId, progenyIds) {
@@ -3660,10 +3774,21 @@ var PAGENUM = (function() {
     $(window).off('keydown'); // turn off any already-active keydown handler
     $(window).on('keydown', { node: sketchNode }, function(e) {
       var key = e.which;
+      if (key === 13) {
+        // return key
+        hidePopup(e.data.node);
+        return false;
+      }
       if (key >= 37 && key <= 40) {
-        // eat arrow keys, ignore others
+        // arrow keys
         if (key <= 38) goPage(e.data.node, -1, true);
-        else goPage(e.data.node, +1, true);
+        // left and up arrows
+        else goPage(e.data.node, +1, true); // right and down arrows
+        return false;
+      }
+      if (key > 48 && key < 58) {
+        // digits 1 thru 9
+        goPage(e.data.node, key - 48);
         return false;
       }
     });
@@ -3687,12 +3812,12 @@ var PAGENUM = (function() {
 
     resetPage: function(btn) {
       // button handler for the Reset Sketch button
-      var sketchNode = WIDGETS.relatedSketchNode(btn, '.sketch_canvas');
+      var sketchNode = WIDGETS.relatedSketchNode(btn);
       getDoc(sketchNode).resetActivePage();
     },
 
     gotoPage: function(btn, pageNum) {
-      var sketchNode = WIDGETS.relatedSketchNode(btn, '.sketch_canvas');
+      var sketchNode = WIDGETS.relatedSketchNode(btn);
       getDoc(sketchNode).switchPage(pageNum);
     },
 
@@ -3717,32 +3842,14 @@ var UTILMENU = (function() {
   // (If there is no .util-men-btn div, the Utility menu does not appear.)
 
   var curSketchNode; // The sketch_canvas to which the commands apply.
-  var maxPrecision = 7; // 7 decimal digits at the most.
-
-  // The next two functions should probably be moved to WIDGETS and used both there and here.
-  function sketchDocFromContainerEl($el) {
-    // return the sketch doc in the common parent of $el and the sketch
-    var found, $canvas;
-    $el = $($el); // in case $el isn't jQuery
-    while (!found && $el.length) {
-      $canvas = $el.find('.sketch_canvas');
-      found = $el && $canvas.length;
-      if (found) {
-        return $canvas.data('document');
-      } else {
-        $el = $el.parent();
-      }
-    }
-    return; // undefined: no such sketch document exists.
-  }
 
   function createUtilMenu() {
     // Create the menu itself and returns the file-content div
     var scriptPath = WIDGETS.getScriptPath(),
+      $canvas = $(this),
+      doc = $canvas.data('document'),
       newContent = '<div class="util-menu-btn util-menu">',
-      $button = $(this)
-        .parent()
-        .find('.util-menu-btn');
+      $button = $canvas.parent().find('.util-menu-btn');
 
     function distItem(units, name) {
       // cm, inches, or pixels
@@ -3766,156 +3873,6 @@ var UTILMENU = (function() {
         units +
         '</div>'
       );
-    }
-
-    function clampPrecision(value) {
-      return value < 0 ? 0 : value > maxPrecision ? maxPrecision : value;
-    }
-
-    function adjustUnitsObjAndPrecision(gobj, unitsObj, newUnit, deltaP) {
-      // Sets both the unitsObj unit to newUnit and style.precision accordingly, for either angle or length units.
-      // The unitObj has the unit and power for both length and angle units that apply (e.g., cm^2/degree)
-      // When called, either length or angle unit has changed, but not both. Weird units may cause
-      // unexpected results. For instance, if the example (cm^2/degree) has precision 2 and is changed to pix and rad units,
-      // the change to pix reduces precision by 4, to -2, which is then clamped to 0. The subsequent change to rad
-      // increases the precision by 2, leaving the result at 2 (the original value) rather than 0 (the desired value).
-      // It would be better to let the precision flaot freely and only clamp at the end, when displaying the value.
-      unitsObj.unit = newUnit;
-      gobj.style.precision = clampPrecision(
-        gobj.style.precision + unitsObj.power * deltaP
-      );
-      gobj.state.forceDomParse = true;
-      gobj.labelHasChanged();
-    }
-
-    function setLengthPref(event) {
-      var doc = sketchDocFromContainerEl(event.target),
-        sketch = doc.focusPage,
-        prefs = sketch.sQuery().prefs(),
-        newUnit = $(event.target).data('unit'),
-        oldUnit = prefs.units.length,
-        oldPrecision = prefs.precision.angle,
-        deltaP = 0,
-        newPrecision,
-        gobjs,
-        gobj;
-      if (newUnit && newUnit !== oldUnit) {
-        // Update the unit in the sketch and the spec, to save it on export
-        if (newUnit === 'pix') {
-          deltaP = -2;
-        } else if (oldUnit === 'pix') {
-          deltaP = 2;
-        }
-        prefs.units.length = newUnit;
-        sketch.spec.preferences.units.length = newUnit;
-        doc.pageData[
-          sketch.metadata.id
-        ].spec.preferences.units.length = newUnit;
-        if (deltaP) {
-          // update the sketch-wide default precision
-          newPrecision = clampPrecision(oldPrecision + deltaP);
-          prefs.precision.length = newPrecision;
-          sketch.spec.preferences.precision.length = newPrecision;
-          doc.pageData[
-            sketch.metadata.id
-          ].spec.preferences.precision.length = newPrecision;
-        }
-        gobjs = doc.sQuery(
-          '[genus="DistanceMeasure"],[genus="DistanceParameter"],[genus="AreaMeasure"],[genus="Function"]'
-        );
-        for (var i = 0; i < gobjs.length; i++) {
-          gobj = gobjs[i];
-          if (gobj.unitsObject.length) {
-            adjustUnitsObjAndPrecision(
-              gobj,
-              gobj.unitsObject.length,
-              newUnit,
-              deltaP
-            );
-            if (GSP.isParameter(gobj) && gobj.unitsObject.length) {
-              // update the multiplier used to display correct values
-              gobj.unitMultiplier = GSP.units.convertToBaseFromUnitObject(
-                1,
-                gobj.unitsObject
-              );
-              gobj.isExpressionDirty = true;
-              gobj.fnExpression = undefined;
-              gobj.parsedInfix = undefined;
-              gobj.uValue = gobj.value / gobj.unitMultiplier;
-            }
-            if (gobj.fnUnits) {
-              gobj.fnUnits = gobj.sQuery().prefs().units;
-            }
-          }
-          gobj.invalidateGeom();
-        }
-        updateUnitPrefs(event.target);
-      }
-    }
-
-    function setAnglePref(event) {
-      var doc = sketchDocFromContainerEl(event.target),
-        sketch = doc.focusPage,
-        prefs = sketch.preferences,
-        newUnit = $(event.target).data('unit'),
-        oldUnit = prefs.units.angle,
-        oldPrecision = prefs.precision.angle,
-        deltaP = 0,
-        newPrecision,
-        gobjs,
-        gobj;
-      if (newUnit && newUnit !== oldUnit) {
-        // Update the unit in the sketch and the spec, to save it on export
-        if (newUnit === 'rad') {
-          deltaP = 2;
-        } else if (oldUnit === 'rad') {
-          deltaP = -2;
-        }
-        prefs.units.angle = newUnit;
-        sketch.spec.preferences.units.angle = newUnit;
-        doc.pageData[sketch.metadata.id].spec.preferences.units.angle = newUnit;
-        if (deltaP) {
-          newPrecision = clampPrecision(oldPrecision + deltaP);
-          prefs.precision.angle = newPrecision;
-          sketch.spec.preferences.precision.angle = newPrecision;
-          doc.pageData[
-            sketch.metadata.id
-          ].spec.preferences.precision.angle = newPrecision;
-        }
-        gobjs = doc.sQuery(
-          '[genus="AngleMeasure"],[genus="AngleParameter"],[genus="Function"]'
-        );
-        for (var i = 0; i < gobjs.length; i++) {
-          gobj = gobjs[i];
-          // there's no clear documentation of where angle units can appear in various kinds and genera of gobjs,
-          // so we do our best here to find them and set them to the new unit and precision.
-          if (gobj.unitsObject.angle) {
-            // angle measure
-            adjustUnitsObjAndPrecision(
-              gobj,
-              gobj.unitsObject.angle,
-              newUnit,
-              deltaP
-            );
-            if (GSP.isParameter(gobj) && gobj.unitsObject.angle) {
-              // update the multiplier used to display correct values
-              gobj.unitMultiplier = GSP.units.convertToBaseFromUnitObject(
-                1,
-                gobj.unitsObject
-              );
-              gobj.isExpressionDirty = true;
-              gobj.fnExpression = undefined;
-              gobj.parsedInfix = undefined;
-              gobj.uValue = gobj.value / gobj.unitMultiplier;
-            }
-            if (gobj.fnUnits) {
-              gobj.fnUnits = gobj.sQuery().prefs().units;
-            }
-          }
-          gobj.invalidateGeom();
-        }
-        updateUnitPrefs(event.target);
-      }
     }
 
     if (!$button.length) {
@@ -3947,26 +3904,28 @@ var UTILMENU = (function() {
     newContent += '</div>'; // util-menu-content
     newContent += '</div>'; // util-menu-btn
     $button.replaceWith(newContent);
-    $(this)
+    $canvas
       .parent()
       .find('.util-length')
       .click(function() {
-        setLengthPref(event);
+        PREF.setUnitPref($canvas, 'length', $(event.target).data('unit'));
+        updateUnitPrefs(event.target);
       });
-    $(this)
+    $canvas
       .parent()
       .find('.util-angle')
       .click(function() {
-        setAnglePref(event);
+        PREF.setUnitPref($canvas, 'angle', $(event.target).data('unit'));
+        updateUnitPrefs(event.target);
       });
-    $(this)
+    $canvas
       .parent()
       .find('.util-menu-content')
       .mouseleave(hideUtilMenu);
   }
 
   function enableFileCommands(event, context) {
-    // hide/show the upload/download commands on LoadDocumnent.WSP
+    // hide/show the upload/download commands on LoadDocument.WSP
     // Create the menu if it doesn't exist.
     var doc = context.document,
       $button = $(doc.canvasNode)
@@ -3994,7 +3953,7 @@ var UTILMENU = (function() {
 
   function updateUnitPrefs($button) {
     // check preferred units on DidChangeCurrentPage.WSP. $button can be the utility button or a descendant.
-    var nbsp = '\u00A0 '; // prefix for non-checked items
+    var nbsp = '&nbsp; '; // prefix for non-checked items
     var $canvas, doc, prefs, target, $units;
     $button = $($button); // in case it's not already jQuery
     $button = $button.closest('.util-menu-btn');
@@ -4027,11 +3986,11 @@ var UTILMENU = (function() {
     function adjust() {
       var st = this.innerText.substring(2);
       if (st === target) {
-        st = '√ ' + st;
+        st = '&check; ' + st;
       } else {
         st = nbsp + st;
       }
-      this.innerText = st;
+      this.innerHTML = st;
     }
 
     $units = $button.find('.util-length');
@@ -4103,7 +4062,7 @@ var UTILMENU = (function() {
       .find('.util-popup-content')
       .tinyDraggable({ exclude: '.dragExclude' });
     $fName.select();
-    UTILMENU.checkFName($fName.validity.valid);
+    UTILMENU.checkFName($fName[0].validity.valid);
   }
 
   function prepareUpload() {
@@ -4275,7 +4234,7 @@ var UTILMENU = (function() {
 
     download: function(ev) {
       hideUtilMenu();
-      curSketchNode = WIDGETS.relatedSketchNode(ev.target, '.sketch_canvas');
+      curSketchNode = WIDGETS.relatedSketchNode(ev.target);
       if ($('#download-modal').data('callSave')) {
         $('#download-modal').removeData('callSave');
       }
@@ -4328,7 +4287,7 @@ var UTILMENU = (function() {
 
     upload: function(ev) {
       hideUtilMenu();
-      doUpload(WIDGETS.relatedSketchNode(ev.target, '.sketch_canvas'));
+      doUpload(WIDGETS.relatedSketchNode(ev.target));
     },
 
     menuBtnClicked: function(inst) {

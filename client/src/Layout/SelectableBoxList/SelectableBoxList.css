@@ -1,0 +1,38 @@
+.Container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  overflow-x: visible;
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.Header {
+  display: flex;
+  margin: 10px 0;
+  width: 100%;
+  max-width: 1100px;
+  color: #444;
+  background: #f8f8f8;
+  box-shadow: 10px 10px 10px 2px #f8f8f8, -10px 0 10px 2px #f8f8f8;
+  /* need a way to keep headers in each tab fixed
+     so that the list / resourceList disapears under the headers
+     and so that the headers are alway visible
+  */
+  /* position: fixed; */
+  /* z-index: 320; */
+}
+
+.List {
+  display: flex;
+  flex-flow: column;
+}
+
+.ContentBox {
+  width: 36vw;
+  /* min-width: 497px; */
+  /* max-width: 33vw; */
+  margin: 2px 2px 2px 0;
+  transition: 0.2s;
+}
