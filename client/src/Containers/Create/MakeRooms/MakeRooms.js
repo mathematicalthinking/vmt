@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { BigModal, Button, Modal } from 'Components';
+import { BigModal, Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
 import { useAppModal, COLOR_MAP } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
