@@ -74,7 +74,7 @@ const login = async (req, res) => {
       })
       .populate({
         path: 'activities',
-        populate: { path: 'tabs', select: 'tabType desmosLink name' },
+        populate: { path: 'tabs' },
       })
       .populate({
         path: 'notifications',
