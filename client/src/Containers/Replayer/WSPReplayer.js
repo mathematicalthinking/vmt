@@ -18,6 +18,8 @@ const WebSketch = (props) => {
   let sketchDoc = null; // The WSP document in which the websketch lives.
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
+  const hasWidgets = useRef(false);
+
   const { index, log, tab } = props;
 
   useEffect(() => {
@@ -238,10 +240,7 @@ const WebSketch = (props) => {
     // point-point or param-value: mergeToId
     // point-path: pathId & pathValue
     // point-intersection: path1Id & path2Id
-    // gobjId is the object that was merged; if it changed its id, use attr.newId instead.
-    const gobjects = sketch.gobjList.gobjects;
-    const gobj = gobjects[attr.gobjId] || gobjects[attr.newId];
-    let desc = gobjDesc(gobj) + ' to ';
+    let desc = gobjDesc(attr.gobjId) + ' to ';
     const mergeTo = attr.mergeToId || attr.pathId;
     const value = [attr.gobjId];
     const highlitGobjs = window.GSP._put(attr, 'options.highlitGobjs', value);
@@ -259,6 +258,58 @@ const WebSketch = (props) => {
     }
     return desc;
   };
+
+  function handleWidgetMessage(msg) {
+    const name = msg.name.substring(0, msg.name.indexOf('Widget'));
+    const { attr } = msg;
+    const handlePrePost = ['Style', 'Visibility', 'Trace'];
+    let note = name + ' Widget ';
+    let persist;
+    function doHandleWidget() {
+      switch (name) {
+        case 'Style':
+          handleStyleWidget(attr);
+          break;
+        case 'Trace':
+          handleTraceWidget(attr);
+          break;
+        case 'Label':
+          handleLabelWidget(attr);
+          break;
+        case 'Visibility':
+          handleVisibilityWidget(attr);
+          break;
+        case 'Delete':
+          handleDeleteWidget(attr);
+          break;
+        default:
+          console.log('No widget handler for name: ', name);
+      }
+    }
+
+    function handlePrompt(display) {
+      // attr includes the display style for the widget prompt
+      var sel = '#w' + name + 'Prompt';
+      $(sel).css('display', display);
+    }
+
+    if (attr.action === 'activate') {
+      persist = true;
+      note += attr.restoring ? 'restored:' : 'activated:';
+    } else if (attr.action === 'deactivate') {
+      note += 'deactivated.';
+    } else {
+      doHandleWidget(); // Neither activate nor deactivate
+      return;
+    } // Only activate & deactivate left
+    notify(note, { persist: persist, prepend: true });
+    if (handlePrePost.indexOf(name) >= 0) {
+      doHandleWidget(); // Some widgets (e.g., style, visibility) need to handle activate/deactivate messages.
+    }
+    if (attr.promptDisplay) {
+      handlePrompt(attr.promptDisplay);
+    }
+  }
 
   const initSketchPage = () => {
     // Refresh vars and handlers for a new sketch page
@@ -329,58 +380,6 @@ const WebSketch = (props) => {
     return retVal;
   };
 
-  function handleWidgetMessage(msg) {
-    const name = msg.name.substring(0, msg.name.indexOf('Widget'));
-    const { attr } = msg;
-    const handlePrePost = ['Style', 'Visibility', 'Trace'];
-    let note = name + ' Widget ';
-    let persist;
-    function doHandleWidget() {
-      switch (name) {
-        case 'Style':
-          handleStyleWidget(attr);
-          break;
-        case 'Trace':
-          handleTraceWidget(attr);
-          break;
-        case 'Label':
-          handleLabelWidget(attr);
-          break;
-        case 'Visibility':
-          handleVisibilityWidget(attr);
-          break;
-        case 'Delete':
-          handleDeleteWidget(attr);
-          break;
-        default:
-          console.log('No widget handler for name: ', name);
-      }
-    }
-
-    function handlePrompt(display) {
-      // attr includes the display style for the widget prompt
-      var sel = '#w' + name + 'Prompt';
-      $(sel).css('display', display);
-    }
-
-    if (attr.action === 'activate') {
-      persist = true;
-      note += attr.restoring ? 'restored:' : 'activated:';
-    } else if (attr.action === 'deactivate') {
-      note += 'deactivated.';
-    } else {
-      doHandleWidget(); // Neither activate nor deactivate
-      return;
-    } // Only activate & deactivate left
-    notify(note, { persist: persist, prepend: true });
-    if (handlePrePost.indexOf(name) >= 0) {
-      doHandleWidget(); // Some widgets (e.g., style, visibility) need to handle activate/deactivate messages.
-    }
-    if (attr.promptDisplay) {
-      handlePrompt(attr.promptDisplay);
-    }
-  }
-
   const notify = (text, options) => {
     // options are duration, highlightGobjs, prepend, and dragging
     // options.prepend causes the message to be prepended to the normal notify div
@@ -407,6 +406,9 @@ const WebSketch = (props) => {
     }
 
     const highlight = (on) => {
+      if (!sketch) {
+        getSketch();
+      }
       // console.log('highlight:', text, 'options:', options, 'on:', on);
       if (highLights.length > 0) {
         // Whether on or off, remove previous highlights
@@ -421,20 +423,11 @@ const WebSketch = (props) => {
         setHighLights([]);
       }
       if (!gobjs) return; // Nothing to do
-      if (!sketch) {
-        getSketch();
-      }
       gobjs.forEach((gobj) => {
-        if (!sketch) {
-          // getSketch failed, return?
-          return;
-        }
         // this may be a gobj, or may be a gobj id
-        gobj =
-          typeof gobj === 'string'
-            ? sketch.gobjList && sketch.gobjList.gobjects[gobj]
-            : gobj;
-        if (!gobj) return; // Nothing to do
+        console.log('Notifying: ', gobj);
+        gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
+        if (!gobj) return;
         const { state } = gobj;
         if (!state) return;
         // highlighting interferes with tracing: don't highlight a traced dragged gobj
@@ -497,7 +490,6 @@ const WebSketch = (props) => {
       setActivityMessage('');
     }
   };
-
   const imposeGobjUpdates = (data) => {
     function setLoc(target, source) {
       target.x = source.x; // Avoid the need to create a new GSP.GeometricPoint
@@ -505,15 +497,17 @@ const WebSketch = (props) => {
     }
     // A gobj moved, so move the same gobj in the follower sketch
     let moveList = JSON.parse(data);
+    initSketchPage();
     if (!sketch) {
-      initSketchPage();
+      // console.log("Messaging error: this follower's sketch is not loaded.");
+      return;
     }
     console.log('Handling Gobjs: ', moveList);
 
     // eslint-disable-next-line
     for (let id in moveList) {
       const gobjInfo = moveList[id];
-      const destGobj = sketch && sketch.gobjList.gobjects[id];
+      const destGobj = sketch.gobjList.gobjects[id];
       if (!destGobj) {
         console.log('No destination Gobj found to handle the move data!');
         continue; // The moveList might be out of date during toolplay,
@@ -536,13 +530,13 @@ const WebSketch = (props) => {
   };
 
   const startFollowerTool = (name) => {
-    let tool;
-    if (!sketchDoc) {
+    if (!sketch) {
       getSketch();
     }
+    let tool;
     if (
       sketchDoc.tools.some((aTool) => {
-        if (aTool && aTool.metadata.name === name) {
+        if (aTool.metadata.name === name) {
           tool = aTool;
           return true;
         }
@@ -554,7 +548,7 @@ const WebSketch = (props) => {
   };
 
   const abortFollowerTool = () => {
-    if (!sketchDoc) {
+    if (!sketch) {
       getSketch();
     }
     // What is no tool is active?
@@ -570,6 +564,7 @@ const WebSketch = (props) => {
     // If data contains a preDelta, ignore it as it should be in our current history as well.
     // console.log('Tool played: ', data);
     if (!sketch || !sketchDoc) {
+      console.log('NO Sketch to play tool on! ', sketch);
       getSketch();
     }
     const controller = sketch.toolController;
@@ -659,7 +654,15 @@ const WebSketch = (props) => {
     if (!sketch) {
       getSketch();
     }
-    const WIDGETS = window.WIDGETS;
+    // const change = attr.changes[0]; // Note the assumption: there's only a single gobj being changed
+    // const gobj = sketch.gobjList.gobjects[change.id];
+    // const note =
+    //   'Tracing turned ' +
+    //   (change.traced ? 'on' : 'off') +
+    //   ' for ' +
+    //   gobjDesc(gobj, 0, 1);
+    // gobj.style.traced = change.traced;
+    // notify(note, { duration: 2000, highlitGobjs: [gobj.id] });
     let gobj = attr.gobj;
     let options = { duration: 2500 };
     let note;
@@ -669,53 +672,35 @@ const WebSketch = (props) => {
     if (gobj) {
       options.highlitGobjs = [gobj.id];
     }
+    const WIDGETS = window.WIDGETS;
+    // TODO- implement better error handling
     switch (attr.action) {
       case 'activate':
       case 'deactivate':
-        try {
-          WIDGETS.toggleTraceModality();
-        } catch (e) {
-          console.error('Failed during WIDGETS.toggleTraceModality call ', e);
-        }
+        WIDGETS.toggleTraceModality();
         toggled = true;
         break;
       case 'changed':
-        gobj = sketch && sketch.gobjList.gobjects[attr.gobjId];
-        try {
-          WIDGETS.toggleGobjTracing(gobj, attr.traced);
-          note =
-            'Tracing turned ' +
-            (attr.traced ? 'on' : 'off') +
-            ' for ' +
-            gobjDesc(gobj, 0, 1);
-        } catch (e) {
-          console.error(
-            `Error in Widgets.js when calling 'toggleGobjTracing' for ${gobj}`,
-            e
-          );
-        }
-
+        gobj = sketch.gobjList.gobjects[attr.gobjId];
+        WIDGETS.toggleGobjTracing(gobj, attr.traced);
+        note =
+          'Tracing turned ' +
+          (attr.traced ? 'on' : 'off') +
+          ' for ' +
+          gobjDesc(gobj, 0, 1);
         break;
       case 'enabled':
         cBox = $('#wTraceEnabled')[0];
         toggled = !attr.enabled != !cBox.checked; // set toggled only if the value will be changed
         if (toggled) {
-          try {
-            WIDGETS.setTraceEnabling(attr.enabled);
-            cBox.checked = attr.enabled;
-            note = 'Tracing ' + (attr.enabled ? 'enabled' : 'disabled') + '.';
-          } catch (e) {
-            console.error('failed during WIDGETS.setTraceEnabling ', e);
-          }
+          WIDGETS.setTraceEnabling(attr.enabled);
+          cBox.checked = attr.enabled;
+          note = 'Tracing ' + (attr.enabled ? 'enabled' : 'disabled') + '.';
         }
         break;
       case 'fading':
-        try {
-          WIDGETS.setTraceFading(attr.fading);
-          note = 'Trace fading turned ' + (attr.fading ? 'on' : 'off') + '.';
-        } catch (e) {
-          console.error('failed during WIDGETS.setTraceFading ', e);
-        }
+        WIDGETS.setTraceFading(attr.fading);
+        note = 'Trace fading turned ' + (attr.fading ? 'on' : 'off') + '.';
         break;
       case 'glowing':
         // glowing action is sent when glowing is turned on or off for traced gobjs
@@ -724,14 +709,7 @@ const WebSketch = (props) => {
           'Glowing for traced objects turned ' +
           (attr.glowing ? 'on' : 'off') +
           '.';
-        try {
-          WIDGETS.setTraceGlowing(attr.glowing);
-        } catch (e) {
-          console.error('failed during WIDGETS.setTraceGlowing ', e);
-        }
-        break;
-      default:
-        console.error('No trace case found! ', attr.action);
+        WIDGETS.setTraceGlowing(attr.glowing);
         break;
     }
     if (!toggled && note) {
@@ -802,10 +780,10 @@ const WebSketch = (props) => {
   }
 
   function handleDeleteWidget(attr) {
-    let note = ' ';
+    let note = '';
     const deletedGobjs = {};
     let thisDelta;
-
+    let descendantsExist = false;
     function doDelete() {
       sketch.gobjList.removeGObjects(deletedGobjs, sketch);
       thisDelta = sketch.document.pushConfirmedSketchOpDelta(attr.preDelta);
@@ -817,6 +795,9 @@ const WebSketch = (props) => {
       const gobj = sketch.gobjList.gobjects[id];
       if (!note) {
         note = 'Deleted ' + gobjDesc(gobj);
+      } else if (!descendantsExist) {
+        note += ' and its descendants.'; // append this on second gobj
+        descendantsExist = true;
       }
       deletedGobjs[id] = gobj;
     });
@@ -918,7 +899,19 @@ const WebSketch = (props) => {
     let config = tab.ggbFile
       ? JSON.parse(Buffer.from(tab.ggbFile, 'base64'))
       : testConfig;
+    shouldLoadWidgets(config);
     return config;
+  };
+
+  const shouldLoadWidgets = ({ metadata }) => {
+    const { authorPreferences } = metadata;
+    if (authorPreferences) {
+      for (let [key, value] of Object.entries(authorPreferences)) {
+        if (key.includes('widget') && value !== 'none') {
+          hasWidgets.current = true;
+        }
+      }
+    }
   };
 
   const loadSKetchDoc = (config) => {
@@ -939,7 +932,9 @@ const WebSketch = (props) => {
     sketchDoc = data;
     sketch = data.focusPage;
     sketchDoc.isRemote = true;
-    checkWidgets();
+    if (hasWidgets.current) {
+      checkWidgets();
+    }
   };
 
   const checkWidgets = async () => {

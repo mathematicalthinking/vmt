@@ -188,6 +188,7 @@ const WebSketch = (props) => {
       case 'DidChangeCurrentPage':
         return `changed to page ${attr.pageId}`;
       case 'GobjsUpdated': // gobjs have moved to new locations
+        return `updated ${gobjDesc(gobj)}`;
       case 'StartDragConfirmed': // highlight the dragged gobj
         return `dragged ${gobjDesc(gobj)}`;
       case 'EndDrag': // the drag ended
@@ -439,7 +440,7 @@ const WebSketch = (props) => {
   function postMoveMessage() {
     const msg = { name: 'GobjsUpdated', time: Date.now() };
     const moveData = { ...activityMoves }; // create a ref to the current cache
-    console.log('Move dat: ', moveData);
+    console.log('Update data: ', moveData);
     setActivityMoves({});
     if (Object.keys(moveData).length !== 0) {
       setTimeSent(Date.now());
