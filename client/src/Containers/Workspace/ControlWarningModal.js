@@ -13,11 +13,13 @@ const ControlWarningModal = ({
   let msg = `You can't make updates when you're not in control.`;
   let cancelText = 'Cancel';
   let cancelTheme = 'Cancel';
+  let regularTheme;
 
   if (inControl === 'REQUESTED') {
-    msg =
-      'Your request has already been received. Use "Cancel Request" if you no longer want control. Use "Okay" if you still want control to be released.';
-    cancelText = 'Okay';
+    msg = 'Your request has already been received.';
+    cancelText = 'I still want control';
+    cancelTheme = undefined;
+    regularTheme = 'Cancel';
   }
 
   if (inAdminMode) {
@@ -27,7 +29,8 @@ const ControlWarningModal = ({
   }
 
   const _controlState = () => {
-    if (buttonConfigs[inControl]) return buttonConfigs[inControl];
+    if (buttonConfigs[inControl] && inControl !== 'REQUESTED')
+      return buttonConfigs[inControl];
 
     // Just in cases (cf. "Love, Actually")
     const text = (() => {
@@ -39,7 +42,7 @@ const ControlWarningModal = ({
         case 'OTHER':
           return 'Request Control';
         case 'REQUESTED':
-          return 'Cancel Request';
+          return "I don't want control";
         default:
           return 'Unknown';
       }
@@ -55,6 +58,7 @@ const ControlWarningModal = ({
         {!inAdminMode ? (
           <ControlButton
             m={5}
+            theme={regularTheme}
             onClick={takeControl}
             controlState={_controlState()}
           />

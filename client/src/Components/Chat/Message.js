@@ -114,7 +114,11 @@ Message.displayName = 'Message';
 
 Message.propTypes = {
   message: PropTypes.shape({
-    user: PropTypes.shape({ username: PropTypes.string }),
+    user: PropTypes.oneOfType([
+      // might be an ObjectId (string) or an object
+      PropTypes.string,
+      PropTypes.shape({ username: PropTypes.string }),
+    ]),
     _id: PropTypes.string,
     text: PropTypes.string,
     reference: PropTypes.shape({ elementType: PropTypes.string }),
