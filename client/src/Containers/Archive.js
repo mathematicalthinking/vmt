@@ -3,8 +3,8 @@ import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
-import { API } from 'utils';
-import { Button, BigModal, Modal, ToolTip } from 'Components';
+import { API, useAppModal } from 'utils';
+import { Button, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
 import { restoreArchivedRoom } from 'store/actions';
 import { STATUS } from 'constants.js';
@@ -29,9 +29,7 @@ const Archive = () => {
   const [visibleResources, setVisibleResources] = useState([]);
   const [moreAvailable, setMoreAvailable] = useState(true);
   const skip = useRef(0);
-  // const [selected, setSelected] = useState([]);
-  // const [selectAllChecked, setSelectAllChecked] = useState(false);
-  const [actionComponent, setActionComponent] = useState(null);
+  const { show: showWarning, showBig, hide: hideWarning } = useAppModal();
 
   useEffect(() => {
     debounceFetchData();
@@ -200,31 +198,6 @@ const Archive = () => {
     setQueryParams(filters);
   };
 
-  // const handleSelectAll = (event) => {
-  //   const { checked } = event.target;
-  //   if (!checked) {
-  //     setSelectAllChecked(false);
-  //     setSelected([]);
-  //   } else {
-  //     const ids = visibleResources.map((res) => res._id);
-  //     setSelectAllChecked(true);
-  //     setSelected(ids);
-  //   }
-  // };
-
-  // const handleSelectOne = (event, id) => {
-  //   const { checked } = event.target;
-  //   if (checked) {
-  //     setSelected((prevState) => [...prevState, id]);
-  //     if (selected.length + 1 === visibleResources.length) {
-  //       setSelectAllChecked(true);
-  //     } else setSelectAllChecked(false);
-  //   } else {
-  //     setSelected((prevState) => [...prevState.filter((el) => id !== el)]);
-  //     setSelectAllChecked(false);
-  //   }
-  // };
-
   const getResourceNames = (ids) => {
     return visibleResources
       .filter((res) => ids.includes(res._id))
@@ -274,14 +247,8 @@ const Archive = () => {
       debounceFetchData();
     };
 
-    setActionComponent(
-      <Modal
-        show
-        closeModal={() => {
-          // showRestoreComponent = false;
-          setActionComponent(null);
-        }}
-      >
+    showWarning(
+      <div>
         <span>
           {msg}
           <span style={{ fontWeight: 'bolder' }}>{resourceNames}</span>?
@@ -291,7 +258,7 @@ const Archive = () => {
             data-testid="restore-resource"
             click={() => {
               dispatchRestore();
-              setActionComponent(null);
+              hideWarning();
             }}
             m={5}
           >
@@ -299,16 +266,14 @@ const Archive = () => {
           </Button>
           <Button
             data-testid="cancel-manage-user"
-            click={() => {
-              setActionComponent(null);
-            }}
+            click={hideWarning}
             theme="Cancel"
             m={5}
           >
             Cancel
           </Button>
         </div>
-      </Modal>
+      </div>
     );
   };
 
@@ -317,16 +282,7 @@ const Archive = () => {
   };
 
   const goToRoomPreview = (roomId) => {
-    setActionComponent(
-      <BigModal
-        show
-        closeModal={() => {
-          setActionComponent(null);
-        }}
-      >
-        <RoomPreview roomId={roomId} />
-      </BigModal>
-    );
+    showBig(<RoomPreview roomId={roomId} />);
   };
 
   const customIcons = [
@@ -380,7 +336,6 @@ const Archive = () => {
       setFromDate={setFromDate}
       icons={customIcons}
       selectActions={selectActions}
-      actionComponent={actionComponent}
     />
   );
 };

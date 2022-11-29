@@ -19,27 +19,16 @@ import RoomViewer from './RoomViewer';
 /**
  * The RoomsMonitor provides four views into a set of rooms: attendance, thumbnail, chat, and activity graph.
  *
- * The views of the rooms are laid out as tiles. The tiles have their room name at top and a space for notifications. Clicking
- * on the notification icon brings up the notifications in a modal window for that room (@TODO). Hovering on the hamburger to the left of a title
- * brings up a menu: Enter Room, Manage Members, Open Replayer, and View Room Stats. Each of these simply goes to the
- * appropriate Route (the room, the lobby with the members tab selected, the room with the replayer, or the room lobby
- * with the Stats tab selected).
- *
  * When the Chat is selected, users can toggle between detailed and simple chat. Also, a "Quck Chat"
  * checkbox appears in the hamburger menus for each room. Checking the box makes the chat
  * interactive (the user actually 'enters' the room and can chat with others in the room). Only one
  * live chat can be active at a time.
  *
- * For the activity graph, I reuse what's shown in the stats area of the room.
- * For the chat, there's a simpler chat component (SimpleChat), which is a SIGNIFICANTLY scaled down version of /Layout/Chat (i.e.,
- * ChatLayout) -- no references or arrows are shown, the text messages aren't clickable, etc. However, this component
- * does show the room name at top (rather than just 'Chat') and implements a dropdown menu (a component embedded in
- * the SimplifiedChat file) that was mostly copied from DropdownNavItem.
+ * NOTE: An earlier implementation provided a "stats" view, identical to the activity graphs in the Stats tab of each room. However, this
+ * view requires a LOT of information to be loaded for each room (all events). As a result, the amount of data flowing from the server to the client
+ * on each refresh was deemed problematic.
  *
  *  @TODO:
- *  - when you use the menu to jump somewhere else, the way to get back is the browser's Back button.
- *    Is this obvious enough for users?
- *  - Perhaps adapt the InfoBox rather than having my custom "Title" div below.
  *  - Store entire state (room selections, toggle choices, scrollTop for each tile, etc.) in Redux store and restore MonitorView state accordingly
  *  - Show notifications for rooms
  */

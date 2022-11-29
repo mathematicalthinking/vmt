@@ -38,11 +38,6 @@ const ResourceList = ({
   const [showArchiveComponent, setShowArchiveComponent] = useState(false);
   const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
   const [showRoomPreview, setShowRoomPreview] = useState(false);
-  const previousSearch = useRef({
-    criteria: '',
-    facilitatorFilter: initialConfig.filter,
-    participantFilter: initialConfig.filter,
-  });
 
   // Use useSortableData hook to enable user-controlled sorting
   const {
@@ -83,40 +78,6 @@ const ResourceList = ({
         participantConfig: participantSortConfig,
       });
   }, [facilitatorSortConfig, participantSortConfig]);
-
-  const search = (criteria) => {
-    if (criteria !== '' && previousSearch.current.criteria === '') {
-      previousSearch.current = {
-        criteria,
-        facilitatorFilter: facilitatorSortConfig.filter,
-        participantFilter: participantSortConfig.filter,
-      };
-      facilitatorRequestSort({
-        filter: { timeframe: timeFrames.ALL, key: 'updatedAt' },
-      });
-      participantRequestSort({
-        filter: { timeframe: timeFrames.ALL, key: 'updatedAt' },
-      });
-    } else if (criteria === '' && previousSearch.current.criteria !== '') {
-      facilitatorRequestSort({
-        filter: previousSearch.current.facilitatorFilter,
-      });
-      participantRequestSort({
-        filter: previousSearch.current.participantFilter,
-      });
-      previousSearch.current.criteria = '';
-    }
-
-    let { facilitatorList, participantList } = sortUserResources(userResources);
-    facilitatorList = facilitatorList.filter((res) => {
-      return res.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
-    });
-    participantList = participantList.filter((res) => {
-      return res.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1;
-    });
-    setFacilitatorList(facilitatorList);
-    setParticipantList(participantList);
-  };
 
   const sortUserResources = (resources) => {
     const facilitatorList = [];
@@ -350,12 +311,7 @@ const ResourceList = ({
       {showArchiveComponent && archiveComponent}
       <div>
         {/* @TODO don't show create options for participants */}
-        <div className={classes.Controls}>
-          <div className={classes.Search}>
-            <Search _search={search} data-testid="search" />
-          </div>
-          {create}
-        </div>
+        <div className={classes.Controls}>{create}</div>
         {fList.length > 0 || pList.length > 0 ? (
           <div className={classes.Row}>
             <div className={classes.Col}>
@@ -502,6 +458,11 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
     { label: 'More than a Year', value: timeFrames.AFTERYEAR },
   ];
 
+  const previousSearch = useRef({
+    criteria: sortConfig.criteria || '',
+    filter: sortConfig.filter,
+  });
+
   const optionForValue = (value) => {
     return timeFrameOptions.find((opt) => opt.value === value);
   };
@@ -512,6 +473,41 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
   };
 
   const labelSuffix = Math.ceil(Math.random() * 1000);
+
+  const search = (criteria) => {
+    if (criteria !== '' && previousSearch.current.criteria === '') {
+      previousSearch.current = {
+        criteria,
+        filter: sortConfig.filter,
+      };
+      sortFn({
+        criteria,
+        filter: {
+          ...sortConfig.filter,
+          timeframe: timeFrames.ALL,
+          filterFcn: (item) =>
+            item.name &&
+            item.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1,
+        },
+      });
+    } else if (criteria !== '' && previousSearch.current.criteria !== '') {
+      sortFn({
+        criteria,
+        filter: {
+          ...sortConfig.filter,
+          filterFcn: (item) =>
+            item.name &&
+            item.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1,
+        },
+      });
+    } else if (criteria === '' && previousSearch.current.criteria !== '') {
+      sortFn({
+        criteria,
+        filter: previousSearch.current.filter,
+      });
+      previousSearch.current.criteria = '';
+    }
+  };
 
   return (
     <div className={classes.SortUIContainer}>
@@ -572,6 +568,14 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
           />{' '}
         </label>
       </div>
+      <div className={classes.Search}>
+        <Search
+          isControlled
+          value={sortConfig.criteria || ''}
+          _search={search}
+          data-testid="search"
+        />
+      </div>
     </div>
   );
 };
@@ -582,6 +586,7 @@ SortUI.propTypes = {
   ).isRequired,
   sortFn: PropTypes.func.isRequired,
   sortConfig: PropTypes.shape({
+    criteria: PropTypes.string,
     key: PropTypes.string,
     direction: PropTypes.string,
     filter: PropTypes.shape({

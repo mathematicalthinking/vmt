@@ -12,3 +12,6 @@ export const getGoogleUrl = () => {
   const endpoint = 'oauth/google';
   return `${base}/${endpoint}?redirectURL=${redirectUrl}/oauth/return`;
 };
+
+export const getDesmosActivityUrl = (code) =>
+  `https://teacher.desmos.com/activitybuilder/custom/${code}`;
