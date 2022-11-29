@@ -23,9 +23,6 @@ client/encompassBuild
 production/
 staging/
 *.zip
-client/client.envOld
-newEnv/server.env_testLocal
-.gitignore
-server/server.envOld
-newEnv/client.env
-newEnv/env_devLocal
+
+# ignore redis dumps
+dump.rdb 

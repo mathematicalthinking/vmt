@@ -26,6 +26,7 @@
   flex-flow: column;
   flex: 1;
   margin-bottom: 2rem;
+  min-width: 552px;
 }
 
 .Col:first-child {

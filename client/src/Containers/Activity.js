@@ -11,29 +11,21 @@ import {
   TrashModal,
   Error,
 } from 'Components';
-import { getResourceTabTypes } from 'utils';
 import {
-  SelectAssignments,
-  EditRooms,
-  MakeRooms,
-} from 'Containers/Create/MakeRooms';
-import {
-  createPreviousAssignments,
+  getResourceTabTypes,
   createEditableAssignments,
-} from 'utils/groupings';
-import {
-  DashboardLayout,
-  SidePanel,
-  DashboardContent,
-} from '../Layout/Dashboard';
+  createPreviousAssignments,
+} from 'utils';
+import { SelectAssignments, EditRooms, MakeRooms } from 'Containers';
+import { DashboardLayout, SidePanel, DashboardContent } from 'Layout';
 import {
   getCourses,
   getRooms,
   updateActivity,
   getActivities,
   getCurrentActivity,
-} from '../store/actions';
-import { populateResource } from '../store/reducers';
+} from 'store/actions';
+import { populateResource } from 'store/reducers';
 import Access from './Access';
 import TemplatePreview from './Monitoring/TemplatePreview';
 
@@ -57,6 +49,7 @@ class Activity extends Component {
       canAccess: false,
       roomType: '',
       isPlural: false,
+      desmosActivityCode: '',
     };
   }
 
@@ -65,6 +58,12 @@ class Activity extends Component {
 
     if (activity && activity.tabs) {
       const tabsInRoom = activity.tabs.map((tab) => tab.tabType);
+      if (
+        tabsInRoom.includes('desmosActivity') &&
+        activity.desmosLink &&
+        activity.desmosLink !== ''
+      )
+        this.setState({ desmosActivityCode: activity.desmosLink });
       const { tabTypes, isPlural } = getResourceTabTypes(tabsInRoom);
       this.setState({ roomType: tabTypes, isPlural });
     }
@@ -153,7 +152,10 @@ class Activity extends Component {
 
   checkAccess = () => {
     const { activity, user } = this.props;
-    const canEdit = activity.creator === user._id || user.isAdmin;
+    const canEdit =
+      activity.creator === user._id ||
+      user.isAdmin ||
+      activity.users.includes(user._id);
 
     // Need to develop this criteria for accessing/editing activities
     // For now just prevent non creators/admins from seeing private activities
@@ -196,9 +198,8 @@ class Activity extends Component {
             key="editSelect"
             activity={activity}
             course={course || null}
-            rooms={rooms}
             userId={user._id}
-            user={{
+            member={{
               role: 'facilitator',
               user: { _id: user._id, username: user.username },
             }}
@@ -217,9 +218,8 @@ class Activity extends Component {
             key="addSelect"
             activity={activity}
             course={course || null}
-            rooms={rooms}
             userId={user._id}
-            user={{
+            member={{
               role: 'facilitator',
               user: { _id: user._id, username: user.username },
             }}
@@ -259,6 +259,7 @@ class Activity extends Component {
       canAccess,
       roomType,
       isPlural,
+      desmosActivityCode,
     } = this.state;
     if (activity && canAccess) {
       const keyword = isPlural ? 'types' : 'type';
@@ -279,6 +280,9 @@ class Activity extends Component {
             </EditText>
           </Error>
         ),
+        ...(desmosActivityCode !== ''
+          ? { 'Desmos Activity Code': desmosActivityCode }
+          : null),
       };
 
       let crumbs = [{ title: 'My VMT', link: '/myVMT/activities' }];
@@ -428,13 +432,14 @@ class Activity extends Component {
         userId={user._id}
         username={user.username}
         privacySetting={activity ? activity.privacySetting : 'private'}
-        owners={
-          activity && activity.members
-            ? activity.members
-                .filter((member) => member.role.toLowerCase() === 'facilitator')
-                .map((member) => member.user)
-            : []
-        }
+        owners={activity && activity.creator ? [activity.creator] : []}
+        // owners={
+        //   activity && activity.members
+        //     ? activity.members
+        //         .filter((member) => member.role.toLowerCase() === 'facilitator')
+        //         .map((member) => member.user)
+        //     : []
+        // }
       />
     );
   }
@@ -458,6 +463,8 @@ Activity.propTypes = {
     rooms: PropTypes.arrayOf(PropTypes.shape({})),
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
     privacySetting: PropTypes.string,
+    desmosLink: PropTypes.string,
+    users: PropTypes.arrayOf(PropTypes.string),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
@@ -474,11 +481,7 @@ Activity.propTypes = {
   loading: PropTypes.bool.isRequired,
   updateFail: PropTypes.bool.isRequired,
   updateKeys: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
-  rooms: PropTypes.shape({}).isRequired,
-  // connectGetCourses: PropTypes.func.isRequired,
-  // connectGetRooms: PropTypes.func.isRequired,
   connectUpdateActivity: PropTypes.func.isRequired,
-  // connectGetActivities: PropTypes.func.isRequired,
   connectGetCurrentActivity: PropTypes.func.isRequired,
 };
 
@@ -498,8 +501,6 @@ const mapStateToProps = (state, ownProps) => {
       (activity && activity.course
         ? state.courses.byId[activity.course]
         : null),
-    rooms: state.rooms.byId,
-    userId: state.user._id,
     user: state.user,
     loading: state.loading.loading,
     updateFail: state.loading.updateFail,

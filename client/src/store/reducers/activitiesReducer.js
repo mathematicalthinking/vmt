@@ -53,6 +53,20 @@ const reducer = (state = initialState, action) => {
         byId: updatedActivities,
       };
     }
+    case actionTypes.ADD_ACTIVITY_USER: {
+      const updatedActivities = { ...state.byId };
+      updatedActivities[action.activityId].users = updatedActivities[
+        action.activityId
+      ].users.concat(action.userId);
+      return { ...state, byId: updatedActivities };
+    }
+    case actionTypes.REMOVE_ACTIVITY_USER: {
+      const updatedActivities = { ...state.byId };
+      updatedActivities[action.activityId].users = updatedActivities[
+        action.activityId
+      ].users.filter((userId) => userId !== action.userId);
+      return { ...state, byId: updatedActivities };
+    }
     case actionTypes.CREATED_ACTIVITY: {
       const updatedActivities = { ...state.byId };
       updatedActivities[action.newActivity._id] = action.newActivity;

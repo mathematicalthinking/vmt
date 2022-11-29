@@ -14,7 +14,11 @@ const ControlWarningModal = ({
   let cancelText = 'Cancel';
   let cancelTheme = 'Cancel';
 
-  if (inControl === 'REQUESTED') msg += ` You've already requested control.`;
+  if (inControl === 'REQUESTED') {
+    msg =
+      'Your request has already been received. Use "Cancel Request" if you no longer want control. Use "Okay" if you still want control to be released.';
+    cancelText = 'Okay';
+  }
 
   if (inAdminMode) {
     msg = "You can't make updates when you're in admin mode.";

@@ -260,6 +260,7 @@ EditRooms.propTypes = {
     image: PropTypes.string,
     instructions: PropTypes.string,
     tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    creator: PropTypes.string,
   }).isRequired,
   course: PropTypes.shape({ _id: PropTypes.string }),
   selectedAssignment: PropTypes.shape({

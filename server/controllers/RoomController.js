@@ -116,7 +116,7 @@ module.exports = {
     const initialFilter = {
       tempRoom: false,
       isTrashed: false,
-      status: STATUS.DEFAULT,
+      status: { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] },
     };
 
     const allowedPrivacySettings = ['private', 'public'];
@@ -866,6 +866,7 @@ module.exports = {
           instructions: 1,
           description: 1,
           'members.role': 1,
+          'members.user': 1,
           'userObject.username': 1,
           'userObject._id': 1,
           messagesCount: { $size: '$chat' },
@@ -905,7 +906,10 @@ module.exports = {
       if (room.members && room.userObject) {
         room.members.forEach(
           // eslint-disable-next-line no-return-assign
-          (member, idx) => (member.user = room.userObject[idx])
+          (member) =>
+            (member.user = room.userObject.find(
+              (user) => user._id.toString() === member.user.toString()
+            ))
         );
       }
       delete room.userObject;
@@ -1051,6 +1055,7 @@ const unarchive = (id) => {
         ]);
       });
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e);
     }
   });

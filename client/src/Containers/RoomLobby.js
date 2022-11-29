@@ -33,8 +33,7 @@ import {
   // populateRoom,
   updateUser,
 } from 'store/actions';
-import getUserNotifications from 'utils/notifications';
-import getResourceTabTypes from 'utils/getResourceTabTypes';
+import { getUserNotifications, getResourceTabTypes } from 'utils';
 import { STATUS } from 'constants.js';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
