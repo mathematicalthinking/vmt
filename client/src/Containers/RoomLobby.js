@@ -47,7 +47,7 @@ class Room extends Component {
   constructor(props) {
     super(props);
     const { room } = this.props;
-    if (!room.instructions) {
+    if (room && !room.instructions) {
       room.instructions = 'No instructions set yet';
     }
     this.state = {
