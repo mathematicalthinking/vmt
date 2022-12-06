@@ -46,13 +46,13 @@ class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
   constructor(props) {
     super(props);
-    const { room } = this.props;
+    const { room, user } = this.props;
     this.state = {
       // member: false,
       guestMode: true,
       tabs: [
         { name: 'Details' },
-        { name: 'Members' },
+        ...(this.shouldShowMembers(room, user) ? [{ name: 'Members' }] : []),
         { name: 'Preview' },
         { name: 'Stats' },
         { name: 'Settings' },
@@ -189,6 +189,10 @@ class Room extends Component {
       });
     }
   }
+
+  shouldShowMembers = (room, user) => {
+    return false;
+  };
 
   enterWithCode = (entryCode) => {
     const { room, user, connectJoinWithCode } = this.props;
