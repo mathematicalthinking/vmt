@@ -52,7 +52,7 @@ class Room extends Component {
       guestMode: true,
       tabs: [
         { name: 'Details' },
-        ...(this.shouldShowMembers(room, user) ? [{ name: 'Members' }] : []),
+        ...(this.shouldShowMembers() ? [{ name: 'Members' }] : []),
         { name: 'Preview' },
         { name: 'Stats' },
         { name: 'Settings' },
@@ -190,8 +190,25 @@ class Room extends Component {
     }
   }
 
-  shouldShowMembers = (room, user) => {
-    return false;
+  // Don't display Members tab if:
+  // aliased usernames are turned on and user is a facilitator
+  shouldShowMembers = () => {
+    const { room } = this.props;
+    const isFacilitator = this.isUserFacilitator();
+    if (!isFacilitator && room.settings.displayAliasedUsernames) return false;
+    return true;
+  };
+
+  isUserFacilitator = () => {
+    const { room, user } = this.props;
+    const roomMembers = room.members;
+    let isFacilitator = false;
+
+    roomMembers.forEach((member) => {
+      if (member.user._id === user._id && member.role === 'facilitator')
+        isFacilitator = true;
+    });
+    return isFacilitator;
   };
 
   enterWithCode = (entryCode) => {
@@ -771,7 +788,7 @@ Room.propTypes = {
     entryCode: PropTypes.string,
     image: PropTypes.string,
     instructions: PropTypes.string,
-    settings: PropTypes.shape({}),
+    settings: PropTypes.shape({ displayAliasedUsernames: PropTypes.bool }),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
