@@ -201,9 +201,8 @@ class Room extends Component {
 
   isUserFacilitator = () => {
     const { room, user } = this.props;
-    const roomMembers = room.members;
-    const mem = roomMembers.find((member) => member.user._id === user._id);
-    return mem.role === 'facilitator';
+    const mem = room.members.find((member) => member.user._id === user._id);
+    return mem && mem.role ? mem.role === 'facilitator' : false;
   };
 
   enterWithCode = (entryCode) => {
