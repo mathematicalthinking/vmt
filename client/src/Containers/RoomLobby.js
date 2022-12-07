@@ -46,13 +46,13 @@ class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
   constructor(props) {
     super(props);
-    const { room } = this.props;
+    const { room, user } = this.props;
     this.state = {
       // member: false,
       guestMode: true,
       tabs: [
         { name: 'Details' },
-        { name: 'Members' },
+        ...(this.shouldShowMembers() ? [{ name: 'Members' }] : []),
         { name: 'Preview' },
         { name: 'Stats' },
         { name: 'Settings' },
@@ -189,6 +189,21 @@ class Room extends Component {
       });
     }
   }
+
+  // Don't display Members tab if:
+  // aliased usernames are turned on and user is a facilitator
+  shouldShowMembers = () => {
+    const { room } = this.props;
+    const isFacilitator = this.isUserFacilitator();
+    if (!isFacilitator && room.settings.displayAliasedUsernames) return false;
+    return true;
+  };
+
+  isUserFacilitator = () => {
+    const { room, user } = this.props;
+    const mem = room.members.find((member) => member.user._id === user._id);
+    return mem && mem.role ? mem.role === 'facilitator' : false;
+  };
 
   enterWithCode = (entryCode) => {
     const { room, user, connectJoinWithCode } = this.props;
@@ -767,7 +782,7 @@ Room.propTypes = {
     entryCode: PropTypes.string,
     image: PropTypes.string,
     instructions: PropTypes.string,
-    settings: PropTypes.shape({}),
+    settings: PropTypes.shape({ displayAliasedUsernames: PropTypes.bool }),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
