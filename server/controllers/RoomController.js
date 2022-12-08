@@ -691,11 +691,29 @@ module.exports = {
           tabs: 1,
           privacySetting: 1,
           updatedAt: 1,
-          members: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', ROLE.FACILITATOR],
+              },
+            },
+          },
           tempRoom: 1,
           chat: 1,
         },
       },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'facilitatorObject',
+        },
+      },
+
+      { $unwind: '$facilitatorObject' },
     ];
     if (criteria) {
       pipeline.push({
@@ -704,7 +722,7 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { members: criteria },
+            { 'facilitatorObject.username': criteria },
           ],
         },
       });
