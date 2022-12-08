@@ -2,7 +2,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { withControlMachine, withPopulatedCourse } from 'utils';
+import {
+  withControlMachine,
+  withPopulatedCourse,
+  withPopulatedActivity,
+} from 'utils';
 import Navbar from '../Components/Navigation/Navbar';
 import {
   MyVMT,
@@ -34,7 +38,8 @@ const pages = [
   },
   {
     path: '/courses/:course_id/activities/:activity_id/:resource',
-    component: Activity,
+    // component: Activity,
+    component: withPopulatedActivity(Activity),
     redirectPath: '/classcode',
   },
   {
@@ -49,7 +54,8 @@ const pages = [
   },
   {
     path: '/activities/:activity_id/:resource',
-    component: Activity,
+    // component: Activity,
+    component: withPopulatedActivity(Activity),
     redirectPath: '/signup',
   },
   {

@@ -15,7 +15,7 @@ import {
   getResourceTabTypes,
   createEditableAssignments,
   createPreviousAssignments,
-  getDesmosActivityUrl
+  getDesmosActivityUrl,
 } from 'utils';
 import { SelectAssignments, EditRooms, MakeRooms } from 'Containers';
 import { DashboardLayout, SidePanel, DashboardContent } from 'Layout';
@@ -509,7 +509,9 @@ Activity.defaultProps = {
 const mapStateToProps = (state, ownProps) => {
   // eslint-disable-next-line camelcase
   const { activity_id, course_id } = ownProps.match.params;
-  const activity = state.activities.byId[activity_id];
+  const activity = state.activities.byId[activity_id] || ownProps.activity;
+  console.log('activity');
+  console.log(activity);
   return {
     activity: populateResource(state, 'activities', activity_id, ['rooms']),
     course:
