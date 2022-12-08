@@ -630,7 +630,7 @@ class SharedReplayer extends Component {
             <Tools
               onClickExit={this.goBack}
               lastEvent={this.updatedLog[logIndex]}
-              onCreateActivity={this.beginCreatingActivity}
+              onClickCreateTemplate={this.beginCreatingActivity}
               isSimplified={isSimplified}
               onToggleSimpleChat={this.toggleSimpleChat}
               exitText="Exit Replayer"
