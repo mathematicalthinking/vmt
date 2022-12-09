@@ -125,7 +125,7 @@ class ContentBox extends PureComponent {
                 </div>
               ) : null}
               {details.sinceUpdated ? (
-                <div>Updated: {details.sinceUpdated} ago</div>
+                <div>Updated: {details.sinceUpdated}</div>
               ) : null}
               {details.createdAt ? (
                 <div>Created: {details.createdAt}</div>
