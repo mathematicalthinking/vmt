@@ -21,6 +21,14 @@ module.exports = {
     });
   },
 
+  getPopulatedById: (id) => {
+    return new Promise((resolve, reject) => {
+      db.Activity.findById(id)
+        .then((activity) => resolve(activity))
+        .catch((err) => reject(err));
+    });
+  },
+
   searchPaginated: async (criteria, skip, filters) => {
     const initialFilter = { isTrashed: false };
     const allowedPrivacySettings = ['private', 'public'];

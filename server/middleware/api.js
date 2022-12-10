@@ -120,6 +120,10 @@ const validateRecordAccess = (req, res, next) => {
         if (_.isEqual(user._id, record.creator)) {
           return next();
         }
+
+        if (resource === 'activities') {
+          return next();
+        }
         return errors.sendError.NotAuthorizedError(null, res);
       })
       .catch((err) => {
