@@ -27,7 +27,7 @@ module.exports = {
         .sort('-createdAt')
         .populate({ path: 'members.user', select: 'username' })
         .populate({ path: 'currentMembers', select: 'username' })
-        .populate({ path: 'tabs', select: 'name tabType' })
+        .populate({ path: 'tabs', select: 'name tabType desmosLink' })
         .then((rooms) => {
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
@@ -53,7 +53,7 @@ module.exports = {
         //   populate: { path: params.events ? 'events' : '' },
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
-        .populate({ path: 'tabs', select: 'tabType name' })
+        .populate({ path: 'tabs', select: 'tabType name desmosLink' })
         .select(
           'name creator activity members course graphImage privacySetting _id'
         )
@@ -89,7 +89,7 @@ module.exports = {
             }
           : {
               path: 'tabs',
-              select: 'name tabType snapshot',
+              select: 'name tabType snapshot desmosLink',
             }
       )
       .lean();
@@ -348,7 +348,10 @@ module.exports = {
         await tabModels.forEach((tab) => tab.save()); // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
         await room.save();
         room.populate(
-          { path: 'members.user tabs', select: 'username tabType name events' },
+          {
+            path: 'members.user tabs',
+            select: 'username tabType desmosLink name events',
+          },
           (err, populatedRoom) => {
             if (err) reject(err);
             resolve(populatedRoom);
