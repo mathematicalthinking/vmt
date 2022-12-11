@@ -694,11 +694,29 @@ module.exports = {
           tabs: 1,
           privacySetting: 1,
           updatedAt: 1,
-          members: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', ROLE.FACILITATOR],
+              },
+            },
+          },
           tempRoom: 1,
           chat: 1,
         },
       },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'facilitatorObject',
+        },
+      },
+
+      { $unwind: '$facilitatorObject' },
     ];
     if (criteria) {
       pipeline.push({
@@ -707,7 +725,7 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { members: criteria },
+            { 'facilitatorObject.username': criteria },
           ],
         },
       });
@@ -834,24 +852,10 @@ module.exports = {
   searchPaginatedArchive: async (searchText, skip, filters) => {
     const criteria = await convertSearchFilters(filters);
     criteria.status = STATUS.ARCHIVED;
-    const initialMatch = searchText
-      ? {
-          $and: [
-            criteria,
-            {
-              $or: [
-                { name: searchText },
-                { description: searchText },
-                { instructions: searchText },
-              ],
-            },
-          ],
-        }
-      : criteria;
+
     const roomsPipeline = [
       {
-        // $match: initialMatch,
-        $match: initialMatch,
+        $match: criteria,
       },
       {
         $lookup: {
@@ -875,10 +879,27 @@ module.exports = {
           messagesCount: { $size: '$chat' },
         },
       },
+    ];
+    if (searchText) {
+      roomsPipeline.push({
+        $match: {
+          $or: [
+            { name: searchText },
+            { description: searchText },
+            { instructions: searchText },
+            {
+              'members.role': 'facilitator',
+              'userObject.username': searchText,
+            },
+          ],
+        },
+      });
+    }
+    roomsPipeline.push(
       { $sort: { updatedAt: -1 } },
       { $skip: skip ? parseInt(skip, 10) : 0 },
-      { $limit: 20 },
-    ];
+      { $limit: 20 }
+    );
 
     const rooms = await Room.aggregate(roomsPipeline);
     const roomIds = rooms.map((room) => room._id);
