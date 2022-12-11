@@ -43,8 +43,8 @@ export const populateResource = (
   const currentResource = { ...state[resourceToPop].byId[resourceId] };
   resources.forEach((resource) => {
     let populatedResources;
-    if (state[resourceToPop].byId[resourceId][resource]) {
-      populatedResources = state[resourceToPop].byId[resourceId][resource]
+    if (currentResource && currentResource[resource]) {
+      populatedResources = currentResource[resource]
         .filter((id) => {
           return state[resource].byId[id] || null;
         })
