@@ -45,12 +45,12 @@ module.exports = {
           select: '-currentState',
           populate: {
             path: 'tabs members.user',
-            select: 'username tabType name instructions',
+            select: 'username tabType desmosLink name instructions',
           },
         })
         .populate({
           path: 'activities',
-          populate: { path: 'tabs', select: 'name tabType' },
+          populate: { path: 'tabs', select: 'name tabType desmosLink' },
         })
         .populate({
           path: 'notifications',

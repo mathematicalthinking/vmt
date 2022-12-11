@@ -39,12 +39,12 @@ module.exports = {
           path: 'rooms',
           populate: {
             path: 'creator members.user currentMembers course tabs',
-            select: 'username name tabType',
+            select: 'username name tabType desmosLink',
           },
         })
         .populate({
           path: 'activities',
-          populate: { path: 'tabs', select: 'name tabType' },
+          populate: { path: 'tabs', select: 'name tabType desmosLink' },
         })
         .then((course) => resolve(course))
         .catch((err) => reject(err));
