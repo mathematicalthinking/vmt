@@ -512,9 +512,12 @@ Activity.defaultProps = {
 const mapStateToProps = (state, ownProps) => {
   // eslint-disable-next-line camelcase
   const { activity_id, course_id } = ownProps.match.params;
-  const activity = state.activities.byId[activity_id] || ownProps.activity;
+  const activity = state.activities.byId[activity_id];
+  const dbActivity = ownProps.activity;
   return {
-    // activity: populateResource(state, 'activities', activity_id, ['rooms']),
+    activity:
+      dbActivity ||
+      populateResource(state, 'activities', activity_id, ['rooms']),
     course:
       state.courses.byId[course_id] ||
       (activity && activity.course

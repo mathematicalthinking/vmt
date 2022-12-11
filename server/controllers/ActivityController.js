@@ -24,6 +24,11 @@ module.exports = {
   getPopulatedById: (id) => {
     return new Promise((resolve, reject) => {
       db.Activity.findById(id)
+        .populate('tabs rooms')
+        .populate({
+          path: 'rooms',
+          populate: { path: 'members.user', select: 'username' },
+        })
         .then((activity) => resolve(activity))
         .catch((err) => reject(err));
     });

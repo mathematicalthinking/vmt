@@ -121,9 +121,18 @@ const validateRecordAccess = (req, res, next) => {
           return next();
         }
 
-        if (resource === 'activities') {
-          return next();
+        if (
+          resource === 'activities' &&
+          record.users &&
+          Array.isArray(record.users)
+        ) {
+          const isActivityUser = record.users.includes(user._id);
+          const isActivityOwner = record.creator === user._id;
+          if (isActivityUser || isActivityOwner) {
+            return next();
+          }
         }
+
         return errors.sendError.NotAuthorizedError(null, res);
       })
       .catch((err) => {
