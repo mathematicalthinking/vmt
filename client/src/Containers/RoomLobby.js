@@ -194,6 +194,9 @@ class Room extends Component {
   // aliased usernames are turned on and user is a facilitator
   shouldShowMembers = () => {
     const { room } = this.props;
+    // used because room is sometimes not fully loaded from community
+    // & does not always loaded in without settings
+    if (!room || !room.settings) return true;
     const isFacilitator = this.isUserFacilitator();
     if (!isFacilitator && room.settings.displayAliasedUsernames) return false;
     return true;
