@@ -41,6 +41,7 @@ export const populateResource = (
   resources
 ) => {
   const currentResource = { ...state[resourceToPop].byId[resourceId] };
+  if (!Object.keys(currentResource).length) return null;
   resources.forEach((resource) => {
     let populatedResources;
     if (currentResource && currentResource[resource]) {
