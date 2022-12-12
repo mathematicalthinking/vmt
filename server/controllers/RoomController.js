@@ -553,13 +553,18 @@ module.exports = {
         removeAndChangeStatus(id, STATUS.ARCHIVED, reject, resolve);
       } else {
         // unarchive is flag is set
+        let willUnarchive = false;
         if (body.unarchive) {
           delete body.unarchive;
           unarchive(id);
+          willUnarchive = true;
         }
         const doUpdateTabVisitors =
           typeof body.instructions === 'string' && body.instructions.length > 0;
-        db.Room.findByIdAndUpdate(id, body, { new: true })
+        db.Room.findByIdAndUpdate(id, body, {
+          new: true,
+          timestamps: !willUnarchive,
+        })
           .populate('currentMembers.user members.user', 'username')
           .populate('chat') // this seems random
           .then((res) => {
@@ -959,7 +964,7 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
     .then(async (room) => {
       room.status = status;
       try {
-        updatedRoom = await room.save();
+        updatedRoom = await room.save({ timestamps: false });
       } catch (err) {
         reject(err);
       }
