@@ -48,7 +48,7 @@ class FacilitatorIntro extends Component {
           </h2>
           <div className={classes.Cards}>
             <div className={classes.CardContainer}>
-              <div className={classes.CreateTitle}>Activity</div>
+              <div className={classes.CreateTitle}>Template</div>
               <NewResource resource="activities" intro />
             </div>
             <div className={classes.CardContainer}>

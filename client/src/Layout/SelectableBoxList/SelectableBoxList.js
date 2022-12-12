@@ -45,6 +45,7 @@ const SelectableBoxList = (props) => {
   };
 
   const timeDiff = (ts) => {
+    if (!ts) return 'Never';
     const diff = new Date() - new Date(ts);
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(diff / 60000);
@@ -52,15 +53,15 @@ const SelectableBoxList = (props) => {
     const days = Math.floor(diff / 86400000);
 
     if (seconds < 60) {
-      return `${seconds} second${seconds > 1 ? 's' : ''}`;
+      return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
     }
     if (minutes < 60) {
-      return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
     }
     if (hours < 60) {
-      return `${hours} hour${hours > 1 ? 's' : ''}`;
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
     }
-    return `${days} day${days > 1 ? 's' : ''}`;
+    return `${days} day${days > 1 ? 's' : ''} ago`;
   };
 
   const listElems = "There doesn't appear to be anything here yet";

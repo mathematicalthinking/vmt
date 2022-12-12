@@ -5,6 +5,7 @@ export { default as buildLog } from './buildLog';
 export { default as COLOR_MAP } from './colorMap';
 export { default as createMongoId } from './createMongoId';
 export { default as withPopulatedCourse } from './withPopulatedCourse';
+export { default as withPopulatedActivity } from './withPopulatedActivity';
 export { loadState, saveState } from './localStorage';
 export { default as getUserNotifications } from './notifications';
 export { default as socket } from './sockets';

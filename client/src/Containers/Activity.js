@@ -15,7 +15,7 @@ import {
   getResourceTabTypes,
   createEditableAssignments,
   createPreviousAssignments,
-  getDesmosActivityUrl
+  getDesmosActivityUrl,
 } from 'utils';
 import { SelectAssignments, EditRooms, MakeRooms } from 'Containers';
 import { DashboardLayout, SidePanel, DashboardContent } from 'Layout';
@@ -153,10 +153,13 @@ class Activity extends Component {
 
   checkAccess = () => {
     const { activity, user } = this.props;
+
     const canEdit =
       activity.creator === user._id ||
       user.isAdmin ||
-      activity.users.includes(user._id);
+      (activity.users &&
+        activity.users.length > 0 &&
+        activity.users.includes(user._id));
 
     // Need to develop this criteria for accessing/editing activities
     // For now just prevent non creators/admins from seeing private activities
@@ -510,8 +513,11 @@ const mapStateToProps = (state, ownProps) => {
   // eslint-disable-next-line camelcase
   const { activity_id, course_id } = ownProps.match.params;
   const activity = state.activities.byId[activity_id];
+  const dbActivity = ownProps.activity;
   return {
-    activity: populateResource(state, 'activities', activity_id, ['rooms']),
+    activity:
+      dbActivity ||
+      populateResource(state, 'activities', activity_id, ['rooms']),
     course:
       state.courses.byId[course_id] ||
       (activity && activity.course
