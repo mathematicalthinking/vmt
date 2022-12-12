@@ -65,7 +65,10 @@ module.exports = {
   },
 
   getPopulatedById: (id, params) => {
-    return db.Room.findById(id)
+    return (Array.isArray(id)
+      ? db.Room.find({ _id: { $in: id } })
+      : db.Room.findById(id)
+    )
       .populate({ path: 'creator', select: 'username' })
       .populate({
         path: 'chat',
