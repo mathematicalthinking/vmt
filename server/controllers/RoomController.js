@@ -89,7 +89,7 @@ module.exports = {
             }
           : {
               path: 'tabs',
-              select: 'name tabType snapshot desmosLink',
+              select: 'name tabType desmosLink',
             }
       )
       .lean();
