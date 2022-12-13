@@ -14,7 +14,10 @@ module.exports = {
 
   getById: (id) => {
     return new Promise((resolve, reject) => {
-      db.Activity.findById(id)
+      (Array.isArray(id)
+        ? db.Activity.findById({ _id: { $in: id } })
+        : db.Activity.findById(id)
+      )
         .populate('tabs')
         .then((activity) => resolve(activity))
         .catch((err) => reject(err));
