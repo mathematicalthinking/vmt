@@ -122,6 +122,9 @@ const WebSketch = (props) => {
     // If msg references a gobj, find it and attach to attr so handlers can access it.
     const id = attr.newId ? attr.newId : attr.gobjId;
     if (id) {
+      if (!sketch || !sketch.gobjList) {
+        initSketchPage();
+      }
       gobj = sketch.gobjList.gobjects[id];
       attr.gobj = gobj;
     }
@@ -229,7 +232,7 @@ const WebSketch = (props) => {
           break;
         default:
           // Other messages to be defined: gobjEdited, gobjStyled, etc.
-          throw new Error(`Unkown message type: ${msg.name}`);
+          console.warn(`Unkown message type: ${msg.name}`);
       }
     }
   };
@@ -517,7 +520,7 @@ const WebSketch = (props) => {
       if (gobjInfo.loc) {
         setLoc(destGobj.geom.loc, gobjInfo.loc);
       }
-      if (gobjInfo.value) {
+      if (typeof gobjInfo.value !== 'undefined') {
         destGobj.value = gobjInfo.value;
       }
       if (gobjInfo.expression) {
@@ -527,6 +530,7 @@ const WebSketch = (props) => {
       }
       destGobj.invalidateGeom();
     }
+    console.log('moveList', moveList);
   };
 
   const startFollowerTool = (name) => {
@@ -781,7 +785,7 @@ const WebSketch = (props) => {
 
   function handleDeleteWidget(attr) {
     let note = '';
-    const deletedGobjs = {};
+    const deletedGobjs = [];
     let thisDelta;
     let descendantsExist = false;
     function doDelete() {
@@ -797,7 +801,7 @@ const WebSketch = (props) => {
         note = 'Deleted ' + gobjDesc(gobj);
       } else if (!descendantsExist) {
         note += ' and its descendants.'; // append this on second gobj
-        descendantsExist = true;
+        descendantsExist = true; // any additional object must be a descendant
       }
       deletedGobjs[id] = gobj;
     });

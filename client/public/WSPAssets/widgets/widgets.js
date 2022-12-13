@@ -375,6 +375,8 @@ var WIDGETS = (function() {
   }
 
   function deepEquals(a, b) {
+    const kSigDigits = 12; // consider numbers with 12 significant digits equal to be truly equal
+    // Otherwise floats (like values and locations of gobjs) may fail this test.
     if (a === b) return true;
     if (a && b && typeof a === 'object' && typeof b === 'object') {
       if (Object.keys(a).length !== Object.keys(b).length) return false;
@@ -386,6 +388,12 @@ var WIDGETS = (function() {
         )
           return false;
       }
+    } else if (
+      typeof a === 'number' &&
+      typeof b === 'number' &&
+      a.toPrecision(kSigDigits) === b.toPrecision(kSigDigits)
+    ) {
+      return true;
     } else {
       // they're not both objects, and a !== b
       return false;
@@ -3031,6 +3039,10 @@ var WIDGETS = (function() {
     // public functions and variables
 
     initWidget: initWidget,
+
+    deepEquals: function(a, b) {
+      return deepEquals(a, b);
+    },
 
     showWidgets: function(show, optionalTargetNode) {
       // shows or hides the entire widget

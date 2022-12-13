@@ -56,6 +56,36 @@ const WebSketch = (props) => {
     };
   }, []);
 
+  // Get the previous value (was passed into hook on last render)
+  const prevUpdates = usePrevious(activityData);
+
+  // Hook
+  function usePrevious(value) {
+    // The ref object is a generic container whose current property is mutable ...
+    // ... and can hold any value, similar to an instance property on a class
+    const ref = useRef();
+    // Store current value in ref
+    useEffect(() => {
+      ref.current = value;
+    }, [value]); // Only re-run if value changes
+    // Return previous value (happens before update in useEffect above)
+    return ref.current;
+  }
+
+  function newUpdate(gobjInfo) {
+    // return true if this update info differs from the last update
+    // If this update is new, or if it differs from the last, store it in prevUpdates.
+    const { id } = gobjInfo;
+    const prevInfo = prevUpdates[id];
+    const retVal =
+      !prevInfo ||
+      (window.WIDGETS && !window.WIDGETS.deepEquals(gobjInfo, prevInfo));
+    if (retVal) {
+      prevUpdates[id] = gobjInfo;
+    }
+    return retVal;
+  }
+
   useEffect(() => {
     setPrependMessage('');
     setActivityMessage('');
@@ -103,6 +133,11 @@ const WebSketch = (props) => {
             }
           });
         }
+        if (!$sketch) {
+          $sketch = $('#sketch');
+        }
+        $sketch.data('isRemote', true);
+        // Store our status with our sketch_canvas which doesn't change even if the doc changes.
       }
     }
   }, [props.inControl]);
@@ -413,7 +448,9 @@ const WebSketch = (props) => {
       }
       // Don't bother with context; it has cycles and cannot easily be stringified -- (?: ANZ) Do we need context here?
       const { id } = gobjInfo;
-      setActivityMoves((prevMoves) => ({ ...prevMoves, [id]: gobjInfo }));
+      if (newUpdate(gobjInfo)) {
+        setActivityMoves((prevMoves) => ({ ...prevMoves, [id]: gobjInfo }));
+      }
     }
   };
 
@@ -561,6 +598,9 @@ const WebSketch = (props) => {
     // If msg references a gobj, find it and attach to attr so handlers can access it.
     const id = attr.newId ? attr.newId : attr.gobjId;
     if (id) {
+      if (!sketch || !sketch.gobjList) {
+        initSketchPage();
+      }
       gobj = sketch.gobjList.gobjects[id];
       attr.gobj = gobj;
     }
@@ -668,7 +708,7 @@ const WebSketch = (props) => {
           break;
         default:
           // Other messages to be defined: gobjEdited, gobjStyled, etc.
-          throw new Error(`Unkown message type: ${msg.name}`);
+          console.warn(`Unkown message type: ${msg.name}`);
       }
     }
   };
@@ -885,7 +925,7 @@ const WebSketch = (props) => {
       if (gobjInfo.loc) {
         setLoc(destGobj.geom.loc, gobjInfo.loc);
       }
-      if (gobjInfo.value) {
+      if (typeof gobjInfo.value !== 'undefined') {
         destGobj.value = gobjInfo.value;
       }
       if (gobjInfo.expression) {
@@ -895,6 +935,7 @@ const WebSketch = (props) => {
       }
       destGobj.invalidateGeom();
     }
+    console.log('moveList', moveList);
   };
 
   const startFollowerTool = (name) => {
@@ -1132,7 +1173,7 @@ const WebSketch = (props) => {
 
   function handleDeleteWidget(attr) {
     let note = '';
-    const deletedGobjs = {};
+    const deletedGobjs = [];
     let thisDelta;
     let descendantsExist = false;
     function doDelete() {
@@ -1148,7 +1189,7 @@ const WebSketch = (props) => {
         note = 'Deleted ' + gobjDesc(gobj);
       } else if (!descendantsExist) {
         note += ' and its descendants.'; // append this on second gobj
-        descendantsExist = true;
+        descendantsExist = true; // any additional object must be a descendant
       }
       deletedGobjs[id] = gobj;
     });
