@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TextInput } from '../../../Components';
+import { TextInput } from 'Components';
 import classes from '../create.css';
 
-// @TODO CHANGE TO CLASS COMPONENTS SO WE CAN USE AREF TO SET THE FOCUS
-const Step1 = React.memo(function Step1(props) {
+const Step1 = (props) => {
   const {
     displayResource,
     changeHandler,
@@ -36,7 +35,9 @@ const Step1 = React.memo(function Step1(props) {
       />
       {resource === 'courses' ? (
         <div className={classes.FormSection}>
-          <div className={classes.OptionalHeader}>Optional Class Data</div>
+          <div className={classes.OptionalHeader}>
+            Additional Course Information (optional)
+          </div>
           <TextInput
             light
             name="organization"
@@ -68,7 +69,7 @@ const Step1 = React.memo(function Step1(props) {
       ) : null}
     </div>
   );
-});
+};
 
 Step1.propTypes = {
   displayResource: PropTypes.string.isRequired,
