@@ -170,6 +170,11 @@ export const createActivity = (body) => {
           dispatch(addCourseActivities(body.course, [result._id]));
         }
         dispatch(addUserActivities([result._id]));
+        if (body.users.length) {
+          body.users.forEach((userId) =>
+            dispatch(addUserToActivity(result._id, userId))
+          );
+        }
         return dispatch(loading.success());
       })
       .catch((err) => {

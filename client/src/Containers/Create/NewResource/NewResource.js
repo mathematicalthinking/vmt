@@ -105,6 +105,18 @@ class NewResourceContainer extends Component {
     return API.uploadGgbFiles(formData);
   };
 
+  composeActivityUsers = () => {
+    const { course } = this.props;
+
+    // const activityUsers = course.members.filter((mem) => {
+    //   if (mem.role === 'facilitator') return mem.user._id;
+    // });
+    const activityUsers = course.members
+      .filter((mem) => mem.role === 'facilitator')
+      .map((mem) => mem.user._id);
+    return activityUsers;
+  };
+
   submitForm = () => {
     const {
       name,
@@ -167,6 +179,7 @@ class NewResourceContainer extends Component {
           connectCreateCourse(newResource);
           break;
         case 'activities':
+          if (courseId) newResource.users = this.composeActivityUsers();
           connectCreateActivity(newResource);
           break;
         case 'rooms':
@@ -475,11 +488,13 @@ NewResourceContainer.propTypes = {
   lastRoomType: PropTypes.string.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  course: PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) }),
 };
 
 NewResourceContainer.defaultProps = {
   courseId: null,
   intro: false,
+  course: null,
 };
 
 const mapStateToProps = (store, ownProps) => {
