@@ -293,11 +293,19 @@ module.exports = {
               reject(err);
             }
 
+            if (activity.users.length) {
+              await db.User.updateMany(
+                { _id: { $in: activity.users } },
+                { $pull: { activities: activity._id } }
+              );
+            }
+
             if (activity.course) {
               return db.Course.findByIdAndUpdate(activity.course, {
                 $pull: { activities: activity._id },
               });
             }
+
             return resolve(updatedActivity);
             // let userIds = activity.members.map(member => member.user);
             // // Delete this activitiy from any courses
