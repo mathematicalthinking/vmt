@@ -203,8 +203,16 @@ module.exports = {
       delete body.mathState;
 
       db.Activity.create(body)
-        .then((activity) => {
+        .then(async (activity) => {
           createdActivity = activity;
+
+          if (createdActivity.users.length) {
+            await db.User.updateMany(
+              { _id: { $in: createdActivity.users } },
+              { $addToSet: { activities: createdActivity._id } }
+            );
+          }
+
           if (!existingTabs) {
             if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {
               return Promise.all(
@@ -225,6 +233,7 @@ module.exports = {
               tabType: body.roomType,
             });
           }
+
           return Promise.all(
             existingTabs.map((tab) => {
               const newTab = new db.Tab({
