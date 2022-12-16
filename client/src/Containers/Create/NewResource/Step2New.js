@@ -30,6 +30,12 @@ const Step2New = (props) => {
         >
           Desmos
         </RadioBtn>
+        {window.env.REACT_APP_WSP_MODE &&
+        window.env.REACT_APP_WSP_MODE.toLowerCase() === 'yes' ? (
+          <RadioBtn name="wsp" checked={roomType === 'wsp'} check={setRoomType}>
+            Web Skeetchpad
+          </RadioBtn>
+        ) : null}
         {window.env.REACT_APP_PYRET_MODE &&
         window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' ? (
           <RadioBtn
@@ -40,9 +46,6 @@ const Step2New = (props) => {
             Pyret Activity
           </RadioBtn>
         ) : null}
-        <RadioBtn name="wsp" checked={roomType === 'wsp'} check={setRoomType}>
-          Web Sketchpad
-        </RadioBtn>
       </div>
     </Aux>
   );

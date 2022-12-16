@@ -111,7 +111,15 @@ class Homepage extends PureComponent {
       window.env.REACT_APP_PYRET_MODE &&
       window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes'
     ) {
-      pyretStatus = 'Pyret mode is enabled';
+      pyretStatus = ' Pyret mode is enabled. ';
+    }
+    let wspStatus = '';
+    if (
+      window.env.REACT_APP_WSP_MODE &&
+      window.env.REACT_APP_WSP_MODE.toLowerCase() === 'yes'
+    ) {
+      wspStatus =
+        ' Web Sketchpad mode is enabled. Web Sketchpad (WSP) is in DRAFT integration. ';
     }
 
     const maintWindow =
@@ -197,8 +205,7 @@ class Homepage extends PureComponent {
                 open source
               </a>{' '}
               and currently in active development - You are viewing this
-              application in <b>{pageLocation}</b> mode. Web Sketchpad (WSP) is
-              in DRAFT integration. {pyretStatus}
+              application in <b>{pageLocation}</b> mode. {wspStatus}
               {pyretStatus}
             </p>
           </section>

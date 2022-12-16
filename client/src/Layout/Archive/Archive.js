@@ -101,6 +101,17 @@ const Archive = (props) => {
                   >
                     Desmos
                   </RadioBtn>
+                  {window.env.REACT_APP_WSP_MODE &&
+                    window.env.REACT_APP_WSP_MODE.toLowerCase() === 'yes' && (
+                      <RadioBtn
+                        data-testid="wsp-activity-filter"
+                        check={() => toggleFilter('room-wsp')}
+                        checked={filters.roomType === 'wsp'}
+                        name="WSPActivity"
+                      >
+                        Web Sketchpad
+                      </RadioBtn>
+                    )}
                   {window.env.REACT_APP_PYRET_MODE &&
                     window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (
                       <RadioBtn

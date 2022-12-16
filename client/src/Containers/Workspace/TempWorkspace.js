@@ -216,6 +216,17 @@ class TempWorkspace extends Component {
             >
               GeoGebra
             </Button>
+            {window.env.REACT_APP_WSP_MODE &&
+            window.env.REACT_APP_WSP_MODE.toLowerCase() === 'yes' ? (
+              <Button
+                data-testid="temp-wsp"
+                m={5}
+                click={() => this.joinRoom('wsp')}
+                disabled={!loggedIn && !tempUsername}
+              >
+                Web Sketchpad
+              </Button>
+            ) : null}
             {window.env.REACT_APP_PYRET_MODE &&
             window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' ? (
               <Button
@@ -227,14 +238,6 @@ class TempWorkspace extends Component {
                 Pyret
               </Button>
             ) : null}
-               <Button
-              data-testid="temp-wsp"
-              m={5}
-              click={() => this.joinRoom('wsp')}
-              disabled={!loggedIn && !tempUsername}
-            >
-              Web Sketchpad
-            </Button>
           </div>
         ) : (
           <Button
@@ -266,14 +269,11 @@ const mapStateToProps = (store, ownProps) => ({
   userId: store.user._id,
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    connectPopulateRoom: populateRoom,
-    connectRemovedRoom: removedRoom,
-    connectUpdateRoom: updateRoom,
-    connectUpdatedRoom: updatedRoom,
-    connectAddUserRooms: addUserRooms,
-    connectAddToLog: addToLog,
-  }
-)(TempWorkspace);
+export default connect(mapStateToProps, {
+  connectPopulateRoom: populateRoom,
+  connectRemovedRoom: removedRoom,
+  connectUpdateRoom: updateRoom,
+  connectUpdatedRoom: updatedRoom,
+  connectAddUserRooms: addUserRooms,
+  connectAddToLog: addToLog,
+})(TempWorkspace);

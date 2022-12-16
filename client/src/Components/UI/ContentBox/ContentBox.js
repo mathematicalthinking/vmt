@@ -66,6 +66,14 @@ class ContentBox extends PureComponent {
     ) {
       return null;
     }
+    if (
+      roomType &&
+      roomType[0] === 'wsp' &&
+      window.env.REACT_APP_WSP_MODE &&
+      window.env.REACT_APP_WSP_MODE.toLowerCase() !== 'yes'
+    ) {
+      return null;
+    }
 
     const childElements = (
       <div
