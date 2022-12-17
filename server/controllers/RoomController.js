@@ -1009,6 +1009,14 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
             })
           );
         }
+        // delete this room from any activities (templates)
+        if (room.course) {
+          promises.push(
+            db.Activity.findByIdAndUpdate(room.activity, {
+              $pull: { rooms: id },
+            })
+          );
+        }
         return Promise.all(promises);
       });
     })
