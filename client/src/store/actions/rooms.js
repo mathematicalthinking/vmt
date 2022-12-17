@@ -81,6 +81,13 @@ export const removeCourseRoom = (courseId, roomId) => {
     roomId,
   };
 };
+export const removeActivityRoom = (activityId, roomId) => {
+  return {
+    type: actionTypes.REMOVE_ACTIVITY_ROOM,
+    activityId,
+    roomId,
+  };
+};
 
 export const addUserRooms = (newRoomsArr) => {
   return {
@@ -343,10 +350,9 @@ export const updateRoom = (id, body) => {
       if (room.course) {
         dispatch(removeCourseRoom(room.course, id));
       }
-      // @TODO: create removeActivityRoom and corrisponding actionType & reducerCase
-      // if (room.activity) {
-      //   dispatch(removeActivityRoom(room.activity, id));
-      // }
+      if (room.activity) {
+        dispatch(removeActivityRoom(room.activity, id));
+      }
     } else {
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
     }
