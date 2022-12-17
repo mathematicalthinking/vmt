@@ -14,6 +14,8 @@ class TrashModal extends Component {
   trashResource = () => {
     const { history, update, closeModal, resource, resourceId } = this.props;
     history.push(`/myVMT/${hash[resource]}`);
+    // The following ternary is a temp fix.
+    // @TODO develop status flag for activities and courses, then get rid of isTrashed code
     // eslint-disable-next-line no-unused-expressions
     resource === 'room'
       ? update(resourceId, { status: STATUS.TRASHED })
