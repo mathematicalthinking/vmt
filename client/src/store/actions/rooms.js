@@ -74,11 +74,11 @@ export const addCourseRooms = (courseId, roomIdsArr) => {
     roomIdsArr,
   };
 };
-export const removeCourseRooms = (courseId, roomIdsArr) => {
+export const removeCourseRoom = (courseId, roomId) => {
   return {
-    type: actionTypes.REMOVE_COURSE_ROOMS,
+    type: actionTypes.REMOVE_COURSE_ROOM,
     courseId,
-    roomIdsArr,
+    roomId,
   };
 };
 
@@ -338,6 +338,15 @@ export const updateRoom = (id, body) => {
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
+
+      // remove room from course & activity (template) if needed
+      if (room.course) {
+        dispatch(removeCourseRoom(room.course, id));
+      }
+      // @TODO: create removeActivityRoom and corrisponding actionType & reducerCase
+      // if (room.activity) {
+      //   dispatch(removeActivityRoom(room.activity, id));
+      // }
     } else {
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
     }
