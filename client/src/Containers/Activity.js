@@ -518,10 +518,12 @@ const mapStateToProps = (state, ownProps) => {
   const { activity_id, course_id } = ownProps.match.params;
   const activity = state.activities.byId[activity_id];
   const dbActivity = ownProps.activity;
+  const activityToReturn =
+    (activity &&
+      populateResource(state, 'activities', activity_id, ['rooms'])) ||
+    dbActivity;
   return {
-    activity:
-      dbActivity ||
-      populateResource(state, 'activities', activity_id, ['rooms']),
+    activity: activityToReturn,
     course:
       state.courses.byId[course_id] ||
       (activity && activity.course
