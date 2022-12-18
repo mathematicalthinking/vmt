@@ -53,7 +53,7 @@ export const createPreviousAssignments = (groupings) => {
     grouping.rooms.every(
       (roomId) =>
         rooms[roomId] &&
-        rooms[roomId].status !== STATUS.ARCHIVED &&
+        rooms[roomId].status === STATUS.DEFAULT &&
         !userAchivedRooms.includes(roomId)
     )
   );

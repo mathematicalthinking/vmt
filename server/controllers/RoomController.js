@@ -65,7 +65,10 @@ module.exports = {
   },
 
   getPopulatedById: (id, params) => {
-    return db.Room.findById(id)
+    return (Array.isArray(id)
+      ? db.Room.find({ _id: { $in: id } })
+      : db.Room.findById(id)
+    )
       .populate({ path: 'creator', select: 'username' })
       .populate({
         path: 'chat',
@@ -1002,6 +1005,14 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
         if (room.course) {
           promises.push(
             db.Course.findByIdAndUpdate(room.course, {
+              $pull: { rooms: id },
+            })
+          );
+        }
+        // delete this room from any activities (templates)
+        if (room.course) {
+          promises.push(
+            db.Activity.findByIdAndUpdate(room.activity, {
               $pull: { rooms: id },
             })
           );

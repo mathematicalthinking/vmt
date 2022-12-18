@@ -32,7 +32,10 @@ module.exports = {
   // populates a course to match what's in the redux store.
   getPopulatedById: (id) => {
     return new Promise((resolve, reject) => {
-      db.Course.findById(id)
+      (Array.isArray(id)
+        ? db.Course.find({ _id: { $in: id } })
+        : db.Course.findById(id)
+      )
         .populate('members.user', 'username')
         .populate('rooms')
         .populate({

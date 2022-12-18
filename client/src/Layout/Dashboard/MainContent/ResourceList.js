@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
-import { useSortableData, timeFrames } from 'utils';
+import { useSortableData, timeFrames, amIAFacilitator } from 'utils';
 import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
 import { Button, Modal, BigModal, Search, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
@@ -92,7 +92,7 @@ const ResourceList = ({
       Object.values(obj).forEach((userResource) => {
         if (userResource) {
           if (
-            userResource.myRole === 'facilitator' ||
+            amIAFacilitator(userResource, user._id) ||
             resource === 'activities'
           ) {
             facilitatorList.push(userResource);
@@ -419,7 +419,10 @@ ResourceList.propTypes = {
   resource: PropTypes.string.isRequired,
   parentResource: PropTypes.string,
   parentResourceId: PropTypes.string,
-  user: PropTypes.shape({ accountType: PropTypes.string }).isRequired,
+  user: PropTypes.shape({
+    accountType: PropTypes.string,
+    _id: PropTypes.string,
+  }).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   resourceState: PropTypes.shape({

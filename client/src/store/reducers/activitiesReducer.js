@@ -53,6 +53,17 @@ const reducer = (state = initialState, action) => {
         byId: updatedActivities,
       };
     }
+    case actionTypes.REMOVE_ACTIVITY_ROOM: {
+      const updatedById = { ...state.byId };
+      const updatedActivityRooms = updatedById[action.activityId].rooms.filter(
+        (id) => id !== action.roomId
+      );
+      updatedById[action.activityId].rooms = updatedActivityRooms;
+      return {
+        ...state,
+        byId: updatedById,
+      };
+    }
     case actionTypes.ADD_ACTIVITY_USER: {
       const updatedActivities = { ...state.byId };
       updatedActivities[action.activityId].users = updatedActivities[
