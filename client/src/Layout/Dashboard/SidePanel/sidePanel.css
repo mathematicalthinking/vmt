@@ -46,6 +46,7 @@
 }
 
 .spAdditional {  
+  margin-top: 1rem;
   border-top: 1px solid lightBorder;
   border-bottom: 1px solid lightBorder;
 }

@@ -15,6 +15,7 @@ import {
   getResourceTabTypes,
   createEditableAssignments,
   createPreviousAssignments,
+  getDesmosActivityUrl,
 } from 'utils';
 import { SelectAssignments, EditRooms, MakeRooms } from 'Containers';
 import { DashboardLayout, SidePanel, DashboardContent } from 'Layout';
@@ -152,10 +153,13 @@ class Activity extends Component {
 
   checkAccess = () => {
     const { activity, user } = this.props;
+
     const canEdit =
       activity.creator === user._id ||
       user.isAdmin ||
-      activity.users.includes(user._id);
+      (activity.users &&
+        activity.users.length > 0 &&
+        activity.users.includes(user._id));
 
     // Need to develop this criteria for accessing/editing activities
     // For now just prevent non creators/admins from seeing private activities
@@ -281,7 +285,22 @@ class Activity extends Component {
           </Error>
         ),
         ...(desmosActivityCode !== ''
-          ? { 'Desmos Activity Code': desmosActivityCode }
+          ? {
+              'Desmos Activity Code': (
+                <a
+                  style={{
+                    color: 'blueviolet',
+                    textDecorationLine: 'underline',
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={getDesmosActivityUrl(desmosActivityCode)}
+                  data-testid="desmos-link"
+                >
+                  {desmosActivityCode}
+                </a>
+              ),
+            }
           : null),
       };
 
@@ -432,7 +451,11 @@ class Activity extends Component {
         userId={user._id}
         username={user.username}
         privacySetting={activity ? activity.privacySetting : 'private'}
-        owners={activity && activity.creator ? [activity.creator] : []}
+        // owners={activity && activity.creator ? [activity.creator] : []}
+        owners={[
+          ...(activity && activity.creator ? [activity.creator] : []),
+          ...(activity && activity.users ? activity.users : []),
+        ]}
         // owners={
         //   activity && activity.members
         //     ? activity.members
@@ -494,8 +517,13 @@ const mapStateToProps = (state, ownProps) => {
   // eslint-disable-next-line camelcase
   const { activity_id, course_id } = ownProps.match.params;
   const activity = state.activities.byId[activity_id];
+  const dbActivity = ownProps.activity;
+  const activityToReturn =
+    (activity &&
+      populateResource(state, 'activities', activity_id, ['rooms'])) ||
+    dbActivity;
   return {
-    activity: populateResource(state, 'activities', activity_id, ['rooms']),
+    activity: activityToReturn,
     course:
       state.courses.byId[course_id] ||
       (activity && activity.course

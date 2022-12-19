@@ -27,7 +27,7 @@ module.exports = {
         .sort('-createdAt')
         .populate({ path: 'members.user', select: 'username' })
         .populate({ path: 'currentMembers', select: 'username' })
-        .populate({ path: 'tabs', select: 'name tabType' })
+        .populate({ path: 'tabs', select: 'name tabType desmosLink' })
         .then((rooms) => {
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
@@ -53,7 +53,7 @@ module.exports = {
         //   populate: { path: params.events ? 'events' : '' },
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
-        .populate({ path: 'tabs', select: 'tabType name' })
+        .populate({ path: 'tabs', select: 'tabType name desmosLink' })
         .select(
           'name creator activity members course graphImage privacySetting _id'
         )
@@ -65,7 +65,10 @@ module.exports = {
   },
 
   getPopulatedById: (id, params) => {
-    return db.Room.findById(id)
+    return (Array.isArray(id)
+      ? db.Room.find({ _id: { $in: id } })
+      : db.Room.findById(id)
+    )
       .populate({ path: 'creator', select: 'username' })
       .populate({
         path: 'chat',
@@ -89,7 +92,7 @@ module.exports = {
             }
           : {
               path: 'tabs',
-              select: 'name tabType snapshot',
+              select: 'name tabType snapshot desmosLink',
             }
       )
       .lean();
@@ -348,7 +351,10 @@ module.exports = {
         await tabModels.forEach((tab) => tab.save()); // These could run in parallel I suppose but then we'd have to edit one if ther ewas a failuer with the other
         await room.save();
         room.populate(
-          { path: 'members.user tabs', select: 'username tabType name events' },
+          {
+            path: 'members.user tabs',
+            select: 'username tabType desmosLink name events',
+          },
           (err, populatedRoom) => {
             if (err) reject(err);
             resolve(populatedRoom);
@@ -550,13 +556,18 @@ module.exports = {
         removeAndChangeStatus(id, STATUS.ARCHIVED, reject, resolve);
       } else {
         // unarchive is flag is set
+        let willUnarchive = false;
         if (body.unarchive) {
           delete body.unarchive;
           unarchive(id);
+          willUnarchive = true;
         }
         const doUpdateTabVisitors =
           typeof body.instructions === 'string' && body.instructions.length > 0;
-        db.Room.findByIdAndUpdate(id, body, { new: true })
+        db.Room.findByIdAndUpdate(id, body, {
+          new: true,
+          timestamps: !willUnarchive,
+        })
           .populate('currentMembers.user members.user', 'username')
           .populate('chat') // this seems random
           .then((res) => {
@@ -691,11 +702,29 @@ module.exports = {
           tabs: 1,
           privacySetting: 1,
           updatedAt: 1,
-          members: 1,
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member',
+              cond: {
+                $eq: ['$$member.role', ROLE.FACILITATOR],
+              },
+            },
+          },
           tempRoom: 1,
           chat: 1,
         },
       },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'facilitatorObject',
+        },
+      },
+
+      { $unwind: '$facilitatorObject' },
     ];
     if (criteria) {
       pipeline.push({
@@ -704,7 +733,7 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { members: criteria },
+            { 'facilitatorObject.username': criteria },
           ],
         },
       });
@@ -831,24 +860,10 @@ module.exports = {
   searchPaginatedArchive: async (searchText, skip, filters) => {
     const criteria = await convertSearchFilters(filters);
     criteria.status = STATUS.ARCHIVED;
-    const initialMatch = searchText
-      ? {
-          $and: [
-            criteria,
-            {
-              $or: [
-                { name: searchText },
-                { description: searchText },
-                { instructions: searchText },
-              ],
-            },
-          ],
-        }
-      : criteria;
+
     const roomsPipeline = [
       {
-        // $match: initialMatch,
-        $match: initialMatch,
+        $match: criteria,
       },
       {
         $lookup: {
@@ -872,10 +887,27 @@ module.exports = {
           messagesCount: { $size: '$chat' },
         },
       },
+    ];
+    if (searchText) {
+      roomsPipeline.push({
+        $match: {
+          $or: [
+            { name: searchText },
+            { description: searchText },
+            { instructions: searchText },
+            {
+              'members.role': 'facilitator',
+              'userObject.username': searchText,
+            },
+          ],
+        },
+      });
+    }
+    roomsPipeline.push(
       { $sort: { updatedAt: -1 } },
       { $skip: skip ? parseInt(skip, 10) : 0 },
-      { $limit: 20 },
-    ];
+      { $limit: 20 }
+    );
 
     const rooms = await Room.aggregate(roomsPipeline);
     const roomIds = rooms.map((room) => room._id);
@@ -935,7 +967,7 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
     .then(async (room) => {
       room.status = status;
       try {
-        updatedRoom = await room.save();
+        updatedRoom = await room.save({ timestamps: false });
       } catch (err) {
         reject(err);
       }
@@ -973,6 +1005,14 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
         if (room.course) {
           promises.push(
             db.Course.findByIdAndUpdate(room.course, {
+              $pull: { rooms: id },
+            })
+          );
+        }
+        // delete this room from any activities (templates)
+        if (room.course) {
+          promises.push(
+            db.Activity.findByIdAndUpdate(room.activity, {
               $pull: { rooms: id },
             })
           );

@@ -154,14 +154,14 @@ const EditRooms = (props) => {
       deleteRemovedRoomMembers(
         previousMembers,
         membersToUpdate,
-        oldRoomDraft.room
+        oldRoomDraft._id
       );
 
-      inviteNewRoomMembers(previousMembers, membersToUpdate, oldRoomDraft.room);
+      inviteNewRoomMembers(previousMembers, membersToUpdate, oldRoomDraft._id);
 
       if (aliasMode !== selectedAssignment.aliasMode) {
         dispatch(
-          updateRoom(oldRoomDraft.room, {
+          updateRoom(oldRoomDraft._id, {
             settings: { displayAliasedUsernames: aliasMode },
           })
         );
@@ -171,14 +171,14 @@ const EditRooms = (props) => {
         dueDate !== selectedAssignment.dueDate && // if new dueDate
         !(!dueDate && !selectedAssignment.dueDate) // and dueDates have value
       ) {
-        dispatch(updateRoom(oldRoomDraft.room, { dueDate }));
+        dispatch(updateRoom(oldRoomDraft._id, { dueDate }));
       }
 
       // if roomName has changed,
       // update the room name for each room in selectedAssignment
       if (roomName !== initialRoomName) {
         dispatch(
-          updateRoom(oldRoomDraft.room, { name: `${roomName}: ${i + 1}` })
+          updateRoom(oldRoomDraft._id, { name: `${roomName}: ${i + 1}` })
         );
       }
     });

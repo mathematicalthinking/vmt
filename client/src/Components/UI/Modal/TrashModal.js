@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { STATUS } from 'constants.js';
 import Modal from './Modal';
 import classes from './modal.css';
 import Button from '../Button/Button';
@@ -13,7 +14,12 @@ class TrashModal extends Component {
   trashResource = () => {
     const { history, update, closeModal, resource, resourceId } = this.props;
     history.push(`/myVMT/${hash[resource]}`);
-    update(resourceId, { isTrashed: true });
+    // The following ternary is a temp fix.
+    // @TODO develop status flag for activities and courses, then get rid of isTrashed code
+    // eslint-disable-next-line no-unused-expressions
+    resource === 'room'
+      ? update(resourceId, { status: STATUS.TRASHED })
+      : update(resourceId, { isTrashed: true });
     closeModal();
   };
 

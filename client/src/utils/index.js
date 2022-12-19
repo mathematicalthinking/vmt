@@ -1,10 +1,11 @@
 export { default as API } from './apiRequests';
-export { getRedirectUrl, getMtSsoUrl, getGoogleUrl } from './appUrls';
+export * from './appUrls';
 export { default as auth } from './auth';
 export { default as buildLog } from './buildLog';
 export { default as COLOR_MAP } from './colorMap';
 export { default as createMongoId } from './createMongoId';
 export { default as withPopulatedCourse } from './withPopulatedCourse';
+export { default as withPopulatedActivity } from './withPopulatedActivity';
 export { loadState, saveState } from './localStorage';
 export { default as getUserNotifications } from './notifications';
 export { default as socket } from './sockets';
@@ -14,3 +15,4 @@ export * from './utilityHooks';
 export * from './importing';
 export * from './controlMachine';
 export * from './groupings';
+export { default as amIAFacilitator } from './amIAFacilitator';

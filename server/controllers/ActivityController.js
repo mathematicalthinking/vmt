@@ -14,8 +14,24 @@ module.exports = {
 
   getById: (id) => {
     return new Promise((resolve, reject) => {
-      db.Activity.findById(id)
+      (Array.isArray(id)
+        ? db.Activity.findById({ _id: { $in: id } })
+        : db.Activity.findById(id)
+      )
         .populate('tabs')
+        .then((activity) => resolve(activity))
+        .catch((err) => reject(err));
+    });
+  },
+
+  getPopulatedById: (id) => {
+    return new Promise((resolve, reject) => {
+      db.Activity.findById(id)
+        .populate('tabs rooms')
+        .populate({
+          path: 'rooms',
+          populate: { path: 'members.user', select: 'username' },
+        })
         .then((activity) => resolve(activity))
         .catch((err) => reject(err));
     });
@@ -187,8 +203,16 @@ module.exports = {
       delete body.mathState;
 
       db.Activity.create(body)
-        .then((activity) => {
+        .then(async (activity) => {
           createdActivity = activity;
+
+          if (createdActivity.users.length) {
+            await db.User.updateMany(
+              { _id: { $in: createdActivity.users } },
+              { $addToSet: { activities: createdActivity._id } }
+            );
+          }
+
           if (!existingTabs) {
             if (Array.isArray(ggbFiles) && ggbFiles.length > 0) {
               return Promise.all(
@@ -209,6 +233,7 @@ module.exports = {
               tabType: body.roomType,
             });
           }
+
           return Promise.all(
             existingTabs.map((tab) => {
               const newTab = new db.Tab({
@@ -268,11 +293,19 @@ module.exports = {
               reject(err);
             }
 
+            if (activity.users.length) {
+              await db.User.updateMany(
+                { _id: { $in: activity.users } },
+                { $pull: { activities: activity._id } }
+              );
+            }
+
             if (activity.course) {
               return db.Course.findByIdAndUpdate(activity.course, {
                 $pull: { activities: activity._id },
               });
             }
+
             return resolve(updatedActivity);
             // let userIds = activity.members.map(member => member.user);
             // // Delete this activitiy from any courses

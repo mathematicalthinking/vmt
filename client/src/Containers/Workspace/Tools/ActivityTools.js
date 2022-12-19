@@ -1,6 +1,7 @@
 import React, { useState, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { getDesmosActivityUrl } from 'utils';
 import classes from './tools.css';
 
 const ActivityTools = (props) => {
@@ -21,7 +22,7 @@ const ActivityTools = (props) => {
             className={classes.Link}
             target="_blank"
             rel="noopener noreferrer"
-            href={`https://teacher.desmos.com/activitybuilder/custom/${tab.desmosLink}`}
+            href={getDesmosActivityUrl(tab.desmosLink)}
             data-testid="desmos-link"
           >
             Base configuration at Teacher.Desmos

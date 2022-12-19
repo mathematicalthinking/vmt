@@ -9,7 +9,7 @@
 }
 
 .Modal {
-  position: absolute;
+  position: fixed;
   right: calc(50% - var(--modal-width) / 2);
   left: calc(50% - var(--modal-width) / 2);
   display: flex;
