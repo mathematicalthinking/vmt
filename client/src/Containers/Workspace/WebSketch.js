@@ -76,11 +76,11 @@ const WebSketch = (props) => {
     // return true if this update info differs from the last update
     // If this update is new, or if it differs from the last, store it in prevUpdates.
     const { id } = gobjInfo;
-    const prevInfo = prevUpdates[id];
+    const prevInfo = prevUpdates && prevUpdates[id];
     const retVal =
       !prevInfo ||
       (window.WIDGETS && !window.WIDGETS.deepEquals(gobjInfo, prevInfo));
-    if (retVal) {
+    if (retVal && prevUpdates) {
       prevUpdates[id] = gobjInfo;
     }
     return retVal;
