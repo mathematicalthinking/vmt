@@ -29,7 +29,7 @@ const WebSketch = (props) => {
   const [highLights, setHighLights] = useState([]); // Array of highlighted gobjs that must be turned off when new gobjs are highlighted
   // Note that highLights represents a state that needs to persist over handleMessage calls.
 
-  const moveDelay = 175; // divisor is the frame rate
+  const moveDelay = 125; // divisor is the frame rate
 
   let initializing = false;
   let receivingData = false;
