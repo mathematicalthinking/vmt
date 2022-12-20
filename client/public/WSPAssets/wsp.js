@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102172944
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221219154059
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -10545,7 +10545,8 @@
         "MoveScroll",
         "EndScroll",
         "PressButton",
-        "EditExpression",  // handles start, confirm, cancel for editing of params, calcs, and functions.
+        "EditExpression",  // handles all editing of params, calcs, and functions.
+        // "ChangeStyle", use "StyleWidget" instead
         "ClearTraces",
         "StyleWidget",
         "TraceWidget",
@@ -10553,13 +10554,14 @@
         "VisibilityWidget",
         "DeleteWidget",
         "PrefChanged"
+        // When committing event names, make sure changes are documented in documentation/Document/document-event.html
       ],
   
       /**
        * Notify event listeners that the event has been triggered.
        * @param  {String}  message -- event name, e.g. 'UnloadFocusPage'
        * @param  {Object}  context -- additional arguments to be passed along to handler about the situation in which
-       *                   this event fired. Objects (such as a sketch or sketch gobj) are permitted here.
+       *                   this event fired.Objects (such as a sketch or sketch gobj) are permitted here.
        * @param  {Object}  attributes -- additional arguments to be passed along to handler, either in string form
        *                   or arguments that can be stringified (e.g. a gobj.id rather than the gobj itself).
        * The context is not suitable for external use; data that might be needed by external clients must be
@@ -12077,23 +12079,6 @@
         
         var sketch = gobj.sQuery.sketch,
             self = this;
-            
-        function score(gobj) { // hasLabel counts 2 pts, showLabel counts 1
-          var ret = gobj.hasLabel ? 2 : 0;
-          if (GSP._get(gobj, 'style.label.showLabel')) {
-            ret += 1;
-          }
-        }     
-            
-        function preferFirstLabel(gobj1, gobj2) { // return true for gobj1, false for gobj2
-          // Compare hasLabel, style.label.showLabel, and then lowest id as a tiebreaker.
-          var score1 = score(gobj1),
-              score2 = score(gobj2);
-          if (score1 > score2) return true;
-          if (score2 > score1) return false;
-          return +gobj1.id < +gobj2.id;
-        }
-        
         // if toMerge has already been removed from the gobjList, there's nothing to do.
         if (!sketch.gobjList.gobjects[toMerge.id]) return;
         
@@ -12123,11 +12108,14 @@
           });
         }
   
-        // Which label should the merged gobj have? We evaluate them based on:
-        // a) having a label
-        // b) showing a label
-        // c) having a lower id (and thus more likely an earlier-generated label)  
-        if (preferFirstLabel(toMerge, gobj)) {
+        // If we are merging something with a label, to
+        // something without one, use the label, otherwise
+        // you can get ugly default "Object 1" strings in
+        // child labels.
+  
+        // Note, when we have a createDefaultLabel() function,
+        // this will a good place to use it.
+        if( !gobj.label) {
           gobj.label = toMerge.label;
           gobj.style.label.showLabel = toMerge.style.label.showLabel;
         }
@@ -15901,18 +15889,13 @@
   
         // gobj.state.constraintFrame = Max( [gobj, gobj.parents]).state.constraintFrame
         function updateOneConstraintFrame(index, gobj, sketch) {
-          var i, parentGObj, parentDragged, parentChanged;
+          var i, parentGObj;
           for( i = 0 ; i < gobj.numParents(); i++) {
             parentGObj = gobj.parentsList[i];
-            // has gobj been changed in a way that affects descendants, via geom or value?
-            parentChanged = parentGObj.state.constraintFrame > gobj.state.constraintFrame;
-            // has gobj been dragged without affecting descendants?
-            parentDragged = parentGObj.state.dragFrame > gobj.state.dragFrame;
-            if (parentChanged) { //only parentChanged affects descendants
+            if (parentGObj.state.constraintFrame > gobj.state.constraintFrame) {
+              // parent has changed in a way that affects descendants
               gobj.state.constraintFrame = parentGObj.state.constraintFrame;
-            }
-            if (parentChanged || parentDragged) {
-              // Invalidating an object (even dragging a value object) invalidates its previous (last-rendered) bounds.
+              // Invalidating an object invalidates its previous (last-rendered) bounds.
               sketch.invalidateRect( sketch.renderRefCon.renderBounds[gobj.id]);
               sketch.invalidateRect( sketch.renderRefCon.labelBounds[gobj.id]);
               sketch.isDirty = true;
@@ -15923,9 +15906,7 @@
         function constrainOneGObj(index, gobj, sketch) {
           var id, dc;
           try {
-            if ((gobj.state.constraintFrame >= sketch.constraintFrame ||
-                 gobj.state.dragFrame >= sketch.constraintFrame) &&
-                 gobj.checkParentsExist()) {
+            if (gobj.state.constraintFrame >= sketch.constraintFrame && gobj.checkParentsExist()) {
               gobj.constrain(sketch);
               // Constraining an object invalidates its current (to-be-rendered) bounds
               if( !gobj.style.hidden) {
@@ -16017,31 +15998,24 @@
        * Marks the geometry of the gobject as out of date,
        * with accompanying sketch-wide side-effects.
        * @param {Object} gobj -- the GObj whose geometry is to be invalidated
+       * @param {String} source -- optional: pass 'drag' if gobj is being dragged
        * @return {GSP.Sketch} the sketch
        */
       invalidateGeom: function(gobj, source) {
         
-        function dragDoesntContrain(gobj) { // Identify gobjs that can be dragged w/o affecting children
-          // turn these tests into flags defined by various kind/genus/constraint files 
-          var ret;
-          ret = GSP.isParameter(gobj) ||
-                GSP.isCalculation(gobj) ||
-                gobj.isOfKind("Measure") ||
-                gobj.isOfKind("Button") ||
-                gobj.isOfKind("Text") ||
-                gobj.isOfKind("Expression");
-          return ret;
+        function dragConstrains(gobj) { // Identify gobjs that affect their progeny when dragged
+          // We test by checking against the shorter list of ones that don't
+          // A code improvement would be to have a dragDoesntConstrain flag in the gobj constructors.
+          return  !(GSP.isParameter(gobj) ||
+                    GSP.isCalculation(gobj) ||
+                    gobj.isOfKind("Measure") ||
+                    gobj.isOfKind("Button") ||
+                    gobj.isOfKind("Text") ||
+                    gobj.isOfKind("Expression"));
         }
         
         if (gobj) {
-          //if (source === 'drag' && gobj.nonGeom) {
-          if (source === 'drag' && dragDoesntContrain(gobj)) { // extend to other draggable gobjs
-            // non-geometric gobjs (parameters, functions, buttons, etc.) can be dragged
-            // without effect on their children, so don't set constraintFrame
-            // Setting dragFrame signals the constraintLoop to rerender them w/o
-            // constraining their children.
-            gobj.state.dragFrame = this.constraintFrame;
-          } else {
+          if (source !== 'drag' || dragConstrains(gobj)) {
             gobj.state.constraintFrame = this.constraintFrame;
           }
           this.invalidateAppearance(gobj);
@@ -38046,7 +38020,7 @@
             renderAttrs.renderable = true;
             renderAttrs.visibility= "visible";
             renderAttrs.opacity = 1;
-            renderAttrs.frame = 0;  // Change constraintFrame to frame, as a new frame may be required by dragFrame
+            renderAttrs.constraintFrame = 0;
   
             ctx.save();
             ctx.beginPath();
@@ -38397,7 +38371,7 @@
             // Check the following change, adding forceDomParse to the frame test. forceDomParse is set
             // when the MFS has changed in the absence of reconstraining the sketch (as in relabeling a gobj or button)
             // This change works with the html engine; it seems likely that it will work here also.
-            if (renderAttrs.frame !== drawRefCon.frame || renderAttrs.forceDomParse) {
+            if (renderAttrs.constraintFrame !== drawRefCon.constraintFrame || renderAttrs.forceDomParse) {
               if( renderAttrs.parsedMFS !== drawRefCon.parsedMFS) {
                 drawRefCon.parsedMFS = renderAttrs.parsedMFS;
                 
@@ -38416,7 +38390,7 @@
                   tmpCtx.scale( devicePixelRatio, devicePixelRatio);
                 }
               }
-              drawRefCon.frame = renderAttrs.frame;
+              drawRefCon.constraintFrame = renderAttrs.constraintFrame;
             }
   
             /*
@@ -39679,9 +39653,9 @@
                 /*jshint +W116*/
                 // If forceDomParse is true, reparse the MFS (via updateFromModel) even if the sketch has not been reconstrained.
                 // This handles MFS changes due to changing a label.
-                if (renderAttrs.frame !== this.frame || renderAttrs.forceDomParse) {
+                if (renderAttrs.constraintFrame !== this.constraintFrame || renderAttrs.forceDomParse) {
                   this.updateFromModel(renderAttrs);
-                  this.frame = renderAttrs.frame;
+                  this.constraintFrame = renderAttrs.constraintFrame;
                 }
                 this.updateModelToViewTransform(drawContext.modelToViewTransform);
   
@@ -40521,6 +40495,7 @@
      *    _mergeGObjToSpecGObj: function(gobj, specGObjToCreate)
      *    abortPlayback: function ()
      *    confirmPlayback: function ()
+     *    putGivenOnIntersection: function(intersectionInfo, givenGObj)
      *    putGivenOnPath: function(path, givenGObj, value)
      *    addGObjAsMatchedGiven: function (gobj)
      *    findExistingMatchedGivenWithProperty: function (propertyName, value)
@@ -41077,8 +41052,7 @@
           this.generatedLabels = undefined;        
         }
         //  Show the Calculator, _unless_ it was already shown at the end of toolplay.
-        // and _unless_ the sketchDoc's is remotely controlled
-        if (calcPresent && !$(".wsp-Calculator").is(":visible") && !self.sketch.document.isRemote) {
+        if (calcPresent && !$(".wsp-Calculator").is(":visible")) {
           calcPresent.presentUI();
         }
       },
@@ -41597,6 +41571,7 @@
           newDragPos = dragPos.add(adjustedDeltaToGiven.subtract(this.deltaToGiven));
           this.deltaToGiven = adjustedDeltaToGiven;
         }
+        console.log ("updateDeltaToGiven: new value = ", this.deltaToGiven);
         return newDragPos;
       },
       
@@ -41985,7 +41960,7 @@
         if (regime) {
           // Original code tested for activeTool AFTER popping, so never generated an event
           // Now we get tool name before popping (while activeTool exists)
-          //Popping the regime will trigger our delegate who performs all of the cleanup
+          // Popping the regime will trigger our delegate who performs all of the cleanup
           this.sketch.popAllTouchRegimesIncluding(regime);
         }
         this.sketch.event('ToolAborted', {}, {tool: {name: name}});
@@ -42088,8 +42063,8 @@
           var self = this;
           var initializeControls = !this.$closeBox;
           var container = this._getUndoRedoContainer();
-          toolRegime = this.createToolRegime();
           var newObjIds = [];
+          toolRegime = this.createToolRegime();
           $.each(toolRegime.toolplaySession.constructedObjects, function() {
             newObjIds.push(this.id);
           });
@@ -44996,39 +44971,38 @@
         if (!mergeCandidate) {
           return false;
         }
-        if (mergeCandidate) { // either a gobj or an intersection
-          if (this.gobj.kind === "Point" && mergeCandidate.isAPath && mergeCandidate.isAPath()) {  // merge gobj to path
-            attr.pathValue = mergeCandidate.mapPositionToPathValue(this.gobj.geom.loc);
-            attr.pathId = mergeCandidate.id;
-            newGobj = this.sketch.putGivenOnPath(this.gobj, mergeCandidate, attr.pathValue);
-          } else if (mergeCandidate.path1) {  // merge gobj to newly created intersection
-            attr.path1Id = mergeCandidate.path1.id;
-            attr.path2Id = mergeCandidate.path2.id;
-            newGobj = this.sketch.putGivenOnIntersection (this.gobj, mergeCandidate);
-          } else {  // merge gobj to an existing object of the same kind
-            newGobj = this.sketch.mergeGobjToCandidate (this.gobj, mergeCandidate, {skipDescendantUpdate: true});
-            attr.mergeToId = mergeCandidate.id; 
-          }
-          attr.delta = doc.pushConfirmedSketchOpDelta (this.dmPreDelta);
-          if (newGobj) {
-            attr.newId = newGobj.id;
-          }
-          doc.changedUIMode();
-          // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
-          // Three options for attr; all include gobjId.
-          // point-point or param-value: mergeToId
-          // point-path: pathId & pathValue
-          // point-intersection: path1Id & path2Id
-          this.sketch.event(
-            "MergeGobjs",
-            {
-              gobj: this.gobj,
-              mergeInfo: mergeCandidate
-            },
-            attr
-          );
-          return true;
+        // mergeCandidate is either a gobj or an intersection
+        if (this.gobj.kind === "Point" && mergeCandidate.isAPath && mergeCandidate.isAPath()) {  // merge gobj to path
+          attr.pathValue = mergeCandidate.mapPositionToPathValue(this.gobj.geom.loc);
+          attr.pathId = mergeCandidate.id;
+          newGobj = this.sketch.putGivenOnPath(this.gobj, mergeCandidate, attr.pathValue);
+        } else if (mergeCandidate.path1) {  // merge gobj to newly created intersection
+          attr.path1Id = mergeCandidate.path1.id;
+          attr.path2Id = mergeCandidate.path2.id;
+          newGobj = this.sketch.putGivenOnIntersection (this.gobj, mergeCandidate);
+        } else {  // merge gobj to an existing object of the same kind
+          newGobj = this.sketch.mergeGobjToCandidate (this.gobj, mergeCandidate, {skipDescendantUpdate: true});
+          attr.mergeToId = mergeCandidate.id; 
         }
+        attr.delta = doc.pushConfirmedSketchOpDelta(this.dmPreDelta);
+        if (newGobj) {
+          attr.newId = newGobj.id;
+        }
+        doc.changedUIMode();
+        // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
+        // Three options for attr; all include gobjId.
+        // point-point or param-value: mergeToId
+        // point-path: pathId & pathValue
+        // point-intersection: path1Id & path2Id
+        this.sketch.event(
+          "MergeGobjs",
+          {
+            gobj: this.gobj,
+            mergeInfo: mergeCandidate
+          },
+          attr
+        );
+        return true;
       }
       
     };
@@ -45111,7 +45085,7 @@
        * confirmed (if the touchEnded is within the time and distance limits),
        * and rejected (if touchMoved exceeds either time or distance limit).
        */
-  
+      
         this.registerAsPossibleDoubleTap();
         this.possibleMerge = this.sketch.currentTouchRegime().name === "DisplayRegime" && this.registerAsPossibleMerge (touch);
         if (!this.gobj.style.selectable) return;  // this can't be a drag if gobj is unselectable
@@ -45172,7 +45146,7 @@
             });
           }
         }
-  
+        
         var refCon = {    
           transform: {
             "dx": pos.x - this.lastX,
@@ -47953,9 +47927,6 @@
           var elementText = GSP.mfs.updatedGenus[this.genus] + ' ' + GSP.mfs.makeSpeakableTextFromMFSParseTree(this.parsedMFS);
           this.htmlNode.attr('aria-label', elementText);
           this.oldParsedMFS = this.parsedMFS;
-          // Note that oldParsedMFS remains as a permanent property of the gobj.
-          // Is there some way we could mark the parsedMFS as changed and then remove
-          // that marker once the htmlNode has been updated?
         }
       }
     },
@@ -48623,12 +48594,6 @@
           kGrowthAmt = 0.7;
         }
         else if (isInterior) {
-          // If an opaque gobj is traced without fading, varying the opacity has no visible effect.
-          // Might it be better to vary the saturation rather than opacity?
-          // If we convert to HSV and clamp the original saturation to [0.3..0.7] and vary it
-          // by 0.3 up and down, that should work well for a variety of interior colors,
-          // provided the opacity is not 0. (Should we also set opacity to a minimum value
-          // such as 0.25 and restore it at the end of the job?)
           kGrowthAmt = 0.6;
           oldValue = style.opacity;
           // The basevalue must be between 0 and 1-kGrowthAmt, ideally centered on oldValue.
@@ -50162,12 +50127,9 @@
                 displayObject = drawRefCon,
                 attrs = {
                     visibility: visibility,
-                    frame: this.state.constraintFrame,
+                    constraintFrame: this.state.constraintFrame,
                     zIndex: renderArgs.zIndex
                 };
-            if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
-              attrs.frame = this.state.dragFrame;
-            }
             this.updateButtonSpeakableText(this.oldText, this.label);
   
             if (renderable) {
@@ -52674,7 +52636,7 @@
             attrs = {
                 visibility: visibility,
                 measurable: renderable || this.latentVisibility,
-                frame: this.state.constraintFrame,
+                constraintFrame: this.state.constraintFrame,
                 opacity: this.calculateOpacity(),
                 zIndex: renderArgs.zIndex,
                 wspSays: this.isGobjExistInWSPSays(),
@@ -52685,9 +52647,6 @@
             // which we'll need not just to render, but also to measure
             // and if latentVisibility, then measuring is potentially going to happen
             // in toolplay autoplacement.
-            if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
-              attrs.frame = this.state.dragFrame;
-            }
   
         if( this.nameMFSOverride) {
           attrs.width = this.nameMFSOverride.width;
@@ -53354,13 +53313,10 @@
   
           attrs = {
             visibility: visibility,
-            frame: this.state.constraintFrame,
+            constraintFrame: this.state.constraintFrame,
             opacity: this.calculateOpacity(),
             zIndex: renderArgs.zIndex
           };
-      if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
-        attrs.frame = this.state.dragFrame;
-      }
       attrs.x = this.geom.loc.getX();
       attrs.y = this.geom.loc.getY();
   
@@ -65539,9 +65495,9 @@
       },
   
       getDestination: function getDestination() {
-        return this.targetGObj.geom.loc.isDefined() && this.targetGObj.geom.loc;
+        var loc = this.targetGObj.geom.loc;
+        return loc.isDefined() && loc;
       }
-  
   
     });
   
@@ -65627,8 +65583,7 @@
                     }
   
                   } else {
-                    moverGObj.updateValue(moverGObj.value 
-                                          + sign * Math.abs(rate));
+                    moverGObj.updateValue(moverGObj.value + sign * Math.abs(rate));
                   }
                 }
                 
@@ -65691,6 +65646,7 @@
         var moverGObj = this.moverGObj,
             targetGObj = this.targetGObj,
             targetLoc = this.getDestination(),
+            towardInitial = this.button.towardInitialDestination,
             EPSILON = 0.05, //cf. TowardDestinationViaPath_SourceActuallyHitDest()
             pathGobj = moverGObj.getParent("path"),
             moverValue = moverGObj.value,
@@ -65699,8 +65655,17 @@
             newValue, step, atEnd;
         
         function checkAtEnd(moverValue) {
-          var moverPosition = pathGobj.mapPathValueToPosition(moverValue);
-          return moverPosition.equals(targetLoc, EPSILON);
+          // SS: Both GSP and WSP suffer from a bug in moving on a path towardInitialDestination
+          // when targetLoc is not on the path: the motion ends, but the button doesn't turn off
+          // because moverGObj can never reach targetLoc, so checkAtEnd always returns false.
+          // Instead, we now test, not against targetLoc, but against the point on path to which
+          // targetLoc maps.
+          var moverPosition = pathGobj.mapPathValueToPosition(moverValue),
+              testLoc = targetLoc;
+          if (!towardInitial) {
+            testLoc = pathGobj.mapPathValueToPosition(pathGobj.mapPositionToPathValue(targetLoc));
+          }
+          return moverPosition.equals(testLoc, EPSILON);
         }
   
         atEnd = checkAtEnd(moverValue);
@@ -65841,12 +65806,14 @@
          */
         function createNewMotion(mover, target) {
           var cachedDestination,
+              moverOnPath = mover.isFreePointOnPath,
+              path,
               motionClass,
               motion;
   
           switch (mover.kind) {
           case 'Point':
-            motionClass = mover.isFreePointOnPath? PointOnPathMotion : PointRootsMotion;
+            motionClass = moverOnPath? PointOnPathMotion : PointRootsMotion;
             break;
           case 'Expression':
             motionClass = ParameterMotion;
@@ -65871,9 +65838,16 @@
             }
   
             cachedDestination = motion.getDestination();
-            motion.getDestination = function() {
-              return cachedDestination;
-            };
+            if (!moverOnPath) {
+              motion.getDestination = function() {
+                return cachedDestination;
+              };
+            } else { // for moverOnPath, map cachedDestination to the closest point on the path
+              path = mover.parents.path;
+              motion.getDestination  = function() {
+                return path.mapPathValueToPosition(path.mapPositionToPathValue(cachedDestination));
+              };
+            }
           }
   
   
@@ -69209,7 +69183,7 @@
   "/* For now, these are not in less. Just import them raw. */\n"+
   "/*!\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102161158\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221217231404\n"+
   "*/\n"+
   "\n"+
   "/*\n"+
@@ -69882,7 +69856,7 @@
   ".wsp-version-4-8-0 {\n"+
   "  /*\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102161158\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221217231404\n"+
   "*/\n"+
   "  /* Section Start: wsp-Button */\n"+
   "  /*\n"+
