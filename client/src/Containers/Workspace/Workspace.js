@@ -1192,6 +1192,7 @@ Workspace.propTypes = {
     buttonConfig: PropTypes.shape({}),
     inControl: PropTypes.string,
     controlledBy: PropTypes.string,
+    matches: PropTypes.func,
   }),
   sendControlEvent: PropTypes.func,
 };
