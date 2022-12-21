@@ -21,8 +21,8 @@ class TrashModal extends Component {
       : update(resourceId, { isTrashed: true });
     closeModal();
     try {
-      const success = history.goBack();
-      if (!success) history.push(`/myVMT/${hash[resource]}`);
+      history.goBack();
+      history.push(`/myVMT/${hash[resource]}`);
     } catch (err) {
       history.push(`/myVMT/${hash[resource]}`);
     }
