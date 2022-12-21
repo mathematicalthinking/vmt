@@ -13,14 +13,19 @@ const hash = {
 class TrashModal extends Component {
   trashResource = () => {
     const { history, update, closeModal, resource, resourceId } = this.props;
-    history.push(`/myVMT/${hash[resource]}`);
     // The following ternary is a temp fix.
     // @TODO develop status flag for activities and courses, then get rid of isTrashed code
     // eslint-disable-next-line no-unused-expressions
     resource === 'room'
-      ? update(resourceId, { status: STATUS.TRASHED })
+      ? update(resourceId, { isTrashed: true, status: STATUS.TRASHED })
       : update(resourceId, { isTrashed: true });
     closeModal();
+    try {
+      const success = history.goBack();
+      if (!success) history.push(`/myVMT/${hash[resource]}`);
+    } catch (err) {
+      history.push(`/myVMT/${hash[resource]}`);
+    }
   };
 
   trashResourceAndChildren = () => {
@@ -70,7 +75,8 @@ class TrashModal extends Component {
 }
 
 TrashModal.propTypes = {
-  history: PropTypes.shape({}).isRequired,
+  history: PropTypes.shape({ goBack: PropTypes.func, push: PropTypes.func })
+    .isRequired,
   update: PropTypes.func.isRequired,
   show: PropTypes.bool.isRequired,
   closeModal: PropTypes.func.isRequired,
