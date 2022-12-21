@@ -16,17 +16,8 @@ import {
 } from '../../store/actions';
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import {
-  GgbGraph,
-  DesmosGraph,
-  DesmosActivity,
-  CodePyretOrg,
-  Chat,
-  Tabs,
-  Tools,
-  RoomInfo,
-} from '.';
-import { Modal, CurrentMembers, Loading } from '../../Components';
+import { Chat, Tabs, Tools, RoomInfo } from '.';
+import { Modal, CurrentMembers, Loading, Mathspace } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
 import {
@@ -1016,104 +1007,39 @@ class Workspace extends Component {
         }}
       />
     );
-    const graphs = currentTabs.map((tab) => {
-      if (tab.tabType === 'desmos') {
-        return (
-          <DesmosGraph
-            key={tab._id}
-            room={populatedRoom}
-            user={user}
-            currentTabId={currentTabId}
-            updateRoomTab={connectUpdateRoomTab}
-            tab={tab}
-            inControl={inControl}
-            toggleControl={this.toggleControl}
-            updatedRoom={connectUpdatedRoom}
-            addNtfToTabs={this.addNtfToTabs}
-            isFirstTabLoaded={isFirstTabLoaded}
-            setFirstTabLoaded={this.setFirstTabLoaded}
-            referencing={referencing}
-            updateUserSettings={connectUpdateUserSettings}
-            addToLog={this.addToLog}
-            emitEvent={this.emitEvent}
-          />
-        );
-      }
-      if (tab.tabType === 'desmosActivity') {
-        return (
-          <DesmosActivity
-            temp={temp}
-            key={tab._id}
-            room={populatedRoom}
-            user={user}
-            currentTabId={currentTabId}
-            updateRoomTab={connectUpdateRoomTab}
-            tab={tab}
-            inControl={inControl}
-            toggleControl={this.toggleControl}
-            updatedRoom={connectUpdatedRoom}
-            addNtfToTabs={this.addNtfToTabs}
-            isFirstTabLoaded={isFirstTabLoaded}
-            setFirstTabLoaded={this.setFirstTabLoaded}
-            referencing={referencing}
-            updateUserSettings={connectUpdateUserSettings}
-            addToLog={this.addToLog}
-            onScreenChange={this.handleScreenChange}
-            emitEvent={this.emitEvent}
-          />
-        );
-      }
-      if (tab.tabType === 'pyret') {
-        return (
-          <CodePyretOrg
-            key={tab._id}
-            room={populatedRoom}
-            user={user}
-            currentTabId={currentTabId}
-            updateRoomTab={connectUpdateRoomTab}
-            tab={tab}
-            inControl={inControl}
-            toggleControl={this.toggleControl}
-            updatedRoom={connectUpdatedRoom}
-            addNtfToTabs={this.addNtfToTabs}
-            isFirstTabLoaded={isFirstTabLoaded}
-            setFirstTabLoaded={this.setFirstTabLoaded}
-            referencing={referencing}
-            updateUserSettings={connectUpdateUserSettings}
-            addToLog={this.addToLog}
-            emitEvent={this.emitEvent}
-          />
-        );
-      }
-      return (
-        <GgbGraph
-          key={tab._id}
-          room={populatedRoom}
-          tab={tab}
-          user={user}
-          role={role}
-          addToLog={this.addToLog}
-          updateRoom={connectUpdateRoom}
-          updatedRoom={connectUpdatedRoom}
-          inControl={inControl}
-          currentTabId={currentTabId}
-          addNtfToTabs={this.addNtfToTabs}
-          toggleControl={this.toggleControl}
-          isFirstTabLoaded={isFirstTabLoaded}
-          referToEl={referToEl}
-          showingReference={showingReference}
-          referencing={referencing}
-          clearReference={this.clearReference}
-          setToElAndCoords={this.setToElAndCoords}
-          setFirstTabLoaded={this.setFirstTabLoaded}
-          setGraphCoords={this.setGraphCoords}
-          log={log}
-          eventsWithRefs={eventsWithRefs}
-          updateEventsWithReferences={this.updateEventsWithReferences}
-          emitEvent={this.emitEvent}
-        />
-      );
-    });
+    const graphs = currentTabs.map((tab) => (
+      <Mathspace
+        type={tab.tabType}
+        temp={temp}
+        key={tab._id}
+        room={populatedRoom}
+        user={user}
+        currentTabId={currentTabId}
+        updateRoomTab={connectUpdateRoomTab}
+        tab={tab}
+        inControl={inControl}
+        toggleControl={this.toggleControl}
+        updatedRoom={connectUpdatedRoom}
+        addNtfToTabs={this.addNtfToTabs}
+        isFirstTabLoaded={isFirstTabLoaded}
+        setFirstTabLoaded={this.setFirstTabLoaded}
+        referencing={referencing}
+        updateUserSettings={connectUpdateUserSettings}
+        addToLog={this.addToLog}
+        emitEvent={this.emitEvent}
+        onScreenChange={this.handleScreenChange}
+        role={role}
+        updateRoom={connectUpdateRoom}
+        referToEl={referToEl}
+        showingReference={showingReference}
+        clearReference={this.clearReference}
+        setToElAndCoords={this.setToElAndCoords}
+        setGraphCoords={this.setGraphCoords}
+        log={log}
+        eventsWithRefs={eventsWithRefs}
+        updateEventsWithReferences={this.updateEventsWithReferences}
+      />
+    ));
     let currentTabIx;
     const currentTab = find(currentTabs, (t, ix) => {
       if (t._id === currentTabId) {
