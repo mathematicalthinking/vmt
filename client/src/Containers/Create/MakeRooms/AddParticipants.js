@@ -71,7 +71,11 @@ const AddParticipants = (props) => {
   };
 
   const addParticipant = (_id, username) => {
-    if (newParticipants.find((mem) => _id === mem.user._id)) return;
+    if (
+      newParticipants.find((mem) => _id === mem.user._id) ||
+      participants.find((mem) => _id === mem.user._id)
+    )
+      return;
     setNewParticipants((prevState) => [
       ...prevState,
       { role: 'participant', user: { _id, username } },
