@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
 /* eslint-disable react/no-did-update-set-state */
 import React, { useState, Fragment } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import SearchResults from 'Containers/Members/SearchResults';
 import API from 'utils/apiRequests';
-import { Button, InfoBox, Search, Member } from 'Components';
+import { Button, InfoBox, Search, Member, ToggleGroup } from 'Components';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
@@ -15,6 +16,13 @@ const AddParticipants = (props) => {
     close,
     updateMembersToInvite,
   } = props;
+
+  const userCoursesById = useSelector((state) => state.courses.byId);
+  const coursesUserDidNotCreate = Object.values(userCoursesById).filter(
+    (course) => userId !== course.creator
+  );
+  console.log('coursesUserDidNotCreate');
+  console.log(coursesUserDidNotCreate);
 
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -98,6 +106,7 @@ const AddParticipants = (props) => {
 
   return (
     <div className={`${classes.ParticipantsContainer}`}>
+      <ToggleGroup></ToggleGroup>
       <InfoBox
         title="Add Participants"
         icon={<i className="fas fa-user-plus" />}
