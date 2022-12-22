@@ -5,7 +5,9 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import SearchResults from 'Containers/Members/SearchResults';
 import API from 'utils/apiRequests';
-import { Button, InfoBox, Search, Member, ToggleGroup } from 'Components';
+import { Button, InfoBox, Search, Member, Slider } from 'Components';
+import GenericSearchResults from 'Components/Search/GenericSearchResults';
+
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
@@ -21,6 +23,10 @@ const AddParticipants = (props) => {
   const coursesUserDidNotCreate = Object.values(userCoursesById).filter(
     (course) => userId !== course.creator
   );
+  // const courseNamesToSearch = generateCourseNames();
+  const courseNamesToSearch = [...coursesUserDidNotCreate].map(
+    (course) => course.name
+  );
   console.log('coursesUserDidNotCreate');
   console.log(coursesUserDidNotCreate);
 
@@ -31,6 +37,8 @@ const AddParticipants = (props) => {
     ...participants,
   ]);
   const [newParticipants, setNewParticipants] = useState([]);
+  const [isAddingParticipants, setIsAddingParticipants] = useState(true);
+  const [isImportingRoster, setIsImportingRoster] = useState(false);
 
   const search = (text) => {
     if (text.length > 0) {
@@ -89,6 +97,15 @@ const AddParticipants = (props) => {
     }
   };
 
+  const generateCourseNames = () => {
+    return [...coursesUserDidNotCreate].filter((course) => course.name);
+  };
+
+  const handleToggleImportRoster = () => {
+    setIsAddingParticipants((prevState) => !prevState);
+    setIsImportingRoster((prevState) => !prevState);
+  };
+
   const submit = () => {
     const facilitators = participants.filter(
       (mem) => mem.role === 'facilitator'
@@ -106,31 +123,56 @@ const AddParticipants = (props) => {
 
   return (
     <div className={`${classes.ParticipantsContainer}`}>
-      <ToggleGroup></ToggleGroup>
       <InfoBox
         title="Add Participants"
         icon={<i className="fas fa-user-plus" />}
         className={classes.AddParticipants}
+        rightIcons={<Slider action={handleToggleImportRoster} />}
+        rightTitle="Import Roster"
       >
-        <div className={classes.AddParticipants}>
-          <Fragment>
-            <div style={{ fontSize: '12px' }}>
-              <Search
-                data-testid="member-search"
-                _search={search}
-                placeholder="search by username or email"
-              />
-            </div>
-            {searchResults.length > 0 && (
-              <SearchResults
-                searchText={searchText}
-                usersSearched={searchResults}
-                inviteMember={addParticipant}
-                className={classes.AddParticipants}
-              />
-            )}
-          </Fragment>
-        </div>
+        {isAddingParticipants && (
+          <div className={classes.AddParticipants}>
+            <Fragment>
+              <div style={{ fontSize: '12px' }}>
+                <Search
+                  data-testid="member-search"
+                  _search={search}
+                  placeholder="search by username or email"
+                />
+              </div>
+              {searchResults.length > 0 && (
+                <SearchResults
+                  searchText={searchText}
+                  usersSearched={searchResults}
+                  inviteMember={addParticipant}
+                  className={classes.AddParticipants}
+                />
+              )}
+            </Fragment>
+          </div>
+        )}
+
+        {isImportingRoster && (
+          <div className={classes.AddParticipants}>
+            <Fragment>
+              <div style={{ fontSize: '12px' }}>
+                <Search
+                  data-testid="member-search"
+                  _search={search}
+                  placeholder="search courses to import rosters from"
+                />
+              </div>
+              {courseNamesToSearch.length > 0 && (
+                <GenericSearchResults
+                  itemsSearched={courseNamesToSearch}
+                  searchText={searchText}
+                  actions={[addParticipant]}
+                  className={classes.AddParticipants}
+                />
+              )}
+            </Fragment>
+          </div>
+        )}
       </InfoBox>
       {newParticipants && (
         <InfoBox title="New Participants" icon={<i className="fas fa-users" />}>
