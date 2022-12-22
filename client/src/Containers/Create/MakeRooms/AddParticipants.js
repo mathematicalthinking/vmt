@@ -23,12 +23,15 @@ const AddParticipants = (props) => {
   const coursesUserDidNotCreate = Object.values(userCoursesById).filter(
     (course) => userId !== course.creator
   );
-  // const courseNamesToSearch = generateCourseNames();
-  const courseNamesToSearch = [...coursesUserDidNotCreate].map(
-    (course) => course.name
-  );
+
+  const coursesByNames = coursesUserDidNotCreate.reduce((acc, curr) => {
+    return { ...acc, [curr.name]: { ...curr } };
+  }, {});
+
   console.log('coursesUserDidNotCreate');
   console.log(coursesUserDidNotCreate);
+  console.log('coursesByNames');
+  console.log(coursesByNames);
 
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -68,6 +71,7 @@ const AddParticipants = (props) => {
   };
 
   const addParticipant = (_id, username) => {
+    if (newParticipants.some((mem) => _id === mem.user._id)) return;
     setNewParticipants((prevState) => [
       ...prevState,
       { role: 'participant', user: { _id, username } },
@@ -75,6 +79,13 @@ const AddParticipants = (props) => {
 
     setSearchResults((prevState) =>
       prevState.filter((user) => user._id !== _id)
+    );
+  };
+
+  const addParticipantFromRoster = (courseName) => {
+    console.log(`courseName: ${courseName}`);
+    coursesByNames[courseName].members.forEach((mem) =>
+      addParticipant(mem.user._id, mem.user.username)
     );
   };
 
@@ -162,11 +173,11 @@ const AddParticipants = (props) => {
                   placeholder="search courses to import rosters from"
                 />
               </div>
-              {courseNamesToSearch.length > 0 && (
+              {Object.keys(coursesByNames).length > 0 && (
                 <GenericSearchResults
-                  itemsSearched={courseNamesToSearch}
+                  itemsSearched={Object.keys(coursesByNames)}
                   searchText={searchText}
-                  actions={[addParticipant]}
+                  select={addParticipantFromRoster}
                   className={classes.AddParticipants}
                 />
               )}

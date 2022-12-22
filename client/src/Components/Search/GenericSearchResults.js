@@ -1,19 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { uniqueId } from 'lodash';
+import Button from 'Components/UI/Button/Button';
 
-function GenericSearchResults({ itemsSearched, actions, searchText }) {
+function GenericSearchResults({ itemsSearched, select, searchText }) {
   return (
     <ul>
       {itemsSearched.map((item) => (
-        <li>{item}</li>
+        <React.Fragment key={uniqueId(item)}>
+          <li key={uniqueId(item)}>{item}</li>
+          <Button click={() => select(item)}></Button>
+        </React.Fragment>
       ))}
     </ul>
   );
 }
 
 GenericSearchResults.propTypes = {
-  itemsSearched: PropTypes.arrayOf().isRequired,
-  actions: PropTypes.arrayOf(PropTypes.func).isRequired,
+  itemsSearched: PropTypes.arrayOf(PropTypes.string).isRequired,
+  select: PropTypes.func.isRequired,
   searchText: PropTypes.string.isRequired,
 };
 
