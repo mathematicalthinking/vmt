@@ -128,7 +128,7 @@ const AddParticipants = (props) => {
         icon={<i className="fas fa-user-plus" />}
         className={classes.AddParticipants}
         rightIcons={<Slider action={handleToggleImportRoster} />}
-        rightTitle="Import Roster"
+        rightTitle="Shared Roster"
       >
         {isAddingParticipants && (
           <div className={classes.AddParticipants}>
