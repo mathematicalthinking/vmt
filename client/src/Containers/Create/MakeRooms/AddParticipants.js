@@ -28,22 +28,12 @@ const AddParticipants = (props) => {
     return { ...acc, [curr.name]: { ...curr } };
   }, {});
 
-  console.log('coursesUserDidNotCreate');
-  console.log(coursesUserDidNotCreate);
-  console.log('coursesByNames');
-  console.log(coursesByNames);
-  console.log('Object.keys(coursesByNames)');
-  console.log(Object.keys(coursesByNames));
-
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [rosterSarchResults, setRosterSearchResults] = useState(
     Object.keys(coursesByNames)
   );
   const [searchText, setSearchText] = useState('');
-  const [currentParticipants, setCurrentParticipants] = useState([
-    ...participants,
-  ]);
   const [newParticipants, setNewParticipants] = useState([]);
   const [isAddingParticipants, setIsAddingParticipants] = useState(true);
   const [isImportingRoster, setIsImportingRoster] = useState(false);
@@ -54,7 +44,7 @@ const AddParticipants = (props) => {
         'user',
         text,
         [userId]
-          .concat(currentParticipants.map((p) => p.user._id))
+          .concat([...participants].map((p) => p.user._id))
           .concat(newParticipants.map((p) => p.user._id)) // Exclude myself and already selected members from th search
       )
         .then((res) => {
@@ -98,6 +88,7 @@ const AddParticipants = (props) => {
   };
 
   const addParticipant = (_id, username) => {
+    // filter out duplicates in the right column (New Participants column)
     if (
       newParticipants.find((mem) => _id === mem.user._id) ||
       participants.find((mem) => _id === mem.user._id)
@@ -139,10 +130,6 @@ const AddParticipants = (props) => {
     }
   };
 
-  const generateCourseNames = () => {
-    return [...coursesUserDidNotCreate].filter((course) => course.name);
-  };
-
   const handleToggleImportRoster = () => {
     setIsAddingParticipants((prevState) => !prevState);
     setIsImportingRoster((prevState) => !prevState);
@@ -169,7 +156,14 @@ const AddParticipants = (props) => {
         title="Add Participants"
         icon={<i className="fas fa-user-plus" />}
         className={classes.AddParticipants}
-        rightIcons={<Slider action={handleToggleImportRoster} />}
+        rightIcons={
+          <Slider
+            action={handleToggleImportRoster}
+            isOn={isImportingRoster}
+            name="addParticipantsSlider"
+            data-testid="addParticipants-slider"
+          />
+        }
         rightTitle="Shared Roster"
       >
         {isAddingParticipants && (

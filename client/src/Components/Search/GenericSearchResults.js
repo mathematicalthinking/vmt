@@ -22,7 +22,11 @@ function GenericSearchResults({ itemsSearched, select, searchText }) {
 GenericSearchResults.propTypes = {
   itemsSearched: PropTypes.arrayOf(PropTypes.string).isRequired,
   select: PropTypes.func.isRequired,
-  searchText: PropTypes.string.isRequired,
+  searchText: PropTypes.string,
+};
+
+GenericSearchResults.defaultProps = {
+  searchText: null,
 };
 
 export default GenericSearchResults;
