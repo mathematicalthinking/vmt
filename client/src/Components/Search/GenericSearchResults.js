@@ -4,7 +4,7 @@ import { uniqueId } from 'lodash';
 import Button from 'Components/UI/Button/Button';
 import classes from './genericSearchResults.css';
 
-function GenericSearchResults({ itemsSearched, select, searchText }) {
+function GenericSearchResults({ itemsSearched, select }) {
   return (
     <ul className={classes.SearchResults}>
       {itemsSearched.map((item) => (
@@ -22,11 +22,6 @@ function GenericSearchResults({ itemsSearched, select, searchText }) {
 GenericSearchResults.propTypes = {
   itemsSearched: PropTypes.arrayOf(PropTypes.string).isRequired,
   select: PropTypes.func.isRequired,
-  searchText: PropTypes.string,
-};
-
-GenericSearchResults.defaultProps = {
-  searchText: null,
 };
 
 export default GenericSearchResults;
