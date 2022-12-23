@@ -32,9 +32,14 @@ const AddParticipants = (props) => {
   console.log(coursesUserDidNotCreate);
   console.log('coursesByNames');
   console.log(coursesByNames);
+  console.log('Object.keys(coursesByNames)');
+  console.log(Object.keys(coursesByNames));
 
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
+  const [rosterSarchResults, setRosterSearchResults] = useState(
+    Object.keys(coursesByNames)
+  );
   const [searchText, setSearchText] = useState('');
   const [currentParticipants, setCurrentParticipants] = useState([
     ...participants,
@@ -68,6 +73,28 @@ const AddParticipants = (props) => {
       setSearchResults([]);
       setSearchText(text);
     }
+  };
+
+  const searchRosters = (text) => {
+    // initial search -- search course names
+    const res = Object.keys(coursesByNames).filter((courseName) =>
+      courseName.includes(text)
+    );
+
+    if (!res.length) {
+      // search facilitators and return an array of course names containing those facilitators
+      coursesUserDidNotCreate.forEach((course) => {
+        if (
+          course.members.some(
+            (mem) =>
+              mem.role === 'facilitator' && mem.user.username.includes(text)
+          )
+        )
+          res.push(course.name);
+      });
+    }
+
+    setRosterSearchResults(res);
   };
 
   const addParticipant = (_id, username) => {
@@ -172,14 +199,14 @@ const AddParticipants = (props) => {
             <Fragment>
               <div style={{ fontSize: '12px' }}>
                 <Search
-                  data-testid="member-search"
-                  _search={search}
+                  data-testid="roster-search"
+                  _search={searchRosters}
                   placeholder="search courses to import rosters from"
                 />
               </div>
               {Object.keys(coursesByNames).length > 0 && (
                 <GenericSearchResults
-                  itemsSearched={Object.keys(coursesByNames)}
+                  itemsSearched={rosterSarchResults}
                   searchText={searchText}
                   select={addParticipantFromRoster}
                   className={classes.AddParticipants}
