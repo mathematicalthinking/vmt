@@ -57,7 +57,7 @@ class ContentBox extends PureComponent {
       notifications > 0 ? (
         <Notification count={notifications} data-testid="content-box-ntf" />
       ) : null;
-    if (!TabTypes.isActive(tabTypes)) return null;
+    if (roomType && !TabTypes.isActive(roomType)) return null;
 
     const childElements = (
       <div

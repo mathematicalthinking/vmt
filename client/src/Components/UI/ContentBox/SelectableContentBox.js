@@ -41,7 +41,7 @@ const SelectableContentBox = (props) => {
       <Notification count={notifications} data-testid="content-box-ntf" />
     ) : null;
 
-  if (!TabTypes.isActive(tabTypesText)) return null;
+  if (roomType && !TabTypes.isActive(roomType)) return null;
 
   return (
     <Checkbox

@@ -468,7 +468,7 @@ class DesmosGraph extends Component {
 
     const { user: propsUser } = this.props;
     const { settings } = propsUser;
-    const { doShowDesmosRefWarning } = settings;
+    const doShowDesmosRefWarning = settings && settings.doShowDesmosRefWarning;
 
     if (doShowDesmosRefWarning) {
       this.addWhiteBoardListener('click', this.refWarningHandler);
@@ -659,9 +659,21 @@ DesmosGraph.defaultProps = {
 };
 
 DesmosGraph.propTypes = {
-  room: PropTypes.shape({}).isRequired,
-  tab: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
+  room: PropTypes.shape({
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    _id: PropTypes.string,
+  }).isRequired,
+  tab: PropTypes.shape({
+    _id: PropTypes.string,
+    currentState: PropTypes.string,
+    desmosLink: PropTypes.string,
+  }).isRequired,
+  user: PropTypes.shape({
+    inAdminMode: PropTypes.bool,
+    settings: PropTypes.shape({ doShowDesmosRefWarning: PropTypes.bool }),
+    _id: PropTypes.string,
+    username: PropTypes.string,
+  }).isRequired,
   updatedRoom: PropTypes.func.isRequired,
   inControl: PropTypes.string.isRequired,
   toggleControl: PropTypes.func.isRequired,

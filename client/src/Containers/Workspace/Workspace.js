@@ -17,7 +17,7 @@ import {
 import mongoIdGenerator from '../../utils/createMongoId';
 import WorkspaceLayout from '../../Layout/Workspace/Workspace';
 import { Chat, Tabs, Tools, RoomInfo } from '.';
-import { Modal, CurrentMembers, Loading, Mathspace } from '../../Components';
+import { Modal, CurrentMembers, Loading, TabTypes } from '../../Components';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
 import {
@@ -256,7 +256,7 @@ class Workspace extends Component {
     const { currentTabId, tabs } = this.state;
     const currentTab = tabs.find((tab) => tab._id === currentTabId);
 
-    if (currentTab && currentTab.tabType === 'desmosActivity') {
+    if (currentTab && currentTab.tabType === TabTypes.DESMOS_ACTIVITY) {
       // set screen in state
       this.setState({ currentScreen: screenNum }, () => {
         // takeSnap if needed
@@ -1008,7 +1008,7 @@ class Workspace extends Component {
       />
     );
     const graphs = currentTabs.map((tab) => (
-      <Mathspace
+      <TabTypes.Mathspace
         type={tab.tabType}
         temp={temp}
         key={tab._id}

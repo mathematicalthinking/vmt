@@ -1,16 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
-// import { CustomLink } from 'react-router-dom';
-import BoxList from '../BoxList/BoxList';
+import { BoxList } from 'Layout';
 import {
   Search,
   CustomLink,
   Button,
   RadioBtn,
   InfoBox,
-} from '../../Components';
-// import Button from '../../Components/UI/Button/Button';
+  TabTypes,
+} from 'Components';
 import classes from './community.css';
 
 class Community extends Component {
@@ -42,7 +41,7 @@ class Community extends Component {
       <div className={classes.Container}>
         <div className={classes.Header} ref={this.header}>
           <h3 className={classes.Title}>
-            search for templates or ask to join rooms and courses
+            Search for Templates or ask to join Rooms and Courses
           </h3>
           <div className={classes.ResourceOpts} data-testid="resource-tabs">
             <div>
@@ -114,41 +113,10 @@ class Community extends Component {
                   >
                     All
                   </RadioBtn>
-                  <RadioBtn
-                    data-testid="desmos-activity-filter"
-                    check={() => toggleFilter('desmosActivity')}
-                    checked={filters.roomType === 'desmosActivity'}
-                    name="DesmosActivity"
-                  >
-                    Desmos Activity
-                  </RadioBtn>
-                  <RadioBtn
-                    data-testid="geogebra-filter"
-                    check={() => toggleFilter('geogebra')}
-                    checked={filters.roomType === 'geogebra'}
-                    name="GeoGebra"
-                  >
-                    GeoGebra
-                  </RadioBtn>
-                  <RadioBtn
-                    data-testid="desmos-filter"
-                    check={() => toggleFilter('desmos')}
-                    checked={filters.roomType === 'desmos'}
-                    name="Desmos"
-                  >
-                    Desmos
-                  </RadioBtn>
-                  {window.env.REACT_APP_PYRET_MODE &&
-                    window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (
-                      <RadioBtn
-                        data-testid="pyret-activity-filter"
-                        check={() => toggleFilter('pyret')}
-                        checked={filters.roomType === 'pyret'}
-                        name="PyretActivity"
-                      >
-                        Pyret
-                      </RadioBtn>
-                    )}
+                  <TabTypes.RadioButtons
+                    onClick={toggleFilter}
+                    checked={filters.roomType}
+                  />
                 </div>
               </InfoBox>
             ) : null}
