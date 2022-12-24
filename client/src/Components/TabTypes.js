@@ -26,7 +26,6 @@ const activeTabTypes = [
   TAB_TYPES.DESMOS_ACTIVITY,
   TAB_TYPES.GEOGEBRA,
   TAB_TYPES.DESMOS,
-  TAB_TYPES.PYRET,
 ];
 
 if (
