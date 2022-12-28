@@ -4,6 +4,7 @@ import React, { useState, Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import SearchResults from 'Containers/Members/SearchResults';
+import { amIAFacilitator } from 'utils';
 import API from 'utils/apiRequests';
 import { Button, InfoBox, Search, Member, Slider } from 'Components';
 import GenericSearchResults from 'Components/Search/GenericSearchResults';
@@ -20,9 +21,10 @@ const AddParticipants = (props) => {
   } = props;
 
   const userCoursesById = useSelector((state) => state.courses.byId);
-  const coursesUserDidNotCreate = Object.values(userCoursesById).filter(
-    (course) => userId !== course.creator
-  );
+
+  const coursesUserDidNotCreate = Object.values(
+    userCoursesById
+  ).filter((course) => amIAFacilitator(course, userId));
 
   const coursesByNames = coursesUserDidNotCreate.reduce((acc, curr) => {
     return { ...acc, [curr.name]: { ...curr } };
