@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221219154059
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.home/20221228162701
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -48235,8 +48235,8 @@
     invalidateAppearance: function() {
       this.sQuery.sketch.invalidateAppearance(this);
     },
-    invalidateGeom: function() {
-      this.sQuery.sketch.invalidateGeom(this);
+    invalidateGeom: function(source) {
+      this.sQuery.sketch.invalidateGeom(this, source);
     },
     /*
      * GObjects may return a colorable component, which serves
@@ -49821,28 +49821,25 @@
         if (this.clonedGObj.cleanupVectorRendering) {
           return this.clonedGObj.cleanupVectorRendering(drawContext, drawRefCon, this.vectorContext);
         }
-      },  
+      },
+      
       render: function (drawContext, drawRefCon, renderArgs) {
-  
-        var props = {
-                hidden: this.style.hidden,
-                width: this.style.width,
-                color: this.style.color,
-                radius: this.style.radius,
-                opacity: this.calculateOpacity(),
-                renderable: true,
-                constraintFrame: this.state.constraintFrame
-                //Must always render because some objects need to 'render' to
-                //erase themselves.  Also, though the sampleGobj is currently non-existing
-                //some samples may be existing
-            };
-  
+        var props =
+          { hidden: this.style.hidden,
+            width: this.style.width,
+            color: this.style.color,
+            radius: this.style.radius,
+            opacity: this.calculateOpacity(),
+            renderable: true,
+            constraintFrame: this.state.constraintFrame
+            // Even if the sampleGobj doesn't currently exist, we must
+            // render the vector because some samples may still exist,
+            // and they must be rendered to erase themselves.
+          };
         if (this.style["line-style"]) {
           GSP.modifyRenderAttrsForLineStyle(this.style["line-style"], props);
         }
-  
         this.modifyRenderAttrsForCurrentState(props);
-  
         if (this.clonedGObj.renderVector) {
           this.updateKindHTMLStyle();
           return this.clonedGObj.renderVector(drawContext, 
@@ -49852,6 +49849,7 @@
                                        props);
         }
       },
+      
       getGeomBounds: function () {
         
         if (this.clonedGObj.getGeomBoundsVector) {
@@ -55683,6 +55681,7 @@
        *  to be a number here.  
        */        
       updateValue: function (newValue) {
+        var sketch = this.sQuery().sketch;
         if ((typeof newValue === "function") || (typeof this.value === "function")) {
           throw GSP.createError("Expression.updateValue() called on function or with value arg that is a function");
         }
@@ -55695,7 +55694,8 @@
         this.isExpressionDirty = true;
         this.fnExpression = undefined;
         this.parsedInfix = undefined;
-        this.sQuery().invalidateGeom(this);
+        sketch.invalidateGeom(this);
+        sketch.document.raiseSketchEvent(sketch.getPageId(), this.id, "update");
       },
       
       prepareToSerialize: function() {
@@ -57780,15 +57780,19 @@
       
       //Override to allow for non-existing source
       checkParentsExist: function () {
-        var didExist = this.state.exists;
-        this.state.exists = didExist && this.namedParentExists('map');
-        if (didExist && !this.state.exists) {
-          //If we're setting existence to false, we also need to wipe our 
-          //samples, since our map's constrain function won't be called and
-          //the map usually manages these tasks.
+        if (this.getParent('map').state.exists) {
+          return true;
+        }
+        // The map doesn't exist, presumably because the source doesn't,
+        // so neither does the iterated image.
+        if (this.state.exists) {
+          // When setting existence to false, we also need to wipe our 
+          // samples, since our map's constrain function won't be called and
+          // the map usually manages these tasks.
+          this.state.exists = false;
           this.clearSamples();
         }
-        return this.state.exists;
+        return false;
       }
   
   });
@@ -65374,7 +65378,7 @@
       // movement is on hold if either object does not exist (unless we have 
       // a cached target location.
       canKeepMoving: function canKeepMoving() {
-        return this.moverGObj.state.exists && (false !== this.getDestination());
+        return this.moverGObj.state.exists && (false !== this.getDest());
       },
   
       /*
@@ -65472,15 +65476,16 @@
        * travel. 'This' is assumed to be a motion object with a target
        * and a destination. We set this.distance to the distance of the
        * motion, or 0 if the motion should be skipped.
-       * 
+       * Subclass must define both getDestLoc to return the target's geom.loc
+       * and getDest() to return a value that determines the location.
        * @return {undefined}
        */
       initializeDistance: function initializePointDistance(){
         var mover = this.moverGObj,
-            targetLoc = this.getDestination();
+            targetLoc = this.getDestLoc();
   
         //set the distance between the target and the mover
-        if (this.getDestination()) {
+        if (targetLoc) {
           this.distance = targetLoc.subtract(mover.geom.loc).vLength();
         }
         else {
@@ -65492,24 +65497,16 @@
           //probably not desirable, but at least the two implementations are consistent.
           this.distance = 10;
         }
-      },
-  
-      getDestination: function getDestination() {
-        var loc = this.targetGObj.geom.loc;
-        return loc.isDefined() && loc;
       }
-  
     });
   
     var ParameterMotion = GSP.makeClass(MoveMotion, {
-  
       init: function init() {
         (init.base || arguments.callee.base).call(this);
         this.isValueChangingMotion = true;
       },
   
-      getDestination: function getDestination () {
-        
+      getDest: function getDest () {
         // If we're instant, and our target is blank,
         // we can become blank.
         if(this.targetGObj.blank) {
@@ -65550,7 +65547,7 @@
   
       getStep: function getStepValue() {
         var moverGObj = this.moverGObj,
-            targetValue = this.getDestination(),
+            targetValue = this.getDest(),
             delta = targetValue - moverGObj.value,
             sign = (delta < 0)? -1: 1,
             atEnd = (delta === 0),
@@ -65599,7 +65596,7 @@
       getStep: function getStepPointRoots() {
         var kLEN_TOLERANCE = 1e-12, // rounding error might get us close but not exactly at target
             p0 = this.moverGObj.geom.loc,
-            v = this.getDestination().subtract(p0), 
+            v = this.getDest().subtract(p0), 
             len = v.vLength(),
             motion = this,
             step = {
@@ -65637,38 +65634,41 @@
               }
             };
         return step;
+      },
+      
+      getDestLoc: function getDestLoc() {
+        return this.targetGObj.geom.loc.isDefined() && this.targetGObj.geom.loc;
+      },
+      
+      getDest: function getDest() {
+        return this.getDestLoc();
       }
   
     });
   
     var PointOnPathMotion = GSP.makeClass(PointMotion, {
+      
       getStep: function getStepPointOnPath() {
-        var moverGObj = this.moverGObj,
+        var motion = this,
+            kVAL_TOLERANCE = 1e-12, // rounding error might get us close but not exactly at target
+            moverGObj = this.moverGObj,
             targetGObj = this.targetGObj,
-            targetLoc = this.getDestination(),
-            towardInitial = this.button.towardInitialDestination,
-            EPSILON = 0.05, //cf. TowardDestinationViaPath_SourceActuallyHitDest()
             pathGobj = moverGObj.getParent("path"),
+            samePath = targetGObj.isFreePointOnPath && targetGObj.getParent('path') === pathGobj,
             moverValue = moverGObj.value,
-            targetValue = pathGobj.mapPositionToPathValue(targetLoc),
+            targetValue = this.getDest(),
             motionPath = pathGobj.makeMotionPath(moverValue, targetValue),
             newValue, step, atEnd;
         
-        function checkAtEnd(moverValue) {
-          // SS: Both GSP and WSP suffer from a bug in moving on a path towardInitialDestination
-          // when targetLoc is not on the path: the motion ends, but the button doesn't turn off
-          // because moverGObj can never reach targetLoc, so checkAtEnd always returns false.
-          // Instead, we now test, not against targetLoc, but against the point on path to which
-          // targetLoc maps.
-          var moverPosition = pathGobj.mapPathValueToPosition(moverValue),
-              testLoc = targetLoc;
-          if (!towardInitial) {
-            testLoc = pathGobj.mapPathValueToPosition(pathGobj.mapPositionToPathValue(targetLoc));
+        function checkAtEnd() {
+          if (samePath || motion.button.towardInitialDestination) { // compare values
+            return Math.abs(moverGObj.value - motion.getDest()) < kVAL_TOLERANCE;
+          } else {  // moving destination, so compare locations
+            return moverGObj.geom.loc.subtract(targetGObj.geom.loc).len < kVAL_TOLERANCE;
           }
-          return moverPosition.equals(testLoc, EPSILON);
         }
   
-        atEnd = checkAtEnd(moverValue);
+        atEnd = checkAtEnd();
         step = {
           isAlreadyThere: atEnd,
           /* 
@@ -65691,11 +65691,9 @@
                 newValue = motionPath.advance(rate);
               }
               // Ensure we exactly coincide with target point on path.
-              if (checkAtEnd(newValue) && targetGObj.constraint === "PointOnPath" &&
-                  targetGObj.getParent("path") === moverGObj.getParent("path")) {
+              if (checkAtEnd(newValue) && samePath) {
                 moverGObj.updateValue(targetGObj.value);
-              }
-              else {
+              } else {
                 moverGObj.updateValue(newValue);
               }
             }
@@ -65703,7 +65701,24 @@
           }
         };
         return step;
+      },
+  
+      // The mover is a point on path, so its dest must be a value.
+      getDest: function getDest() {
+        var target = this.targetGObj,
+            path = this.moverGObj.getParent('path');
+        if (target.isFreePointOnPath && target.getParent('path') === path) {
+          return target.value;  // target is on path; return its value
+        } else {
+          return path.mapPositionToPathValue(target.geom.loc); // not on path; find target's value on path
+        }
+      },
+      
+      getDestLoc: function getDestLoc() {
+        var path = this.moverGObj.getParent("path");
+        return path.mapPathValueToPosition(this.getDest());
       }
+  
     });
   
     /**
@@ -65798,6 +65813,9 @@
          * Creates and returns a new motion given a mover and a target.  If the 
          * motion cannot begin, either because the mover is already at the target
          * or if it's a 'towardInitialDestination' motion, no motion is returned.
+         * If it's a 'towardInitialDestination' motion, we cache the target
+         * location (PointRootsMotion) or the target value (PointOnPathMotion & ParameterMotion).
+         * 
          * 
          * @param {object} mover - the gobject to move
          * @param {object} target - the gobject that the mover is moving towards
@@ -65805,15 +65823,13 @@
          * @return {object} the initialized motion
          */
         function createNewMotion(mover, target) {
-          var cachedDestination,
-              moverOnPath = mover.isFreePointOnPath,
-              path,
+          var cachedDest, // initial target value or location
               motionClass,
               motion;
   
           switch (mover.kind) {
           case 'Point':
-            motionClass = moverOnPath? PointOnPathMotion : PointRootsMotion;
+            motionClass = mover.isFreePointOnPath? PointOnPathMotion : PointRootsMotion;
             break;
           case 'Expression':
             motionClass = ParameterMotion;
@@ -65836,18 +65852,11 @@
               //destination.  We can't do anything.  Just bag out of this motion
               return;
             }
-  
-            cachedDestination = motion.getDestination();
-            if (!moverOnPath) {
-              motion.getDestination = function() {
-                return cachedDestination;
-              };
-            } else { // for moverOnPath, map cachedDestination to the closest point on the path
-              path = mover.parents.path;
-              motion.getDestination  = function() {
-                return path.mapPathValueToPosition(path.mapPositionToPathValue(cachedDestination));
-              };
-            }
+            // Cache the value or location we're moving to.
+            cachedDest = motion.getDest();
+            motion.getDest = function() {
+              return cachedDest;
+            };
           }
   
   
@@ -65915,7 +65924,7 @@
               } else {
                 //parameter motions
                 moverValue = aMotion.moverGObj.value;
-                targetValue = aMotion.getDestination();
+                targetValue = aMotion.getDest();
   
                 if (targetValue !== false) {
                   targetDelta = targetValue - moverValue;
