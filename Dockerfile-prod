@@ -1,4 +1,5 @@
 FROM node:12.16.1-alpine@sha256:5e1a147114839599442784549d04b45821c7b178f7fc09d4ab9853543ae1388e AS appbuild
+RUN npm install -g npm@8.10.0
 USER node
 ENV NODE_PATH=src \
     PORT=1340 \
@@ -28,6 +29,7 @@ RUN cd ./client && node --max-old-space-size=3072 scripts/build.js production
 # make a 2 part Dockerfile in order reduce overall image size of the final prod image
 FROM node:12.16.1-alpine@sha256:5e1a147114839599442784549d04b45821c7b178f7fc09d4ab9853543ae1388e
 RUN apk update && apk upgrade && apk add curl && rm -rf /var/cache/apk/*
+RUN npm install -g npm@8.10.0
 RUN mkdir -p /web/server && mkdir -p /web/client && chown -R node:node /web
 ENV NODE_PATH=src \
     PORT=1340 \
