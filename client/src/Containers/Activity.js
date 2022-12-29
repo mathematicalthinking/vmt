@@ -236,6 +236,7 @@ class Activity extends Component {
             AssignmentComponent={MakeRooms}
             optionsGenerator={createPreviousAssignments}
             firstOption={{ label: 'New Grouping', value: [] }}
+            enableSharedRosters
           />
         );
     }

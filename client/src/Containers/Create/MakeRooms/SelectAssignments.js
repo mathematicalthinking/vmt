@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
+import { Button } from 'Components';
 import classes from './selectAssignment.css';
 
 const SelectAssignments = ({
@@ -14,10 +15,14 @@ const SelectAssignments = ({
   AssignmentComponent,
   optionsGenerator,
   firstOption,
+  enableSharedRosters,
 }) => {
   const [showAssignments, setShowAssignments] = React.useState(false);
   const [selectedAssignment, setSelectedAssignment] = React.useState(
     defaultOption
+  );
+  const [showSharedRostersModal, setShowSharedRostersModal] = React.useState(
+    false
   );
 
   const close = () => {
@@ -75,6 +80,11 @@ const SelectAssignments = ({
             </div>
           </div>
         </div>
+        {showAssignments && enableSharedRosters && (
+          <Button m={10} click={() => setShowSharedRostersModal(true)}>
+            Shared Rosters
+          </Button>
+        )}
       </div>
       {showAssignments && (
         <AssignmentComponent
@@ -84,6 +94,8 @@ const SelectAssignments = ({
           close={close}
           participants={course ? course.members : [member]}
           selectedAssignment={selectedAssignment}
+          shouldShowRosterModal={showSharedRostersModal}
+          closeRosterModal={setShowSharedRostersModal}
         />
       )}
     </Fragment>
@@ -110,11 +122,13 @@ SelectAssignments.propTypes = {
   AssignmentComponent: PropTypes.func.isRequired,
   optionsGenerator: PropTypes.func.isRequired,
   firstOption: PropTypes.shape({}),
+  enableSharedRosters: PropTypes.bool,
 };
 
 SelectAssignments.defaultProps = {
   course: null,
   firstOption: null,
+  enableSharedRosters: false,
 };
 
 export default SelectAssignments;

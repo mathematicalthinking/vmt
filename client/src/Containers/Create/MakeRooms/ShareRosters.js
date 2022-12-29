@@ -1,53 +1,50 @@
-/* eslint-disable no-console */
-/* eslint-disable react/no-did-update-set-state */
-import React, { useState, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import SearchResults from 'Containers/Members/SearchResults';
-import API from 'utils/apiRequests';
-import { Button, InfoBox, Search, Member } from 'Components';
+import React, { Fragment, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { amIAFacilitator } from 'utils';
+import { Button, InfoBox, Member, Search } from 'Components';
 import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
-const AddParticipants = (props) => {
-  const {
-    participants,
-    userId,
-    updateList,
-    close,
-    updateMembersToInvite,
-  } = props;
+const ShareRosters = (props) => {
+  const { participants, userId, updateList, close } = props;
+
+  const userCoursesById = useSelector((state) => state.courses.byId);
+
+  const coursesUserDidNotCreate = Object.values(
+    userCoursesById
+  ).filter((course) => amIAFacilitator(course, userId));
+
+  const coursesByNames = coursesUserDidNotCreate.reduce((acc, curr) => {
+    return { ...acc, [curr.name]: { ...curr } };
+  }, {});
 
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
-
-  const [searchText, setSearchText] = useState('');
+  const [rosterSarchResults, setRosterSearchResults] = useState(
+    Object.keys(coursesByNames)
+  );
   const [newParticipants, setNewParticipants] = useState([]);
 
-  const search = (text) => {
-    if (text.length > 0) {
-      API.search(
-        'user',
-        text,
-        [userId]
-          .concat([...participants].map((p) => p.user._id))
-          .concat(newParticipants.map((p) => p.user._id)) // Exclude myself and already selected members from th search
-      )
-        .then((res) => {
-          const newSearchResults = res.data.results
-            .filter((user) => user.accountType !== 'temp')
-            .sort((a, b) => a.username.localeCompare(b.username));
+  const searchRosters = (text) => {
+    // initial search -- search course names
+    const res = Object.keys(coursesByNames).filter((courseName) =>
+      courseName.includes(text)
+    );
 
-          setInitialSearchResults(newSearchResults);
-          setSearchResults(newSearchResults);
-          setSearchText(text);
-        })
-        .catch((err) => {
-          console.log('err: ', err);
-        });
-    } else {
-      setSearchResults([]);
-      setSearchText(text);
+    if (!res.length) {
+      // search facilitators and return an array of course names containing those facilitators
+      coursesUserDidNotCreate.forEach((course) => {
+        if (
+          course.members.some(
+            (mem) =>
+              mem.role === 'facilitator' && mem.user.username.includes(text)
+          )
+        )
+          res.push(course.name);
+      });
     }
+
+    setRosterSearchResults(res);
   };
 
   const addParticipant = (_id, username) => {
@@ -64,6 +61,13 @@ const AddParticipants = (props) => {
 
     setSearchResults((prevState) =>
       prevState.filter((user) => user._id !== _id)
+    );
+  };
+
+  const addParticipantFromRoster = (courseName) => {
+    console.log(`courseName: ${courseName}`);
+    coursesByNames[courseName].members.forEach((mem) =>
+      addParticipant(mem.user._id, mem.user.username)
     );
   };
 
@@ -97,38 +101,38 @@ const AddParticipants = (props) => {
       .sort((a, b) => a.user.username.localeCompare(b.user.username))
       .concat(facilitators);
     updateList(newList);
-    updateMembersToInvite(newParticipants);
     close();
   };
 
   return (
     <div className={`${classes.ParticipantsContainer}`}>
       <InfoBox
-        title="Add Participants"
+        title="Add Participants From Shared Rosters"
         icon={<i className="fas fa-user-plus" />}
         className={classes.AddParticipants}
       >
+        {/* <div> */}
         <div className={classes.AddParticipants}>
           <Fragment>
             <div style={{ fontSize: '12px' }}>
               <Search
-                data-testid="member-search"
-                _search={search}
-                placeholder="search by username or email"
+                data-testid="roster-search"
+                _search={searchRosters}
+                placeholder="search courses to import rosters from"
               />
             </div>
-            {searchResults.length > 0 && (
-              <SearchResults
-                searchText={searchText}
-                usersSearched={searchResults}
-                inviteMember={addParticipant}
+            {Object.keys(coursesByNames).length > 0 && (
+              <GenericSearchResults
+                itemsSearched={rosterSarchResults}
+                searchText={'searchText'}
+                select={addParticipantFromRoster}
                 className={classes.AddParticipants}
               />
             )}
           </Fragment>
         </div>
       </InfoBox>
-      {newParticipants && (
+      {newParticipants ? (
         <InfoBox title="New Participants" icon={<i className="fas fa-users" />}>
           <div data-testid="members" className={classes.NewParticipants}>
             {newParticipants.map((member) => (
@@ -143,7 +147,8 @@ const AddParticipants = (props) => {
             ))}
           </div>
         </InfoBox>
-      )}
+      ) : null}
+      {/* </div> */}
       <div className={classes.ModalButton}>
         <Button m={5} click={close} data-testid="next-step-assign">
           Cancel
@@ -161,12 +166,4 @@ const AddParticipants = (props) => {
   );
 };
 
-AddParticipants.propTypes = {
-  participants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  userId: PropTypes.string.isRequired,
-  updateList: PropTypes.func.isRequired,
-  close: PropTypes.func.isRequired,
-  updateMembersToInvite: PropTypes.func.isRequired,
-};
-
-export default AddParticipants;
+export default ShareRosters;
