@@ -37,12 +37,17 @@
     <script>// Check if the service worker is supported
       if ('serviceWorker' in navigator) {
         // Listen for the `updatefound` event
-        navigator.serviceWorker.addEventListener('updatefound', () => {
-          // Show an alert to the user
-          alert('A new version of this app is available. Please refresh the page to get the latest version.');
-        });
+        navigator.serviceWorker.getRegistration()
+          .then(registration => {
+            if (registration) {
+              registration.addEventListener('updatefound', () => {
+                // Show an alert to the user
+                alert('A new version of this app is available. Please refresh the page to get the latest version.');
+              });
+            }
+        })
       }
-      </script>
+    </script>
     <div id="root"></div>
   </body>
 </html>
