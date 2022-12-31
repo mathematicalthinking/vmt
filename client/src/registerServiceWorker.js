@@ -39,6 +39,10 @@ function registerValidSW(swUrl) {
               // "Content is cached for offline use." message.
               console.log('Content is cached for offline use.');
             }
+          } else if (installingWorker.state === 'installing') {
+            alert(
+              'There is a new version of VMT available. Your screen will refresh when it is finished installing.'
+            );
           }
         };
       };
