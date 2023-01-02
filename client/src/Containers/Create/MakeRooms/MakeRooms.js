@@ -8,7 +8,6 @@ import { useAppModal, COLOR_MAP } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
-import ShareRosters from './ShareRosters';
 
 const MakeRooms = (props) => {
   const {
@@ -18,8 +17,6 @@ const MakeRooms = (props) => {
     selectedAssignment,
     userId,
     close,
-    shouldShowRosterModal,
-    closeRosterModal,
   } = props;
 
   const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
@@ -147,6 +144,7 @@ const MakeRooms = (props) => {
         ];
       }
     }
+
     // assign any extra participants to other rooms
     participantsToAssign.forEach((participant, idx) =>
       roomsUpdate[idx].members.push(participant)
@@ -377,24 +375,13 @@ const MakeRooms = (props) => {
             userId={userId}
             onSubmit={(newParticipants) => {
               setParticipants(newParticipants);
+              console.log('newParticipants');
+              console.log(newParticipants);
               // handleMembersToInvite(newParticipants);
             }}
             onCancel={() => {
               setShowModal(false);
             }}
-          />
-        </BigModal>
-      )}
-      {shouldShowRosterModal && (
-        <BigModal
-          show={shouldShowRosterModal}
-          close={() => closeRosterModal(false)}
-        >
-          <ShareRosters
-            participants={participants}
-            userId={userId}
-            onSubmit={setParticipants}
-            onCancel={() => closeRosterModal(false)}
           />
         </BigModal>
       )}
@@ -440,8 +427,6 @@ MakeRooms.propTypes = {
   userId: PropTypes.string.isRequired,
   close: PropTypes.func.isRequired,
   participants: PropTypes.arrayOf(PropTypes.shape({})),
-  shouldShowRosterModal: PropTypes.bool.isRequired,
-  closeRosterModal: PropTypes.func.isRequired,
 };
 
 MakeRooms.defaultProps = {
