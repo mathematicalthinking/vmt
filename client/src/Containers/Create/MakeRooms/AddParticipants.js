@@ -9,13 +9,7 @@ import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
-  const {
-    participants,
-    userId,
-    updateList,
-    close,
-    updateMembersToInvite,
-  } = props;
+  const { participants, userId, onSubmit, onCancel } = props;
 
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -96,9 +90,8 @@ const AddParticipants = (props) => {
     const newList = [...prevParticipants, ...newParticipants]
       .sort((a, b) => a.user.username.localeCompare(b.user.username))
       .concat(facilitators);
-    updateList(newList);
-    updateMembersToInvite(newParticipants);
-    close();
+    onSubmit(newList);
+    onCancel();
   };
 
   return (
@@ -145,7 +138,7 @@ const AddParticipants = (props) => {
         </InfoBox>
       )}
       <div className={classes.ModalButton}>
-        <Button m={5} click={close} data-testid="next-step-assign">
+        <Button m={5} click={onCancel} data-testid="next-step-assign">
           Cancel
         </Button>
         <Button
@@ -164,9 +157,8 @@ const AddParticipants = (props) => {
 AddParticipants.propTypes = {
   participants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   userId: PropTypes.string.isRequired,
-  updateList: PropTypes.func.isRequired,
-  close: PropTypes.func.isRequired,
-  updateMembersToInvite: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 export default AddParticipants;
