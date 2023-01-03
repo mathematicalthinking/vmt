@@ -90,9 +90,8 @@ const AssignmentMatrix = (props) => {
                       role="button"
                     >
                       <div className={classes.AliasTooltipContent}>
-                        Add participants. If you are within a Course,
-                        participants added here will be added to the Course
-                        members list.
+                        Add participants either individually or by adding an
+                        entire course list
                       </div>
                     </i>
                   </div>
