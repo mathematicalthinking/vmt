@@ -141,6 +141,7 @@
 
 .AssignmentMatrix {
   max-height: 60vh;
+  min-height: 185px;
   overflow: auto;
   width: 100%;
 }
@@ -213,7 +214,8 @@
 
 .AddParticipants {
   height: 350px;
-  width: 400px;
+  width: 100%;
+  min-width: 450px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -222,7 +224,8 @@
 
 .NewParticipants {
   height: 350px;
-  width: 400px;
+  width: 100%;
+  min-width: 450px;
   overflow-y: auto;
 }
 
@@ -233,7 +236,7 @@
   flex-wrap: wrap;
   align-items: center;
   height: 100%;
-  width: 900px;
+  width: 64vw;
   padding: 15px 20px 0;
   z-index: 0;
 }
@@ -274,4 +277,6 @@
 
 .ModalButton {
   display: flex;
+  justify-content: center;
+  width: 100%;
 }
