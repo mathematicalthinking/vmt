@@ -19,19 +19,16 @@ const AddParticipants = (props) => {
     userCoursesById
   ).filter((course) => amIAFacilitator(course, userId));
 
-  const coursesByNames = coursesUserDidNotCreate.reduce((acc, curr) => {
-    return { ...acc, [curr.name]: { ...curr } };
-  }, {});
-
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [rosterSearchResults, setRosterSearchResults] = useState(
-    Object.keys(coursesByNames)
+    coursesUserDidNotCreate
   );
   const [searchText, setSearchText] = useState('');
   const [rosterSearchText, setRosterSearchText] = useState('');
   const [newParticipants, setNewParticipants] = useState([]);
   const [isAddingParticipants, setIsAddingParticipants] = useState(true);
+  const [addedCourse, setAddedCourse] = useState({});
 
   const search = (text) => {
     if (text.length > 0) {
@@ -62,25 +59,29 @@ const AddParticipants = (props) => {
 
   const searchRosters = (text) => {
     // initial search -- search course names
-    const res = Object.keys(coursesByNames).filter((courseName) =>
-      courseName.includes(text)
-    );
-
-    if (!res.length) {
-      // search facilitators and return an array of course names containing those facilitators
-      coursesUserDidNotCreate.forEach((course) => {
-        if (
-          course.members.some(
-            (mem) =>
-              mem.role === 'facilitator' && mem.user.username.includes(text)
-          )
+    // or search facilitators and return an array of course names containing those facilitators
+    const res = coursesUserDidNotCreate.filter(
+      (course) =>
+        course.name.includes(text) ||
+        course.members.some(
+          (mem) =>
+            mem.role === 'facilitator' && mem.user.username.includes(text)
         )
-          res.push(course.name);
-      });
-    }
+    );
 
     setRosterSearchText(text);
     setRosterSearchResults(res);
+  };
+
+  const generateRosterSearchResults = (courses) => {
+    return courses.map((course) => ({
+      key: course._id,
+      label: course.name,
+      buttonLabel: addedCourse[course._id] ? 'Remove' : 'Add',
+      onClick: addedCourse[course._id]
+        ? removeRosterFromParticipantsList
+        : addParticipantFromRoster,
+    }));
   };
 
   const addParticipant = (_id, username) => {
@@ -100,10 +101,17 @@ const AddParticipants = (props) => {
     );
   };
 
-  const addParticipantFromRoster = (courseName) => {
-    coursesByNames[courseName].members.forEach((mem) =>
-      addParticipant(mem.user._id, mem.user.username)
+  const addParticipantFromRoster = (courseId) => {
+    const courseToAdd = coursesUserDidNotCreate.find(
+      (course) => course._id === courseId
     );
+
+    if (courseToAdd) {
+      courseToAdd.members.forEach((mem) => {
+        addParticipant(mem.user._id, mem.user.username);
+        setAddedCourse((prevState) => ({ ...prevState, [courseId]: true }));
+      });
+    }
   };
 
   const removeMember = (mem) => {
@@ -125,10 +133,23 @@ const AddParticipants = (props) => {
     }
   };
 
+  const removeRosterFromParticipantsList = (courseId) => {
+    const course = coursesUserDidNotCreate.find((c) => c._id === courseId);
+    const courseMembers = course ? course.members : [];
+    const courseMembersIds = courseMembers.map((mem) => mem.user._id);
+    setNewParticipants((prevState) =>
+      prevState.filter((mem) => !courseMembersIds.includes(mem.user._id))
+    );
+    setAddedCourse((prevState) => {
+      const { [courseId]: old, ...others } = prevState;
+      return others;
+    });
+  };
+
   const toggleParticipantsRosters = () => {
     setIsAddingParticipants((prevState) => !prevState);
-    // the following reset the search
-    // currently we save it when toggling
+    // the following reset the searchTexts/searchResults
+    // currently we save searches when toggling
     // setSearchText('');
     // setSearchResults([]);
     // setRosterSearchText('');
@@ -199,11 +220,11 @@ const AddParticipants = (props) => {
                   isControlled
                 />
               </div>
-              {Object.keys(coursesByNames).length > 0 && (
+              {rosterSearchResults && (
                 <GenericSearchResults
-                  itemsSearched={rosterSearchResults}
-                  searchText={rosterSearchText}
-                  select={addParticipantFromRoster}
+                  itemsSearched={generateRosterSearchResults(
+                    rosterSearchResults
+                  )}
                   className={classes.AddParticipants}
                 />
               )}
