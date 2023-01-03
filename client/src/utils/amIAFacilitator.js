@@ -1,6 +1,6 @@
 import { ROLE } from 'constants.js';
 
-export default function amIAFacilitator(resource, currentUserId) {
+export default function amIAFacilitator(resource = {}, currentUserId) {
   if (resource.myRole && Object.values(ROLE).includes(resource.myRole))
     return resource.myRole === ROLE.FACILITATOR;
   if (resource.members)

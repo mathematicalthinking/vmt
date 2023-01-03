@@ -4,24 +4,33 @@ import { uniqueId } from 'lodash';
 import Button from 'Components/UI/Button/Button';
 import classes from './genericSearchResults.css';
 
-function GenericSearchResults({ itemsSearched, select }) {
+function GenericSearchResults({ itemsSearched }) {
   return (
     <ul className={classes.SearchResults}>
       {itemsSearched.map((item) => (
-        <React.Fragment key={uniqueId(item)}>
-          <li key={uniqueId(item)} className={classes.SearchResItem}>
-            {item}
-            <Button click={() => select(item)}>Add</Button>
-          </li>
-        </React.Fragment>
+        <li
+          key={item.key || uniqueId(item.label)}
+          className={classes.SearchResItem}
+        >
+          {item.label}
+          <Button click={() => item.onClick && item.onClick(item.key)}>
+            {item.buttonLabel}
+          </Button>
+        </li>
       ))}
     </ul>
   );
 }
 
 GenericSearchResults.propTypes = {
-  itemsSearched: PropTypes.arrayOf(PropTypes.string).isRequired,
-  select: PropTypes.func.isRequired,
+  itemsSearched: PropTypes.arrayOf(
+    PropTypes.shape({
+      buttonLabel: PropTypes.string,
+      onClick: PropTypes.func,
+      label: PropTypes.string,
+      key: PropTypes.string,
+    })
+  ).isRequired,
 };
 
 export default GenericSearchResults;

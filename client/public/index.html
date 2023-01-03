@@ -34,15 +34,6 @@
       You need to enable JavaScript to run this app.
     </noscript>
     <script src="/env.js"></script>
-    <script>// Check if the service worker is supported
-      if ('serviceWorker' in navigator) {
-        // Listen for the `updatefound` event
-        navigator.serviceWorker.addEventListener('updatefound', () => {
-          // Show an alert to the user
-          alert('A new version of this app is available. Please refresh the page to get the latest version.');
-        });
-      }
-      </script>
     <div id="root"></div>
   </body>
 </html>
