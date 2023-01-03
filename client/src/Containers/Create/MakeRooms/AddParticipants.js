@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import SearchResults from 'Containers/Members/SearchResults';
 import { amIAFacilitator } from 'utils';
 import API from 'utils/apiRequests';
-import { Button, InfoBox, Search, Member, Slider } from 'Components';
+import { Button, InfoBox, Search, Member, ToggleGroup } from 'Components';
 import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
@@ -25,10 +25,11 @@ const AddParticipants = (props) => {
 
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
-  const [rosterSarchResults, setRosterSearchResults] = useState(
+  const [rosterSearchResults, setRosterSearchResults] = useState(
     Object.keys(coursesByNames)
   );
   const [searchText, setSearchText] = useState('');
+  const [rosterSearchText, setRosterSearchText] = useState('');
   const [newParticipants, setNewParticipants] = useState([]);
   const [isAddingParticipants, setIsAddingParticipants] = useState(true);
 
@@ -78,6 +79,7 @@ const AddParticipants = (props) => {
       });
     }
 
+    setRosterSearchText(text);
     setRosterSearchResults(res);
   };
 
@@ -99,7 +101,6 @@ const AddParticipants = (props) => {
   };
 
   const addParticipantFromRoster = (courseName) => {
-    console.log(`courseName: ${courseName}`);
     coursesByNames[courseName].members.forEach((mem) =>
       addParticipant(mem.user._id, mem.user.username)
     );
@@ -124,6 +125,16 @@ const AddParticipants = (props) => {
     }
   };
 
+  const toggleParticipantsRosters = () => {
+    setIsAddingParticipants((prevState) => !prevState);
+    // the following reset the search
+    // currently we save it when toggling
+    // setSearchText('');
+    // setSearchResults([]);
+    // setRosterSearchText('');
+    // setRosterSearchResults(Object.keys(coursesByNames));
+  };
+
   const submit = () => {
     const facilitators = participants.filter(
       (mem) => mem.role === 'facilitator'
@@ -141,18 +152,16 @@ const AddParticipants = (props) => {
   return (
     <div className={`${classes.ParticipantsContainer}`}>
       <InfoBox
-        title="Add Participants"
+        title=""
         icon={<i className="fas fa-user-plus" />}
         className={classes.AddParticipants}
         rightIcons={
-          <Slider
-            action={() => setIsAddingParticipants((prevState) => !prevState)}
-            isOn={!isAddingParticipants}
-            name="addParticipantsSlider"
-            data-testid="addParticipants-slider"
+          <ToggleGroup
+            buttons={['Individuals', 'Shared Rosters']}
+            onChange={toggleParticipantsRosters}
           />
         }
-        rightTitle="Shared Roster"
+        // rightTitle="Shared Roster"
       >
         {isAddingParticipants && (
           <div className={classes.AddParticipants}>
@@ -162,6 +171,8 @@ const AddParticipants = (props) => {
                   data-testid="member-search"
                   _search={search}
                   placeholder="search by username or email"
+                  value={searchText}
+                  isControlled
                 />
               </div>
               {searchResults.length > 0 && (
@@ -184,12 +195,14 @@ const AddParticipants = (props) => {
                   data-testid="roster-search"
                   _search={searchRosters}
                   placeholder="search courses to import rosters from"
+                  value={rosterSearchText}
+                  isControlled
                 />
               </div>
               {Object.keys(coursesByNames).length > 0 && (
                 <GenericSearchResults
-                  itemsSearched={rosterSarchResults}
-                  searchText={searchText}
+                  itemsSearched={rosterSearchResults}
+                  searchText={rosterSearchText}
                   select={addParticipantFromRoster}
                   className={classes.AddParticipants}
                 />

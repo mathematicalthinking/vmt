@@ -376,8 +376,6 @@ const MakeRooms = (props) => {
             userId={userId}
             onSubmit={(newParticipants) => {
               setParticipants(newParticipants);
-              console.log('newParticipants');
-              console.log(newParticipants);
               // handleMembersToInvite(newParticipants);
             }}
             onCancel={() => {
