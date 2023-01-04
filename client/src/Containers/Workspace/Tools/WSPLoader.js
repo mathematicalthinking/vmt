@@ -3,7 +3,7 @@
 
 // callback is called when critical scipts are loaded and sketch can be loaded
 
-const WSPLoader = (callback) => {
+const WSPLoader = (callback, tools = false) => {
   const loadJquery = () => {
     // check for jQuery
     if (window.jQuery) {
@@ -94,14 +94,37 @@ const WSPLoader = (callback) => {
       link.id = 'widgetscss';
       link.onload = () => {
         console.log('Loaded Widgets...');
-        // finally load the widgets and fire the ready callback
-        console.log('Core WSP assets loaded: Ready to create script!');
-        callback();
+        if (tools) {
+          loadTools();
+        } else {
+          // finally load the widgets and fire the ready callback
+          console.log('Core WSP assets loaded: Ready to create script!');
+          callback();
+        }
       };
       document.body.appendChild(script);
       document.body.appendChild(link);
     };
     document.body.appendChild(script1);
+  };
+
+  const loadTools = () => {
+    if (document.getElementById('wsptools')) {
+      console.log('tools.js found');
+      console.log('Core WSP assets loaded: Ready to create script!');
+      callback();
+    } else {
+      const script = document.createElement('script');
+      script.src = '/WSPAssets/tools.js';
+      script.id = 'wsptools';
+      script.type = 'text/javascript';
+      script.onload = () => {
+        console.log('Loaded tools.js... ');
+        console.log('Core WSP assets loaded: Ready to create script!');
+        callback();
+      };
+      document.body.appendChild(script);
+    }
   };
 
   // initiate load sequence
