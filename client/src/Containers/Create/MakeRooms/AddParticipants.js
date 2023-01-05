@@ -62,7 +62,7 @@ const AddParticipants = (props) => {
     // or search facilitators and return an array of course names containing those facilitators
     const res = coursesUserDidNotCreate.filter(
       (course) =>
-        course.name.includes(text) ||
+        course.name.includes(text.toLowerCase()) ||
         course.members.some(
           (mem) =>
             mem.role === 'facilitator' && mem.user.username.includes(text)
