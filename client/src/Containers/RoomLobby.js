@@ -153,7 +153,9 @@ class Room extends Component {
     }
     if (
       prevProps.room &&
+      prevProps.room.members &&
       room &&
+      room.members &&
       prevProps.room.members.length !== room.members.length
     ) {
       this.checkAccess();
@@ -391,7 +393,7 @@ class Room extends Component {
               editing={editing}
               name="dueDate"
             >
-              {dueDate || 'Not Set'}
+              {dueDate || null}
             </EditText>
           </Error>
         ),
