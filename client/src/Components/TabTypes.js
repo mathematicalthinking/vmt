@@ -6,6 +6,11 @@ import {
   DesmosGraph,
   DesmosActivity,
 } from 'Containers/Workspace';
+import {
+  GgbReplayer,
+  DesActivityReplayer,
+  DesmosReplayer,
+} from 'Containers/Replayer';
 import ggbIcon from 'assets/geogebra.png';
 import dsmIcon from 'assets/desmos.png';
 import dsmActIcon from 'assets/desmosActivity.png';
@@ -54,16 +59,19 @@ const tabTypeProperties = {
   [TAB_TYPES.GEOGEBRA]: {
     label: 'GeoGebra',
     component: GgbGraph,
+    replayer: GgbReplayer,
     icon: <img width={28} src={ggbIcon} alt="GeoGebra Icon" />,
   },
   [TAB_TYPES.DESMOS]: {
     label: 'Desmos',
     component: DesmosGraph,
+    replayer: DesmosReplayer,
     icon: <img width={25} src={dsmIcon} alt="Desmos Icon" />,
   },
   [TAB_TYPES.DESMOS_ACTIVITY]: {
     label: 'Desmos Activity',
     component: DesmosActivity,
+    replayer: DesActivityReplayer,
     icon: <img width={25} src={dsmActIcon} alt="Desmos Activity Icon" />,
   },
   multiple: { icon: <img width={25} src={bothIcon} alt="Multiple Types" /> },
@@ -157,18 +165,22 @@ RadioButtons.defaultProps = {
   checked: null,
 };
 
-function Mathspace({ type, ...otherProps }) {
+function MathspaceComponent(property, { type, ...otherProps }) {
   try {
-    const { component: MathspaceComponent } = tabTypeProperties[type];
-    return <MathspaceComponent {...otherProps} />;
+    const { [property]: MathSpaceComp } = tabTypeProperties[type];
+    return <MathSpaceComp {...otherProps} />;
   } catch (err) {
+    console.log(err);
     return null;
   }
 }
+function Mathspace(props) {
+  return MathspaceComponent('component', props);
+}
 
-Mathspace.propTypes = {
-  type: PropTypes.string.isRequired,
-};
+function MathspaceReplayer(props) {
+  return MathspaceComponent('replayer', props);
+}
 
 const TabTypes = {
   isActive,
@@ -176,6 +188,7 @@ const TabTypes = {
   getCombinedIcon,
   getIcon,
   Mathspace,
+  MathspaceReplayer,
   RadioButtons,
   Buttons,
   ...TAB_TYPES,

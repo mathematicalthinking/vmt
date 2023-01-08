@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import classes from './slider.css';
-// import Aux from '../../HOC/Auxil';
 import EventDesc from './EventDesc/EventDesc';
 
 class Slider extends Component {
@@ -81,7 +80,7 @@ class Slider extends Component {
       const percentFromStart = (entry.relTime / duration) * 100;
       return (
         <EventDesc
-          key={entry.relTime}
+          key={entry._id}
           color={color}
           offset={percentFromStart}
           entry={entry}
@@ -120,7 +119,7 @@ class Slider extends Component {
 
 Slider.propTypes = {
   progress: PropTypes.number.isRequired,
-  log: PropTypes.arrayOf(PropTypes.object).isRequired,
+  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   duration: PropTypes.number.isRequired,
   goToTime: PropTypes.func.isRequired,
 };
