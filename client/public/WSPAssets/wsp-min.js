@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221219154059
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221220172439
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -7298,7 +7298,7 @@ var hexcase = 0,
                   .replace('·', '*')
                   .replace('−', '-')
                   .replace('ƒ', 'f')
-                  .replace(' ', '');
+                  .replace(' ', '');
               }
               for (var s = [], a = 0; a < t.length; a++) s.push(r(n(t.eq(a))));
               return s.join('');
@@ -16888,7 +16888,7 @@ var hexcase = 0,
         }),
           (o.mfs.getNodeText = function(e) {
             var t = e.value,
-              n = ' ';
+              n = ' ';
             return 'symbol' === e.type
               ? o.mfs.symMap[t.toUpperCase()] || 'x'
               : ('text' === e.type &&
@@ -42559,9 +42559,7 @@ var hexcase = 0,
                 : ((this.wasAtTarget = !1), (this.isAtTarget = !1));
             },
             canKeepMoving: function() {
-              return (
-                this.moverGObj.state.exists && !1 !== this.getDestination()
-              );
+              return this.moverGObj.state.exists && !1 !== this.getDest();
             },
             applyMotion: function() {
               var e,
@@ -42610,14 +42608,10 @@ var hexcase = 0,
           i = o.makeClass(e, {
             initializeDistance: function() {
               var e = this.moverGObj,
-                t = this.getDestination();
-              this.getDestination()
+                t = this.getDestLoc();
+              t
                 ? (this.distance = t.subtract(e.geom.loc).vLength())
                 : (this.distance = 10);
-            },
-            getDestination: function() {
-              var e = this.targetGObj.geom.loc;
-              return e.isDefined() && e;
             },
           }),
           r = o.makeClass(e, {
@@ -42625,7 +42619,7 @@ var hexcase = 0,
               (e.base || arguments.callee.base).call(this),
                 (this.isValueChangingMotion = !0);
             },
-            getDestination: function() {
+            getDest: function() {
               return this.targetGObj.blank
                 ? this.isInstant()
                   ? 'blank'
@@ -42642,7 +42636,7 @@ var hexcase = 0,
             },
             getStep: function() {
               var e = this.moverGObj,
-                t = this.getDestination(),
+                t = this.getDest(),
                 n = t - e.value,
                 i = 0 > n ? -1 : 1,
                 r = 0 === n,
@@ -42665,7 +42659,7 @@ var hexcase = 0,
             getStep: function() {
               var e = 1e-12,
                 t = this.moverGObj.geom.loc,
-                n = this.getDestination().subtract(t),
+                n = this.getDest().subtract(t),
                 i = n.vLength(),
                 r = this,
                 s = {
@@ -42694,38 +42688,40 @@ var hexcase = 0,
                 };
               return s;
             },
+            getDestLoc: function() {
+              return (
+                this.targetGObj.geom.loc.isDefined() && this.targetGObj.geom.loc
+              );
+            },
+            getDest: function() {
+              return this.getDestLoc();
+            },
           }),
           a = o.makeClass(i, {
             getStep: function() {
               function e(e) {
-                var t = l.mapPathValueToPosition(e),
-                  n = o;
-                return (
-                  a ||
-                    (n = l.mapPathValueToPosition(l.mapPositionToPathValue(o))),
-                  t.equals(n, c)
-                );
+                var t = c.mapPathValueToPosition(e);
+                return t.equals(o, a);
               }
               var t,
                 n,
                 i,
                 r = this.moverGObj,
                 s = this.targetGObj,
-                o = this.getDestination(),
-                a = this.button.towardInitialDestination,
-                c = 0.05,
-                l = r.getParent('path'),
-                u = r.value,
-                d = l.mapPositionToPathValue(o),
-                h = l.makeMotionPath(u, d);
+                o = this.getDest(),
+                a = 0.05,
+                c = r.getParent('path'),
+                l = r.value,
+                u = c.mapPositionToPathValue(o),
+                d = c.makeMotionPath(l, u);
               return (
-                (i = e(u)),
+                (i = e(l)),
                 (n = {
                   isAlreadyThere: i,
                   move: function(n) {
                     return (
                       i ||
-                        ((t = 0 === n ? h.end : h.advance(n)),
+                        ((t = 0 === n ? d.end : d.advance(n)),
                         r.updateValue(
                           e(t) &&
                             'PointOnPath' === s.constraint &&
@@ -42738,6 +42734,13 @@ var hexcase = 0,
                   },
                 })
               );
+            },
+            getDest: function() {
+              return this.targetGObj.value;
+            },
+            getDestLoc: function() {
+              var e = this.moverGObj.getParent('path');
+              return e.mapPathValueToPosition(this.getDest());
             },
           });
         o.gConstraints.ActionButtonMove = o.makeClass(
@@ -42801,17 +42804,13 @@ var hexcase = 0,
             },
             press: function(e, n) {
               function i(i, c) {
-                var l,
-                  u,
-                  h,
-                  p,
-                  f = i.isFreePointOnPath;
+                var l, u, h;
                 switch (i.kind) {
                   case 'Point':
-                    h = f ? a : s;
+                    u = i.isFreePointOnPath ? a : s;
                     break;
                   case 'Expression':
-                    h = r;
+                    u = r;
                     break;
                   default:
                     throw o.createError(
@@ -42819,33 +42818,26 @@ var hexcase = 0,
                     );
                 }
                 if (
-                  ((p = o.makeInstance(h)),
-                  t.extend(p, {
+                  ((h = o.makeInstance(u)),
+                  t.extend(h, {
                     moverGObj: i,
                     targetGObj: c,
                     sketch: e,
                     button: d,
                     pressSource: n,
                   }),
-                  p.init(),
+                  h.init(),
                   d.towardInitialDestination)
                 ) {
-                  if (!p.targetGObj.state.exists) return;
-                  (l = p.getDestination()),
-                    f
-                      ? ((u = i.parents.path),
-                        (p.getDestination = function() {
-                          return u.mapPathValueToPosition(
-                            u.mapPositionToPathValue(l)
-                          );
-                        }))
-                      : (p.getDestination = function() {
-                          return l;
-                        });
+                  if (!h.targetGObj.state.exists) return;
+                  (l = h.getDest()),
+                    (h.getDest = function() {
+                      return l;
+                    });
                 }
-                return p.moverGObj.state.exists &&
-                  (p.initializeDistance(), 0 !== this.distance)
-                  ? p
+                return h.moverGObj.state.exists &&
+                  (h.initializeDistance(), 0 !== this.distance)
+                  ? h
                   : void 0;
               }
               var c,
@@ -42889,7 +42881,7 @@ var hexcase = 0,
                       : 'Point' === i.targetGObj.kind
                       ? (i.rate = i.distance / u)
                       : ((r = i.moverGObj.value),
-                        (s = i.getDestination()),
+                        (s = i.getDest()),
                         s !== !1
                           ? ((a = s - r), (i.rate = a / u))
                           : (i.rate = 100 / u)),

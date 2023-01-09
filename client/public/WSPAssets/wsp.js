@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.home/20221228162701
+  Version: Release: 2020Q3, semantic Version: 4.9.0, Build Number: 1075, Build Stamp: stek-macbook-pro.fios-router.home/20211111113652
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -7237,11 +7237,11 @@
        * These will be filled in at build time.
        */
       version: {
-        number: "4.8.0",
+        number: "4.9.0",
         major: "4",
-        minor: "8",
+        minor: "9",
         patch: "0",
-        build: "1077",
+        build: "1075",
         release: "2020Q3"
       },
   
@@ -7382,48 +7382,7 @@
                       "data" : data});
       },
       
-      /**
-       * Polyfill substitute for optional chaining. Instead of val = obj?.obj1?.obj2?.obj3.obj4,
-       * we can write val = GSP._get(obj, 'obj1.obj2.obj3.obj4'), which will return either
-       * the value of obj.obj1.obj2.obj3.obj4 or undefined if any piece of the path is invalid
-      */
-      _get: function(obj, path) {
-        var parts = path.split && path.split('.');
-        if (!obj || !parts) return; // undefined
-        while (obj && parts.length) {
-          obj = obj[parts.shift()];
-        }
-        return (obj && parts.length === 0) ? obj : undefined;
-      },
-  
-      /**
-       * Partner function to _get()
-       * If we want to accomplish "obj.obj1.obj2.obj3.obj4 = 'hello';"
-       * but we don't know whether obj1, obj2, obj3, and obj4 exist,
-       * and we want to create any that don't yet exist,
-       * we can write GSP._put(obj, 'obj1,obj2.obj3.obj4', 'hello'),
-       * and obj1, obj2, obj3, and obj4 will be created if necessary.
-       * The value of obj4 will be 'hello'
-       * return value is the last path element (obj4 in this example)
-      */
-      _put: function(obj, path, value) {
-        var parts = path.split && path.split('.'),
-            subPath;
-        if (!obj || !parts) return;
-        while (obj && parts.length) {
-          subPath = parts.shift();
-          if (!obj[subPath]) {
-            obj[subPath] = {};
-          }
-          if (!parts.length) {
-            obj[subPath] = value;
-          } else {
-            obj = obj[subPath];
-          }
-        }
-        return obj[subPath];
-      },
-        
+    
     /**
      * Class construction utility.
      *
@@ -8299,10 +8258,10 @@
           numpadCt = 0,   // The index of numeric keypads. Keypads are created
                           // as needed and assigned a unique index.
           keyMap = {      // Maps modified keycodes to names. Modified keycodes
-                          // incorporate which modifier keys are also active
+                          // incorporate which modifier keys are also actie
               '8': 'backspace',
               // '9': 'tab', // Remove by magic, it cause problem with screen reader tab key navigation
-              // '13': 'submit', // sumbit needs special handling - for accessibility, generally 'enter' means activate current button.
+              // '13': 'submit', // Remove by magic, reason: when user press enter on any number it's not working.
               '27': 'esc',
               '32': 'space',
               '33': 'pageup',
@@ -8349,7 +8308,7 @@
               '105': '9',
               '106': 'star',
               '107': 'plus',
-              //'108': 'submit',
+              // '108': 'submit', // Remove by magic, reason: when user press enter on any number it's not working.
               '109': 'minus',
               '110': 'dot',
               '111': 'slash',
@@ -8722,13 +8681,6 @@
   
                 var numpadRegime =
                   GSP.NumpadEditRegime.createWithGObj(gobj);
-                  
-                gobj.sQuery.sketch.event("EditExpression",
-                    { gobj: gobj},
-                    { action: 'Started',
-                      value: gobj.value,
-                      expression: this.text
-                    });
   
   
                 this.gobj.sQuery.sketch.pushTouchRegime(numpadRegime);
@@ -8782,8 +8734,7 @@
         NumfieldEditor.prototype.finishEditing = function () {
           var gobj = this.gobj,
               oldValue = gobj.value,
-              reason = this.closeReason,
-              canceled = reason === 'changesNotAccepted';
+              reason = this.closeReason;
               // reason is changesAccepted, changesNotAccepted, or undefined.
               // changesNotAccepted indicates user choice to cancel or press escape.
               // changesAccepted indicates user choice is OK or return key.
@@ -8799,25 +8750,20 @@
   
           //Sanity check to make sure gobj is still around
           if (!gobjIsInSketch()) return;
-          if (canceled) {
+  
+          gobj.state.selected=false;
+          if (reason === "changesNotAccepted") {
             this.text = oldValue.toString();
-          }
-          gobj.setEditedValue(this.text); 
-          gobj.state.selected = false;
-          if (gobj.value === oldValue) {
-            this.gobj.sQuery.sketch.event("EditExpression",
-                { gobj: this.gobj},
-                { action: 'Canceled'
-                });
-          } else {
-            this.gobj.sQuery.sketch.event("EditExpression",
-                { gobj: this.gobj},
-                { action: 'Confirmed',
-                  oldValue: oldValue,
-                  expression: this.text,
-                  newValue: this.gobj.value
-                });
-          }
+          } 
+          this.gobj.setEditedValue(this.text);
+  
+          this.gobj.sQuery.sketch.event("EditParameter",
+                                        { gobj: this.gobj},
+                                        {
+                                          oldValue: oldValue,
+                                          expression: this.text,
+                                          newValue: this.gobj.value
+                                        });
           if (this.calculatorDidClose) this.calculatorDidClose(reason);
           delete this.closeReason;  // restore initial editor state
         };
@@ -9098,38 +9044,13 @@
      * and push a new touch regime for back-clicking.
      */
     CalculatorEditor.prototype.prepare = function() {
-        var editor = this,
-            gobj = this.gobj,
-            sketch = gobj.sQuery.sketch;
+        var editor = this;
   
         editor.finishEditing = function () {
-          console.log('finishEditing called for ', gobj, editor);
-          var parentIds = [];
-          editor.cleanupCalculatorState();
-          if (editor.closeReason === 'changesAccepted') {
-            gobj.parentsList.forEach(function (par) {
-              parentIds.push(par.id);
-            });
-            sketch.event("EditExpression",
-                { gobj: gobj},
-                { action: 'Confirmed',
-                  infix: gobj.parsedInfix,
-                  expressionType: gobj.expressionType,
-                  expression: gobj.expression,
-                  functionExpr: gobj.functionExpr,
-                  parentIds: parentIds
-                  // This may differ for a calculation!!
-                }
-            );
-          } else {
-            sketch.event("EditExpression",
-                { gobj: gobj},
-                {action: 'Canceled'}
-            );
-          }
-          if (editor.calculatorDidClose) {
-            editor.calculatorDidClose(editor.closeReason || "changesNotAccepted");
-          }
+            editor.cleanupCalculatorState();
+            if (editor.calculatorDidClose) {
+              editor.calculatorDidClose(editor.closeReason || "changesNotAccepted");
+            }
           editor.closeReason = null;
         };
   
@@ -9148,17 +9069,11 @@
         var backClickRegime =
               GSP.BackClickRegime.createWithEditor(editor);
   
-    
         backClickRegime.delegate = editor;
         editor.gobj.sQuery.sketch.pushTouchRegime(backClickRegime);
         editor.touchRegime = backClickRegime;
   
         editor.gobj.sQuery().sketch.document.changedUIMode();
-        
-        editor.gobj.sQuery.sketch.event("EditExpression",
-            {gobj: editor.gobj},
-            {action: 'Started'}
-        );
       };
   
       /* Touch regime delegate implementation */
@@ -9511,10 +9426,10 @@
           // mathquill uses fancy symbols, but we need plain ones for
           // the infix parser.
           function fixUp(val) {
-            return val.replace("\u22C5", '*')  // dot operator
-              .replace('\u00B7', '*')  // middle dot
-              .replace('\u2212', '-')  // minus sign
-              .replace('\u0192', 'f')  // small f with hook (function)
+            return val.replace('·', '*')
+              .replace("⋅", '*')
+              .replace('\u2212', '-')
+              .replace('\u0192', 'f')
               .replace('\xa0', ''); // space
           }
           var ret = [];
@@ -10074,7 +9989,7 @@
               separator(),
               mkIndependentVariableOption(),
               separator(),
-              mkOption("pi", "\u03C0", true),
+              mkOption("pi", "π", true),
               mkOption("e", "e", true)
             ]).addClass('wsp-Calculator-topmost-select-for-insert'),
             selectFunction = forInsert(select("functions", "Functions", [
@@ -10335,8 +10250,8 @@
             var self = this;
               if (this.hasVFocus) {
                   this.numpad.editor.unsetCursor();
-                  this.hasVFocus = false; // do this before calling finishEditing, which otherwise generates a recursive call to vBlur
                   this.numpad.editor.finishEditing();
+                  this.hasVFocus = false;
                   // hide the number pad
                   setTimeout(function() {
                     self.editedEl.focus();
@@ -10418,22 +10333,12 @@
           $(document).on('keydown keyup', function (ev) {
               var ctl = getFocusedCtl(),
                   numpad, keyString, keyName;
-  
-              var inCalc = isInCalculator($(ev.target));
               //console.log('event: ' + ev.type + ' code: ' + code);
             if (!ctl) return;
-            if (ctl.isModalController && !inCalc) return;
+            if (ctl.isModalController && !isInCalculator($(ev.target))) return;
             numpad = ctl.numpad;
             keyString = composeKeyString(ev);
             keyName = keyMap[keyString];
-  
-            // Numpad as part of accessibility doesn't support generic handling of enter = submit,
-            // since enter means 'activate current button'. Calculator isn't yet accessibile.
-            if(!keyName && inCalc) {
-              if(keyString === '13') {
-                keyName = 'submit';
-              }
-            }
   
             if (keyName) {
               ev.preventDefault();
@@ -10449,14 +10354,14 @@
   
           function getNumberPadParentElement() {
             // Interpolated at build time
-            var $existing = $('body > .wsp-Numpads.wsp-version-4-8-0');
+            var $existing = $('body > .wsp-Numpads.wsp-version-4-9-0');
   
             if ($existing.length) {
               return $existing;
             }
   
             return $('<div/>')
-              .addClass('wsp-Numpads wsp-version-4-8-0')
+              .addClass('wsp-Numpads wsp-version-4-9-0')
               .appendTo($('body'));
           }
   
@@ -10521,17 +10426,13 @@
         "WillUndoRedo",
         "UndoRedo",
         "WillPlayTool",
-        "ToolPlayBegan",
         "ToolPlayed",
         "ToolAborted",
         "StartSketchFrame",
         "EndSketchFrame",      
         "StartDrag",
-        "StartDragConfirmed",
         "MoveDrag",
         "EndDrag",
-        "EndLabelDrag",
-        "MergeGobjs",
         "StartAnimate",
         "EndAnimate",
         "StartMove",
@@ -10545,27 +10446,22 @@
         "MoveScroll",
         "EndScroll",
         "PressButton",
-        "EditExpression",  // handles all editing of params, calcs, and functions.
-        // "ChangeStyle", use "StyleWidget" instead
-        "ClearTraces",
-        "StyleWidget",
-        "TraceWidget",
-        "LabelWidget", 
-        "VisibilityWidget",
-        "DeleteWidget",
-        "PrefChanged"
-        // When committing event names, make sure changes are documented in documentation/Document/document-event.html
+        "EditParameter",
+        "ChangeStyle",
+        "ChangeTraceStatus",
+        "ChangeLabel", 
+        "ChangeVisibility",
+        "DeleteGObjs",
+        "MergeGObjs"
       ],
   
       /**
        * Notify event listeners that the event has been triggered.
        * @param  {String}  message -- event name, e.g. 'UnloadFocusPage'
        * @param  {Object}  context -- additional arguments to be passed along to handler about the situation in which
-       *                   this event fired.Objects (such as a sketch or sketch gobj) are permitted here.
-       * @param  {Object}  attributes -- additional arguments to be passed along to handler, either in string form
-       *                   or arguments that can be stringified (e.g. a gobj.id rather than the gobj itself).
-       * The context is not suitable for external use; data that might be needed by external clients must be
-       * in attributes, in a form that can be stringified.
+       *                   this event fired.
+       * @param  {Object}  attributes -- additional arguments to be passed along to handler, usually string form
+       *                   of data to be stored, e.g. date string instead of date object.
        */
       trigger: function(message, context, attributes) {
         var eventName = message + ".WSP",
@@ -12084,21 +11980,9 @@
         
         delete this.gobjects[toMerge.id];
         
-        // If toMerge has parents, remove toMerge from their lists of children.
-        // The original code lacked this, perhaps because this function served
-        // only to merge a tool's givens (which have no parents) to existing
-        // sketch objects. Now that constructibleGiven objects can be merged,
-        // such objects need to be removed from their parents' lists of children.
-        // Do this before calling mergeToNode, since that function normalizes
-        // gobj.topologicalIndex based on gobj's parents and children.
-        if (toMerge.parentsList) {
-          toMerge.parentsList.forEach (function(parent) {
-            var ix = parent.children.indexOf (toMerge);
-            if (ix >= 0) {
-               parent.children.splice (ix, 1);
-            }
-         });
-        }
+  // In earlier code, this function removed the parents of gobj to handle a gobj
+  // that was a constructibleGiven. This is no longer needed; givenParents are now deleted
+  // along with their constructibleGivens.
         
         GSP.ObjectGraph.mergeToNode(this.constraintList, gobj, toMerge);
         
@@ -13311,20 +13195,43 @@
         constraint = specObj.constraint,
         constraintObj = GSP.getConstraintObj( constraint),
         newGObj, gobjProto,
+  /*      protoKeys, key, ix, */
         supportedKind = kindObj && kindObj.kindSupportsSpecObj(specObj, specObjs),
         supportedConstraint = constraintObj && constraintObj.constraintSupportsSpecObj(specObj, specObjs);
   
-    if(!supportedKind) {
-      GSP.log("GObject " + id + " has undefined kind: \""
-          + specObj.kind + "\"");
+  /*      
+    function deleteProtoDupes (key, proto, spec) {
+      // If proto[key] and spec[key] are both values, delete the former.
+      // If proto[key] has properties, recursively check them
+      // What happens if proto.geom === {loc: {x: 3, y: 2}} and spec.geom = {x: 5, y: 4}?
+      var protoKey = proto[key],
+          specKey = spec[key],
+          subKeys, sx, sKey;
+      if (protoKey && specKey) {  // if both exist...
+        subKeys = Object.keys (protoKey);
+        sx = subKeys.length;
+        if (sx) {
+          while (sx--) {  // while protoKey has properties of its own...
+            sKey = subKeys[sx];
+            if (specKey.hasOwnProperty (sKey)) {
+              deleteProtoDupes (sKey, protoKey, specKey);  // process those properties
+            }
+          }
+        } else {  // protoKey has only a value, no properties
+          delete proto[key];  // delete the duplicate to avoid confusion
+        }
+      }
+    }
+  */
+  
+    if (!supportedKind) {
+      GSP.log("GObject " + id + " has undefined kind: \"" + specObj.kind + "\"");
       kind = 'Unknown'; // Fallback to root class
       constraint = 'Unknown'; // Fallback to root class
     }
   
     else if(!supportedConstraint) {
-      GSP.log("GObject " + id + " has undefined constraint: \""
-          + specObj.constraint + "\"");
-  
+      GSP.log("GObject " + id + " has undefined constraint: \"" + specObj.constraint + "\"");
       if (kindObj.doc.defaultConstraint) {
         constraint = kindObj.doc.defaultConstraint;
       } else {
@@ -13334,6 +13241,20 @@
     }
   
     gobjProto = GSP.gobjPrototype(kind, constraint);
+    
+  /*
+    // Remove from gobjProto any attributes explicitly set in specObj
+    // Such prototype attributes can cause confusion when merging and splitting objects.
+    // Use keys() to check only own properties of gobjProto
+    protoKeys = Object.keys(gobjProto);
+    ix = protoKeys.length;
+    while (ix--) {
+      key = protoKeys[ix];
+      if (specObj.hasOwnProperty(key)) {
+        deleteProtoDupes (key, gobjProto, specObj);
+      }
+    }
+  */
   
     newGObj = GSP.makeInstance(gobjProto, specObj, {'doc': true});
     newGObj.id = id;
@@ -13401,7 +13322,7 @@
     //Both the original and new must have it stripped to prevent
     //the diff tool from writing out anything related to debug.
     function needsGeom(gobj) {
-      return true; // TBD Fix this: has bugs - (measuerments, composite text). Needs a more general solution
+      return true; // TBD Fix this: has bugs - (measurements, composite text). Needs a more general solution
      // return gobj.constraint === 'Free' || gobj.constraint === 'PictureFree' || gobj.kind === 'Button';
     }
   /* SS: Here's a proposed strategy for the fix, so that we can strip unneeded geom properties.
@@ -14020,11 +13941,11 @@
       }
   
     DocumentPrototype = {
-  
+          
       // given a DOM node where the document will live,
       // attach ourselves to it.
       attachToNode: function(node) {
-        var versionCSS = 'wsp-version-4-8-0',
+        var versionCSS = 'wsp-version-4-9-0',
           $node = $(node),
           self = this,
           docWidth = self.docSpec.metadata.width,
@@ -14963,6 +14884,13 @@
               'delta': delta
             });
       },
+      
+      undoRedoButtonVisible: function () {  // return true if visible, false if not
+        var selector = this.hasTools() ? ".wsp-undo-redo" : ".wsp-undo-redo-container",
+            elem = $(selector)[0];
+        return elem && elem.offsetHeight > 0 && elem.offsetWidth > 0;
+      },
+  
       setUndoButtonStates: function() {
         var $undoRedo,
             canUndo = this.canUndo(),
@@ -15876,10 +15804,6 @@
        * Applies constraints to each gobject instance in topological sort order.
        * Basically, this gives the gobject instances a chance to correct their
        * state in response to events that have been processed for their parents.
-       * For some parents, changes to their geometry affects children.
-       * But for value-based parents, only the value, not the geometry, affects children.
-       * Such parents (dragged parameters, calculations, measurements, functions, buttons)
-       * do not cause their children to be reconstrained.
        */
       constrain: function () {
         if (this.state === "stopped") {
@@ -15892,8 +15816,8 @@
           var i, parentGObj;
           for( i = 0 ; i < gobj.numParents(); i++) {
             parentGObj = gobj.parentsList[i];
-            if (parentGObj.state.constraintFrame > gobj.state.constraintFrame) {
-              // parent has changed in a way that affects descendants
+  
+            if( parentGObj.state.constraintFrame > gobj.state.constraintFrame) {
               gobj.state.constraintFrame = parentGObj.state.constraintFrame;
               // Invalidating an object invalidates its previous (last-rendered) bounds.
               sketch.invalidateRect( sketch.renderRefCon.renderBounds[gobj.id]);
@@ -15906,7 +15830,7 @@
         function constrainOneGObj(index, gobj, sketch) {
           var id, dc;
           try {
-            if (gobj.state.constraintFrame >= sketch.constraintFrame && gobj.checkParentsExist()) {
+            if ((gobj.state.constraintFrame >= sketch.constraintFrame) && gobj.checkParentsExist()) {
               gobj.constrain(sketch);
               // Constraining an object invalidates its current (to-be-rendered) bounds
               if( !gobj.style.hidden) {
@@ -15998,31 +15922,16 @@
        * Marks the geometry of the gobject as out of date,
        * with accompanying sketch-wide side-effects.
        * @param {Object} gobj -- the GObj whose geometry is to be invalidated
-       * @param {String} source -- optional: pass 'drag' if gobj is being dragged
        * @return {GSP.Sketch} the sketch
        */
-      invalidateGeom: function(gobj, source) {
-        
-        function dragConstrains(gobj) { // Identify gobjs that affect their progeny when dragged
-          // We test by checking against the shorter list of ones that don't
-          // A code improvement would be to have a dragDoesntConstrain flag in the gobj constructors.
-          return  !(GSP.isParameter(gobj) ||
-                    GSP.isCalculation(gobj) ||
-                    gobj.isOfKind("Measure") ||
-                    gobj.isOfKind("Button") ||
-                    gobj.isOfKind("Text") ||
-                    gobj.isOfKind("Expression"));
-        }
-        
-        if (gobj) {
-          if (source !== 'drag' || dragConstrains(gobj)) {
-            gobj.state.constraintFrame = this.constraintFrame;
-          }
+      invalidateGeom: function(gobj) {
+        if( gobj) {
+          gobj.state.constraintFrame = this.constraintFrame;
           this.invalidateAppearance(gobj);
         }
         return this;
       },
-      
+  
       /**
         Notify client/container that a particular event has occurred.
         Currently forwards to GSP.event() but may notify differently at some point.
@@ -16038,8 +15947,7 @@
         context.sQuery = this.sQuery;
   
         if( context.gobj) {
-          // if this event has a gobj, send its id (which can be stringified) in attributes 
-          attributes.gobjId = context.gobj.id;
+          attributes.gObjectId = context.gobj.id;
         }
   
         if( context.touch) {
@@ -16507,7 +16415,6 @@
         this.traces.saturation = 0;
         this.traces.appliedAlpha = 1.0;
         this.traces.fadeStartTime = 0;
-        this.event( 'ClearTraces', {document: this});    
       },
   
   
@@ -16570,8 +16477,7 @@
       
       _fadeTracesJob: null,
       
-      startFadeJob: function (restart) { // Starts the fade job if it's not already running
-        // clients (e.g., VMT) may need to force starting from scratch after traces are cleared.
+      startFadeJob: function () { // Starts the fade job if it's not already running
         var sketch = this,
             options = {
               repeat: true,
@@ -16580,7 +16486,7 @@
               }
             };
         this.traces.saturation = 1.0;
-        if (this.traces.appliedAlpha < this.preferences.fadeSaturationFloor || restart) {
+        if (this.traces.appliedAlpha < this.preferences.fadeSaturationFloor) {
           this.traces.appliedAlpha = 1.0;
           this.traces.fadeStartTime = Date.now();
         }
@@ -17669,7 +17575,8 @@
         var sketch = this,
             list = sketch.gobjList,
             commonChildren = [],  // array of gobjs that have both mergeGobj and candidate as parents.
-            session;
+            labelState,
+            regime, generatedLabels, childToSkip;
   
         /* When two objects are merged during toolplay, it's often the case that they have children that
          * should also be merged; otherwise we end up with (for instance) multiple segments from A to B.
@@ -17701,7 +17608,9 @@
                 child2 = gobj.children[j];
                 if (child1 !== child2 && child1.constraint === child2.constraint  // Consider only distinct gobjs with the same constraint 
                           && child1.canMergeTo && child1.canMergeTo (child2)) { // canMergeTo must exist and return true
+  console.log ("merging ", child2.id, child2.genus, child2.style.hidden, "(", child2.parents, ") to ", child1.id, child1.style.hidden, "(", child2.parents, ")");
                   list.mergeToGObj(child2, child1, option);
+  console.log ("merged result: ", child1.id, child1.style.hidden, child1);
                   checkGivenChildren (child1);  // This merge may enable the merging of two of child1's children
                 }
               }
@@ -17712,8 +17621,8 @@
         function listCommonChildren (gobj1, gobj2) {  
           // If gobj1 and gobj2 are both parents of the same child, merging them may impact the common child.
           // Record them before merging, to take action later.
-          gobj1.children.forEach (function (child1, ix) {
-            gobj2.children.forEach (function (child2, iy) {
+          gobj1.children.forEach (function (child1) {
+            gobj2.children.forEach (function (child2) {
               if (child1 === child2) {  // the merged gobj will be a double parent; can the child be collapsed?
                 commonChildren.push (child1);
               }
@@ -17723,7 +17632,7 @@
   
         function processCommonChildren () {  
           // Each element is a common child of the two gobjs that were merged.
-          commonChildren.forEach (function (child, ix) {
+          commonChildren.forEach (function (child) {
             if (child.collapseDoubledParent) // some children can collapse (segments, circles) if they have a double parent
               child.collapseDoubledParent (candidate);
           });
@@ -17743,6 +17652,10 @@
         }
         
         // Body of mergeGobjToCandidate()
+  console.log ("merging ", mergeGobj.id, mergeGobj.label ? mergeGobj.label : "", mergeGobj, " to ", candidate.id, candidate.label ? candidate.label : "", candidate);
+        if (option && option.skipUpdate) {
+          childToSkip = option.skipUpdate;
+        }
         if (candidate.constraint === "Pegged") {
           candidate = candidate.parents.text;
         }
@@ -17766,11 +17679,16 @@
         //of doing this is to just restore our label state, since labelPool
         //will automatically find and skip any other givens we generated labels for
         //along the way, at a minor cost of efficiency
-        if (sketch.generatedLabels && sketch.generatedLabels[mergeGobj.id]) {
-          session = sketch.labelPool.restoreSavedState();
-          sketch.labelPool.saveState(session);
-          sketch.generatedLabels[mergeGobj.id] = false;
+        regime = this.currentTouchRegime();
+        if (regime.name === "ToolRegime") {
+          generatedLabels = regime.toolplaySession.generatedLabels;
+          if (generatedLabels && generatedLabels[mergeGobj.id]) {
+            labelState = sketch.labelPool.restoreSavedState();
+            sketch.labelPool.saveState(labelState);
+            delete generatedLabels[mergeGobj.id];
+          }
         }
+        
         list.mergeGObjsInList (mergeGobj.id, candidate.id); // let the list delete duplicated gobjs
         mergeGobjStyles(mergeGobj, candidate);
   
@@ -17779,6 +17697,8 @@
         //reconstraint if their child list changes (iterate map), though they 
         //are not likely to be merged.
         candidate.invalidateGeom();
+        candidate.descendantLabelGraphHasChanged();
+  console.log ("merged result ", candidate.id, candidate.label ? candidate.label : "", candidate);
         return candidate;
       },
       
@@ -17811,17 +17731,14 @@
       },
   
       findPotentialIntersection: function (path1, candidates, pos, hitSlop) {
-        // When a tool given or drag merge is near several intersections,
-        // we prefer intersections of like kinds (straight/straight or circle-arc/circle-arc)
-        var thisIntersection,  // current best choice
-            returnedIntersectionInfo;
+        var returnedIntersectionInfo;
         
         function isSupportedIntersectionPath(gobj) {
           //The only currently supported intersection types are
           //Circle, Straight, and Arc
-          return gobj.isOfKind("Circle") || // are circle interiors ok?
+          return gobj.isOfKind("Circle") || 
                  gobj.isOfKind("Straight") || 
-                 gobj.kind === "Arc"; // don't allow arc interiors
+                 gobj.isOfKind("Arc");
         }
       
     
@@ -17832,13 +17749,11 @@
           var path2GeomObj = path2IsStraightKind ? path2 : path2.getGeometricArc();
           var path1IsStraight = path1IsStraightKind || (path1GeomObj.orientation === 0);
           var path2IsStraight = path2IsStraightKind || (path2GeomObj.orientation === 0);
-          var location, locationArray, useSecondIntersection, swapPathParents, constraint,
-              match;  // if both are straights or both circles, prefer this match
+          var location, locationArray, useSecondIntersection, swapPathParents, constraint;
            
           if (path1IsStraight) {
             if (path2IsStraight) {
               location = GSP.Geom.LineLineIntersection(path1GeomObj, path2GeomObj);
-              match = true;
             } else {
               //path1 == straight, path2 == circle.  Switch them
               swapPathParents = true;
@@ -17851,7 +17766,6 @@
             } else {
               //Both are circles or arcs
               locationArray = GSP.Geom.CircleCircleIntersection(path1GeomObj, path2GeomObj);
-              match = true; // Should we distinguish circle/circle from arc/arc? There's no demonstrated need just yet.
             }
           }
           
@@ -17876,31 +17790,22 @@
                 constraint = "Intersection1";
               }
             }
-            thisIntersection = {
-                //path1 is normalized to be the circle if its a circle/line intersection
-                path1: swapPathParents ?  path2 : path1,
-                path2: swapPathParents ?  path1 : path2,
-                location: location,
-                constraint: constraint
-              };
+            
+            returnedIntersectionInfo = {
+              //path1 is normalized to be the circle if its a circle/line intersection
+              path1: swapPathParents ?  path2 : path1,
+              path2: swapPathParents ?  path1 : path2,
+              location: location,
+              constraint: constraint
+            };
           }
-          if (match && thisIntersection) {
-            returnedIntersectionInfo = thisIntersection;
-            return true; // we're done; we've found an intersection of matched kinds
-          } else if (!returnedIntersectionInfo) {
-            // if no matched kinds, return the first intersection with unmatched kinds
-            returnedIntersectionInfo = thisIntersection;        
-          }
-          // keep searching possible paths
-        } // checkForIntersectingPath
+    
+          return returnedIntersectionInfo ? true : false;  
+        }
         
-        // body of findPotentialIntersection
         if (!isSupportedIntersectionPath(path1)) {
           return;
         }
-        // Both paths are already close to pos, so allow doubled hitSlop for the intersection,
-        // which isn't so easy to for the user to find if the paths are anywhere close to tangency
-        hitSlop *= 2;
         
         var hitTest, 
             options = {
@@ -17920,15 +17825,14 @@
           "right": pos.x + hitSlop
         }, options);
     
-        // If multiple returned objects in hitArray, need to check for the preferred path
+     
         if (returnedIntersectionInfo && pos.distance(returnedIntersectionInfo.location) < hitSlop) {
           return returnedIntersectionInfo;
         } // else return undefined
-      }, // findPotentialIntersection
+      },
       
       findIntersections: function (candidates, pos, hitSlop) {
         // Returns an array of returnedIntersectionInfo elements
-        // We assume caller has already filtered the candidates to make sure they're within hitSlop of pos
         var arr = candidates.slice (0),
             returnedInfo = [],
             gobj, intersection, ix;
@@ -21449,7 +21353,7 @@
                 }
             }
   
-            gobj.sQuery.sketch.invalidateGeom(gobj, 'drag'); // invalidated due to a drag
+            gobj.sQuery.sketch.invalidateGeom(gobj);
           }
         } 
       },
@@ -21712,21 +21616,18 @@
       };
       
     return function (x, y) {
-      // Create a GeometricPoint from the x and y values, or from a single param with x and y attributes
       var GeometricPoint;
-      if (x && x.x && x.y && y === undefined) {
-        // single param has both x and y
-        return GSP.GeometricPoint(x.x, x.y);
-      }
       if (typeof x === "string") {
-        x = Number(x);
-      } else if (typeof x !== "number") {
-        x = NaN;
+          x = Number(x);
+      }
+      if (typeof x !== "number") {
+          x = NaN;
       }
       if (typeof y === "string") {
-        y = Number(y);
-      } else if (typeof y !== "number") {
-        y = NaN;
+          y = Number(y);
+      }
+      if (typeof y !== "number") {
+          y = NaN;
       }
       GeometricPoint = Object.create (GeometricPointPrototype);
       
@@ -24231,28 +24132,6 @@
       }
   };
   
-  /*
-   * Returns all legal nameOrigins, or legal nameOrigins for a gobj.
-   */
-  GSP.labels.legalNameOrigins = function(gobj) {
-    var nameOrigins;
-    if (!gobj) {  // No gobj, so return all legal values
-      nameOrigins= ['namedFromLabel', 'namedByPrime', 'namedByShortFn', 'namedByFullFn', 'namedFromTemplate'];
-    } else {
-      nameOrigins = [];
-      if (gobj.hasLabel) {
-        nameOrigins.push('namedFromLabel');
-      }
-      if (gobj.isTransformationConstraint) {
-        nameOrigins.push('namedByPrime', 'namedByShortFn', 'namedByFullFn');
-      }
-      if (gobj.kind === 'Expression') {
-        nameOrigins.push('namedFromTemplate');
-      }
-    }
-    return nameOrigins;
-  };
-  
   /**
    * @fileOverview Utilities for generating default labels in a sketch.
    * @author <a href="mailto:jbrooks@kcptech.com">Jon Brooks</a>
@@ -24425,11 +24304,13 @@
         return label;
       },
       saveState: function(session) {
+        // console.trace("saving labelPool state");
         this.generators.push(this.curGenerator().copy());
         this.session = session; // While session is set, id's of newly generated labels are stored in session.generatedLabels
       },
       restoreSavedState: function() {
         var retVal;
+        // console.trace("restoring labelPool state");
         if (this.generators.length < 2) {
           throw GSP.createError("LabelPool.restoreSavedState() called without calling saveState()");
         }
@@ -35848,46 +35729,36 @@
             },
           peg$c22 = "=",
           peg$c23 = { type: "literal", value: "=", description: "\"=\"" },
-          peg$c24 = "true",
-          peg$c25 = { type: "literal", value: "true", description: "\"true\"" },
-          peg$c26 = function() {
-              return true;
-            },
-          peg$c27 = "false",
-          peg$c28 = { type: "literal", value: "false", description: "\"false\"" },
-          peg$c29 = function() {
-              return false;
-            },
-          peg$c30 = /^[0-9a-zA-Z_]/,
-          peg$c31 = { type: "class", value: "[0-9a-zA-Z_]", description: "[0-9a-zA-Z_]" },
-          peg$c32 = function(chars) {
+          peg$c24 = /^[0-9a-zA-Z_]/,
+          peg$c25 = { type: "class", value: "[0-9a-zA-Z_]", description: "[0-9a-zA-Z_]" },
+          peg$c26 = function(chars) {
                 return chars.join('');
             },
-          peg$c33 = "\"",
-          peg$c34 = { type: "literal", value: "\"", description: "\"\\\"\"" },
-          peg$c35 = /^[^\n\r\f\\"]/,
-          peg$c36 = { type: "class", value: "[^\\n\\r\\f\\\\\"]", description: "[^\\n\\r\\f\\\\\"]" },
-          peg$c37 = "\\",
-          peg$c38 = { type: "literal", value: "\\", description: "\"\\\\\"" },
-          peg$c39 = function(nl) { return nl },
-          peg$c40 = function(chars) {
+          peg$c27 = "\"",
+          peg$c28 = { type: "literal", value: "\"", description: "\"\\\"\"" },
+          peg$c29 = /^[^\n\r\f\\"]/,
+          peg$c30 = { type: "class", value: "[^\\n\\r\\f\\\\\"]", description: "[^\\n\\r\\f\\\\\"]" },
+          peg$c31 = "\\",
+          peg$c32 = { type: "literal", value: "\\", description: "\"\\\\\"" },
+          peg$c33 = function(nl) { return nl },
+          peg$c34 = function(chars) {
                 return chars.join("");
               },
-          peg$c41 = "'",
-          peg$c42 = { type: "literal", value: "'", description: "\"'\"" },
-          peg$c43 = /^[^\n\r\f\\']/,
-          peg$c44 = { type: "class", value: "[^\\n\\r\\f\\\\']", description: "[^\\n\\r\\f\\\\']" },
-          peg$c45 = "\n",
-          peg$c46 = { type: "literal", value: "\n", description: "\"\\n\"" },
-          peg$c47 = "\r\n",
-          peg$c48 = { type: "literal", value: "\r\n", description: "\"\\r\\n\"" },
-          peg$c49 = "\r",
-          peg$c50 = { type: "literal", value: "\r", description: "\"\\r\"" },
-          peg$c51 = "\f",
-          peg$c52 = { type: "literal", value: "\f", description: "\"\\f\"" },
-          peg$c53 = /^[^\r\n\f0-9a-fA-F]/,
-          peg$c54 = { type: "class", value: "[^\\r\\n\\f0-9a-fA-F]", description: "[^\\r\\n\\f0-9a-fA-F]" },
-          peg$c55 = function(char_) { return char_; },
+          peg$c35 = "'",
+          peg$c36 = { type: "literal", value: "'", description: "\"'\"" },
+          peg$c37 = /^[^\n\r\f\\']/,
+          peg$c38 = { type: "class", value: "[^\\n\\r\\f\\\\']", description: "[^\\n\\r\\f\\\\']" },
+          peg$c39 = "\n",
+          peg$c40 = { type: "literal", value: "\n", description: "\"\\n\"" },
+          peg$c41 = "\r\n",
+          peg$c42 = { type: "literal", value: "\r\n", description: "\"\\r\\n\"" },
+          peg$c43 = "\r",
+          peg$c44 = { type: "literal", value: "\r", description: "\"\\r\"" },
+          peg$c45 = "\f",
+          peg$c46 = { type: "literal", value: "\f", description: "\"\\f\"" },
+          peg$c47 = /^[^\r\n\f0-9a-fA-F]/,
+          peg$c48 = { type: "class", value: "[^\\r\\n\\f0-9a-fA-F]", description: "[^\\r\\n\\f0-9a-fA-F]" },
+          peg$c49 = function(char_) { return char_; },
   
           peg$currPos          = 0,
           peg$reportedPos      = 0,
@@ -36285,7 +36156,7 @@
           if (s2 !== peg$FAILED) {
             s3 = peg$parseoper();
             if (s3 !== peg$FAILED) {
-              s4 = peg$parsevalue();
+              s4 = peg$parsestring();
               if (s4 !== peg$FAILED) {
                 if (input.charCodeAt(peg$currPos) === 93) {
                   s5 = peg$c19;
@@ -36336,81 +36207,27 @@
         return s0;
       }
   
-      function peg$parsevalue() {
-        var s0;
-  
-        s0 = peg$parsestring();
-        if (s0 === peg$FAILED) {
-          s0 = peg$parsetrueValue();
-          if (s0 === peg$FAILED) {
-            s0 = peg$parsefalseValue();
-          }
-        }
-  
-        return s0;
-      }
-  
-      function peg$parsetrueValue() {
-        var s0, s1;
-  
-        s0 = peg$currPos;
-        if (input.substr(peg$currPos, 4) === peg$c24) {
-          s1 = peg$c24;
-          peg$currPos += 4;
-        } else {
-          s1 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c25); }
-        }
-        if (s1 !== peg$FAILED) {
-          peg$reportedPos = s0;
-          s1 = peg$c26();
-        }
-        s0 = s1;
-  
-        return s0;
-      }
-  
-      function peg$parsefalseValue() {
-        var s0, s1;
-  
-        s0 = peg$currPos;
-        if (input.substr(peg$currPos, 5) === peg$c27) {
-          s1 = peg$c27;
-          peg$currPos += 5;
-        } else {
-          s1 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c28); }
-        }
-        if (s1 !== peg$FAILED) {
-          peg$reportedPos = s0;
-          s1 = peg$c29();
-        }
-        s0 = s1;
-  
-        return s0;
-      }
-  
       function peg$parsename() {
         var s0, s1, s2;
   
         s0 = peg$currPos;
         s1 = [];
-        if (peg$c30.test(input.charAt(peg$currPos))) {
+        if (peg$c24.test(input.charAt(peg$currPos))) {
           s2 = input.charAt(peg$currPos);
           peg$currPos++;
         } else {
           s2 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c31); }
+          if (peg$silentFails === 0) { peg$fail(peg$c25); }
         }
         if (s2 !== peg$FAILED) {
           while (s2 !== peg$FAILED) {
             s1.push(s2);
-            if (peg$c30.test(input.charAt(peg$currPos))) {
+            if (peg$c24.test(input.charAt(peg$currPos))) {
               s2 = input.charAt(peg$currPos);
               peg$currPos++;
             } else {
               s2 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c31); }
+              if (peg$silentFails === 0) { peg$fail(peg$c25); }
             }
           }
         } else {
@@ -36418,7 +36235,7 @@
         }
         if (s1 !== peg$FAILED) {
           peg$reportedPos = s0;
-          s1 = peg$c32(s1);
+          s1 = peg$c26(s1);
         }
         s0 = s1;
   
@@ -36441,35 +36258,35 @@
   
         s0 = peg$currPos;
         if (input.charCodeAt(peg$currPos) === 34) {
-          s1 = peg$c33;
+          s1 = peg$c27;
           peg$currPos++;
         } else {
           s1 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c34); }
+          if (peg$silentFails === 0) { peg$fail(peg$c28); }
         }
         if (s1 !== peg$FAILED) {
           s2 = [];
-          if (peg$c35.test(input.charAt(peg$currPos))) {
+          if (peg$c29.test(input.charAt(peg$currPos))) {
             s3 = input.charAt(peg$currPos);
             peg$currPos++;
           } else {
             s3 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$c36); }
+            if (peg$silentFails === 0) { peg$fail(peg$c30); }
           }
           if (s3 === peg$FAILED) {
             s3 = peg$currPos;
             if (input.charCodeAt(peg$currPos) === 92) {
-              s4 = peg$c37;
+              s4 = peg$c31;
               peg$currPos++;
             } else {
               s4 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c38); }
+              if (peg$silentFails === 0) { peg$fail(peg$c32); }
             }
             if (s4 !== peg$FAILED) {
               s5 = peg$parsenl();
               if (s5 !== peg$FAILED) {
                 peg$reportedPos = s3;
-                s4 = peg$c39(s5);
+                s4 = peg$c33(s5);
                 s3 = s4;
               } else {
                 peg$currPos = s3;
@@ -36485,27 +36302,27 @@
           }
           while (s3 !== peg$FAILED) {
             s2.push(s3);
-            if (peg$c35.test(input.charAt(peg$currPos))) {
+            if (peg$c29.test(input.charAt(peg$currPos))) {
               s3 = input.charAt(peg$currPos);
               peg$currPos++;
             } else {
               s3 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c36); }
+              if (peg$silentFails === 0) { peg$fail(peg$c30); }
             }
             if (s3 === peg$FAILED) {
               s3 = peg$currPos;
               if (input.charCodeAt(peg$currPos) === 92) {
-                s4 = peg$c37;
+                s4 = peg$c31;
                 peg$currPos++;
               } else {
                 s4 = peg$FAILED;
-                if (peg$silentFails === 0) { peg$fail(peg$c38); }
+                if (peg$silentFails === 0) { peg$fail(peg$c32); }
               }
               if (s4 !== peg$FAILED) {
                 s5 = peg$parsenl();
                 if (s5 !== peg$FAILED) {
                   peg$reportedPos = s3;
-                  s4 = peg$c39(s5);
+                  s4 = peg$c33(s5);
                   s3 = s4;
                 } else {
                   peg$currPos = s3;
@@ -36522,15 +36339,15 @@
           }
           if (s2 !== peg$FAILED) {
             if (input.charCodeAt(peg$currPos) === 34) {
-              s3 = peg$c33;
+              s3 = peg$c27;
               peg$currPos++;
             } else {
               s3 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c34); }
+              if (peg$silentFails === 0) { peg$fail(peg$c28); }
             }
             if (s3 !== peg$FAILED) {
               peg$reportedPos = s0;
-              s1 = peg$c40(s2);
+              s1 = peg$c34(s2);
               s0 = s1;
             } else {
               peg$currPos = s0;
@@ -36553,35 +36370,35 @@
   
         s0 = peg$currPos;
         if (input.charCodeAt(peg$currPos) === 39) {
-          s1 = peg$c41;
+          s1 = peg$c35;
           peg$currPos++;
         } else {
           s1 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c42); }
+          if (peg$silentFails === 0) { peg$fail(peg$c36); }
         }
         if (s1 !== peg$FAILED) {
           s2 = [];
-          if (peg$c43.test(input.charAt(peg$currPos))) {
+          if (peg$c37.test(input.charAt(peg$currPos))) {
             s3 = input.charAt(peg$currPos);
             peg$currPos++;
           } else {
             s3 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$c44); }
+            if (peg$silentFails === 0) { peg$fail(peg$c38); }
           }
           if (s3 === peg$FAILED) {
             s3 = peg$currPos;
             if (input.charCodeAt(peg$currPos) === 92) {
-              s4 = peg$c37;
+              s4 = peg$c31;
               peg$currPos++;
             } else {
               s4 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c38); }
+              if (peg$silentFails === 0) { peg$fail(peg$c32); }
             }
             if (s4 !== peg$FAILED) {
               s5 = peg$parsenl();
               if (s5 !== peg$FAILED) {
                 peg$reportedPos = s3;
-                s4 = peg$c39(s5);
+                s4 = peg$c33(s5);
                 s3 = s4;
               } else {
                 peg$currPos = s3;
@@ -36597,27 +36414,27 @@
           }
           while (s3 !== peg$FAILED) {
             s2.push(s3);
-            if (peg$c43.test(input.charAt(peg$currPos))) {
+            if (peg$c37.test(input.charAt(peg$currPos))) {
               s3 = input.charAt(peg$currPos);
               peg$currPos++;
             } else {
               s3 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c44); }
+              if (peg$silentFails === 0) { peg$fail(peg$c38); }
             }
             if (s3 === peg$FAILED) {
               s3 = peg$currPos;
               if (input.charCodeAt(peg$currPos) === 92) {
-                s4 = peg$c37;
+                s4 = peg$c31;
                 peg$currPos++;
               } else {
                 s4 = peg$FAILED;
-                if (peg$silentFails === 0) { peg$fail(peg$c38); }
+                if (peg$silentFails === 0) { peg$fail(peg$c32); }
               }
               if (s4 !== peg$FAILED) {
                 s5 = peg$parsenl();
                 if (s5 !== peg$FAILED) {
                   peg$reportedPos = s3;
-                  s4 = peg$c39(s5);
+                  s4 = peg$c33(s5);
                   s3 = s4;
                 } else {
                   peg$currPos = s3;
@@ -36634,15 +36451,15 @@
           }
           if (s2 !== peg$FAILED) {
             if (input.charCodeAt(peg$currPos) === 39) {
-              s3 = peg$c41;
+              s3 = peg$c35;
               peg$currPos++;
             } else {
               s3 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c42); }
+              if (peg$silentFails === 0) { peg$fail(peg$c36); }
             }
             if (s3 !== peg$FAILED) {
               peg$reportedPos = s0;
-              s1 = peg$c40(s2);
+              s1 = peg$c34(s2);
               s0 = s1;
             } else {
               peg$currPos = s0;
@@ -36664,35 +36481,35 @@
         var s0;
   
         if (input.charCodeAt(peg$currPos) === 10) {
-          s0 = peg$c45;
+          s0 = peg$c39;
           peg$currPos++;
         } else {
           s0 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c46); }
+          if (peg$silentFails === 0) { peg$fail(peg$c40); }
         }
         if (s0 === peg$FAILED) {
-          if (input.substr(peg$currPos, 2) === peg$c47) {
-            s0 = peg$c47;
+          if (input.substr(peg$currPos, 2) === peg$c41) {
+            s0 = peg$c41;
             peg$currPos += 2;
           } else {
             s0 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$c48); }
+            if (peg$silentFails === 0) { peg$fail(peg$c42); }
           }
           if (s0 === peg$FAILED) {
             if (input.charCodeAt(peg$currPos) === 13) {
-              s0 = peg$c49;
+              s0 = peg$c43;
               peg$currPos++;
             } else {
               s0 = peg$FAILED;
-              if (peg$silentFails === 0) { peg$fail(peg$c50); }
+              if (peg$silentFails === 0) { peg$fail(peg$c44); }
             }
             if (s0 === peg$FAILED) {
               if (input.charCodeAt(peg$currPos) === 12) {
-                s0 = peg$c51;
+                s0 = peg$c45;
                 peg$currPos++;
               } else {
                 s0 = peg$FAILED;
-                if (peg$silentFails === 0) { peg$fail(peg$c52); }
+                if (peg$silentFails === 0) { peg$fail(peg$c46); }
               }
             }
           }
@@ -36706,23 +36523,23 @@
   
         s0 = peg$currPos;
         if (input.charCodeAt(peg$currPos) === 92) {
-          s1 = peg$c37;
+          s1 = peg$c31;
           peg$currPos++;
         } else {
           s1 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$c38); }
+          if (peg$silentFails === 0) { peg$fail(peg$c32); }
         }
         if (s1 !== peg$FAILED) {
-          if (peg$c53.test(input.charAt(peg$currPos))) {
+          if (peg$c47.test(input.charAt(peg$currPos))) {
             s2 = input.charAt(peg$currPos);
             peg$currPos++;
           } else {
             s2 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$c54); }
+            if (peg$silentFails === 0) { peg$fail(peg$c48); }
           }
           if (s2 !== peg$FAILED) {
             peg$reportedPos = s0;
-            s1 = peg$c55(s2);
+            s1 = peg$c49(s2);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -37558,13 +37375,11 @@
           // This means that we draw in high def coords - the graphics system
           // will just blast those high-def pixes to the screen. This gives
           // more detail / better anti-aliasing.
-          // However, we need to set the canvas dimensions to integer values;
-          // non-integer values can cause fading traces to creep a fraction of
-          // a pixel on each pass of the fading loop.
+          
           devicePixelRatio = window.devicePixelRatio;
           if (devicePixelRatio) {
-            canvasWidth = Math.round(canvasWidth * devicePixelRatio);
-            canvasHeight = Math.round(canvasHeight * devicePixelRatio);
+            canvasWidth *= devicePixelRatio;
+            canvasHeight *= devicePixelRatio;
           }
           
           element = $('<canvas aria-hidden="true" width="' + canvasWidth + '" height="'
@@ -38368,7 +38183,7 @@
                 fontSize = drawRefCon['font-size'] || kDefaultFontSize,
                 fontSpec,
                 sizeEstimate;
-            // Check the following change, adding forceDomParse to the frame test. forceDomParse is set
+            // Check the following change, adding forceDomParse to the constraintFrame test. forceDomParse is set
             // when the MFS has changed in the absence of reconstraining the sketch (as in relabeling a gobj or button)
             // This change works with the html engine; it seems likely that it will work here also.
             if (renderAttrs.constraintFrame !== drawRefCon.constraintFrame || renderAttrs.forceDomParse) {
@@ -38383,8 +38198,8 @@
                   // size the offscreen canvas based on the estimated size of the text
                   fontSpec = getFontSpec();
                   sizeEstimate = getSizePreEstimate( ctx, fontSpec, drawRefCon.parsedMFS);
-                  drawRefCon.mfsImage.width = Math.round(sizeEstimate.width * devicePixelRatio);
-                  drawRefCon.mfsImage.height = Math.round(sizeEstimate.height * devicePixelRatio);
+                  drawRefCon.mfsImage.width = sizeEstimate.width * devicePixelRatio;
+                  drawRefCon.mfsImage.height = sizeEstimate.height * devicePixelRatio;
                   tmpCtx = drawRefCon.mfsImage.getContext('2d');
                   // scale the canvas for HiDPI displays (e.g. retina) and for browser zoom
                   tmpCtx.scale( devicePixelRatio, devicePixelRatio);
@@ -40587,7 +40402,7 @@
       
         /* Search for an object whose label matches that of the assumedSpec,
            and to which it makes sense to merge the assumed.  Prefer visible
-           over hidden, but if no visibe one exists, return a hidden match.
+           over hidden, but if no visible one exists, return a hidden match.
            Returns the most recently created GObj matching this criteria.
       
            If it is a coordinate system, call through to the sketch method for finding an existing coord sys.
@@ -40944,6 +40759,7 @@
          * based on the genus support present in GSP but currently unimplemented in WSP.
         */
         var givenKind = given.kind,
+            candidates = optCandidateList || this.sketch.gobjList.renderList,
             sideConstructions = false;
         
         function canMatchForGiven (match) {
@@ -40990,16 +40806,50 @@
           }
         }
         
-        var candidates = optCandidateList || this.sketch.gobjList.renderList;
+        function checkPolygon (poly) {
+          // Return true if the children of poly's vertices are only sides or the poly itself.
+          // Eventually we'll also return true if the only other child is a transformed image of the vertex,
+          // and each vertex has an identically-constrained transformed image. In such a case,
+          // we'll need to apply the same transformation to all vertices of poly, and we'll also need
+          // to construct sides and interior of the produced polygon if they exist in the given.
+          var vertices = poly.parentsList,
+              retVal = true;
+          $.each (vertices, function () {
+            var vertex = this;
+            $.each (vertex.children, function() {
+              var legal = true;
+              if (this !== poly) {
+                legal = this.constraint === "Segment" &&
+                        vertices.indexOf (this.parentsList[0]) >= 0 &&
+                        vertices.indexOf (this.parentsList[1]) >= 0;
+              }
+              if (!legal) {
+                retVal = false;
+                return false;
+              }
+            }); 
+            if (!retVal) {
+              return false;
+            }
+          });
+          return retVal;
+        }
+        
+        // Body of getLegalMatchesForGiven
         if (given.parentsList) {
-          for (var i=0; i<given.parentsList.length; i++) {
-            if (given.parentsList[i].children.length > 1)
-            sideConstructions = true;
-            break;
+          if (given.constraint === "PolygonFromPoints") {
+            sideConstructions = !checkPolygon(given);
+          } else if (givenKind !== "Polygon") {
+            for (var i = 0; i < given.parentsList.length; i++) {
+              if (given.parentsList[i].children.length > 1) {
+                sideConstructions = true;
+                break;
+              }
+            }
           }
         }
         return candidates.filter(canMatchForGiven);
-      },
+      },  // getLegalMatchesForGiven
       
       /**
        * 
@@ -41031,6 +40881,12 @@
         this.matchedGivens.forEach(function(match) {
           match.preFinalize(self);
         });
+        // The labelState was saved in playGiven; restore it now
+        if (this.labelStateSaved) {
+          self.sketch.labelPool.restoreSavedState();
+          self.sketch.labelPool.saveState(this.session);
+          this.generatedLabels = undefined; 
+        }
         this.matchedGivens.forEach(function(match) {
           match.finalize(self);
         });
@@ -41046,47 +40902,73 @@
         }
         this.matchedGivens = [];
         this.constructedObjects = {};
+  /*  Need to restore the saved state before calling finalize(); otherwise the finalize() call
+   *  to descendantGraphHasChanged() generates labels before the givens have all been merged.
+   *  Need to check: is a duplicated labeled segment merged before the call to finalize? If not,
+   *  the segment that's going to go away will take its label with it.
         if (this.labelStateSaved) {
           this.labelStateSaved = false;
           this.sketch.labelPool.forgetSavedState();
           this.generatedLabels = undefined;        
         }
+  */
         //  Show the Calculator, _unless_ it was already shown at the end of toolplay.
         if (calcPresent && !$(".wsp-Calculator").is(":visible")) {
           calcPresent.presentUI();
         }
       },
       
+      _findMatchedGivenIndex: function (gobj) {
+        var retVal;
+        this.matchedGivens.forEach(function(item, ix) {
+          if (item.given.id === gobj.id) { // Safer to check by id than the entire gobj
+            retVal = ix;
+            return false;
+          }
+          return true;
+        });
+        return retVal;
+      },
+      
       /**
        * @param gobj
        * @return {Object} MatchedGiven obj
+       * Caller is responsible for removing gobj from the unmatchedGivens array.
+       * If gobj is already present in a matchedGiven, unsnaps it from its candidate.
        */
       addGObjAsMatchedGiven: function (gobj) {
-        var self = this,
-            ix, newMatchedGiven;
-        
-        function findExistingMatchedGivenIndex (gobj) {
-          var retVal;
-          self.matchedGivens.forEach(function(item, ix) {
-            if (item.given === gobj) {
-              retVal = ix;
-              return false;
-            }
-            return true;
-          });
-          return retVal;
-        }
-        
+        var ix, newMatchedGiven;
         newMatchedGiven = GSP.Tool.createMatchedGiven(gobj, this);
-        ix = findExistingMatchedGivenIndex (gobj);
+        ix = this._findMatchedGivenIndex (gobj);
         if (ix) {
-          self.matchedGivens [ix].unsnapFromCandidate ();
-          self.matchedGivens [ix] = newMatchedGiven;
+          this.matchedGivens [ix].unsnapFromCandidate ();
+          this.matchedGivens [ix] = newMatchedGiven;
         } else {
           this.matchedGivens.push(newMatchedGiven);
         }
         return newMatchedGiven;
       },
+      
+      /**
+       * @param gobj
+       * @return {Object} MatchedGiven obj
+       * Unsnaps gobj from its candidate and removes gobj from the matchedGivens array .
+       * Caller is responsible for moving gobj back into the unmatchedGivens array.
+       */
+      removeGObjAsMatchedGiven: function (gobj) {
+        var retVal,
+            ix = this._findMatchedGivenIndex (gobj);
+        if (ix) {
+          this.matchedGivens [ix].unsnapFromCandidate ();
+          this.matchedGivens.splice (ix, 1);
+          retVal = gobj;
+  // Debugging
+        } else { console.log ("removeGObjAsMatchedGiven found gobj missing from matchedGivens");
+  // End debugging
+        }
+        return retVal;
+      },
+        
   
       /**
        * given a property name and a value, returns the MatchedGiven
@@ -41180,16 +41062,29 @@
     // restore original values. Thus, either a "candidate" or an
     // "original" can be the "source" of properties used to fill in the
     // mutable.
+    // SS: modified Sept 2021 to support structured properties like "style.nameOrigin".
     //
     var transactionProto = {
   
       setProp: function(source, target, prop) {
-        if (source[prop] === undefined) return;
+        var sourceObj = source, targetObj = target;
+        if (prop.match (/\./)) {
+          var matches = prop.split (".");
+          for (var i = 0; i < matches.length - 1; i++) {
+            sourceObj = sourceObj[matches[i]];
+            targetObj = targetObj[matches[i]];
+          }
+          prop = matches[matches.length - 1];
+        }
+        if (sourceObj[prop] === undefined) return;
         if (this.transactionSpec.properties[prop] && this.transactionSpec.properties[prop].copy) {
-          target[prop] = $.extend(true, {}, source[prop]);
+          targetObj[prop] = $.extend(true, {}, sourceObj[prop]);
         }
         else {
-          target[prop] = source[prop];
+          if (!targetObj) {
+            targetObj = {};
+          }
+          targetObj[prop] = sourceObj[prop];
         }
       },
   
@@ -41223,7 +41118,16 @@
               this.transactionSpec.properties[prop].setter(source, mutable);
             }
             else {
-              this.setProp(source, mutable, prop);
+              // If mutable is labeled and source is not, don't destroy mutable's label; it might be used in a measurement
+              if (prop !== "label" || source.label) { 
+                this.setProp(source, mutable, prop);
+              }
+              //if (prop === "parents" && !this.transactionSpec.properties.hasOwnProperty("parentsList")) {
+              //  this.setProp(source, mutable, "parentsList");
+              //}
+            }
+            if (prop === "parents") { // Keep parents and parentsList in sync
+              mutable.parentsList = mutable.sQuery.sketch.gobjList.createCanonicalParentReferences(mutable);
             }
           }
         }
@@ -41251,20 +41155,31 @@
         var transaction = this,
             candidate = this.matchedGiven.mergeCandidate,
             given = this.matchedGiven.given;
-        function updateMutable () {
+  //*global TOOLS:true */
+  //console.log ("Snapping given ", given.id, " to candidate ", candidate.id);
+  //if (!TOOLS.checkSketchGraph ("libSketch")) {TOOLS.checkSketchGraph ("libSketch", "verbose");}
+  
+        function updateMutable (option) {
           transaction.preProcess ("fromCandidate");
+  //if (!TOOLS.checkSketchGraph ("libSketch")) {TOOLS.checkSketchGraph ("libSketch", "verbose");}
           transaction.setMutableFrom(candidate);
+  //if (!TOOLS.checkSketchGraph ("libSketch")) {TOOLS.checkSketchGraph ("libSketch", "verbose");}
           if (given.kind === "Point" && candidate.kind === "Point") {
             given.geom.loc = GSP.GeometricPoint (candidate.geom.loc.x, candidate.geom.loc.y);
             given.invalidateGeom ();
           }
           transaction.postProcessMutable();
         }
+        
         if (!this.transactionSpec.testCandidate(candidate)) {
           throw GSP.createError ("snapGivenToCandidate cannot snap " + given.kind + given.id + " to " + candidate.kind + candidate.id);
         }
-        updateMutable();
+        updateMutable("initSnap");
         this.matchedGiven.startWatchingCandidate(updateMutable);
+  //console.log ("Given ", given.id, " snapped to candidate ", candidate.id);
+  //if (!TOOLS.checkSketchGraph ("libSketch")) {TOOLS.checkSketchGraph ("libSketch", "verbose");}
+  //*global TOOLS:false */
+  
       },
   
       // Save our mutable's original properties if they are not yet saved.
@@ -41282,6 +41197,11 @@
                 Object.setPrototypeOf (this.original, proto);
               }
               this.setProp(this.mutable, this.original, prop);
+              if (prop === "parents" && !this.original.parents) {
+                // If the mutable is free, mutable.parents may be undefined.
+                // Set original.parents to empty, so mutable can be restored correctly if a snap gives it parents
+                this.original.parents = {};
+              }
             }
           }
         }
@@ -41321,26 +41241,27 @@
     }
     
     function preProcessPath (trans, direction) {
-      var candidate = trans.matchedGiven.mergeCandidate,
-          candList = candidate.parentsList,
-          mutList = trans.mutable.parentsList,
-          candPar, mutPar, ix;
-      if (candidate.constraint === trans.mutable.constraint && candList.length === mutList.length) {
-        for (ix = 0; ix < mutList.length; ix++) {
-          candPar = candList[ix];
-          mutPar = mutList[ix];
-          if (direction === "fromCandidate" && candPar.hasLabel && mutPar.hasLabel) {
-            if (!candPar.label && mutPar.label) { // copy the mutable label to the candidate
-              if (!trans.candParLabelEmpty) {
-                trans.candParLabelEmpty = [];
-              }
-              trans.candParLabelEmpty[ix] = true;
-              candPar.label = mutPar.label;
-            }
-          } else if (candPar.label && trans.candParLabelEmpty && trans.candParLabelEmpty[ix]) {
-            delete candPar.label;
+      if (trans.matchedGiven.parentMatches) { // There are parentMatches, so it's a constructibleGiven; parent givens should watch their candidates
+        trans.matchedGiven.parentMatches.forEach (function (match) {
+          var given = match.given,
+              candidate = match.mergeCandidate;
+  
+          function updateHandler () {
+            given.geom.loc = GSP.GeometricPoint (candidate.geom.loc.x, candidate.geom.loc.y);
+            given.invalidateGeom ();
           }
-        }
+  
+          if (direction ===  "fromOriginal") {
+            match.givenTransaction.setMutableFrom(match.givenTransaction.original);
+          } else if (direction === "fromCandidate") {
+            if (given.kind === "Point" && candidate.kind === "Point") {
+              match.startWatchingCandidate (updateHandler);
+              updateHandler();
+            }
+          } else {
+  console.log ("preProcessPath() found unexpected direction: ", direction);
+          }
+        });
       }
     }
   
@@ -41379,6 +41300,8 @@
         genus: "",
         constraint: "",
         label: "",
+        toolRole: "",
+        "style.nameOrigin": "",
         value: 0,  // In case constraint is "PointOnPath"
         scaleFactor: 0,  // for "DilateFixFactor"
         angle: 0,    // for Rotate or Translate...FixAngle
@@ -41462,8 +41385,7 @@
       properties: {
         kind: "",
         genus: "",
-        constraint: "",
-        parents: {}
+        constraint: ""
       },
       preProcess: preProcessPath,
       postProcessMutable: postProcessMutablePath
@@ -41489,6 +41411,7 @@
    *  clearMatches: function() {  // reset render states, stop watching. Does NOT unsnap candidate before removal.
    *  updateDeltaToGiven: function (dragPos)
    *  prepareTransactionsForSnap: function ()
+   *  prepareParentMatches: function ()
    *  snapPointToPath: function (touchLoc) { // temporarily put the point on the path; doesn't make a permanent attachment
    *  unsnapFromCandidate: function (newLoc)
    *  setMergeCandidate: function(candidate, proxy)
@@ -41571,7 +41494,6 @@
           newDragPos = dragPos.add(adjustedDeltaToGiven.subtract(this.deltaToGiven));
           this.deltaToGiven = adjustedDeltaToGiven;
         }
-        console.log ("updateDeltaToGiven: new value = ", this.deltaToGiven);
         return newDragPos;
       },
       
@@ -41581,16 +41503,19 @@
       prepareTransactionsForSnap: function () {
         var given = this.given,
             candidate = this.mergeCandidate,
-            preexistingTransactionSpec;
+            preexistingTransactionSpec,
+            givenTransactionSpec;
         if (candidate) {
           if (given.isOfKind("Text") && candidate.constraint === "Pegged") {
             candidate = candidate.parents.text;
           }
           // To snap, we need a givenTransaction for which testCandidate succeeds.
+          // The earlier code risked confusion: the transactionSpec was both this.givenTransactionSpec and this.givenTransaction.transactionSpec.
+          // Instead, givenTransactionSpec is now local, with the persistent copy in this.givenTransaction.
           if (!this.givenTransaction || !this.givenTransaction.transactionSpec.testCandidate (candidate)) {
             this.givenTransaction = null;
-            this.givenTransactionSpec = transactionSpecFor (given, candidate);
-            if (!this.givenTransactionSpec) {
+            givenTransactionSpec = transactionSpecFor (given, candidate);
+            if (!givenTransactionSpec) {
               if (given.kind === "Point" && candidate.isAPath()) {
                 this.snapPointToPath ();
               } else {
@@ -41600,7 +41525,7 @@
             }
           }
           if (!this.givenTransaction) {
-            this.givenTransaction = new Transaction (given, this.givenTransactionSpec, this);
+            this.givenTransaction = new Transaction (given, givenTransactionSpec, this);
             this.givenTransaction.saveMutable();
           }
           // Save the candidate's properties for later restoration
@@ -41609,6 +41534,43 @@
             this.preexistingTransaction = new Transaction (candidate, preexistingTransactionSpec, this);
             this.preexistingTransaction.saveMutable();
           }
+        }
+      },
+  
+      prepareParentMatches: function () {
+        // For a constructibleGiven matchedGiven, prepare matches for its givenParents.
+        var self = this,
+            given = this.given,
+            candidate = this.mergeCandidate;
+        // Quit if it's not a constructibleGiven or the parent counts don't match and cannot be adjusted.
+        if (given.toolRole !== "constructibleGiven") {
+          return false;
+        }
+        self.parentMatches = [];
+        given.parentsList.forEach (function (givenParent, key) {
+          var newMatchedGiven,
+              candidateParent = candidate.parentsList[key];
+          if (givenParent.toolRole === "given") { // a parent of a constructible is by definition a givenParent
+            givenParent.toolRole = "givenParent";
+          }
+          if (givenParent.kind === "Point" && givenParent.toolRole.match (/(given|added)Parent/g)) {
+            newMatchedGiven = GSP.Tool.createMatchedGiven(givenParent, self.session);
+            newMatchedGiven.mergeCandidate = candidateParent;
+            self.parentMatches.push (newMatchedGiven);
+            newMatchedGiven.prepareTransactionsForSnap();
+          } else {
+            throw GSP.createError ("prepareTransactionsForSnap found a constructibleGiven parent that's not a givenParent");
+          }
+        });
+        console.log ("prepareParentMatches: ", self.parentMatches[0]);
+        return true;
+      },
+      
+      unsnapParentMatches: function () {
+        // For a constructibleGiven matchedGiven, prepare matches for its givenParents, adjusting the number of givenParents if needed.
+        var given = this.given;
+        if (given.toolRole === "constructibleGiven" && this.parentMatches && given.restoreOriginalParents) {
+          given.restoreOriginalParents (this);
         }
       },
   
@@ -41642,35 +41604,70 @@
             candidate.invalidateGeom ();
           }
           if (!candidate.isAPath()) {
+  // Shouldn't the given be targetHighlit? It should be possible to drag the given point, which might in turn unsnap a constructible given,
+  // thus decomposing the constructible.
+  // (Or perhaps if you've snapped a constructible, the only way to unsnap it would be not pointParent by pointParent, but
+  // by dragging the constructible.) This makes more sense, because dragging the constructible to unsnap would make it
+  // revert to the original shape and number of vertices. If dragging a matched vertex could unsnap, how many vertices
+  // should the unsnapped constructible have, and should the other vertices also be unsnapped?
             given.setRenderState ("invisible"); // for a non-path candidate, depend on candidate highlighting
             candidate.setRenderState ("targetHighlit");
           }
         }
       },
   
+  // /*global TOOLS:true */
       unsnapFromCandidate: function (newLoc) {
         // newLoc is optional. If passed, it indicates where to put the unsnapped given
         var el,
-            given = this.given;
+            given = this.given,
+            sketch = this.session.sketch;
+        if (given.prepareUnsnapFromCandidate) {
+          given.prepareUnsnapFromCandidate (this);
+        }
+  
         if (this.givenTransaction) {
           this.givenTransaction.restoreMutable();
           delete this.givenTransaction;
           this.preexistingTransaction.restoreMutable();
           delete this.preexistingTransaction;
+          if (this.parentMatches) {
+            this.unsnapParentMatches();
+          }
         }
         this.clearMatches ();
         if (newLoc) { // Center the unsnapped given on the cursor
-          if (given.isOfKind("Text")) {
-            el = given.sQuery.sketch.renderRefCon.gobj[given.id].element[0];
-            newLoc = newLoc.subtract(GSP.GeometricPoint (el.clientWidth/2, el.clientHeight/2));
-          } else if (given.kind === "Point") {
-            newLoc = newLoc.add(this.deltaToGiven);
+          if (given.toolRole === "constructibleGiven") {
+            $.each (given.parents, function (key, parent) {
+              parent.geom.loc = newLoc.add (parent.state.touchOffset);
+            });
+          } else if (given.isOfKind("Text")) {
+            el = sketch.renderRefCon.gobj[given.id].element[0];
+            given.geom.loc = newLoc.subtract(GSP.GeometricPoint (el.clientWidth/2, el.clientHeight/2));
+          } else if (given.kind === "Point" && this.deltaToGiven) {
+            given.geom.loc = newLoc.add(this.deltaToGiven);
           }
-          given.geom.loc = newLoc;
-          this.updateDeltaToGiven (given.geom.loc);
+          this.updateDeltaToGiven (newLoc);
         }
         given.invalidateGeom ();
+        given.descendantLabelGraphHasChanged ();
         given.setRenderState ("matchedGiven");
+        // The labelState was saved in playGiven; restore it now
+        if (this.session.labelStateSaved) {
+          console.log ("unsnapFromCandidate restoring and saving labelPool:", sketch.labelPool);
+          sketch.labelPool.restoreSavedState();
+          sketch.labelPool.saveState(this.session);
+          this.session.generatedLabels = undefined;  // Might this be a problem with a tool that has multiple label-producing givens?
+          console.log ("unsnapFromCandidate restored and saved labelPool:", sketch.labelPool);
+        }
+  //if (TOOLS) {
+  //  if (!TOOLS.checkSketchGraph ("libSketch")) {
+  //    TOOLS.checkSketchGraph ("libSketch", "verbose");
+  //    console.log ("unsnapFromCandidate finished: ", this);
+  //  }
+  //}
+  // /*global TOOLS:false */
+  
       },
       
       // Set the merge candidate and create transactions ready for snapping (which may be delayed by animation).
@@ -41678,11 +41675,14 @@
       // But if there is no new candidate, this DOES unsnap any old candidate.
       // The proxy, if defined, is a visible descendant derived from a value object that's the actual candidate
       setMergeCandidate: function(candidate, proxy) {
-        var oldCandidate = this.mergeCandidate;
+        var given = this.given,
+            oldCandidate = this.mergeCandidate;
         if (oldCandidate === candidate || !oldCandidate && !candidate) {
           return; // nothing to do if they're the same, or if both are falsy
         }
         this.clearMatches();
+        this.session.sketch.currentTouchRegime().clearAnimations ();  // abort any existing animation before changing candidates
+        console.log ("setMergeCandidate: animations cleared.");
         if (oldCandidate &&
             this.session.existingMatchedGivenForMergeCandidate(oldCandidate)) {
           // Some OTHER given is still matched to this candidate
@@ -41691,7 +41691,7 @@
         if (oldCandidate) {
           this.unsnapFromCandidate ();
         }
-        this.given.setRenderState("matchedGiven");  // default appearance
+        given.setRenderState("matchedGiven");  // default appearance
         if (candidate) {
           if (proxy) {
             proxy.setRenderState("targetHighlit");
@@ -41700,28 +41700,49 @@
             candidate.setRenderState("targetHighlit");
           }
           this.mergeCandidate = candidate;
-          if (this.given.kind !== "Point" || !candidate.isOfGenus ("Path")) {
+          if (given.kind !== "Point" || !candidate.isOfGenus ("Path")) {
             this.prepareTransactionsForSnap ();
+          }
+          if (given.prepareSnapToCandidate) { // allow the given to prepare the match (e.g., a polygon may need to adjust the # of vertices)
+            given.prepareSnapToCandidate(this);
+          }
+          if (given.toolRole === "constructibleGiven") {
+            this.prepareParentMatches();
           }
         }
       },
       
       startWatchingCandidate: function(updateHandler) {
-        var sq = this.mergeCandidate.sQuery('#'+this.mergeCandidate.id);
+        var candidate = this.mergeCandidate,
+            sq = candidate.sQuery('#' + candidate.id);
+        if (this.watchedCandidate === candidate) {
+          return;  // already being watched
+        }
+        console.log ("Given", this.given.id, (this.given.label ? this.given.label : ""), "started watching", sq[0].id, (sq[0].label ? sq[0].label : ""));
         if (this._onUpdate) {
           sq.off ('update', this._onUpdate);
         }
         this._onUpdate = updateHandler;
         sq.on('update', this._onUpdate);
+        this.watchedCandidate = candidate;
       },
       
-      stopWatchingCandidate: function() {
+      stopWatchingCandidate: function() { // stop watching any candidate currently being watched
+        var sq, candidate = this.watchedCandidate;
+        if (candidate && this._onUpdate) {
+          console.log ("Given", this.given.id, (this.given.label ? this.given.label : ""), "stopped watching", candidate.id, (candidate.label ? candidate.label : ""));
+          sq = candidate.sQuery('#' + candidate.id);  // We're already watching the candidate; stop watching
+          sq.off('update', this._onUpdate);
+        } else if (candidate || this._onUpdate) {
+          console.log ("watchedCandidate doesn't exist, or wasn't being watched: watched: ", candidate, " mergeCandidate: ", this.mergeCandidate);
+          // Cannot turn off updating if we don't know the source of the updates.
+        }
+        // (It's fine if neither candidate nor _onUpdate exists)
         if (this._onUpdate) {
-          if (!this.mergeCandidate) {
-            throw GSP.createError('matched given is still updating a rejected candidate');
-          }
-          this.given.sQuery('#'+this.mergeCandidate.id).off('update', this._onUpdate);
           this._onUpdate = null;
+        }
+        if (this.watchedCandidate) {
+          delete this.watchedCandidate;
         }
       },
       
@@ -41792,69 +41813,120 @@
       },
   
       finalize: function(session) {
-        var candidate = this.mergeCandidate,
+        var matchedGiven = this,
+            candidate = this.mergeCandidate,
             given = this.given,
-            parentalUpdateSkipped;
+            sketch = session.sketch,
+            constructible = given.toolRole === "constructibleGiven",
+            relabelConstructibleParents;
   
-          function mergeGivenParents (session) {
-            // Merge all the parents, but skip updating descendants until the given itself is merged.
-            // Otherwise label changes from merging one parent interfere with subsequent parental merges
-            given.parentsList.forEach (function (givenPar, ix) {
-              var destPar = candidate.parentsList[ix];
-              session.sketch.mergeGobjToCandidate(givenPar, destPar, /*session.sketch, session.constructedObjects, */ {skipDescendantUpdate: true});
+        function shouldRelabelGivenParents () {
+          // Relabel the parents of a constructibleGiven? 
+          // We relabel IFF all given vertices have either labels or style.nameOrigin === "namedFromLabel"
+          // If some parents are unlabeled, we don't relabel any of them.
+          // Note that any labeled candidate parent will keep its label.
+          var relabel = true;
+          if (!matchedGiven.parentMatches) {
+            relabel = false;
+          } else {
+            matchedGiven.parentMatches.forEach (function (match) {
+              var parent = match.given;
+              if (!parent.label && (!parent.style.nameOrigin || parent.style.nameOrigin !== "namedFromLabel")) {
+                relabel = false;
+                return false;
+              }
             });
-            parentalUpdateSkipped = true;
           }
-          
-          function updateParentalDescendants () {
-            // update the descendants skipped earlier
-            candidate.parentsList.forEach (function (par, ix) {
-              par.descendantGraphHasChanged ();
-              par.descendantLabelGraphHasChanged();
-            });
-          }
-          
-          function deleteGivenParents (sketch) {
-            var pList = {};
-            if (session.generatedLabels) {  // give back any parental labels
-              sketch.labelPool.restoreSavedState();
-              sketch.labelPool.saveState(session);       
-            }      
-            given.parentsList.forEach (function (par) {
-              pList[par.id] = par;
-              par.children = [];
-              session.generatedLabels[par.id] = false;
-            });
-            given.parentsList = [];
-            given.parents = {};
-            sketch.gobjList.removeGObjects(pList, sketch);
-          }
+          return relabel;
+        }
   
+        function mergeGivenParents () {
+          // Use matchedGiven.givenParentTransactions and matchedGiven.candidateParentTransactions to merge the parents.
+          if (matchedGiven.parentMatches) {
+            matchedGiven.parentMatches.forEach (function (match) {
+              if (relabelConstructibleParents && match.given.label) {
+                match.given.label = "";
+              }
+              sketch.mergeGobjToCandidate(match.given, match.mergeCandidate, {skipUpdate: given});
+              delete session.constructedObjects[match.given.id];
+            });
+          } else {
+            $.each (matchedGiven.given.parents, function (key, parent) {
+              if (relabelConstructibleParents && parent.label) {
+                parent.label = "";
+              }
+              sketch.mergeGobjToCandidate(parent, candidate.parents[key], {skipUpdate: given});
+              delete session.constructedObjects[parent.id];
+            });
+          }
+        }
+  
+  /*
+        function updateParentalDescendants () {
+          // update the descendants skipped earlier
+          candidate.parentsList.forEach (function (par) {
+            par.descendantGraphHasChanged ();
+            par.descendantLabelGraphHasChanged();
+          });
+        }
+  */
+        
+        function deleteGivenParents () {
+          // Give back parent labels that were not used.
+          if (session.generatedLabels) {  // give back any parental labels
+            sketch.labelPool.restoreSavedState();
+            sketch.labelPool.saveState(session);       
+          }      
+          given.parentsList.forEach (function (par) {
+            sketch.gobjList.removeGObjAndDescendants(par);
+            session.generatedLabels[par.id] = false;
+            delete session.constructedObjects[par.id];
+          });
+          given.parentsList = [];
+          given.parents = {};
+        }
+  
+        // body of finalize
+  /*global TOOLS:true */
+  console.log ("Finalizing", this);
+  TOOLS.checkSketchGraph ("libSketch", "verbose");
+        if (constructible) {  // clean up 
+          $.each (given.parents, function () {
+            if (this.state.touchOffset) {
+              delete this.state.touchOffset;
+            }
+          });
+        }
         if (this.intersectInfo) {
-          session.sketch.putGivenOnIntersection(given, this.intersectInfo);
+          sketch.putGivenOnIntersection(given, this.intersectInfo);
         } else if (!candidate) {
           return; // No intersection, no candidate: nothing to do.
         } else {
           if (candidate.kind === "Point" || candidate.isOfKind("Text") || (candidate.isAPath() && given.isAPath())) {
-            session.sketch.mergeGobjToCandidate (given, candidate/*, session.sketch, session.constructedObjects*/);
-            if (parentalUpdateSkipped) {
-              updateParentalDescendants (candidate);
+            if (constructible) {
+              // If the constraints match and the givenParents match, or can be made to match, merge the givenParents.
+              relabelConstructibleParents = shouldRelabelGivenParents();
+              if (given.finalizeMatch) {  // Allow the given to clean up
+                given.finalizeMatch (matchedGiven);
+              }
+              if (given.constraint === candidate.constraint &&
+                    (given.parentsList.length === candidate.parentsList.length)) { 
+                mergeGivenParents (relabelConstructibleParents);  // they already match, or have been made to match
+              } else {
+                deleteGivenParents ();  // constraints or # of parents don't match
+              }
             }
+            sketch.mergeGobjToCandidate (given, candidate);
+            delete session.constructedObjects[given.id];
           } else if (candidate.isAPath()) {
-            session.sketch.putGivenOnPath(given, candidate, this.value);
-          }
-          // Wait till after merging the constructibleGiven to merge its parents. Otherwise the constructibleGiven can
-          // be added (erroneously) as a child to one of the givenParents
-          if (this.given.toolRole === "constructibleGiven") {
-            if (given.constraint === candidate.constraint && given.parentsList.length === candidate.parentsList.length) {
-              mergeGivenParents (session);
-            } else {  // constraints or # of parents don't match
-              deleteGivenParents (session.sketch);
-            }
+            sketch.putGivenOnPath(given, candidate, this.value);
           }
         }
         this.clearMatches();
-      }
+  console.log ("Finalizing", this);
+  TOOLS.checkSketchGraph ("libSketch", "verbose");
+  /*global TOOLS: false */
+      } // finalize
     };  // matchedGivenProto
   
   
@@ -41952,18 +42024,22 @@
       /**
        * Aborts the active tool, if there is one.  It cancels any tool in progress.
        * This does the job of cleaning up any associated ui.
-       * It's a no-op if there's no active tool
        */
       abortActiveTool: function() {
         var regime = this.activeRegime,
-            name = GSP._get(this.activeTool, 'metadata.name');
+            name = this.activeTool.metadata.name;
         if (regime) {
-          // Original code tested for activeTool AFTER popping, so never generated an event
-          // Now we get tool name before popping (while activeTool exists)
-          // Popping the regime will trigger our delegate who performs all of the cleanup
+          //Popping the regime will trigger our delegate who performs all of the cleanup
           this.sketch.popAllTouchRegimesIncluding(regime);
         }
-        this.sketch.event('ToolAborted', {}, {tool: {name: name}});
+        this.sketch.event(
+          'ToolAborted',
+          {},
+          {
+            'tool': {
+              name: name
+            }
+          });
       },
       
       /**
@@ -41989,8 +42065,8 @@
               'ToolPlayed',
               {},
               {
-                delta: delta,
-                tool: {
+                'delta': delta,
+                'tool': {
                   name: oldTool.metadata.name
                 }
               });
@@ -42045,17 +42121,15 @@
         }
         
         var toolRegime;
-        this.preToolDelta = this.sketch.document.getRecentChangesDelta();
         this.sketch.event(
           'WillPlayTool',
           {},
           {
-            tool: {
+            'tool': {
               name: tool.metadata.name
-            },
-            preToolDelta: this.preToolDelta
-          }
-        );
+            }
+          });
+        this.preToolDelta = this.sketch.document.getRecentChangesDelta();
         this.activeTool = tool;
         tool.$element.addClass("wsp-tool-active");
         
@@ -42063,21 +42137,7 @@
           var self = this;
           var initializeControls = !this.$closeBox;
           var container = this._getUndoRedoContainer();
-          var newObjIds = [];
           toolRegime = this.createToolRegime();
-          $.each(toolRegime.toolplaySession.constructedObjects, function() {
-            newObjIds.push(this.id);
-          });
-          this.sketch.event(  // Let client know tool gobjs are instantiated
-            'ToolPlayBegan',
-            {},
-            {
-              tool: {
-                name: tool.metadata.name
-              },
-              newObjIds: newObjIds
-            }
-          );
           toolRegime.delegate = self;
           this.sketch.pushTouchRegime(toolRegime);
           this.activeRegime = toolRegime;
@@ -44116,47 +44176,28 @@
          * The maximum length of time a touch can remain down and still be
          * a tap gesture
          */
-        tapTouchTime = 500,
+        tapTouchLength = 500,
         /**
          * The maximum period of time between two taps for them to
          * be considered part of a double tap gesture
          */
-        betweenTapsTime = 500;
-   
+        betweenTapsLength = 500;
+  
+    function fits(late, early, duration) { return late - early < duration; }
+  
     GSP.TapTracker = {
       startTime: null,
       endTime: null,
       kMaxTapMovement: 5, // Max distance a tap can stray in any direction
-      tapState: '',
-      
-      checkTapState: function(pos) {
-        // it's rejected if it moved too far or stayed down too long
-        // it's confirmed if it didn't move too far and came up 
-        var expired = Date.now() - this.startTime > tapTouchTime,
-            tooFar = this.distanceMoved(pos) > this.kMaxTapMovement;
-        if (this.tapState === 'potential') {
-          if (expired || tooFar) {
-            this.tapState = 'rejected';
-          } else if (this.endTime && this.endTime - this.startTime <= tapTouchTime) {
-            this.tapState = 'confirmed';
-          }
-        }
-        return this.tapState;
-      },
-      
       isTap: function() {
-        if (this.tapState === 'potential') {
-          this.checkTapState(this.pos);
-        }
-        return this.tapState === 'confirmed';
+        return fits(this.endTime, this.startTime, tapTouchLength);
       },
-      
       registerAsPossibleDoubleTap: function () {
         // Consider whether this might be the second tap of a double
         if (firstTap &&
-            firstTap.endTime && !firstTap.maybeDouble &&
-            firstTap.isTap() &&
-            this.startTime - firstTap.endTime < betweenTapsTime) {
+          firstTap.endTime && !firstTap.maybeDouble &&
+          firstTap.isTap() &&
+          fits(this.startTime, firstTap.endTime, betweenTapsLength)) {
           this.maybeDouble = true;
         }
         firstTap = this;
@@ -44602,8 +44643,9 @@
   
   (function() {
     // Private variables and functions here
-    var kPauseTime = 1500,  // The Pause state times out after this many milliseconds.
-        kPreMergeTime = 3000; // The Pre-Merge state timeout.
+    var kInitalPauseTime = 500, // Pause before merging becomes active
+        kPreMergeTime = 2500,   // Time during which merging is active
+        kPauseTime = 2000;      // Pause before merging is reactivated
     
     GSP.DragMergeTracker = {
       // Track this touch for a possible drag-merge operation.
@@ -44660,7 +44702,7 @@
       },
       
       registerAsPossibleMerge: function (touch) {
-        // this.gobj is the object to be mwerged (only free points and parameters are allowed)
+        // this.gobj is the object to be merged (only free points and parameters are allowed)
         // dmCandidates is an array of possible candidates; each item has a candidate and a proxy.
         // For a point gobj candidates, the proxy is the candidate.
         // For a parameter gobj's candidates, include any object that references an eligible value.
@@ -44711,9 +44753,12 @@
           });
         }
   
-        if (!this.sketch.getAuthorPreference ("enableDragMerging")) {
+        // Body of registerAsPossibleMerge
+        // drag merging must be enabled and undoable, so check the pref and look for a visible undo button
+        if (!this.sketch.getAuthorPreference ("enableDragMerging") ||
+            !this.sketch.document.undoRedoButtonVisible())
           return false;
-        }
+  
         this.dmState = "Probe";   // the array of possible candidates
         this.dmCandidates = []; // Candidates to which the gobj can be merged. Each item has a proxy and
           // its candidate. Proxies are unique (and parallel to dmProxies);
@@ -44842,7 +44887,7 @@
           }
         }
         
-        function transitionToPause () {
+        function transitionToPause (time) {
           
           function pauseEnded () {
             //console.log ("Pause timer timed out.");
@@ -44859,7 +44904,7 @@
             self.setHighlights (false);
             //if (self.dmTimer2) console.log ("ERROR: starting Pause with PreMerge timer running.");
             if (!self.dmTimer1) { // start the timer only if it's not already running.
-              self.dmTimer1 = setTimeout (pauseEnded, kPauseTime);
+              self.dmTimer1 = setTimeout (pauseEnded, time);
               //self.showDebugInfo ("Pause timer started for ", self.dmCurProxy);
             }
             self.dmState = "Pause";
@@ -44873,7 +44918,7 @@
             //console.log ("PreMerge timer timed out.");
             self.dmTimer2 = undefined;
             if (setNextProxy ()) {
-              transitionToPause ();
+              transitionToPause (kPauseTime);
             } else {
               transitionToProbe ();
             }
@@ -44953,7 +44998,7 @@
           if (hits.indexOf (self.dmCurProxy) < 0) {   // dmCurProxy is gone
             transitionToProbe (); // shut off timers and highlighting
             if (setProxy (hits[0]))
-              transitionToPause (); // there is a hit, so start the clock
+              transitionToPause (kInitalPauseTime); // there is a hit, so enable the merge
             else
               transitionToProbe (); // there is no hit, so keep looking
           }
@@ -44964,45 +45009,31 @@
         var mergeCandidate = (this.dmState === "PreMerge" && this.dmCurProxy) ?
                               this.getCandidateFromProxy (this.dmCurProxy) : null,
             doc = this.sketch.document,
-            attr = {gobjId: this.gobj.id},
-            newGobj;  // the replacement gobj and id if the id changed
+            delta;
         this.setHighlights (false);
         this.clearTimers ();
-        if (!mergeCandidate) {
-          return false;
+        if (mergeCandidate) { // either a gobj or an intersection
+          if (this.gobj.kind === "Point" && mergeCandidate.isAPath && mergeCandidate.isAPath()) {  // merge gobj to path
+            this.sketch.putGivenOnPath(this.gobj, mergeCandidate,
+                                       mergeCandidate.mapPositionToPathValue(this.gobj.geom.loc));
+          } else if (mergeCandidate.path1) {  // merge gobj to newly created intersection
+            this.sketch.putGivenOnIntersection (this.gobj, mergeCandidate);
+          } else {  // merge gobj to an existing object of the same kind
+            this.sketch.mergeGobjToCandidate (this.gobj, mergeCandidate);
+          }
+          delta = doc.pushConfirmedSketchOpDelta (this.dmPreDelta);
+          doc.changedUIMode();
+          // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
+          this.sketch.event(
+            "MergeGObjs",
+            {
+              'merged': this.gobj,
+              'result': mergeCandidate
+            },
+            {
+              'delta': delta
+            });
         }
-        // mergeCandidate is either a gobj or an intersection
-        if (this.gobj.kind === "Point" && mergeCandidate.isAPath && mergeCandidate.isAPath()) {  // merge gobj to path
-          attr.pathValue = mergeCandidate.mapPositionToPathValue(this.gobj.geom.loc);
-          attr.pathId = mergeCandidate.id;
-          newGobj = this.sketch.putGivenOnPath(this.gobj, mergeCandidate, attr.pathValue);
-        } else if (mergeCandidate.path1) {  // merge gobj to newly created intersection
-          attr.path1Id = mergeCandidate.path1.id;
-          attr.path2Id = mergeCandidate.path2.id;
-          newGobj = this.sketch.putGivenOnIntersection (this.gobj, mergeCandidate);
-        } else {  // merge gobj to an existing object of the same kind
-          newGobj = this.sketch.mergeGobjToCandidate (this.gobj, mergeCandidate, {skipDescendantUpdate: true});
-          attr.mergeToId = mergeCandidate.id; 
-        }
-        attr.delta = doc.pushConfirmedSketchOpDelta(this.dmPreDelta);
-        if (newGobj) {
-          attr.newId = newGobj.id;
-        }
-        doc.changedUIMode();
-        // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
-        // Three options for attr; all include gobjId.
-        // point-point or param-value: mergeToId
-        // point-path: pathId & pathValue
-        // point-intersection: path1Id & path2Id
-        this.sketch.event(
-          "MergeGobjs",
-          {
-            gobj: this.gobj,
-            mergeInfo: mergeCandidate
-          },
-          attr
-        );
-        return true;
       }
       
     };
@@ -45080,12 +45111,7 @@
       touchBegan: function (pos, touch) {
         this.origX = this.lastX = pos.x;
         this.origY = this.lastY = pos.y;
-        this.tapState = 'potential';
-      /* A tap has three possible tapStates: potential (the initial state at touchBegan),
-       * confirmed (if the touchEnded is within the time and distance limits),
-       * and rejected (if touchMoved exceeds either time or distance limit).
-       */
-      
+  
         this.registerAsPossibleDoubleTap();
         this.possibleMerge = this.sketch.currentTouchRegime().name === "DisplayRegime" && this.registerAsPossibleMerge (touch);
         if (!this.gobj.style.selectable) return;  // this can't be a drag if gobj is unselectable
@@ -45134,18 +45160,6 @@
             return;
           }
         }
-        // We send the StartDragConfirmed event just once, as soon as we know it's a drag
-        // If tapState is rejected, this must be a drag
-        if (!this.dragConfirmed && this.checkTapState() === 'rejected') {
-          this.dragConfirmed = true;
-          if (this.sendTouchEvents) {
-            this.sketch.event("StartDragConfirmed", {
-              gobj: this.gobj,
-              position: pos,
-              touch: touch
-            });
-          }
-        }
         
         var refCon = {    
           transform: {
@@ -45182,31 +45196,25 @@
         this.lastY = pos.y;
       },
       distanceMoved: function(pos) {
-        return Math.max(Math.abs(this.lastX - this.origX),
-                        Math.abs(this.lastY - this.origY));
+        return Math.max(Math.abs(pos.x - this.origX),
+                        Math.abs(pos.y - this.origY));
       },
-      
       touchEnded: function (pos, touch) {
-        var isTap = this.isTap() && this.distanceMoved(pos) < this.kMaxTapMovement,
-            didMerge;
         if (this.gobj.style.selectable) {
           this.motionManager.ApplyCurrent();
           this.motionManager.EndMotion(this.motionId);
           this.sketch.invalidateGeom(this.gobj);
           this.gobj.dragDidEnd();
+          if (this.possibleMerge) {
           // When in DisplayRegime, let DragMergeTracker know about touchEnded events
+            (this.touchEnded.base[this.dragMergeBaseIndex] || arguments.callee.base).call(this, pos, touch);
+          }
           if (this.sendTouchEvents) {
-            // The drag can end with a MergeGobjs event (in dragMergeTracker) or with an EndDrag event here
-            if (this.possibleMerge) { 
-              didMerge = (this.touchEnded.base[this.dragMergeBaseIndex] || arguments.callee.base).call(this, pos, touch);
-            }
-            if (!didMerge && !isTap) { // No MergeGobjs event, no Tap event, so send EndDrag.
-              this.sketch.event("EndDrag", {
-                gobj: this.gobj,
-                position: pos,
-                touch: touch
-              });
-            }
+            this.sketch.event("EndDrag", {
+              gobj: this.gobj,
+              position: pos,
+              touch: touch
+            });
           }
         }
         this.checkForOverlapCycleTap ();
@@ -45214,7 +45222,8 @@
           this.gobj.doubleClicked(touch);
         }
         // Note: A tap event fires on each tap of a double tap.
-        if (this.sendTouchEvents && isTap) {
+        if (this.sendTouchEvents &&
+            this.isTap() && this.distanceMoved(pos) < this.kMaxTapMovement) {
           this.sketch.event("Tap", {
             gobj: this.gobj,
             position: pos,
@@ -45225,7 +45234,7 @@
   
         // Tell the longPress job we are done and gone.
         this.touchIsInProgress = false;
-      }  // touchEnded
+      }
   
     });
     
@@ -45556,17 +45565,6 @@
             touch: touch,
             isLabelTap: true
           });
-        } else {
-          this.sketch.event(
-            "EndLabelDrag",
-            {
-              gobj: this.gobj
-            },
-            { newPos: GSP.GeometricPoint(pos.x, pos.y),
-              cornerDelta: this.labelCornerDelta,
-              action: 'Dragged' // Label event actions have " label of point A" appended.
-            }
-          );
         }
   
         // Tell the longPress job we are done and gone.
@@ -45656,6 +45654,15 @@
   
     var trackerProto = GSP.makeClass([GSP.AbstractToolTracker, GSP.TapTracker], {
   
+      startDragTracker: function (given, touchPos) {
+        if (this.dragTracker && this.dragTracker.started) {
+          this.dragTracker.touchEnded();
+        }
+        this.dragTracker = GSP.DragTracker.create( [given], { sendTouchEvents: false });
+        this.dragTracker.touchBegan(touchPos);
+        this.dragTracker.started = true;
+      },
+    
       touchBegan: function (evt) {
         var matchedGiven = this.matchedGiven,
             given = matchedGiven.given,
@@ -45679,9 +45686,27 @@
           }
         } else {
           touchPos = matchedGiven.updateDeltaToGiven(touchPos);
+          gLoc = touchPos.subtract (matchedGiven.deltaToGiven);
+          if (given.toolRole === "constructibleGiven") {
+            // Store the locs of givenParents, relative to touchPos, for later restoration by unSnap.
+            // do this here, rather than using the transaction facilities, both because transactions
+            // don't survive multiple snap/unsnap operations, because snapping and unsnapping can
+            // change the number of givenParents whereas a snap/unsnap cycle reverts to the original
+            // givenParents, and because transactions have no other reason to be aware of touchPos.
+            // Note that we must take care to delete this state information on merge.
+            $.each (given.parents, function (key, parent){
+              if (!parent.state.touchOffset) {
+                parent.state.touchOffset = parent.geom.loc.subtract (gLoc);
+              }
+              else console.log ("animatePathSnap found a givenParent with touchOffset already computed:", parent); 
+            });
+          }
         }
-        this.dragTracker = GSP.DragTracker.create([matchedGiven.given], { sendTouchEvents: false });
-        // The toolTracker (this) has its own dragTracker, but don't start it up till after the initial chase.
+        // Start the our dragTracker now,. If there's a constructible given, the tracker needs to remember its original state.
+        // We won't give it touchMove events while the given is chasing the mouse or snapped to a candidate.
+        // Nor can we give it move events during an unsnap operation, because a givenParent might still be snapped to a
+        // candidate, which (if a transformed image) will try to reverse-transform the candidate's preimage. 
+        this.startDragTracker (matchedGiven.given, touchPos);
         this.adjustChaseTarget = regime.startChasing (matchedGiven, touchPos);
         this.touchMoved(touchPos);
       },
@@ -45698,17 +45723,20 @@
             proxy,  // If there's a proxy, highlight it in the UI, but merge to the ancestor it represents
             isPathMatch,
             newLoc,
+            touchDelta,
             retVal;
             
         // findNewMergeCandidate and touchMoved keep track of whether the user is unsnapping from some previous candidate.
         // If so, don't return that candidate. But if the touch doesn't generate a candidate, it's time to forget
         // the unsnappingFrom candidate, allowing the user to move off a candidate and then back onto it.
         
+        
+  /* DEFUNCT CODE HERE
         function adjustUnsnapPos () { // find the motion item for the drag tracker, resetting idealLocation
                                       // to center the unsnapped given (point or text) on the pointer.
           var ix, mMgr, mSet, item,
               tracker = self.dragTracker;
-          if (given.geom.loc) {
+          if (given.geom.loc || given.toolRole === "constructibleGiven") {
             mMgr = tracker.motionManager;
             try {
               for (ix = 0; ix < mMgr.motionList.length; ix++) { // motionList has indices into motionSet.
@@ -45727,7 +45755,9 @@
             }
           }
         }
+  */
         
+        // Body of findNewMergeCandidate
         if (newMergeCandidate && given.genus.includes ("Parameter")) { // Parameters can match to Pegged or CompositeText objects...
           proxy = newMergeCandidate;
           newMergeCandidate = given.getLegalMatchForParam (newMergeCandidate);
@@ -45744,9 +45774,16 @@
         retVal = (newMergeCandidate || prevMergeCandidate) && newMergeCandidate !== prevMergeCandidate;
         if (retVal && prevMergeCandidate) {
           newLoc = GSP.GeometricPoint (this.dragTracker.lastX, this.dragTracker.lastY);
+          console.log ("Unsnapping from candidate: ", prevMergeCandidate.id);
           matchedGiven.unsnapFromCandidate (newLoc);
-          // After unsnapping, center the dragTracker.
-          adjustUnsnapPos ();
+          if (given.toolRole === "constructibleGiven") {
+            if (!self.regime.pointInRegion (touchPos, given))
+              touchDelta = touchPos.subtract (given.mapPositionToPathPosition (touchPos));
+              // NOW THAT WE HAVE THE DELTA, WHAT SHOULD WE DO WITH IT? 
+          }
+          // Unsnapping changes relationships in the sketch, possibly invalidating the control list.
+          // Create a new tracker based on the current state of the given.
+          self.startDragTracker (matchedGiven.given, touchPos); // and start a new one.
         }
         if (newMergeCandidate && newMergeCandidate.isAPath() && given.kind === "Point") {
           intersectInfo = sketch.findPotentialIntersection(newMergeCandidate, this.possibleTargets, touchPos, this.hitSlop);
@@ -45757,13 +45794,14 @@
           matchedGiven.clearIntersectInfo ();
         }
         if (retVal && !intersectInfo && newMergeCandidate) {  // There's a new candidate
+          console.log ("Snapping to new candidate: ", newMergeCandidate.id);
           matchedGiven.setMergeCandidate(newMergeCandidate, proxy);
           //  If isPathMatch, each givenParent must have its own target, so start an animatePathSnap (which aborts any chase).
           //  Otherwise, if matchedGiven.chase is active, the given will snap either when the chase ends or is aborted by touchEnded.
           //  If the chase is finished and there's no need for an animatePathSnap, but the mergeCandidate has changed,
           //  then we need to snap or unsnap the given as appropriate.
           if (isPathMatch) {
-            this.regime.animatePathSnap (matchedGiven);
+            this.regime.animatePathSnap (matchedGiven, touchPos);
           } else if (matchedGiven.chase !== "active") {
             if (matchedGiven.chase === "paused") {
               this.adjustChaseTarget = this.regime.startChasing (matchedGiven, touchPos);  // resume a paused chase till it catches the mouse
@@ -45773,31 +45811,44 @@
           }
         }
         return retVal;
-      },
+      },  // findNewMergeCandidate
       
       touchMoved: function (evt) {
         var matchedGiven = this.matchedGiven,
             touchPos = GSP.GeometricPoint (evt.x, evt.y),
             regime = this.regime,
-            given = matchedGiven.given;
+            given = matchedGiven.given,
+            constructible = given.toolRole === "constructibleGiven";
         if (!matchedGiven) throw GSP.createError("touchMoved doesn't have a matched given");
-        if (matchedGiven.chase === "active" && this.adjustChaseTarget) {
-          this.adjustChaseTarget (touchPos);
+        if (matchedGiven.chase === "active") {
+          if (this.adjustChaseTarget) {
+            this.adjustChaseTarget (touchPos);
+          }
+        //} else {  // No active chase
+        //  if ((constructible || !matchedGiven.isSnapping) && !this.dragTracker.started) {
+        //    this.dragTracker.touchMoved(touchPos);  // Start 
+        //  }
         }
         if (matchedGiven.delayed) { 
           if (!GSP.Geom.PointInRect (touchPos, matchedGiven.dragRect)) {
+            // The tests below may change the matchedGiven, so update this.matchedGiven at the end.
+            
             // User has dragged outside the dragRect, so this is an intentional drag of a constructible given or parent
             if (given.toolRole === "givenParent" || given.toolRole === "constructibleGiven" && matchedGiven.mergeCandidate) {
               //  given has already been matched, so unsnap it. unsnapConstructibleGiven() handles either constructible or a constructible parent.
-              this.matchedGiven = regime.unsnapConstructibleGiven (matchedGiven);  // NOTE: this changes the matchedGiven!
-              matchedGiven = this.matchedGiven;
-            } else if (given.toolRole === "constructibleGiven") {
+              matchedGiven = regime.unsnapConstructibleGiven (matchedGiven);  // NOTE: this changes the matchedGiven!
+            } else if (constructible) {
               //  The constructible isn't matched yet, but some parents may be, so recompose it for dragging.
-              this.matchedGiven = regime.recomposeConstructibleGiven (matchedGiven); 
+              matchedGiven = regime.recomposeConstructibleGiven (matchedGiven, touchPos);
+              // After recomposing, update the dragTracker's controlList for unsnapped givenParents.
+              this.startDragTracker (matchedGiven.given, touchPos);
             } else if (given.toolRole === "given") {
               // User is dragging a given (not the sequential one), so allow it to be dragged
               // CHECK: IF THIS GIVEN IS MATCHED, IT NEEDS TO BE UNSNAPPED, DOESN'T IT????
-              this.matchedGiven = regime._confirmDelayedMatchedGiven (matchedGiven);
+              matchedGiven = regime._confirmDelayedMatchedGiven (matchedGiven);
+            }
+            if (matchedGiven !== this.session.existingMatchedGivenForGObj (matchedGiven.given)) {
+              console.log ("Original matchedGiven has been altered.");
             }
           }
         } else if (!this.findNewMergeCandidate (touchPos)) {  // not a delayed match; can we find a new candidate?
@@ -45811,11 +45862,12 @@
             }
           }
         }
-        if (!matchedGiven.isSnapping && matchedGiven.chase !== "active") {
-          if (!this.dragTracker.started) {
-            this.dragTracker.touchBegan(touchPos);
-            this.dragTracker.started = true;
-          }
+        // The drag tracker shouldn't interfere with snapping, chasing, or with an already-snapped candidate
+        if (!(matchedGiven.isSnapping ||
+              matchedGiven.delayed ||
+              matchedGiven.chase === "active" ||
+              matchedGiven.mergeCandidate) &&
+              this.dragTracker.started) {
           this.dragTracker.touchMoved(touchPos);
         }
       },
@@ -45832,7 +45884,8 @@
         this.possibleTargets = this.regime.sharedMergeCandidateList;
         this.possibleTargets = this.session.getLegalMatchesForGiven (given, this.possibleTargets);
         this.matchedGiven = this.regime._addGObjAsMatchedGiven (given);
-        this.regime.snapGivenToPos (this.matchedGiven, GSP.GeometricPoint (pos.x, pos.y));
+        this.regime.startChasing (this.matchedGiven, GSP.GeometricPoint (pos.x, pos.y));
+        //this.regime.snapGivenToPos (this.matchedGiven, GSP.GeometricPoint (pos.x, pos.y));
         this.findNewMergeCandidate (pos);
         this.dragTracker.touchEnded();
         //  Can't we just set this.dragTracker to null? what does it do in touchEnded?
@@ -45917,6 +45970,14 @@
         return matchedGiven;
       },
       
+      _removeGObjAsMatchedGiven: function (gobj) {
+        var unmatched = this.sharedUnmatchedGivens,
+            removedGobj = this.toolplaySession.removeGObjAsMatchedGiven(gobj);
+        if (removedGobj) {
+          unmatched.unshift (removedGobj);
+        }
+      },
+      
       getConstructibleChild: function (parent) {
         var i, child, constructible;
         for (i=0; i<parent.children.length;i++) {
@@ -45966,7 +46027,7 @@
         var matchedGiven = this.toolplaySession.existingMatchedGivenForGObj (gobj);
         if (!matchedGiven) {
           matchedGiven = GSP.Tool.createMatchedGiven(gobj, this.toolplaySession);
-        } 
+        }
         matchedGiven.delayed = true;
         matchedGiven.toolRole = gobj.toolRole ? gobj.toolRole : 'none';
         matchedGiven.pos = pos;
@@ -45980,6 +46041,9 @@
             candidate = match.mergeCandidate,
             unmatched = this.sharedUnmatchedGivens,
             index = unmatched.indexOf(gobj);
+        if (match.delayed) {
+          delete match.delayed;
+        }
         if (candidate) {  // turn off target highlighting for the existing target, away from which it's being dragged.
           candidate.state.renderState = "none";
         }
@@ -46016,7 +46080,7 @@
           return constructibleHasCandidate (constructible, session);
         }
   
-        function paramEditCallback(result) {
+        function paramEditCallback() {
           // no need to check the result; it's either "changesAccepted" or "changesNotAccepted" 
           if (unmatched.length) { // The regime will go on to the next unmatched given, so it should glow
             unmatched[0].setRenderState ("unmatchedGiven");
@@ -46115,10 +46179,11 @@
       // A constructibleGiven can be matched either as one object or by its givenParents.
       // Initially it's a single object; decomposeConstructibleGiven switches it to match by givenParents.
       // This transition is one-way; once decomposed to be defined by parents, it cannot be recomposed.
+      // WHY NOT? Couldn't the user drag the interior to recompose it, thus unsnapping any parent matches?
       // This function is called in three situations:
       // 1. At the start of toolplay, the user drags a givenParent rather than the constructibleGiven.
       // 2. The user matches the constructibleGiven and then drags a givenParent, separating it from its match.
-      // 3. The user places the constructibleGiven in empty space and then drags a givenParent.
+      // 3. The user leaves the constructibleGiven in empty space and drags a givenParent.
       // Once decomposed, the constructibleGiven can't be dragged during toolplay, so it's removed
       // from the unmatchedGivens or matchedGivens lists.
       // If the constructible has a merge candidate, shift the parents (except for tapped) away from any previous match.
@@ -46135,6 +46200,7 @@
             arr.splice (ix, 1);
         }
         
+  console.log ("Decomposing ", constructible.kind, " after tap on ", tapped.label);
         if (this.cachedConstructibles.indexOf (constructible) !== -1) return; // no op if already decomposed.
         this.cachedConstructibles.push (constructible); // Mark it decomposed
         constructible.setRenderState ("none");
@@ -46149,6 +46215,7 @@
         for (i=0; i<parents.length; i++) {  // Put the parents in a separate array, to sort them
               // before putting them at the beginning of the unmatched array.
           parent = parents[i];
+          parent.toolRole = "given";
           ix = this.cachedGivenParents.indexOf (parent);  // Remove them from the givenParents array
           if (ix !== -1) {
             this.cachedGivenParents.splice (ix, 1);
@@ -46174,32 +46241,24 @@
         }
       },
   
-      //  The tapped constructible given has been dragged, and must be separated from its match
-      recomposeConstructibleGiven: function (matchedGiven) {
+      //  The tapped constructible given has been dragged; parents must be separated from their matches
+      recomposeConstructibleGiven: function (matchedGiven, touchPos) {
         var tapped = matchedGiven.given,
             index = this.cachedConstructibles.indexOf (tapped),
-            i, parent, match, candidate;
+            i, parent;
         if (tapped.toolRole !== "constructibleGiven") throw GSP.createError ("Wrong role in recomposeConstructibleGiven.");
-        if (index !== -1) { // given needs to be recomposed
-          this.cachedConstructibles.splice (index, 1);
-          for (i=tapped.parentsList.length - 1; i >= 0; i--) {
+        if (index >= 0) { // given needs to be recomposed
+          this.cachedConstructibles.splice (index, 1);        
+          for (i = tapped.parentsList.length - 1; i >= 0; i--) {
             parent = tapped.parentsList[i];
             parent.setRenderState (this.sequentialSnapping ? "matchedGiven" : "unmatchedGiven");
-            match = this.toolplaySession.existingMatchedGivenForGObj (parent);
-            index = this.toolplaySession.matchedGivens.indexOf (match);
-            if (index >= 0) {
-              candidate = this.toolplaySession.matchedGivens [index].mergeCandidate;
-              if (candidate) {
-                candidate.setRenderState ("none");
-              }
-              match.unsnapFromCandidate ();
-              this.toolplaySession.matchedGivens.splice (index, 1);
-            }
-            index = this.cachedGivenParents.indexOf (parent);
-            if (index < 0) {
-              this.cachedGivenParents.unshift (parent);
-            }
+            parent.toolRole = "givenParent";
+            this._removeGObjAsMatchedGiven (parent);
+            parent.geom.loc = parent.state.touchOffset.add (touchPos);
           }
+          this.sharedUnmatchedGivens.sort (function (a, b) {
+            return a.givenSortOrder < b.givenSortOrder ? -1 : 1;
+          });
         }
         return this._confirmDelayedMatchedGiven (matchedGiven);
       },
@@ -46229,7 +46288,9 @@
             i = matchedArr.findIndex (function (element) {
               return element.given.id === tapped.id;
             });
-            matchedArr.splice (i, 1);
+            if (i >= 0) { // tapped may be a givenParent that's not yet matched.
+              matchedArr.splice (i, 1);
+            }
             return matchedGiven; // Nothing more to do here...
           }
         }
@@ -46342,10 +46403,9 @@
         });
       },
       
-      animatePathSnap: function (matchedGiven) {
+      animatePathSnap: function (matchedGiven, touchPos) {
         // The matchedGiven.given is a constructibleGiven. Animate its givenParents to the correct locations on the candidate.
-        var parents = [], // objects to move
-            pLocs = [],  // parent locations
+        var pLocs = [],  // parent locations
             tLocs = [], // target locations
             regime = this,
             session = regime.toolplaySession,
@@ -46354,6 +46414,7 @@
             candidate = matchedGiven.mergeCandidate,
             oldRenderState = given.state.renderState,
             duration = 1000,
+            aborting,
             startTime, r;
         
         function dist2 (p1, p2) { // Square of the distance
@@ -46363,26 +46424,43 @@
         }
         
         function frame () {
-          if (matchedGiven.mergeCandidate !== candidate) {
-            return false; // mergeCandidate has changed, so abort
-          }
           var r1, now = Date.now();
           r = Math.min ((now - startTime) / duration, 1);
           r1 = 1-r;
+          //console.log ("Snap animation at", r);
+          if (matchedGiven.mergeCandidate !== candidate) {
+            if (!aborting) {
+              console.log ("Animation aborted at r =", r, "due to candidate change from ", candidate ? candidate.id : "none", "to", matchedGiven.mergeCandidate ? matchedGiven.mergeCandidate.id : "none");
+            }
+            aborting = true;
+            return false; // mergeCandidate has changed, so abort
+          }
           switch (given.kind) {
             case "Straight":
             case "Polygon":
             case "Circle":
             case "Arc":
-              parents.forEach (function (par, ix) {
-                var p = pLocs[ix],
-                    t = tLocs[ix];
-                if (p && t) { // guard against an overlapping call to animatePathSnap having removed the array contents
-                  par.geom.loc.x = r1 * p.x + r * t.x;
-                  par.geom.loc.y = r1 * p.y + r * t.y;
-                  par.invalidateGeom ();
+              // guard against an overlapping call to animatePathSnap having removed the array contents
+              if (candidate === matchedGiven.mergeCandidate && pLocs.length === tLocs.length) {
+                try {
+                  $.each(given.parentsList, function (key, par) {
+                    var p = pLocs[key],
+                        t = tLocs[key];
+                    par.geom.loc.x = r1 * p.x + r * t.x;
+                    par.geom.loc.y = r1 * p.y + r * t.y;
+                    par.invalidateGeom ();
+                  });
                 }
-              });
+                catch (error) {
+                console.log ("Caught: Animation aborted mid-frame due to candidate change.");
+                console.log ("given parents: ", given.parentsList, " candidate parents; ", candidate.parentsList);
+                return false;                
+                }
+              } else {
+                console.log ("Animation aborted; animatePathSnap() frame parents don't match.");
+                console.log ("given parents: ", given.parentsList, " candidate parents; ", candidate.parentsList);
+                return false;
+              }
               break;
           }
           return r !== 1;
@@ -46393,12 +46471,21 @@
           matchedGiven.isSnapping = false;
           duration = 1;
           frame ();
+  ///*global TOOLS:true */
+  //console.log ("given ", matchedGiven, " animation finished");
+  //if (!TOOLS.checkSketchGraph ("libSketch")) {
+  //  TOOLS.checkSketchGraph ("libSketch", "verbose");
+  //}
           matchedGiven.snapToCandidate ();  // Snap the candidate once the animation finishes.
           regime.confirmToolWhenReady ();  // The tool may be ready to finish, holding off until the animation ends.
         }
         
         function doMatchAnimation () {
           duration = 1000;
+  //console.log ("given ", matchedGiven, " animation starting");
+  //if (!TOOLS.checkSketchGraph ("libSketch")) {
+  //  TOOLS.checkSketchGraph ("libSketch", "verbose");
+  //}
           startTime = Date.now();
           r = 0;
           regime.pathAnimationJob = sketch.jobScheduler.addJob(
@@ -46410,20 +46497,26 @@
         }
         
         // Body of animatePathSnap()
-        regime.clearAnimations ();  // abort any existing animation
-        if (!given.isAPath() || given.toolRole !== "constructibleGiven" ||
-                candidate.parentsList.length !== given.parentsList.length) {
-          return;
-        }
-        // Launch an animation job to snap the given parents to the candidate parents. 
-        given.parentsList.forEach (function (parent) {
-          if (parent.toolRole === "givenParent")
-            parents.push (parent);
-        });
+  console.log ("given ", given.id, " animatePathSnap starting");
+  //if (!TOOLS.checkSketchGraph ("libSketch")) {
+  //  TOOLS.checkSketchGraph ("libSketch", "verbose");
+  //}
+    regime.clearAnimations ();  // abort any existing animation
+    // Launch an animation job to snap the given parents to the candidate parents. 
+    // Migrate the prep methods below to their respective constraints.
+    // The migrated function returns two matched arrays, one containing the locations of the given parents (pLocs)
+    // and one containing the locations corresponding parents of the candidate (tLocs).
+    if (given.prepareSnapAnimation) {
+      given.prepareSnapAnimation (candidate, pLocs, tLocs);
+  //console.log ("given ", matchedGiven, " prepareSnapAnimation finished");
+  //if (!TOOLS.checkSketchGraph ("libSketch")) {
+  //  TOOLS.checkSketchGraph ("libSketch", "verbose");
+  //}
+      } else {
         switch (candidate.kind) {
           case "Straight":
           case "Axis":
-            if (parents.length !== 2) throw GSP.createError("incorrect # of givenParent objects for a straight match.");
+            if (given.parentsList.length !== 2) throw GSP.createError("incorrect # of givenParent objects for a straight match.");
             pLocs.push (given.geom.p0);
             pLocs.push (given.geom.p1);
             tLocs.push (candidate.geom.p0);
@@ -46448,12 +46541,7 @@
             }
             break;
           case "Polygon":
-            if (given.parentsList.length !== candidate.parentsList.length) throw GSP.createError("incompatible polygons in doMatchAnimation().");
-            given.geom.points.forEach (function (element, ix) {
-              pLocs.push (element);
-              tLocs.push (candidate.geom.points[ix]);
-            });
-            break;
+            throw GSP.createError("animatePathSnap() for polygons should be handled in polygon code.");
           case "Arc":
             var a = candidate.geom.arc,
                 dist, delta;
@@ -46470,11 +46558,23 @@
           default:
             throw GSP.createError("Unrecognized constructibleGiven");
         }
-        given.setRenderState ("matchedGiven");
-        matchedGiven.isSnapping = true;
-        doMatchAnimation ();
-        given.setRenderState (oldRenderState);
-      },  // animatePathSnap
+      }
+      given.parentsList.forEach (function (parent) {  // This test is for debugging only.
+        if (!parent.toolRole.match(/(given|added)Parent/g)) {
+          console.log ("animatePathSnap() found constructibleGiven with improper parent.");
+          throw GSP.createError("animatePathSnap() found constructibleGiven with improper parent.");
+        }
+      });
+      // After pre-processing, the # of candidate parents must be equal to or less than the number of given parents
+      if (!given.isAPath() || given.toolRole !== "constructibleGiven" || candidate.parentsList.length > given.parentsList.length) {
+        throw GSP.createError("animatePathSnap: too few given parents to match candidate.");
+      }
+      given.setRenderState ("matchedGiven");
+      matchedGiven.isSnapping = true;
+      doMatchAnimation ();
+      given.setRenderState (oldRenderState);
+    },  // animatePathSnap
+  ///*global TOOLS:false */
   
       startChasing: function (matchedGiven, touchPos) { // There's no mergeCandidate, so animate the given to touchPos
         // Returns adjustTargetPos() if chasing begins, or undefined otherwise
@@ -46853,6 +46953,9 @@
         while (given) { // Assemble an array of unmatched givens, including cachedParents and constructibleGivens
           if (given.toolRole === "constructibleGiven") {
             givenInSketch = sketch.gobjList.gobjects[given.id];
+            if (!givenInSketch.givenSortOrder) {
+              givenInSketch.givenSortOrder = 0;  // A constructibleGiven without a sort order should come before its parents
+            }
           } else {
             pos = positions[given.id] ||
               // Remember the initial position of non-point givens, for relative positioning.
@@ -46875,7 +46978,6 @@
               cSort = cGobj.givenSortOrder,
               cKeep = true, // the default unless a parent has a lower givenSortOrder
               pSort;
-              cSort = cSort ? cSort : Infinity;
           cGobj.parentsList.forEach (function (pGobj) {
             pSort = pGobj.givenSortOrder;
             if (pSort && pSort < cSort) {
@@ -48235,8 +48337,8 @@
     invalidateAppearance: function() {
       this.sQuery.sketch.invalidateAppearance(this);
     },
-    invalidateGeom: function(source) {
-      this.sQuery.sketch.invalidateGeom(this, source);
+    invalidateGeom: function() {
+      this.sQuery.sketch.invalidateGeom(this);
     },
     /*
      * GObjects may return a colorable component, which serves
@@ -49821,25 +49923,28 @@
         if (this.clonedGObj.cleanupVectorRendering) {
           return this.clonedGObj.cleanupVectorRendering(drawContext, drawRefCon, this.vectorContext);
         }
-      },
-      
+      },  
       render: function (drawContext, drawRefCon, renderArgs) {
-        var props =
-          { hidden: this.style.hidden,
-            width: this.style.width,
-            color: this.style.color,
-            radius: this.style.radius,
-            opacity: this.calculateOpacity(),
-            renderable: true,
-            constraintFrame: this.state.constraintFrame
-            // Even if the sampleGobj doesn't currently exist, we must
-            // render the vector because some samples may still exist,
-            // and they must be rendered to erase themselves.
-          };
+  
+        var props = {
+                hidden: this.style.hidden,
+                width: this.style.width,
+                color: this.style.color,
+                radius: this.style.radius,
+                opacity: this.calculateOpacity(),
+                renderable: true,
+                constraintFrame: this.state.constraintFrame
+                //Must always render because some objects need to 'render' to
+                //erase themselves.  Also, though the sampleGobj is currently non-existing
+                //some samples may be existing
+            };
+  
         if (this.style["line-style"]) {
           GSP.modifyRenderAttrsForLineStyle(this.style["line-style"], props);
         }
+  
         this.modifyRenderAttrsForCurrentState(props);
+  
         if (this.clonedGObj.renderVector) {
           this.updateKindHTMLStyle();
           return this.clonedGObj.renderVector(drawContext, 
@@ -49849,7 +49954,6 @@
                                        props);
         }
       },
-      
       getGeomBounds: function () {
         
         if (this.clonedGObj.getGeomBoundsVector) {
@@ -50128,6 +50232,7 @@
                     constraintFrame: this.state.constraintFrame,
                     zIndex: renderArgs.zIndex
                 };
+  
             this.updateButtonSpeakableText(this.oldText, this.label);
   
             if (renderable) {
@@ -51744,17 +51849,21 @@
         this.geom.p0 = GSP.GeometricPoint.ORIGIN;
         this.geom.p1 = GSP.GeometricPoint.ORIGIN;
       },
+      
       collapseDoubledParent: function (parent) {
         // If there are two point parents collapsed into one, delete the straight
         // after merging any midpoint or point-on-path child to the merged parent.
         var sketch = this.sQuery.sketch;
-        this.children.forEach (function (child) {
-          if (child.constraint === "Midpoint" || child.constraint === "PointOnPath") {
-            sketch.mergeGobjToCandidate (child, parent);
-          }
-        });
-        sketch.gobjList.removeGObjAndDescendants(this);
+        if (this.parents.p0 === parent && this.parents.p1 === parent) {
+          this.children.forEach (function (child) {
+            if (child.constraint === "Midpoint" || child.constraint === "PointOnPath") {
+              sketch.mergeGobjToCandidate (child, parent);
+            }
+          });
+          sketch.gobjList.removeGObjAndDescendants(this);
+        }
       },
+      
       getColorableComponent: function() {
         return "Straights";
       },
@@ -53315,6 +53424,7 @@
             opacity: this.calculateOpacity(),
             zIndex: renderArgs.zIndex
           };
+  
       attrs.x = this.geom.loc.getX();
       attrs.y = this.geom.loc.getY();
   
@@ -55681,7 +55791,6 @@
        *  to be a number here.  
        */        
       updateValue: function (newValue) {
-        var sketch = this.sQuery().sketch;
         if ((typeof newValue === "function") || (typeof this.value === "function")) {
           throw GSP.createError("Expression.updateValue() called on function or with value arg that is a function");
         }
@@ -55694,8 +55803,7 @@
         this.isExpressionDirty = true;
         this.fnExpression = undefined;
         this.parsedInfix = undefined;
-        sketch.invalidateGeom(this);
-        sketch.document.raiseSketchEvent(sketch.getPageId(), this.id, "update");
+        this.sQuery().invalidateGeom(this);
       },
       
       prepareToSerialize: function() {
@@ -57780,19 +57888,15 @@
       
       //Override to allow for non-existing source
       checkParentsExist: function () {
-        if (this.getParent('map').state.exists) {
-          return true;
-        }
-        // The map doesn't exist, presumably because the source doesn't,
-        // so neither does the iterated image.
-        if (this.state.exists) {
-          // When setting existence to false, we also need to wipe our 
-          // samples, since our map's constrain function won't be called and
-          // the map usually manages these tasks.
-          this.state.exists = false;
+        var didExist = this.state.exists;
+        this.state.exists = didExist && this.namedParentExists('map');
+        if (didExist && !this.state.exists) {
+          //If we're setting existence to false, we also need to wipe our 
+          //samples, since our map's constrain function won't be called and
+          //the map usually manages these tasks.
           this.clearSamples();
         }
-        return false;
+        return this.state.exists;
       }
   
   });
@@ -65378,7 +65482,7 @@
       // movement is on hold if either object does not exist (unless we have 
       // a cached target location.
       canKeepMoving: function canKeepMoving() {
-        return this.moverGObj.state.exists && (false !== this.getDest());
+        return this.moverGObj.state.exists && (false !== this.getDestination());
       },
   
       /*
@@ -65476,16 +65580,15 @@
        * travel. 'This' is assumed to be a motion object with a target
        * and a destination. We set this.distance to the distance of the
        * motion, or 0 if the motion should be skipped.
-       * Subclass must define both getDestLoc to return the target's geom.loc
-       * and getDest() to return a value that determines the location.
+       * 
        * @return {undefined}
        */
       initializeDistance: function initializePointDistance(){
         var mover = this.moverGObj,
-            targetLoc = this.getDestLoc();
+            targetLoc = this.getDestination();
   
         //set the distance between the target and the mover
-        if (targetLoc) {
+        if (this.getDestination()) {
           this.distance = targetLoc.subtract(mover.geom.loc).vLength();
         }
         else {
@@ -65497,16 +65600,24 @@
           //probably not desirable, but at least the two implementations are consistent.
           this.distance = 10;
         }
+      },
+  
+      getDestination: function getDestination() {
+        return this.targetGObj.geom.loc.isDefined() && this.targetGObj.geom.loc;
       }
+  
+  
     });
   
     var ParameterMotion = GSP.makeClass(MoveMotion, {
+  
       init: function init() {
         (init.base || arguments.callee.base).call(this);
         this.isValueChangingMotion = true;
       },
   
-      getDest: function getDest () {
+      getDestination: function getDestination () {
+        
         // If we're instant, and our target is blank,
         // we can become blank.
         if(this.targetGObj.blank) {
@@ -65547,7 +65658,7 @@
   
       getStep: function getStepValue() {
         var moverGObj = this.moverGObj,
-            targetValue = this.getDest(),
+            targetValue = this.getDestination(),
             delta = targetValue - moverGObj.value,
             sign = (delta < 0)? -1: 1,
             atEnd = (delta === 0),
@@ -65580,7 +65691,8 @@
                     }
   
                   } else {
-                    moverGObj.updateValue(moverGObj.value + sign * Math.abs(rate));
+                    moverGObj.updateValue(moverGObj.value 
+                                          + sign * Math.abs(rate));
                   }
                 }
                 
@@ -65596,7 +65708,7 @@
       getStep: function getStepPointRoots() {
         var kLEN_TOLERANCE = 1e-12, // rounding error might get us close but not exactly at target
             p0 = this.moverGObj.geom.loc,
-            v = this.getDest().subtract(p0), 
+            v = this.getDestination().subtract(p0), 
             len = v.vLength(),
             motion = this,
             step = {
@@ -65634,41 +65746,28 @@
               }
             };
         return step;
-      },
-      
-      getDestLoc: function getDestLoc() {
-        return this.targetGObj.geom.loc.isDefined() && this.targetGObj.geom.loc;
-      },
-      
-      getDest: function getDest() {
-        return this.getDestLoc();
       }
   
     });
   
     var PointOnPathMotion = GSP.makeClass(PointMotion, {
-      
       getStep: function getStepPointOnPath() {
-        var motion = this,
-            kVAL_TOLERANCE = 1e-12, // rounding error might get us close but not exactly at target
-            moverGObj = this.moverGObj,
+        var moverGObj = this.moverGObj,
             targetGObj = this.targetGObj,
+            targetLoc = this.getDestination(),
+            EPSILON = 0.05, //cf. TowardDestinationViaPath_SourceActuallyHitDest()
             pathGobj = moverGObj.getParent("path"),
-            samePath = targetGObj.isFreePointOnPath && targetGObj.getParent('path') === pathGobj,
             moverValue = moverGObj.value,
-            targetValue = this.getDest(),
+            targetValue = pathGobj.mapPositionToPathValue(targetLoc),
             motionPath = pathGobj.makeMotionPath(moverValue, targetValue),
             newValue, step, atEnd;
         
-        function checkAtEnd() {
-          if (samePath || motion.button.towardInitialDestination) { // compare values
-            return Math.abs(moverGObj.value - motion.getDest()) < kVAL_TOLERANCE;
-          } else {  // moving destination, so compare locations
-            return moverGObj.geom.loc.subtract(targetGObj.geom.loc).len < kVAL_TOLERANCE;
-          }
+        function checkAtEnd(moverValue) {
+          var moverPosition = pathGobj.mapPathValueToPosition(moverValue);
+          return moverPosition.equals(targetLoc, EPSILON);
         }
   
-        atEnd = checkAtEnd();
+        atEnd = checkAtEnd(moverValue);
         step = {
           isAlreadyThere: atEnd,
           /* 
@@ -65691,9 +65790,11 @@
                 newValue = motionPath.advance(rate);
               }
               // Ensure we exactly coincide with target point on path.
-              if (checkAtEnd(newValue) && samePath) {
+              if (checkAtEnd(newValue) && targetGObj.constraint === "PointOnPath" &&
+                  targetGObj.getParent("path") === moverGObj.getParent("path")) {
                 moverGObj.updateValue(targetGObj.value);
-              } else {
+              }
+              else {
                 moverGObj.updateValue(newValue);
               }
             }
@@ -65701,24 +65802,7 @@
           }
         };
         return step;
-      },
-  
-      // The mover is a point on path, so its dest must be a value.
-      getDest: function getDest() {
-        var target = this.targetGObj,
-            path = this.moverGObj.getParent('path');
-        if (target.isFreePointOnPath && target.getParent('path') === path) {
-          return target.value;  // target is on path; return its value
-        } else {
-          return path.mapPositionToPathValue(target.geom.loc); // not on path; find target's value on path
-        }
-      },
-      
-      getDestLoc: function getDestLoc() {
-        var path = this.moverGObj.getParent("path");
-        return path.mapPathValueToPosition(this.getDest());
       }
-  
     });
   
     /**
@@ -65813,9 +65897,6 @@
          * Creates and returns a new motion given a mover and a target.  If the 
          * motion cannot begin, either because the mover is already at the target
          * or if it's a 'towardInitialDestination' motion, no motion is returned.
-         * If it's a 'towardInitialDestination' motion, we cache the target
-         * location (PointRootsMotion) or the target value (PointOnPathMotion & ParameterMotion).
-         * 
          * 
          * @param {object} mover - the gobject to move
          * @param {object} target - the gobject that the mover is moving towards
@@ -65823,7 +65904,7 @@
          * @return {object} the initialized motion
          */
         function createNewMotion(mover, target) {
-          var cachedDest, // initial target value or location
+          var cachedDestination,
               motionClass,
               motion;
   
@@ -65852,10 +65933,10 @@
               //destination.  We can't do anything.  Just bag out of this motion
               return;
             }
-            // Cache the value or location we're moving to.
-            cachedDest = motion.getDest();
-            motion.getDest = function() {
-              return cachedDest;
+  
+            cachedDestination = motion.getDestination();
+            motion.getDestination = function() {
+              return cachedDestination;
             };
           }
   
@@ -65924,7 +66005,7 @@
               } else {
                 //parameter motions
                 moverValue = aMotion.moverGObj.value;
-                targetValue = aMotion.getDest();
+                targetValue = aMotion.getDestination();
   
                 if (targetValue !== false) {
                   targetDelta = targetValue - moverValue;
@@ -66611,28 +66692,142 @@
           },
           example: "../../wsp-test/gsp-test-bed.html?sketch=documents/GSPSketches/Polygon-Polygon_export.json"
       },
+      
+      /* There's no good way to enforce the expectation that parents object and parentsList array are kept in sync
+       * if vertices are inserted or removed. The best we can do is to provide a spliceParents() method that works 
+       * analogously to the the array splice() method, and keeps these two lists in sync.
+       * (Internally, we use splice() on the parentsList and then rebuild parents to match.)
+       * At the same time, we add pushParent() and popParent() methods.
+       * These methods alter the parentsList array in place. However:
+       * NB: EACH OF THESE METHODS INVALIDATES ANY STORED REFERENCE TO THE this.parents OBJECT.
+       **/
+      
+      syncParents: function () {  // restore this.parents to match parentsList
+        var list = this.parentsList;
+        this.parents = {};
+        for (var ix = 0; ix < list.length; ix++) {
+          this.parents["" + ix] = list[ix];
+        }
+      },
+      
+      spliceParents: function (deleteCount, index /* , item1, ...*/) {
+        var ix, list = this.parentsList,
+        retVal = list.splice (deleteCount, index);
+        for (ix = 2; ix < arguments.length; ix++) {
+          list.splice (0, ix, arguments[ix]);
+        }
+        this.syncParents ();
+        return retVal;
+      },
+      
+      pushParent: function (item) {
+        this.parentsList.push (item);
+        this.syncParents();
+      },
+      
+      popParent: function () {
+        var popped = this.parentsList.pop ();
+        this.syncParents();
+        return popped;
+      },
+      
+      standardizeTool: function (objSpecs, poly) {  // poly is a constructible polygon in a nascent tool or sketch; standardize it
+        /* The tool or sketch is still in spec form, so easier to fix. Here are the rules:
+         * If the polygon has any sides missing, the missing sides will be created and hidden (byUser, so can be shown).
+         * If a polygon has both existing and missing sides, newly-constructed sides use the style of the first existing side.
+         * If a tool polygon has any sides hidden or missing, all sides will be hidden.
+         * */
+        var exemplar,
+            allSidesVisible = true,
+            nextIndex = Object.keys (objSpecs).length + 1,
+            sideArr = [],
+            sideSpec = {
+              kind: "Straight",
+              genus: "Segment",
+              constraint: "Segment",
+              parents: {p0: '', p1: ''},
+              style: {color: 'navy'}
+            },
+            givenVertices = poly.parents, // Operate on parents, not parentsList (which does not yet exist).
+            vKeys = Object.keys (givenVertices),
+            side;
+            
+        function makeSide (p0, p1, style) { // add a new side with parents and style
+          var side = {};
+          $.extend (true, side, sideSpec);
+          side.parents.p0 = p0;
+          side.parents.p1 = p1;
+          side.style = style;
+          objSpecs[nextIndex++] = side;  // add the new side (objSpecs is 1-based)
+          sideArr.push (side);
+          allSidesVisible = false;  // At least one side was missing, so use the appropriate 
+        }
+        
+        function checkCommonSide (vert1, vert2) {  // Make sure that vertex and nextVertex have a common segment
+          var found = false;
+          $.each (objSpecs, function (jx, child) {
+            if (child.constraint === "Segment" &&
+                (child.parents.p0 === vert1 && child.parents.p1 === vert2 ||
+                 child.parents.p0 === vert2 && child.parents.p1 === vert1)) {
+              found = true;
+              sideArr.push (child);
+              if (child.style.hidden) {
+                allSidesVisible = false;
+              }
+              if (!exemplar) {
+                exemplar = child;
+              }
+            }
+            if (found) {
+              return false; // search complete for this pair
+            }
+          });
+          if (!found) {
+            side = makeSide (vert1, vert2, {hidden: "byUser"}); // Allow user to show hidden sides
+          }
+        } 
+        
+        $.each (givenVertices, function (ix, vertex) {
+          var next = ix < vKeys.length - 1 ? +ix + 1 : 0,
+              nextVertex = givenVertices [next];
+          checkCommonSide (vertex, nextVertex);
+        });
+        if (exemplar) {
+          exemplar.style.hidden = allSidesVisible ? false : "byUser";
+        } else {
+          exemplar = sideArr[0]; // All sides were missing, so make the first constructed side the exemplar
+        }
+        // Now impose the exemplar's style on all sides
+        sideArr.forEach (function (val) {
+          $.extend (true, val.style, exemplar.style);
+        });
+      },
+      
       updateConstraintAncestry: function updateConstraintAncestry() {
         (updateConstraintAncestry.base || arguments.callee.base).call(this);
         this.geom.points = [];
+        // Here is where we'll add any missing hidden sides. For consistency, we should also make all sides
+        // go in order based on the vertices. Note that if we change the direction of a side with a point on path
+        // child, we have to switch the value v of the point to 1 - v.
+        // Do we also have to worry about the direction of a perpendicular or parallel child?
       },
+      
       constrain: function() {
-          var key, exists = false, aPoint;
-          this.geom.points = [];
-          for (key in this.parents) {
-              if (this.parents.hasOwnProperty(key)) {
-                  aPoint = this.getParent(key).geom.loc;
-                  this.geom.points.push(aPoint);
-              }
-              
-              //as soon as there's any distance at all between any points, we exist
-              if (!exists && this.geom.points.length) {
-                exists = !aPoint.equals(this.geom.points[0]);
-              }
+        var key, exists = false, aPoint;
+        this.geom.points = [];
+        for (key in this.parents) {
+          if (this.parents.hasOwnProperty(key)) {
+            aPoint = this.getParent(key).geom.loc;
+            this.geom.points.push(aPoint);
+            //as soon as there's any distance at all between any points, we exist
+            if (!exists && this.geom.points.length) {
+              exists = !aPoint.equals(this.geom.points[0]);
+            }
           }
-          
-          this.state.exists = exists;
-          
+        }
+        this.state.exists = exists;
       },
+      
       getParentalNameMFS: function(option) {
         var self = this,
             names = [];
@@ -66658,18 +66853,50 @@
       canMergeTo: function (gobj) {
         // Determine whether two "similar" polygons have the same ancestry and can be merged.
         var i, j,
+            self = this,
             retVal = true,
             n = this.parentsList.length,
             j0 = gobj.parentsList.indexOf (this.parentsList[0]);
+            
+        function checkPolyParts () {
+          // return true if the other children of the n vertices are the n sides, none of them with children.
+          // Eventually we'll also return true if the only other child is a transformed image of the vertex,
+          // and each vertex has an identically-constrained transformed image. In such a case,
+          // we'll need to apply the same transformation to all vertices of the polygon, and we'll also need
+          // to construct sides and interior of the produced polygon if they exist in the given.
+          var vertices = self.parentsList,
+              retVal = true;
+          $.each (vertices, function () {
+            var vertex = this;
+            $.each (vertex.children, function() {
+              var legal = true;
+              if (this !== self) {
+                legal = this.constraint === "Segment" &&
+                        vertices.indexOf (this.parentsList[0]) >= 0 &&
+                        vertices.indexOf (this.parentsList[1]) >= 0;
+              }
+              if (!legal) {
+                retVal = false;
+                return false;
+              }
+            }); 
+            if (!retVal) {
+              return false;
+            }
+          });
+          return retVal;
+        }          
+            
         if (gobj.constraint !== this.constraint) return false;
         if (gobj.parentsList.length !== n || j0 < 0) return false;
+        if (!checkPolyParts()) return false;  // A given polygon mustn't have side constructions of its vertices 
         for (i = 0, j = j0; i < this.parentsList.length; i++, j = (j+1) % n) {
           if (this.parentsList[i] !== gobj.parentsList[j]) {
             retVal = false;
             break;
           }
         }
-        if (!retVal) {
+        if (!retVal) {  // same orientation failed; are they oppositely oriented?
           retVal = true;
           for (i = 0, j = j0; i < this.parentsList.length; i++, j = (j+n-1) % n) {
             if (this.parentsList[i] !== gobj.parentsList[j]) {
@@ -66679,6 +66906,429 @@
           }
         }
         return retVal;
+      },
+    
+    isGeneric: function () {  // Is this a generic poly, with similar relationships for every vertex?
+      // A truthy return requires that all sides exist or no sides exist.
+      // returns "allSidesVisible", "noSidesVisible", or undefined
+      var someSidesExist = false,
+          allSidesVisible = true,
+          givenVertices = this.parentsList;
+          
+      function commonSide (vert1, vert2) {  // Do vertex and nextVertex have a common segment?
+        var retVal = false;
+        $.each (vert1.children, function (jx, child) {
+          if (child.constraint === "Segment" && child.parentsList.indexOf (vert2) >= 0 && !child.style.hidden) {
+            retVal = true;
+            return false; // search complete for this pair
+          }
+        });
+        return retVal;
+      }
+      
+      // Add a check to make sure that all the given sides exist, or none exist
+      $.each (givenVertices, function (ix, vertex) {
+        var next = ix < givenVertices.length - 1 ? ix + 1 : 0,
+            nextVertex = givenVertices [next];
+        if (commonSide (vertex, nextVertex)) {
+          someSidesExist = true;
+        } else {
+          allSidesVisible = false;
+        }
+        if (someSidesExist && !allSidesVisible) {
+          return false; // no need to check more vertices
+        }
+      });
+      return allSidesVisible ? "allSidesVisible" : !someSidesExist ? "noSidesVisible" : undefined;
+    },
+    
+    prepareSnapToCandidate: function(matchedGiven) {
+      // A constructibleGiven polygon (this) is about to be snapped to the candidate.
+      // Parents of this should be animated to, and then replaced by, the parents of the candidate.
+      // If both this and candidate have the same number of vertices, a standard snap transaction is fine.
+      // But to snap a given triangle to an existing pentagon, we must turn that triangle into a pentagon
+      // by adding two vertices to match the existing vertices.
+      // This needs to occur whenever this (the constructible given) is snapped to or unsnapped
+      // from an existing candidate, so the adding/removing of vertices must be part of the transaction process.
+      // Creating a transaction by snapping the given poly to a candidate may involve constructing new vertices
+      // that must later be deleted if the given poly is unsnapped.
+      // These transactions will also need to understand how to add, remove, and reconnect sides
+      // as the number of vertices changes.
+      // The first experimental implementation will ignore sides of the mutable object (the given),
+      // leaving the sides of the original object in place; a later version will (for instance) allow a tool 
+      // to construct the sides of its matched existing poly.
+      // In the current effort, we limit our goals.
+      // 1. Make polygon-snapping animations useful for a limited set of constructibleGiven polygon tools,
+      //    including tools to measure area and perimeter.
+      // 2. This allows us to limit the constructibleGiven polygons to those whose givenParent vertices
+      //    have no children of their own with the single exception of side segments.
+      // 3. This also implies that we do not, at this time, support transformations of generic polygons.
+      //    We certainly hope to do so in the future, but that will involve a more ambitious effort,
+      //    an effort for which this current work lays some groundwork.
+      // 4. The bigger project includes revising the polygonFromPoints object to connnect the pre-image
+      //    and image of transformed polygons, so that a side is always a child of the image vertices
+      //    (while simultaneously recognized as a transformed image of the side connecting pre-image vertices).
+      //    Similarly a transformed poly is a child of image vertices, while still an image of a pre-image poly.
+      // 5. This revision will enable tools to transform generic polygons.
+      //
+      // For qualifying constructibleGiven polygons, we first add (or delete) vertices 
+      // "Qualifying" means that the vertices have no children other than polygon sides,
+      // and that either all sides are present, or no sides are present. 
+      // If the toMerge polygon already has sides, we add (or collapse) sides as well.
+      // We might use the logic in checkPolyParts() to determine exactly how to modify toMerge.
+      // Then we might use constructGObjects() to create the new vertices and sides,
+      // along this line:
+      // this.sQuery().sketch.constructGObjects(theSideToAdd, { forceConstrain: true });
+      
+      // Add or remove vertices  and sides as required to match the candidate polygon's vertices
+      // Return true if successful.
+      // It remains an open question how to handle the sides if the given has sides
+      // and the existing doesn't. Shouldn't we always add sides, making them hidden
+      // if they didn't previously exist?
+  
+      var givenPoly = this,
+          candidate = matchedGiven.mergeCandidate,
+          sketch = candidate.sQuery.sketch,
+          sketchGraph = sketch.gobjList.constraintList,
+          targetVertices = candidate.parentsList,
+          generic = this.isGeneric(),
+          nextId = GSP.ObjectGraph.getNextFreeIdNumber(sketchGraph),
+          vertexClass = GSP.gobjPrototype("Point", "Free");
+    
+      function addVertex (prev, next) { // add a vertex between prev and next
+        var newGobjs,
+            newConstructions = {},
+            vertexSpec = vertexClass.createDefaultSpec(sketch, {
+              geom: prev.geom,
+              style: prev.style,
+              state: prev.state,
+              toolRole: prev.toolRole
+            })[1],
+            sideSpec = {
+                        children: [],
+                        constraint: "Segment",
+                        genus: "Segment",
+                        geom: {},
+                        kind: "Straight"
+                       };
+  /*
+            preExisting = {}, // pre-existing parents of the sketch subgraph to be created
+            newVertex, theGivenToAdd, newSpecObjs, theGivenId;
+  */             
+  
+        function createNewGobjs() {  // Create a new vertex and a connecting side, to stitch into the given.
+          // For transformed polygons, we'll need to create the image of the new vertex and make it a parent
+          // of the transformed polygon image. How can this be generalized to a tool that constructs a composition
+          // of transformations of a polygon?
+          var newVert, nextSide, 
+              gobjs = {},
+              graph, newSpecObjs, constructedObjs,
+              oldSide, prevSide, retVal;
+          prev.children.forEach (function(child) {
+            if (child.genus === "Segment" &&
+                child.parentsList.indexOf (prev) >= 0 &&
+                child.parentsList.indexOf (next) >= 0) {
+              oldSide = child;
+            }
+          });
+          newVert = $.extend(true, {}, vertexSpec,
+                             {state: prev.state,
+                             toolRole: prev.toolRole,
+                             id: "" + nextId++});
+          if (oldSide) {
+            prevSide = oldSide; // No need to create it.
+          } else {
+            prevSide = $.extend(true, {}, sideSpec,
+                               {state: {},
+                               style: {hidden: "byUser"},
+                               parents: {p0: newVert.id, p1: newVert.id},
+                               id: "" + nextId++});
+          }
+          nextSide = $.extend(true, {}, sideSpec,
+                             {state: prevSide.state,
+                             style: prevSide.style,
+                             parents: {p0: newVert.id, p1: newVert.id},
+                             id: "" + nextId++});
+          gobjs[newVert.id] = newVert;
+          gobjs[nextSide.id] = nextSide;
+          if (!oldSide) {
+            gobjs[prevSide.id] = prevSide;
+          }
+          graph = GSP.ObjectGraph.convertObjectSpec(gobjs);
+          //then create a spec for instantiating
+          newSpecObjs = GSP.ObjectGraph.createSpecFromGraph(graph);
+          newSpecObjs[newVert.id].topologicalIndex = prev.topologicalIndex;
+          newSpecObjs[nextSide.id].topologicalIndex = givenPoly.topologicalIndex;
+          if (!oldSide) {
+            newSpecObjs[prevSide.id].topologicalIndex = givenPoly.topologicalIndex;
+          }
+          //and construct it
+          constructedObjs = sketch.constructGObjects(newSpecObjs, {speculative: true});
+          newVert = constructedObjs[newVert.id];
+          nextSide = constructedObjs[nextSide.id];
+          if (!oldSide) {
+            prevSide = constructedObjs[prevSide.id];
+          }
+          // Make prevSide and nextSide run from prev to newVert to next:
+          givenPoly.setParents (sketch, prevSide, {"p0": prev, "p1": newVert});
+          givenPoly.setParents (sketch, nextSide, {"p0": newVert, "p1": next});
+  
+          
+          //GSP.ObjectGraph.setParents(sketch.gobjList.constraintList, prevSide, {"p0": prev, "p1": newVert}); BROKEN
+          //GSP.ObjectGraph.setParents(sketch.gobjList.constraintList, nextSide, {"p0": newVert, "p1": next});
+          // Make newVert a parent of the polygon:
+          newVert.children.push (givenPoly);
+          givenPoly.pushParent (newVert);
+  //        givenPoly.geom.points.push(newVert.geom.loc);
+  //        givenPoly.parents["" + givenPoly.parentsList.length] = newVert;
+  //        givenPoly.parentsList = sketch.gobjList.createCanonicalParentReferences(givenPoly);
+  
+          GSP.ObjectGraph.normalizeTopologicalIndices(sketch.gobjList.constraintList, newVert);
+          retVal = {vertex: newVert, nextSide: nextSide};
+          if (!oldSide) {
+            retVal.prevSide = prevSide;
+          }
+          return retVal;
+        } // createNewGobjs
+      
+        // body of addVertex
+        newGobjs = createNewGobjs ();
+        $.each (newGobjs, function (key, gobj) {
+          newConstructions[gobj.id] = gobj;
+        });
+        // Update our tool regime's shared state with the instantiated objects
+        $.extend(matchedGiven.session.constructedObjects, newConstructions);
+        newGobjs.vertex.toolRole = "addedParent";
+        return newGobjs.vertex;
+      } // addVertex
+  
+      function addVerticesToGiven () { // Add enough vertices to the given to match the candidate
+        var newVertex,
+            addedVertices = [],
+            gx;
+        for (gx = givenPoly.parentsList.length; gx < targetVertices.length; gx++) {
+          console.log ("Adding given vertex #", gx);
+          newVertex = addVertex (givenPoly.parents[gx - 1], givenPoly.parents[0]);
+          addedVertices.push (newVertex);
+        }
+        matchedGiven.addedVertices = addedVertices;
+      } // addVerticesToGiven
+  
+      function removeLastVertex () {
+        var vertex = givenPoly.popParent(),  // pop the vertex from the polygon parents
+            cx = vertex.children.indexOf (givenPoly),
+            child;
+        console.log ("Removing given vertex #", givenPoly.parentsList.length, vertex.label ? vertex.label : "");
+        vertex.children.splice (cx, 1); // Remove the polygon as a child of the disappearing vertex
+  //      givenPoly.geom.points.pop();  // And remove its location from the polygon's geom
+        matchedGiven.removedVertices.push (vertex); // and track it in the matchedGiven
+        // Hide any other children, leaving them in place for future reconnection
+        for (cx = 0; cx < vertex.children.length; cx++) {
+          child = vertex.children[cx];
+          child.style.wasHidden = child.style.hidden;
+          child.style.hidden = "byUser";
+        }
+        // Hide the vertex, but wait till the tool is confirmed to remove it from the sketch.
+        vertex.style.wasHidden = vertex.style.hidden;
+        vertex.style.hidden = "byUser";
+        vertex.toolRole = "removedParent";
+      } // removeVertex
+  
+      function removeVerticesFromGiven() {
+        // Remove enough vertices to the given to match the candidate, saving them for later restoration
+        // Note we are assuming that parentsList of givenPoly is in sync with the parents object
+        matchedGiven.removedVertices = [];
+        while (targetVertices.length < givenPoly.parentsList.length) {
+          removeLastVertex ();
+        }
+      } // removeVerticesFromGiven
+      
+      function setGivenGeom() { // Update the polygon's geometry to match the new vertices. Constrain would do this, but this is more lightweight.
+        givenPoly.geom.points = [];
+        givenPoly.parentsList.forEach (function (par) {
+          givenPoly.geom.points.push (par.geom.loc); 
+        });
+      }
+    
+      // Body of prepareSnapToCandidate
+      if (generic && targetVertices.length > givenPoly.parentsList.length) {
+        addVerticesToGiven();
+      } else if (targetVertices.length < givenPoly.parentsList.length) {
+        removeVerticesFromGiven();
+      }
+      setGivenGeom();
+      givenPoly.descendantLabelGraphHasChanged();
+      return (targetVertices.length === givenPoly.parentsList.length);
+    },  // prepareSnapToCandidate
+    
+    prepareUnsnapFromCandidate: function(matchedGiven) {
+      // Undo changes made by prepareSnapToCandidate()
+      this.restoreOriginalVertices(matchedGiven);
+    },
+    
+    finalizeMatch: function (matchedGiven) {
+      // Clean up any removedVertices; nothing to do if there are addedVertices
+      var givenPoly = this,
+          sketch = this.sQuery.sketch,
+          lastVertex =  givenPoly.parentsList[givenPoly.parentsList.length - 1];
+      if (matchedGiven.removedVertices) {
+        matchedGiven.removedVertices.forEach (function (vertex) {
+          // merge each removed vertex, in turn, to the last existing vertex. These merges will remove extra sides
+          sketch.mergeGobjToCandidate(vertex, lastVertex, {skipDescendantUpdate: true});
+        });
+      }
+      // Nothing to do if the match has addedVertices rather than removedVertices.
+    },
+    
+    setParents: function (sketch, gobj, parents) {  // Set parents to {key, newParent} values
+      // Move this function elsewhere if more constraints need it.
+      // (Can this use the generic GSP.ObjectGraph.setParents() function?) No, because that fails to set the parentsList
+      
+      function disconnect (key, oldParent) {
+        var ix;
+        if (oldParent && oldParent.children) {
+          ix = oldParent.children.indexOf (gobj);
+          if (ix >= 0) {
+            oldParent.children.splice (ix, 1);
+          }
+        }
+        delete gobj.parents[key];
+      }
+      
+      function connect (key, newParent) {
+        if (newParent) {
+          if (!newParent.children) {
+            newParent.children = [];
+          }
+          newParent.children.push (gobj);
+        }
+        gobj.parents[key] = newParent;
+      }
+      
+      $.each (parents, function (key, newParent) {
+        if (gobj.parents[key]) {
+          disconnect (key, gobj.parents[key]);
+        }
+        connect (key, newParent);
+      });
+      gobj.parentsList = sketch.gobjList.createCanonicalParentReferences(gobj);
+  //console.log ("Set parents of ", gobj, " to ", parents);
+    },
+    
+    restoreOriginalVertices: function (match) {
+      var vertex,
+          sketch = match.session.sketch,
+          givenPoly = this;
+      
+      function severFromIncomingSide (vertex) {
+        // disconnect from both the polygon and the incoming side; leave outgoing to be deleted along with the vertex.
+        // Note that vertex has already been removed from givenPoly's parents list
+        var children = vertex.children,
+            px = children.indexOf (givenPoly);
+        children.splice (px, 1);  // Remove givenPoly from vertex's children.
+        children.forEach (function (child) {
+          var ix;
+          if (child.parents.p1 && child.parents.p1 === vertex) {
+            ix = children.indexOf (child);
+            if (ix >= 0) {
+              children.splice (ix, 1);
+            }
+            // No need to remove vertex from child.parents, as the child will be deleted when its p0 endpoint vertex is removed.
+            // BUT the last side of the original polygon will be dangling, with its p1 parent missing.
+            // We detect this side and attach it to the first vertex of the polygon.
+          }
+          if (child.parents.p0 && match.addedVertices.indexOf (child.parents.p0) < 0) {
+            // If p0 wasn't added, it's the last original side, so reattach it to the first vertex.
+            givenPoly.setParents (sketch, child, {"p0": child.parents.p0, "p1": givenPoly.parents[0]});
+            
+            //GSP.ObjectGraph.setParents(sketch.gobjList.constraintList, child, {"p0": child.parents.p0, "p1": givenPoly.parents[0]});
+          }
+        });
+      }
+        
+        function restoreChildren (vertex) {
+          // gobj's children were disconnected; reconnect them
+          // The required reconnection can depend on the  child's constraint.
+          // If the child's reconnection function is missing, use the default,
+          // which restores only the style.hidden property
+          var cx, child,
+              children = vertex.children;
+          if (givenPoly.parentsList.indexOf (vertex) < 0) { // Add givenPoly back as a child of this vertex
+            children.push (givenPoly); // restore givenPoly as a child
+            vertex.toolRole = "givenParent";
+            givenPoly.pushParent (vertex);
+            console.log ("Restoring given vertex #", givenPoly.parentsList.length - 1, vertex.label ? vertex.label : "");
+          }
+  
+          for (cx = 0; cx < children.length; cx++) {
+            child = children[cx];
+            if (child.style.wasHidden !== undefined) {
+              child.style.hidden = child.style.wasHidden;
+              delete child.style.wasHidden;
+            }
+          }
+          if (vertex.style.wasHidden !== undefined) {
+            vertex.style.hidden = vertex.style.wasHidden;
+            delete vertex.style.wasHidden;
+          }
+        }
+        
+      // Body of restoreOriginalVertices
+      if (match.addedVertices) {
+        // Remove the addedVertices from the polygon's list of parents.
+        while (match.addedVertices.length) {
+          vertex = givenPoly.popParent();
+          var test = match.addedVertices.pop();
+          if (test !== vertex) {
+            console.log ("Bad assumption about added vertex removal!");
+          }
+          console.log ("Removing added vertex #", givenPoly.parentsList.length,  vertex.label ? vertex.label : "");
+          // Disconnect added sides, and remove the added vertex and side from the sketch
+          severFromIncomingSide (vertex, vertex.children);
+          sketch.gobjList.removeGObjAndDescendants(vertex);        
+        }
+  /*
+   *      $.each (givenPoly.parents, function (key, vertex) {
+          if (match.addedVertices.indexOf (vertex) >= 0) {
+            console.log ("Removing added vertex #", key,  vertex.label ? vertex.label : "");
+            delete givenPoly.parents[key];
+          }
+        });
+        // Disconnect the added sides, and remove the added vertices and sides from the sketch
+        for (ix = 0; ix < match.addedVertices.length; ix++) {
+          vertex = match.addedVertices[ix];
+          severFromIncomingSide (vertex, vertex.children);
+          sketch.gobjList.removeGObjAndDescendants(vertex);
+        }
+        //givenPoly.parentsList = sketch.gobjList.createCanonicalParentReferences(givenPoly); // Put givenPoly's parentsList back in sync with its parents
+  */
+        delete match.addedVertices;
+      } else if (match.removedVertices) {
+        while (match.removedVertices.length) {
+          vertex = match.removedVertices.pop();
+          restoreChildren (vertex);
+        }
+        delete match.removedVertices;
+      }
+    },  // restoreOriginalVertices
+       
+    prepareSnapAnimation: function (candidate, pLocs, tLocs) {
+  
+  
+        var targetVertices = candidate.parentsList,
+            parentRatio = targetVertices.length / this.parentsList.length;
+        
+        // Body of prepareSnapAnimation()
+        if (parentRatio <= 1) { // If some given parents will move toward the same target.
+          this.geom.points.forEach (function (element, ix) {
+            pLocs.push (element);
+            tLocs.push (candidate.geom.points[Math.round(ix * parentRatio)]);
+          });
+        } else {
+            return false; // given is not generic, so animation is not possible
+            // Throw error?
+        }
+  
       },
       
       collapseDoubledParent: function (vertex) {
@@ -66694,7 +67344,7 @@
           
         function removeDuplicateVertex (index) { // list[index] is a duplicate, so remove it
           var childIndex = vertex.children.indexOf (poly);
-          list.splice (index, 1); // Remove vertex from poly parent list
+          poly.spliceParents (index, 1); // Remove vertex from poly parent list
           vertex.children.splice (childIndex, 1); // remove first instance of poly as a child of vertex
           if (vertex.children.indexOf (poly) < 0)
             throw GSP.createError("removeDuplicateVertex removed a child that wasn't duplicated"); 
@@ -69192,7 +69842,7 @@
   "/* For now, these are not in less. Just import them raw. */\n"+
   "/*!\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221217231404\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.9.0, Build Number: 1075, Build Stamp: stek-macbook-pro.fios-router.home/20211030012807\n"+
   "*/\n"+
   "\n"+
   "/*\n"+
@@ -69203,7 +69853,7 @@
   " * clipping node and are absolutely positioned. They must correspond exactly\n"+
   " * to the height and width of the clipping node.\n"+
   " */\n"+
-  ".wsp-version-4-8-0.wsp-base-node {\n"+
+  ".wsp-version-4-9-0.wsp-base-node {\n"+
   "    position: relative;\n"+
   "    display: inline-block;\n"+
   "    cursor: default;\n"+
@@ -69216,7 +69866,7 @@
   "    white-space: normal;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-transform-node {\n"+
+  ".wsp-version-4-9-0 .wsp-transform-node {\n"+
   "  transform-origin: top left;\n"+
   "  -webkit-transform-origin: top left;\n"+
   "  -ms-transform-origin: top left;\n"+
@@ -69228,44 +69878,44 @@
   "  padding: 0px; margin: 0px;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-main-row {\n"+
+  ".wsp-version-4-9-0 .wsp-main-row {\n"+
   "  display: flex;  /* Need this so tool-container and sketch-container are full height */\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container {\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container {\n"+
   "  display: table-cell;\n"+
   "  position: relative;\n"+
   "  vertical-align: top;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-text-layer .wsp-responsive-borderwidth {\n"+
+  ".wsp-version-4-9-0 .wsp-text-layer .wsp-responsive-borderwidth {\n"+
   "  border-width: 1px;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-transform-large {\n"+
+  ".wsp-version-4-9-0 .wsp-transform-large {\n"+
   "  display: inline-block;\n"+
   "}\n"+
-  ".wsp-version-4-8-0  .wsp-transform-medium {\n"+
+  ".wsp-version-4-9-0  .wsp-transform-medium {\n"+
   "  display: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-transform-small {\n"+
+  ".wsp-version-4-9-0 .wsp-transform-small {\n"+
   "  display: none;\n"+
   "}\n"+
   "\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-clip-node {\n"+
+  ".wsp-version-4-9-0 .wsp-clip-node {\n"+
   "    position: relative;\n"+
   "    width: 100%;\n"+
   "    height: 100%;\n"+
   "    overflow: hidden;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-clip-node canvas, .wsp-version-4-8-0 .wsp-text-layer, .wsp-version-4-8-0 .wsp-effects {\n"+
+  ".wsp-version-4-9-0 .wsp-clip-node canvas, .wsp-version-4-9-0 .wsp-text-layer, .wsp-version-4-9-0 .wsp-effects {\n"+
   "    position: absolute;\n"+
   "    left: 0; top: 0;\n"+
   "    z-index: 0;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .sketch_canvas {\n"+
+  ".wsp-version-4-9-0 .sketch_canvas {\n"+
   "    -webkit-user-select: none;\n"+
   "    -moz-user-select: -moz-none;\n"+
   "}\n"+
@@ -69273,10 +69923,10 @@
   "/*\n"+
   " * Styles governing html-layer sketch objects.\n"+
   " */\n"+
-  ".wsp-version-4-8-0 .wsp-Measure, .wsp-version-4-8-0 .wsp-Point,\n"+
-  ".wsp-version-4-8-0 .wsp-Text, .wsp-version-4-8-0 .wsp-Param,\n"+
-  ".wsp-version-4-8-0 .wsp-Button, .wsp-version-4-8-0 .wsp-Expression,\n"+
-  ".wsp-version-4-8-0 .wsp-Label, .wsp-version-4-8-0 .wsp-Table {\n"+
+  ".wsp-version-4-9-0 .wsp-Measure, .wsp-version-4-9-0 .wsp-Point,\n"+
+  ".wsp-version-4-9-0 .wsp-Text, .wsp-version-4-9-0 .wsp-Param,\n"+
+  ".wsp-version-4-9-0 .wsp-Button, .wsp-version-4-9-0 .wsp-Expression,\n"+
+  ".wsp-version-4-9-0 .wsp-Label, .wsp-version-4-9-0 .wsp-Table {\n"+
   "    /*-webkit-touch-callout: none*/\n"+
   "    /*-moz-touch-callout: none;*/\n"+
   "    position:absolute;\n"+
@@ -69287,27 +69937,27 @@
   "  Buttons - see comment in wsp-skin.css for details\n"+
   "*/\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Button {\n"+
+  ".wsp-version-4-9-0 .wsp-Button {\n"+
   "    display: table;\n"+
   "    border-collapse: separate;\n"+
   "    border-spacing: 0px;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Button-row {\n"+
+  ".wsp-version-4-9-0 .wsp-Button-row {\n"+
   "  display: table-row;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Button-drag-handle {\n"+
+  ".wsp-version-4-9-0 .wsp-Button-drag-handle {\n"+
   "  display: table-cell;\n"+
   "  content: \"\";\n"+
   "  height:100%;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Button-label-frame {\n"+
+  ".wsp-version-4-9-0 .wsp-Button-label-frame {\n"+
   "  display: table-cell;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Measure, .wsp-version-4-8-0 .wsp-Text, .wsp-version-4-8-0 .wsp-Param, .wsp-version-4-8-0 .wsp-Expression, .wsp-version-4-8-0 .wsp-Label {\n"+
+  ".wsp-version-4-9-0 .wsp-Measure, .wsp-version-4-9-0 .wsp-Text, .wsp-version-4-9-0 .wsp-Param, .wsp-version-4-9-0 .wsp-Expression, .wsp-version-4-9-0 .wsp-Label {\n"+
   "    font-size: 12px;\n"+
   "    border: none;\n"+
   "    margin: 0;\n"+
@@ -69317,58 +69967,58 @@
   "    white-space: pre;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Measure, .wsp-version-4-8-0 .wsp-Text {\n"+
+  ".wsp-version-4-9-0 .wsp-Measure, .wsp-version-4-9-0 .wsp-Text {\n"+
   "    cursor: default;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Measure {\n"+
+  ".wsp-version-4-9-0 .wsp-Measure {\n"+
   "    line-height: 1;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Point {\n"+
+  ".wsp-version-4-9-0 .wsp-Point {\n"+
   "    cursor: pointer;\n"+
   "    font-size: 8px;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Expression .mfs-input {\n"+
+  ".wsp-version-4-9-0 .wsp-Expression .mfs-input {\n"+
   "    cursor: text;\n"+
   "}\n"+
   "\n"+
   "/* styles for MFS to HTML conversion */\n"+
-  ".wsp-version-4-8-0 .mfs {\n"+
+  ".wsp-version-4-9-0 .mfs {\n"+
   "    /*\n"+
   "      border: solid thin red;\n"+
   "    */\n"+
   "    display: run-in;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-bracket:before {\n"+
+  ".wsp-version-4-9-0 .mfs-bracket:before {\n"+
   "    content: '[';\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-bracket:after {\n"+
+  ".wsp-version-4-9-0 .mfs-bracket:after {\n"+
   "    content: ']';\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-curly:before {\n"+
+  ".wsp-version-4-9-0 .mfs-curly:before {\n"+
   "    content: '{';\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-curly:after {\n"+
+  ".wsp-version-4-9-0 .mfs-curly:after {\n"+
   "    content: '}';\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-tightness-normal {\n"+
+  ".wsp-version-4-9-0 .mfs-tightness-normal {\n"+
   "    letter-spacing: normal;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .mfs-tightness-condensed {\n"+
+  ".wsp-version-4-9-0 .mfs-tightness-condensed {\n"+
   "    letter-spacing: -0.1em;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .mfs-tightness-expanded {\n"+
+  ".wsp-version-4-9-0 .mfs-tightness-expanded {\n"+
   "    letter-spacing: .2em;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-frac {\n"+
+  ".wsp-version-4-9-0 .mfs-frac {\n"+
   "    display: inline-block;\n"+
   "    font-size: 90%;\n"+
   "    vertical-align: middle;\n"+
@@ -69376,66 +70026,66 @@
   "}\n"+
   "\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-paren + .mfs-exponent,\n"+
-  ".wsp-version-4-8-0 .mfs-abs + .mfs-exponent,\n"+
-  ".wsp-version-4-8-0 .mfs-root + .mfs-exponent {\n"+
+  ".wsp-version-4-9-0 .mfs-paren + .mfs-exponent,\n"+
+  ".wsp-version-4-9-0 .mfs-abs + .mfs-exponent,\n"+
+  ".wsp-version-4-9-0 .mfs-root + .mfs-exponent {\n"+
   "    vertical-align: .9em;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-exponent{\n"+
+  ".wsp-version-4-9-0 .mfs-exponent{\n"+
   "    vertical-align: super;\n"+
   "    font-size: 70%;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-frac .mfs-numr, .wsp-version-4-8-0 .mfs-frac .mfs-denm{\n"+
+  ".wsp-version-4-9-0 .mfs-frac .mfs-numr, .wsp-version-4-9-0 .mfs-frac .mfs-denm{\n"+
   "    display: block;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-super-group, .wsp-version-4-8-0 .mfs-sub-group, .wsp-version-4-8-0 .mfs-horizontal, .wsp-version-4-8-0 .mfs-root, .wsp-version-4-8-0 .mfs-paren,\n"+
-  ".wsp-version-4-8-0 .mfs-bracket, .wsp-version-4-8-0 .mfs-curly, .wsp-version-4-8-0 .mfs-abs {\n"+
+  ".wsp-version-4-9-0 .mfs-super-group, .wsp-version-4-9-0 .mfs-sub-group, .wsp-version-4-9-0 .mfs-horizontal, .wsp-version-4-9-0 .mfs-root, .wsp-version-4-9-0 .mfs-paren,\n"+
+  ".wsp-version-4-9-0 .mfs-bracket, .wsp-version-4-9-0 .mfs-curly, .wsp-version-4-9-0 .mfs-abs {\n"+
   "    display: inline-block;\n"+
   "    text-decoration: inherit;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .mfs-horizontal {\n"+
+  ".wsp-version-4-9-0 .mfs-horizontal {\n"+
   "  white-space: pre;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .mfs-param {\n"+
+  ".wsp-version-4-9-0 .mfs-param {\n"+
   "    /*\n"+
   "     * background-color: lightgray;\n"+
   "     */\n"+
   "    display: inline-block;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 tbody { vertical-align: baseline; }\n"+
+  ".wsp-version-4-9-0 tbody { vertical-align: baseline; }\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-paren, .wsp-version-4-8-0 .mfs-root,\n"+
-  ".wsp-version-4-8-0 .mfs-abs {\n"+
+  ".wsp-version-4-9-0 .mfs-paren, .wsp-version-4-9-0 .mfs-root,\n"+
+  ".wsp-version-4-9-0 .mfs-abs {\n"+
   "    display: inline-table;\n"+
   "    border-collapse: collapse;\n"+
   "    border-spacing: 0px;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-paren td, .wsp-version-4-8-0 .mfs-root td,\n"+
-  ".wsp-version-4-8-0 .mfs-abs td {\n"+
+  ".wsp-version-4-9-0 .mfs-paren td, .wsp-version-4-9-0 .mfs-root td,\n"+
+  ".wsp-version-4-9-0 .mfs-abs td {\n"+
   "    padding: 0px;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-paren td.mfs-left-paren,\n"+
-  ".wsp-version-4-8-0 .mfs-paren td.mfs-right-paren,\n"+
-  ".wsp-version-4-8-0 .mfs-abs td.mfs-abs-bar\n"+
+  ".wsp-version-4-9-0 .mfs-paren td.mfs-left-paren,\n"+
+  ".wsp-version-4-9-0 .mfs-paren td.mfs-right-paren,\n"+
+  ".wsp-version-4-9-0 .mfs-abs td.mfs-abs-bar\n"+
   " {\n"+
   "    background-size: 100% 100%;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-root td.mfs-left-root {\n"+
+  ".wsp-version-4-9-0 .mfs-root td.mfs-left-root {\n"+
   "    background-size: 105% 100%;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-root td.mfs-right-root {\n"+
+  ".wsp-version-4-9-0 .mfs-root td.mfs-right-root {\n"+
   "    background-size: 100% 100%;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 td.mfs-right-root {\n"+
+  ".wsp-version-4-9-0 td.mfs-right-root {\n"+
   "    padding-top: .15em;\n"+
   "}\n"+
   "\n"+
@@ -69443,66 +70093,66 @@
   "issue with chrome. If you set the width of the TD itself, chrome adds\n"+
   "an extra two pixels to the adjoing td containing the parenthesized\n"+
   "expression! */\n"+
-  ".wsp-version-4-8-0 .mfs-paren td.mfs-left-paren >span,\n"+
-  ".wsp-version-4-8-0 .mfs-paren td.mfs-right-paren >span\n"+
+  ".wsp-version-4-9-0 .mfs-paren td.mfs-left-paren >span,\n"+
+  ".wsp-version-4-9-0 .mfs-paren td.mfs-right-paren >span\n"+
   "{\n"+
   "    display: inline-block;\n"+
   "    width: .35em;\n"+
   "}\n"+
   "\n"+
   "/* See above comment on paren TD's */\n"+
-  ".wsp-version-4-8-0 .mfs-root td.mfs-left-root >span\n"+
+  ".wsp-version-4-9-0 .mfs-root td.mfs-left-root >span\n"+
   "{\n"+
   "    display: inline-block;\n"+
   "    width: .7em;\n"+
   "}\n"+
   "\n"+
   "/* See above comment on paren TD's */\n"+
-  ".wsp-version-4-8-0 .mfs-abs td.mfs-abs-bar >span\n"+
+  ".wsp-version-4-9-0 .mfs-abs td.mfs-abs-bar >span\n"+
   "{\n"+
   "    display: inline-block;\n"+
   "    width: .2em;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-subscript {\n"+
+  ".wsp-version-4-9-0 .mfs-subscript {\n"+
   "    font-size: smaller;\n"+
   "    vertical-align: sub;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .mfs-style {\n"+
+  ".wsp-version-4-9-0 .mfs-style {\n"+
   "    display: inline;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-overbar-arc, .wsp-version-4-8-0 .mfs-overbar-ray, .wsp-version-4-8-0 .mfs-overbar-line,\n"+
-  ".wsp-version-4-8-0 .mfs-overbar-seg {\n"+
+  ".wsp-version-4-9-0 .mfs-overbar-arc, .wsp-version-4-9-0 .mfs-overbar-ray, .wsp-version-4-9-0 .mfs-overbar-line,\n"+
+  ".wsp-version-4-9-0 .mfs-overbar-seg {\n"+
   "    display: inline-block;\n"+
   "    line-height: 1.4;\n"+
   "    background-repeat: no-repeat;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-overbar-ray, .wsp-version-4-8-0 .mfs-overbar-line {\n"+
+  ".wsp-version-4-9-0 .mfs-overbar-ray, .wsp-version-4-9-0 .mfs-overbar-line {\n"+
   "    background-size: 100% .3em;\n"+
   "    padding-top: .02em;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-overbar-arc {\n"+
+  ".wsp-version-4-9-0 .mfs-overbar-arc {\n"+
   "    background-size: 100% .7em;\n"+
   "    padding-top: .55em;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-overbar-seg {\n"+
+  ".wsp-version-4-9-0 .mfs-overbar-seg {\n"+
   "    background-size: 100% 100%;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-overbar-line > .mfs-horizontal .mfs-text:last-child:after,\n"+
-  ".wsp-version-4-8-0 .mfs-overbar-ray > .mfs-horizontal .mfs-text:last-child:after {\n"+
+  ".wsp-version-4-9-0 .mfs-overbar-line > .mfs-horizontal .mfs-text:last-child:after,\n"+
+  ".wsp-version-4-9-0 .mfs-overbar-ray > .mfs-horizontal .mfs-text:last-child:after {\n"+
   "    content: \"\\200A\\200A\"; /* two hair spaces */\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-overbar-seg > .mfs-horizontal .mfs-text:last-child:after {\n"+
+  ".wsp-version-4-9-0 .mfs-overbar-seg > .mfs-horizontal .mfs-text:last-child:after {\n"+
   "    content: \"\\200A\"; /* one hair space */\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-underbar-seg {\n"+
+  ".wsp-version-4-9-0 .mfs-underbar-seg {\n"+
   "    border-bottom-width: thin;\n"+
   "    border-bottom-color: black;\n"+
   "    border-bottom-style: solid;\n"+
@@ -69510,38 +70160,38 @@
   "    display: inline-block;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-text {\n"+
+  ".wsp-version-4-9-0 .mfs-text {\n"+
   "    display: inline;\n"+
   "}\n"+
   "\n"+
   "/* Add some padding to the left of italic text, to workaround\n"+
   "  WSP-1751 \"In Safari, screen garbage left behind when you drag a parameter\"\n"+
   "*/\n"+
-  ".wsp-version-4-8-0 .wsp-Expression > .mfs-horizontal:first-child > .mfs-text.mfs-text-italic:first-child,\n"+
-  ".wsp-version-4-8-0 .wsp-Expression > .mfs-horizontal:first-child > .mfs-horizontal:first-child > .mfs-text.mfs-text-italic:first-child,\n"+
-  ".wsp-version-4-8-0 .wsp-Expression > .mfs-horizontal:first-child > .mfs-sub-group:first-child > .mfs-text.mfs-text-italic:first-child,\n"+
-  ".wsp-version-4-8-0 .wsp-Expression > .mfs-horizontal:first-child > .mfs-horizontal:first-child > .mfs-sub-group:first-child > .mfs-text.mfs-text-italic:first-child,\n"+
-  ".wsp-version-4-8-0 .wsp-Measure > .mfs-horizontal:first-child > .mfs-horizontal:first-child > .mfs-text.mfs-text-italic:first-child\n"+
+  ".wsp-version-4-9-0 .wsp-Expression > .mfs-horizontal:first-child > .mfs-text.mfs-text-italic:first-child,\n"+
+  ".wsp-version-4-9-0 .wsp-Expression > .mfs-horizontal:first-child > .mfs-horizontal:first-child > .mfs-text.mfs-text-italic:first-child,\n"+
+  ".wsp-version-4-9-0 .wsp-Expression > .mfs-horizontal:first-child > .mfs-sub-group:first-child > .mfs-text.mfs-text-italic:first-child,\n"+
+  ".wsp-version-4-9-0 .wsp-Expression > .mfs-horizontal:first-child > .mfs-horizontal:first-child > .mfs-sub-group:first-child > .mfs-text.mfs-text-italic:first-child,\n"+
+  ".wsp-version-4-9-0 .wsp-Measure > .mfs-horizontal:first-child > .mfs-horizontal:first-child > .mfs-text.mfs-text-italic:first-child\n"+
   " {\n"+
   "    padding-left: 0.2em;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-vertical-group {\n"+
+  ".wsp-version-4-9-0 .mfs-vertical-group {\n"+
   "    display: inline-block;\n"+
   "}\n"+
   "\n"+
   "/* This allows us to use a negative margin to shrink the size,\n"+
   "accomodating borders. If we're a child of an mfs-vertical-group, this property\n"+
   "is overridden by that child selector. */\n"+
-  ".wsp-version-4-8-0  .wsp-mfs-reference {\n"+
+  ".wsp-version-4-9-0  .wsp-mfs-reference {\n"+
   "    display: inline-block;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-vertical-group > * {\n"+
+  ".wsp-version-4-9-0 .mfs-vertical-group > * {\n"+
   "    display: block;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-text-layer * {\n"+
+  ".wsp-version-4-9-0 .wsp-text-layer * {\n"+
   "    -ms-user-select: none;\n"+
   "    -webkit-user-select: none;\n"+
   "    -moz-user-select: none;\n"+
@@ -69549,20 +70199,20 @@
   "    user-select: none;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-text-layer {\n"+
+  ".wsp-version-4-9-0 .wsp-text-layer {\n"+
   "    line-height: normal;\n"+
   "    pointer-events: none;\n"+
   "    border: none;\n"+
   "}\n"+
   "\n"+
   "/* Add border:none to make sure mfs nodes based on html tables (such as mfs-paren) don't inherit disfiguring borders */\n"+
-  ".wsp-version-4-8-0 .wsp-text-layer table,\n"+
-  ".wsp-version-4-8-0 .wsp-text-layer td,\n"+
-  ".wsp-version-4-8-0 .wsp-text-layer tr {\n"+
+  ".wsp-version-4-9-0 .wsp-text-layer table,\n"+
+  ".wsp-version-4-9-0 .wsp-text-layer td,\n"+
+  ".wsp-version-4-9-0 .wsp-text-layer tr {\n"+
   "    border: none;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .mfs-input {\n"+
+  ".wsp-version-4-9-0 .mfs-input {\n"+
   "    font-size: inherit;\n"+
   "    display: inline-block;\n"+
   "    white-space: nowrap;\n"+
@@ -69571,17 +70221,17 @@
   "    font-family: inherit;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-numeric {\n"+
+  ".wsp-version-4-9-0 .wsp-numeric {\n"+
   "     position: absolute;\n"+
   "   }\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-numfield-text {\n"+
+  ".wsp-version-4-9-0 .wsp-numfield-text {\n"+
   "    white-space: nowrap;\n"+
   "}\n"+
   "\n"+
   "@-webkit-keyframes blinker { from {opacity:1.0;} to {opacity:0.0;} }\n"+
   "          @keyframes blinker { from {opacity:1.0;} to {opacity:0.0;} }\n"+
-  ".wsp-version-4-8-0 .wsp-blink {\n"+
+  ".wsp-version-4-9-0 .wsp-blink {\n"+
   "    font-size: larger;\n"+
   "    color: black;\n"+
   "    font-stretch: ultra-condensed;\n"+
@@ -69597,22 +70247,22 @@
   "            animation-duration:1s;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-selected {\n"+
+  ".wsp-version-4-9-0 .wsp-selected {\n"+
   "    background-color: yellow;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad {\n"+
   "    position: absolute;\n"+
   "    pointer-events: auto;\n"+
   "    -webkit-user-drag: element;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad:focus {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad:focus {\n"+
   "    outline: 0;\n"+
   "    border: 1px solid black;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad, .wsp-version-4-8-0 .wsp-Numberpad *,\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad *:before, .wsp-version-4-8-0 .wsp-Numberpad *:after {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad, .wsp-version-4-9-0 .wsp-Numberpad *,\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad *:before, .wsp-version-4-9-0 .wsp-Numberpad *:after {\n"+
   "    /** needs to be set to default in case it has been changed by any plugins/frameworks **/\n"+
   "    /* Bootstrap changes the setting of box-sizing, which is a setting\n"+
   "       that tells browser whether to take margin, padding into account when imposing the\n"+
@@ -69623,7 +70273,7 @@
   "}\n"+
   "\n"+
   "/* The body of the Numberpad */\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-body {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-body {\n"+
   "    display: -webkit-flex;\n"+
   "    display: flex;\n"+
   "    -webkit-flex-direction: column;\n"+
@@ -69633,7 +70283,7 @@
   "}\n"+
   "\n"+
   "/* A row of Buttons */\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-row {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-row {\n"+
   "    display: -webkit-flex;\n"+
   "    display: flex;\n"+
   "    -webkit-flex-direction: row;\n"+
@@ -69642,7 +70292,7 @@
   "    justify-content: space-around;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-error-message {\n"+
+  ".wsp-version-4-9-0 .wsp-error-message {\n"+
   "  text-align: center;\n"+
   "  margin-top: 25px;\n"+
   "  margin-bottom: 25px;\n"+
@@ -69650,13 +70300,13 @@
   "  font-size: 125%;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container {\n"+
   "  display: table-cell;\n"+
   "  position: relative;\n"+
   "  vertical-align: top;\n"+
   "}\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-tool.wsp-draggable-toolButton {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-tool.wsp-draggable-toolButton {\n"+
   "  position: absolute;\n"+
   "  /* Set the z-index. The stacking context is the wsp-transform-node. We\n"+
   "  need our z-index to place us above the wsp-sketch-container, over\n"+
@@ -69666,12 +70316,12 @@
   "}\n"+
   "\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-tool > img {\n"+
+  ".wsp-version-4-9-0 .wsp-tool > img {\n"+
   "  display: block;\n"+
   "}\n"+
   "\n"+
   "\n"+
-  ".wsp-version-4-8-0 .wsp-text-target-highlight {\n"+
+  ".wsp-version-4-9-0 .wsp-text-target-highlight {\n"+
   "  background-color: rgba(255,0,0,0.5) !important;\n"+
   "}\n"+
   "\n"+
@@ -69737,38 +70387,38 @@
   "\n"+
   "\n"+
   "  /* Small size default if .wsp-responsiveSizing-medium-size*/\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .wsp-transform-large {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .wsp-transform-large {\n"+
   "    display: none;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .mfs-responsive-borderwidth {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .mfs-responsive-borderwidth {\n"+
   "    border-width: 2px;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .wsp-transform-medium {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .wsp-transform-medium {\n"+
   "    display: none;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .wsp-transform-small {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .wsp-transform-small {\n"+
   "    display: inline-block;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .wsp-transform-node {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-small-size .wsp-transform-node {\n"+
   "    transform: scale(0.5);\n"+
   "    -webkit-transform: scale(0.5);\n"+
   "    -ms-transform: scale(0.5);\n"+
   "  }\n"+
   "\n"+
   "  /* Override with medium size if wsp-responsiveSizing-medium-size */\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .wsp-transform-large {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .wsp-transform-large {\n"+
   "    display: none;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .mfs-responsive-borderwidth {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .mfs-responsive-borderwidth {\n"+
   "    border-width: 2px;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .wsp-transform-medium {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .wsp-transform-medium {\n"+
   "    display: inline-block;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .wsp-transform-small {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .wsp-transform-small {\n"+
   "    display: none;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .wsp-transform-node {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-medium-break.wsp-responsiveSizing-medium-size .wsp-transform-node {\n"+
   "    transform: scale(0.75);\n"+
   "    -webkit-transform: scale(0.75);\n"+
   "    -ms-transform: scale(0.75);\n"+
@@ -69784,38 +70434,38 @@
   "@media only screen and (max-width: 624px) {\n"+
   "\n"+
   "  /* Default to medium size if .wsp-responsiveSizing-medium-size */\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .wsp-transform-large {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .wsp-transform-large {\n"+
   "    display: none;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .mfs-responsive-borderwidth {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .mfs-responsive-borderwidth {\n"+
   "    border-width: 2px;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .wsp-transform-medium {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .wsp-transform-medium {\n"+
   "    display: inline-block;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .wsp-transform-small {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .wsp-transform-small {\n"+
   "    display: none;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .wsp-transform-node {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-medium-size .wsp-transform-node {\n"+
   "    transform: scale(0.75);\n"+
   "    -webkit-transform: scale(0.75);\n"+
   "    -ms-transform: scale(0.75);\n"+
   "  }\n"+
   "\n"+
   "  /* Override to small size if .wsp-responsiveSizing-small-size */\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .wsp-transform-large {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .wsp-transform-large {\n"+
   "    display: none;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .mfs-responsive-borderwidth {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .mfs-responsive-borderwidth {\n"+
   "    border-width: 2px;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .wsp-transform-medium {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .wsp-transform-medium {\n"+
   "    display: none;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .wsp-transform-small {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .wsp-transform-small {\n"+
   "    display: inline-block;\n"+
   "  }\n"+
-  "  .wsp-version-4-8-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .wsp-transform-node {\n"+
+  "  .wsp-version-4-9-0.wsp-responsiveSizing.wsp-responsiveSizing-small-break.wsp-responsiveSizing-small-size .wsp-transform-node {\n"+
   "    transform: scale(0.5);\n"+
   "    -webkit-transform: scale(0.5);\n"+
   "    -ms-transform: scale(0.5);\n"+
@@ -69826,7 +70476,7 @@
   "/* Section Start: wsp-Calculator */\n"+
   "/* On mobile safari, there's an annoying dark background tap effect\n"+
   "   in our mathquill edit area. Turn if off */\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-display {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-display {\n"+
   "  -webkit-tap-highlight-color: rgba(0,0,0,0);\n"+
   "}\n"+
   "/* Section End: wsp-Calculator */\n"+
@@ -69834,7 +70484,7 @@
   "/* CSS Utilities */\n"+
   "\n"+
   "/* A version of the clearfix a la https://css-tricks.com/snippets/css/clear-fix/ */\n"+
-  ".wsp-version-4-8-0 .wsp-clearfix-group:after {\n"+
+  ".wsp-version-4-9-0 .wsp-clearfix-group:after {\n"+
   "  content: \"\";\n"+
   "  display: table;\n"+
   "  clear: both;\n"+
@@ -69862,10 +70512,10 @@
   "  clip: rect(0, 0, 0, 0);\n"+
   "  border: 0;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 {\n"+
+  ".wsp-version-4-9-0 {\n"+
   "  /*\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221217231404\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.9.0, Build Number: 1075, Build Stamp: stek-macbook-pro.fios-router.home/20211030012807\n"+
   "*/\n"+
   "  /* Section Start: wsp-Button */\n"+
   "  /*\n"+
@@ -70070,16 +70720,16 @@
   "  /* Render styles */\n"+
   "  /* Insert new styles ABOVE this line to keep version scoping */\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Button {\n"+
+  ".wsp-version-4-9-0 .wsp-Button {\n"+
   "  cursor: pointer;\n"+
   "  padding: 0;\n"+
   "  background-color: transparent;\n"+
   "  border: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Button.wsp-appearance-drag {\n"+
+  ".wsp-version-4-9-0 .wsp-Button.wsp-appearance-drag {\n"+
   "  opacity: .8;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Button-drag-handle {\n"+
+  ".wsp-version-4-9-0 .wsp-Button-drag-handle {\n"+
   "  width: 10px;\n"+
   "  min-width: 10px;\n"+
   "  padding: 0px;\n"+
@@ -70090,18 +70740,18 @@
   "  border-bottom-left-radius: 5px;\n"+
   "  border-top-left-radius: 5px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-appearance-unselectable .wsp-Button-drag-handle {\n"+
+  ".wsp-version-4-9-0 .wsp-appearance-unselectable .wsp-Button-drag-handle {\n"+
   "  background-image: none;\n"+
   "  width: 5px;\n"+
   "  min-width: 5px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Button-label-frame {\n"+
+  ".wsp-version-4-9-0 .wsp-Button-label-frame {\n"+
   "  border-top: 1px solid #c2b892;\n"+
   "  border-bottom-right-radius: 5px;\n"+
   "  border-top-right-radius: 5px;\n"+
   "  background-color: #f5f5ed;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Button-label {\n"+
+  ".wsp-version-4-9-0 .wsp-Button-label {\n"+
   "  padding-left: 2px;\n"+
   "  padding-right: 2px;\n"+
   "  border-style: solid;\n"+
@@ -70113,30 +70763,30 @@
   "  border-bottom-right-radius: 5px;\n"+
   "  border-top-right-radius: 5px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-appearance-pressed .wsp-Button-label-frame {\n"+
+  ".wsp-version-4-9-0 .wsp-appearance-pressed .wsp-Button-label-frame {\n"+
   "  border-top-color: transparent;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-appearance-pressed .wsp-Button-label {\n"+
+  ".wsp-version-4-9-0 .wsp-appearance-pressed .wsp-Button-label {\n"+
   "  padding-top: 1px;\n"+
   "  border-top-width: 1px;\n"+
   "  border-bottom-width: 1px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-appearance-active .wsp-Button-label-frame {\n"+
+  ".wsp-version-4-9-0 .wsp-appearance-active .wsp-Button-label-frame {\n"+
   "  border-top-color: transparent;\n"+
   "  opacity: 1;\n"+
   "  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAoCAIAAACw1AcgAAAKmWlDQ1BpY2MAAHjalZZ3UJPpFsbP933phZaAgJTQO1KkCyT0AArSwUZIAgRCjCFBBGzI4gqsBRURrOiiiIKrUmQtiAXbItiwb5BFRV1FXWyo3D+4xHvv3Dt39sy8M78588zzvue8/zwAtL08qVSMagDkSOSymNAAVlJyCov4AChAAxKogQ2PnyvlREdHwv+s97cBAQC44cCTSsXw90pTIMzlAyDRAJAmyOXnACDHAJAyvlQmB8DYAGC+WC6VA2ACAGDKkpJTALB8AGBmTHAFADDTJngXADBlcTGBANgxABKNx5NlAFA7AYCVx8+QA1CVAOAkEYgkADQNAPDjZ/IEALRoALDPyVkoAKAVAYB12r/4ZPybZ5rKk8fLUPHELAAAQAoS5UrFvCV/cx3/v3LEisk7jACAlpsdGwEAWgBIPp8XHDvJmUJu5CRL5QExkyySc+NUGkVY/CQrsuM5k5y9MEKll6TNilL55wamTHJBZlziJAuEQcGTLFsYo9Ln5sUGf9cHzprkLF549CTzZACTLBSHxnx/c7TqnRLxLNUs6bIQlUaY+31eeWZcmIplcSpNuiiEq5pXFvbdXxyt8pQpYlR7EEriVZ4CXpBqtxAIIpCAEHKABywIgyAAuTBfDgAQuFC6RCbKyJSzOFKpWGjP4kr4jvYsFydnF0hKTmFNfNe7O4AAAKJD+t4rPAnAKQRAI773EmwBGnoBmAu+98xfAzBbAE4U8xWyvIkeDgAADxRQBybogRGYgTU4gAu4gw+wIRjCIQriIBnmAx8yIQdksBiKYCWUQjmsh81QAzthD+yHQ3AE2uAEnIELcAV64RbcByUMwQsYgfcwhiAIEaEjDEQPMUYsEDvEBfFE/JBgJBKJQZKRVCQDkSAKpAhZhZQjlUgNshtpQH5BjiNnkEtIH3IXGUCGkbfIZxRDaSgTNUQt0WmoJ8pBI9A4dB6agS5CC9ASdC1ajdahB9FW9Ax6Bb2FKtEX6CgGGBXTwUwwB8wTC8SisBQsHZNhy7AyrAqrw5qwDqwbu4EpsZfYJxwBx8CxcA44H1wYLh7Hxy3CLcNV4Gpw+3GtuHO4G7gB3AjuG56ON8Db4b3xXHwSPgO/GF+Kr8LX41vw5/G38EP49wQCQYdgRfAghBGSCVmEQkIFYTuhmdBJ6CMMEkaJRKIe0Y7oS4wi8ohyYilxK/Eg8TTxOnGI+JFEJRmTXEghpBSShFRMqiIdIJ0iXSc9JY2RNcgWZG9yFFlAXkJeR95L7iBfIw+RxyiaFCuKLyWOkkVZSammNFHOUx5Q3lGpVFOqF3U2VURdQa2mHqZepA5QP9G0aLa0QNpcmoK2lraP1km7S3tHp9Mt6Wx6Cl1OX0tvoJ+lP6J/VGOoOapx1QRqy9Vq1VrVrqu9UierW6hz1OerF6hXqR9Vv6b+UoOsYakRqMHTWKZRq3Fco19jVJOh6awZpZmjWaF5QPOS5jMtopalVrCWQKtEa4/WWa1BBsYwYwQy+IxVjL2M84whJoFpxeQys5jlzEPMHuaItpb2dO0E7XztWu2T2kodTMdSh6sj1lmnc0Tnts7nKYZTOFOEU9ZMaZpyfcoH3am6bF2hbplus+4t3c96LL1gvWy9DXpteg/1cfq2+rP1F+vv0D+v/3Iqc6rPVP7UsqlHpt4zQA1sDWIMCg32GFw1GDU0Mgw1lBpuNTxr+NJIx4htlGW0yeiU0bAxw9jPWGS8yfi08XOWNovDErOqWedYIyYGJmEmCpPdJj0mY6ZWpvGmxabNpg/NKGaeZulmm8y6zEbMjc1nmheZN5rfsyBbeFpkWmyx6Lb4YGllmWi52rLN8pmVrhXXqsCq0eqBNd3a33qRdZ31TRuCjadNts12m15b1NbNNtO21vaaHWrnbiey227XZ4+397KX2NfZ9zvQHDgOeQ6NDgOOOo6RjsWObY6vpplPS5m2YVr3tG9Obk5ip71O9521nMOdi507nN+62LrwXWpdbrrSXUNcl7u2u76ZbjddOH3H9DtuDLeZbqvduty+unu4y9yb3Ic9zD1SPbZ59HsyPaM9KzwveuG9AryWe53w+uTt7i33PuL92sfBJ9vngM+zGVYzhDP2zhj0NfXl+e72Vfqx/FL9dvkp/U38ef51/o/ZZmwBu579lGPDyeIc5LwKcAqQBbQEfAj0Dlwa2BmEBYUGlQX1BGsFxwfXBD8KMQ3JCGkMGQl1Cy0M7QzDh0WEbQjr5xpy+dwG7ki4R/jS8HMRtIjYiJqIx5G2kbLIjpnozPCZG2c+mGUxSzKrLQqiuFEbox5GW0Uviv51NmF29Oza2U9inGOKYrpjGbELYg/Evo8LiFsXdz/eOl4R35WgnjA3oSHhQ2JQYmWiMmla0tKkK8n6yaLk9hRiSkJKfcronOA5m+cMzXWbWzr39jyrefnzLs3Xny+ef3KB+gLegqOp+NTE1AOpX3hRvDreaBo3bVvaCD+Qv4X/QsAWbBIMC32FlcKn6b7plenPMnwzNmYMZ/pnVmW+FAWKakRvssKydmZ9yI7K3pc9Lk4UN+eQclJzjku0JNmScwuNFuYv7JPaSUulykXeizYvGpFFyOpzkdx5ue1yplwqv6qwVvygGMjzy6vN+7g4YfHRfM18Sf7VJbZL1ix5WhBS8HMhrpBf2FVkUrSyaGApZ+nuZciytGVdy82WlywfWhG6Yv9Kysrslb8VOxVXFv+1KnFVR4lhyYqSwR9Cf2gsVSuVlfav9lm980fcj6Ife9a4rtm65luZoOxyuVN5VfmXCn7F5Z+cf6r+aXxt+tqede7rdqwnrJesv73Bf8P+Ss3KgsrBjTM3tm5ibSrb9NfmBZsvVU2v2rmFskWxRVkdWd2+1Xzr+q1fajJrbtUG1DZvM9i2ZtuH7YLt13ewdzTtNNxZvvPzLtGuO7tDd7fWWdZV7SHsydvzZG/C3u6fPX9uqNevL6//uk+yT7k/Zv+5Bo+GhgMGB9Y1oo2KxuGDcw/2Hgo61N7k0LS7Wae5/DAcVhx+/kvqL7ePRBzpOup5tOmYxbFtLYyWslakdUnrSFtmm7I9ub3vePjxrg6fjpZfHX/dd8LkRO1J7ZPrTlFOlZwaP11werRT2vnyTMaZwa4FXffPJp29eW72uZ7zEecvXgi5cLab0336ou/FE5e8Lx2/7Hm57Yr7ldarbldbfnP7raXHvaf1mse19l6v3o6+GX2nrvtfP3Mj6MaFm9ybV27NutV3O/72nf65/co7gjvP7orvvrmXd2/s/ooH+AdlDzUeVj0yeFT3u83vzUp35cmBoIGrj2Mf3x/kD774I/ePL0MlT+hPqp4aP2145vLsxHDIcO/zOc+HXkhfjL0s/VPzz22vrF8de81+fXUkaWTojezN+NuKd3rv9v01/a+u0ejRR+9z3o99KPuo93H/J89P3Z8TPz8dW/yF+KX6q83Xjm8R3x6M54yPS3kyHgAAYACApqcDvN0HQE8GYPQCUNQm8i4AACATGR1gIoP8d57IxAAA4A6wpxMgsRMgvBNgBxvAgg3AAIBoNkAcG1BXV9X5Z+Wmu7pMeFHbAPBV4+PvEgGINgBf+8fHx9rGx7/WA2D3ADrfT+RsAACCBkClGbrCpep06/oV/5l3/wHNmfXlY/st0gAAAAlwSFlzAAAASAAAAEgARslrPgAAAAl2cEFnAAAAAQAAACgAg9PABgAAADBJREFUCNdjWPjgPxMjAwMTEyMDEzOUZmJkYGJGphmIE4OJMzMhyRNhJgwzMmCYBQDI9ANK1RWWcgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxMi0xMi0xOFQxNjoxNDowOS0wODowMMK1MMQAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTItMTItMThUMTY6MTQ6MDktMDg6MDCz6Ih4AAAAAElFTkSuQmCC');\n"+
   "  background-repeat: no;\n"+
   "  background-size: 100% 100%;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-appearance-active .wsp-Button-label {\n"+
+  ".wsp-version-4-9-0 .wsp-appearance-active .wsp-Button-label {\n"+
   "  padding-top: 1px;\n"+
   "  border-top-width: 1px;\n"+
   "  border-bottom-width: 1px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-mfs-reference-tracking {\n"+
+  ".wsp-version-4-9-0 .wsp-mfs-reference-tracking {\n"+
   "  outline: 1px solid rgba(255, 0, 0, 0.1);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-mfs-reference {\n"+
+  ".wsp-version-4-9-0 .wsp-mfs-reference {\n"+
   "  background-color: rgba(255, 0, 0, 0.01);\n"+
   "  border: 1px solid rgba(255, 0, 0, 0.1);\n"+
   "  border-radius: 5px;\n"+
@@ -70146,7 +70796,7 @@
   "  /* No top border or radius for denominators */\n"+
   "  margin: -1px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-mfs-reference.mfs-numr {\n"+
+  ".wsp-version-4-9-0 .wsp-mfs-reference.mfs-numr {\n"+
   "  border-bottom-right-radius: 0px;\n"+
   "  border-bottom-left-radius: 0px;\n"+
   "  -moz-border-bottom-right-radius: 0px;\n"+
@@ -70154,7 +70804,7 @@
   "  -webkit-border-bottom-right-radius: 0px;\n"+
   "  -webkit-border-bottom-left-radius: 0px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-mfs-reference.mfs-denm {\n"+
+  ".wsp-version-4-9-0 .wsp-mfs-reference.mfs-denm {\n"+
   "  border-top-style: none;\n"+
   "  border-top-right-radius: 0px;\n"+
   "  border-top-left-radius: 0px;\n"+
@@ -70163,83 +70813,83 @@
   "  -webkit-border-top-right-radius: 0px;\n"+
   "  -webkit-border-top-left-radius: 0px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-mfs-reference:hover {\n"+
+  ".wsp-version-4-9-0 .wsp-mfs-reference:hover {\n"+
   "  background-color: rgba(255, 0, 0, 0.1);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-mfs-reference.wsp-mfs-reference-hot {\n"+
+  ".wsp-version-4-9-0 .wsp-mfs-reference.wsp-mfs-reference-hot {\n"+
   "  background-color: rgba(255, 0, 0, 0.5);\n"+
   "  border-color: #ff0000;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container {\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container {\n"+
   "  /* It's ok to float this left; it will still be right of the wsp-tool-container. */\n"+
   "  /* With \"float: right;\", at least in FireFox, there's an unavoidable gap between tools and sketch */\n"+
   "  float: left;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container {\n"+
   "  float: left;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-undo-redo {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-undo-redo {\n"+
   "  background-color: #FFFFFF;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-tool-overflow-y.wsp-user-tools {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-tool-overflow-y.wsp-user-tools {\n"+
   "  overflow-y: auto;\n"+
   "  overflow-x: hidden;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-tool-logo {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-tool-logo {\n"+
   "  display: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-undo-button:hover,\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-redo-button:hover {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-undo-button:hover,\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-redo-button:hover {\n"+
   "  background-color: #FFFFFF;\n"+
   "  cursor: pointer;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-undo-button:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-redo-button:focus {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-undo-button:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-redo-button:focus {\n"+
   "  outline: 0;\n"+
   "  /* gets rid of blue box around focusables in chrome */\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-undo-disabled .wsp-undo-button,\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-redo-disabled .wsp-redo-button {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-undo-disabled .wsp-undo-button,\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-redo-disabled .wsp-redo-button {\n"+
   "  opacity: .3;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-undo-disabled .wsp-undo-button:hover,\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-redo-disabled .wsp-redo-button:hover {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-undo-disabled .wsp-undo-button:hover,\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-redo-disabled .wsp-redo-button:hover {\n"+
   "  cursor: default;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-tool {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-tool {\n"+
   "  background-color: white;\n"+
   "  word-wrap: break-word;\n"+
   "  white-space: normal;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-tool.wsp-draggable-toolButton {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-tool.wsp-draggable-toolButton {\n"+
   "  box-sizing: content-box;\n"+
   "  /* This simplifies dynamic sizing of the draggable */\n"+
   "  border: 2px solid #0087FF;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-tool.wsp-tool-active {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-container .wsp-tool-column .wsp-tool.wsp-tool-active {\n"+
   "  background-color: #ffffc8;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook {\n"+
   "  /* The following styles are common to these two looks */\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-undo-redo-bottom,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-undo-redo-bottom {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-undo-redo-bottom,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-undo-redo-bottom {\n"+
   "  display: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool-image,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool-image {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tool-image,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-tool-image {\n"+
   "  margin: auto;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tool,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-tool {\n"+
   "  width: 100%;\n"+
   "  text-align: center;\n"+
   "  font-weight: 200;\n"+
   "  border: 2px solid black;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-undo-redo button,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-undo-redo button {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-undo-redo button,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-undo-redo button {\n"+
   "  width: 50%;\n"+
   "  height: 44px;\n"+
   "  background-repeat: no-repeat;\n"+
@@ -70249,19 +70899,19 @@
   "  padding-top: 2px;\n"+
   "  padding-bottom: 2px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-undo-redo button .wsp-inner-icon,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-undo-redo button .wsp-inner-icon,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-undo-redo button .wsp-inner-text,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-undo-redo button .wsp-inner-text {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-undo-redo button .wsp-inner-icon,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-undo-redo button .wsp-inner-icon,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-undo-redo button .wsp-inner-text,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-undo-redo button .wsp-inner-text {\n"+
   "  display: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-undo-redo.wsp-undo-disabled .wsp-undo-button,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-undo-redo.wsp-undo-disabled .wsp-undo-button,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-undo-redo.wsp-redo-disabled .wsp-redo-button,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-undo-redo.wsp-redo-disabled .wsp-redo-button {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-undo-redo.wsp-undo-disabled .wsp-undo-button,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-undo-redo.wsp-undo-disabled .wsp-undo-button,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-undo-redo.wsp-redo-disabled .wsp-redo-button,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-undo-redo.wsp-redo-disabled .wsp-redo-button {\n"+
   "  background-color: #F5F5F5;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook {\n"+
   "  background-color: #F5F5F5;\n"+
   "  padding-right: 10px;\n"+
   "  margin-right: 5px;\n"+
@@ -70273,93 +70923,93 @@
   "    .wsp-tools-inner */\n"+
   "  /* Leave 1px space to align right edge with right edge of user tools */\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool-column {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tool-column {\n"+
   "  border-radius: 5px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool-column.wsp-no-tool-icons {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tool-column.wsp-no-tool-icons {\n"+
   "  width: 125px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-fixed-tool,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tools-inner,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool-overflow-y.wsp-user-tools {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-fixed-tool,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tools-inner,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tool-overflow-y.wsp-user-tools {\n"+
   "  box-shadow: 2px 2px black;\n"+
   "  /* Reduced the shadow and removed the blur to avoid intruding into elements below the sketch_canvas */\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-fixed-tool {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-fixed-tool {\n"+
   "  margin-right: 1px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tools-inner {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tools-inner {\n"+
   "  background-color: #393838;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tool {\n"+
   "  font-size: 24px;\n"+
   "  border-radius: 5px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook {\n"+
   "  /*  The compact look is designed for tools that use icons and no text */\n"+
   "  /*  If a tool is displayed as text, its name needs to be short enough to fit using 20-pt type. */\n"+
   "  background-color: #DDD;\n"+
   "  padding-right: 0px;\n"+
   "  border-right: 2px solid black;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook *,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook *:before,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook *:after {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook *,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook *:before,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook *:after {\n"+
   "  box-sizing: border-box;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool-column {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-tool-column {\n"+
   "  width: 105px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool-column .wsp-undo-redo {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-tool-column .wsp-undo-redo {\n"+
   "  background-color: inherit;\n"+
   "  /* use the same background color for the entire column */\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool-column .wsp-undo-redo button {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-tool-column .wsp-undo-redo button {\n"+
   "  border: 2px solid black;\n"+
   "  border-radius: 9px;\n"+
   "  vertical-align: top;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-tool {\n"+
   "  font-size: 20px;\n"+
   "  /* If you must have a tool with no icon, its name needs to be short enough for 20-pt type */\n"+
   "  padding: 5px 0;\n"+
   "  border-radius: 9px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook {\n"+
   "  padding-right: 0px;\n"+
   "  margin-right: 0px;\n"+
   "  border-left: 2px solid #cdcdcd;\n"+
   "  border-bottom: 2px solid #cdcdcd;\n"+
   "  border-right: 2px solid #cdcdcd;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook *,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook *:before,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook *:after {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook *,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook *:before,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook *:after {\n"+
   "  box-sizing: border-box;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-user-tools {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-user-tools {\n"+
   "  background-color: white;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-tools-inner > :last-child {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-tools-inner > :last-child {\n"+
   "  border-bottom: 2px solid #cdcdcd;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-tools-inner .wsp-tool {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-tools-inner .wsp-tool {\n"+
   "  display: table;\n"+
   "  width: 220px;\n"+
   "  border-top: 2px solid #cdcdcd;\n"+
   "  padding-right: 20px;\n"+
   "  min-height: 58px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-tools-inner .wsp-tool .wsp-tool-media {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-tools-inner .wsp-tool .wsp-tool-media {\n"+
   "  width: 40px;\n"+
   "  height: 40px;\n"+
   "  display: table-cell;\n"+
   "  vertical-align: middle;\n"+
   "  padding: 5px 0px 0px 7px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-tools-inner .wsp-tool .wsp-tool-text {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-tools-inner .wsp-tool .wsp-tool-text {\n"+
   "  display: table-cell;\n"+
   "  max-width: 109px;\n"+
   "  word-wrap: break-word;\n"+
@@ -70369,14 +71019,14 @@
   "  color: #2d2d2d;\n"+
   "  font-size: 18px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo-top {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo-top {\n"+
   "  display: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button {\n"+
   "  margin-right: 2px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button {\n"+
   "  width: 109px;\n"+
   "  background-color: white;\n"+
   "  position: relative;\n"+
@@ -70384,18 +71034,18 @@
   "  height: 58px;\n"+
   "  padding: 0px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button:hover,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button:hover {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button:hover,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button:hover {\n"+
   "  background-color: #f0f0f0;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button .wsp-inner-icon,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button .wsp-inner-icon,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button .wsp-inner-text,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button .wsp-inner-text {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button .wsp-inner-icon,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button .wsp-inner-icon,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button .wsp-inner-text,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button .wsp-inner-text {\n"+
   "  position: absolute;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button .wsp-inner-icon,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button .wsp-inner-icon {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button .wsp-inner-icon,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button .wsp-inner-icon {\n"+
   "  width: 20px;\n"+
   "  height: 20px;\n"+
   "  left: 40px;\n"+
@@ -70404,70 +71054,70 @@
   "  position: absolute;\n"+
   "  top: 12px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button .wsp-inner-text,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button .wsp-inner-text {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-undo-button .wsp-inner-text,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo .wsp-redo-button .wsp-inner-text {\n"+
   "  top: 33px;\n"+
   "  font-size: 14px;\n"+
   "  left: 33px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo.wsp-undo-disabled .wsp-undo-button,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-redo.wsp-redo-disabled .wsp-redo-button {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo.wsp-undo-disabled .wsp-undo-button,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-redo.wsp-redo-disabled .wsp-redo-button {\n"+
   "  background-color: white;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-undo-button,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-undo-button {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-undo-button,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-undo-button {\n"+
   "  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABYCAQAAADbnPi/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQffBBYQOhiFrU+GAAAEnklEQVRo3u2Z3WsdRRiHn53dU2zqR61gtBQsKi1t1Ua8EUEQ03/AOylU8aONEiGxYi9V8E4Q0ys1qUIEb0Sai1xFChEvFKRKY0UvilA/oB8cJBITmuzMvl7s7DknJ7vJfirC/JYDh2V35jm/eeedd+aAk5OTk5OTk5OTk5OTU0fqvwYoJg9QRDW36K27I/ZTkx7D7+ugHKZPQJA5XoqAoI6ePL5hjrcI0CVbUCiinjFqcRu3MMA2PIQ1VljiL8LM5wsqYIU3WWSiBLJCYWznOxniMAc5wB52soOW9VIIWWaRP/iZn1jgAotEdkRKYs8jCCeBoMBbPr6FfoBTnKONbLiilHttznGKQzZ0klYK6UuE1ULIvo3F3bzGeYxFMYSEaOt51IGOiDBoQsKeZ89zkt3W6YLQ8wgajfBqDmRlmx9imiWLFKJT3ZRU1zWhfXqJaYasBQWS6zyCIcqFHDd8mBlMBzUfaP+VYBtmeKjHiNzAsiVy3OQgU4Q2APK6mu12HCSaKQbz+5wAJ8jjqchx1D5PuxNAdV0ag9DmOeKILgCcjRwAg8zW5GyW07MMkmPi9wInyGM9L3oEwDBXkJ55XgUv7QcbQoQrDAPB5uvheuB+5HiQxojs/XKI2qa8brKLk2CI6cHXRESMdwIwJ3AvcgsfmCjtrUl5z2xwuJvoYp/fA1QWclrEeCgME8BpfD7hGOFWw7RBgkGhUMAiC1zkF37lKsus4XETO9nDXvYzxD5aAGgUCo+Qce7gGRQZNd5Gh7sujzKJsFZiEsWOXeJdhtm1yQ9T3McxzrJovda2v0+zXU4HjuMsXlbLpKlVPueI9a5bXPrWdWWLUb9TPd/JKBetUYY1hClIT3JZwDFyMdx4XEKm2Q94eDlqYEVgwQKeYgHBoFlDeDs9ZLOBi08xjfAVD5MUNfnj3rPFv88IbYSQEOHZNOS6gDXCMqNAwWKmBzqu3O7irM1LKzzChl1nPcAhwo8cgs4Al5Nn89ErtrC6wAB9e8Q6gEOEWW5my1UqlxQB8ARtDMJp+iZfdeAQ4WNyli451QIO8htCxJPrkasCh50UVO8JRwDcz2WEb22RUAtwiPAZmyylFZEf5BrCaK/HVYA1wtdsp6nzowA4gvA7t3c9Lg8cIVznXqgxdvvVAsYQXqeTkcsDG4SnKXY8UFw+MEebHYnHZYE1cYnSnLuxFHAPmpGkr3LAEUKbvfwbp58B8AY/xA6X7S4C5rhMq9aTz3QZ4B0CHkfwywL7CEd5mbDhCAYQfG4wxVHAq5olXqLpSUeMyS5m2F41Ag3vM4JuHFnw+ZPveLQacLz3+4ARdGdv0RwyfMG+qg4nyCcaj+UIWEBVT0ox8oecaNxlxSpXubu6LwkyTFb44yGfLnFrHWk/QT7eqMsCXKNVzzoVI09yvMFYFmCpvoW1i9xkkltlqb5KIEF+scHAEP5W9ks9yB6GKV5oMDBuJA0XQ87aDikEwxngo5r/EE6kA3u6VdeOzMNHOIPPZCPI2zwOMEBUCFgwmyJH+Ci+rx0Wmt8uFFDOUfZQeDVNuvVqvrB3cnJycnJycnJycnJy+p/pHzDs9DpRnhI/AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE1LTA0LTIyVDE2OjU4OjI0LTA0OjAwOz+VcAAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNS0wNC0yMlQxNjo1ODoyNC0wNDowMEpiLcwAAAAASUVORK5CYII=);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-redo-button,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-redo-button {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-redo-button,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-redo-button {\n"+
   "  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABYCAQAAADbnPi/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQffBBYQOCnmRS0+AAAElElEQVRo3u3YT6gd5R3G8c+8M0fQaBuzMFYESy0t/k20i3ZTECN03Z0IUqw1USLcaKnLIrgrFHVl6y2FFLopYhZZKVKlCxfFQtKWFnUTWsEqF0m5NSR3/rxdzNyTc5Nz7p1zZkYQ5hkOHM6Z8853nnne3/s7L6NGjRo1atSoUaNGjRo16kuqkPQ4WNK8Lis2r95wVd2BE0GCSrXgIgFR1Rk9EXy3C3AQdmBOfNUNrnONRLTlgk3/lS88fzllCs/7wWrAQVA2ju132CF3usOt9ttn0sQiyn3uvI/80z+cdcb5xqd0BexM4YQX/XF52FTaQN/lOW/ZEK86qjmfbXjLc+4WdozSFpdnRdHby8MmuMWz3lM2KKVcrlCqVFPY+n2pkMtnzn3PT93SON0Oehv3kuid9rChGf6wkzYbpFwx18041/VC3py96aTDjQWhBe4zokKxjMP1wPc6pZyitgO98tjGLp1yaMaIvXArZVvgesiD1hVNANq6utjtOiS5dQd38XkWN7YFrlP7mA1RubKv870uRBt+rE70PNwTU9yWwBkOOt2Ts4ucPu1gc63FuC2AExmO+Ficmec7L9j9Fkq56GNHkE2X9gxrO3D3BK4f0gmVaiYIVVPEcuVMASuawrYqfqFSWZsGcB7uHsCJgBdnvJ1XGaqrfC8XPIt2Pr+E1GQubgOcLcBNVH7nUblMolLJZMh94Iz3nfOR8y6KrrHPzW5zu3scsl9QN0KpZZb9IJFbc8BjcmteUjZNVQvV7v5etDWdy9F5r3vU7bsW+gOO+KUPp09k2YhsiV51fI67u0YixbpoS9n88G+Ou8l2x5vKZFKhOdLmk+1bmXjIay5ZpQyWzYJezf1uLnCGF0RbCqXorB82BSedgVo8UTOJBN92Ur7Aq92RywW/mAuc4UeiXC7acEyKMFNw2kRqu0m6z5/E5sa7H3OAA77jQjNnX3ezyx3astruEY77XOxlhbwKOMF1zqgblKfVS0eX/ySpDHf5uyjvHzjFy6LShgfYM7Ht4pHheqd7QL4COMWDKtG/3IlJZ9jLIyf4bWfkHcD1gvhn0TnfdGUj0lVhWiq7IO8ATnFc9Il7esetDQn4QyfkGeAEN/q36KFBcGuXuda7HSrGDHCGn4nW9JndK5XiGz4VV+zqpsAJ9tnwRjPocMrwcHPpDsApjinc1jy4IZWq26pVYrHD4b/6uaHSO6uAr9tYKRal6O0gFX1f5hcoBweuTJzzBqvusdVN8iPWXZTqc2t0vjK5pzwidpkt1zrlAJ26hra4PNmtSgR8z1989gX4mykc80q34AV8y5v63Smfp4nCMb9a5r/aIuDgrJUnQUtlcke74xJ8zX9cGrj+ThSO+nV3XIKv+HBQ2G13e8ElmPjEkAmeKDzRF26d4c0BgTO5J7zaFy7BpksDwdaFrFdcgv8N5u5E4Sf94hJcHAg3k3vcurLZWOmuWA9bDIIbFB73mz3cXenZ3jAILkdX7hl26yXeSaQDNZX3q5TCri4ut6cUBRfandpXCnvQcCBDLPbJF9Cxjxo1atSoUaNGjRo1atSowfR/LRgeDFizcN0AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTUtMDQtMjJUMTY6NTY6NDEtMDQ6MDCxoYPjAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE1LTA0LTIyVDE2OjU2OjQxLTA0OjAwwPw7XwAAAABJRU5ErkJggg==);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-undo-button .wsp-inner-icon {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-undo-button .wsp-inner-icon {\n"+
   "  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAWCAQAAACBf8+OAAAAtUlEQVR4AbXTVwHEIBBF0SthJEQCEpCABKTEARIiYSUgAQmRMBLSt6XXM588OtCxCD3BE4hdBTzCjEhCEHKUiorUxauuimmXPlJSEXF8ua6TYvnhqOjLM2XR/5bAO54QpoQSxUAvUf10mGNQ4rvvOxhwCPNyKlzfs8CTsU5QXhxQUHGAp8Kwm6XCPhZ/L+aJrR46yPc17fN+BP/9DfOy3yf2pihuzwPumZ3f423/5/vt4ta+dg3LzGOPpQRi5AAAAABJRU5ErkJggg==);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-redo-button .wsp-inner-icon {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-redo-button .wsp-inner-icon {\n"+
   "  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAWCAQAAACBf8+OAAAAu0lEQVR4AbXTBxmFIBQF4BPhRjDCjUAEIhDFBkQwwotABCIYgQi+87n39ncxDrgxI3DwCPXiWZa+3SyjBap6CVxiXUrIIVwiWyYMUh206LEc2Fa2Q0dcPZPBEnvapZ9IGS0hWBLEPu7RCowrVvRhLizXLIs51gl7fT9IQD8kFvZlcCigoIqF05Rxh9MM4+az+MWLuXir5x5kr39N5/UfwQn9J5Zt9uagcx+wReJC538PBZ3/+Xr7v7adR/85A2OP4hj58QAAAABJRU5ErkJggg==);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-cancel {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-cancel {\n"+
   "  cursor: pointer ;\n"+
   "  display: block ;\n"+
   "  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAB4ElEQVQ4y61UvWsUQRx9s1mEIyF6FpYKFxvB2ORSBgu54giYIoWg/0Caa201nVUqMWksgohY2KlXuFttkBR3CSQHFprAFRZinHXvbm/d25t5FnGP2w8ICz4YmHnDvPl9zBsBSyKNzr3LtVsw1oMx6rMzuAoAvoIsmWh+gX532/Y+ZQ7BkpNRpaoEig4vQKDoVKkq02cnkza5wiLQWrbJlYRQlapCrSWLQmsZR2YAgKONXQhRRlEIUXa0sXteWKpa5iZ3KNsejxJcNCLP9KsgJ7AOVQ2K3EmwfT+K8377m12SpBqRn+UTWBLrX/k6LaTIHSMYo54I95JpEmgAwIMW7kDzJVqDZ2KITQC4P4/FdIbBGHVBzT4E5hI7oxGw7zdEhOfT9PZiubtxDdcztSIG+UIA4A8h9kMRLxdulN9/u4nV3KITfcNXyD5tHQFH4dNp6qSLR28kvDwdX8E1SiaaCXYcAc5gM64J785vcRaPAdd7eOhe+djDcVqoZKKZbX9vEMRd2z7717UwJC3ZgCWBDl/kth+WRMZfP/3vH36l3lEYkj/0Vi/Hd1mLFLVJ2iIt2zs9EGKtkE1I90CItZbtnQI4FwKAJdt1lqEXIo29izT+aOwtC1aXbNeZ2O5/fWx/AXUQdBRBFjTDAAAAAElFTkSuQmCC);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-tool-cancel > .wsp-inner-icon,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool-cancel,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool-cancel,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-tool-cancel {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-tool-cancel > .wsp-inner-icon,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tool-cancel,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-tool-cancel,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-tool-cancel {\n"+
   "  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wwcFx4ZWcAjlgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAADyUlEQVRo3t1aT0gUURj/xi7TFkoLKxiMePLPShAiUogFgoKIeOjQRSoPnrzEijcPHRW6JEQX9eDFi4c8dJEIF4KNkBTEDrUHdTUwMWHezu46O29+Hd7kmm26M/Mmt/1gYRnevPn93nzv+37f90YhCQZAI6L7RNRBRFEiaiCiWiIKOUMyRPSdiLaI6DMRfSSiuKIoKbosAxAGEAOQgHdLOHOE/yVwDcA0AAvyzHLm1IIGPyEZeDEiE0EAb/PpKl5cq00W+KGAV/28tzHkF3wMl2+x/xm8NxKO25SbFXUnpdiGdRLNFSov40TUoSjKp9MXq4oMfFmG4MnB9PLsxaqzcZ6I7lD52p2/5gknw14YLq2vX2H09oLv7UlxbL63B6OnB1Yy6Sa8asUITJdyt9HdDaaqSLe2+ibBd3eRbm0FU1UYvb1ubp0uJsxKSlZWMgnW0FAgsbvrHXw0Kua5fRv82ze3SS7sOeZbm5tgN2+Kh0ejrknwVKoAvqMD/ODAX27wonOstTWw2loBoqUFPJUqHXxLi3Cbe/fAj44866XTm9eT5RMJsHC4QGJn53zwOztINzef+DxnzG8M0Hxn3fy7d9BragSJ5ua/kuDb2wXwg4Ows1k52bnU6HOemW/eQL9+vUBie/tP8E1NYKqKzMOHsE1TlryYJgBvZcxkLi5CD4UEiaamExJ8a6sAfngYtiVVmb8lAElZs5nz89BVVZBobEQ+Hke6sRFMVZEdHYVt27IFXpIA6DJnPH71Cswh8euXHR8PSqHqFES1lXv+/AR87tmzQKu2qkAkVy5X+G+agbdJ5LrQixdi9TUN+eVlME1D9unTIPz/xIWkbeLjmRkBPhKBtb4u3vH6OlgkguzICGzOA9nEcsLowgL0q1eh19QgH4//nuxWVqBXVyMzNAQ7n5ceRv0nsqUl6NeuQQ+FYC4tFR/z+jX0UAiZBw9g53JSE5k/KbG8DL26GkxVcTw3d76Lzc4KKdHfD9swpEkJ72Lu/XvoN26IcDk1VVqInZwUJLq7wXXf8UPzLqdXV8EiEZGoxsZc3ZuNxQSJzk7wHz/8yWlPBc3GBlhdndA3jx+7DpG2bSPz6JGQHO3t4Pv7vgua0kvKL1/A6uvFCg4MeFaWtmnCGBgQJG7dclvVWX+cKbgt6o2uLt8bkafTMLq6xHw9Pd6LeldtlWQSRl8f+OGhnLbK4SGMvj7/bZVTBxjlbhMX9UYTZdyd+6Aoyt3Kbu46A56U4eo/OQu+cg84KuKIqSIO+SrimLUiDror5lODcvzYQ/nfP7f5Cce8asR3hlrBAAAAAElFTkSuQmCC);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tools-newLook .wsp-tool-ok > .wsp-inner-icon,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool-ok,\n"+
-  ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool-ok,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-tool-ok {\n"+
+  ".wsp-version-4-9-0 .wsp-tools-newLook .wsp-tool-ok > .wsp-inner-icon,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-classicLook .wsp-tool-ok,\n"+
+  ".wsp-version-4-9-0 .wsp-tools-compactLook .wsp-tool-ok,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-tool-ok {\n"+
   "  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wwcFwczGXtDWAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAADqklEQVRo3t2aXYgbVRTHfzuzIKNZkIFkRmTFUKSgMShIwz4HpeC8VCHgILoQYfXNKQgDAYtQykJx8QNcCj4UBH0QhUVRH7b65toHcbEpYgsbZF9mMrgg2ZKH7vT2JZHpNbXJzNxssxcuzD1zz+F/zj3n3Dv3zBw5NN/3a1EULYdhuBQEwWK3213Y29ub7/f7cwCGYQjTNA9KpVLPtu1dy7K2isXixdXV1cscVmu1Wsdc192oVqs9QKTp1Wq157ruRqvVOjY14L7v1xzH2dZ1XaQFLndd14XjONu+79eUgm80Gpt5Ah+lSKPR2MwduOd5bhZXSeNanue5uYBvNpvrKq3+f6vRbDbXM4F3XXdj2sDlPsAwm+BTKzFYOnE/9bHdyfM89zB8fpyYGCuwp5lt0mSne+b5qQE6gWAdwc8I/kDww3h8d90nfN+vTc11XkBwHcFOovvju1Jyx9aGD+12+0Icx+rPIiZwDtATtOvA2njscRzTbrcv/OdgNjXrfyxZ/hqCpycP6OEBUAPodDprU7H+88CLEm0duDKZmDiO6XQ6a9PNPAUEW5L1v0GgZ8xIg4BQ7zr+CNc5nk2m7/s1LYqiZeWu8yjwukT7DPgzm9goipa1MAyXlCvwDvBAYvw38EF2sWEYLmlBECwqBV8FHIl2HuhlFx0EwaLW7XYXlCrgJXcb4Hfgy3xEd7vdBQqFwi1lgfukFLg7CJ7JT36hULilDa8+lLQ3pfEmsJ2f+H6/Pzc/MdfDwGvAc8CNgT/vjJj3GHBSon2Yv43mDcMQ+/v746/C18DjUpC+BITSvDeApHkuAVfzBW8YhtBM0zyYiOsnafwI8ClgJGgPAqekeR8pOBea5oFWKpUmS2hnge8l2lPA+4nxKeAhSekr+StQKpV6mm3buxNxCeBt4BeJfhJ4ZfD8qvTuEzU5wrbtXc2yrK2JOW8CbwF/yRemQAM4nqBdA35Vo4BlWVtasVi8mIr7n0Gg3pB8f1Wa97m6PfJf7JmO0y+P2KyG/SqCBbUf+BpApVL5MbUZvgK+u8u7b/M584xqQ8waQLlcPq3renpp7wJ7I+hfqAGv6zrlcvn0HUTHcbYzLWsdweXBbcNvCN5T93E0wHrnrUSlUlnJtAqXgBrwBPAscEad9SuVysrhX2yl7PcsgMza1aImE+r1ejZXQp3r1Ov1laN/vX4kChxHosSUdKeZLfIlqzYzW2aV94mZLHTLhZCZ/dVArincDz97zOW1Kof1u81tdvvvyyQ7/+AAAAAASUVORK5CYII=);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-ok-cancel-mode > .wsp-undo-button,\n"+
-  ".wsp-version-4-8-0 .wsp-ok-cancel-mode > .wsp-redo-button {\n"+
+  ".wsp-version-4-9-0 .wsp-ok-cancel-mode > .wsp-undo-button,\n"+
+  ".wsp-version-4-9-0 .wsp-ok-cancel-mode > .wsp-redo-button {\n"+
   "  display: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-tool-cancel {\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-tool-cancel {\n"+
   "  cursor: pointer;\n"+
   "  display: block;\n"+
   "  top: 0px;\n"+
   "  right: 0px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-tool-cancel .wsp-inner-text {\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-tool-cancel .wsp-inner-text {\n"+
   "  display: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-tool-ok {\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-tool-ok {\n"+
   "  cursor: pointer;\n"+
   "  display: block;\n"+
   "  top: 0px;\n"+
   "  right: 38px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-tool-ok .wsp-inner-text {\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-tool-ok .wsp-inner-text {\n"+
   "  display: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-ok-cancel-button {\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-ok-cancel-button {\n"+
   "  position: absolute;\n"+
   "  margin-right: 10px;\n"+
   "  margin-top: 10px;\n"+
@@ -70481,40 +71131,40 @@
   "  border-width: thin;\n"+
   "  box-shadow: 3px 3px 7px #888888;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-accessible:focus {\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-accessible:focus {\n"+
   "  outline: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-Measure:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-Text:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-Button:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-Expression:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-Table:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-Table > div:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container table:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .mfs-input:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .mfs-param:focus,\n"+
-  ".wsp-version-4-8-0 .wsp-sketch-container .wsp-parameter-sr-only:focus {\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-Measure:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-Text:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-Button:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-Expression:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-Table:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-Table > div:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container table:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .mfs-input:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .mfs-param:focus,\n"+
+  ".wsp-version-4-9-0 .wsp-sketch-container .wsp-parameter-sr-only:focus {\n"+
   "  outline: none;\n"+
   "  outline-offset: 2px;\n"+
   "  z-index: 100000 !important;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-tool-background {\n"+
+  ".wsp-version-4-9-0 .wsp-tool-background {\n"+
   "  background-color: rgba(0, 0, 0, 0.1);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .input-element {\n"+
+  ".wsp-version-4-9-0 .input-element {\n"+
   "  position: relative;\n"+
   "  display: inline-block;\n"+
   "  width: auto;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .input-element input {\n"+
+  ".wsp-version-4-9-0 .input-element input {\n"+
   "  width: 100%;\n"+
   "  position: absolute;\n"+
   "  color: transparent;\n"+
   "  background-color: transparent;\n"+
   "  margin: 2px 0px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .mfs-input,\n"+
-  ".wsp-version-4-8-0 .mfs-html-input {\n"+
+  ".wsp-version-4-9-0 .mfs-input,\n"+
+  ".wsp-version-4-9-0 .mfs-html-input {\n"+
   "  background-color: white;\n"+
   "  border: thin solid;\n"+
   "  padding: 2px;\n"+
@@ -70524,7 +71174,7 @@
   "  min-height: 1.2em;\n"+
   "  text-align: start;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad {\n"+
   "  width: 172px;\n"+
   "  height: 298px;\n"+
   "  background-color: #00bdec;\n"+
@@ -70532,19 +71182,19 @@
   "  border: thin gray solid;\n"+
   "  padding: 0px 8px 8px 8px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad button:focus {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad button:focus {\n"+
   "  outline: none;\n"+
   "  outline-offset: 2px;\n"+
   "  z-index: 100000 !important;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-header {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-header {\n"+
   "  background-image: url(\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzI1Jz48cmVjdCBmaWxsPSd3aGl0ZScgeD0nNicgeT0nNicgd2lkdGg9JzkwJScgaGVpZ2h0PScyJy8+PHJlY3QgZmlsbD0nd2hpdGUnIHg9JzYnIHk9JzEyJyB3aWR0aD0nOTAlJyBoZWlnaHQ9JzInLz48cmVjdCBmaWxsPSd3aGl0ZScgeD0nNicgeT0nMTknIHdpZHRoPSc5MCUnIGhlaWdodD0nMicvPjwvc3ZnPgo=\");\n"+
   "  background-repeat: no-repeat;\n"+
   "  background-color: #00bdec;\n"+
   "  height: 25px;\n"+
   "  margin-bottom: 8px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-cancel {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-cancel {\n"+
   "  margin-left: auto ;\n"+
   "  text-align: center ;\n"+
   "  vertical-align: middle ;\n"+
@@ -70562,7 +71212,7 @@
   "  padding: 0px;\n"+
   "  outline-offset: 0px !important;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-erase-to-left {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-erase-to-left {\n"+
   "  /* the following is an svg image of the 'erase to left' unicode character,\n"+
   "       \\u232b, base64 encoded. To see original, cut out the quoted part after\n"+
   "       base64, then un-base64 encode.  */\n"+
@@ -70571,7 +71221,7 @@
   "  background-position: center;\n"+
   "  background-size: 30px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-clear {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-clear {\n"+
   "  /* the following is an svg image of the 'circled latin capital letter c'\n"+
   "       unicode character, \\u2428, base64 encoded. To see original, cut out\n"+
   "       the quoted part after base64, then un-base64 encode.  */\n"+
@@ -70580,7 +71230,7 @@
   "  background-position: center;\n"+
   "  background-size: 30px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-key {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-key {\n"+
   "  cursor: pointer;\n"+
   "  background-color: #eee;\n"+
   "  border: thin black solid;\n"+
@@ -70590,7 +71240,7 @@
   "  color: black;\n"+
   "  text-align: center;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-element {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-element {\n"+
   "  margin: 1px;\n"+
   "  width: 44px;\n"+
   "  height: 44px;\n"+
@@ -70599,51 +71249,51 @@
   "  line-height: 48px;\n"+
   "  padding: 0px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-key:after {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-key:after {\n"+
   "  content: attr(data-keyText);\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-key:active,\n"+
-  ".wsp-version-4-8-0 .wsp-Numberpad-key-down {\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-key:active,\n"+
+  ".wsp-version-4-9-0 .wsp-Numberpad-key-down {\n"+
   "  background-color: #636568;\n"+
   "  border-color: transparent;\n"+
   "  color: white;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 button.wsp-Numberpad-control-key {\n"+
+  ".wsp-version-4-9-0 button.wsp-Numberpad-control-key {\n"+
   "  background-color: #c5dee5;\n"+
   "  border-radius: 5px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-error-message {\n"+
+  ".wsp-version-4-9-0 .wsp-error-message {\n"+
   "  text-align: center;\n"+
   "  margin-top: 25px;\n"+
   "  margin-bottom: 25px;\n"+
   "  color: red;\n"+
   "  font-size: 125%;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Table > div > table {\n"+
+  ".wsp-version-4-9-0 .wsp-Table > div > table {\n"+
   "  border-collapse: collapse;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Table {\n"+
+  ".wsp-version-4-9-0 .wsp-Table {\n"+
   "  border-right: 1px solid;\n"+
   "  border-bottom: 1px solid;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Table > div > table,\n"+
-  ".wsp-version-4-8-0 .wsp-Table > div > table > tbody > tr > th,\n"+
-  ".wsp-version-4-8-0 .wsp-Table > div > table > tbody > tr > td {\n"+
+  ".wsp-version-4-9-0 .wsp-Table > div > table,\n"+
+  ".wsp-version-4-9-0 .wsp-Table > div > table > tbody > tr > th,\n"+
+  ".wsp-version-4-9-0 .wsp-Table > div > table > tbody > tr > td {\n"+
   "  border: 1px solid;\n"+
   "  text-align: center;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Table > div > table > tbody > tr > td.wsp-final-row-cell {\n"+
+  ".wsp-version-4-9-0 .wsp-Table > div > table > tbody > tr > td.wsp-final-row-cell {\n"+
   "  opacity: 0.5;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Table > div > table > tbody > tr > td {\n"+
+  ".wsp-version-4-9-0 .wsp-Table > div > table > tbody > tr > td {\n"+
   "  padding: .1em .4em .1em .4em;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Table > div > table > tbody > tr > th {\n"+
+  ".wsp-version-4-9-0 .wsp-Table > div > table > tbody > tr > th {\n"+
   "  font-weight: normal;\n"+
   "  font-style: italic;\n"+
   "  padding: .2em .3em;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator {\n"+
   "  width: 389px;\n"+
   "  height: 356px;\n"+
   "  background-color: #00bdec;\n"+
@@ -70652,14 +71302,14 @@
   "  padding: 0px 6px 10px 8px;\n"+
   "  cursor: default;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-title {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-title {\n"+
   "  background-color: #ecf8ff;\n"+
   "  text-align: center;\n"+
   "  border-radius: 5px;\n"+
   "  margin-top: 4px;\n"+
   "  padding: 2px 0;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-display {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-display {\n"+
   "  border-radius: 4px;\n"+
   "  height: 80px;\n"+
   "  background-color: white;\n"+
@@ -70667,13 +71317,13 @@
   "  overflow: auto;\n"+
   "  font-size: 18px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-display-wrapper {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-display-wrapper {\n"+
   "  position: relative;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-body-wrapper {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-body-wrapper {\n"+
   "  display: inline-block;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-body-wrapper > .wsp-Calculator-body {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-body-wrapper > .wsp-Calculator-body {\n"+
   "  display: inline-block;\n"+
   "  margin-left: 7px;\n"+
   "  /* The default vertical-align for display:inline-block is\n"+
@@ -70681,7 +71331,7 @@
   "     Setting vertical-align to \"top\" eliminates the spacing. */\n"+
   "  vertical-align: top;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-left {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-left {\n"+
   "  display: inline-block;\n"+
   "  border-radius: 4px;\n"+
   "  vertical-align: top;\n"+
@@ -70690,60 +71340,60 @@
   "  background-color: #ecf8ff;\n"+
   "  margin-top: 3px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-label-insert {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-label-insert {\n"+
   "  width: 50%;\n"+
   "  text-align: center;\n"+
   "  margin: 35px auto 10px auto;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-textual {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-textual {\n"+
   "  font-family: Lucida Grande, sans-serif;\n"+
   "  font-size: 16px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator button.dropdown-toggle {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator button.dropdown-toggle {\n"+
   "  background-color: #f0f0f0;\n"+
   "  border: 2px outset #f0f0f0;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .dropdown-toggle {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .dropdown-toggle {\n"+
   "  width: 110px;\n"+
   "  white-space: nowrap;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-left .dropdown-toggle {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-left .dropdown-toggle {\n"+
   "  height: 24px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .dropdown {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .dropdown {\n"+
   "  display: inline-block;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-select-function ul {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-select-function ul {\n"+
   "  top: -220px;\n"+
   "  left: 110px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-select-units ul {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-select-units ul {\n"+
   "  top: -70px;\n"+
   "  left: 110px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-select-equation ul {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-select-equation ul {\n"+
   "  top: -170px;\n"+
   "  left: 135px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-topmost-select-for-insert,\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-select-for-insert {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-topmost-select-for-insert,\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-select-for-insert {\n"+
   "  margin-top: 10px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-Calculator-left .dropdown {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-Calculator-left .dropdown {\n"+
   "  margin-left: 15px;\n"+
   "  margin-right: 15px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-Calculator-select-for-insert > button,\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-Calculator-topmost-select-for-insert > button {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-Calculator-select-for-insert > button,\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-Calculator-topmost-select-for-insert > button {\n"+
   "  box-sizing: border-box;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-bottom {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-bottom {\n"+
   "  margin-top: 15px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-select-equation {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-select-equation {\n"+
   "  margin-left: 30px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-bottom-button {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-bottom-button {\n"+
   "  margin-left: 30px;\n"+
   "  border-radius: 5px;\n"+
   "  padding: 2px 10px 3px;\n"+
@@ -70751,34 +71401,34 @@
   "  border: 2px outset #C0C0C0;\n"+
   "  height: 19px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator-ok-button-inner {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator-ok-button-inner {\n"+
   "  padding: 0 10px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .dropdown a {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .dropdown a {\n"+
   "  cursor: pointer;\n"+
   "  margin-left: 3px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .selected a {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .selected a {\n"+
   "  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjE5LjIxMzE1IiBoZWlnaHQ9IjE4LjI5NDk5NCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KIDxtZXRhZGF0YSBpZD0ibWV0YWRhdGE3Ij5pbWFnZS9zdmcreG1sPC9tZXRhZGF0YT4KCiA8Zz4KICA8dGl0bGU+TGF5ZXIgMTwvdGl0bGU+CiAgPGcgaWQ9ImxheWVyMSI+CiAgIDxwYXRoIGQ9Im00Ljc3NDY5LDE4LjI5NDk3OWMtMC4yNzUwMSwtMC4wMDM1NCAtMS40NjE4MSwtMS43Nzg0MzkgLTIuNjM3MzQsLTMuOTQ0MTQ5bC0yLjEzNzM0LC0zLjkzNzgxbDAuNTU0MDIsLTAuNTUzOTZjMC4zMDQ2OSwtMC4zMDQ3NSAxLjEyMzY3LC0wLjU1NDAyIDEuODE5OTUsLTAuNTU0MDJsMS4yNjU5NSwwbDAuNjM2MzgsMi4wMDUwN2wwLjYzNjM4LDIuMDA1MDdsNS4wNjQ0OCwtNS41NDEzMmMyLjc4NTQ1LC0zLjA0NzczIDYuMDAzMDcsLTYuMDQzNjQgNy4xNTAyNDEsLTYuNjU3NTlsMi4wODU3NDksLTEuMTE2MjdsLTQuMjA5NDM5LDQuNzgyMTdjLTIuMzE1MiwyLjYzMDI1IC01LjQ1MTM1LDYuNzQ4MDUgLTYuOTY5MjQsOS4xNTA3NmMtMS41MTc4OCwyLjQwMjcxIC0yLjk4NDc5LDQuMzY1NjYgLTMuMjU5NzgsNC4zNjIwNjFsLTAuMDAwMDEsLTAuMDAwMDExeiIgaWQ9InBhdGgyMjIzIiBmaWxsPSIjMDAwMDAwIi8+CiAgPC9nPgogPC9nPgo8L3N2Zz4=);\n"+
   "  background-repeat: no-repeat;\n"+
   "  background-position: left;\n"+
   "  background-size: 16px 16px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mathquill-rendered-math sup {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mathquill-rendered-math sup {\n"+
   "  margin-top: 0.5em;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mathquill-rendered-math sup {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mathquill-rendered-math sup {\n"+
   "  margin-top: 0.5em;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mathquill-editable.hasCursor {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mathquill-editable.hasCursor {\n"+
   "  box-shadow: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-calculator-edited {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-calculator-edited {\n"+
   "  padding: 5px;\n"+
   "  min-width: 364px;\n"+
   "  min-height: 69px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-calculator-edited .mq-blob > .wsp-ref {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-calculator-edited .mq-blob > .wsp-ref {\n"+
   "  background-color: rgba(238, 238, 238, 0.8);\n"+
   "  display: inline-block;\n"+
   "  margin: 0px 2px;\n"+
@@ -70786,27 +71436,27 @@
   "  text-align: center;\n"+
   "  padding: 0 1px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mathquill-rendered-math .numerator {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mathquill-rendered-math .numerator {\n"+
   "  padding: 0.1em 0.1em;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator,\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator *,\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator *:before,\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator *:after {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator,\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator *,\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator *:before,\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator *:after {\n"+
   "  -webkit-box-sizing: content-box;\n"+
   "  -moz-box-sizing: content-box;\n"+
   "  box-sizing: content-box;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-independent-variable {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-independent-variable {\n"+
   "  font-style: italic;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-syntax-error-notice {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-syntax-error-notice {\n"+
   "  display: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-syntax-error-notice:after {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-syntax-error-notice:after {\n"+
   "  content: '!';\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator.wsp-syntax-error .wsp-syntax-error-notice {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator.wsp-syntax-error .wsp-syntax-error-notice {\n"+
   "  color: red;\n"+
   "  background-color: #f8f8f8;\n"+
   "  font-size: 24px;\n"+
@@ -70817,26 +71467,26 @@
   "  border: 2px solid red;\n"+
   "  top: 10px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mq-root-block .mq-hasCursor {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mq-root-block .mq-hasCursor {\n"+
   "  -webkit-box-shadow: inset #68b4df 0 0 2px 1px;\n"+
   "  -moz-box-shadow: inset #68b4df 0 0 2px 1px;\n"+
   "  box-shadow: inset #68b4df 0 0 2px 1px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mq-math-mode .mq-editable-field.mq-focused,\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mq-editable-field.mq-focused {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mq-math-mode .mq-editable-field.mq-focused,\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mq-editable-field.mq-focused {\n"+
   "  box-shadow: none;\n"+
   "  border: none;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mq-math-mode .mq-sqrt-prefix {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mq-math-mode .mq-sqrt-prefix {\n"+
   "  top: .18em;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .dropdown-menu > li > a {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .dropdown-menu > li > a {\n"+
   "  padding: 3px 19px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .wsp-missing {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .wsp-missing {\n"+
   "  color: red;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mq-editable-field .mq-textarea {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mq-editable-field .mq-textarea {\n"+
   "  /* Mathquill sets position to relative, but we were seeing premature\n"+
   "   * scrollbars from IE (WSP-1578) as the selection area grew. This\n"+
   "   * fixes the issue, perhaps because 1) the textarea is filled with\n"+
@@ -70845,7 +71495,7 @@
   "   * time, and thus impacts sizing enough to trigger scrolling. */\n"+
   "  position: absolute;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mq-editable-field .mq-textarea > * {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mq-editable-field .mq-textarea > * {\n"+
   "  z-index: -999;\n"+
   "  /* Mathquill uses a tiny (1px x 1px) textarea for cut/paste event handling, and\n"+
   "  this triggered a bug. Chrome got confused when selecting, then blurring, then\n"+
@@ -70853,46 +71503,46 @@
   "  textarea to overflow: hidden fixes the bug; so that is what we do. */\n"+
   "  overflow: hidden;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-Calculator .mq-non-leaf + .mq-sup-only {\n"+
+  ".wsp-version-4-9-0 .wsp-Calculator .mq-non-leaf + .mq-sup-only {\n"+
   "  vertical-align: .9em;\n"+
   "  font-size: 85%;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-label-edit {\n"+
+  ".wsp-version-4-9-0 .wsp-label-edit {\n"+
   "  border: 1px solid black;\n"+
   "  padding: 3px;\n"+
   "  width: 415px;\n"+
   "  background-color: #fafafa;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-label-edit button {\n"+
+  ".wsp-version-4-9-0 .wsp-label-edit button {\n"+
   "  float: right;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-label-edit * {\n"+
+  ".wsp-version-4-9-0 .wsp-label-edit * {\n"+
   "  font-size: 15px;\n"+
   "  margin: 5px;\n"+
   "  padding: 5px;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-text-target-highlight,\n"+
-  ".wsp-version-4-8-0 .wsp-text-unmatched-given,\n"+
-  ".wsp-version-4-8-0 .wsp-text-fancy-pulse {\n"+
+  ".wsp-version-4-9-0 .wsp-text-target-highlight,\n"+
+  ".wsp-version-4-9-0 .wsp-text-unmatched-given,\n"+
+  ".wsp-version-4-9-0 .wsp-text-fancy-pulse {\n"+
   "  border-style: solid !important;\n"+
   "  border-width: 2px !important;\n"+
   "  border-radius: 5px !important;\n"+
   "  box-shadow: 3px 3px 7px black !important;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-text-target-highlight,\n"+
-  ".wsp-version-4-8-0 .wsp-text-unmatched-given {\n"+
+  ".wsp-version-4-9-0 .wsp-text-target-highlight,\n"+
+  ".wsp-version-4-9-0 .wsp-text-unmatched-given {\n"+
   "  border-color: rgba(255, 0, 0, 0.5) !important;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-text-fancy-pulse {\n"+
+  ".wsp-version-4-9-0 .wsp-text-fancy-pulse {\n"+
   "  border-color: rgba(255, 215, 0, 0.5) !important;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-text-unmatched-given {\n"+
-  "  -webkit-animation: wsp-version-4-8-0FlickerAnimation 0.5s infinite;\n"+
-  "  -moz-animation: wsp-version-4-8-0FlickerAnimation 0.5s infinite;\n"+
-  "  -o-animation: wsp-version-4-8-0FlickerAnimation 0.5s infinite;\n"+
-  "  animation: wsp-version-4-8-0FlickerAnimation 0.5s infinite;\n"+
+  ".wsp-version-4-9-0 .wsp-text-unmatched-given {\n"+
+  "  -webkit-animation: wsp-version-4-9-0FlickerAnimation 0.5s infinite;\n"+
+  "  -moz-animation: wsp-version-4-9-0FlickerAnimation 0.5s infinite;\n"+
+  "  -o-animation: wsp-version-4-9-0FlickerAnimation 0.5s infinite;\n"+
+  "  animation: wsp-version-4-9-0FlickerAnimation 0.5s infinite;\n"+
   "}\n"+
-  "@keyframes wsp-version-4-8-0FlickerAnimation {\n"+
+  "@keyframes wsp-version-4-9-0FlickerAnimation {\n"+
   "  0% {\n"+
   "    background-color: rgba(255, 0, 0, 0);\n"+
   "  }\n"+
@@ -70903,7 +71553,7 @@
   "    background-color: rgba(255, 0, 0, 0);\n"+
   "  }\n"+
   "}\n"+
-  "@-o-keyframes wsp-version-4-8-0FlickerAnimation {\n"+
+  "@-o-keyframes wsp-version-4-9-0FlickerAnimation {\n"+
   "  0% {\n"+
   "    background-color: rgba(255, 0, 0, 0);\n"+
   "  }\n"+
@@ -70914,7 +71564,7 @@
   "    background-color: rgba(255, 0, 0, 0);\n"+
   "  }\n"+
   "}\n"+
-  "@-moz-keyframes wsp-version-4-8-0FlickerAnimation {\n"+
+  "@-moz-keyframes wsp-version-4-9-0FlickerAnimation {\n"+
   "  0% {\n"+
   "    background-color: rgba(255, 0, 0, 0);\n"+
   "  }\n"+
@@ -70925,7 +71575,7 @@
   "    background-color: rgba(255, 0, 0, 0);\n"+
   "  }\n"+
   "}\n"+
-  "@-webkit-keyframes wsp-version-4-8-0FlickerAnimation {\n"+
+  "@-webkit-keyframes wsp-version-4-9-0FlickerAnimation {\n"+
   "  0% {\n"+
   "    background-color: rgba(255, 0, 0, 0);\n"+
   "  }\n"+
@@ -70936,13 +71586,13 @@
   "    background-color: rgba(255, 0, 0, 0);\n"+
   "  }\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-text-fancy-pulse {\n"+
-  "  -webkit-animation: wsp-version-4-8-0FlickerAnimationGold 2s infinite;\n"+
-  "  -moz-animation: wsp-version-4-8-0FlickerAnimationGold 2s infinite;\n"+
-  "  -o-animation: wsp-version-4-8-0FlickerAnimationGold 2s infinite;\n"+
-  "  animation: wsp-version-4-8-0FlickerAnimationGold 2s infinite;\n"+
+  ".wsp-version-4-9-0 .wsp-text-fancy-pulse {\n"+
+  "  -webkit-animation: wsp-version-4-9-0FlickerAnimationGold 2s infinite;\n"+
+  "  -moz-animation: wsp-version-4-9-0FlickerAnimationGold 2s infinite;\n"+
+  "  -o-animation: wsp-version-4-9-0FlickerAnimationGold 2s infinite;\n"+
+  "  animation: wsp-version-4-9-0FlickerAnimationGold 2s infinite;\n"+
   "}\n"+
-  "@keyframes wsp-version-4-8-0FlickerAnimationGold {\n"+
+  "@keyframes wsp-version-4-9-0FlickerAnimationGold {\n"+
   "  0% {\n"+
   "    background-color: rgba(255, 215, 0, 0);\n"+
   "  }\n"+
@@ -70953,7 +71603,7 @@
   "    background-color: rgba(255, 215, 0, 0);\n"+
   "  }\n"+
   "}\n"+
-  "@-o-keyframes wsp-version-4-8-0FlickerAnimationGold {\n"+
+  "@-o-keyframes wsp-version-4-9-0FlickerAnimationGold {\n"+
   "  0% {\n"+
   "    background-color: rgba(255, 215, 0, 0);\n"+
   "  }\n"+
@@ -70964,7 +71614,7 @@
   "    background-color: rgba(255, 215, 0, 0);\n"+
   "  }\n"+
   "}\n"+
-  "@-moz-keyframes wsp-version-4-8-0FlickerAnimationGold {\n"+
+  "@-moz-keyframes wsp-version-4-9-0FlickerAnimationGold {\n"+
   "  0% {\n"+
   "    background-color: rgba(255, 215, 0, 0);\n"+
   "  }\n"+
@@ -70975,7 +71625,7 @@
   "    background-color: rgba(255, 215, 0, 0);\n"+
   "  }\n"+
   "}\n"+
-  "@-webkit-keyframes wsp-version-4-8-0FlickerAnimationGold {\n"+
+  "@-webkit-keyframes wsp-version-4-9-0FlickerAnimationGold {\n"+
   "  0% {\n"+
   "    background-color: rgba(255, 215, 0, 0);\n"+
   "  }\n"+
@@ -70986,16 +71636,16 @@
   "    background-color: rgba(255, 215, 0, 0);\n"+
   "  }\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-effects {\n"+
+  ".wsp-version-4-9-0 .wsp-effects {\n"+
   "  border: 4px dashed transparent;\n"+
   "  box-sizing: border-box;\n"+
   "  width: 100%;\n"+
   "  height: 100%;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-drop-target .wsp-effects {\n"+
+  ".wsp-version-4-9-0 .wsp-drop-target .wsp-effects {\n"+
   "  border-color: blue;\n"+
   "}\n"+
-  ".wsp-version-4-8-0 .wsp-parameter-sr-only {\n"+
+  ".wsp-version-4-9-0 .wsp-parameter-sr-only {\n"+
   "  border: 0;\n"+
   "  width: 100%;\n"+
   "  height: 100%;\n"+
@@ -71004,19 +71654,19 @@
   "  color: transparent;\n"+
   "  background-color: transparent;\n"+
   "}\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-Numberpad button:focus {\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-Numberpad button:focus {\n"+
   "  outline: 3px solid red !important;\n"+
   "}\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container .wsp-Measure:focus,\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container .wsp-Text:focus,\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container .wsp-Button:focus,\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container .wsp-Expression:focus,\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container .wsp-Table:focus,\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container .wsp-Table > div:focus,\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container table:focus,\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container .mfs-input:focus,\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container .mfs-param:focus,\n"+
-  ".wsp-version-4-8-0.keypressed .wsp-sketch-container .wsp-parameter-sr-only:focus {\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container .wsp-Measure:focus,\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container .wsp-Text:focus,\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container .wsp-Button:focus,\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container .wsp-Expression:focus,\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container .wsp-Table:focus,\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container .wsp-Table > div:focus,\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container table:focus,\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container .mfs-input:focus,\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container .mfs-param:focus,\n"+
+  ".wsp-version-4-9-0.keypressed .wsp-sketch-container .wsp-parameter-sr-only:focus {\n"+
   "  outline: 3px solid red;\n"+
   "}\n"+
   "/*\n"+
@@ -71590,7 +72240,7 @@
   
   // Add css if it isn't there yet.
   $(function () {
-    var id = 'wsp-css-4-8-0';
+    var id = 'wsp-css-4-9-0';
     if($('style#'+id).length === 0) {
       $("head").append($('<style>').attr({id: id}).text(GSP.css));
     }

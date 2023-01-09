@@ -235,8 +235,8 @@ var PREF = (function() {
       },
       newPrecision,
       gobjs,
-      gobj;
-    maxPrecision = 7; // 7 decimal digits at the most.
+      gobj,
+      maxPrecision = 7; // 7 decimal digits at the most.
 
     function clampPrecision(value) {
       return value < 0 ? 0 : value > maxPrecision ? maxPrecision : value;
@@ -375,7 +375,7 @@ var WIDGETS = (function() {
   }
 
   function deepEquals(a, b) {
-    const kSigDigits = 12; // consider numbers with 12 significant digits equal to be truly equal
+    var kSigDigits = 12; // consider numbers with 12 significant digits equal to be truly equal
     // Otherwise floats (like values and locations of gobjs) may fail this test.
     if (a === b) return true;
     if (a && b && typeof a === 'object' && typeof b === 'object') {
@@ -3859,7 +3859,6 @@ var UTILMENU = (function() {
     // Create the menu itself and returns the file-content div
     var scriptPath = WIDGETS.getScriptPath(),
       $canvas = $(this),
-      doc = $canvas.data('document'),
       newContent = '<div class="util-menu-btn util-menu">',
       $button = $canvas.parent().find('.util-menu-btn');
 
