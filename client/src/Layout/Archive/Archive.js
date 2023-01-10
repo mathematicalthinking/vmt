@@ -2,7 +2,14 @@ import React, { Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import PropTypes from 'prop-types';
 import { SelectableBoxList } from 'Layout';
-import { Search, CustomLink, Button, RadioBtn, InfoBox } from 'Components';
+import {
+  Search,
+  CustomLink,
+  Button,
+  RadioBtn,
+  InfoBox,
+  TabTypes,
+} from 'Components';
 import classes from './archive.css';
 
 const Archive = (props) => {
@@ -26,6 +33,8 @@ const Archive = (props) => {
     selectActions,
     actionComponent,
   } = props;
+
+  const toggleRoomFilter = (type) => toggleFilter(`room-${type}`);
 
   return (
     <React.Fragment>
@@ -77,41 +86,10 @@ const Archive = (props) => {
                   >
                     All
                   </RadioBtn>
-                  <RadioBtn
-                    data-testid="desmos-activity-filter"
-                    check={() => toggleFilter('room-desmosActivity')}
-                    checked={filters.roomType === 'desmosActivity'}
-                    name="DesmosActivity"
-                  >
-                    Desmos Activity
-                  </RadioBtn>
-                  <RadioBtn
-                    data-testid="geogebra-filter"
-                    check={() => toggleFilter('room-geogebra')}
-                    checked={filters.roomType === 'geogebra'}
-                    name="GeoGebra"
-                  >
-                    GeoGebra
-                  </RadioBtn>
-                  <RadioBtn
-                    data-testid="desmos-filter"
-                    check={() => toggleFilter('room-desmos')}
-                    checked={filters.roomType === 'desmos'}
-                    name="Desmos"
-                  >
-                    Desmos
-                  </RadioBtn>
-                  {window.env.REACT_APP_PYRET_MODE &&
-                    window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (
-                      <RadioBtn
-                        data-testid="pyret-activity-filter"
-                        check={() => toggleFilter('room-pyret')}
-                        checked={filters.roomType === 'pyret'}
-                        name="PyretActivity"
-                      >
-                        Pyret
-                      </RadioBtn>
-                    )}
+                  <TabTypes.RadioButtons
+                    onClick={toggleRoomFilter}
+                    checked={filters.roomType}
+                  />
                 </div>
               </InfoBox>
             ) : null}

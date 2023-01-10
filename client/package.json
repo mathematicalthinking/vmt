@@ -57,7 +57,7 @@
     "react-datepicker": "^3.0.0",
     "react-dev-utils": "^5.0.1",
     "react-dom": "^17.0.2",
-    "react-draggable": "^3.0.5",
+    "react-draggable": "^4.4.5",
     "react-load-script": "0.0.6",
     "react-onclickoutside": "^6.12.1",
     "react-papaparse": "^3.17.1",

@@ -226,8 +226,8 @@ class NewResourceContainer extends Component {
     }));
   };
 
-  setRoomType = (event) => {
-    this.setState({ roomType: event.target.name });
+  setRoomType = (roomType) => {
+    this.setState({ roomType });
   };
 
   setGgbFile = (event) => {

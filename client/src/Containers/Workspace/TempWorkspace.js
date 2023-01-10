@@ -12,7 +12,7 @@ import {
 } from '../../store/actions';
 import generateMongoId from '../../utils/createMongoId';
 import Workspace from './Workspace';
-import { Aux, TextInput, Modal, Button } from '../../Components';
+import { Aux, TextInput, Modal, Button, TabTypes } from '../../Components';
 import Signup from '../Signup';
 import socket from '../../utils/sockets';
 import COLOR_MAP from '../../utils/colorMap';
@@ -189,41 +189,10 @@ class TempWorkspace extends Component {
         {firstEntry ? (
           <div>
             <p>Select a room type </p>
-            <Button
-              data-testid="temp-desmos"
-              m={5}
-              click={() => this.joinRoom('desmos')}
+            <TabTypes.Buttons
+              onClick={this.joinRoom}
               disabled={!loggedIn && !tempUsername}
-            >
-              Desmos
-            </Button>
-            <Button
-              data-testid="temp-desmos-activity"
-              m={5}
-              click={() => this.joinRoom('desmosActivity')}
-              disabled={!loggedIn && !tempUsername}
-            >
-              Desmos Activity
-            </Button>
-            <Button
-              data-testid="temp-geogebra"
-              m={5}
-              click={() => this.joinRoom('geogebra')}
-              disabled={!loggedIn && !tempUsername}
-            >
-              GeoGebra
-            </Button>
-            {window.env.REACT_APP_PYRET_MODE &&
-            window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' ? (
-              <Button
-                data-testid="temp-pyret"
-                m={5}
-                click={() => this.joinRoom('pyret')}
-                disabled={!loggedIn && !tempUsername}
-              >
-                Pyret
-              </Button>
-            ) : null}
+            />
           </div>
         ) : (
           <Button
@@ -255,14 +224,11 @@ const mapStateToProps = (store, ownProps) => ({
   userId: store.user._id,
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    connectPopulateRoom: populateRoom,
-    connectRemovedRoom: removedRoom,
-    connectUpdateRoom: updateRoom,
-    connectUpdatedRoom: updatedRoom,
-    connectAddUserRooms: addUserRooms,
-    connectAddToLog: addToLog,
-  }
-)(TempWorkspace);
+export default connect(mapStateToProps, {
+  connectPopulateRoom: populateRoom,
+  connectRemovedRoom: removedRoom,
+  connectUpdateRoom: updateRoom,
+  connectUpdatedRoom: updatedRoom,
+  connectAddUserRooms: addUserRooms,
+  connectAddToLog: addToLog,
+})(TempWorkspace);
