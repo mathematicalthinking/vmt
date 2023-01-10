@@ -310,6 +310,10 @@ export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
   );
 }
 
+/**
+ * Hook that takes an array roomIds and returns those rooms in an object key'd by the ids. The object keys are in the same
+ * order as the original roomIds array.
+ */
 export function usePopulatedRooms(
   roomIds,
   shouldBuildLog = false,
@@ -328,10 +332,15 @@ export function usePopulatedRooms(
           });
         })
         .then((roomArray) => {
-          return roomArray.reduce(
+          const roomsById = roomArray.reduce(
             (acc, room) => ({ ...acc, [room._id]: room }),
             {}
           );
+          const orderedRoomsById = roomIds.reduce(
+            (acc, id) => ({ ...acc, [id]: roomsById[id] }),
+            {}
+          );
+          return orderedRoomsById;
         }),
     options
   );
