@@ -4,7 +4,7 @@ import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
   const {
-    list, // should be 'allParticipants'
+    allParticipants,
     requiredParticipants,
     roomDrafts,
     select, // should be 'setRoomDrafts'
@@ -12,6 +12,20 @@ const AssignmentMatrix = (props) => {
     userId,
     onAddParticipants,
   } = props;
+
+  // =========== SORT FACILITATORS TO THE END OF ALL PARTICIPANTS ==============
+  const sortAllParticipants = () => {
+    const facilitators = allParticipants
+      .filter((mem) => mem.role === 'facilitator')
+      .sort((a, b) => (a.user.username < b.user.username ? -1 : 1));
+
+    const participants = allParticipants.filter(
+      (mem) => mem.role === 'participant'
+    );
+
+    const sorted = [...participants].concat([...facilitators]);
+    return sorted;
+  };
 
   // =========== HANDLE CHANGES IN NUMBER OF ROOMS ==============
 
@@ -112,7 +126,7 @@ const AssignmentMatrix = (props) => {
           </thead>
           <tbody>
             {/* top row rooms list */}
-            {list.map((participant, i) => {
+            {sortAllParticipants().map((participant, i) => {
               const isSelected = roomDrafts.some((room) =>
                 room.members.find(
                   (mem) => mem.user._id === participant.user._id
@@ -179,7 +193,7 @@ const AssignmentMatrix = (props) => {
                       <i
                         className={`fas fa-solid fa-plus ${classes.plus}`}
                         id={`room-${i}-addBtn`}
-                        disabled={roomDrafts.length >= list.length}
+                        disabled={roomDrafts.length >= allParticipants.length}
                         data-testid={`addRoom-${i + 1}`}
                         onClick={() => addRoom(i)}
                         onKeyDown={() => addRoom(i)}
@@ -209,7 +223,7 @@ const AssignmentMatrix = (props) => {
 };
 
 AssignmentMatrix.propTypes = {
-  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  allParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
   userId: PropTypes.string.isRequired,

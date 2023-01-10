@@ -325,7 +325,7 @@ const MakeRooms = (props) => {
 
   const assignmentMatrix = (
     <AssignmentMatrix
-      list={participants}
+      allParticipants={participants}
       requiredParticipants={initialParticipants.filter(
         (mem) => mem.role === 'facilitator'
       )}
