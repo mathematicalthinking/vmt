@@ -321,27 +321,37 @@ export function usePopulatedRooms(
 ) {
   return useQuery(
     [roomIds, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
-    () =>
-      API.findAllMatchingIdsPopulated('rooms', roomIds, shouldBuildLog)
-        .then((res) => {
-          const populatedRooms = res.data.results;
-          if (!shouldBuildLog) return populatedRooms;
-          return populatedRooms.map((room) => {
+    async () => {
+      const CALL_LIMIT = 50;
+      const results = [];
+      for (let i = 0; i < roomIds.length; i += CALL_LIMIT) {
+        const currIds = roomIds.slice(i, i + CALL_LIMIT);
+        const rooms = await API.findAllMatchingIdsPopulated(
+          'rooms',
+          currIds,
+          shouldBuildLog
+        );
+        results.push(...rooms.data.results);
+      }
+
+      const roomArray = !shouldBuildLog
+        ? [...results]
+        : results.map((room) => {
             const log = buildLog(room.tabs, room.chat);
             return { ...room, log };
           });
-        })
-        .then((roomArray) => {
-          const roomsById = roomArray.reduce(
-            (acc, room) => ({ ...acc, [room._id]: room }),
-            {}
-          );
-          const orderedRoomsById = roomIds.reduce(
-            (acc, id) => ({ ...acc, [id]: roomsById[id] }),
-            {}
-          );
-          return orderedRoomsById;
-        }),
+
+      const roomsById = roomArray.reduce(
+        (acc, room) => ({ ...acc, [room._id]: room }),
+        {}
+      );
+      const orderedRoomsById = roomIds.reduce(
+        (acc, id) => ({ ...acc, [id]: roomsById[id] }),
+        {}
+      );
+
+      return orderedRoomsById;
+    },
     options
   );
 }
