@@ -6,7 +6,14 @@ import PropTypes from 'prop-types';
 import SearchResults from 'Containers/Members/SearchResults';
 import { amIAFacilitator } from 'utils';
 import API from 'utils/apiRequests';
-import { Button, InfoBox, Search, Member, ToggleGroup } from 'Components';
+import {
+  Button,
+  InfoBox,
+  Search,
+  Member,
+  ToggleGroup,
+  Checkbox,
+} from 'Components';
 import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
@@ -29,6 +36,10 @@ const AddParticipants = (props) => {
   const [newParticipants, setNewParticipants] = useState([]);
   const [isAddingParticipants, setIsAddingParticipants] = useState(true);
   const [addedCourse, setAddedCourse] = useState({});
+  const [
+    shouldInviteMembersToCourse,
+    setShouldInviteMembersToCourse,
+  ] = useState(false);
 
   const search = (text) => {
     if (text.length > 0) {
@@ -156,6 +167,10 @@ const AddParticipants = (props) => {
     // setRosterSearchResults(Object.keys(coursesByNames));
   };
 
+  const handleInviteMembersToCourse = () => {
+    setShouldInviteMembersToCourse((prevState) => !prevState);
+  };
+
   const submit = () => {
     const facilitators = participants.filter(
       (mem) => mem.role === 'facilitator'
@@ -166,7 +181,9 @@ const AddParticipants = (props) => {
     const participantsToAdd = [...prevParticipants, ...newParticipants]
       .sort((a, b) => a.user.username.localeCompare(b.user.username))
       .concat(facilitators);
-    onSubmit(participantsToAdd);
+    onSubmit(participantsToAdd, shouldInviteMembersToCourse, [
+      ...newParticipants,
+    ]);
     onCancel();
   };
 
@@ -260,6 +277,13 @@ const AddParticipants = (props) => {
         >
           Add Participants
         </Button>
+        <Checkbox
+          change={handleInviteMembersToCourse}
+          checked={shouldInviteMembersToCourse}
+          dataId="invite-members-to-course"
+        >
+          Add New Members to Course
+        </Checkbox>
       </div>
     </div>
   );

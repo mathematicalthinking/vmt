@@ -27,8 +27,7 @@ const MakeRooms = (props) => {
   const [roomDrafts, setRoomDrafts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const submitArgs = React.useRef(); // used for passing along submit info
-  // currently unused per new decision not to add new members to course from here
-  // const membersToInviteToCourse = React.useRef(null);
+  const membersToInviteToCourse = React.useRef(null);
   const { show: showTheWarning, hide: hideTheWarning } = useAppModal();
 
   // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
@@ -213,10 +212,9 @@ const MakeRooms = (props) => {
     );
   };
 
-  // currently unused per new decision not to add new members to course from here
-  // const handleMembersToInvite = (memsToInvite) => {
-  //   membersToInviteToCourse.current = memsToInvite;
-  // };
+  const handleMembersToInvite = (memsToInvite) => {
+    membersToInviteToCourse.current = memsToInvite;
+  };
 
   const setNumber = (numberOfParticipants) => {
     // Make sure that number of participants is between 1 and the number of participants
@@ -302,17 +300,15 @@ const MakeRooms = (props) => {
       dispatch(createGrouping(roomsToCreate, activity, course, roomName));
       // if user was added via AddParticipants (showModal),
       // invite them to the course
-      //  commented out but not removed b/c we've gone back and forth
-      //  as to whether or not members added here should be added to the course
-      // if (membersToInviteToCourse.current) {
-      //   membersToInviteToCourse.current.forEach((memToInvite) => {
-      //     inviteToCourse(
-      //       course._id,
-      //       memToInvite.user._id,
-      //       memToInvite.user.username
-      //     )(dispatch);
-      //   });
-      // }
+      if (membersToInviteToCourse.current) {
+        membersToInviteToCourse.current.forEach((memToInvite) => {
+          inviteToCourse(
+            course._id,
+            memToInvite.user._id,
+            memToInvite.user.username
+          )(dispatch);
+        });
+      }
     } else {
       dispatch(createGrouping(roomsToCreate, activity, null, roomName));
     }
@@ -374,9 +370,14 @@ const MakeRooms = (props) => {
           <AddParticipants
             participants={participants}
             userId={userId}
-            onSubmit={(newParticipants) => {
+            onSubmit={(
+              newParticipants,
+              shouldInviteMembersToCourse,
+              participantsToInvite
+            ) => {
               setParticipants(newParticipants);
-              // handleMembersToInvite(newParticipants);
+              shouldInviteMembersToCourse &&
+                handleMembersToInvite(participantsToInvite);
             }}
             onCancel={() => {
               setShowModal(false);
