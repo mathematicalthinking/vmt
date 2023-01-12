@@ -133,7 +133,10 @@ const AssignmentMatrix = (props) => {
                   key={participant.user._id}
                   id={participant.user._id}
                 >
-                  <td className={classes.LockedColumn}>
+                  <td
+                    className={classes.LockedColumn}
+                    style={{ color: `${participant.displayColor || 'black'}` }}
+                  >
                     {`${i + 1}. ${participant.user.username}`}
                   </td>
                   {roomDrafts.map((room, j) => {

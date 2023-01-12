@@ -95,7 +95,8 @@ const AddParticipants = (props) => {
     }));
   };
 
-  const addParticipant = (_id, username) => {
+  const addParticipant = (member) => {
+    const { _id } = member.user;
     // filter out duplicates in the right column (New Participants column)
     if (
       newParticipants.find((mem) => _id === mem.user._id) ||
@@ -104,7 +105,7 @@ const AddParticipants = (props) => {
       return;
     setNewParticipants((prevState) => [
       ...prevState,
-      { role: 'participant', user: { _id, username } },
+      { ...member, role: 'participant' },
     ]);
 
     setSearchResults((prevState) =>
@@ -119,7 +120,10 @@ const AddParticipants = (props) => {
 
     if (courseToAdd) {
       courseToAdd.members.forEach((mem) => {
-        addParticipant(mem.user._id, mem.user.username);
+        addParticipant({
+          course: courseId,
+          ...mem,
+        });
         setAddedCourse((prevState) => ({ ...prevState, [courseId]: true }));
       });
     }
@@ -217,7 +221,9 @@ const AddParticipants = (props) => {
                 <SearchResults
                   searchText={searchText}
                   usersSearched={searchResults}
-                  inviteMember={addParticipant}
+                  inviteMember={(_id, username) =>
+                    addParticipant({ user: { _id, username } })
+                  }
                   className={classes.AddParticipants}
                 />
               )}
@@ -266,17 +272,6 @@ const AddParticipants = (props) => {
         </InfoBox>
       )}
       <div className={classes.ModalButton}>
-        <Button m={5} click={onCancel} data-testid="next-step-assign">
-          Cancel
-        </Button>
-        <Button
-          m={5}
-          click={submit}
-          disabled={newParticipants.length === 0}
-          data-testid="next-step-assign"
-        >
-          Add Participants
-        </Button>
         <Checkbox
           change={handleInviteMembersToCourse}
           checked={shouldInviteMembersToCourse}
@@ -284,6 +279,19 @@ const AddParticipants = (props) => {
         >
           Add New Members to Course
         </Checkbox>
+        <div>
+          <Button m={5} click={onCancel} data-testid="next-step-assign">
+            Cancel
+          </Button>
+          <Button
+            m={5}
+            click={submit}
+            disabled={newParticipants.length === 0}
+            data-testid="next-step-assign"
+          >
+            Add Participants
+          </Button>
+        </div>
       </div>
     </div>
   );

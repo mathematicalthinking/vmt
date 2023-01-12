@@ -232,6 +232,46 @@ const MakeRooms = (props) => {
     setRoomNum(numRooms);
   };
 
+  const addColors = (members) => {
+    const MAX_COLOR_INDEX = Object.keys(COLOR_MAP).length - 1;
+    // if a member doesn't have a course, it doesn't get a color
+    // give each course a distinct color
+
+    // array of unique course ids
+    const courseIds = Array.from(
+      new Set(members.map((member) => member.course).filter((id) => !!id))
+    );
+
+    const courseColorMap = courseIds.reduce((acc, curr, idx) => {
+      return {
+        ...acc,
+        [curr]: COLOR_MAP[idx % MAX_COLOR_INDEX],
+      };
+    }, {});
+
+    return members.map((member) => {
+      return {
+        ...member,
+        displayColor: member.course && courseColorMap[member.course],
+      };
+    });
+
+  };
+
+  const handleAddParticipantsSubmit = (
+    newParticipants,
+    shouldInviteMembersToCourse,
+    participantsToInvite
+  ) => {
+    const newParticipantsWithColors = addColors(newParticipants);
+    setParticipants(newParticipantsWithColors);
+    if (shouldInviteMembersToCourse)
+      handleMembersToInvite(participantsToInvite);
+    // call a function to map members of a course to a colorMap color
+    // within the participants object
+    // store this within groupings for access in EditRooms
+  };
+
   const checkBeforeSubmit = (submitInfo) => {
     submitArgs.current = submitInfo;
     const everyoneAssigned = participants.every(
@@ -282,6 +322,7 @@ const MakeRooms = (props) => {
         user: course ? mem.user._id : mem.user,
         role: mem.role,
         color: course ? COLOR_MAP[index] : COLOR_MAP[index + 1],
+        course: mem.course,
       }));
 
       currentRoom.members = members;
@@ -370,15 +411,7 @@ const MakeRooms = (props) => {
           <AddParticipants
             participants={participants}
             userId={userId}
-            onSubmit={(
-              newParticipants,
-              shouldInviteMembersToCourse,
-              participantsToInvite
-            ) => {
-              setParticipants(newParticipants);
-              shouldInviteMembersToCourse &&
-                handleMembersToInvite(participantsToInvite);
-            }}
+            onSubmit={handleAddParticipantsSubmit}
             onCancel={() => {
               setShowModal(false);
             }}
