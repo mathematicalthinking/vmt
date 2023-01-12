@@ -9,6 +9,31 @@ import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
 
+const addColors = (members) => {
+  const MAX_COLOR_INDEX = Object.keys(COLOR_MAP).length - 1;
+  // if a member doesn't have a course, it doesn't get a color
+  // give each course a distinct color
+
+  // array of unique course ids
+  const courseIds = Array.from(
+    new Set(members.map((member) => member.course).filter((id) => !!id))
+  );
+
+  const courseColorMap = courseIds.reduce((acc, curr, idx) => {
+    return {
+      ...acc,
+      [curr]: COLOR_MAP[idx % MAX_COLOR_INDEX],
+    };
+  }, {});
+
+  return members.map((member) => {
+    return {
+      ...member,
+      displayColor: member.course && courseColorMap[member.course],
+    };
+  });
+};
+
 const MakeRooms = (props) => {
   const {
     activity,
@@ -23,7 +48,9 @@ const MakeRooms = (props) => {
   const history = useHistory(); // Elsewhere we use 'withRouter()'; this is the modern approach
 
   const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
-  const [participants, setParticipants] = useState(initialParticipants);
+  const [participants, setParticipants] = useState(
+    addColors(initialParticipants)
+  );
   const [roomDrafts, setRoomDrafts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const submitArgs = React.useRef(); // used for passing along submit info
@@ -50,7 +77,7 @@ const MakeRooms = (props) => {
         {}
       );
 
-      setParticipants(Object.values(newParticipants));
+      setParticipants(addColors(Object.values(newParticipants)));
       updateParticipants(newRoomDrafts);
     } else {
       setParticipants(sortParticipants(initialParticipants));
@@ -80,7 +107,7 @@ const MakeRooms = (props) => {
           }),
           {}
         );
-      setParticipants(Object.values(sortedParticipants));
+      setParticipants(addColors(Object.values(sortedParticipants)));
       if (selectedAssignment.value.length !== 0) {
         setParticipantsPerRoom(
           Math.max(
@@ -230,32 +257,6 @@ const MakeRooms = (props) => {
       1
     );
     setRoomNum(numRooms);
-  };
-
-  const addColors = (members) => {
-    const MAX_COLOR_INDEX = Object.keys(COLOR_MAP).length - 1;
-    // if a member doesn't have a course, it doesn't get a color
-    // give each course a distinct color
-
-    // array of unique course ids
-    const courseIds = Array.from(
-      new Set(members.map((member) => member.course).filter((id) => !!id))
-    );
-
-    const courseColorMap = courseIds.reduce((acc, curr, idx) => {
-      return {
-        ...acc,
-        [curr]: COLOR_MAP[idx % MAX_COLOR_INDEX],
-      };
-    }, {});
-
-    return members.map((member) => {
-      return {
-        ...member,
-        displayColor: member.course && courseColorMap[member.course],
-      };
-    });
-
   };
 
   const handleAddParticipantsSubmit = (

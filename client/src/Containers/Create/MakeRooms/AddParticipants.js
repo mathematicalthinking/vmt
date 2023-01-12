@@ -121,8 +121,8 @@ const AddParticipants = (props) => {
     if (courseToAdd) {
       courseToAdd.members.forEach((mem) => {
         addParticipant({
-          course: courseId,
           ...mem,
+          course: courseId,
         });
         setAddedCourse((prevState) => ({ ...prevState, [courseId]: true }));
       });
