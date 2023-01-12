@@ -326,17 +326,16 @@ export function usePopulatedRooms(
       // because we were encountering 414 errors
       const CALL_LIMIT = 50;
       const chunkedRoomIds = chunk(roomIds, CALL_LIMIT);
-      const results = chunkedRoomIds.map(async (ids) => {
-        const rooms = await API.findAllMatchingIdsPopulated(
+      const results = chunkedRoomIds.map((ids) => {
+        return API.findAllMatchingIdsPopulated(
           'rooms',
           ids,
           shouldBuildLog
         );
-        return rooms.data.results;
       });
-
+      
       const resolvedResults = await Promise.all(results);
-      const fullResults = resolvedResults.flat();
+      const fullResults = resolvedResults.map((res) => res.data.results).flat()
 
       const roomArray = !shouldBuildLog
         ? [...fullResults]
