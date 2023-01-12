@@ -314,7 +314,7 @@ const ResourceList = ({
           <div className={classes.Row}>
             <div className={classes.Col}>
               <h2 className={classes.ResourceHeader}>
-                {displayResource} I Manage
+                {displayResource} I Manage: {fList.length}
               </h2>
               {fList.length >= 1 && setResourceState && (
                 <SortUI
@@ -352,7 +352,7 @@ const ResourceList = ({
             </div>
             <div className={classes.Col}>
               <h2 className={classes.ResourceHeader}>
-                {displayResource} I&#39;m a member of
+                {displayResource} I&#39;m a member of: {pList.length}
               </h2>
               {pList.length >= 1 && setResourceState && (
                 <SortUI
