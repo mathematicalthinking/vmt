@@ -331,12 +331,15 @@ export function usePopulatedRooms(
           currIds,
           shouldBuildLog
         );
-        results.push(...rooms.data.results);
+        results.push(rooms.data.results);
       }
 
+      const resolvedResults = await Promise.all(results);
+      const fullResults = resolvedResults.flat();
+
       const roomArray = !shouldBuildLog
-        ? [...results]
-        : results.map((room) => {
+        ? [...fullResults]
+        : fullResults.map((room) => {
             const log = buildLog(room.tabs, room.chat);
             return { ...room, log };
           });
