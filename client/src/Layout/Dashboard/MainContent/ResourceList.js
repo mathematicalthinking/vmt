@@ -147,15 +147,13 @@ const ResourceList = ({
       handleArchive(id);
     },
     icon: (
-      <ToolTip text="Archive" delay={600}>
-        <span
-          className={`material-symbols-outlined ${classes.CustomIcon}`}
-          data-testid="Archive"
-          style={{ fontSize: '23px' }}
-        >
-          input
-        </span>
-      </ToolTip>
+      <span
+        className={`material-symbols-outlined ${classes.CustomIcon}`}
+        data-testid="Archive"
+        style={{ fontSize: '23px' }}
+      >
+        input
+      </span>
     ),
   };
 

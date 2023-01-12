@@ -14,7 +14,7 @@
 .checkbox label {
   position: relative;
   display: inline-block;
-
+  width: 100%;
   /*16px width of fake checkbox + 6px distance between fake checkbox and text*/
   padding-left: 22px;
   cursor: pointer;

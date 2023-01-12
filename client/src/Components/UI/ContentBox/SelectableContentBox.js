@@ -46,7 +46,7 @@ const SelectableContentBox = (props) => {
   return (
     <Checkbox
       change={onSelect}
-      style={{ margin: '0 1rem 0 0' }}
+      style={{ margin: '0 1rem 0 0', width: '100%' }}
       checked={isChecked}
       dataId={id}
       id={id}
