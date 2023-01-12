@@ -198,7 +198,7 @@ const EditRooms = (props) => {
 
   const assignmentMatrix = (
     <AssignmentMatrix
-      list={participants}
+      allParticipants={participants}
       requiredParticipants={participants.filter(
         // required people
         (mem) => mem.role === 'facilitator'
