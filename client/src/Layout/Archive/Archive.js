@@ -32,6 +32,7 @@ const Archive = (props) => {
     icons,
     selectActions,
     actionComponent,
+    totalNumberOfArchivedRooms,
   } = props;
 
   const toggleRoomFilter = (type) => toggleFilter(`room-${type}`);
@@ -44,7 +45,7 @@ const Archive = (props) => {
         <div className={classes.Header}>
           <h3 className={classes.Title}>
             {/* Search for your archived Rooms and Courses */}
-            Search for your archived Rooms
+            Search your {totalNumberOfArchivedRooms} archived Rooms
           </h3>
           <div className={classes.ResourceOpts} data-testid="resource-tabs">
             {/* <div
@@ -250,6 +251,7 @@ Archive.propTypes = {
   icons: PropTypes.arrayOf(PropTypes.shape({})),
   selectActions: PropTypes.arrayOf(PropTypes.shape({})),
   actionComponent: PropTypes.node,
+  totalNumberOfArchivedRooms: PropTypes.number.isRequired,
 };
 
 Archive.defaultProps = {
