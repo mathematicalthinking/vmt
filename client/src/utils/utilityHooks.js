@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { useContext } from 'react';
 import html2canvas from 'html2canvas';
-import { debounce } from 'lodash';
+import { chunk, debounce } from 'lodash';
 import { useQuery } from 'react-query';
 import API from 'utils/apiRequests';
 import buildLog from 'utils/buildLog';
@@ -322,17 +322,18 @@ export function usePopulatedRooms(
   return useQuery(
     [roomIds, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
     async () => {
+      // limit the amount of ids passed through the request header
+      // because we were encountering 414 errors
       const CALL_LIMIT = 50;
-      const results = [];
-      for (let i = 0; i < roomIds.length; i += CALL_LIMIT) {
-        const currIds = roomIds.slice(i, i + CALL_LIMIT);
+      const chunkedRoomIds = chunk(roomIds, CALL_LIMIT);
+      const results = chunkedRoomIds.map(async (ids) => {
         const rooms = await API.findAllMatchingIdsPopulated(
           'rooms',
-          currIds,
+          ids,
           shouldBuildLog
         );
-        results.push(rooms.data.results);
-      }
+        return rooms.data.results;
+      });
 
       const resolvedResults = await Promise.all(results);
       const fullResults = resolvedResults.flat();
