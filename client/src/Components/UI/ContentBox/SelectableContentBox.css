@@ -8,7 +8,7 @@
 
 .Container {
   width: 100%;
-  min-width: 32vw;
+  /* min-width: 32vw; */
   position: relative;
   display: flex;
   padding: 5px;
