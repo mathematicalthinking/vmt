@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { shuffle } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { BigModal, Button } from 'Components';
@@ -126,7 +127,7 @@ const MakeRooms = (props) => {
   };
 
   const shuffleParticipants = () => {
-    const updatedParticipants = shuffleUserList(
+    const updatedParticipants = shuffleMemberList(
       restructureMemberlist(filterFacilitators(participants))
     );
 
@@ -187,16 +188,37 @@ const MakeRooms = (props) => {
     });
   };
 
-  const shuffleUserList = (array) => {
-    // random number between 0 - array.length
-    // take first index and switch with random index
-    const arrayCopy = [...array];
-    arrayCopy.forEach((elem, index) => {
-      const randomIndex = Math.floor(Math.random() * array.length);
-      arrayCopy[index] = arrayCopy[randomIndex];
-      arrayCopy[randomIndex] = elem;
-    });
-    return arrayCopy;
+  const shuffleMemberList = (members) => {
+    // Cluster members by the course they are from; randomize the array clusters
+    const courseClusters = shuffle(
+      Object.values(
+        members.reduce((acc, member) => {
+          if (!acc[member.course]) {
+            acc[member.course] = [];
+          }
+          acc[member.course].push(member);
+          return acc;
+        }, {})
+      )
+    );
+
+    // randomize the members within each cluster
+    const randomizedClusters = courseClusters.map((cluster) =>
+      shuffle(cluster)
+    );
+
+    // returned the interleaved clusters
+    const maxLength = Math.max(
+      ...randomizedClusters.map((cluster) => cluster.length)
+    );
+    const result = [];
+    for (let x = 0; x < maxLength; x++) {
+      randomizedClusters.forEach((cluster) => {
+        if (x < cluster.length) result.push(cluster[x]);
+      });
+    }
+
+    return result;
   };
 
   const filterFacilitators = (membersArray) => {
