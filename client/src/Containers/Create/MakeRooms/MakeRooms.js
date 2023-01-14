@@ -4,35 +4,10 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { BigModal, Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
-import { useAppModal, COLOR_MAP } from 'utils';
+import { useAppModal, COLOR_MAP, addColors } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
-
-const addColors = (members) => {
-  const MAX_COLOR_INDEX = Object.keys(COLOR_MAP).length - 1;
-  // if a member doesn't have a course, it doesn't get a color
-  // give each course a distinct color
-
-  // array of unique course ids
-  const courseIds = Array.from(
-    new Set(members.map((member) => member.course).filter((id) => !!id))
-  );
-
-  const courseColorMap = courseIds.reduce((acc, curr, idx) => {
-    return {
-      ...acc,
-      [curr]: COLOR_MAP[idx % MAX_COLOR_INDEX],
-    };
-  }, {});
-
-  return members.map((member) => {
-    return {
-      ...member,
-      displayColor: member.course && courseColorMap[member.course],
-    };
-  });
-};
 
 const MakeRooms = (props) => {
   const {
@@ -203,9 +178,10 @@ const MakeRooms = (props) => {
   const restructureMemberlist = (list) => {
     return list.map((mem) => {
       const user = {
-        role: mem.role || 'participant',
+        // if there isn't a role or _id, provide default values
+        role: 'participant',
         _id: mem.user._id,
-        user: mem.user,
+        ...mem,
       };
       return user;
     });

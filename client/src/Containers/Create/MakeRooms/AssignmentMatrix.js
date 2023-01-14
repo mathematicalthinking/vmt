@@ -36,9 +36,10 @@ const AssignmentMatrix = (props) => {
   const selectParticipant = (event, data) => {
     const { roomIndex } = data;
     const user = {
-      role: data.participant.role || 'participant',
+      // if there isn't a role or _id, provide default values
+      role: 'participant',
       _id: data.participant.user._id,
-      user: data.participant.user,
+      ...data.participant,
     };
 
     if (user._id && roomIndex >= 0) {
