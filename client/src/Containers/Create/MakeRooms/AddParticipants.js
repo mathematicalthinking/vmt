@@ -276,6 +276,7 @@ const AddParticipants = (props) => {
           change={handleInviteMembersToCourse}
           checked={shouldInviteMembersToCourse}
           dataId="invite-members-to-course"
+          labelStyle={{ width: 'auto' }}
         >
           Add New Members to Course
         </Checkbox>
