@@ -9,6 +9,7 @@ import {
   updateGroupings,
 } from 'store/actions/rooms';
 import { Button, Modal } from 'Components';
+import { addColors } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 
@@ -48,7 +49,7 @@ const EditRooms = (props) => {
     );
 
     setRoomDrafts(newRoomDrafts);
-    setParticipants(Object.values(assignmentParticipants));
+    setParticipants(addColors(Object.values(assignmentParticipants)));
 
     // sorting facilitators like below reverses the order that rooms are displayed
     // ex: if there's 3 rooms, room 3 members are displayed on top of the table,

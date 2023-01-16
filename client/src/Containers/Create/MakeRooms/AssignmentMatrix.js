@@ -50,9 +50,10 @@ const AssignmentMatrix = (props) => {
   const selectParticipant = (event, data) => {
     const { roomIndex } = data;
     const user = {
-      role: data.participant.role || 'participant',
+      // if there isn't a role or _id, provide default values
+      role: 'participant',
       _id: data.participant.user._id,
-      user: data.participant.user,
+      ...data.participant,
     };
 
     if (user._id && roomIndex >= 0) {
@@ -147,7 +148,10 @@ const AssignmentMatrix = (props) => {
                   key={participant.user._id}
                   id={participant.user._id}
                 >
-                  <td className={classes.LockedColumn}>
+                  <td
+                    className={classes.LockedColumn}
+                    style={{ color: `${participant.displayColor || 'black'}` }}
+                  >
                     {`${i + 1}. ${participant.user.username}`}
                   </td>
                   {roomDrafts.map((room, j) => {

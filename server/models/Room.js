@@ -35,6 +35,7 @@ const Room = new mongoose.Schema(
           enum: [ROLE.PARTICIPANT, ROLE.FACILITATOR, ROLE.GUEST],
         },
         alias: { type: String },
+        course: { type: ObjectId, ref: 'Course' },
       },
     ],
     currentMembers: { type: [{ type: ObjectId, ref: 'User' }], default: [] },
