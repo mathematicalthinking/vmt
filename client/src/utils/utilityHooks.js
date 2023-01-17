@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { useContext } from 'react';
 import html2canvas from 'html2canvas';
-import { debounce } from 'lodash';
+import { chunk, debounce } from 'lodash';
 import { useQuery } from 'react-query';
 import API from 'utils/apiRequests';
 import buildLog from 'utils/buildLog';
@@ -321,27 +321,40 @@ export function usePopulatedRooms(
 ) {
   return useQuery(
     [roomIds, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
-    () =>
-      API.findAllMatchingIdsPopulated('rooms', roomIds, shouldBuildLog)
-        .then((res) => {
-          const populatedRooms = res.data.results;
-          if (!shouldBuildLog) return populatedRooms;
-          return populatedRooms.map((room) => {
+    async () => {
+      // limit the amount of ids passed through the request header
+      // because we were encountering 414 errors
+      const CALL_LIMIT = 50;
+      const chunkedRoomIds = chunk(roomIds, CALL_LIMIT);
+      const results = chunkedRoomIds.map((ids) => {
+        return API.findAllMatchingIdsPopulated(
+          'rooms',
+          ids,
+          shouldBuildLog
+        );
+      });
+      
+      const resolvedResults = await Promise.all(results);
+      const fullResults = resolvedResults.map((res) => res.data.results).flat()
+
+      const roomArray = !shouldBuildLog
+        ? [...fullResults]
+        : fullResults.map((room) => {
             const log = buildLog(room.tabs, room.chat);
             return { ...room, log };
           });
-        })
-        .then((roomArray) => {
-          const roomsById = roomArray.reduce(
-            (acc, room) => ({ ...acc, [room._id]: room }),
-            {}
-          );
-          const orderedRoomsById = roomIds.reduce(
-            (acc, id) => ({ ...acc, [id]: roomsById[id] }),
-            {}
-          );
-          return orderedRoomsById;
-        }),
+
+      const roomsById = roomArray.reduce(
+        (acc, room) => ({ ...acc, [room._id]: room }),
+        {}
+      );
+      const orderedRoomsById = roomIds.reduce(
+        (acc, id) => ({ ...acc, [id]: roomsById[id] }),
+        {}
+      );
+
+      return orderedRoomsById;
+    },
     options
   );
 }

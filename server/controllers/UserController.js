@@ -117,19 +117,7 @@ module.exports = {
   },
 
   put: (id, body) => {
-    let query;
-    // if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
-    //   if (body.resource === 'courses') {
-    //     delete body.resource;
-    //     query = {$addToSet: {'courseNotifications.access': body}}
-    //   } else {
-    //     delete body.resource;
-    //     query = {$addToSet: {'roomNotifications.access': body}}
-    //   }
-    // }
-
     return new Promise((resolve, reject) => {
-      if (query) body = query;
       db.User.findByIdAndUpdate(id, body, { new: true })
         .then((user) => {
           resolve(user);

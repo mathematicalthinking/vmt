@@ -1,19 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Button } from 'Components';
-import WorkspaceLayout from '../../Layout/Workspace/Workspace';
+import { Button, TabTypes, CurrentMembers, Error, Loading } from 'Components';
+import { WorkspaceLayout } from 'Layout';
 import ReplayerControls from './ReplayerControls';
-import DesmosReplayer from './DesmosReplayer';
-import DesActivityReplayer from './DesActivityReplayer';
-import GgbReplayer from './GgbReplayer';
 import ChatReplayer from './ChatReplayer';
 import Clock from './Clock';
 import Slider from './Slider';
 import Settings from './Settings';
-import CurrentMembers from '../../Components/CurrentMembers/CurrentMembers';
-import Error from '../../Components/HOC/Error';
-import Loading from '../../Components/Loading/Loading';
 import Tabs from '../Workspace/Tabs';
 import Tools from '../Workspace/Tools/Tools';
 import buildReplayerLog from './SharedReplayer.utils';
@@ -380,10 +374,14 @@ class SharedReplayer extends Component {
   };
 
   goBack = () => {
-    const { populatedRoom } = this.props;
-    const { _id } = populatedRoom;
     const { history } = this.props;
-    history.goBack();
+    if (history.length > 1) {
+      // go back to the previous screen, if there is one
+      history.goBack();
+    } else {
+      // if no previous screen, we're in a separately opened window or tab
+      window.close();
+    }
   };
 
   toggleFullscreen = () => {
@@ -535,64 +533,28 @@ class SharedReplayer extends Component {
         setCurrentMembers={this.setCurrentMembers}
       />
     );
-    const graphs = populatedRoom.tabs.map((tab, i) => {
-      if (tab.tabType === 'geogebra') {
-        return (
-          <GgbReplayer
-            log={this.updatedLog}
-            index={logIndex}
-            changingIndex={changingIndex}
-            playing={playing}
-            reset={this.reset}
-            changeTab={this.changeTab}
-            currentTabId={currentTabId}
-            setTabLoaded={this.setTabLoaded}
-            tab={tab}
-            key={tab._id}
-            tabId={i}
-            isFullscreen={isFullscreen}
-            inView={currentTabId === tab._id}
-            style={{
-              pointerEvents: 'none',
-            }}
-            setMathState={this.setMathState}
-          />
-        );
-      }
-      if (tab.tabType === 'desmosActivity') {
-        return (
-          <DesActivityReplayer
-            log={this.updatedLog}
-            index={logIndex}
-            changingIndex={changingIndex}
-            playing={playing}
-            reset={this.reset}
-            changeTab={this.changeTab}
-            currentTabId={currentTabId}
-            setTabLoaded={this.setTabLoaded}
-            tab={tab}
-            key={tab._id}
-            inView={currentTabId === tab._id}
-          />
-        );
-      }
-      return (
-        <DesmosReplayer
-          log={this.updatedLog}
-          index={logIndex}
-          changingIndex={changingIndex}
-          playing={playing}
-          reset={this.reset}
-          changeTab={this.changeTab}
-          currentTabId={currentTabId}
-          setTabLoaded={this.setTabLoaded}
-          tab={tab}
-          key={tab._id}
-          inView={currentTabId === tab._id}
-          setMathState={this.setMathState}
-        />
-      );
-    });
+    const graphs = populatedRoom.tabs.map((tab, i) => (
+      <TabTypes.MathspaceReplayer
+        type={tab.tabType}
+        log={this.updatedLog}
+        index={logIndex}
+        changingIndex={changingIndex}
+        playing={playing}
+        reset={this.reset}
+        changeTab={this.changeTab}
+        currentTabId={currentTabId}
+        setTabLoaded={this.setTabLoaded}
+        tab={tab}
+        key={tab._id}
+        tabId={i}
+        isFullscreen={isFullscreen}
+        inView={currentTabId === tab._id}
+        style={{
+          pointerEvents: 'none',
+        }}
+        setMathState={this.setMathState}
+      />
+    ));
     return (
       <Fragment>
         <div>{isFullscreen}</div>
@@ -675,7 +637,11 @@ SharedReplayer.propTypes = {
   }).isRequired,
   user: PropTypes.shape({}).isRequired,
   updateEnc: PropTypes.func,
-  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  history: PropTypes.shape({
+    length: PropTypes.number,
+    goBack: PropTypes.func,
+    push: PropTypes.func,
+  }).isRequired,
 };
 
 SharedReplayer.defaultProps = {

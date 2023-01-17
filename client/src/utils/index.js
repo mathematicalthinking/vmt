@@ -16,3 +16,4 @@ export * from './importing';
 export * from './controlMachine';
 export * from './groupings';
 export { default as amIAFacilitator } from './amIAFacilitator';
+export { default as addColors } from './addColors';

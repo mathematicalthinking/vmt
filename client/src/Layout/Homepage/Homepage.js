@@ -1,10 +1,8 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { Button, Background, TabTypes } from 'Components';
 import classes from './homepage.css';
-import Button from '../../Components/UI/Button/Button';
-import Background from '../../Components/Background/Background';
-import Aux from '../../Components/HOC/Auxil';
 
 class Homepage extends PureComponent {
   state = {
@@ -103,18 +101,11 @@ class Homepage extends PureComponent {
         ).toLocaleDateString()}, ${process.env.REACT_APP_VERSION}`}
       </p>
     );
-    let pyretStatus = '';
-    if (
-      window.env.REACT_APP_PYRET_MODE &&
-      window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes'
-    ) {
-      pyretStatus = 'Pyret mode is enabled';
-    }
 
     const maintWindow =
       window.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE || 'Sunday, 3-7pm EST';
     return (
-      <Aux>
+      <Fragment>
         <Background bottomSpace={null} />
         <div className={classes.Main}>
           <section className={classes.Top}>
@@ -194,20 +185,23 @@ class Homepage extends PureComponent {
                 open source
               </a>{' '}
               and currently in active development - You are viewing this
-              application in <b>{pageLocation}</b> mode. {pyretStatus}
+              application in <b>{pageLocation}</b> mode.{' '}
+              {TabTypes.homepageMessages()}
             </p>
           </section>
           <section className={classes.Options} ref={this.containerRef} />
         </div>
-      </Aux>
+      </Fragment>
     );
   }
 }
 
 Homepage.propTypes = {
-  user: PropTypes.shape({}),
-  location: PropTypes.shape({}),
-  history: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({ _id: PropTypes.string }),
+  location: PropTypes.shape({
+    state: PropTypes.shape({ error: PropTypes.string }),
+  }),
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   createRoom: PropTypes.func.isRequired,
   rooms: PropTypes.shape({}),
 };

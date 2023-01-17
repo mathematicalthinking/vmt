@@ -3,8 +3,9 @@ import React, { Component } from 'react';
 import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { CommunityLayout } from '../Layout';
-import API from '../utils/apiRequests';
+import { TabTypes } from 'Components';
+import { CommunityLayout } from 'Layout';
+import { API } from 'utils';
 
 const SKIP_VALUE = 20;
 class Community extends Component {
@@ -137,12 +138,7 @@ class Community extends Component {
     const filters = this.getQueryParams();
     if (filter === 'public' || filter === 'private') {
       filters.privacySetting = filter;
-    } else if (
-      filter === 'desmos' ||
-      filter === 'geogebra' ||
-      filter === 'desmosActivity' ||
-      filter === 'pyret'
-    ) {
+    } else if (TabTypes.activeTabTypes.includes(filter)) {
       filters.roomType = filter;
     } else if (filter === 'all-roomType') {
       filters.roomType = 'all';

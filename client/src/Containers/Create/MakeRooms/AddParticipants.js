@@ -6,7 +6,14 @@ import PropTypes from 'prop-types';
 import SearchResults from 'Containers/Members/SearchResults';
 import { amIAFacilitator } from 'utils';
 import API from 'utils/apiRequests';
-import { Button, InfoBox, Search, Member, ToggleGroup } from 'Components';
+import {
+  Button,
+  InfoBox,
+  Search,
+  Member,
+  ToggleGroup,
+  Checkbox,
+} from 'Components';
 import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
@@ -29,6 +36,10 @@ const AddParticipants = (props) => {
   const [newParticipants, setNewParticipants] = useState([]);
   const [isAddingParticipants, setIsAddingParticipants] = useState(true);
   const [addedCourse, setAddedCourse] = useState({});
+  const [
+    shouldInviteMembersToCourse,
+    setShouldInviteMembersToCourse,
+  ] = useState(false);
 
   const search = (text) => {
     if (text.length > 0) {
@@ -84,7 +95,8 @@ const AddParticipants = (props) => {
     }));
   };
 
-  const addParticipant = (_id, username) => {
+  const addParticipant = (member) => {
+    const { _id } = member.user;
     // filter out duplicates in the right column (New Participants column)
     if (
       newParticipants.find((mem) => _id === mem.user._id) ||
@@ -93,7 +105,7 @@ const AddParticipants = (props) => {
       return;
     setNewParticipants((prevState) => [
       ...prevState,
-      { role: 'participant', user: { _id, username } },
+      { ...member, role: 'participant' },
     ]);
 
     setSearchResults((prevState) =>
@@ -108,7 +120,10 @@ const AddParticipants = (props) => {
 
     if (courseToAdd) {
       courseToAdd.members.forEach((mem) => {
-        addParticipant(mem.user._id, mem.user.username);
+        addParticipant({
+          ...mem,
+          course: courseId,
+        });
         setAddedCourse((prevState) => ({ ...prevState, [courseId]: true }));
       });
     }
@@ -156,6 +171,10 @@ const AddParticipants = (props) => {
     // setRosterSearchResults(Object.keys(coursesByNames));
   };
 
+  const handleInviteMembersToCourse = () => {
+    setShouldInviteMembersToCourse((prevState) => !prevState);
+  };
+
   const submit = () => {
     const facilitators = participants.filter(
       (mem) => mem.role === 'facilitator'
@@ -166,7 +185,9 @@ const AddParticipants = (props) => {
     const participantsToAdd = [...prevParticipants, ...newParticipants]
       .sort((a, b) => a.user.username.localeCompare(b.user.username))
       .concat(facilitators);
-    onSubmit(participantsToAdd);
+    onSubmit(participantsToAdd, shouldInviteMembersToCourse, [
+      ...newParticipants,
+    ]);
     onCancel();
   };
 
@@ -200,7 +221,9 @@ const AddParticipants = (props) => {
                 <SearchResults
                   searchText={searchText}
                   usersSearched={searchResults}
-                  inviteMember={addParticipant}
+                  inviteMember={(_id, username) =>
+                    addParticipant({ user: { _id, username } })
+                  }
                   className={classes.AddParticipants}
                 />
               )}
@@ -249,17 +272,27 @@ const AddParticipants = (props) => {
         </InfoBox>
       )}
       <div className={classes.ModalButton}>
-        <Button m={5} click={onCancel} data-testid="next-step-assign">
-          Cancel
-        </Button>
-        <Button
-          m={5}
-          click={submit}
-          disabled={newParticipants.length === 0}
-          data-testid="next-step-assign"
+        <Checkbox
+          change={handleInviteMembersToCourse}
+          checked={shouldInviteMembersToCourse}
+          dataId="invite-members-to-course"
+          labelStyle={{ width: 'auto' }}
         >
-          Add Participants
-        </Button>
+          Add New Members to Course
+        </Checkbox>
+        <div>
+          <Button m={5} click={onCancel} data-testid="next-step-assign">
+            Cancel
+          </Button>
+          <Button
+            m={5}
+            click={submit}
+            disabled={newParticipants.length === 0}
+            data-testid="next-step-assign"
+          >
+            Add Participants
+          </Button>
+        </div>
       </div>
     </div>
   );
