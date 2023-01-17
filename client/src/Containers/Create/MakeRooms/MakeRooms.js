@@ -148,9 +148,8 @@ const MakeRooms = (props) => {
     }
 
     // assign any extra participants to other rooms
-    participantsToAssign.forEach((participant) => {
-      const roomNum = Math.floor(Math.random() * roomsUpdate.length);
-      roomsUpdate[roomNum].members.push(participant);
+    participantsToAssign.forEach((participant, roomNum) => {
+      roomsUpdate[roomNum % roomsUpdate.length].members.push(participant);
     });
 
     setRoomDrafts(roomsUpdate);
