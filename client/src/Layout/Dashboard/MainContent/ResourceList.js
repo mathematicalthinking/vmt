@@ -23,6 +23,7 @@ const ResourceList = ({
   resourceState,
   setResourceState,
   selectableBoxList,
+  context,
 }) => {
   const initialConfig = {
     key: 'updatedAt',
@@ -125,7 +126,11 @@ const ResourceList = ({
   }
 
   let create;
-  if (parentResource !== 'activities' && user.accountType === 'facilitator') {
+  if (
+    parentResource !== 'activities' &&
+    context !== 'activity' &&
+    user.accountType === 'facilitator'
+  ) {
     // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
     create = (
       <NewResource
@@ -429,6 +434,7 @@ ResourceList.propTypes = {
   }),
   setResourceState: PropTypes.func,
   selectableBoxList: PropTypes.bool,
+  context: PropTypes.string,
 };
 
 ResourceList.defaultProps = {
@@ -437,6 +443,7 @@ ResourceList.defaultProps = {
   resourceState: {},
   setResourceState: null,
   selectableBoxList: false,
+  context: null,
 };
 
 export default ResourceList;
