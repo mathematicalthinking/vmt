@@ -23,7 +23,7 @@ const AddParticipants = (props) => {
     userId,
     onSubmit,
     onCancel,
-    isStandaloneTemplate,
+    courseCheckbox,
   } = props;
 
   const userCoursesById = useSelector((state) => state.courses.byId);
@@ -278,7 +278,7 @@ const AddParticipants = (props) => {
         </InfoBox>
       )}
       <div className={classes.ModalButton}>
-        {!isStandaloneTemplate && (
+        {courseCheckbox && (
           <Checkbox
             change={handleInviteMembersToCourse}
             checked={shouldInviteMembersToCourse}
@@ -311,7 +311,7 @@ AddParticipants.propTypes = {
   userId: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
-  isStandaloneTemplate: PropTypes.bool.isRequired,
+  courseCheckbox: PropTypes.bool.isRequired,
 };
 
 export default AddParticipants;
