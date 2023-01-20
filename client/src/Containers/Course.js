@@ -409,6 +409,7 @@ class Course extends Component {
             parentResource="courses"
             parentResourceId={course._id}
             context="course"
+            selectableBoxList
           />
         );
       } else if (resource === 'members') {
