@@ -110,21 +110,20 @@ const WSPLoader = (callback, tools = false) => {
 
   const loadTools = () => {
     if (document.getElementById('wsptools')) {
-      console.log('tools.js found');
+      console.log('tools.js found - reloading');
+      document.getElementById('wsptools').remove();
+    }
+
+    const script = document.createElement('script');
+    script.src = '/WSPAssets/tools.js';
+    script.id = 'wsptools';
+    script.type = 'text/javascript';
+    script.onload = () => {
+      console.log('Loaded tools.js... ');
       console.log('Core WSP assets loaded: Ready to create script!');
       callback();
-    } else {
-      const script = document.createElement('script');
-      script.src = '/WSPAssets/tools.js';
-      script.id = 'wsptools';
-      script.type = 'text/javascript';
-      script.onload = () => {
-        console.log('Loaded tools.js... ');
-        console.log('Core WSP assets loaded: Ready to create script!');
-        callback();
-      };
-      document.body.appendChild(script);
-    }
+    };
+    document.body.appendChild(script);
   };
 
   // initiate load sequence
