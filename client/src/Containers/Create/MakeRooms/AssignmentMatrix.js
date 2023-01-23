@@ -4,7 +4,7 @@ import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
   const {
-    list, // should be 'allParticipants'
+    allParticipants,
     requiredParticipants,
     roomDrafts,
     select, // should be 'setRoomDrafts'
@@ -12,6 +12,20 @@ const AssignmentMatrix = (props) => {
     userId,
     onAddParticipants,
   } = props;
+
+  // =========== SORT FACILITATORS TO THE END OF ALL PARTICIPANTS ==============
+  const sortAllParticipants = () => {
+    const facilitators = allParticipants
+      .filter((mem) => mem.role === 'facilitator')
+      .sort((a, b) => (a.user.username < b.user.username ? -1 : 1));
+
+    const participants = allParticipants.filter(
+      (mem) => mem.role === 'participant'
+    );
+
+    const sorted = [...participants].concat([...facilitators]);
+    return sorted;
+  };
 
   // =========== HANDLE CHANGES IN NUMBER OF ROOMS ==============
 
@@ -36,9 +50,10 @@ const AssignmentMatrix = (props) => {
   const selectParticipant = (event, data) => {
     const { roomIndex } = data;
     const user = {
-      role: data.participant.role || 'participant',
+      // if there isn't a role or _id, provide default values
+      role: 'participant',
       _id: data.participant.user._id,
-      user: data.participant.user,
+      ...data.participant,
     };
 
     if (user._id && roomIndex >= 0) {
@@ -112,7 +127,7 @@ const AssignmentMatrix = (props) => {
           </thead>
           <tbody>
             {/* top row rooms list */}
-            {list.map((participant, i) => {
+            {sortAllParticipants().map((participant, i) => {
               const isSelected = roomDrafts.some((room) =>
                 room.members.find(
                   (mem) => mem.user._id === participant.user._id
@@ -133,7 +148,10 @@ const AssignmentMatrix = (props) => {
                   key={participant.user._id}
                   id={participant.user._id}
                 >
-                  <td className={classes.LockedColumn}>
+                  <td
+                    className={classes.LockedColumn}
+                    style={{ color: `${participant.displayColor || 'black'}` }}
+                  >
                     {`${i + 1}. ${participant.user.username}`}
                   </td>
                   {roomDrafts.map((room, j) => {
@@ -179,7 +197,7 @@ const AssignmentMatrix = (props) => {
                       <i
                         className={`fas fa-solid fa-plus ${classes.plus}`}
                         id={`room-${i}-addBtn`}
-                        disabled={roomDrafts.length >= list.length}
+                        disabled={roomDrafts.length >= allParticipants.length}
                         data-testid={`addRoom-${i + 1}`}
                         onClick={() => addRoom(i)}
                         onKeyDown={() => addRoom(i)}
@@ -209,7 +227,7 @@ const AssignmentMatrix = (props) => {
 };
 
 AssignmentMatrix.propTypes = {
-  list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  allParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
   userId: PropTypes.string.isRequired,

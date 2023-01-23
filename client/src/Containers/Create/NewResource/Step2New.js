@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { RadioBtn, Aux } from '../../../Components';
+import { TabTypes } from 'Components';
 import classes from '../create.css';
 
 const Step2New = (props) => {
   const { roomType, setRoomType } = props;
   return (
-    <Aux>
+    <Fragment>
       <p style={{ marginBottom: 10 }}>Select a workspace type</p>
       <div className={classes.RadioButtons}>
-        <RadioBtn
+        {/* <RadioBtn
           name="desmosActivity"
           checked={roomType === 'desmosActivity'}
           check={setRoomType}
@@ -45,9 +45,10 @@ const Step2New = (props) => {
           >
             Pyret Activity
           </RadioBtn>
-        ) : null}
+        ) : null} */}
+        <TabTypes.RadioButtons onClick={setRoomType} checked={roomType} />
       </div>
-    </Aux>
+    </Fragment>
   );
 };
 

@@ -336,6 +336,7 @@ const Archive = () => {
       setFromDate={setFromDate}
       icons={customIcons}
       selectActions={selectActions}
+      totalNumberOfArchivedRooms={archive.rooms.length}
     />
   );
 };

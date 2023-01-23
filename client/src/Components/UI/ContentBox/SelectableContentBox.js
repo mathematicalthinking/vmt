@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Checkbox, ToolTip } from 'Components';
+import { Checkbox, ToolTip, TabTypes } from 'Components';
 import Notification from 'Components/Notification/Notification';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import Icons from './Icons/Icons';
@@ -41,10 +41,12 @@ const SelectableContentBox = (props) => {
       <Notification count={notifications} data-testid="content-box-ntf" />
     ) : null;
 
+  if (roomType && !TabTypes.isActive(roomType)) return null;
+
   return (
     <Checkbox
       change={onSelect}
-      style={{ margin: '0 1rem 0 0' }}
+      style={{ margin: '0 1rem 0 0', width: '100%' }}
       checked={isChecked}
       dataId={id}
       id={id}

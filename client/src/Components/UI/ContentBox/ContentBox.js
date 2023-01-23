@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Checkbox, ToolTip } from 'Components';
+import { Checkbox, ToolTip, TabTypes } from 'Components';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
@@ -42,7 +42,6 @@ class ContentBox extends PureComponent {
       id,
       notifications,
       link,
-      image,
       roomType,
       listType,
       title,
@@ -74,6 +73,7 @@ class ContentBox extends PureComponent {
     ) {
       return null;
     }
+    if (roomType && !TabTypes.isActive(roomType)) return null;
 
     const childElements = (
       <div
@@ -197,7 +197,6 @@ ContentBox.propTypes = {
   id: PropTypes.string.isRequired,
   notifications: PropTypes.number,
   link: PropTypes.string,
-  image: PropTypes.string,
   roomType: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
@@ -205,7 +204,15 @@ ContentBox.propTypes = {
   listType: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   locked: PropTypes.bool.isRequired,
-  details: PropTypes.shape({}).isRequired,
+  details: PropTypes.shape({
+    facilitators: PropTypes.arrayOf(PropTypes.string),
+    sinceUpdated: PropTypes.string,
+    createdAt: PropTypes.string,
+    dueDate: PropTypes.string,
+    creator: PropTypes.string,
+    entryCode: PropTypes.string,
+    description: PropTypes.string,
+  }).isRequired,
   selectable: PropTypes.bool,
   isChecked: PropTypes.bool,
   onSelect: PropTypes.func,
@@ -215,7 +222,6 @@ ContentBox.propTypes = {
 
 ContentBox.defaultProps = {
   notifications: null,
-  image: null,
   roomType: null,
   selectable: false,
   isChecked: false,
