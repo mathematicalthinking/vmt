@@ -336,9 +336,7 @@ const Archive = () => {
       setFromDate={setFromDate}
       icons={customIcons}
       selectActions={selectActions}
-      totalNumberOfArchivedRooms={
-        (archive && archive.rooms && archive.rooms.length) || 0
-      }
+      totalNumberOfArchivedRooms={archive.rooms.length}
     />
   );
 };
