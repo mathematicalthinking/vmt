@@ -2,12 +2,6 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { TabTypes } from 'Components';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
-import ggbIcon from './geogebra.png';
-import dsmIcon from './desmos.png';
-import dsmActIcon from './desmosActivity.png';
-import pyretIcon from './pyretlogo.png';
-import wspIcon from './gsp_app.png';
-import bothIcon from './desmosandgeogebra.png';
 import ToolTip from '../../../ToolTip/ToolTip';
 import classes from './icons.css';
 
@@ -62,85 +56,6 @@ const Icons = ({ lock, listType, roomType, image }) => {
 
   const { tabTypes: toolTipText } = getResourceTabTypes(roomType);
 
-  const desImageAndToolTip = (
-    <ToolTip text={toolTipText} delay={600}>
-      <div className={classes.Icon}>
-        <img width={25} src={dsmIcon} alt="dsm" />
-      </div>
-    </ToolTip>
-  );
-
-  const desActImageAndToolTip = (
-    <ToolTip text={toolTipText} delay={600}>
-      <div className={classes.Icon}>
-        <img width={25} src={dsmActIcon} alt="dsm" />
-      </div>
-    </ToolTip>
-  );
-
-  const ggbImageAndToolTip = (
-    <ToolTip text={toolTipText} delay={600}>
-      <div className={classes.Icon}>
-        <img width={28} src={ggbIcon} alt="ggb" />
-      </div>
-    </ToolTip>
-  );
-
-  const pyretImageAndToolTip = (
-    <ToolTip text={toolTipText} delay={600}>
-      <div className={classes.Icon}>
-        <img width={28} src={pyretIcon} alt="pyret" />
-      </div>
-    </ToolTip>
-  );
-
-  const wspImageAndToolTip = (
-    <ToolTip text="WSP" delay={600}>
-      <div className={classes.Icon}>
-        <img width={28} src={wspIcon} alt="Web Sketchpad" />
-      </div>
-    </ToolTip>
-  );
-
-  if (Array.isArray(roomType)) {
-    let des = false;
-    let ggb = false;
-    let act = false;
-    let pyrt = false;
-    let wsp = false;
-    roomType.forEach((rmType) => {
-      if (rmType === 'desmos') des = true;
-      else if (rmType === 'desmosActivity') act = true;
-      else if (rmType === 'pyret') pyrt = true;
-      else if (rmType === 'wsp') wsp = true;
-      else ggb = true;
-    });
-    if (ggb && des) {
-      roomTypeIcon = (
-        <ToolTip text={toolTipText} delay={600}>
-          <div className={classes.Icon}>
-            <img width={25} src={bothIcon} alt="ggb" />
-          </div>
-        </ToolTip>
-      );
-    } else if (des) {
-      roomTypeIcon = desImageAndToolTip;
-    } else if (act) {
-      roomTypeIcon = desActImageAndToolTip;
-    } else if (pyrt) {
-      roomTypeIcon = pyretImageAndToolTip;
-    } else if (wsp) {
-      roomTypeIcon = wspImageAndToolTip;
-    } else {
-      roomTypeIcon = ggbImageAndToolTip;
-    }
-  } else if (roomType === 'desmos') {
-    roomTypeIcon = desImageAndToolTip;
-  } else if (roomType === 'geogebra') {
-    roomTypeIcon = ggbImageAndToolTip;
-  } else if (roomType === 'pyret') {
-    roomTypeIcon = pyretImageAndToolTip;
-  }
   return (
     <Fragment>
       {image && (

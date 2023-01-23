@@ -5,16 +5,19 @@ import {
   GgbGraph,
   DesmosGraph,
   DesmosActivity,
+  WebSketch,
 } from 'Containers/Workspace';
 import {
   GgbReplayer,
   DesActivityReplayer,
   DesmosReplayer,
+  WSPReplayer,
 } from 'Containers/Replayer';
 import ggbIcon from 'assets/geogebra.png';
 import dsmIcon from 'assets/desmos.png';
 import dsmActIcon from 'assets/desmosActivity.png';
 import pyretIcon from 'assets/pyretlogo.png';
+import wspIcon from 'assets/gsp.png';
 import bothIcon from 'assets/desmosandgeogebra.png';
 import RadioBtn from './Form/RadioBtn/RadioBtn';
 import Button from './UI/Button/Button';
@@ -24,7 +27,7 @@ const TAB_TYPES = {
   DESMOS: 'desmos',
   DESMOS_ACTIVITY: 'desmosActivity',
   PYRET: 'pyret',
-  WEBSKETCHPAD: 'webSketchpad',
+  WEBSKETCHPAD: 'wsp',
 };
 
 const activeTabTypes = [
@@ -54,7 +57,10 @@ const tabTypeProperties = {
   },
   [TAB_TYPES.WEBSKETCHPAD]: {
     message: 'WebSketchpad is active.',
+    component: WebSketch,
+    replayer: WSPReplayer,
     label: 'WebSketchpad Activity',
+    icon: <img width={28} src={wspIcon} alt="Pyret Icon" />,
   },
   [TAB_TYPES.GEOGEBRA]: {
     label: 'GeoGebra',
