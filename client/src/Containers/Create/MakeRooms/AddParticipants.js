@@ -18,7 +18,13 @@ import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
-  const { participants, userId, onSubmit, onCancel } = props;
+  const {
+    participants,
+    userId,
+    onSubmit,
+    onCancel,
+    courseCheckbox,
+  } = props;
 
   const userCoursesById = useSelector((state) => state.courses.byId);
 
@@ -272,14 +278,16 @@ const AddParticipants = (props) => {
         </InfoBox>
       )}
       <div className={classes.ModalButton}>
-        <Checkbox
-          change={handleInviteMembersToCourse}
-          checked={shouldInviteMembersToCourse}
-          dataId="invite-members-to-course"
-          labelStyle={{ width: 'auto' }}
-        >
-          Add New Members to Course
-        </Checkbox>
+        {courseCheckbox && (
+          <Checkbox
+            change={handleInviteMembersToCourse}
+            checked={shouldInviteMembersToCourse}
+            dataId="invite-members-to-course"
+            labelStyle={{ width: 'auto' }}
+          >
+            Add New Members to Course
+          </Checkbox>
+        )}
         <div>
           <Button m={5} click={onCancel} data-testid="next-step-assign">
             Cancel
@@ -303,6 +311,7 @@ AddParticipants.propTypes = {
   userId: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
+  courseCheckbox: PropTypes.bool.isRequired,
 };
 
 export default AddParticipants;

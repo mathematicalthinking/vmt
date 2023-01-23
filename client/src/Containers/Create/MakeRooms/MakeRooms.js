@@ -413,6 +413,7 @@ const MakeRooms = (props) => {
             onCancel={() => {
               setShowModal(false);
             }}
+            courseCheckbox={course !== null}
           />
         </BigModal>
       )}
