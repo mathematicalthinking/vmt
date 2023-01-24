@@ -33,7 +33,9 @@ const WebSketch = (props) => {
 
   let initializing = false;
   let receivingData = false;
-  const BUTTON_TRACKING = false; // DEBUG ONLY
+  const semiFreeKinds = 'Expression,Button,Measure,DOMKind';
+  const semiFreeArray = semiFreeKinds.split(',');
+  const BUTTON_TRACKING = true; // DEBUG ONLY
 
   let $sketch = null; // the jquery object for the server's sketch_canvas HTML element
   let sketchDoc = null; // The WSP document in which the websketch lives.
@@ -403,32 +405,21 @@ const WebSketch = (props) => {
    be stringifiedl. */
   const recordGobjUpdate = (event) => {
     if (event) {
-      const gobj = event.target;
-      let selector = gobj.constraint;
-      if (
-        gobj.constraint !== 'Free' &&
-        gobj.kind !== 'Expression' &&
-        gobj.kind !== 'Button' &&
-        !gobj.isFreePointOnPath
-      ) {
-        return;
+      let gobj = event.target,
+        selector,
+        gobjInfo;
+      if (semiFreeArray.indexOf(gobj.kind) > -1) {
+        selector = 'SemiFree';
+      } else {
+        selector = gobj.constraint;
       }
-      const gobjInfo = { id: gobj.id, constraint: gobj.constraint };
-      if (gobj.kind === 'Button') {
-        selector = 'Button';
-      }
+      gobjInfo = { id: gobj.id, constraint: gobj.constraint };
       switch (selector) {
         case 'Free': // Free points have locations
           if (gobj.geom.loc) {
             // free points, params, etc. have locations
             gobjInfo.loc = gobj.geom.loc;
           }
-          // if (window.GSP.isParameter(gobj)) {
-          //   // can we distinguish an edited param from a dragged param?
-          //   gobjInfo.expression = gobj.expression;
-          // } else {
-          //   break; // Params should fall through; free points should not
-          // }
           /* falls through */
           break;
 
@@ -458,19 +449,6 @@ const WebSketch = (props) => {
             gobjInfo.pressSource = gobj.pressSource;
           }
           break;
-        // case 'Calculation':
-        // case 'Function':
-        // case 'Button':
-        //   // All of these objects have locations, and all can be edited; dragging and editing both generate updates
-        //   if (gobj.geom.loc) {
-        //     // All have locations; update if needed.
-        //     gobjInfo.loc = gobj.geom.loc;
-        //   }
-        //   if (gobj.value) {
-        //     // free expressions (params and calcs) have values
-        //     gobjInfo.value = gobj.value; // free parameter or calculation
-        //   }
-        //   break;
         case 'PointOnPolygonEdge':
         /* In follow, we'll make the value primary, we'll call updateValue so we don't need special treatment for a point on polygon
         gobjInfo.baseVertex = gobj.baseVertex;
@@ -623,9 +601,9 @@ const WebSketch = (props) => {
       }
     }
     // Debugging check...
-    else if (prevInfo) {
-      //    console.log('update arrived with no change for', getSketch().gobjList.gobjects[id]);
-    }
+    // else if (prevInfo) {
+    //    console.log('update arrived with no change for', getSketch().gobjList.gobjects[id]);
+    // }
     return retVal;
   };
 
@@ -1354,7 +1332,7 @@ const WebSketch = (props) => {
     // and other presentations (that we similarly ignore). What if a Move button ends and triggers the
     // next button in a sequence, while we have not yet updated the movement, and the newly-activated
     // button takes some action that depends on a not-yet-updated value of a parameter?
-    const buttonsToPress = ['ToggleHideShow', 'Hide', 'Show', 'Scroll'];
+    const buttonsToPress = ['ToggleHideShow', 'Hide', 'Show', 'Scroll', 'Link'];
     const type = String(attr.buttonType).substring(12);
     const doPress = buttonsToPress.includes(type) && attr.isActive;
     if (BUTTON_TRACKING) {
