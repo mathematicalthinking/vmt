@@ -93,6 +93,20 @@
   font-size: 14px;
 }
 
+.SmallCancel {
+  composes: Small;
+  background-color: #999;
+  background-image: none;
+  transition: 0.2s;
+  color: white;
+  font-family: inherit;
+}
+
+.SmallCancel:hover {
+  background-image: none;
+  box-shadow: lightShadow;
+}
+
 .xs {
   composes: Small;
   height: auto;
@@ -155,9 +169,6 @@
   font-weight: 700;
 }
 
-.SmallCancel:hover {
-  box-shadow: lightShadow;
-}
 
 /* .Small:hover {
   box-shadow: lightShadow;
