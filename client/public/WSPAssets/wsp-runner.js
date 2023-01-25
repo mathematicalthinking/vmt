@@ -232,7 +232,6 @@
     var defaultList = ['"Times New Roman", serif', '"Arial", sans-serif'];
     var i;
     var fontList;
-    var authorPrefs = data.metadata.authorPreferences;
     var wspVersion = data.metadata['wsp-version'].split('.');
     var v49orEarlier = !(
       wspVersion[0] > 4 ||
@@ -303,7 +302,7 @@
     }
 
     function fixPage(page) {
-      // Fix the prefs
+      // We don't fix the page prefs here; they are now fixed in initModel's cleanPrefs() function
       $.each(page.preferences.text.textTypes, function(key, value) {
         if (!value['font-family']) {
           value = value.label;
@@ -515,16 +514,6 @@
       for (i = 0; i < fontList.length; ++i) {
         fontList[i] = fixTimesFont(fontList[i]);
       }
-    }
-    if (authorPrefs) {
-      $.each(authorPrefs, function(oldKey, value) {
-        // lowercase and strip spaces from the key
-        var newKey = oldKey.toLowerCase().replace(/\s/g, '');
-        if (newKey !== oldKey) {
-          authorPrefs[newKey] = value;
-          delete authorPrefs[oldKey];
-        }
-      });
     }
     if (v49orEarlier) {
       // In versions > 4.9, the exporter has already made these fixes

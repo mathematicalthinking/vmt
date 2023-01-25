@@ -1,11 +1,12 @@
 .CustomIcon {
     margin-top: 5px;
     font-size: 24px;
+    font-weight: 500;
   }
   
   .CustomIcon:hover {
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 900;
     font-size: 25px;
   }
   

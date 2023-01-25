@@ -2,7 +2,14 @@ import React, { Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import PropTypes from 'prop-types';
 import { SelectableBoxList } from 'Layout';
-import { Search, CustomLink, Button, RadioBtn, InfoBox } from 'Components';
+import {
+  Search,
+  CustomLink,
+  Button,
+  RadioBtn,
+  InfoBox,
+  TabTypes,
+} from 'Components';
 import classes from './archive.css';
 
 const Archive = (props) => {
@@ -25,7 +32,10 @@ const Archive = (props) => {
     icons,
     selectActions,
     actionComponent,
+    totalNumberOfArchivedRooms,
   } = props;
+
+  const toggleRoomFilter = (type) => toggleFilter(`room-${type}`);
 
   return (
     <React.Fragment>
@@ -35,7 +45,7 @@ const Archive = (props) => {
         <div className={classes.Header}>
           <h3 className={classes.Title}>
             {/* Search for your archived Rooms and Courses */}
-            Search for your archived Rooms
+            Search your {totalNumberOfArchivedRooms} archived Rooms
           </h3>
           <div className={classes.ResourceOpts} data-testid="resource-tabs">
             {/* <div
@@ -77,52 +87,10 @@ const Archive = (props) => {
                   >
                     All
                   </RadioBtn>
-                  <RadioBtn
-                    data-testid="desmos-activity-filter"
-                    check={() => toggleFilter('room-desmosActivity')}
-                    checked={filters.roomType === 'desmosActivity'}
-                    name="DesmosActivity"
-                  >
-                    Desmos Activity
-                  </RadioBtn>
-                  <RadioBtn
-                    data-testid="geogebra-filter"
-                    check={() => toggleFilter('room-geogebra')}
-                    checked={filters.roomType === 'geogebra'}
-                    name="GeoGebra"
-                  >
-                    GeoGebra
-                  </RadioBtn>
-                  <RadioBtn
-                    data-testid="desmos-filter"
-                    check={() => toggleFilter('room-desmos')}
-                    checked={filters.roomType === 'desmos'}
-                    name="Desmos"
-                  >
-                    Desmos
-                  </RadioBtn>
-                  {window.env.REACT_APP_WSP_MODE &&
-                    window.env.REACT_APP_WSP_MODE.toLowerCase() === 'yes' && (
-                      <RadioBtn
-                        data-testid="wsp-activity-filter"
-                        check={() => toggleFilter('room-wsp')}
-                        checked={filters.roomType === 'wsp'}
-                        name="WSPActivity"
-                      >
-                        Web Sketchpad
-                      </RadioBtn>
-                    )}
-                  {window.env.REACT_APP_PYRET_MODE &&
-                    window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes' && (
-                      <RadioBtn
-                        data-testid="pyret-activity-filter"
-                        check={() => toggleFilter('room-pyret')}
-                        checked={filters.roomType === 'pyret'}
-                        name="PyretActivity"
-                      >
-                        Pyret
-                      </RadioBtn>
-                    )}
+                  <TabTypes.RadioButtons
+                    onClick={toggleRoomFilter}
+                    checked={filters.roomType}
+                  />
                 </div>
               </InfoBox>
             ) : null}
@@ -283,6 +251,7 @@ Archive.propTypes = {
   icons: PropTypes.arrayOf(PropTypes.shape({})),
   selectActions: PropTypes.arrayOf(PropTypes.shape({})),
   actionComponent: PropTypes.node,
+  totalNumberOfArchivedRooms: PropTypes.number.isRequired,
 };
 
 Archive.defaultProps = {

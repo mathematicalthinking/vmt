@@ -3674,7 +3674,7 @@ var PAGENUM = (function() {
     }
   }
 
-  function showHidePageInfo(target, pageNum) {
+  function showHidePageInfo(doc, target, pageNum) {
     //  Show or hide html elements based on the class.
     //  Use <div class="page_toggle p_2 p_3"> for elements
     //  to appear when the sketch displays page 2 or page 3.
@@ -3682,10 +3682,30 @@ var PAGENUM = (function() {
     var elements = $(target)
       .closest('.sketch_container')
       .find('.page_toggle');
+    /* Removed: (now handled when in attachToNode() as a result of a page change.)
+
+    var noToolsVisible,
+        self.preferences.tracesEnabled = self.getAuthorPreference ("enabletracing");
+        undoRedoInButtonBar = doc.getAuthorPreference('UndoRedoInButtonBar');
+*/
+
     if (elements.length) {
       elements.hide();
       elements.filter('.p_' + pageNum).show();
     }
+
+    // IS THE FOLLOWING IRRELEVANT NOW THAT attachToNode() HANDLES THE UNDO/REDO BUTTONS?
+    // Now that tools not intended for this page are hidden, are any left? If not,
+    // hide undo/redo buttons in the wsp-tool-column.
+    var noToolsVisible = $(target, '.wsp-tools-inner').height() === 0;
+    if (doc.getAuthorPreference('UndoRedoInButtonBar') && noToolsVisible) {
+      // Hide undo/redo in the tool column
+      $(target, '.wsp-ok-cancel-container').hide();
+      // And show undo/redo in the button bar.
+      doc.attachUndoRedo();
+    }
+
+    // If wsp-tools-inner is now empty,
   }
 
   function showPageNum(doc, target) {
@@ -3707,7 +3727,7 @@ var PAGENUM = (function() {
         .css('opacity', pageNum > 1 ? '1' : '0.4');
       highlightPopup(doc);
     }
-    showHidePageInfo(target, pageNum);
+    showHidePageInfo(doc, target, pageNum);
   }
 
   function init() {

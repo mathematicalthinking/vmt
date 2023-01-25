@@ -913,7 +913,7 @@ const WebSketch = (props) => {
     // and other presentations (that we similarly ignore). What if a Move button ends and triggers the
     // next button in a sequence, while we have not yet updated the movement, and the newly-activated
     // button takes some action that depends on a not-yet-updated value of a parameter?
-    const buttonsToPress = ['ToggleHideShow', 'Hide', 'Show', 'Scroll'];
+    const buttonsToPress = ['ToggleHideShow', 'Hide', 'Show', 'Scroll', 'Link'];
     const type = String(attr.buttonType).substring(12);
     const doPress = buttonsToPress.includes(type) && attr.isActive;
     if (BUTTON_TRACKING) {

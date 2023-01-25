@@ -23,6 +23,7 @@ const ResourceList = ({
   resourceState,
   setResourceState,
   selectableBoxList,
+  context,
 }) => {
   const initialConfig = {
     key: 'updatedAt',
@@ -125,7 +126,11 @@ const ResourceList = ({
   }
 
   let create;
-  if (parentResource !== 'activities' && user.accountType === 'facilitator') {
+  if (
+    parentResource !== 'activities' &&
+    context !== 'activity' &&
+    user.accountType === 'facilitator'
+  ) {
     // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
     create = (
       <NewResource
@@ -147,15 +152,13 @@ const ResourceList = ({
       handleArchive(id);
     },
     icon: (
-      <ToolTip text="Archive" delay={600}>
-        <span
-          className={`material-symbols-outlined ${classes.CustomIcon}`}
-          data-testid="Archive"
-          style={{ fontSize: '23px' }}
-        >
-          input
-        </span>
-      </ToolTip>
+      <span
+        className={`material-symbols-outlined ${classes.CustomIcon}`}
+        data-testid="Archive"
+        style={{ fontSize: '23px' }}
+      >
+        input
+      </span>
     ),
   };
 
@@ -316,7 +319,7 @@ const ResourceList = ({
           <div className={classes.Row}>
             <div className={classes.Col}>
               <h2 className={classes.ResourceHeader}>
-                {displayResource} I Manage
+                {displayResource} I Manage: {fList.length}
               </h2>
               {fList.length >= 1 && setResourceState && (
                 <SortUI
@@ -354,7 +357,7 @@ const ResourceList = ({
             </div>
             <div className={classes.Col}>
               <h2 className={classes.ResourceHeader}>
-                {displayResource} I&#39;m a member of
+                {displayResource} I&#39;m a member of: {pList.length}
               </h2>
               {pList.length >= 1 && setResourceState && (
                 <SortUI
@@ -431,6 +434,7 @@ ResourceList.propTypes = {
   }),
   setResourceState: PropTypes.func,
   selectableBoxList: PropTypes.bool,
+  context: PropTypes.string,
 };
 
 ResourceList.defaultProps = {
@@ -439,6 +443,7 @@ ResourceList.defaultProps = {
   resourceState: {},
   setResourceState: null,
   selectableBoxList: false,
+  context: null,
 };
 
 export default ResourceList;
