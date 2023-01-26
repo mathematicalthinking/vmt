@@ -13,7 +13,6 @@ module.exports = [
       ObjectId('5bbf4e5ec1b6d84cb0a4ded3'),
     ],
     rooms: [
-      ObjectId('5ba289c57223b9429888b9b5'),
       ObjectId('5ba289c57223b9429888b9b6'),
       ObjectId('5ba289c57223b9429888b9b7'),
       ObjectId('5ba289c57223b9429888b9b3'),
@@ -38,6 +37,10 @@ module.exports = [
     updatedAt: ISODate('2019-06-21T17:08:26.667Z'),
     ssoId: ObjectId('5d1a59d79c78ad48c0480c8c'),
     isEmailConfirmed: true,
+    archive: {
+      courses: [],
+      rooms: [ObjectId('5ba289c57223b9429888b9b5')],
+    },
   },
 
   /* 2 */

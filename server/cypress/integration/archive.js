@@ -8,6 +8,7 @@
 // 3. Archive page should have 1 room: "room 1"
 /*
         cy.findByRole('heading', {  name: /search your 1 archived rooms/i})
+        cy.findByTestId('SelectableContentBox-container-room 1')
  */
 
 // 4. click unarchive icon
