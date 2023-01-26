@@ -1,8 +1,25 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select';
+import { useSortableData } from 'utils';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
+  const { allParticipants, ...otherProps } = props;
+  const { items: sortedParticipants, requestSort } = useSortableData(
+    allParticipants
+  );
+
+  // set up what we are going to sort on
+  return (
+    <div>
+      <Select options={'some constant list'} onChange={'resort the list'} />
+      <TheMatrix allParticipants={sortedParticipants} {...otherProps} />
+    </div>
+  );
+};
+
+const TheMatrix = (props) => {
   const {
     allParticipants,
     requiredParticipants,
@@ -226,7 +243,7 @@ const AssignmentMatrix = (props) => {
   );
 };
 
-AssignmentMatrix.propTypes = {
+TheMatrix.propTypes = {
   allParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
@@ -238,7 +255,7 @@ AssignmentMatrix.propTypes = {
   onAddParticipants: PropTypes.func,
 };
 
-AssignmentMatrix.defaultProps = {
+TheMatrix.defaultProps = {
   canDeleteRooms: true,
   onAddParticipants: null,
 };
