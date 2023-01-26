@@ -55,6 +55,7 @@ const SelectableContentBox = (props) => {
         to={link}
         className={classes.Container}
         style={{ height: expanded ? 150 : 50, cursor: 'default' }}
+        data-testid={`SelectableContentBox-container-${title}`}
       >
         <div
           data-testid={`content-box-${title}`}
