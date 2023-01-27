@@ -18,13 +18,7 @@ import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
-  const {
-    participants,
-    userId,
-    onSubmit,
-    onCancel,
-    courseCheckbox,
-  } = props;
+  const { participants, userId, onSubmit, onCancel, courseCheckbox } = props;
 
   const userCoursesById = useSelector((state) => state.courses.byId);
 
@@ -198,85 +192,94 @@ const AddParticipants = (props) => {
   };
 
   return (
-    <div className={`${classes.ParticipantsContainer}`}>
-      <InfoBox
-        title=""
-        icon={<i className="fas fa-user-plus" />}
-        className={classes.AddParticipants}
-        rightIcons={
-          <ToggleGroup
-            buttons={['Individuals', 'Shared Rosters']}
-            onChange={toggleParticipantsRosters}
-          />
-        }
-        // rightTitle="Shared Roster"
-      >
-        {isAddingParticipants && (
-          <div className={classes.AddParticipants}>
-            <Fragment>
-              <div style={{ fontSize: '12px' }}>
-                <Search
-                  data-testid="member-search"
-                  _search={search}
-                  placeholder="search by username or email"
-                  value={searchText}
-                  isControlled
-                />
-              </div>
-              {searchResults.length > 0 && (
-                <SearchResults
-                  searchText={searchText}
-                  usersSearched={searchResults}
-                  inviteMember={(_id, username) =>
-                    addParticipant({ user: { _id, username } })
-                  }
-                  className={classes.AddParticipants}
-                />
-              )}
-            </Fragment>
-          </div>
-        )}
-
-        {!isAddingParticipants && (
-          <div className={classes.AddParticipants}>
-            <Fragment>
-              <div style={{ fontSize: '12px' }}>
-                <Search
-                  data-testid="roster-search"
-                  _search={searchRosters}
-                  placeholder="search courses to import rosters from"
-                  value={rosterSearchText}
-                  isControlled
-                />
-              </div>
-              {rosterSearchResults && (
-                <GenericSearchResults
-                  itemsSearched={generateRosterSearchResults(
-                    rosterSearchResults
-                  )}
-                  className={classes.AddParticipants}
-                />
-              )}
-            </Fragment>
-          </div>
-        )}
-      </InfoBox>
-      {newParticipants && (
-        <InfoBox title="New Participants" icon={<i className="fas fa-users" />}>
-          <div data-testid="members" className={classes.NewParticipants}>
-            {newParticipants.map((member) => (
-              <Member
-                info={member}
-                key={member.user._id}
-                resourceName="template"
-                canRemove
-                rejectAccess={() => removeMember(member)}
+    <div className={classes.ParticipantsContainer}>
+      <div className={classes.InfoBoxContainer}>
+        <div className={classes.InfoBox}>
+          <InfoBox
+            title=""
+            icon={<i className="fas fa-user-plus" style={{ height: '25px' }} />}
+            className={classes.AddParticipants}
+            rightIcons={
+              <ToggleGroup
+                buttons={['Individuals', 'Shared Rosters']}
+                onChange={toggleParticipantsRosters}
               />
-              // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
-            ))}
+            }
+            // rightTitle="Shared Roster"
+          >
+            {isAddingParticipants && (
+              <div className={classes.AddParticipants}>
+                <Fragment>
+                  <div style={{ fontSize: '12px' }}>
+                    <Search
+                      data-testid="member-search"
+                      _search={search}
+                      placeholder="search by username or email"
+                      value={searchText}
+                      isControlled
+                    />
+                  </div>
+                  {searchResults.length > 0 && (
+                    <SearchResults
+                      searchText={searchText}
+                      usersSearched={searchResults}
+                      inviteMember={(_id, username) =>
+                        addParticipant({ user: { _id, username } })
+                      }
+                      className={classes.AddParticipants}
+                    />
+                  )}
+                </Fragment>
+              </div>
+            )}
+
+            {!isAddingParticipants && (
+              <div className={classes.AddParticipants}>
+                <Fragment>
+                  <div style={{ fontSize: '12px' }}>
+                    <Search
+                      data-testid="roster-search"
+                      _search={searchRosters}
+                      placeholder="search courses to import rosters from"
+                      value={rosterSearchText}
+                      isControlled
+                    />
+                  </div>
+                  {rosterSearchResults && (
+                    <GenericSearchResults
+                      itemsSearched={generateRosterSearchResults(
+                        rosterSearchResults
+                      )}
+                      className={classes.AddParticipants}
+                    />
+                  )}
+                </Fragment>
+              </div>
+            )}
+          </InfoBox>
+        </div>
+        {newParticipants && (
+          <div className={classes.InfoBox}>
+            <InfoBox
+              title="New Participants"
+              icon={<i className="fas fa-users" style={{ height: '25px' }} />}
+            >
+              <div data-testid="members" className={classes.NewParticipants}>
+                {newParticipants.map((member) => (
+                  <Member
+                    info={member}
+                    key={member.user._id}
+                    resourceName="template"
+                    canRemove
+                    rejectAccess={() => removeMember(member)}
+                  />
+                  // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
+                ))}
+              </div>
+            </InfoBox>
           </div>
-        </InfoBox>
-      )}
+        )}
+      </div>
       <div className={classes.ModalButton}>
         {courseCheckbox && (
           <Checkbox
