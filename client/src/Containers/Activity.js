@@ -190,6 +190,7 @@ class Activity extends Component {
             parentResourceId={course ? course._id : activity._id}
             activityOwner={owner || user.isAdmin}
             context="activity"
+            selectableBoxList
           />
         );
       case 'preview':
