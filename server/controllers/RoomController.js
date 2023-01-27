@@ -555,7 +555,7 @@ module.exports = {
       } else if (body.status === STATUS.ARCHIVED) {
         removeAndChangeStatus(id, STATUS.ARCHIVED, reject, resolve);
       } else {
-        // unarchive is flag is set
+        // unarchive if flag is set
         let willUnarchive = false;
         if (body.unarchive) {
           delete body.unarchive;
@@ -1010,7 +1010,7 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
           );
         }
         // delete this room from any activities (templates)
-        if (room.course) {
+        if (room.activity) {
           promises.push(
             db.Activity.findByIdAndUpdate(room.activity, {
               $pull: { rooms: id },
@@ -1075,8 +1075,8 @@ const unarchive = (id) => {
     try {
       // remove the room from the list of archived rooms for members in the room
       // add the room to the list of rooms for members in the room
-      userIds.forEach((userId) => {
-        db.User.bulkWrite([
+      for (const userId of userIds) {
+        await db.User.bulkWrite([
           {
             updateOne: {
               filter: { _id: userId },
@@ -1093,7 +1093,21 @@ const unarchive = (id) => {
             },
           },
         ]);
-      });
+      }
+
+      // add this room back to course
+      if (room.course) {
+        await db.Course.findByIdAndUpdate(room.course, {
+          $push: { rooms: id },
+        });
+      }
+
+      // add this room back to activity
+      if (room.activity) {
+        await db.Activity.findByIdAndUpdate(room.activity, {
+          $push: { rooms: id },
+        });
+      }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);

@@ -355,6 +355,16 @@ export const updateRoom = (id, body) => {
       }
     } else {
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
+
+      // unarchive? add room to course & activity if they exist
+      if (body.unarchive) {
+        if (body.activity) {
+          dispatch(addActivityRooms(body.activity, [id]));
+        }
+        if (body.course) {
+          dispatch(addCourseRooms(body.course, [id]));
+        }
+      }
     }
     API.put('rooms', id, body)
       .then()
@@ -600,11 +610,6 @@ export const restoreArchivedRoom = (id) => {
     );
     // add room to store
     dispatch(updateRoom(id, roomToUpdate));
-    // updates room status & unarchives room from db
-    // dispatchNewRoom(updatedRoom, dispatch);
-
-    // change room in db API.put('rooms', id, status.defualt)
-    // in catch undo everything
   };
 };
 
