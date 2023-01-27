@@ -1086,12 +1086,6 @@ const unarchive = (id) => {
               },
             },
           },
-          {
-            updateOne: {
-              filter: { _id: userId },
-              update: { $addToSet: { rooms: id } },
-            },
-          },
         ]);
       }
 
