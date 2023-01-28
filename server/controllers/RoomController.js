@@ -555,7 +555,7 @@ module.exports = {
       } else if (body.status === STATUS.ARCHIVED) {
         removeAndChangeStatus(id, STATUS.ARCHIVED, reject, resolve);
       } else {
-        // unarchive is flag is set
+        // unarchive if flag is set
         let willUnarchive = false;
         if (body.unarchive) {
           delete body.unarchive;
@@ -1010,7 +1010,7 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
           );
         }
         // delete this room from any activities (templates)
-        if (room.course) {
+        if (room.activity) {
           promises.push(
             db.Activity.findByIdAndUpdate(room.activity, {
               $pull: { rooms: id },
@@ -1070,7 +1070,7 @@ const prefetchTabIds = async (roomIds, tabType) => {
 };
 
 const unarchive = (id) => {
-  db.Room.findById(id).then(async (room) => {
+  db.Room.findById(id).then((room) => {
     const userIds = room.members.map((member) => member.user);
     try {
       // remove the room from the list of archived rooms for members in the room
@@ -1086,14 +1086,22 @@ const unarchive = (id) => {
               },
             },
           },
-          {
-            updateOne: {
-              filter: { _id: userId },
-              update: { $addToSet: { rooms: id } },
-            },
-          },
         ]);
       });
+
+      // add this room back to course
+      if (room.course) {
+        db.Course.findByIdAndUpdate(room.course, {
+          $push: { rooms: id },
+        });
+      }
+
+      // add this room back to activity
+      if (room.activity) {
+        db.Activity.findByIdAndUpdate(room.activity, {
+          $push: { rooms: id },
+        });
+      }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);
