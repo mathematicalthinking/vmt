@@ -1070,13 +1070,13 @@ const prefetchTabIds = async (roomIds, tabType) => {
 };
 
 const unarchive = (id) => {
-  db.Room.findById(id).then(async (room) => {
+  db.Room.findById(id).then((room) => {
     const userIds = room.members.map((member) => member.user);
     try {
       // remove the room from the list of archived rooms for members in the room
       // add the room to the list of rooms for members in the room
-      for (const userId of userIds) {
-        await db.User.bulkWrite([
+      userIds.forEach((userId) => {
+        db.User.bulkWrite([
           {
             updateOne: {
               filter: { _id: userId },
@@ -1087,18 +1087,18 @@ const unarchive = (id) => {
             },
           },
         ]);
-      }
+      });
 
       // add this room back to course
       if (room.course) {
-        await db.Course.findByIdAndUpdate(room.course, {
+        db.Course.findByIdAndUpdate(room.course, {
           $push: { rooms: id },
         });
       }
 
       // add this room back to activity
       if (room.activity) {
-        await db.Activity.findByIdAndUpdate(room.activity, {
+        db.Activity.findByIdAndUpdate(room.activity, {
           $push: { rooms: id },
         });
       }
