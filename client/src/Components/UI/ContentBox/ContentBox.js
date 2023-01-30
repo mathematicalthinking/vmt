@@ -75,9 +75,7 @@ class ContentBox extends PureComponent {
               />
             </div>
             <ToolTip text={title} delay={600}>
-              <div className={classes.Title} data-testid="">
-                {title}
-              </div>
+              <div className={classes.Title}>{title}</div>
             </ToolTip>
           </div>
           <div className={classes.CustomIconContainer}>

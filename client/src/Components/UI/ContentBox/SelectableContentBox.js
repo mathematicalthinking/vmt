@@ -72,7 +72,6 @@ const SelectableContentBox = (props) => {
               </div>
               <div
                 className={link ? classes.TitleLink : classes.Title}
-                data-testid=""
                 onClick={() => link && history.push(link)}
                 onKeyDown={() => link && history.push(link)}
                 role="button"
