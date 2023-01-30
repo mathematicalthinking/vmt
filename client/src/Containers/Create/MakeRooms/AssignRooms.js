@@ -92,7 +92,7 @@ const AssignRooms = (props) => {
             if (
               // compare only the dates (not the specific time)
               new Date(datePicked) <=
-              Date.now(dateAndTime.toDateString(Date.now()))
+              new Date(dateAndTime.toDateString(Date.now()))
             )
               setDueDate('');
             else setDueDate(datePicked);

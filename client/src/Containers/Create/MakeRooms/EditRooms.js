@@ -8,9 +8,8 @@ import {
   removeRoomMember,
   updateGroupings,
 } from 'store/actions/rooms';
-import { dateAndTime } from 'utils';
 import { Button, Modal } from 'Components';
-import { addColors } from 'utils';
+import { addColors, dateAndTime } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 

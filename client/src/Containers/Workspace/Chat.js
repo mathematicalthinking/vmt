@@ -76,7 +76,7 @@ class Chat extends Component {
       room: roomId,
       color: myColor,
       isTyping,
-      timestamp: new Date().getTime(),
+      timestamp: Date.now(),
     };
 
     socket.emit('PENDING_MESSAGE', messageData, (res, err) => {
@@ -169,7 +169,7 @@ class Chat extends Component {
       room: roomId,
       color: myColor,
       messageType: 'TEXT',
-      timestamp: new Date().getTime(),
+      timestamp: Date.now(),
     };
 
     if (referencing && referToEl) {
