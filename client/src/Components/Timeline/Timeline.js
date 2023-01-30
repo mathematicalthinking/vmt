@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
-import moment from 'moment';
+import { dateAndTime } from 'utils';
 import classes from './timeline.css';
 import Button from '../UI/Button/Button';
 
@@ -15,7 +15,7 @@ const Timeline = ({
   dispatch,
 }) => {
   const selectDate = (date, id) => {
-    let unixDate = moment(date).format('x');
+    let unixDate = dateAndTime.getTimestamp(date);
     if (unixDate < startTime) {
       unixDate = startTime;
     } else if (unixDate > endTime) {

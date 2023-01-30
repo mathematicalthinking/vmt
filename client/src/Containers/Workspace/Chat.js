@@ -4,10 +4,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import findLast from 'lodash/findLast';
-import moment from 'moment';
-import socket from '../../utils/sockets';
-import mongoIdGenerator from '../../utils/createMongoId';
-import { Chat as ChatLayout } from '../../Components';
+import { dateAndTime, socket, createMongoId as mongoIdGenerator } from 'utils';
+import { Chat as ChatLayout } from 'Components';
 
 class Chat extends Component {
   state = {
@@ -68,7 +66,8 @@ class Chat extends Component {
   };
 
   sendPending = (isTyping) => {
-    const { roomId, user, myColor, timeOut: timeID } = this.props;
+    const { roomId, user, myColor } = this.props;
+    const { timeOut: timeID } = this.state;
     if (!isTyping) clearTimeout(timeID);
 
     const messageData = {
@@ -186,19 +185,9 @@ class Chat extends Component {
           return event._id === referToEl.element;
         });
         if (msg) {
-          const oneWeekAgo = moment().subtract(7, 'days');
-          const oneYearAgo = moment().subtract(1, 'year');
-          const momentTimestamp = moment.unix(msg.timestamp / 1000);
-
-          let format = 'ddd h:mm:ss a';
-          if (momentTimestamp.isBefore(oneYearAgo)) {
-            format = 'MMMM Do YYYY, h:mm:ss a';
-          } else if (momentTimestamp.isBefore(oneWeekAgo)) {
-            format = 'MMMM Do, h:mm:ss a';
-          }
           refDescription += ` the chat message created by ${
             msg.user.username
-          } on ${momentTimestamp.format(format)}`;
+          } on ${dateAndTime.toTimelineString(msg.timestamp)}`;
         } else {
           refDescription += ' a chat message';
         }
@@ -256,15 +245,22 @@ class Chat extends Component {
 Chat.propTypes = {
   referencing: PropTypes.bool.isRequired,
   referToEl: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
+  clearReference: PropTypes.func.isRequired,
   addToLog: PropTypes.func.isRequired,
   replaying: PropTypes.bool,
   roomId: PropTypes.string.isRequired,
   currentTabId: PropTypes.string.isRequired,
+  user: PropTypes.shape({ _id: PropTypes.string, username: PropTypes.string })
+    .isRequired,
+  myColor: PropTypes.string,
+  log: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 Chat.defaultProps = {
   referToEl: null,
   replaying: false,
+  myColor: null,
+  log: [],
 };
 
 export default Chat;

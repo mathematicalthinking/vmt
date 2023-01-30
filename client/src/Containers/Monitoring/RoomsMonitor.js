@@ -10,6 +10,7 @@ import {
 } from 'Components';
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
+import { dateAndTime } from 'utils';
 import Thumbnails from './Thumbnails';
 import QuickChat from './QuickChat';
 import classes from './monitoringView.css';
@@ -165,15 +166,7 @@ function RoomsMonitor({
 
   // @TODO VMT should have a standard way of displaying timestamps, perhaps in utilities. This function should be there.
   const _roomDateStamp = (lastUpdated) => {
-    const d = new Date(lastUpdated);
-    let month = d.getMonth() + 1;
-    let day = d.getDate();
-    const year = d.getFullYear();
-
-    if (month.length < 2) month = `0${month}`;
-    if (day.length < 2) day = `0${day}`;
-
-    return [month, day, year].join('-');
+    return dateAndTime.toDateTimeString(lastUpdated);
   };
 
   const _openModal = (roomId) => {

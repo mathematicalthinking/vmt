@@ -1,6 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { dateAndTime } from 'utils';
 import { Button, Background, TabTypes } from 'Components';
 import classes from './homepage.css';
 
@@ -96,9 +97,9 @@ class Homepage extends PureComponent {
     // hoisting for easy access to update @TIMESTAMP and for @todo later streamlining
     const dateStamp = (
       <p>
-        {`Last updated: ${new Date(
+        {`Last updated: ${dateAndTime.toDateString(
           process.env.REACT_APP_BUILD_DATE || '07/24/2022'
-        ).toLocaleDateString()}, ${process.env.REACT_APP_VERSION}`}
+        )}, ${process.env.REACT_APP_VERSION}`}
       </p>
     );
 

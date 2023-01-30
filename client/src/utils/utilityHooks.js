@@ -327,15 +327,11 @@ export function usePopulatedRooms(
       const CALL_LIMIT = 50;
       const chunkedRoomIds = chunk(roomIds, CALL_LIMIT);
       const results = chunkedRoomIds.map((ids) => {
-        return API.findAllMatchingIdsPopulated(
-          'rooms',
-          ids,
-          shouldBuildLog
-        );
+        return API.findAllMatchingIdsPopulated('rooms', ids, shouldBuildLog);
       });
-      
+
       const resolvedResults = await Promise.all(results);
-      const fullResults = resolvedResults.map((res) => res.data.results).flat()
+      const fullResults = resolvedResults.map((res) => res.data.results).flat();
 
       const roomArray = !shouldBuildLog
         ? [...fullResults]
