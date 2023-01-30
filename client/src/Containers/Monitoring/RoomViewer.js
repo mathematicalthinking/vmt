@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import { dateAndTime } from 'utils';
 import { SimpleChat, CurrentMembers, Slider } from 'Components';
 import Thumbnails from './Thumbnails';
 import classes from './roomViewer.css';
@@ -26,26 +26,12 @@ import classes from './roomViewer.css';
 function RoomViewer({ populatedRoom }) {
   const [isSimplified, setIsSimplified] = React.useState(false);
 
-  const toTimelineString = (timestamp) => {
-    const oneWeekAgo = moment().subtract(7, 'days');
-    const oneYearAgo = moment().subtract(1, 'year');
-    const momentTimestamp = moment.unix(timestamp / 1000);
-    let format = 'ddd h:mm:ss a';
-    if (momentTimestamp.isBefore(oneYearAgo)) {
-      format = 'MMMM Do YYYY, h:mm:ss a';
-    } else if (momentTimestamp.isBefore(oneWeekAgo)) {
-      format = 'MMMM Do, h:mm:ss a';
-    }
-
-    return momentTimestamp.format(format);
-  };
-
   return (
     <div className={classes.Container}>
       <div className={classes.Thumbnails}>
         <Thumbnails
           populatedRoom={populatedRoom}
-          defaultLabel={`Thumbnail last updated ${toTimelineString(
+          defaultLabel={`Thumbnail last updated ${dateAndTime.toTimelineString(
             new Date(populatedRoom.updatedAt)
           )}`}
           alwaysShowLabel

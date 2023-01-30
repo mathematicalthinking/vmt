@@ -8,7 +8,7 @@ const { isNaN } = require('lodash');
 const moment = require('moment');
 const dateAndTime = require('./dateAndTime');
 
-const date = new Date();
+const currentDate = new Date();
 
 const messageUsage = (date) => {
   const oneWeekAgo = moment().subtract(7, 'days');
@@ -75,68 +75,68 @@ const newDateFormatMap = {
 
 const comparisons = {
   timeline: {
-    original: moment(date).format('x'),
-    update: dateAndTime.getTimestamp(date),
+    original: moment(currentDate).format('x'),
+    update: dateAndTime.getTimestamp(currentDate),
   },
   dashboardContentBox: {
-    original: moment(date).format('YYYY-MM-DD hh:mm:ss a'),
-    update: dateAndTime.toDateTimeString(date),
+    original: moment(currentDate).format('YYYY-MM-DD hh:mm:ss a'),
+    update: dateAndTime.toDateTimeString(currentDate),
   },
   message: {
-    original: messageUsage(date),
-    update: dateAndTime.toTimelineString(date),
+    original: messageUsage(currentDate),
+    update: dateAndTime.toTimelineString(currentDate),
   },
   editText: {
-    original: moment(date).format('L'),
-    update: dateAndTime.toDateString(date),
+    original: moment(currentDate).format('L'),
+    update: dateAndTime.toDateString(currentDate),
   },
   editRoomsAndMakeRooms: {
     original: new Date().toLocaleDateString(),
     update: dateAndTime.toDateString(new Date()),
   },
   roomsMonitor: {
-    original: roomsMonitorUsage(date),
-    update: dateAndTime.toDateTimeString(date),
+    original: roomsMonitorUsage(currentDate),
+    update: dateAndTime.toDateTimeString(currentDate),
   },
   selectionTable: {
-    original: moment(date).format('LLL'),
-    update: dateAndTime.toDateTimeString(date),
+    original: moment(currentDate).format('LLL'),
+    update: dateAndTime.toDateTimeString(currentDate),
   },
   sharedReplayer1: {
-    original: moment.unix(date / 1000).format('MM/DD/YYYY h:mm:ss A'),
-    update: dateAndTime.toDateTimeString(date),
+    original: moment.unix(currentDate / 1000).format('MM/DD/YYYY h:mm:ss A'),
+    update: dateAndTime.toDateTimeString(currentDate),
   },
   sharedReplayer2: {
-    original: moment(date).format('MM/DD/YYYY h:mm:ss A'),
-    update: dateAndTime.toDateTimeString(date),
+    original: moment(currentDate).format('MM/DD/YYYY h:mm:ss A'),
+    update: dateAndTime.toDateTimeString(currentDate),
   },
   sharedReplayer3: {
-    original: moment.unix(date / 1000).format('MM/DD/YYYY h:mm:ss A'),
-    update: dateAndTime.toDateTimeString(date),
+    original: moment.unix(currentDate / 1000).format('MM/DD/YYYY h:mm:ss A'),
+    update: dateAndTime.toDateTimeString(currentDate),
   },
   chat: {
-    original: chatUsage(date),
-    update: dateAndTime.toTimelineString(date),
+    original: chatUsage(currentDate),
+    update: dateAndTime.toTimelineString(currentDate),
   },
   dashboardBoxList: {
     // although this is different, dashboardBoxList actually hands this info
     // to dashboardContent box, which formats it anyway.
-    original: moment(date).format('MM/DD/YYYY h:mm:ss A'),
-    update: date,
+    original: moment(currentDate).format('MM/DD/YYYY h:mm:ss A'),
+    update: currentDate,
     comment:
       'although this is different, dashboardBoxList actually hands this info to dashboardContent box, which formats it anyway',
   },
   homepage: {
-    original: new Date(date).toLocaleDateString(),
-    update: dateAndTime.toDateString(date),
+    original: new Date(currentDate).toLocaleDateString(),
+    update: dateAndTime.toDateString(currentDate),
   },
   groupings: {
-    original: new Date(date).toLocaleString(),
-    update: dateAndTime.toDateTimeString(date),
+    original: new Date(currentDate).toLocaleString(),
+    update: dateAndTime.toDateTimeString(currentDate),
   },
   utilityHooks1: {
-    original: new Date(date).toString() !== 'Invalid Date',
-    update: !isNaN(Date.parse(date)),
+    original: new Date(currentDate).toString() !== 'Invalid Date',
+    update: !isNaN(Date.parse(currentDate)),
     comment: 'A date being tested',
   },
   utilityHooks2: {
@@ -145,15 +145,15 @@ const comparisons = {
     comment: 'The string "date" being tested',
   },
   statsutils: {
-    original: moment.unix(date / 1000).format(dateFormatMap.all),
-    update: newDateFormatMap.all(date),
+    original: moment.unix(currentDate / 1000).format(dateFormatMap.all),
+    update: newDateFormatMap.all(currentDate),
   },
   ...Object.keys(dateFormatMap).reduce(
     (acc, units) => ({
       ...acc,
       [`statsReducer-${units}`]: {
-        original: moment.unix(date / 1000).format(dateFormatMap[units]),
-        update: newDateFormatMap[units](date),
+        original: moment.unix(currentDate / 1000).format(dateFormatMap[units]),
+        update: newDateFormatMap[units](currentDate),
       },
     }),
     {}
