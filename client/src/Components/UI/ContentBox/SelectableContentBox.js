@@ -66,7 +66,7 @@ const SelectableContentBox = (props) => {
               <div className={classes.Icons}>
                 <Icons
                   // image={image}
-                  lock={locked}
+                  // lock={locked}
                   roomType={roomType}
                   listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
                 />
@@ -78,25 +78,12 @@ const SelectableContentBox = (props) => {
                 onKeyDown={() => link && history.push(link)}
                 role="button"
                 tabIndex={-1}
-                title={title}
               >
-                {link ? (
-                  // only show tooltip for lobby link
-                  // when the link is provided
-                  <ToolTip
-                    text={`Go to ${resource.substring(
-                      0,
-                      resource.length - 1
-                    )} lobby`}
-                    delay={600}
-                  >
-                    {title}
-                  </ToolTip>
-                ) : (
-                  title
-                )}
+                <ToolTip text={title} delay={600}>
+                  {title}
+                </ToolTip>
               </div>
-              {notificationElements}
+              {/* {notificationElements} */}
             </div>
             <div
               style={{
@@ -107,6 +94,7 @@ const SelectableContentBox = (props) => {
                 // padding: '0 1rem',
               }}
             >
+              {notificationElements}
               {customIcons &&
                 customIcons.map((icon) => (
                   <div
@@ -117,9 +105,7 @@ const SelectableContentBox = (props) => {
                     key={`icon-${icon.title}-${id}`}
                     style={{ margin: '0 .5rem', cursor: 'pointer' }}
                   >
-                    <ToolTip text={icon.title} delay={600}>
-                      {icon.icon}
-                    </ToolTip>
+                    {icon.icon}
                   </div>
                 ))}
             </div>
