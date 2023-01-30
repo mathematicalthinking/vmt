@@ -1,6 +1,6 @@
-import moment from 'moment';
 import propertyOf from 'lodash/propertyOf';
 import find from 'lodash/find';
+import { dateAndTime } from 'utils';
 import { isNonEmptyArray } from '../../utils/objects';
 import generateMongoId from '../../utils/createMongoId';
 
@@ -151,9 +151,9 @@ export default (log, tabs) => {
       updatedLog.push({
         _id: generateMongoId(),
         synthetic: true,
-        message: `No activity ... skipping ahead to ${moment
-          .unix(src[idx + 1].timestamp / 1000)
-          .format('MM/DD/YYYY h:mm:ss A')}`,
+        message: `No activity ... skipping ahead to ${dateAndTime.toDateTimeString(
+          src[idx + 1].timestamp
+        )}`,
         relTime: (acc += BREAK_DURATION),
         tab: updatedLog[updatedLog.length - 1].tab,
       });

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import { dateAndTime } from 'utils';
 import classes from './editText.css';
 
 const EditText = ({ editing, inputType, change, children, options, name }) => {
@@ -89,7 +89,7 @@ const EditText = ({ editing, inputType, change, children, options, name }) => {
   } else {
     if (inputType === 'date') {
       if (children && children !== 'Not Set') {
-        children = moment(children).format('L');
+        children = dateAndTime.toDateString(children);
       } else {
         children = 'Not Set';
       }

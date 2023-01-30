@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { dateAndTime } from 'utils';
 import { getSignificantGgbEventFromEvent } from '../Replayer/SharedReplayer.utils';
 
 /* eslint-disable no-unused-vars */
@@ -59,7 +59,7 @@ const processDataHelper = (
             messageDetails += ` (${d.description})`;
           }
           const dataToReturn = {
-            time: moment.unix(d.timestamp / 1000).format(dateFormatMap.all),
+            time: dateFormatMap.all(d.timestamp),
             user: d.user ? d.user.username || d.user : null,
             'action/message': messageType
               ? `message: ${messageType.toLowerCase()}`
@@ -370,14 +370,14 @@ export const timeUnitMap = {
 };
 
 export const dateFormatMap = {
-  years: 'MM/DD/YYYY',
-  months: 'MM/DD/YYYY',
-  weeks: 'MM/DD/YYYY',
-  days: 'MM/DD/YYYY h:mm A',
-  hours: 'MM/DD/YYYY h:mm A',
-  minutes: 'h:mm:ss A',
-  seconds: 'h:mm:ss A',
-  all: 'MM/DD/YYYY h:mm:ss A',
+  years: dateAndTime.toDateString,
+  months: dateAndTime.toDateString,
+  weeks: dateAndTime.toDateString,
+  days: dateAndTime.toDateTimeString,
+  hours: dateAndTime.toDateTimeString,
+  minutes: dateAndTime.toTimeString,
+  seconds: dateAndTime.toTimeString,
+  all: dateAndTime.toDateTimeString,
 };
 
 export const lineColors = {

@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { BigModal, Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
-import { useAppModal, COLOR_MAP, addColors } from 'utils';
+import { dateAndTime, useAppModal, COLOR_MAP, addColors } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
@@ -422,7 +422,7 @@ const MakeRooms = (props) => {
         initialDueDate={selectedAssignment.dueDate || ''}
         initialRoomName={
           selectedAssignment.roomName ||
-          `${activity.name} (${new Date().toLocaleDateString()})`
+          `${activity.name} (${dateAndTime.toDateString(new Date())})`
         }
         participantsPerRoom={participantsPerRoom}
         setParticipantsPerRoom={setNumber}
