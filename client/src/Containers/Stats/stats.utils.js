@@ -1,4 +1,4 @@
-import { dateAndTime } from 'utils';
+import dateAndTime from 'utils/dateAndTime'; // don't know why direct from utils isn't working
 import { getSignificantGgbEventFromEvent } from '../Replayer/SharedReplayer.utils';
 
 /* eslint-disable no-unused-vars */
