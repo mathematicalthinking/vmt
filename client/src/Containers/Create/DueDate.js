@@ -22,6 +22,7 @@ class DueDate extends Component {
           onChange={selectDate}
           popperPlacement="bottom"
           shouldCloseOnSelect={false}
+          minDate={Date.now()}
         />
       </div>
     );

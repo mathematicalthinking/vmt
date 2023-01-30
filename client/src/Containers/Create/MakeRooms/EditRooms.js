@@ -9,7 +9,7 @@ import {
   updateGroupings,
 } from 'store/actions/rooms';
 import { Button, Modal } from 'Components';
-import { addColors } from 'utils';
+import { addColors, dateAndTime } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 
@@ -240,7 +240,7 @@ const EditRooms = (props) => {
         initialDueDate={selectedAssignment.dueDate || ''}
         initialRoomName={
           selectedAssignment.roomName ||
-          `${activity.name} (${new Date().toLocaleDateString()})`
+          `${activity.name} (${dateAndTime.toDateString(new Date())})`
         }
         assignmentMatrix={assignmentMatrix}
         onSubmit={checkBeforeSubmit}

@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 import DashboardContentBox from '../../Components/UI/ContentBox/DashboardContentBox';
 import classes from './dashboardBoxList.css';
@@ -24,7 +23,7 @@ const dashboardBoxList = (props) => {
         const details = {
           eventsCount: item.eventsCount,
           messagesCount: item.messagesCount,
-          updatedAt: moment(item.updatedAt).format('MM/DD/YYYY h:mm:ss A'),
+          updatedAt: item.updatedAt,
         };
 
         if (resource === 'rooms') {

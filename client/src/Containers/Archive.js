@@ -111,7 +111,7 @@ const Archive = () => {
         afterYear: 356 * 24 * 60 * 60 * 1000,
       };
       filters.from = 0;
-      filters.to = new Date().getTime() - calculateTo[unit];
+      filters.to = Date.now() - calculateTo[unit];
       setRadioToDate(filters.to);
       setDateRangePreset(unit);
     }
