@@ -74,8 +74,8 @@ class ContentBox extends PureComponent {
                 listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
               />
             </div>
-            <ToolTip text={`Go To ${resourceToDisplay} Lobby`} delay={600}>
-              <div className={classes.Title} data-testid="" title={title}>
+            <ToolTip text={title} delay={600}>
+              <div className={classes.Title} data-testid="">
                 {title}
               </div>
             </ToolTip>

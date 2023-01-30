@@ -570,18 +570,16 @@ class Room extends Component {
                     }}
                   >
                     <div style={{ display: 'flex', marginBottom: '2rem' }}>
-                      <ToolTip text="Enter this room" delay={600}>
-                        <span>
-                          <Button
-                            theme={loading.loading ? 'SmallCancel' : 'Small'}
-                            m={10}
-                            data-testid="Enter"
-                            click={!loading.loading ? this.goToWorkspace : null}
-                          >
-                            Enter
-                          </Button>
-                        </span>
-                      </ToolTip>
+                      <span>
+                        <Button
+                          theme={loading.loading ? 'SmallCancel' : 'Small'}
+                          m={10}
+                          data-testid="Enter"
+                          click={!loading.loading ? this.goToWorkspace : null}
+                        >
+                          Enter
+                        </Button>
+                      </span>
                     </div>
                     <div
                       style={{

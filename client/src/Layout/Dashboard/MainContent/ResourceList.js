@@ -174,9 +174,11 @@ const ResourceList = ({
       },
       // icon: <i className="fas fa-external-link-alt" />,
       icon: (
-        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-          open_in_new
-        </span>
+        <ToolTip text="Preview" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            open_in_new
+          </span>
+        </ToolTip>
       ),
     },
     {
@@ -186,9 +188,11 @@ const ResourceList = ({
         goToReplayer(id);
       },
       icon: (
-        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-          replay
-        </span>
+        <ToolTip text="Replayer" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            replay
+          </span>
+        </ToolTip>
       ),
     },
     {
@@ -199,12 +203,18 @@ const ResourceList = ({
         handleArchive(id);
       },
       icon: (
-        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-          input
-        </span>
+        <ToolTip text="Archive" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            input
+          </span>
+        </ToolTip>
       ),
     },
   ];
+
+  const customIconsBoxList = [...customIcons].filter(
+    (icon) => icon.title !== 'Archive'
+  );
 
   // create a handle multiple fn that calls this fn
   // get rid of singleResource
@@ -376,6 +386,7 @@ const ResourceList = ({
                 resource={resource}
                 listType="private"
                 parentResourec={parentResource}
+                icons={customIconsBoxList}
                 // draggable
               />
             </div>
