@@ -77,6 +77,7 @@ const SelectableContentBox = (props) => {
                 onKeyDown={() => link && history.push(link)}
                 role="button"
                 tabIndex={-1}
+                data-testid={`SelectableContentBox-${title}`}
               >
                 <ToolTip text={title} delay={600}>
                   {title}
