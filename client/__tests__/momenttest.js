@@ -1,3 +1,9 @@
+/**
+ * Testing suite for the dateAndTime component. To run, type "node momenttest.js". Note that because we are running
+ * via node, must use 'require' rather than 'import.' This, there is a special dateAndTime.js file here that should be
+ * identical to src/utils/dateAndTime.js except that it uses 'require' rather than 'import'.
+ */
+
 const { isNaN } = require('lodash');
 const moment = require('moment');
 const dateAndTime = require('./dateAndTime');
