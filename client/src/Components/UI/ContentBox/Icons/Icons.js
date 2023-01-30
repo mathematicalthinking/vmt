@@ -17,6 +17,10 @@ const Icons = ({ lock, listType, roomType, image }) => {
     if (roomType) setRoomTypeIcon(getRoomTypeIcon());
   }, [roomType]);
 
+  const shouldShowLockIcon = () => {
+    return lock !== null;
+  };
+
   const getLockIcon = () => {
     if (lock && listType === 'public') {
       return (
@@ -63,7 +67,7 @@ const Icons = ({ lock, listType, roomType, image }) => {
           <img src={image} width={25} alt="" />
         </div>
       )}
-      {lock !== null && <div className={classes.Icon}>{lockIcon}</div>}
+      {shouldShowLockIcon() && <div className={classes.Icon}>{lockIcon}</div>}
       <ToolTip text={toolTipText} delay={600}>
         <div className={classes.Icon}>{roomTypeIcon}</div>
       </ToolTip>
