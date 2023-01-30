@@ -31,7 +31,7 @@
 }
 
 .spMain {
-  font-size: 26px;
+  font-size: 1.5rem;
   font-weight: 600;
   margin: 10px 0 5px 0;
   text-align: center;
@@ -132,6 +132,9 @@
 .KeyContainer {
   margin: 10px 0;
   padding: 10px 2px;
+  width: 90%;
+  display: flex;
+  justify-content: space-between;
 }
 
 .KeyName {
@@ -143,7 +146,7 @@
 
 .KeyValue {
   font-weight: 400;
-  float: right;
+  /* float: right; */
   color: #666;
   /* text-transform: capitalize; */
   text-align: right;
