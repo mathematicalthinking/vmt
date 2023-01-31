@@ -481,8 +481,43 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
 
   const previousSearch = useRef({
     criteria: sortConfig.criteria || '',
-    filter: sortConfig.filter,
+    filter: {
+      ...sortConfig.filter,
+      filterFcn:
+        sortConfig.criteria && sortConfig.criteria !== ''
+          ? (item) =>
+              item.name &&
+              item.name
+                .toLowerCase()
+                .indexOf(sortConfig.criteria.toLowerCase()) > -1
+          : null,
+    },
   });
+
+  React.useEffect(() => {
+    if (sortConfig.criteria && sortConfig.criteria !== '') {
+      sortConfig.filter.filterFcn = (item) =>
+        item.name &&
+        item.name.toLowerCase().indexOf(sortConfig.criteria.toLowerCase()) > -1;
+    } else {
+      sortConfig.filter.filterFcn = null;
+    }
+  }, [sortConfig.criteria]);
+
+  React.useEffect(() => {
+    if (
+      previousSearch.current.criteria &&
+      previousSearch.current.criteria !== ''
+    ) {
+      previousSearch.current.filter.filterFcn = (item) =>
+        item.name &&
+        item.name
+          .toLowerCase()
+          .indexOf(previousSearch.current.criteria.toLowerCase()) > -1;
+    } else {
+      previousSearch.current.filter.filterFcn = null;
+    }
+  }, [previousSearch.current.criteria]);
 
   const optionForValue = (value) => {
     return timeFrameOptions.find((opt) => opt.value === value);
@@ -506,20 +541,12 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
         filter: {
           ...sortConfig.filter,
           timeframe: timeFrames.ALL,
-          filterFcn: (item) =>
-            item.name &&
-            item.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1,
         },
       });
     } else if (criteria !== '' && previousSearch.current.criteria !== '') {
       sortFn({
         criteria,
-        filter: {
-          ...sortConfig.filter,
-          filterFcn: (item) =>
-            item.name &&
-            item.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1,
-        },
+        filter: sortConfig.filter,
       });
     } else if (criteria === '' && previousSearch.current.criteria !== '') {
       sortFn({
@@ -613,6 +640,7 @@ SortUI.propTypes = {
     filter: PropTypes.shape({
       key: PropTypes.string,
       timeframe: PropTypes.string,
+      filterFcn: PropTypes.func,
     }),
   }),
 };
