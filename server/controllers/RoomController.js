@@ -680,7 +680,11 @@ module.exports = {
       }
       since = Number(momentObj.startOf('day').format('x'));
     }
-    const initialFilter = { updatedAt: { $gte: new Date(since) } };
+    const initialFilter = {
+      updatedAt: { $gte: new Date(since) },
+      isTrashed: false,
+      status: { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] },
+    };
     // eslint-disable-next-line no-unused-vars
     if (to && since && to > since) {
       let toMomentObj = moment(to, 'x', true);
