@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Schema.Types;
 const User = require('./User');
 const Course = require('./Course');
+const STATUS = require('../constants/status');
 
 const Activity = new mongoose.Schema(
   {
@@ -45,6 +46,11 @@ const Activity = new mongoose.Schema(
         },
       ],
       default: [],
+    },
+    status: {
+      type: String,
+      enum: Object.values(STATUS),
+      default: STATUS.DEFAULT,
     },
   },
   { timestamps: true }

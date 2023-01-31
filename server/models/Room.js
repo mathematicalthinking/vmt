@@ -61,7 +61,7 @@ const Room = new mongoose.Schema(
     groupId: { type: String },
     status: {
       type: String,
-      enum: [STATUS.ARCHIVED, STATUS.TRASHED, STATUS.DEFAULT],
+      enum: Object.values(STATUS),
       default: STATUS.DEFAULT,
     },
   },
