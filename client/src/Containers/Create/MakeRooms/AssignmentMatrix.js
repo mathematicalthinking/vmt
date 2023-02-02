@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { useSortableData } from 'utils';
@@ -10,31 +10,40 @@ const AssignmentMatrix = (props) => {
   const defaultOption = { label: 'Sort...', value: [] };
   const keys = [
     { ...defaultOption },
-    { label: 'Name a-z', value: 'user.username' },
-    { label: 'Name z-a', value: 'user.username' },
-    { label: 'By course', value: 'course' },
+    { label: 'Name a-z', value: { key: 'username', direction: 'ascending' } },
+    { label: 'Name z-a', value: { key: 'username', direction: 'descending' } },
+    { label: 'By course', value: { key: 'course', direction: 'ascending' } },
+    { label: 'By room', value: 'rooms' },
   ];
 
-  const [sortSelection, setSortSelection] = useState(keys[0]);
-  const [roomsToSort, setRoomsToSort] = useState([...roomDrafts]); // for sort by room
-
-  const { items: sortedParticipants, resetSort, requestSort } = useSortableData(
+  const [participantsToDisplay, setParticipantsToDisplay] = useState(
     allParticipants
   );
 
-  useEffect(() => setRoomsToSort(roomDrafts), [roomDrafts]);
+  // put username at top level
+
+  const { items: sortedParticipants, resetSort } = useSortableData(
+    allParticipants.map((mem) => ({
+      course: 'dummy',
+      ...mem,
+      username: mem.user.username,
+    }))
+  );
 
   const handleSort = (selectedOption) => {
-    if (!selectedOption.value.length) {
-      setSortSelection(defaultOption);
-      return;
+    if (selectedOption.value === 'rooms') {
+      // sort by rooms
+      const mems = roomDrafts.map((room) => room.members).flat();
+      const uniqueParticipants = Object.values(
+        mems.reduce((acc, curr) => {
+          return { ...acc, [curr.user._id]: curr };
+        }, {})
+      );
+      setParticipantsToDisplay(uniqueParticipants);
+    } else {
+      resetSort(selectedOption.value);
+      setParticipantsToDisplay(sortedParticipants);
     }
-    let direction;
-    if (selectedOption.label === 'Name a-z') direction = 'ascending';
-    else if (selectedOption.label === 'Name z-a') direction = 'descending';
-    resetSort({ key: selectedOption.value, direction });
-    requestSort(selectedOption.value);
-    setSortSelection(selectedOption);
   };
 
   // set up what we are going to sort on
@@ -47,17 +56,23 @@ const AssignmentMatrix = (props) => {
             value: key.value,
           }))}
           onChange={handleSort}
-          value={sortSelection}
           isSearchable={false}
         />
       </div>
       <TheMatrix
-        allParticipants={sortedParticipants}
+        allParticipants={participantsToDisplay}
         roomDrafts={roomDrafts}
         {...otherProps}
       />
     </div>
   );
+};
+
+AssignmentMatrix.propTypes = {
+  allParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  roomDrafts: PropTypes.arrayOf(
+    PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) })
+  ).isRequired,
 };
 
 const TheMatrix = (props) => {
