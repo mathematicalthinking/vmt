@@ -1,11 +1,11 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { useSortableData } from 'utils';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
-  const { allParticipants, ...otherProps } = props;
+  const { allParticipants, roomDrafts, ...otherProps } = props;
 
   const defaultOption = { label: 'Sort...', value: [] };
   const keys = [
@@ -16,13 +16,13 @@ const AssignmentMatrix = (props) => {
   ];
 
   const [sortSelection, setSortSelection] = useState(keys[0]);
-  const [roomsToSort, setRoomsToSort] = useState(...otherProps.roomDrafts);
+  const [roomsToSort, setRoomsToSort] = useState([...roomDrafts]); // for sort by room
 
   const { items: sortedParticipants, resetSort, requestSort } = useSortableData(
     allParticipants
   );
-  console.log('sortedParticipants');
-  console.log(sortedParticipants);
+
+  useEffect(() => setRoomsToSort(roomDrafts), [roomDrafts]);
 
   const handleSort = (selectedOption) => {
     if (!selectedOption.value.length) {
@@ -51,7 +51,11 @@ const AssignmentMatrix = (props) => {
           isSearchable={false}
         />
       </div>
-      <TheMatrix allParticipants={sortedParticipants} {...otherProps} />
+      <TheMatrix
+        allParticipants={sortedParticipants}
+        roomDrafts={roomDrafts}
+        {...otherProps}
+      />
     </div>
   );
 };
