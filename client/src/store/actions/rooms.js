@@ -402,7 +402,6 @@ export const archiveRooms = (ids) => {
       dispatch(addRoomToArchive(id));
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
-      dispatch(updatedRoom(id, { status: STATUS.ARCHIVED })); // Optimistically update the UI
     });
 
     for (let i = 0; i < ids.length; i += 50) {
