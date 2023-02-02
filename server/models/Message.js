@@ -57,13 +57,18 @@ Message.pre('save', async function() {
         console.log('ERROR: ', err);
       }
     } else if (
-      this.messageType === 'LEFT_ROOM' ||
-      this.messageType === 'RELEASED_CONTROL'
+      ['LEFT_ROOM', 'JOINED_ROOM', 'SWITCH_TAB', 'RESET_ROOM'].includes(
+        this.messageType
+      )
     ) {
       try {
-        await Room.findByIdAndUpdate(this.room, {
-          $addToSet: { chat: this._id },
-        });
+        await Room.findByIdAndUpdate(
+          this.room,
+          {
+            $addToSet: { chat: this._id },
+          },
+          { timestamps: false } // Don't update the room's updateAt if we just peek at it
+        );
       } catch (err) {
         console.log(err);
       }
