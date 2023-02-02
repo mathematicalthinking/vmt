@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { useSortableData } from 'utils';
@@ -6,14 +6,51 @@ import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
   const { allParticipants, ...otherProps } = props;
-  const { items: sortedParticipants, requestSort } = useSortableData(
+
+  const defaultOption = { label: 'Sort...', value: [] };
+  const keys = [
+    { ...defaultOption },
+    { label: 'Name a-z', value: 'user.username' },
+    { label: 'Name z-a', value: 'user.username' },
+    { label: 'By course', value: 'course' },
+  ];
+
+  const [sortSelection, setSortSelection] = useState(keys[0]);
+  const [roomsToSort, setRoomsToSort] = useState(...otherProps.roomDrafts);
+
+  const { items: sortedParticipants, resetSort, requestSort } = useSortableData(
     allParticipants
   );
+  console.log('sortedParticipants');
+  console.log(sortedParticipants);
+
+  const handleSort = (selectedOption) => {
+    if (!selectedOption.value.length) {
+      setSortSelection(defaultOption);
+      return;
+    }
+    let direction;
+    if (selectedOption.label === 'Name a-z') direction = 'ascending';
+    else if (selectedOption.label === 'Name z-a') direction = 'descending';
+    resetSort({ key: selectedOption.value, direction });
+    requestSort(selectedOption.value);
+    setSortSelection(selectedOption);
+  };
 
   // set up what we are going to sort on
   return (
-    <div>
-      <Select options={'some constant list'} onChange={'resort the list'} />
+    <div style={{ width: '100%', height: '100%' }}>
+      <div style={{ width: '25%', zIndex: '999', position: 'relative' }}>
+        <Select
+          options={keys.map((key) => ({
+            label: key.label,
+            value: key.value,
+          }))}
+          onChange={handleSort}
+          value={sortSelection}
+          isSearchable={false}
+        />
+      </div>
       <TheMatrix allParticipants={sortedParticipants} {...otherProps} />
     </div>
   );
