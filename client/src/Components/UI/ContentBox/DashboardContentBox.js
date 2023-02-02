@@ -5,7 +5,6 @@ import { dateAndTime } from 'utils';
 import classes from './dashboardContentBox.css';
 import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
-import Expand from './expand';
 
 class DashboardContentBox extends PureComponent {
   state = {
