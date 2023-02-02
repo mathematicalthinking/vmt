@@ -101,8 +101,7 @@ const MakeRooms = (props) => {
         setRoomNum(
           Math.max(
             Math.floor(
-              filterFacilitators(participants).length /
-                (participantsPerRoom || 3)
+              filterFacilitators(participants).length / participantsPerRoom
             ),
             1
           ),
@@ -112,13 +111,13 @@ const MakeRooms = (props) => {
       setRoomNum(
         Math.max(
           Math.floor(
-            filterFacilitators(participants).length / (participantsPerRoom || 3)
+            filterFacilitators(participants).length / participantsPerRoom
           ),
           1
         )
       );
     }
-  }, [selectedAssignment, participants.length]);
+  }, [selectedAssignment]);
 
   const setRoomNum = (roomNum, clearRooms) => {
     const newRoomDrafts = clearRooms ? [] : roomDrafts;
@@ -272,7 +271,7 @@ const MakeRooms = (props) => {
     const numberOfParticipants = newParticipants
       ? filterFacilitators(newParticipants).length
       : filterFacilitators(participants).length;
-    // Make sure that number of participants is between 1 and the number of participants
+    // Make sure that number of participants per room is between 1 and the number of participants
     const adjustedPPR = Math.max(Math.min(ppr, numberOfParticipants), 1);
     setParticipantsPerRoom(adjustedPPR);
     const numRooms = Math.max(
