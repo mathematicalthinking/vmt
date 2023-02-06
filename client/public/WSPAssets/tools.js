@@ -1,30 +1,66 @@
 // JavaScript for the WSP Tool Library and the WSP Sketch Viewer. There's enough common code
 // to justify putting these together.
-var TOOLS = (function() {
-  var allTools = [],
-    filesToProcess = [],
-    nextSketchDivID = 1,
-    $resize, // The resize control in the tool library window
-    // To extend resizing to the viewer, we'll need each sketch to maintain a pointer
-    // to its own resize control.
+/* global GSP, UTILMENU, $, PAGENUM, WIDGETS, PREF, FileReader, Image */
+/* eslint-disable no-var */
+/* eslint "semi": [2, "always"], "one-var": ["warn", "consecutive"] */
+const TOOLS = (function() {
+  const allTools = [];
+  var collectionList = [],
+    $resize; // The resize control in the tool library window
+  // To extend resizing to the viewer, we'll need each sketch to maintain a pointer
+  // to its own resize control.
+  let nextSketchDivID = 1,
     dragResizing, // true if the user is dragging the resize control
     debugMode;
 
   PREF.setWebPagePrefs([
-    { category: 'util', name: 'upload', sketches: 'all' },
-    { category: 'util', name: 'download', sketches: 'all' },
+    { category: 'util', value: true },
+    { name: 'resetbutton', value: ['all'] },
   ]);
-
+  /* I've regularized the handling of collections of tools in the tool library. Original code used php to find the directory
+   * of tool json files and load whatever files it found. But that solution suffered from a CORS issue and broke with later
+   * release of php, So now there's a new system in place using specifically-named text files to indicate what tools are where.
+   * The home directory for the Tool Library has a text file named collections.txt. Here's an example of its content, which
+   * has one line per connection, providing the descriptive name of the collection and the subdirectory of tools/library
+   * in which the tools are stored.
+   *   Basic: basic
+   *   Hyperbolic Geometry: hyperbolic
+   * This library has two collections, the "Basic" collection in tools/library/basic,
+   * and the "Hyperbolic Geometry" collection in tools/library/hypeerbolic.
+   * Each collection consists of a set of json WSP files, together with a text file
+   * named toolList.txt that has one line per tool giving the tool's file name.
+   * For instance, here are the first two lines of toolList.txt for the Basic collection:
+   *   01 Point, Compass, Straightedge Tools.json
+   *   02 Parallel and Perpendicular Tools.json
+   * As another improvement, when a collection is loaded a button is added, above the tool display,
+   * to bring that collection into the library. The button is named for the collection, so
+   * in our example the two buttons are named "Basic" and "Hyperbolic Geometry".
+   *
+   * As we load the tools into the Library's tool repository, we have some potential race conditions to allow for
+   * if we're to attend to putting the tools in the consistent order dictated by toolList.txt.
+   * The return time for the ajax calls will be erratic due to variations in filesize and network speed
+   * and latency, so we create an ordered list (loadedFiles) to store the json data as it comes in,
+   * keeping this list in the order dictated by toolList.txt. As data arrives, we delay inserting one json's
+   * tools its turn arrives, when the preceding list elements have been processed. There's also a delay
+   * associated with each tool from a given json, in retrieving the various images and inserting them into
+   * the html page. To allow following list items to begin their work, when an item's json data is ready
+   * to be processed, we immediately check the tool count for this item and reserve the needed html elements
+   * before actually proessing the data. As soon as we've reserved space for the current item's tools,
+   * the following item can begin its work as well.
+   * The sequence of states for each json file is "waiting, hasData, addingNodes, loaded"
+   * To keep the tools in order on the html page, they must be in order as they add their nodes,
+   * so once a tool is in the hasData state, it must not add nodes until the preceding tool has added its nodes.
+   * */
   function addToolToTable(tool, firstTool, lastTool) {
-    var table = $('#toolTable');
-    var img;
-    var toolIndex = allTools.length;
-    var content =
+    const table = $('#toolTable');
+    let img;
+    const toolIndex = allTools.length;
+    const content =
       '<div class="toolItem" onclick="TOOLS.insertToolInSketch (' +
       "'libSketch'," +
       toolIndex +
       ');"></div>';
-    var cell = $.parseHTML(content);
+    const cell = $.parseHTML(content);
     table.append(cell);
     if (tool.image) {
       img = new Image();
@@ -33,80 +69,148 @@ var TOOLS = (function() {
     } else {
       $(cell).append('<br>' + tool.metadata.name);
     }
-    if (firstTool) $(cell).addClass('firstToolItem');
-    if (lastTool) $(cell).addClass('lastToolItem');
+    if (firstTool) {
+      $(cell).addClass('firstToolItem');
+    }
+    if (lastTool) {
+      $(cell).addClass('lastToolItem');
+    }
     allTools.push(tool);
   }
 
-  function loadOneJSON() {
-    var fName;
-    if (filesToProcess.length === 0) return;
-    fName = filesToProcess.shift(); // remove the first element
-    $.getJSON(fName, function(data) {
-      var last = data.tools.length - 1;
+  function loadToolCollection(dirName, filesToProcess) {
+    // Each loadedFiles object has its fileName and a data property,
+    // whose state transitions from "waiting" to actual data, and then to "done"
+    var toolDir = './' + dirName + '/',
+      finishedIx = -1,
+      numFiles = filesToProcess.length,
+      processing = false,
+      loadedFiles = []; // track loaded files to install them in order.
+
+    // Add the nodes for this file's tools
+    function addDataToTable(data) {
+      const last = data.tools.length - 1;
       data.tools.forEach(function(tool, index) {
-        var img = tool.metadata.image;
-        if (typeof img !== 'undefined')
+        const img = tool.metadata.image;
+        if (typeof img !== 'undefined') {
           tool.image = data.resources.pictures[img];
+        }
         addToolToTable(tool, index === 0, index === last);
       });
-      loadOneJSON(); // Load the next file in the queue only after this one has been processed.
-    });
-  }
-
-  /*
-    function loadTools(pattern){  // Initiate the loading of tools from a directory specified by pattern.
-      // Once the directory is loaded, its file names are cached in a queue, and loadOneTool is called
-      // to process the queue one file at a time. Would it be OK to call .getJSON for multiple files without worrying
-      // about the order in which the success() functions are processed? There's likely little harm in doing one file at a time.
-      $("#toolTable").empty();
-      $.ajax({
-        type: "POST",
-        data: ({filter: pattern}),
-        url: "./get_files.php",
-        cache: false,
-        success: function(result){
-          if (result.length > 0) {
-            result.forEach (function (element) {
-              filesToProcess.push (element);
-              });
-            loadOneJSON ();
-          }
-        },
-        datatype: "json"
-      });
     }
-    */
 
-  function loadTools(pattern) {
-    // Initiate the loading of tools from a directory specified by pattern.
-    // Once the directory is loaded, its file names are cached in a queue, and loadOneTool is called
-    // to process the queue one file at a time. Would it be OK to call .getJSON for multiple files without worrying
-    // about the order in which the success() functions are processed? There's likely little harm in doing one file at a time.
-
-    function loadFiles(data) {
-      if ($.isArray(data) && data.length > 0) {
-        data.forEach(function(element) {
-          filesToProcess.push(element);
-        });
-        loadOneJSON();
+    function processData() {
+      // Check the queue to find tools with data that are ready to add nodes
+      // Use processing flag to allow only one copy of this function to run at a time.
+      var ix, aFile, state;
+      if (processing) {
+        return; // Only a single instance of this function at a time.
+      }
+      processing = true;
+      ix = finishedIx + 1;
+      while (ix < numFiles && processing) {
+        // loop until we find a file with data or a file that's still waiting
+        aFile = loadedFiles[ix];
+        state = aFile.state;
+        if (state === 'waiting') {
+          // The ix file doesn't yet have data, so we're done.
+          processing = false;
+          return; // We hit a queued file with no data yet. Allow a subsequent call to finish the job
+        }
+        // console.log('Processing file #' + (ix +1));
+        if (state === 'hasData') {
+          // ok to load this json
+          aFile.state = 'addingNodes'; //signal that this data is being added
+          addDataToTable(aFile.data);
+          aFile.state = 'loaded';
+        }
+        if (ix > finishedIx) {
+          finishedIx = ix;
+        }
+        ix += 1;
       }
     }
 
+    function callAjax(ix) {
+      $.ajax({
+        url: toolDir + loadedFiles[ix].fName,
+        success: function(data) {
+          // console.log('Loaded file #' + (ix + 1) + ': ' + loadedFiles[ix].fName);
+          loadedFiles[ix].data = data;
+          loadedFiles[ix].state = 'hasData';
+          processData(); // install these tools only if previous tools are already in place
+        },
+        error: function(data) {
+          console.log(data);
+        },
+      });
+    }
+
+    // Body of loadToolCollection
+    $.each(filesToProcess, function(ix) {
+      // all files are initially waiting
+      loadedFiles.push({ fName: this, data: undefined, state: 'waiting' });
+      callAjax(ix);
+    });
+  }
+
+  function loadTools(dirName) {
+    // Load the tools from a directory specified.
+    // Each collection's directory must contain a toolList.txt file providing the filenames.
+    // Once the directory is loaded, its file names are cached in a queue, and loadOneTool is called
+    // to process the queue one file at a time. Would it be OK to call .getJSON for multiple files without worrying
+    // about the order in which the success() functions are processed? There's likely little harm in doing one file at a time.
     $('#toolTable').empty();
     $.ajax({
-      type: 'POST',
-      data: { filter: pattern },
-      url: './get_files.php',
-      cache: false,
-      success: loadFiles,
-      datatype: 'json',
+      url: './' + dirName + '/toolList.txt',
+      success: function(data) {
+        var fileList = data.split('\n');
+        loadToolCollection(dirName, fileList);
+      },
+    });
+  }
+
+  function makeCollectionButtons() {
+    collectionList.forEach(function(key) {
+      var content = '<button type="button" ';
+      content +=
+        'onclick="TOOLS.loadLibraryTools(\'' +
+        key.dir +
+        '\');">' +
+        key.name +
+        '</button>&nbsp';
+      $('.uLibButtons').append(content);
+    });
+  }
+
+  function getCollections(loadDefault) {
+    // Find the list of collections in collections.txt, and then load the first collection, which is the default.
+    // Each line is of the form "name: dir" where "name" is the name of the collection and "dir" is
+    // the directory where the tool files are found.
+    // Returns an array of collections, with each collection as an object of the form {name: 'Basic', dir: 'basic'}
+    // The name should be used to identify the collection to the user, and dir provides the actual directory.
+    $.ajax({
+      url: './collections.txt',
+      success: function(data) {
+        var temp = data.split('\n');
+        // Turn each line of temp into a key/value pair in the collectionList
+        temp.forEach(function(line) {
+          var st = line.split(':'),
+            name = st[0].trim(),
+            dir = st[1].trim();
+          collectionList.push({ name: name, dir: dir });
+        });
+        if (loadDefault) {
+          loadTools(collectionList[0].dir);
+        }
+        makeCollectionButtons();
+      },
     });
   }
 
   function insertTool(selector, index) {
     // insert at end
-    var theTool = allTools[index],
+    const theTool = allTools[index],
       $canvas = $(selector),
       doc = $canvas.data('document'),
       docWidth = doc.docSpec.metadata.width,
@@ -144,24 +248,30 @@ var TOOLS = (function() {
   }
 
   /*
-      cycle.js
-      2021-05-31
-      Public Domain.
-      NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
-      This code should be minified before deployment.
-      See https://www.crockford.com/jsmin.html
-      USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
-      NOT CONTROL.
-  */
+ *  The page data and session data (undo history) contain cycles. For instance, the sketch
+ *  document contains references to the gobjects of the sketch, which in turn have references
+ *  to the sketch. Similarly, a gobj has pointers to its children, which in turn have pointers
+ *  back to the parent. There is no simple way of making a deep copy of such a structure,
+ *  so we use Crockford's cycle/decycle functions to do the job.
+ *
+    cycle.js
+    2021-05-31
+    Public Domain.
+    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+    This code should be minified before deployment.
+    See https://www.crockford.com/jsmin.html
+    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+    NOT CONTROL.
+*/
 
   // The file uses the WeakMap feature of ES6.
 
-  /*jslint eval */
+  /* jslint eval */
 
-  /*property
-      $ref, decycle, forEach, get, indexOf, isArray, keys, length, push,
-      retrocycle, set, stringify, test
-  */
+  /* property
+    $ref, decycle, forEach, get, indexOf, isArray, keys, length, push,
+    retrocycle, set, stringify, test
+*/
 
   if (typeof JSON.decycle !== 'function') {
     JSON.decycle = function decycle(object, replacer) {
@@ -191,13 +301,13 @@ var TOOLS = (function() {
       // the object or array. [NUMBER] or [STRING] indicates a child element or
       // property.
 
-      var objects = new WeakMap(); // object to path mappings
+      const objects = new WeakMap(); // object to path mappings
 
       return (function derez(value, path) {
         // The derez function recurses through the object, producing the deep copy.
 
-        var old_path; // The path of an earlier occurance of value
-        var nu; // The new object or array
+        let oldPath; // The path of an earlier occurance of value
+        let nu; // The new object or array
 
         // If a replacer function was provided, then call it to get a replacement value.
 
@@ -221,9 +331,9 @@ var TOOLS = (function() {
           // encountered it. If so, return a {"$ref":PATH} object. This uses an
           // ES6 WeakMap.
 
-          old_path = objects.get(value);
-          if (old_path !== undefined) {
-            return { $ref: old_path };
+          oldPath = objects.get(value);
+          if (oldPath !== undefined) {
+            return { $ref: oldPath };
           }
 
           // Otherwise, accumulate the unique value and its path.
@@ -278,7 +388,7 @@ var TOOLS = (function() {
       //      return JSON.retrocycle(JSON.parse(s));
       // produces an array containing a single element which is the array itself.
 
-      var px = /^\$(?:\[(?:\d+|"(?:[^\\"\u0000-\u001f]|\\(?:[\\"\/bfnrt]|u[0-9a-zA-Z]{4}))*")\])*$/;
+      const px = /^\$(?:\[(?:\d+|"(?:[^\\"\u0000-\u001f]|\\(?:[\\"\/bfnrt]|u[0-9a-zA-Z]{4}))*")\])*$/;
 
       (function rez(value) {
         // The rez function walks recursively through the object looking for $ref
@@ -290,7 +400,7 @@ var TOOLS = (function() {
           if (Array.isArray(value)) {
             value.forEach(function(element, i) {
               if (typeof element === 'object' && element !== null) {
-                var path = element.$ref;
+                const path = element.$ref;
                 if (typeof path === 'string' && px.test(path)) {
                   value[i] = eval(path);
                 } else {
@@ -300,9 +410,9 @@ var TOOLS = (function() {
             });
           } else {
             Object.keys(value).forEach(function(name) {
-              var item = value[name];
+              const item = value[name];
               if (typeof item === 'object' && item !== null) {
-                var path = item.$ref;
+                const path = item.$ref;
                 if (typeof path === 'string' && px.test(path)) {
                   value[name] = eval(path);
                 } else {
@@ -320,12 +430,11 @@ var TOOLS = (function() {
   /* When a page is inserted, removed, or re-ordered, the array sketch.poges (which correspond to the page ID)
    * must be adjusted.
    **/
-  function adjustPageNumbers(sketch, doc, pageNum, option) {
+  function adjustPageNumbers(sketch, doc, pageNum) {
     // adjust page #s, starting with pageNum
     // pageNum is the page # of the page inserted or deleted
-    var ix,
-      newID,
-      sketchPages = sketch.pages; // zero-based, so index is 0 for page #1
+    let ix, newID;
+    const sketchPages = sketch.pages; // zero-based, so index is 0 for page #1
     for (ix = pageNum - 1; ix < sketch.pages.length; ix++) {
       newID = (ix + 1).toString();
       if (sketchPages[ix].metadata.title === sketchPages[ix].metadata.id) {
@@ -336,24 +445,31 @@ var TOOLS = (function() {
     PAGENUM.setToolEnabling(doc); // Sync the page_toggle styles of the tool buttons to agree with the changed prefs
   }
 
-  /* Things possibly helpful to create the new page...
-  
-  From wsp-runner.js"
-                  getGSPInstance(data).then(function(gspInstance) {
-                      createDocumentFromJSONData(gspInstance, data, $target, options);
-                      GSP.log("Loaded Sketch: " + options.url || options.varName);     
-                  }); 
-   **/
-
-  function setCanvas(selector) {
+  function getCanvas(selector) {
     // selector is either a string identifying the id of the sketch_canvas,
     // or a jQuery selector of a button or command in the same sketch_container as the sketch_canvas
-    if (typeof selector === 'string') {
-      return $('#' + selector);
+    let jqSel;
+    if (selector.anchorNode) {
+      return selector.anchorNode; // sketch
+    } else if (typeof selector === 'string') {
+      jqSel = selector[0] !== '.' && selector[0] !== '#' ? '#' : '';
+      jqSel += selector;
+      if ($(jqSel).hasClass('sketch_canvas')) {
+        return $(jqSel);
+      } else {
+        // selector must be a DOM node inside the sketch_container
+        return $(selector)
+          .parents('.sketch_container')
+          .find('.sketch_canvas');
+      }
+    }
+  }
+
+  function getSketch(selector) {
+    if (selector.anchorNode) {
+      return selector;
     } else {
-      return $(selector)
-        .parents('.sketch_container')
-        .find('.sketch_canvas');
+      return getCanvas(selector).data('document').focusPage;
     }
   }
 
@@ -368,12 +484,13 @@ var TOOLS = (function() {
   function deletePage(selector) {
     // selector may be the id of a sketch_canvas or may be a New Page or Clone Page button beneath a sketch,
     // or may be a Utility Menu command
-    var canvas = setCanvas(selector),
+    const canvas = getCanvas(selector),
       doc = canvas.data('document'),
       theSketchJSON = doc.sQuery().getSketchJSON(), // already stringified
       sketch = JSON.parse(theSketchJSON), // the copy of the sketch in which we will make our changes
-      pageNum = +doc.focusPage.metadata.id, // the number of the page to be deleted
       numPages = sketch.pages.length,
+      pageNum = +doc.focusPage.metadata.id, // the number of the page to be deleted
+      newPageNum = pageNum < numPages ? pageNum : pageNum - 1, // The new page to switch to after deleting
       $pageButtons = $(canvas)
         .parent()
         .find('.page_buttons');
@@ -385,10 +502,8 @@ var TOOLS = (function() {
 
     function removePageData() {
       // the keys of doc.pageData are the page id's. The contents must be closed up.
-      var ix,
-        newID,
-        meta,
-        pageData = doc.pageData;
+      let ix, newID, meta;
+      const pageData = doc.pageData;
       for (ix = pageNum; ix < sketch.pages.length; ix++) {
         // Move each page after the removed page forward one slot
         pageData[ix] = pageData[ix + 1]; // Now both ix + 1 and ix point to the same sketch -- but not for long...
@@ -405,33 +520,30 @@ var TOOLS = (function() {
 
     function updatePrefs() {
       // docSpec.metatdata.authorPreferences stores arrays of page numbers. Update them...
-      var key,
-        item,
-        list,
-        prefs = doc.docSpec.metadata.authorPreferences; // the master copy of prefs
-      for (key in prefs) {
-        if (prefs.hasOwnProperty(key)) {
-          item = prefs[key];
-          if (typeof item === 'string' && item.match(/^\d+(,\d+)*$/)) {
-            // Every element >= pageNum should be decremented
-            list = item.split(',');
-            list.forEach(function(val, i, arr) {
-              arr[i] = +arr[i];
-            }); // avoid issues of string/number conversion
-            listPos = list.indexOf(pageNum);
-            if (listPos >= 0) {
-              list.splice(listPos, 1); // remove pageNum from the list, if present
-            }
-            list.forEach(function(val, ix, arr) {
-              // move every value after pageNum up by 1
-              if (val > pageNum) {
-                arr[ix] = val - 1;
-              }
-            });
-            prefs[key] = list.join(',');
+      let list;
+      const prefs = doc.docSpec.metadata.authorPreferences; // the master copy of prefs
+      Object.keys(prefs).forEach(function(item, key) {
+        // Object.keys iterates only over ownProperties
+        let listPos;
+        if (typeof item === 'string' && item.match(/^\d+(,\d+)*$/)) {
+          // Every element >= pageNum should be decremented
+          list = item.split(',');
+          list.forEach(function(val, i, arr) {
+            arr[i] = +arr[i];
+          }); // avoid issues of string/number conversion
+          listPos = list.indexOf(pageNum);
+          if (listPos >= 0) {
+            list.splice(listPos, 1); // remove pageNum from the list, if present
           }
+          list.forEach(function(val, ix, arr) {
+            // move every value after pageNum up by 1
+            if (val > pageNum) {
+              arr[ix] = val - 1;
+            }
+          });
+          prefs[key] = list.join(',');
         }
-      }
+      });
       // The working copy is in doc.metatdata.authorPreferences. Update it as well.
       doc.metadata.authorPreferences = JSON.parse(JSON.stringify(prefs));
     }
@@ -448,7 +560,7 @@ var TOOLS = (function() {
     updatePrefs();
     sketch.pages.splice(pageNum - 1, 1);
     adjustPageNumbers(sketch, doc, pageNum, 'delete');
-    doc.switchPage(pageNum, true); // This is now a no-op, but changes the displayed page #.
+    doc.switchPage(newPageNum, true); // This is now a no-op, but changes the displayed page #.
   }
 
   /* To create a new page, we to push the actual page data into sketch.pages[]
@@ -462,7 +574,7 @@ var TOOLS = (function() {
     // option === "new" or option === "clone"
     // selector may be the id of a sketch_canvas or may be a New Page or Clone Page button beneath a sketch,
     // or may be a Utility Menu command
-    var canvas = setCanvas(selector),
+    const canvas = getCanvas(selector),
       doc = canvas.data('document'),
       theSketchJSON = doc.sQuery().getSketchJSON(), // already stringified
       sketch = JSON.parse(theSketchJSON), // the copy of the sketch in which we will make our changes
@@ -470,7 +582,6 @@ var TOOLS = (function() {
       newPageNum = (+curPageNum + 1).toString(),
       newPage = JSON.parse(JSON.stringify(sketch.pages[curPageNum - 1])), // copy the current page's sketch.pages data
       rect = newPage.metadata.sketchRect,
-      newPageData,
       $pageButtons = $(canvas)
         .parent()
         .find('.page_buttons');
@@ -478,10 +589,8 @@ var TOOLS = (function() {
     function insertPageData(pageNum, data) {
       // the keys of doc.pageData are the page id's. The contents all have to be moved to make space for the new data
       // At the same time, adjust the docSpec authorPrefs for any prefs that are based on page numbers.
-      var ix,
-        newID,
-        meta,
-        pageData = doc.pageData;
+      let ix, newID, meta;
+      const pageData = doc.pageData;
       for (ix = sketch.pages.length; ix > pageNum; ix--) {
         // Move each page after the inserted page back one slot
         // No need to stringify and parse, because each page only ends up in a single slot
@@ -500,38 +609,34 @@ var TOOLS = (function() {
     function updatePrefs() {
       // docSpec.metatdata.authorPreferences stores arrays of page numbers. Update them...
       // The working copy is in doc.metatdata.authorPreferences. As it's a copy, update it as well.
-      var key,
-        item,
-        list,
-        prefs = doc.docSpec.metadata.authorPreferences; // the master copy of prefs
-      for (key in prefs) {
-        if (prefs.hasOwnProperty(key)) {
-          item = prefs[key];
-          if (typeof item === 'string' && item.match(/^\d+(,\d+)*$/)) {
-            // Every element >= newPageNum should be incremented
-            list = item.split(',');
-            list.forEach(function(val, i, arr) {
-              arr[i] = +arr[i];
-            }); // avoid issues of string/number conversion
-            for (jx = list.length - 1; list[jx] >= newPageNum - 1; jx--) {
-              if (list[jx] >= newPageNum) {
-                list[jx] = list[jx] + 1;
-              } else if (list[jx] === +curPageNum) {
-                // copy curPageNum settings for the new page
-                list.splice(jx + 1, 0, +newPageNum);
-              }
+      const prefs = doc.docSpec.metadata.authorPreferences; // the master copy of prefs
+      Object.keys(prefs).forEach(function(item, key) {
+        // Object.keys iterates only over ownProperties
+        let list;
+        if (typeof item === 'string' && item.match(/^\d+(,\d+)*$/)) {
+          // Every element >= newPageNum should be incremented
+          list = item.split(',');
+          list.forEach(function(val, i, arr) {
+            arr[i] = +arr[i];
+          }); // avoid issues of string/number conversion
+          for (let jx = list.length - 1; list[jx] >= newPageNum - 1; jx--) {
+            if (list[jx] >= newPageNum) {
+              list[jx] = list[jx] + 1;
+            } else if (list[jx] === +curPageNum) {
+              // copy curPageNum settings for the new page
+              list.splice(jx + 1, 0, +newPageNum);
             }
-            prefs[key] = list.join(',');
           }
+          prefs[key] = list.join(',');
         }
-      }
+      });
       doc.metadata.authorPreferences = JSON.parse(JSON.stringify(prefs));
     }
 
     function copySessionData() {
       // copy session data from original page
-      var oldSession = doc.pageData[curPageNum].session,
-        newSession;
+      const oldSession = doc.pageData[curPageNum].session;
+      let newSession;
       doc.recordActivePageDelta(); // record delta for old page
       doc.resetSession(newPageNum); // create empty session (with history prototype) for new page
       if (option === 'clone') {
@@ -552,7 +657,7 @@ var TOOLS = (function() {
       newPage.objects = {};
     }
     sketch.pages.splice(newPageNum - 1, 0, newPage);
-    newPageData = JSON.retrocycle(JSON.decycle(doc.pageData[curPageNum]));
+    const newPageData = JSON.retrocycle(JSON.decycle(doc.pageData[curPageNum]));
     newPageData.spec.metadata.id = newPageNum;
     if (option === 'new') {
       newPageData.spec.objects = {};
@@ -577,38 +682,49 @@ var TOOLS = (function() {
   }
 
   function resetWindowSize(selector) {
-    var $sketchNode = $(selector),
+    const $sketchNode = $(selector),
       doc = $sketchNode.data('document'),
-      newHeight = +$('#height')[0].value,
-      newWidth = +$('#width')[0].value,
       baseNode = $sketchNode.find('.wsp-base-node')[0],
-      toolWidth = $sketchNode.find('.wsp-tool-container').css('width'),
-      fullWidth = newWidth + parseInt(toolWidth),
+      toolWidth = $sketchNode.find('.wsp-tool-container').css('width') || 0,
       dpRatio = window.devicePixelRatio,
-      $canvases = $('.wsp-clip-node', baseNode).find('canvas');
+      $canvases = $('.wsp-clip-node', baseNode).find('canvas'),
+      newWidth = +$('#width')[0].value;
+    let newHeight = +$('#height')[0].value,
+      fullWidth = newWidth + parseInt(toolWidth);
 
     function fixSketchRect(target) {
-      var rect = target.sketchRect;
+      const rect = target.sketchRect;
       rect.bottom = rect.top + newHeight;
       rect.right = rect.left + newWidth;
     }
 
     function fixToolContainer(height, width) {
       // Here we fix up the height of the tool-container to be full height and to show a scroll bar if needed.
-      var column = $sketchNode.find('.wsp-tool-column')[0],
-        fixedHeight = 0,
-        toolsHeight = 0,
+      const column = $sketchNode.find('.wsp-tool-column')[0],
         $buttonArea = $sketchNode.parent().find('.button_area');
+      let fixedHeight = 0,
+        toolsHeight = 0;
+      /* Avoid ":visible" because it's unreliable
+      $('.wsp-fixed-tool', column).filter(':visible').each(function () {
+        fixedHeight += $(this).outerHeight();
+      });
+      $('.wsp-tool', column).filter(':visible').each(function () {
+        toolsHeight += $(this).outerHeight();
+      });
+      */
       $('.wsp-fixed-tool', column)
         .filter(':visible')
         .each(function() {
-          fixedHeight += $(this).outerHeight();
+          if (this.style.display === 'block')
+            fixedHeight += $(this).outerHeight();
         });
       $('.wsp-tool', column)
         .filter(':visible')
         .each(function() {
-          toolsHeight += $(this).outerHeight();
+          if (this.style.display === 'block')
+            toolsHeight += $(this).outerHeight();
         });
+
       $('.wsp-tool-column', $sketchNode).outerHeight(height);
       $('.wsp-user-tools', $sketchNode).outerHeight(height - fixedHeight);
       // Set outerHeight for wsp-user-tools.
@@ -623,6 +739,7 @@ var TOOLS = (function() {
 
     doc.metadata.height = newHeight;
     doc.metadata.width = newWidth;
+    $sketchNode.width(fullWidth);
     $.each(doc.pageData, function(key, value) {
       fixSketchRect(value.spec.metadata);
     });
@@ -632,10 +749,10 @@ var TOOLS = (function() {
     $('.wsp-clip-node', baseNode).css({ width: newWidth, height: newHeight });
     $canvases.each(function() {
       // Set new size and scale for each canvas, without changing the scale.
-      var ctx = this.getContext('2d'),
+      const ctx = this.getContext('2d'),
         trans = ctx.getTransform(); // cache the current transform
-      //this.width = newWidth;
-      //this.height = newHeight;
+      // this.width = newWidth;
+      // this.height = newHeight;
       $(this).css({ width: newWidth, height: newHeight });
       this.width = Math.round(newWidth * dpRatio);
       this.height = Math.round(newHeight * dpRatio);
@@ -659,8 +776,8 @@ var TOOLS = (function() {
       fullWidth *= 0.75;
       newHeight *= 0.75;
     } else if ($('.wsp-transform-small', baseNode).css('display') !== 'none') {
-      fullWidth *= 0.75;
-      newHeight *= 0.75;
+      fullWidth *= 0.5;
+      newHeight *= 0.5;
     }
     $('.wsp-transform-node', baseNode).css({
       width: fullWidth,
@@ -674,7 +791,7 @@ var TOOLS = (function() {
   }
 
   function setResizePosition($sketchNode) {
-    var $clipNode = $sketchNode.find('.wsp-clip-node'),
+    const $clipNode = $sketchNode.find('.wsp-clip-node'),
       clipOffset = $sketchNode.find('.wsp-clip-node').offset(),
       $container = $sketchNode.parent(),
       containerOffset = $container.offset(),
@@ -686,14 +803,14 @@ var TOOLS = (function() {
 
   function cloneSketch(index) {
     function uniqueName(seed) {
-      var trial, nodes;
+      let trial, nodes;
 
       function check() {
-        return $(this).text() == trial;
+        return $(this).text() === trial;
       }
 
-      var i = 0;
-      var $test = $('#uSketchList li');
+      let i = 0;
+      const $test = $('#uSketchList li');
       seed = seed.replace(/-\d+/, '');
       seed = seed + '-';
       do {
@@ -704,15 +821,15 @@ var TOOLS = (function() {
       return trial;
     }
 
-    var canvasNode = $($('.sketch_canvas')[index]);
-    var doc = canvasNode.data('document');
-    var theSketchJSON = doc.sQuery().getSketchJSON(); // already stringified
-    var theName = uniqueName(canvasNode.data('fileName'));
+    const canvasNode = $($('.sketch_canvas')[index]);
+    const doc = canvasNode.data('document');
+    const theSketchJSON = doc.sQuery().getSketchJSON(); // already stringified
+    const theName = uniqueName(canvasNode.data('fileName'));
     addSketchToPage(theName, theSketchJSON);
   }
 
   function dragToolCallback(dragIndex, target) {
-    var $canvas = $('#libSketch'),
+    const $canvas = $('#libSketch'),
       doc = $canvas.data('document'),
       targetIndex = $(target).data('index'),
       specTemp = doc.docSpec.tools.splice(dragIndex, 1), // Remove this element from the tools array
@@ -735,7 +852,7 @@ var TOOLS = (function() {
 
   function dragSketchCallback(dragIndex, target) {
     // the dragged item has been dropped on a target
-    var allTargets, $dragNode, targetIndex;
+    let allTargets, $dragNode, targetIndex;
     if (target.id === 'clone') {
       cloneSketch(dragIndex);
     } else if (target.id === 'trash') {
@@ -745,9 +862,11 @@ var TOOLS = (function() {
       $dragNode = $($('.sketch_container')[dragIndex]).detach();
       allTargets = $('.sketch_container');
       targetIndex = $(target).data('index');
-      if (targetIndex < allTargets.length)
+      if (targetIndex < allTargets.length) {
         $dragNode.insertBefore($('.sketch_container')[targetIndex]);
-      else $dragNode.insertAfter($('.sketch_container')[targetIndex - 1]);
+      } else {
+        $dragNode.insertAfter($('.sketch_container')[targetIndex - 1]);
+      }
     }
     repopulateSketchControl();
   }
@@ -763,44 +882,52 @@ var TOOLS = (function() {
   // ENHANCEMENT: eliminate the dragging global by making it a data item on the list.
   // Need two custom callbacks, for clone and trash. How to configure these?
   function initDraggableList(dragListID, dropCallback) {
-    var $dragNode = $('#' + dragListID);
+    const $dragNode = $('#' + dragListID);
 
     function checkTarget(event) {
-      var retNode = event.target;
-      if (retNode.nodeName === '#text') retNode = retNode.parentNode;
-      if (retNode.parentNode.id === dragListID) return retNode;
-      else return null;
+      let retNode = event.target;
+      if (retNode.nodeName === '#text') {
+        retNode = retNode.parentNode;
+      }
+      if (retNode.parentNode.id === dragListID) {
+        return retNode;
+      } else {
+        return null;
+      }
     }
 
     document.addEventListener('dragstart', function(event) {
-      var dragIndex = $(event.target).data('index');
+      const dragIndex = $(event.target).data('index');
       $dragNode.data('dragIndex', dragIndex);
       event.dataTransfer.setData('text/html', dragIndex);
       event.dataTransfer.effectAllowed = 'move';
     });
 
     document.addEventListener('dragover', function(event) {
-      var target = checkTarget(event);
+      const target = checkTarget(event);
       event.preventDefault();
-      if (target) $(target).addClass('uOutline');
+      if (target) {
+        $(target).addClass('uOutline');
+      }
     });
 
     document.addEventListener('dragleave', function(event) {
-      var target = checkTarget(event);
+      const target = checkTarget(event);
       event.preventDefault();
-      if (target) $(target).removeClass('uOutline');
+      if (target) {
+        $(target).removeClass('uOutline');
+      }
     });
 
     document.addEventListener('drop', function(event) {
-      var targetIndex,
-        target,
-        dragIndex = $dragNode.data('dragIndex');
-      target = checkTarget(event);
+      const dragIndex = $dragNode.data('dragIndex'),
+        target = checkTarget(event);
+      let targetIndex;
       event.preventDefault();
       if (target) {
         targetIndex = $(event.target).data('index');
         $(target).removeClass('uOutline');
-        if (target.index != dragIndex) {
+        if (targetIndex !== dragIndex) {
           dropCallback(dragIndex, target);
         }
       }
@@ -820,27 +947,20 @@ var TOOLS = (function() {
   function setToolPref(toolName, $tool, add) {
     // Set the sketch's pref for the named pref on the current page.
     // If add is truthy, insert the page; otherwise remove it.
-    var doc = $('#libSketch').data('document'),
+    const doc = $('#libSketch').data('document'),
       sketch = doc.focusPage,
       pageNum = +sketch.metadata.id,
       prefs = doc.metadata.authorPreferences,
       specPrefs = doc.docSpec.metadata.authorPreferences,
       prefName = toolName + 'tool',
-      prefArr = doc.getAuthorPreference(prefName), // returns an array, defaulting to ["all"]
-      sketchPages = Object.keys(doc.pageData),
-      idx;
-
-    /*
-     * Do we need both prefArr and newPrefArr?
-     * It seems that prefArr, starting as the current pref array and ending as an array of page #s,
-     * is the way to go.
-     */
+      sketchPages = Object.keys(doc.pageData);
+    let prefArr = doc.getAuthorPreference(prefName); // returns an array, defaulting to ["all"]
+    const idx = prefArr.indexOf(pageNum);
 
     function allPages() {
       // create an array with all page #'s
-      var retVal = [],
-        ix;
-      for (ix = 0; ix < sketchPages.length; ix++) {
+      const retVal = [];
+      for (let ix = 0; ix < sketchPages.length; ix++) {
         retVal.push(+sketchPages[ix]);
       }
       return retVal;
@@ -848,7 +968,7 @@ var TOOLS = (function() {
 
     function setPref(arr) {
       // sets the passed value for prefName in both doc and docSpec prefs
-      var prefString = arr.join();
+      const prefString = arr.join();
       prefs[prefName] = prefString;
       specPrefs[prefName] = prefString;
     }
@@ -865,7 +985,6 @@ var TOOLS = (function() {
       });
     }
 
-    idx = prefArr.indexOf(pageNum);
     if (add && idx < 0) {
       // the tool isn't enabled for the current page, so add it
       prefArr.push(pageNum);
@@ -887,7 +1006,7 @@ var TOOLS = (function() {
   }
 
   function handleToolCheck(ev) {
-    var $btn = $(ev.target),
+    const $btn = $(ev.target),
       toolIndex = $btn.parent().data('index'),
       $tool = $('.wsp-tool', '#libSketch').eq(toolIndex);
     console.log(ev);
@@ -899,14 +1018,14 @@ var TOOLS = (function() {
     // Can be called directly with a sketchDoc or from a DidChangeCurrentPage event
     // In the former (direct) case, context is undefined.
     // In the latter (event) case, context.document is actually the sketch doc.
-    var $list = $('#uToolList'),
-      index = 0;
+    const $list = $('#uToolList');
+    let index = 0;
     if (context) {
       sketchDoc = context.document;
     }
     if (sketchDoc.tools) {
       $.each(sketchDoc.tools, function(i, val) {
-        var prefName = val.metadata.name.toLowerCase().replace(/\s+/g, ''),
+        const prefName = val.metadata.name.toLowerCase().replace(/\s+/g, ''),
           checked = PREF.shouldEnableForCurrentPage(
             'tool',
             prefName,
@@ -923,12 +1042,11 @@ var TOOLS = (function() {
   }
 
   function populateTools(sketchDoc) {
-    var $list = $('#uToolList'),
-      prefs = sketchDoc.metadata.authorPreferences;
+    const $list = $('#uToolList');
     $list.empty();
     if (sketchDoc.tools) {
       $.each(sketchDoc.tools, function(i, val) {
-        var name = val.metadata.name,
+        const name = val.metadata.name,
           prefName = name.toLowerCase().replace(/\s+/g, ''),
           content =
             '<li draggable="true"><input type="checkbox" class = "toolCheck" value=' +
@@ -951,17 +1069,17 @@ var TOOLS = (function() {
   }
 
   function initLib(listID) {
-    var $node = $('#libSketch'),
+    const $node = $('#libSketch'),
       $nameNode = $('#libFileName'),
       $width = $('#width'),
       $height = $('#height');
-    $resize = $('#resize');
 
     function updateSketchName(name) {
       if (name) {
-        if (name.indexOf('.') > 0)
+        if (name.indexOf('.') > 0) {
           // remove extension if any
           name = name.substring(0, name.lastIndexOf('.'));
+        }
         $nameNode.text(name);
         $('#utilPrompt').css('display', 'none');
         $nameNode.css('display', 'inline-block');
@@ -969,42 +1087,45 @@ var TOOLS = (function() {
     }
 
     function checkQuery(prop) {
-      var params = {};
-      var st = window.location.href.slice(
+      const params = {};
+      let st = window.location.href.slice(
         window.location.href.indexOf('?') + 1
       );
-      var endIndex = st.indexOf('#');
-      if (endIndex >= 0) st = st.slice(0, endIndex);
-      var search = decodeURIComponent(st);
-      var definitions = search.split('&');
+      const endIndex = st.indexOf('#');
+      if (endIndex >= 0) {
+        st = st.slice(0, endIndex);
+      }
+      const search = decodeURIComponent(st);
+      const definitions = search.split('&');
       definitions.forEach(function(val) {
-        var parts = val.split('=', 2);
+        const parts = val.split('=', 2);
         params[parts[0]] = parts[1];
       });
-      if (prop && prop in params) return params[prop] || prop;
-      else if (!prop) return params;
+      if (prop && prop in params) {
+        return params[prop] || prop;
+      } else if (!prop) {
+        return params;
+      }
       // return undefined if prop is passed but does not exist as a param
     }
 
     function populatePrefs() {
-      var doc = $('#libSketch').data('document'),
-        prefs = doc.metadata.authorPreferences,
-        key,
-        st;
+      const doc = $('#libSketch').data('document'),
+        prefs = doc.metadata.authorPreferences;
       $('#uPrefList').empty();
-      for (key in prefs) {
-        if (prefs.hasOwnProperty(key)) {
-          st = '<li>' + key + ': &nbsp; ' + prefs[key] + '</li>';
-          $('#uPrefList').append(st);
-        }
-      }
+      Object.keys(prefs).forEach(function(item, key) {
+        // Object.keys iterates only over ownProperties
+        const st = '<li>' + key + ': &nbsp; ' + prefs[key] + '</li>';
+        $('#uPrefList').append(st);
+      });
     }
 
+    $resize = $('#resize');
     /*
      * Code based on https://javascript.info/mouse-drag-and-drop, and then adapted
      * to work on mobile devices
      */
-    var resizer = $resize[0];
+    const resizer = $resize[0];
     resizer.addEventListener('touchstart', function(e) {
       e.preventDefault();
       startResize(e, true);
@@ -1013,23 +1134,22 @@ var TOOLS = (function() {
     resizer.addEventListener('mousedown', startResize);
 
     function startResize(e, isTouch) {
-      var origSize = { width: +$width.val(), height: +$height.val() },
+      const origSize = { width: +$width.val(), height: +$height.val() },
         origLoc = { x: e.pageX, y: e.pageY },
         shiftX = e.clientX - resizer.getBoundingClientRect().left,
-        shiftY = e.clientY - resizer.getBoundingClientRect().top,
-        wait = false; // throttle the mouse movement events
+        shiftY = e.clientY - resizer.getBoundingClientRect().top;
+      let wait = false; // throttle the mouse movement events
 
       // moves the resizer to (pageX, pageY) coordinates
       // taking initial shifts into account
       function moveTo(pageX, pageY) {
-        var width, height;
+        const width = Math.max(100, origSize.width + pageX - origLoc.x),
+          height = Math.max(100, origSize.height + pageY - origLoc.y);
         if (wait) return; // don't handle this event if one has just occurred
         wait = true;
         setTimeout(function() {
           wait = false;
         }, 50); // don't handle another for 50 ms.
-        (width = Math.max(100, origSize.width + pageX - origLoc.x)),
-          (height = Math.max(100, origSize.height + pageY - origLoc.y));
         if (width !== +$width.val() || height !== +$height.val()) {
           resizer.style.left = pageX - shiftX + 'px';
           resizer.style.top = pageY - shiftY + 'px';
@@ -1075,7 +1195,7 @@ var TOOLS = (function() {
 
     function checkLoadFromUrl() {
       // If there's a sketch-url query string, use that sketch
-      var urlToLoad = checkQuery('sketch-url');
+      const urlToLoad = checkQuery('sketch-url');
       if (urlToLoad) {
         $node.data('url', urlToLoad);
         // loadFromUrl (urlToLoad, $node);
@@ -1087,7 +1207,7 @@ var TOOLS = (function() {
     };
 
     function setupDebug() {
-      var $prefBtn = $('#uPrefToggle'),
+      const $prefBtn = $('#uPrefToggle'),
         $prefDiv = $('#uPrefDiv');
 
       function togglePrefs() {
@@ -1105,8 +1225,9 @@ var TOOLS = (function() {
       $prefBtn.click(togglePrefs);
     }
 
+    // Body of initLib
     $node.on('LoadDocument.WSP', function(event, context) {
-      var doc = context.document,
+      const doc = context.document,
         fName = $node.data('fileName');
       $height.val(doc.metadata.height);
       $width.val(doc.metadata.width);
@@ -1131,16 +1252,17 @@ var TOOLS = (function() {
       debugMode = true;
     }
     if (checkQuery('author')) {
-      PREF.setWebPagePrefs([{ category: 'widget', pages: 'all' }]);
+      PREF.setWebPagePrefs([{ category: 'widget', value: ['all'] }]);
     }
     checkLoadFromUrl();
     initToolList(listID);
-    loadTools('basic/*.json');
+    getCollections(true); // true param causes the first collection to be loaded.
+    // We need to use the return value to add buttons allowing the user to choose a collection.
   } // initLib
 
   function scrollToSketch(listItem) {
-    var index = $(listItem).data('index');
-    var canvasNode = $('.sketch_canvas')[index];
+    const index = $(listItem).data('index');
+    const canvasNode = $('.sketch_canvas')[index];
     $([document.documentElement, document.body]).animate(
       {
         scrollTop: $(canvasNode).offset().top,
@@ -1150,17 +1272,19 @@ var TOOLS = (function() {
   }
 
   function repopulateSketchControl() {
-    var list = $('#uSketchList');
-    var sketches = $('.sketch_canvas');
+    const list = $('#uSketchList');
+    const sketches = $('.sketch_canvas');
     list.empty();
     $.each(sketches, function(index, node) {
-      var name = $(node).data('fileName');
-      if (typeof name === 'undefined') return;
-      var content =
+      const name = $(node).data('fileName');
+      if (typeof name === 'undefined') {
+        return;
+      }
+      const content =
         '<li draggable="true" onclick="TOOLS.scrollToSketch(this);">' +
         $(node).data('fileName') +
         '</li>';
-      var el = list.append(content);
+      const el = list.append(content);
       $(el[0].lastChild).data('index', index);
     });
     list.append('<li id = "clone" class="uCloneItem"> Clone</li>');
@@ -1168,28 +1292,29 @@ var TOOLS = (function() {
   }
 
   function addSketchToPage(fName, jsonData) {
-    var el, canvasNode, content;
-    var id = 'sketchDiv' + nextSketchDivID;
+    const id = 'sketchDiv' + nextSketchDivID,
+      content =
+        '<div class="sketch_container"> <div class="sketch_canvas" id="' +
+        id +
+        '" data-url="empty.json" > </div> <div style="clear:both"> <div class="util-menu-btn"></div> <span class="page_buttons"></span> <button class="widget_button" onclick="WIDGETS.toggleWidgets(this);">Widgets</button> <p class="fileName"></p> <input type="button" class="newPageButton" value="New Page" onclick="TOOLS.insertPage(this,/new/");"/> <input type="button" class="newPageButton" value="Clone Page" onclick="TOOLS.insertPage(this,/"clone/");"/> </div> </div>',
+      canvasNode = $('#' + id),
+      el = $(content);
     nextSketchDivID += 1;
-    content =
-      '<div class="sketch_container"> <div class="sketch_canvas" id="' +
-      id +
-      '" data-url="empty.json" > </div> <div style="clear:both"> <div class="util-menu-btn"></div> <span class="page_buttons"></span> <button class="widget_button" onclick="WIDGETS.toggleWidgets(this);">Widgets</button> <p class="fileName"></p> <input type="button" class="newPageButton" value="New Page" onclick="TOOLS.insertPage(this,/new/");"/> <input type="button" class="newPageButton" value="Clone Page" onclick="TOOLS.insertPage(this,/"clone/");"/> </div> </div>';
-    el = $(content);
     el.find('.fileName')[0].innerHTML = fName.replace('.json', '');
     $('#sketches').append(el);
     UTILMENU.initUtils(); // set up onLoad handler for the new sketch_canvas
     PAGENUM.initPageControls();
-    canvasNode = $('#' + id);
     canvasNode.data('fileName', fName.replace('.json', ''));
     canvasNode.data('sourceDocument', jsonData);
     canvasNode.WSP('loadSketch');
     canvasNode.removeData('sourceDocument'); // Once the data's loaded, it's no longer needed here
     canvasNode.on('LoadDocument.WSP', function() {
-      var el = $(this)
+      const el = $(this)
         .parent()
         .find('.fileName');
-      if (el && el.length > 0) el[0].innerHTML = $(this).data('fileName');
+      if (el && el.length > 0) {
+        el[0].innerHTML = $(this).data('fileName');
+      }
       repopulateSketchControl();
     });
     repopulateSketchControl();
@@ -1197,7 +1322,7 @@ var TOOLS = (function() {
 
   function doLoadMultiple(files) {
     $.each(files, function() {
-      var reader = new FileReader();
+      const reader = new FileReader();
       reader.fileName = this.name;
       reader.onload = function() {
         addSketchToPage(this.fileName, this.result);
@@ -1207,7 +1332,7 @@ var TOOLS = (function() {
   }
 
   function loadSketches() {
-    var fileInput = $('#file-name-input');
+    const fileInput = $('#file-name-input');
     fileInput.attr('multiple', '');
     fileInput.attr('onchange', 'TOOLS.loadMultipleSketches(files);');
     fileInput.click();
@@ -1215,17 +1340,16 @@ var TOOLS = (function() {
   }
 
   function checkGraph(selector, mode) {
-    // selector is the id of a sketch_canvas
-    var doc = $('#' + selector).data('document'),
-      sketch = doc.focusPage,
+    // selector is either a sketch or the id of a sketch_canvas
+    const sketch = getSketch(selector),
       gobjects = sketch.gobjList.gobjects,
-      graphOK = true,
       verbose = mode && mode.match(/verbose/i),
       showTopo = mode && mode.match(/topolog/i),
       cycleGobjs = [],
       topoConflicts = [],
       topoData = [],
       errorStyle = 'color: red; font-weight:bold; font-size:larger;';
+    let graphOK = true;
 
     function checkParent(gobj, parent) {
       // make sure gobj is really a child of this parent
@@ -1240,9 +1364,31 @@ var TOOLS = (function() {
 
     function checkChild(gobj, child) {
       // make sure gobj is really a parent of this child
-      if (child.parentsList.indexOf(gobj) < 0) {
+      if (!child.parentsList || child.parentsList.indexOf(gobj) < 0) {
         console.log(
           '%cCould not find ' + gobj.id + ' as a parent of ' + child.id,
+          errorStyle
+        );
+        graphOK = false;
+      }
+    }
+
+    function checkTransParent(gobj, parent) {
+      // make sure gobj is really a transChild of this parent
+      if (!parent.transChildren || parent.transChildren.indexOf(gobj) < 0) {
+        console.log(
+          '%cCould not find ' + gobj.id + ' as a transChild of ' + parent.id,
+          errorStyle
+        );
+        graphOK = false;
+      }
+    }
+
+    function checkTransChild(gobj, child) {
+      // make sure gobj is really a transParent of this child
+      if (!child.transParent || child.transParent !== gobj) {
+        console.log(
+          '%cCould not find ' + gobj.id + ' as a transParent of ' + child.id,
           errorStyle
         );
         graphOK = false;
@@ -1273,10 +1419,10 @@ var TOOLS = (function() {
     }
 
     function checkCycle(startGobj, gobj) {
-      var retVal = cycleGobjs.length > 0,
+      let retVal = cycleGobjs.length > 0,
         topoError;
       // Return true if startGobj is a child of gobj. Otherwise search all children of gobj
-      // During recursion, verify that the topoligicalIndex of the child is greeater than the parent
+      // During recursion, verify that the topoligicalIndex of the child is greater than the parent
       $.each(gobj.children, function(index, child) {
         if (gobj.topologicalIndex > child.topologicalIndex) {
           topoError =
@@ -1314,7 +1460,7 @@ var TOOLS = (function() {
     }
 
     function checkConstraintListOrder() {
-      var ok = true,
+      let ok = true,
         curVal;
       $.each(sketch.gobjList.constraintList, function(key, gobj) {
         if (!curVal || gobj.topologicalIndex > curVal) {
@@ -1326,28 +1472,33 @@ var TOOLS = (function() {
       });
       if (!ok) {
         console.log(
-          '%c' + 'Constraint List is not in topological order.',
-          errorStyle
+          'Constraint List is not in topological order; this is not necessarily an error.'
         );
       }
     }
 
+    if (verbose) console.log('\nSKETCH GRAPH');
     $.each(gobjects, function(key, gobj) {
-      var parentList = '',
+      let parentList = '',
         roleList = '      ',
         childList = '',
+        transParentList,
+        transChildList = '',
         nParents = 0,
-        nChildren = 0;
+        nChildren = 0,
+        nTransChildren = 0,
+        label = '#' + gobj.id + ' ' + gobj.kind,
+        labelStyle = '';
+      if (gobj.label) {
+        label += ' %c' + gobj.label;
+        labelStyle = 'color: green; font-weight: 700;';
+      }
       if (verbose)
         console.log(
-          '#' + gobj.id,
-          ' ',
-          gobj.kind,
-          gobj.label ? '"' + gobj.label + '"' : '',
-          ' T' + gobj.topologicalIndex,
-          ' ',
+          label,
+          labelStyle,
+          'T' + gobj.topologicalIndex,
           gobj.constraint,
-          ' ',
           gobj
         );
       $.each(gobj.parentsList, function(index, par) {
@@ -1378,7 +1529,7 @@ var TOOLS = (function() {
         console.log(
           '  ',
           nParents,
-          nParents > 1 ? ' parents:' : ' parent',
+          nParents > 1 ? 'parents:' : 'parent',
           parentList
         );
       if (nParents && verbose) console.log('  roles: ', roleList);
@@ -1386,9 +1537,21 @@ var TOOLS = (function() {
         console.log(
           '  ',
           nChildren,
-          nChildren > 1 ? ' children:' : ' child',
+          nChildren > 1 ? 'children:' : 'child',
           childList
         );
+      if (gobj.transParent) {
+        transParentList = gobj.transParent.id;
+        checkTransParent(gobj.transParent);
+      }
+      if (gobj.transChildren) {
+        $.each(gobj.transChildren, function(index, transChild) {
+          nTransChildren += 1;
+          transChildList += ' #' + transChild.id;
+          checkTransChild(gobj, transChild);
+        });
+      }
+
       if (cycleGobjs.length === 0) {
         // start the check with gobj as the startGobj and walk down from all the children of gobj
         checkCycle(gobj, gobj);
@@ -1400,7 +1563,7 @@ var TOOLS = (function() {
     graphOK = graphOK && cycleGobjs.length === 0 && topoConflicts.length === 0;
     if (showTopo) {
       $.each(sketch.gobjList.constraintList, function(key, gobj) {
-        var topoLine;
+        let topoLine;
         topoLine =
           'T' +
           gobj.topologicalIndex +
@@ -1413,7 +1576,9 @@ var TOOLS = (function() {
           ' ' +
           gobj.constraint;
         $.each(gobj.children, function(key, child) {
-          if (key === 0) topoLine += '   children: ';
+          if (key === 0) {
+            topoLine += '   children: ';
+          }
           topoLine +=
             ' (T' +
             child.topologicalIndex +
@@ -1436,34 +1601,6 @@ var TOOLS = (function() {
     return graphOK;
   }
 
-  function getCanvas(selector) {
-    // selector is either a string identifying the id of the sketch_canvas,
-    // or a jQuery selector of a button or command in the same sketch_container as the sketch_canvas
-    let jqSel;
-    if (selector.anchorNode) {
-      return selector.anchorNode; // sketch
-    } else if (typeof selector === 'string') {
-      jqSel = selector[0] !== '.' && selector[0] !== '#' ? '#' : '';
-      jqSel += selector;
-      if ($(jqSel).hasClass('sketch_canvas')) {
-        return $(jqSel);
-      } else {
-        // selector must be a DOM node inside the sketch_container
-        return $(selector)
-          .parents('.sketch_container')
-          .find('.sketch_canvas');
-      }
-    }
-  }
-
-  function getSketch(selector) {
-    if (selector.anchorNode) {
-      return selector;
-    } else {
-      return getCanvas(selector).data('document').focusPage;
-    }
-  }
-
   function removeHiddenLabels(sketchOrSelector) {
     // selector is either a sketch or the id of a sketch_canvas
     const sketch = getSketch(sketchOrSelector),
@@ -1473,6 +1610,32 @@ var TOOLS = (function() {
         this.label = '';
       }
     });
+  }
+
+  function showGobjIds(sketchOrSelector) {
+    // selector is either a sketch or the id of a sketch_canvas
+    const sketch = getSketch(sketchOrSelector),
+      gobjects = sketch.gobjList.gobjects;
+    if (TOOLS.showIds) {
+      $.each(gobjects, function() {
+        if (this.label) {
+          this.state.oldLabel = this.label;
+          this.state.oldShowLabel = !this.style.label.hidden;
+          this.label = this.id;
+          this.style.label.hidden = false;
+        }
+      });
+    } else {
+      $.each(gobjects, function() {
+        if (this.state.oldLabel) {
+          this.label = this.state.oldLabel;
+        }
+        if (this.state.oldShowLabel) {
+          delete this.style.label.hidden;
+          this.style.label.hidden = this.state.oldShowLabel;
+        }
+      });
+    }
   }
 
   return {
@@ -1486,8 +1649,9 @@ var TOOLS = (function() {
       initLib('uToolList');
     },
 
-    loadLibraryTools: function(pattern) {
-      loadTools(pattern);
+    loadLibraryTools: function(collection) {
+      // collection is the subdirectory that contains the tool jsons to be loaded.
+      loadTools(collection);
     },
 
     insertPage: function(id, option) {
@@ -1499,7 +1663,9 @@ var TOOLS = (function() {
     },
 
     resetSketchWindowSize: function(id) {
-      if (!dragResizing) resetWindowSize('#' + id);
+      if (!dragResizing) {
+        resetWindowSize('#' + id);
+      }
     },
 
     insertToolInSketch: function(id, index) {
@@ -1518,12 +1684,16 @@ var TOOLS = (function() {
       scrollToSketch(listItem);
     },
 
-    checkSketchGraph: function(id, mode) {
-      return checkGraph(id, mode);
+    checkSketchGraph: function(sketchOrSelector, mode) {
+      return checkGraph(sketchOrSelector, mode);
     },
 
-    removeHiddenLabels: function(sketchOrSelector, mode) {
-      return removeHiddenLabels(sketchOrSelector, mode);
+    removeHiddenLabels: function(sketchOrSelector) {
+      return removeHiddenLabels(sketchOrSelector);
+    },
+
+    showGobjIds: function(sketchOrSelector) {
+      return showGobjIds(sketchOrSelector);
     },
 
     handleToolCheck: function(btn) {
@@ -1533,6 +1703,9 @@ var TOOLS = (function() {
 })();
 
 $(function() {
-  if ($('#libSketch').length) TOOLS.initLibrary();
-  else if ($('#loadSketches').length) TOOLS.initViewer();
+  if ($('#libSketch').length) {
+    TOOLS.initLibrary();
+  } else if ($('#loadSketches').length) {
+    TOOLS.initViewer();
+  }
 });
