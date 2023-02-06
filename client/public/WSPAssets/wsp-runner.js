@@ -748,14 +748,29 @@
     document.body.append(script);
   }
 
+  /* Possible replacement for isVisible(), per
+ * https://stackoverflow.com/questions/487073/how-to-check-if-element-is-visible-after-scrolling
+ * 
+  function isInView($target) { // Check whether the target is within the visible area
+    var viewTop = $(window).scrollTop();
+    var viewBottom = viewTop + $(window).height();
+
+    var elTop = $target.offset().top;
+    var elBottom = elTop + $target.height();
+
+    return ((elBottom <= viewBottom) && (elTop >= viewTop));
+  }
+*/
+
   function isVisible($target) {
-    var el = $target[0];
-    var rect;
-    var vWidth;
-    var vHeight;
-    if (!(el.offsetWidth > 0 || el.offsetHeight > 0)) {
-      return false;
-    }
+    var el = $target[0],
+      rect,
+      vWidth,
+      vHeight;
+    // We were getting false returns here for sketches within the viewport that need to be loaded.
+    //if (!(el.offsetWidth > 0 || el.offsetHeight > 0)) {
+    //  return false;
+    //}
     el = $target[0];
     rect = el.getBoundingClientRect();
     vWidth = window.innerWidth || document.documentElement.clientWidth;
