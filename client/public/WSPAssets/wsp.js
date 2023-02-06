@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230120232229
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.home/20230203063837
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -13876,33 +13876,38 @@
       
       // PageArrayPrefType determines which pages have a particular pref enabled.
       // The return value is a boolean that applies to the current page only
-      // The return value from getExplicitPref() is an array: either ["all"], ["none"],
-      // or an array of page numbers.
+      // Default values are 'all', 'none', or a comma-delimited list of page numbers.
+      // It's ok (though not recommended) to start and end the list with '[' and ']'.
       // To set a PageArrayPrefType: you can set it to either an array or a string.
       // Valid arrays are ["all"], ["none"], or an array of page numbers.
       // Valid strings are "all", "none", or a comma-delimited list of page numbers.
       // Note that the indices of the returned array are irrelevant. For instance,
       // if element #3 contains 5, the pref is enabled for page 5; it has no bearing on page 3. 
-      // Therefore use pages.includes (4) to determine whether page 4 is enabled.
-      PageArrayPrefType = { 
+      // Therefore use pages.includes (5) to determine whether page 5 is enabled.
+      PageArrayPrefType = {
         parse: function(raw) {
           var pages, i;
           if (typeof raw === "boolean")
-            {return raw ? ["all"] : ["none"];}
+            {return raw ? 'all' : 'none';}
           else if (Array.isArray(raw))
             {return raw;}
-          else if (typeof raw !== "string")
+          else if (typeof raw !== 'string')
             { return null;}
-          else if (raw.toLowerCase() === 'all' || raw.toLowerCase() === 'true') 
-            { return ['all'];}
-          else if (raw.toLowerCase() === 'none' || raw.toLowerCase() === 'false') 
-            { return ['none'];}
-          else {
-            pages = raw.split (',');
-            for (i = 0; i < pages.length; i+=1)
-              { pages[i] = pages[i].toString();}  // page id's are always strings
-            return pages;
+          else {  // it's a string
+            if (raw[0] === '[' && raw[raw.length - 1] === ']') { // the string might be delimited by square brackets
+              raw = raw.substring(1, raw.length -1);
             }
+            raw = raw.toLowerCase().replace(/\s/g,""); // make lower case; remove spaces
+            if (raw === 'all' || raw === 'true') 
+              { return 'all';}
+            else if (raw === 'none' || raw === 'false') 
+              { return 'none';}
+            pages = raw.split (',');
+            for (i = 0; i < pages.length; i+=1) {
+              pages[i] = pages[i].toString();  // page id's are always strings
+            }
+            return pages;
+          }
         }
       },
       
@@ -13922,7 +13927,7 @@
       authorPreferenceSpecs = { // use lowercase identifiers so that user prefs are case-insensitive
         tool: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // tools appear on all pages by default
+          defaultValue: 'all' // tools appear on all pages by default
         },
         disablescrolling: {
           type: BoolPrefType,
@@ -13950,31 +13955,31 @@
         },
         enablelabelediting: {
           type: PageArrayPrefType,
-          defaultValue: ['none']  // old-style (non-widget) label editing is off by default
+          defaultValue: 'none'  // old-style (non-widget) label editing is off by default
         },
         enabletracing: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // enableTracing is true by default
+          defaultValue: 'all' // enableTracing is true by default
         },
         stylewidget: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // all pages enable the style widget, because widgets are enabled only via an exporter checkbox; perhaps should be 'none' if widgets become integrated into main code.
+          defaultValue: 'all' // all pages enable the style widget, because widgets are enabled only via an exporter checkbox; perhaps should be 'none' if widgets become integrated into main code.
         },
         visibilitywidget: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // all pages enable the visibility widget
+          defaultValue: 'all' // all pages enable the visibility widget
         },
         labelwidget: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // all pages enable the label widget
+          defaultValue: 'all' // all pages enable the label widget
         },
         tracewidget: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // all pages enable the trace widget
+          defaultValue: 'all' // all pages enable the trace widget
         },
         deletewidget: {
           type: PageArrayPrefType,
-          defaultValue: ['none'] // no pages enable the delete widget (for compatibility with old sketches)
+          defaultValue: 'none' // no pages enable the delete widget (for compatibility with old sketches)
         },
         showwidgetpanelonpagestart: {
           type: BoolPrefType,
@@ -13991,7 +13996,7 @@
         },
         resetbutton: {
           type: PageArrayPrefType,
-          defaultValue: ['all']  // include a reset button beneath the sketch
+          defaultValue: 'all'  // include a reset button beneath the sketch
         },
         wsplogo: {
           type: BoolPrefType,
@@ -14007,11 +14012,11 @@
         },
         enabledragmerging: {
           type: PageArrayPrefType,
-          defaultValue: ['all']  // drag merging should be on by default
+          defaultValue: 'all'  // drag merging should be on by default
         },
         undoredoinbuttonbar: {
           type: PageArrayPrefType,
-          defaultValue: ['none']  // none until we vet the UI.
+          defaultValue: 'none'  // none until we vet the UI.
         }      
       };
   
@@ -14164,15 +14169,19 @@
                         : String(iIndex+1);
         return pageId;
       },
+      
+      // Given iPageId, find the index of the page with this id in docSpec.pages[]
+      // The input (iPageId) is a string; the output is a numeric index into the array
       getIndexForPageId: function(iPageId) {
-        if(this.docSpec.pages) {
+        if (this.docSpec.pages) {
           var pageSpec, pageIndex, pageId;
-          for(pageIndex = 0; pageIndex < this.docSpec.pages.length; pageIndex++){
+          for (pageIndex = 0; pageIndex < this.docSpec.pages.length; pageIndex++) {
             pageSpec = this.docSpec.pages[pageIndex];
-            pageId = (pageSpec && pageSpec.metadata && (pageSpec.metadata.id != null)) ?
-                      pageSpec.metadata.id :
-                      String(pageIndex+1);
-            if( pageId === iPageId) {
+            pageId = GSP._get(pageSpec, 'metadata,id');
+            if (pageId === undefined) {
+              pageId = String(pageIndex + 1);
+            }
+            if (pageId === iPageId) {
               return pageIndex;
             }
           }
@@ -14652,40 +14661,60 @@
       },
   
       initMetadata: function() { this.metadata = $.extend( true, {}, this.docSpec.metadata); },
-  
-      // Should we have a standard setAuthorPreference that parses values before storing them?
-      // Then we wouldn't need to check the values by parsing them when a caller gets them.
       
-      getAuthorPreference: function(prefName, optionalCurPageId) {
-        // Returns the author preference (true, false, a string, or a pageArray).
+      cleanPrefName: function(prefName) { // pref keys are lower case with no spaces
+        return prefName.toLowerCase().replace(/\s/g,"");
+      },
+      
+      prefSpecFromName: function(prefName) {
+        // All tool prefs use the tool spec.
+        return authorPreferenceSpecs[prefName.match (/tool$/) ? 'tool' : prefName];
+      },
+  
+      getAuthorPreference: function(iPrefName, optionalCurPageId) {
+        // Returns the author preference: a boolean, a string, or a pageArray.
         // For a pageArray, if an optionalCurPage is provided, return true if that page is in the array.
         // If optionalCurPage is not provided, return the entire array of page id's.
-  
-        var lowerCasePrefName = prefName.toLowerCase(),
-            isToolPref = lowerCasePrefName.match (/tool$/),
-            prefSpec = authorPreferenceSpecs[isToolPref ? 'tool' : lowerCasePrefName],
+        // We now standardize metadata.authorPreferences by parsing values before storing them.
+        // Thus we no longer need to check values by parsing them when a caller gets them.
+        
+        var prefName = this.cleanPrefName(iPrefName),
+            prefSpec = this.prefSpecFromName(prefName),
             curPage,
             prefType,
             prefDefaultValue,
             explicitPref,
-            value;
+            value,
+            pages = this.pages || this.docSpec.pages; // If called before pages is instantiated, use docSpec.pages
   
+        // Once the below error is thrown on an unknown author pref, change this error to a console.log and fail gracefully.
+        if (prefName !== this.cleanPrefName(prefName)) throw GSP.createError("prefName " + prefName + " was not cleaned.");
         if (!prefSpec) throw GSP.createError("unknown author preference");
         curPage = optionalCurPageId || GSP._get(this, 'focusPage.metadata.id');
-        if (!curPage) throw GSP.createError("getAuthorPreference called ");
-  
+        if (!curPage) throw GSP.createError("getAuthorPreference called with no sketch page available");
         prefType = prefSpec.type;
         if (!prefType) throw GSP.createError("Bad author preference type");
-  
         prefDefaultValue = prefSpec.defaultValue;
         if (prefDefaultValue === undefined) throw GSP.createError("Bad author preference default");
+        if (prefSpec.type.parse(prefDefaultValue) !== prefDefaultValue) throw GSP.createError("Bad author preference default");
   
-        explicitPref = this.getExplicitPref (lowerCasePrefName, prefSpec);
+        explicitPref = this.getExplicitPref (prefName);
         value = explicitPref.exists ? explicitPref.value : prefDefaultValue;
-        if (Array.isArray(value)) {   // PageArrayPrefType
+        if (prefType === PageArrayPrefType) {
           if (optionalCurPageId) { // Return true or false for the designated page
-            return value.includes('all') || value.includes(curPage);
-          } else {  // Return the entire array 
+            return value === 'all' || value.indexOf(curPage) >= 0;
+          } else {  // Return the value: a page array containing all pages or none
+            if (!Array.isArray(value) && value !== 'all' && value !=='none') {
+              throw GSP.createError("Bad return for getAuthorPreference");
+            }
+            if (value === 'none') {
+              value = [];
+            } else if (value === 'all') {
+              value = [];
+              $.each(pages, function() {
+                value.push(this.metadata.id);
+              });
+            }
             return value;
           }
         } else {
@@ -14693,17 +14722,18 @@
         }
       },
       
-      // lowerCasePrefName: the name of an authorPref.
+      // prefName: the name of an authorPref. (We depend on cleanPrefs() to have cleaned the sketch's prefs)
       // spec: the authorPreferenceSpec for this pref.
       // Return value is an object: {exists: boolean, value: current pref value}
-      // If exists if false, the value returned is the default value for this pref.
-      getExplicitPref: function(lowerCasePrefName, spec) {
+      // If exists is false, the returned value is the default value for this pref.
+      getExplicitPref: function(prefName) {
         var key, test, retVal,
-            prefName = lowerCasePrefName.toLowerCase().replace(/\s/g,""),
+            spec = this.prefSpecFromName(prefName),
             authorPrefs = this.metadata.authorPreferences;
-            
+  
         // Do some error checking to determine whether such a pref exists and
         // to determine whether its value is of an appropriate type.
+        // ALSO CHECK TO MAKE SURE THE PREF IS ALREADY PARSED.
         // (All keys in authorPreferences should be lower-case without spaces,
         // as should the sketch metadata keys.
         for (key in authorPrefs) {
@@ -14724,7 +14754,7 @@
       
       authorPreferenceIsExplicitlySet: function(prefName) {
         var authorPrefs = this.metadata.authorPreferences;
-        return authorPrefs && authorPrefs[prefName.toLowerCase()] !== undefined;
+        return authorPrefs && authorPrefs[this.cleanPrefName(prefName)] !== undefined;
       },
   
       setLocale: function(locale) {  // If a locale is passed, use it; otherwise sniff the browser
@@ -14764,8 +14794,8 @@
         var pageIndex, pageId, pageSpec;
         
   
-        function cleanPrefs() { // clean the names and values of the author prefs
-          var prefs = docSpec.authorPreferences;
+        function cleanPrefs() { // clean the names and values of the docSpec's author prefs
+          var prefs = docSpec.metadata.authorPreferences;
           if (prefs) {
             $.each(prefs, function (oldKey, oldValue) { // lowercase and strip spaces from the key
               var newKey, prefSpec, isToolPref;
@@ -14776,8 +14806,9 @@
               }
               isToolPref = newKey.match (/tool$/);
               prefSpec = authorPreferenceSpecs[isToolPref ? 'tool' : newKey];
-              if (prefSpec.parse) {
-                prefs[newKey] = prefSpec.parse(oldValue);
+              // Make sure prefSpec exists; for instance, 'widgets' might be an authorPref, but only individual widgets have prefSpecs
+              if (prefSpec && prefSpec.type.parse) {
+                prefs[newKey] = prefSpec.type.parse(oldValue);
               }
             });
           }
@@ -16937,9 +16968,10 @@
         GSP.logPerf(this.monitor.report(this.getName(), 'final'));
       },
       getAuthorPreference: function(prefName) {
-        var pref = this.document.getAuthorPreference(prefName);
+        var pageId = this.metadata.id,
+            pref = this.document.getAuthorPreference(prefName, pageId);
         if (Array.isArray (pref)) { // Array prefs are assumed to be page arrays or "all"
-          return pref[0] === "all" || pref.indexOf (parseInt (this.metadata.id, 10)) >= 0;
+          return pref[0] === "all" || pref.indexOf (pageId) >= 0;
         } else {
           return pref;
         }
@@ -44293,12 +44325,9 @@
         var gobj = this.gobj,
             sketch = this.sketch,
             self = this;
-        var pageNum, thePref;  // label-editing prefs are arrays: ['all'], ['none'], or [<page numbers>]
   
-        if (!gobj.canEditLabel()) return; // wait forever for a drag
-        thePref = sketch.document.getAuthorPreference ("enablelabelediting");
-        pageNum = parseInt (sketch.metadata.id, 10);
-        if (thePref[0]==='none' || !(thePref.includes(pageNum) || thePref[0] ==='all')) return; // wait forever for a drag
+        if (!gobj.canEditLabel() ||
+            !sketch.getAuthorPreference ("enablelabelediting")) return; // wait forever for a drag
   
         function checkForLongPress() {
           if (!self.touchIsInProgress ||
