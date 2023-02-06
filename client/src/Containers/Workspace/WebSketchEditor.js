@@ -50,13 +50,13 @@ const WebSketchEditor = (props) => {
     };
   }, []);
 
-  // Handle new Events- escapes initialization scope
-  // useEffect(() => {
-  //   recordGobjUpdate(activityUpdates);
-  // }, [activityUpdates]);
-
+  useEffect(() => {
+    // recordGobjUpdate(activityUpdates);
+    debouncedUpdate();
+  }, [activityUpdates]);
   // Storage API functions
   const debouncedUpdate = useCallback(debounce(putState, 250), []);
+
   async function fetchTools() {
     fetch(
       'https://geometricfunctions.org/fc/tools/library/basic/',
@@ -95,9 +95,119 @@ const WebSketchEditor = (props) => {
       });
   }
 
+  const getSketch = () => {
+    // Call this whenever the sketch doc may have changed.
+    // e.g., page changes, start of toolplay, undo/redo, etc.
+    if (!$sketch) {
+      $sketch = $('#libSketch');
+    }
+    sketchDoc.current = $sketch.data('document');
+    sketch = sketchDoc && sketchDoc.focusPage;
+    if (!sketch) {
+      console.error('getSketch() failed to find the sketch.');
+    }
+    return sketch;
+  };
+
+  // establish listeners
+  const syncToFollower = () => {
+    // We must be specific to avoid disconnecting other handlers for page changes, toolplay, etc.
+    const handlers = [
+      { event: 'WillChangeCurrentPage.WSP', handler: reflectMessage },
+      { event: 'DidChangeCurrentPage.WSP', handler: reflectAndSync },
+      { event: 'StartDragConfirmed.WSP', handler: reflectMessage },
+      { event: 'EndDrag.WSP', handler: reflectMessage },
+      { event: 'EndLabelDrag.WSP', handler: reflectMessage },
+      { event: 'WillPlayTool.WSP', handler: reflectMessage },
+      { event: 'ToolPlayed.WSP', handler: reflectAndSync },
+      { event: 'ToolPlayBegan.WSP', handler: syncGobjUpdates }, // Tool objects are instantiated, so track them
+      { event: 'ToolAborted.WSP', handler: reflectAndSync },
+      { event: 'MergeGobjs.WSP', handler: reflectAndSync },
+      { event: 'WillUndoRedo.WSP', handler: reflectMessage },
+      { event: 'UndoRedo.WSP', handler: reflectAndSync },
+      { event: 'StyleWidget.WSP', handler: reflectMessage },
+      { event: 'TraceWidget.WSP', handler: reflectMessage },
+      { event: 'LabelWidget.WSP', handler: reflectMessage },
+      { event: 'VisibilityWidget.WSP', handler: reflectMessage },
+      { event: 'DeleteWidget.WSP', handler: reflectAndSync },
+      // We now use a single EditExpression message type for editing param, calc, and function gobjs
+      { event: 'EditExpression.WSP', handler: reflectMessage },
+      { event: 'ClearTraces.WSP', handler: reflectMessage },
+      { event: 'PrefChanged.WSP', handler: reflectMessage },
+      { event: 'ActivateButton.WSP', handler: reflectMessage },
+    ];
+    handlers.forEach((el) => {
+      $sketch.off(el.event, el.handler);
+    });
+    handlers.forEach((el) => {
+      $sketch.on(el.event, el.handler);
+    });
+    // getSketch();  // Required after toolplay, undo/redo, and page changes
+    // establish listeners on sketch objects, to include pointsOnPath
+    syncGobjUpdates();
+  };
+
+  const reflectMessage = (event, context, attr) => {
+    // SS: removed timeout, to make sure the follower is updated right away before any subsequent drags
+    // const msgAttr = JSON.stringify(attr);
+    let sender;
+    let canvasNode;
+    if (context && context.document) {
+      canvasNode = context.document.canvasNode[0];
+      sender = { id: canvasNode.id, baseURI: canvasNode.baseURI };
+    }
+    const msg = {
+      name: event.type,
+      time: event.timeStamp,
+      sender,
+      attr,
+    };
+    // if (BUTTON_TRACKING && GSP._get(context, 'gobj.kind') === 'Button') {
+    //  let gobj = context.gobj, action = gobj.state.isActive ? 'activated ' : 'deactivated ';
+    //  console.log("Main " + action + gobj.label + " button (" + gobj.id + ").");
+    //}
+    // msg is ready to post to follower
+    setActivityData(msg);
+  };
+
+  // send msg and then reestablish listeners, could possibly be done for all events
+  const reflectAndSync = (event, context, attr) => {
+    reflectMessage(event, context, attr);
+    getSketch();
+    // sketch = sketchDoc.focusPage;
+    syncToFollower();
+  };
+
+  const syncGobjUpdates = () => {
+    // We need to record updates for a limited set of objects; here's the list:
+    // gobj.constraint === 'Free' (dragging can change [geom.loc] of free points, parameters, calculations, functions, pictures)
+    // gobj.isFreePointOnPath     (dragging can change [geom.loc] of a point-on-path)
+    // gobj.kind === 'Expression' (dragging a param, calc, or fn can change[geom.loc]; editing can change [infix])
+    // gobj.kind === 'Button' (dragging can change[geom.loc]; drag-merging can change [parents])
+    // gobj.kind === 'DOMKind' (dragging a table or text gobj can change [geom.loc])
+    const updateSel =
+      'Expression,Button,DOMKind,[constraint="Free"],[isFreePointOnPath=true]';
+    let gobjsToUpdate;
+    checkGraph();
+    getSketch(); // Make sure we use the current sketch
+    if (!sketch || !sketch.gobjList || sketch.gobjList.gobjects === null) {
+      console.log('syncGobjUpdates found no gobjs to track.');
+      getSketch();
+      const defaultGobjsList = {
+        gobjects: {},
+        constraintList: [],
+        renderList: [],
+      };
+      sketch.gobjList.gobjects = defaultGobjsList;
+    } else {
+      gobjsToUpdate = sketch.sQuery(updateSel);
+      gobjsToUpdate.on('update', setActivityUpdates);
+    }
+  };
+
   function putState() {
     const { tab, activity, updateActivityTab } = props;
-    if (!sketchDoc.current) {
+    if (!sketchDoc.current && window.jQuery) {
       // console.log('Setting sketc doc');
       const sketchEl = window.jQuery('#libSketch');
       sketchDoc.current = sketchEl.data('document');
@@ -198,6 +308,7 @@ const WebSketchEditor = (props) => {
             id="newPage"
             value="New Page"
             onClick={() => {
+              console.log("Adding a new page via 'new'");
               checkGraph();
               window.TOOLS.insertPage('libSketch', 'new');
             }}
@@ -310,6 +421,7 @@ const WebSketchEditor = (props) => {
       window.PAGENUM.initPageControls();
       window.UTILMENU.initUtils();
       loadSketchDoc(getSketchConfig(tab));
+      syncToFollower();
     } else {
       const pollDOM = () => {
         isWidgetLoaded =
@@ -317,6 +429,7 @@ const WebSketchEditor = (props) => {
         console.log('Widgets recheck: ', isWidgetLoaded);
         if (isWidgetLoaded) {
           loadSketchDoc(getSketchConfig(tab));
+          syncToFollower();
         } else {
           setTimeout(pollDOM, 100); // try again in 100 milliseconds
         }
