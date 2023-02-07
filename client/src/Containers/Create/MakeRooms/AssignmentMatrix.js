@@ -11,7 +11,7 @@ const AssignmentMatrix = (props) => {
   const keys = [
     { ...defaultOption },
     { label: 'Name a-z', value: { key: 'username', direction: 'ascending' } },
-    { label: 'Name z-a', value: { key: 'username', direction: 'descending' } },
+    // { label: 'Name z-a', value: { key: 'username', direction: 'descending' } },
     { label: 'By course', value: { key: 'course', direction: 'ascending' } },
     { label: 'By room', value: 'rooms' },
   ];
