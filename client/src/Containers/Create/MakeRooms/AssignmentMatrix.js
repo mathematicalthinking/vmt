@@ -19,6 +19,7 @@ const AssignmentMatrix = (props) => {
   const [participantsToDisplay, setParticipantsToDisplay] = useState(
     allParticipants
   );
+  const [selection, setSelection] = useState(defaultOption);
 
   // put username at top level
 
@@ -30,19 +31,31 @@ const AssignmentMatrix = (props) => {
     }))
   );
 
+  React.useEffect(() => {
+    setParticipantsToDisplay(allParticipants);
+  }, [allParticipants]);
+
+  React.useEffect(() => {
+    setParticipantsToDisplay(sortedParticipants);
+  }, [JSON.stringify(sortedParticipants)]);
+
+  React.useEffect(() => {
+    if (selection.value === 'rooms') handleSort(selection);
+  }, [roomDrafts]);
+
   const handleSort = (selectedOption) => {
+    setSelection(selectedOption);
     if (selectedOption.value === 'rooms') {
       // sort by rooms
       const mems = roomDrafts.map((room) => room.members).flat();
       const uniqueParticipants = Object.values(
-        mems.reduce((acc, curr) => {
+        mems.concat(participantsToDisplay).reduce((acc, curr) => {
           return { ...acc, [curr.user._id]: curr };
         }, {})
       );
       setParticipantsToDisplay(uniqueParticipants);
     } else {
       resetSort(selectedOption.value);
-      setParticipantsToDisplay(sortedParticipants);
     }
   };
 
