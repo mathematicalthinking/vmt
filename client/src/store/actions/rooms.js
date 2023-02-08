@@ -397,8 +397,17 @@ export const updateRoom = (id, body) => {
 };
 
 export const archiveRooms = (ids) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     ids.forEach((id) => {
+      // remove room from course & activity (template) if needed
+      const room = { ...getState().rooms.byId[id] };
+      if (room.course) {
+        dispatch(removeCourseRoom(room.course, id));
+      }
+      if (room.activity) {
+        dispatch(removeActivityRoom(room.activity, id));
+      }
+
       dispatch(addRoomToArchive(id));
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
