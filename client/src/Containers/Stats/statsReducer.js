@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import { max } from 'd3';
-import moment from 'moment';
 import { processData, processCourseData, dateFormatMap } from './stats.utils';
 
 export const initialState = {
@@ -55,8 +54,8 @@ export default (state = initialState, action) => {
         filteredData,
         rawDuration,
         durationDisplay,
-        startDateF: moment.unix(start / 1000).format(dateFormatMap[units]),
-        endDateF: moment.unix(end / 1000).format(dateFormatMap[units]),
+        startDateF: dateFormatMap[units](start),
+        endDateF: dateFormatMap[units](end),
         startTime: start,
         currentStartTime: start,
         endTime: end,
@@ -185,10 +184,8 @@ export default (state = initialState, action) => {
         maxY: newMaxY,
         currentStartTime: parseInt(start, 10),
         currentEndTime: parseInt(end, 10),
-        startDateF: moment
-          .unix(newStartTime / 1000)
-          .format(dateFormatMap[units]),
-        endDateF: moment.unix(newEndTime / 1000).format(dateFormatMap[units]),
+        startDateF: dateFormatMap[units](newStartTime),
+        endDateF: dateFormatMap[units](newEndTime),
       };
     }
 
@@ -225,8 +222,8 @@ export default (state = initialState, action) => {
         filteredData,
         rawDuration,
         durationDisplay,
-        startDateF: moment.unix(start / 1000).format(dateFormatMap[units]),
-        endDateF: moment.unix(end / 1000).format(dateFormatMap[units]),
+        startDateF: dateFormatMap[units](start),
+        endDateF: dateFormatMap[units](end),
         startTime: start,
         currentStartTime: start,
         endTime: end,

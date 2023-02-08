@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import moment from 'moment';
+import { dateAndTime } from 'utils';
 import classes from './dashboardContentBox.css';
 import Icons from './Icons/Icons';
 import Aux from '../../HOC/Auxil';
-import Expand from './expand';
 
 class DashboardContentBox extends PureComponent {
   state = {
@@ -110,7 +109,7 @@ class DashboardContentBox extends PureComponent {
             <div className={classes.Title} data-testid="">
               {title}
               <span className={classes.TimeStamp}>
-                {moment(details.updatedAt).format('YYYY-MM-DD hh:mm:ss a')}
+                {dateAndTime.toDateTimeString(details.updatedAt)}
               </span>
             </div>
           </div>

@@ -491,7 +491,7 @@ class Workspace extends Component {
       room: populatedRoom._id,
       messageType: 'SWITCH_TAB',
       color: myColor,
-      timestamp: new Date().getTime(),
+      timestamp: Date.now(),
     };
     socket.emit('SWITCH_TAB', data, (res, err) => {
       if (err) {
@@ -892,7 +892,7 @@ class Workspace extends Component {
       tab: currentTabId,
       color: myColor,
       user: { _id: user._id, username: user.username },
-      timestamp: new Date().getTime(),
+      timestamp: Date.now(),
     };
 
     if (currentScreen) eventData.currentScreen = currentScreen;

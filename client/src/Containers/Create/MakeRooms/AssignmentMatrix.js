@@ -1,8 +1,94 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select';
+import { useSortableData } from 'utils';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
+  const { allParticipants, roomDrafts, ...otherProps } = props;
+
+  const defaultOption = { label: 'Sort...', value: [] };
+  const keys = [
+    { ...defaultOption },
+    { label: 'Name a-z', value: { key: 'username', direction: 'ascending' } },
+    // { label: 'Name z-a', value: { key: 'username', direction: 'descending' } },
+    { label: 'By course', value: { key: 'course', direction: 'ascending' } },
+    { label: 'By room', value: 'rooms' },
+  ];
+
+  const [participantsToDisplay, setParticipantsToDisplay] = useState(
+    allParticipants
+  );
+  const [selection, setSelection] = useState(defaultOption);
+
+  // put username at top level
+
+  const { items: sortedParticipants, resetSort } = useSortableData(
+    allParticipants.map((mem) => ({
+      course: 'dummy',
+      ...mem,
+      username: mem.user.username,
+    }))
+  );
+
+  React.useEffect(() => {
+    setParticipantsToDisplay(allParticipants);
+  }, [allParticipants]);
+
+  React.useEffect(() => {
+    setParticipantsToDisplay(sortedParticipants);
+  }, [JSON.stringify(sortedParticipants)]);
+
+  React.useEffect(() => {
+    if (selection.value === 'rooms') handleSort(selection);
+  }, [roomDrafts]);
+
+  const handleSort = (selectedOption) => {
+    setSelection(selectedOption);
+    if (selectedOption.value === 'rooms') {
+      // sort by rooms
+      const mems = roomDrafts.map((room) => room.members).flat();
+      const uniqueParticipants = Object.values(
+        mems.concat(participantsToDisplay).reduce((acc, curr) => {
+          return { ...acc, [curr.user._id]: curr };
+        }, {})
+      );
+      setParticipantsToDisplay(uniqueParticipants);
+    } else {
+      resetSort(selectedOption.value);
+    }
+  };
+
+  // set up what we are going to sort on
+  return (
+    <div style={{ width: '100%', height: '100%' }}>
+      <div style={{ width: '25%', zIndex: '999', position: 'relative' }}>
+        <Select
+          options={keys.map((key) => ({
+            label: key.label,
+            value: key.value,
+          }))}
+          onChange={handleSort}
+          isSearchable={false}
+        />
+      </div>
+      <TheMatrix
+        allParticipants={participantsToDisplay}
+        roomDrafts={roomDrafts}
+        {...otherProps}
+      />
+    </div>
+  );
+};
+
+AssignmentMatrix.propTypes = {
+  allParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  roomDrafts: PropTypes.arrayOf(
+    PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) })
+  ).isRequired,
+};
+
+const TheMatrix = (props) => {
   const {
     allParticipants,
     requiredParticipants,
@@ -226,7 +312,7 @@ const AssignmentMatrix = (props) => {
   );
 };
 
-AssignmentMatrix.propTypes = {
+TheMatrix.propTypes = {
   allParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
@@ -238,7 +324,7 @@ AssignmentMatrix.propTypes = {
   onAddParticipants: PropTypes.func,
 };
 
-AssignmentMatrix.defaultProps = {
+TheMatrix.defaultProps = {
   canDeleteRooms: true,
   onAddParticipants: null,
 };

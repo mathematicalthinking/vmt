@@ -152,13 +152,15 @@ const ResourceList = ({
       handleArchive(id);
     },
     icon: (
-      <span
-        className={`material-symbols-outlined ${classes.CustomIcon}`}
-        data-testid="Archive"
-        style={{ fontSize: '23px' }}
-      >
-        input
-      </span>
+      <ToolTip text="Archive" delay={600}>
+        <span
+          className={`material-symbols-outlined ${classes.CustomIcon}`}
+          data-testid="Archive"
+          style={{ fontSize: '23px' }}
+        >
+          input
+        </span>
+      </ToolTip>
     ),
   };
 
@@ -172,9 +174,11 @@ const ResourceList = ({
       },
       // icon: <i className="fas fa-external-link-alt" />,
       icon: (
-        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-          open_in_new
-        </span>
+        <ToolTip text="Preview" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            open_in_new
+          </span>
+        </ToolTip>
       ),
     },
     {
@@ -184,9 +188,11 @@ const ResourceList = ({
         goToReplayer(id);
       },
       icon: (
-        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-          replay
-        </span>
+        <ToolTip text="Replayer" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            replay
+          </span>
+        </ToolTip>
       ),
     },
     {
@@ -197,12 +203,18 @@ const ResourceList = ({
         handleArchive(id);
       },
       icon: (
-        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-          input
-        </span>
+        <ToolTip text="Archive" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            input
+          </span>
+        </ToolTip>
       ),
     },
   ];
+
+  const customIconsBoxList = [...customIcons].filter(
+    (icon) => icon.title !== 'Archive'
+  );
 
   // create a handle multiple fn that calls this fn
   // get rid of singleResource
@@ -374,6 +386,7 @@ const ResourceList = ({
                 resource={resource}
                 listType="private"
                 parentResourec={parentResource}
+                icons={customIconsBoxList}
                 // draggable
               />
             </div>
@@ -468,8 +481,43 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
 
   const previousSearch = useRef({
     criteria: sortConfig.criteria || '',
-    filter: sortConfig.filter,
+    filter: {
+      ...sortConfig.filter,
+      filterFcn:
+        sortConfig.criteria && sortConfig.criteria !== ''
+          ? (item) =>
+              item.name &&
+              item.name
+                .toLowerCase()
+                .indexOf(sortConfig.criteria.toLowerCase()) > -1
+          : null,
+    },
   });
+
+  React.useEffect(() => {
+    if (sortConfig.criteria && sortConfig.criteria !== '') {
+      sortConfig.filter.filterFcn = (item) =>
+        item.name &&
+        item.name.toLowerCase().indexOf(sortConfig.criteria.toLowerCase()) > -1;
+    } else {
+      sortConfig.filter.filterFcn = null;
+    }
+  }, [sortConfig.criteria]);
+
+  React.useEffect(() => {
+    if (
+      previousSearch.current.criteria &&
+      previousSearch.current.criteria !== ''
+    ) {
+      previousSearch.current.filter.filterFcn = (item) =>
+        item.name &&
+        item.name
+          .toLowerCase()
+          .indexOf(previousSearch.current.criteria.toLowerCase()) > -1;
+    } else {
+      previousSearch.current.filter.filterFcn = null;
+    }
+  }, [previousSearch.current.criteria]);
 
   const optionForValue = (value) => {
     return timeFrameOptions.find((opt) => opt.value === value);
@@ -493,20 +541,12 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
         filter: {
           ...sortConfig.filter,
           timeframe: timeFrames.ALL,
-          filterFcn: (item) =>
-            item.name &&
-            item.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1,
         },
       });
     } else if (criteria !== '' && previousSearch.current.criteria !== '') {
       sortFn({
         criteria,
-        filter: {
-          ...sortConfig.filter,
-          filterFcn: (item) =>
-            item.name &&
-            item.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1,
-        },
+        filter: sortConfig.filter,
       });
     } else if (criteria === '' && previousSearch.current.criteria !== '') {
       sortFn({
@@ -600,6 +640,7 @@ SortUI.propTypes = {
     filter: PropTypes.shape({
       key: PropTypes.string,
       timeframe: PropTypes.string,
+      filterFcn: PropTypes.func,
     }),
   }),
 };

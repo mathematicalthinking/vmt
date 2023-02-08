@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { Button, TabTypes, CurrentMembers, Error, Loading } from 'Components';
 import { WorkspaceLayout } from 'Layout';
+import { dateAndTime } from 'utils';
 import ReplayerControls from './ReplayerControls';
 import ChatReplayer from './ChatReplayer';
 import Clock from './Clock';
@@ -138,9 +138,7 @@ class SharedReplayer extends Component {
     this.relativeDuration = relativeDuration;
     this.endTime = endTime;
     this.setState({
-      startTime: moment
-        .unix(this.updatedLog[0].timestamp / 1000)
-        .format('MM/DD/YYYY h:mm:ss A'),
+      startTime: dateAndTime.toDateTimeString(this.updatedLog[0].timestamp),
       currentMembers: [this.updatedLog[0].user],
       currentTabId: this.updatedLog[0].tab,
     });
@@ -203,9 +201,7 @@ class SharedReplayer extends Component {
           }
         }
         if (this.updatedLog[logIndex].synthetic) {
-          startTime = moment(nextEvent.timestamp).format(
-            'MM/DD/YYYY h:mm:ss A'
-          );
+          startTime = dateAndTime.toDateTimeString(nextEvent.timestamp);
           absTimeElapsed = 0;
         }
       }
