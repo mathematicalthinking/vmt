@@ -135,30 +135,26 @@ const TheMatrix = (props) => {
     select(roomList);
   };
 
-  // ======================= HANDLE WHEN A PERSON GETS CLICKED (ASSIGNED TO A ROOM) ===========================
+  // ======================= HANDLE WHEN A PERSON GETS CLICKED (ASSIGNED TO OR UNASSIGNED FROM A ROOM) ===========================
 
   const selectParticipant = (event, data) => {
     const { roomIndex } = data;
-    const user = {
+    const member = {
       // if there isn't a role or _id, provide default values
       role: 'participant',
-      _id: data.participant.user._id,
+      user: { _id: data.participant.user._id },
       ...data.participant,
     };
-
-    if (user._id && roomIndex >= 0) {
-      // create a deep copy of roomDrafts to avoid reference sharing
-      const roomsUpdate = JSON.parse(JSON.stringify(roomDrafts));
-      const index = checkUser(roomIndex, user);
-      if (index < 0) {
-        roomsUpdate[roomIndex].members.push({ ...user });
-      }
-      if (index >= 0) {
-        roomsUpdate[roomIndex].members.splice(index, 1);
-      }
-
-      select(roomsUpdate);
+    // create a deep copy of roomDrafts to avoid reference sharing
+    const roomsUpdate = JSON.parse(JSON.stringify(roomDrafts));
+    const index = checkUser(roomIndex, member.user);
+    if (index < 0) {
+      roomsUpdate[roomIndex].members.push({ ...member });
+    } else {
+      roomsUpdate[roomIndex].members.splice(index, 1);
     }
+
+    select(roomsUpdate);
   };
 
   const checkUser = (roomIndex, user) => {
