@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Loading, ToggleGroup } from 'Components';
 import { updateMonitorSelections } from 'store/actions';
 import { addUserRoleToResource } from 'store/utils';
-import { usePopulatedRooms } from 'utils';
+import { usePopulatedRooms, useUIState } from 'utils';
 import ResourceTables from './ResourceTables';
 import RoomsMonitor from './RoomsMonitor';
 import classes from './monitoringView.css';
@@ -18,17 +18,13 @@ import classes from './monitoringView.css';
  * whatever sorting and selection is done by the selection table takes precedence.
  */
 
-function MonitoringView({
-  userResources,
-  storedSelections,
-  user,
-  connectUpdateMonitorSelections,
-  notifications,
-}) {
+function MonitoringView({ userResources, user, notifications }) {
   const constants = {
     SELECT: 'Select',
     VIEW: 'View',
   };
+
+  const [storedSelections, setStoredSelections] = useUIState('monitoring', []);
 
   const _wasRecentlyUpdated = (room) => {
     // integrated logic to determine default rooms to view
@@ -80,7 +76,6 @@ function MonitoringView({
   const [selections, setSelections] = React.useState(
     _initializeSelections(userResources)
   );
-  const savedState = React.useRef(selections);
 
   const populatedRooms = usePopulatedRooms(roomIds, false, {
     refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
@@ -95,8 +90,7 @@ function MonitoringView({
   /**
    * EFFECTS THAT ARE USED TO PERSIST STATE AFTER UNMOUNT
    *
-   * Whenever the state we want to persist changes, update the savedState ref. When the component unmounts,
-   * save the state in the Redux store. Much preferred to alerting the Redux store of every little local state change.
+   * Whenever the state we want to persist changes, update the setStoredSelections.
    *
    * Right now, we save only the current selections. In the future, we might save:
    *  - width and height of each tile
@@ -106,14 +100,8 @@ function MonitoringView({
    */
 
   React.useEffect(() => {
-    savedState.current = selections;
+    setStoredSelections(selections);
   }, [selections]);
-
-  React.useEffect(() => {
-    return () => {
-      connectUpdateMonitorSelections(savedState.current);
-    };
-  }, []);
 
   if (populatedRooms.isError) return <div>There was an error</div>;
   if (!populatedRooms.isSuccess) return <Loading message="Getting the rooms" />;
@@ -142,7 +130,10 @@ function MonitoringView({
           }}
         />
       ) : (
-        <RoomsMonitor populatedRooms={populatedRooms.data} />
+        <RoomsMonitor
+          context="monitoring"
+          populatedRooms={populatedRooms.data}
+        />
       )}
     </div>
   );
@@ -152,18 +143,6 @@ MonitoringView.propTypes = {
   user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  storedSelections: PropTypes.shape({}),
-  connectUpdateMonitorSelections: PropTypes.func.isRequired,
 };
 
-MonitoringView.defaultProps = {
-  storedSelections: {},
-};
-
-const mapStateToProps = (state) => ({
-  storedSelections: state.rooms.monitorSelections,
-});
-
-export default connect(mapStateToProps, {
-  connectUpdateMonitorSelections: updateMonitorSelections,
-})(MonitoringView);
+export default MonitoringView;
