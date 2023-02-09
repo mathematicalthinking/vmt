@@ -35,8 +35,9 @@ const AssignmentMatrix = (props) => {
   }, [allParticipants]);
 
   React.useEffect(() => {
-    setParticipantsToDisplay(sortedParticipants);
-  }, [JSON.stringify(sortedParticipants)]);
+    if (selection.value !== 'rooms')
+      setParticipantsToDisplay(sortedParticipants);
+  }, [selection]);
 
   React.useEffect(() => {
     if (selection.value === 'rooms') handleSort(selection);

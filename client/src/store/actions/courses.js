@@ -179,6 +179,7 @@ export const inviteToCourse = (courseId, toUserId, toUserUsername, options) => {
   return (dispatch) => {
     dispatch(
       addCourseMember(courseId, {
+        ...options,
         user: { _id: toUserId, username: toUserUsername },
         role: options && options.guest ? 'guest' : 'participant',
       })

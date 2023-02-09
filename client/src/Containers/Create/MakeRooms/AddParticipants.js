@@ -46,7 +46,7 @@ const AddParticipants = (props) => {
     return () => debounceSearch.cancel();
   }, []);
 
-  const debounceSearch = debounce((text) => search(text), 10);
+  const debounceSearch = debounce((text) => search(text), 700);
 
   const search = (text) => {
     if (text.length > 0) {
@@ -64,14 +64,12 @@ const AddParticipants = (props) => {
 
           setInitialSearchResults(newSearchResults);
           setSearchResults(newSearchResults);
-          setSearchText(text);
         })
         .catch((err) => {
           console.log('err: ', err);
         });
     } else {
       setSearchResults([]);
-      setSearchText(text);
     }
   };
 
@@ -220,7 +218,10 @@ const AddParticipants = (props) => {
                   <div style={{ fontSize: '12px' }}>
                     <Search
                       data-testid="member-search"
-                      _search={debounceSearch}
+                      _search={(text) => {
+                        setSearchText(text);
+                        debounceSearch(text);
+                      }}
                       placeholder="search by username or email"
                       value={searchText}
                       isControlled
