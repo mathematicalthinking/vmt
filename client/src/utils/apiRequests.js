@@ -145,6 +145,7 @@ export default {
   grantAccess: (user, resource, resourceId, ntfType, options) => {
     return api.put(`/api/${resource}s/${resourceId}/add`, {
       members: {
+        ...options,
         user,
         role: options && options.role ? options.role : 'participant',
       },

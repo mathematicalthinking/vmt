@@ -495,16 +495,6 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
   });
 
   React.useEffect(() => {
-    if (sortConfig.criteria && sortConfig.criteria !== '') {
-      sortConfig.filter.filterFcn = (item) =>
-        item.name &&
-        item.name.toLowerCase().indexOf(sortConfig.criteria.toLowerCase()) > -1;
-    } else {
-      sortConfig.filter.filterFcn = null;
-    }
-  }, [sortConfig.criteria]);
-
-  React.useEffect(() => {
     if (
       previousSearch.current.criteria &&
       previousSearch.current.criteria !== ''
@@ -541,17 +531,25 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
         filter: {
           ...sortConfig.filter,
           timeframe: timeFrames.ALL,
+          filterFcn: (item) =>
+            item.name &&
+            item.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1,
         },
       });
     } else if (criteria !== '' && previousSearch.current.criteria !== '') {
       sortFn({
         criteria,
-        filter: sortConfig.filter,
+        filter: {
+          ...sortConfig.filter,
+          filterFcn: (item) =>
+            item.name &&
+            item.name.toLowerCase().indexOf(criteria.toLowerCase()) > -1,
+        },
       });
     } else if (criteria === '' && previousSearch.current.criteria !== '') {
       sortFn({
         criteria,
-        filter: previousSearch.current.filter,
+        filter: { ...previousSearch.current.filter, filterFcn: null },
       });
       previousSearch.current.criteria = '';
     }
