@@ -653,6 +653,7 @@ class Room extends Component {
                             click={this.updateRoom}
                             data-testid="save-room"
                             theme="Small"
+                            p="5px 10px"
                           >
                             Save
                           </Button>
@@ -665,7 +666,11 @@ class Room extends Component {
                             <i className="fas fa-trash-alt" />
                           </Button>
 
-                          <Button click={this.toggleEdit} theme="Cancel">
+                          <Button
+                            click={this.toggleEdit}
+                            theme="Cancel"
+                            p="5px 10px"
+                          >
                             Cancel
                           </Button>
                         </div>
