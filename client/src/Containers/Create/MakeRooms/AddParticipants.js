@@ -46,7 +46,7 @@ const AddParticipants = (props) => {
     return () => debounceSearch.cancel();
   }, []);
 
-  const debounceSearch = debounce((text) => search(text), 700);
+  const debounceSearch = debounce((text) => search(text), 1);
 
   const search = (text) => {
     if (text.length > 0) {
