@@ -9,7 +9,6 @@ const AssignmentMatrix = (props) => {
 
   const defaultOption = { label: 'Sort...', value: [] };
   const keys = [
-    { ...defaultOption },
     { label: 'Name a-z', value: { key: 'username', direction: 'ascending' } },
     // { label: 'Name z-a', value: { key: 'username', direction: 'descending' } },
     { label: 'By course', value: { key: 'course', direction: 'ascending' } },
@@ -61,16 +60,20 @@ const AssignmentMatrix = (props) => {
 
   // set up what we are going to sort on
   return (
-    <div style={{ width: '100%', height: '100%' }}>
+    <div style={{ width: '100%', maxHeight: '100%' }}>
       <div style={{ width: '25%', zIndex: '999', position: 'relative' }}>
-        <Select
-          options={keys.map((key) => ({
-            label: key.label,
-            value: key.value,
-          }))}
-          onChange={handleSort}
-          isSearchable={false}
-        />
+        <label htmlFor="sort">
+          <Select
+            options={keys.map((key) => ({
+              label: key.label,
+              value: key.value,
+            }))}
+            onChange={handleSort}
+            isSearchable={false}
+            defaultValue={defaultOption}
+            inputId="sort"
+          />
+        </label>
       </div>
       <TheMatrix
         allParticipants={participantsToDisplay}
