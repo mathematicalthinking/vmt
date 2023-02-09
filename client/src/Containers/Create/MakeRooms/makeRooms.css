@@ -6,7 +6,7 @@
   flex-flow: column;
   width: 100%;
   align-items: center;
-  height: 100%;
+  max-height: 100%;
   padding: 20px;
   z-index: 0;
 }
@@ -194,7 +194,7 @@
 
 .BottomButtons {
   padding-bottom: 5px;
-  border-bottom: 2px solid black;
+  border-bottom: 1px solid #ddd;
   width: 100%;
 }
 

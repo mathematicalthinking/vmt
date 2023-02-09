@@ -568,6 +568,7 @@ class Course extends Component {
                             click={this.updateCourse}
                             data-testid="save-course"
                             theme="Small"
+                            p="5px 10px"
                           >
                             Save
                           </Button>
@@ -578,7 +579,11 @@ class Course extends Component {
                           >
                             <i className="fas fa-trash-alt" />
                           </Button>
-                          <Button click={this.toggleEdit} theme="Cancel">
+                          <Button
+                            click={this.toggleEdit}
+                            theme="Cancel"
+                            p="5px 10px"
+                          >
                             Cancel
                           </Button>
                         </div>

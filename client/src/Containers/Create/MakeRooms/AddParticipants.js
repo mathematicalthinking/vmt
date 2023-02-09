@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable react/no-did-update-set-state */
-import React, { useState, Fragment } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 import SearchResults from 'Containers/Members/SearchResults';
 import { amIAFacilitator } from 'utils';
 import API from 'utils/apiRequests';
@@ -40,6 +41,12 @@ const AddParticipants = (props) => {
     shouldInviteMembersToCourse,
     setShouldInviteMembersToCourse,
   ] = useState(false);
+
+  useEffect(() => {
+    return () => debounceSearch.cancel();
+  }, []);
+
+  const debounceSearch = debounce((text) => search(text), 10);
 
   const search = (text) => {
     if (text.length > 0) {
@@ -213,7 +220,7 @@ const AddParticipants = (props) => {
                   <div style={{ fontSize: '12px' }}>
                     <Search
                       data-testid="member-search"
-                      _search={search}
+                      _search={debounceSearch}
                       placeholder="search by username or email"
                       value={searchText}
                       isControlled
