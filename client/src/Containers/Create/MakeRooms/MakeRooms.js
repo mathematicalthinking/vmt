@@ -388,7 +388,8 @@ const MakeRooms = (props) => {
           inviteToCourse(
             course._id,
             memToInvite.user._id,
-            memToInvite.user.username
+            memToInvite.user.username,
+            memToInvite
           )(dispatch);
         });
       }
