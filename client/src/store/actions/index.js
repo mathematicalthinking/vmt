@@ -56,7 +56,6 @@ export {
   inviteToRoom,
   addCourseRooms,
   removeCourseRooms,
-  updateMonitorSelections,
   createGrouping,
   restoreArchivedRoom,
   archiveRooms,

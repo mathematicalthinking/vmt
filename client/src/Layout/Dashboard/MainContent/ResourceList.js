@@ -450,11 +450,6 @@ ResourceList.propTypes = {
   }).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  // resourceState: PropTypes.shape({
-  //   facilitatorConfig: PropTypes.shape({}),
-  //   participantConfig: PropTypes.shape({}),
-  // }),
-  // setResourceState: PropTypes.func,
   selectableBoxList: PropTypes.bool,
   context: PropTypes.string,
 };
@@ -462,8 +457,6 @@ ResourceList.propTypes = {
 ResourceList.defaultProps = {
   parentResource: null,
   parentResourceId: null,
-  // resourceState: {},
-  // setResourceState: null,
   selectableBoxList: false,
   context: null,
 };

@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 import React, { useContext } from 'react';
 import html2canvas from 'html2canvas';
-import { chunk, debounce } from 'lodash';
+import chunk from 'lodash/chunk';
+import debounce from 'lodash/debounce';
 import { useQuery } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { API, buildLog } from 'utils';

@@ -1,9 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Loading, ToggleGroup } from 'Components';
-import { updateMonitorSelections } from 'store/actions';
 import { addUserRoleToResource } from 'store/utils';
 import { usePopulatedRooms, useUIState } from 'utils';
 import ResourceTables from './ResourceTables';
