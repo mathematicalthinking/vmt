@@ -43,7 +43,7 @@ const Archive = (props) => {
 
       <div className={classes.Container}>
         <div className={classes.Header}>
-          <h3 className={classes.Title}>
+          <h3 className={classes.Title} data-testid="archive-title">
             {/* Search for your archived Rooms and Courses */}
             Search your {totalNumberOfArchivedRooms} archived Rooms
           </h3>

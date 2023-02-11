@@ -104,6 +104,7 @@ const SelectableContentBox = (props) => {
                     role="button"
                     key={`icon-${icon.title}-${id}`}
                     style={{ margin: '0 .5rem', cursor: 'pointer' }}
+                    data-testid={`${icon.title}-button-${id}`}
                   >
                     {icon.icon}
                   </div>
