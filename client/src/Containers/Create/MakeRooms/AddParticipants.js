@@ -105,7 +105,7 @@ const AddParticipants = (props) => {
       return;
     setNewParticipants((prevState) => [
       ...prevState,
-      { ...member, role: 'participant' },
+      { ...member, role: member.role || 'participant' },
     ]);
 
     setSearchResults((prevState) =>
