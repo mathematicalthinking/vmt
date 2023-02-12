@@ -19,7 +19,14 @@ import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
-  const { participants, userId, onSubmit, onCancel, courseCheckbox } = props;
+  const {
+    participants,
+    userId,
+    onSubmit,
+    onCancel,
+    courseCheckbox,
+    originatingCourseId,
+  } = props;
 
   const userCoursesById = useSelector((state) => state.courses.byId);
 
@@ -90,14 +97,16 @@ const AddParticipants = (props) => {
   };
 
   const generateRosterSearchResults = (courses) => {
-    return courses.map((course) => ({
-      key: course._id,
-      label: course.name,
-      buttonLabel: addedCourse[course._id] ? 'Remove' : 'Add',
-      onClick: addedCourse[course._id]
-        ? removeRosterFromParticipantsList
-        : addParticipantFromRoster,
-    }));
+    return courses
+      .map((course) => ({
+        key: course._id,
+        label: course.name,
+        buttonLabel: addedCourse[course._id] ? 'Remove' : 'Add',
+        onClick: addedCourse[course._id]
+          ? removeRosterFromParticipantsList
+          : addParticipantFromRoster,
+      }))
+      .filter((generatedCourse) => generatedCourse.key !== originatingCourseId);
   };
 
   const addParticipant = (member) => {
@@ -110,7 +119,7 @@ const AddParticipants = (props) => {
       return;
     setNewParticipants((prevState) => [
       ...prevState,
-      { ...member, role: 'participant' },
+      { ...member, role: member.role || 'participant' },
     ]);
 
     setSearchResults((prevState) =>
@@ -323,6 +332,7 @@ AddParticipants.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   courseCheckbox: PropTypes.bool.isRequired,
+  originatingCourseId: PropTypes.string.isRequired,
 };
 
 export default AddParticipants;

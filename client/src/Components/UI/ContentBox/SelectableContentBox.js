@@ -128,30 +128,55 @@ const SelectableContentBox = (props) => {
             {details && expanded ? (
               <div className={classes.Expanded}>
                 {details.facilitators && details.facilitators.length > 0 ? (
-                  <div>
-                    Facilitators:{' '}
-                    {details.facilitators.map((facilitator) => facilitator)}
+                  <div className={classes.Facilitators}>
+                    <span className={classes.DetailsTitle}>Facilitators: </span>
+                    {details.facilitators.map((facilitator) => (
+                      <span
+                        key={`${facilitator}-${id}`}
+                        className={classes.FacilitatorsList}
+                      >
+                        {facilitator}{' '}
+                      </span>
+                    ))}
                   </div>
                 ) : null}
                 {details.sinceUpdated ? (
-                  <div>Updated: {details.sinceUpdated}</div>
+                  <div className={classes.ExpandedItemContainer}>
+                    <span className={classes.DetailsTitle}>Updated: </span>
+                    {details.sinceUpdated}
+                  </div>
                 ) : null}
                 {details.createdAt ? (
-                  <div>Created: {details.createdAt}</div>
+                  <div className={classes.ExpandedItemContainer}>
+                    <span className={classes.DetailsTitle}>Created: </span>
+                    {details.createdAt}
+                  </div>
                 ) : null}
                 {details.dueDate ? (
-                  <div>Due Date: {details.dueDate}</div>
+                  <div className={classes.ExpandedItemContainer}>
+                    <span className={classes.DetailsTitle}>Due Date: </span>
+                    {details.dueDate}
+                  </div>
                 ) : null}
                 {details.creator ? `Creator: ${details.creator}` : null}
                 {details.entryCode ? (
-                  <div>Entry Code: {details.entryCode}</div>
+                  <div className={classes.ExpandedItemContainer}>
+                    <span className={classes.DetailsTitle}>Entry Code: </span>
+                    {details.entryCode}
+                  </div>
                 ) : null}
                 {details.description ? (
-                  <div>Description: {details.description}</div>
+                  <div className={classes.ExpandedItemContainer}>
+                    <span className={classes.DetailsTitle}>Description: </span>
+                    {details.description}
+                  </div>
                 ) : null}
                 {tabTypesText && tabTypesText.length ? (
                   <div className={classes.TabTypes}>
-                    {typeKeyword}: {tabTypesText}
+                    <span className={classes.DetailsTitle}>
+                      {typeKeyword}:{' '}
+                    </span>
+                    {tabTypesText}
                   </div>
                 ) : null}
               </div>
