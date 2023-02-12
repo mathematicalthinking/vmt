@@ -1,6 +1,11 @@
 @value colors: '../../../colors.css';
 @value blue from colors;
 
+.AssignmentMatrixContainer {
+  width: 100%;
+  max-height: 100%;
+}
+
 .Container {
   display: flex;
   flex-flow: column;
@@ -291,4 +296,21 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+}
+
+.SortContainer {
+  position: relative;
+  z-index: 999;
+  width: 100%;
+}
+
+.SortText {
+  display: flex;
+  align-items: center;
+  width: 25%;
+}
+
+.SortSelection {
+  width: 100%;
+  margin-left: 1rem;
 }

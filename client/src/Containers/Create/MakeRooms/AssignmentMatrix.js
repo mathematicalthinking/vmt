@@ -61,19 +61,22 @@ const AssignmentMatrix = (props) => {
 
   // set up what we are going to sort on
   return (
-    <div style={{ width: '100%', maxHeight: '100%' }}>
-      <div style={{ width: '25%', zIndex: '999', position: 'relative' }}>
-        <label htmlFor="sort">
-          <Select
-            options={keys.map((key) => ({
-              label: key.label,
-              value: key.value,
-            }))}
-            onChange={handleSort}
-            isSearchable={false}
-            defaultValue={defaultOption}
-            inputId="sort"
-          />
+    <div className={classes.AssignmentMatrixContainer}>
+      <div className={classes.SortContainer}>
+        <label htmlFor="sort" className={classes.SortText}>
+          Sort:
+          <div className={classes.SortSelection}>
+            <Select
+              options={keys.map((key) => ({
+                label: key.label,
+                value: key.value,
+              }))}
+              onChange={handleSort}
+              isSearchable={false}
+              defaultValue={defaultOption}
+              inputId="sort"
+            />
+          </div>
         </label>
       </div>
       <TheMatrix
