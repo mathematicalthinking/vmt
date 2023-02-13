@@ -19,6 +19,7 @@ import {
   removeRoomMember,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
+import CourseCodeMemberImport from 'Components/Importer/CourseCodeMemberImport';
 import Importer from '../../Components/Importer/Importer';
 import SearchResults from './SearchResults';
 import classes from './members.css';
@@ -270,6 +271,8 @@ class Members extends PureComponent {
 
   /* Handler for the Import component */
   handleImport = (userObjects) => {
+    console.log('userObjects')
+    console.log(userObjects)
     Promise.all(
       userObjects.map(async (user) =>
         user._id
@@ -419,7 +422,7 @@ class Members extends PureComponent {
                   <div
                     style={{
                       display: 'flex',
-                      width: '475px',
+                      // width: '475px',
                       justifyContent: 'space-between',
                     }}
                   >
@@ -454,6 +457,13 @@ class Members extends PureComponent {
                       buttonText="Import to Replace"
                       preImportAction={this.removeAllMembers}
                     />
+                    <div>
+                      {/* <Button>Shared Rosters</Button> */}
+                      <CourseCodeMemberImport
+                        courseCode={'slimy-bobcat-74'}
+                        onImport={this.handleImport}
+                      />
+                    </div>
                   </div>
                 ) : null
               }
