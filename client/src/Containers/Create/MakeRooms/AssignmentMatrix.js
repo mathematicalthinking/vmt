@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
+import { ToolTip } from 'Components';
 import { useSortableData } from 'utils';
 import classes from './makeRooms.css';
 
@@ -101,6 +102,7 @@ const TheMatrix = (props) => {
     canDeleteRooms, // should be 'canAddDeleteRooms'
     userId,
     onAddParticipants,
+    getCourseName,
   } = props;
 
   // =========== SORT FACILITATORS TO THE END OF ALL PARTICIPANTS ==============
@@ -161,6 +163,11 @@ const TheMatrix = (props) => {
     return roomDrafts[roomIndex].members.findIndex(
       (mem) => mem.user._id === user._id
     );
+  };
+
+  const handleShowCourseOnHover = (courseId) => {
+    if (!courseId) return null;
+    return getCourseName(courseId);
   };
 
   // =========================================================
@@ -237,8 +244,21 @@ const TheMatrix = (props) => {
                   <td
                     className={classes.LockedColumn}
                     style={{ color: `${participant.displayColor || 'black'}` }}
+                    onMouseOver={() =>
+                      handleShowCourseOnHover(participant.course)
+                    }
+                    onFocus={() => handleShowCourseOnHover(participant.course)}
                   >
-                    {`${i + 1}. ${participant.user.username}`}
+                    {participant.course ? (
+                      <ToolTip
+                        text={handleShowCourseOnHover(participant.course)}
+                        delay={200}
+                      >
+                        {`${i + 1}. ${participant.user.username}`}
+                      </ToolTip>
+                    ) : (
+                      `${i + 1}. ${participant.user.username}`
+                    )}
                   </td>
                   {roomDrafts.map((room, j) => {
                     const roomKey = `${participant.user._id}rm${j}`;
@@ -322,11 +342,13 @@ TheMatrix.propTypes = {
   ).isRequired,
   canDeleteRooms: PropTypes.bool,
   onAddParticipants: PropTypes.func,
+  getCourseName: PropTypes.func,
 };
 
 TheMatrix.defaultProps = {
   canDeleteRooms: true,
   onAddParticipants: null,
+  getCourseName: null,
 };
 
 export default AssignmentMatrix;
