@@ -405,7 +405,8 @@ export function useUIState(key, initialValue = {}) {
       initialValue
   );
 
-  // The ref shadows the current state
+  // This ref mirrors the state so that we can return it on unmount
+  // cf. https://stackoverflow.com/a/65840250/14894260
   const stateMonitor = React.useRef(_uiState);
   React.useEffect(() => {
     stateMonitor.current = _uiState;
