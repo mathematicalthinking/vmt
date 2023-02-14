@@ -9,7 +9,6 @@
 // ***********************************************
 //
 //
-
 require('cypress-file-upload');
 
 // -- This is a parent command --
