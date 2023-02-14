@@ -49,7 +49,7 @@ const AssignmentMatrix = (props) => {
       // sort by rooms
       const mems = roomDrafts.map((room) => room.members).flat();
       const uniqueParticipants = Object.values(
-        mems.concat(participantsToDisplay).reduce((acc, curr) => {
+        mems.concat(allParticipants).reduce((acc, curr) => {
           return { ...acc, [curr.user._id]: curr };
         }, {})
       );
