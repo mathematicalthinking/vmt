@@ -26,7 +26,7 @@ const Tabs = ({
       <div style={{ zIndex: tabs.length - i }} className={classes.TabBox}>
         <span className={classes.TabName}>{tab.name}</span>
       </div>
-      {ntfTabs.includes(tab._id) ? (
+      {tab._id !== currentTabId && ntfTabs.includes(tab._id) ? (
         <div className={classes.TabNotification}>
           <i className="fas fa-exclamation" />
         </div>
