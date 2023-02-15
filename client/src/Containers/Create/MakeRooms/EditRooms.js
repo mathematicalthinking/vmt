@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateRoom } from 'store/actions';
 import {
   inviteToRoom,
@@ -24,6 +24,8 @@ const EditRooms = (props) => {
   } = props;
   const dispatch = useDispatch();
   const history = useHistory();
+
+  const courses = useSelector((state) => state.courses.byId);
 
   const [roomDrafts, setRoomDrafts] = useState(selectedAssignment.value);
   const [participants, setParticipants] = useState([]);
@@ -197,6 +199,10 @@ const EditRooms = (props) => {
     history.push(`${url.slice(0, indexOfLastSlash + 1)}rooms`);
   };
 
+  const getCourseName = (courseId) => {
+    return (courses[courseId] && courses[courseId].name) || null;
+  };
+
   const assignmentMatrix = (
     <AssignmentMatrix
       allParticipants={participants}
@@ -211,6 +217,7 @@ const EditRooms = (props) => {
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms={false}
+      getCourseName={getCourseName}
     />
   );
 

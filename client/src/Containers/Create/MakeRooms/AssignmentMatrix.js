@@ -174,9 +174,9 @@ const TheMatrix = (props) => {
 
   return (
     <Fragment>
+      <div className={classes.Caption}>Rooms</div>
       <div className={classes.AssignmentMatrix}>
         <table className={classes.Table}>
-          <caption className={classes.Caption}>Rooms</caption>
           <thead>
             <tr className={classes.LockedTop}>
               <th className={classes.LockedColumn}>
@@ -241,25 +241,30 @@ const TheMatrix = (props) => {
                   key={participant.user._id}
                   id={participant.user._id}
                 >
-                  <td
-                    className={classes.LockedColumn}
-                    style={{ color: `${participant.displayColor || 'black'}` }}
-                    onMouseOver={() =>
-                      handleShowCourseOnHover(participant.course)
-                    }
-                    onFocus={() => handleShowCourseOnHover(participant.course)}
-                  >
-                    {participant.course ? (
-                      <ToolTip
-                        text={handleShowCourseOnHover(participant.course)}
-                        delay={200}
-                      >
+                  {participant.course ? (
+                    <td
+                      className={`${classes.tooltip} ${classes.LockedColumn}`}
+                      style={{
+                        color: `${participant.displayColor || 'black'}`,
+                      }}
+                    >
+                      <React.Fragment>
                         {`${i + 1}. ${participant.user.username}`}
-                      </ToolTip>
-                    ) : (
-                      `${i + 1}. ${participant.user.username}`
-                    )}
-                  </td>
+                        <span className={classes.tooltiptext}>
+                          {handleShowCourseOnHover(participant.course)}
+                        </span>
+                      </React.Fragment>
+                    </td>
+                  ) : (
+                    <td
+                      className={classes.LockedColumn}
+                      style={{
+                        color: `${participant.displayColor || 'black'}`,
+                      }}
+                    >
+                      {`${i + 1}. ${participant.user.username}`}
+                    </td>
+                  )}
                   {roomDrafts.map((room, j) => {
                     const roomKey = `${participant.user._id}rm${j}`;
                     const data = {
