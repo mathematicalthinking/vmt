@@ -118,12 +118,18 @@ export const loadTools = () => {
     script.src = '/WSPAssets/tools.js';
     script.id = 'wsptools';
     script.type = 'text/javascript';
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = '/WSPAssets/tools.css';
+    link.id = 'toolscss';
     script.onload = () => {
       console.log('Loaded tools.js... ');
       console.log('Window status: ', window.TOOLS, window);
       // console.log('Core WSP assets loaded: Ready to create script!');
     };
     document.body.appendChild(script);
+    document.body.appendChild(link);
   }
 };
 

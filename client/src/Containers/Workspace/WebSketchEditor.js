@@ -341,7 +341,7 @@ const WebSketchEditor = (props) => {
             }}
           />
           <br />
-          <div>Trash Can</div>
+
           <input
             type="button"
             className="debug"
@@ -354,9 +354,7 @@ const WebSketchEditor = (props) => {
           />
           <br />
           <div className="uLeftSub">
-            <ul id="uToolList">
-              <li className="uTrashIcon"></li>
-            </ul>
+            <ul id="uToolList"></ul>
           </div>
         </div>
         <div id="uPrefToggle">Sketch Prefs 🔽</div>
