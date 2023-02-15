@@ -3,7 +3,7 @@
 
 // callback is called when critical scipts are loaded and sketch can be loaded
 
-const WSPLoader = (callback, tools = false) => {
+export const WSPLoader = (callback) => {
   const loadJquery = () => {
     // check for jQuery
     if (window.jQuery) {
@@ -94,13 +94,10 @@ const WSPLoader = (callback, tools = false) => {
       link.id = 'widgetscss';
       link.onload = () => {
         console.log('Loaded Widgets...');
-        if (tools) {
-          loadTools();
-        } else {
-          // finally load the widgets and fire the ready callback
-          console.log('Core WSP assets loaded: Ready to create script!');
-          callback();
-        }
+        loadTools();
+        // finally load the widgets and fire the ready callback
+        console.log('Core WSP assets loaded: Ready to create script!');
+        callback();
       };
       document.body.appendChild(script);
       document.body.appendChild(link);
@@ -108,29 +105,32 @@ const WSPLoader = (callback, tools = false) => {
     document.body.appendChild(script1);
   };
 
-  const loadTools = () => {
-    if (document.getElementById('wsptools')) {
-      console.log('tools.js found - reloading');
-      document.getElementById('wsptools').remove();
-    }
+  // initiate load sequence
+  loadJquery();
+};
 
+export const loadTools = () => {
+  if (document.getElementById('wsptools')) {
+    console.log('tools.js found - skipping');
+    // document.getElementById('wsptools').remove();
+  } else {
     const script = document.createElement('script');
     script.src = '/WSPAssets/tools.js';
     script.id = 'wsptools';
     script.type = 'text/javascript';
     script.onload = () => {
       console.log('Loaded tools.js... ');
-      console.log('Core WSP assets loaded: Ready to create script!');
-      callback();
+      console.log('Window status: ', window.TOOLS, window);
+      // console.log('Core WSP assets loaded: Ready to create script!');
     };
     document.body.appendChild(script);
-  };
-
-  // initiate load sequence
-  loadJquery();
+  }
 };
 
-export default WSPLoader;
+export default {
+  WSPLoader,
+  loadTools,
+};
 
 // Alternate jQuery option from CDN
 //     <Script

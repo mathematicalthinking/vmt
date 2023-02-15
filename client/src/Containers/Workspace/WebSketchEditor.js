@@ -10,7 +10,7 @@ import React, {
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import testConfig from './Tools/empty.json';
-import WSPLoader from './Tools/WSPLoader';
+import { WSPLoader, loadTools } from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests';
 
@@ -29,6 +29,8 @@ const WebSketchEditor = (props) => {
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
   const sketchDoc = useRef(null);
+  const hasWidgets = useRef(false);
+  const tools = useRef(null);
   // const calculatorInst = useRef();
   // const pendingUpdate = React.createRef(null);
   let $ = window ? window.jQuery : undefined;
@@ -38,9 +40,9 @@ const WebSketchEditor = (props) => {
     initializing = true;
     setSketchLoaded(false);
     // load required files and then the sketch when ready
-    WSPLoader(loadSketch, true);
+    WSPLoader(loadSketch);
     initializing = false;
-    fetchTools();
+    // fetchTools();
     console.log('~~ Page loaded!  ~~');
     return () => {
       socket.removeAllListeners('RECEIVE_EVENT');
@@ -59,7 +61,8 @@ const WebSketchEditor = (props) => {
 
   async function fetchTools() {
     fetch(
-      'https://geometricfunctions.org/fc/tools/library/basic/',
+      'https://geometricfunctions.org/fc/tools/library/basic/01%20Point,%20Compass,%20Straightedge%20Tools.json',
+      // 'https://geometricfunctions.org/fc/tools/library/basic/',
       // 'https://cors-anywhere.herokuapp.com/https://geometricfunctions.org/fc/tools/library/basic/',
       // 'https://cors-anywhere.herokuapp.com/https://geometricfunctions.org/fc/tools/library/basic/01%20Point,%20Compass,%20Straightedge%20Tools.json',
       {
@@ -76,13 +79,13 @@ const WebSketchEditor = (props) => {
         console.log('Got a site res: ', res);
         return res.text();
       })
-      .then((html) => {
-        console.log('HTML: ', html);
+      .then((json) => {
+        // console.log('HTML: ', json);
         // Initialize the DOM parser
-        const parser = new DOMParser();
+        // const parser = new DOMParser();
 
         // Parse the text
-        const doc = parser.parseFromString(html, 'text/html');
+        // const doc = parser.parseFromString(html, 'text/html');
 
         // You can now even select part of that html as you would in the regular DOM
         // Example:
@@ -99,7 +102,7 @@ const WebSketchEditor = (props) => {
     // Call this whenever the sketch doc may have changed.
     // e.g., page changes, start of toolplay, undo/redo, etc.
     if (!$sketch) {
-      $sketch = $('#libSketch');
+      $sketch = $('#sketch');
     }
     sketchDoc.current = $sketch.data('document');
     sketch = sketchDoc && sketchDoc.focusPage;
@@ -111,6 +114,9 @@ const WebSketchEditor = (props) => {
 
   // establish listeners
   const syncToFollower = () => {
+    if (!sketch) {
+      getSketch();
+    }
     // We must be specific to avoid disconnecting other handlers for page changes, toolplay, etc.
     const handlers = [
       { event: 'WillChangeCurrentPage.WSP', handler: reflectMessage },
@@ -198,7 +204,7 @@ const WebSketchEditor = (props) => {
         constraintList: [],
         renderList: [],
       };
-      sketch.gobjList.gobjects = defaultGobjsList;
+      // sketch.gobjList.gobjects = defaultGobjsList;
     } else {
       gobjsToUpdate = sketch.sQuery(updateSel);
       gobjsToUpdate.on('update', setActivityUpdates);
@@ -209,7 +215,7 @@ const WebSketchEditor = (props) => {
     const { tab, activity, updateActivityTab } = props;
     if (!sketchDoc.current && window.jQuery) {
       // console.log('Setting sketc doc');
-      const sketchEl = window.jQuery('#libSketch');
+      const sketchEl = window.jQuery('#sketch');
       sketchDoc.current = sketchEl.data('document');
     }
     // console.log('Sketch document: ', sketchDoc);
@@ -239,13 +245,13 @@ const WebSketchEditor = (props) => {
       console.log(
         'Graph loaded? ',
         !!sketchDoc.current,
-        $('#libSketch').data('document'),
+        $('#sketch').data('document'),
         ' vs ',
         sketchDoc.current
       );
-      if (!$('#libSketch').data('document')) {
-        $('#libSketch').data('document', sketchDoc.current);
-        console.log('How about now? ', $('#libSketch').data('document'));
+      if (!$('#sketch').data('document')) {
+        $('#sketch').data('document', sketchDoc.current);
+        console.log('How about now? ', $('#sketch').data('document'));
       }
       // if (!!window.TOOLS) {
       //   window.TOOLS.initLibrary();
@@ -254,7 +260,7 @@ const WebSketchEditor = (props) => {
       //   'After reloading library? ',
       //   sketchDoc.current,
       //   ' sketch: ',
-      //   $('#libSketch').data('document')
+      //   $('#sketch').data('document')
       // );
     }
   };
@@ -277,9 +283,9 @@ const WebSketchEditor = (props) => {
             onChange={
               () => {
                 checkGraph();
-                window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
+                window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch');
               }
-              // window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch')
+              // window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch')
             }
           ></input>
         </div>
@@ -296,9 +302,9 @@ const WebSketchEditor = (props) => {
             onChange={
               () => {
                 checkGraph();
-                window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
+                window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch');
               }
-              // window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch')
+              // window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch')
             }
           ></input>
         </div>
@@ -310,7 +316,7 @@ const WebSketchEditor = (props) => {
             onClick={() => {
               console.log("Adding a new page via 'new'");
               checkGraph();
-              window.TOOLS.insertPage('libSketch', 'new');
+              window.TOOLS.insertPage('sketch', 'new');
             }}
           />
           <br />
@@ -320,7 +326,7 @@ const WebSketchEditor = (props) => {
             value="Clone Page"
             onClick={() => {
               checkGraph();
-              window.TOOLS.insertPage('libSketch', 'clone');
+              window.TOOLS.insertPage('sketch', 'clone');
             }}
           />
           <br />
@@ -331,7 +337,7 @@ const WebSketchEditor = (props) => {
             onClick={() => {
               checkGraph();
 
-              window.TOOLS.deletePage('libSketch');
+              window.TOOLS.deletePage('sketch');
             }}
           />
           <br />
@@ -341,29 +347,46 @@ const WebSketchEditor = (props) => {
             className="debug"
             value="Check Graph"
             onClick={(b) => {
-              if (
-                window.TOOLS.checkSketchGraph('libSketch', 'verbose,topology')
-              ) {
+              if (window.TOOLS.checkSketchGraph('sketch', 'verbose,topology')) {
                 b.style.removeProperty('border');
               } else $(b).css('border', 'solid 4px red');
             }}
           />
           <br />
-          <div id="uPrefToggle">Sketch Prefs 🔽</div>
-          <div id="uPrefDiv">
-            <ul id="uPrefList">
-              <li>deletewidget: </li>
+          <div className="uLeftSub">
+            <ul id="uToolList">
+              <li className="uTrashIcon"></li>
             </ul>
           </div>
         </div>
+        <div id="uPrefToggle">Sketch Prefs 🔽</div>
       </div>
     ) : (
       <div>Loading Sketch</div>
     );
   };
 
+  const toolButtons = () => {
+    return sketchLoaded ? (
+      <div className={classes.LibButtons}>
+        <button
+          type="button"
+          onClick={() => {
+            checkGraph();
+            window.TOOLS.loadLibraryTools('basic');
+          }}
+        >
+          Basic
+        </button>
+        {/* <button type="button" onClick="TOOLS.loadLibraryTools('hyperbolic');">Hyperbolic Geometry</button> */}
+      </div>
+    ) : (
+      <div>Loading Tool Buttons</div>
+    );
+  };
+
   const resizeSketch = () => {
-    window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
+    window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch');
   };
 
   const loadSketchDoc = (config) => {
@@ -372,11 +395,11 @@ const WebSketchEditor = (props) => {
       console.warn('No jQuerious');
       return;
     }
-    $('#libSketch').WSP('loadSketch', {
+    $('#sketch').WSP('loadSketch', {
       'data-sourceDocument': config,
       onLoad: (metadata) => {
         console.log('Loading: ', metadata);
-        $sketch = $('#libSketch');
+        $sketch = $('#sketch');
         setFirstTabLoaded();
       },
     });
@@ -393,6 +416,18 @@ const WebSketchEditor = (props) => {
       sketch = data.focusPage;
       setSketchLoaded(true);
     }
+    // checkTools();
+  };
+
+  const checkTools = async () => {
+    await new Promise((r) => setTimeout(r, 5000));
+    if (!TOOLS) {
+      console.log('~~~~ No Tools yet! ~~~~~');
+      loadTools();
+      checkTools();
+    } else {
+      setSketchLoaded(true);
+    }
   };
 
   const getSketchConfig = (tab) => {
@@ -405,33 +440,51 @@ const WebSketchEditor = (props) => {
       const { startingPointBase64 } = tab;
       config = JSON.parse(startingPointBase64);
     }
+    // shouldLoadWidgets(config);
     console.log('Found config! ', config);
     return config;
   };
 
+  const shouldLoadWidgets = ({ metadata }) => {
+    const { authorPreferences } = metadata;
+    if (authorPreferences) {
+      for (let [key, value] of Object.entries(authorPreferences)) {
+        if (key.includes('widget') && value !== 'none') {
+          hasWidgets.current = true;
+        }
+      }
+    }
+  };
+
   const loadSketch = () => {
     const { tab } = props;
-
+    const isToolsLoaded = () => {
+      return !!(window.UTILMENU && !!window.TOOLS);
+    };
     // When should this call happen, before or after loading the sketch?
-    let isWidgetLoaded =
-      window.UTILMENU && !!window.UTILMENU.initUtils && window.TOOLS;
-    console.log('Widgets?: ', isWidgetLoaded);
-    if (isWidgetLoaded) {
-      window.WIDGETS.initWidget();
-      window.PAGENUM.initPageControls();
-      window.UTILMENU.initUtils();
+    console.log('Tools?: ', isToolsLoaded());
+    if (isToolsLoaded()) {
+      // window.WIDGETS.initWidget();
+      // window.PAGENUM.initPageControls();
+      // window.UTILMENU.initUtils();
       loadSketchDoc(getSketchConfig(tab));
+      window.TOOLS.initLibrary();
+      // establish sketch listeners for handlers
       syncToFollower();
     } else {
       const pollDOM = () => {
-        isWidgetLoaded =
-          window.UTILMENU && !!window.UTILMENU.initUtils && window.TOOLS;
-        console.log('Widgets recheck: ', isWidgetLoaded);
-        if (isWidgetLoaded) {
+        console.log(
+          'Tools recheck: ',
+          window.TOOLS,
+          'widgets? ',
+          isToolsLoaded()
+        );
+        if (isToolsLoaded()) {
           loadSketchDoc(getSketchConfig(tab));
+          window.TOOLS.initLibrary(); //or loadLibraryTools()
           syncToFollower();
         } else {
-          setTimeout(pollDOM, 100); // try again in 100 milliseconds
+          setTimeout(pollDOM, 250); // try again in 150 milliseconds
         }
       };
       pollDOM();
@@ -446,24 +499,15 @@ const WebSketchEditor = (props) => {
         <div className="sketch_container" id="calculatorParent">
           <div
             className="sketch_canvas"
-            id="libSketch"
-            // data-url="empty.json"
+            id="sketch"
+            // data-url="/WSPAssets/empty.json"
+            // data-url="/WSPAssets/library/basic/tester.json"
             ref={wspSketch}
           />
           <div className="button_area">
-            <img
-              className="util-menu"
-              src="https://geometricfunctions.org/includes/v4.6/widgets/utility-icon.png"
-              // onClick={window.UTILMENU && window.UTILMENU.menuBtnClicked(this)}
-            />
+            <div className="util-menu-btn util-menu" />
             <div className="wsp_logo" />
             <div className="page_buttons" />
-            <button
-              class="widget_button"
-              // onClick={window.WIDGETS && window.WIDGETS.toggleWidgets(this)}
-            >
-              Widgets
-            </button>
           </div>
         </div>
       </div>
@@ -483,32 +527,16 @@ const WebSketchEditor = (props) => {
         <img alt="resize handler" src="https://via.placeholder.com/30" />
       </div>
       <div>
-        <div id="toolCollection" style={{ backgroundColor: '#fff' }}>
+        <div
+          id="toolCollection"
+          className={classes.toolCollection}
+          style={{ backgroundColor: '#fff' }}
+        >
           <div className="uLibDirections">
             Tap a tool to add it to the sketch.
           </div>
-          <div className="uLibButtons">
-            <button
-              type="button"
-              onClick={() => window.TOOLS.loadLibraryTools('basic/*.json')}
-            >
-              Basic
-            </button>{' '}
-            {/* <button type="button" onclick="TOOLS.loadLibraryTools('hyperbolic/*.json');">Hyperbolic Geometry</button>&nbsp; */}
-          </div>
-          <div id="toolTableMock">
-            <span>Tools</span>
-
-            <div
-              className="toolItem firstToolItem"
-              onClick={() => window.TOOLS.insertToolInSketch('libSketch', 76)}
-            >
-              <img
-                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFUAAAA/CAYAAACRmoRmAAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAVaADAAQAAAABAAAAPwAAAAD95GJlAAAFHElEQVR4Ae2Za2hcRRTHz73Z3ex7N/sIpVJIFWqiacX6JC9oG0GLmkI+1EQhbTWCX4rUgCAUoUitoCYhomBIqSIawbQfJFGktSZNrGaTYrUSN7Wk9ZGYNJvdpJt97/6de5Os2ZDQVkS2yTnLcGfOzJ0985szd869Q8TCBJgAE2ACTIAJMAEmwASYABNgAkyACTABJsAEmAATYAJMgAkwASbABJgAE2ACTIAJMAEmwASYABNgAtKtgMDv90MkysvLU9ItYXPWch0ZGUFtzW4UuJzINxmwwW5D/Z46eL1eZK3R2WzYRe8wthQVYofVgk+1GgzIMk5oZFTYLNhaVMRg/83kPb93D+43mRAgQlImQCupaVzkyy1m7Ntbx956M2B9Pp+61D+TtRDk0kCVvAJY8VjlUTA1NZWVYDU3M9j/q20gEKBYIkEFlCTSLtqXRF4WRmwQ6lgiRUq7bBTFxqwTW56djAYD/aoT5iV0GfalklD1Br1OjQYyKrOkkJVQTQYjVeyopBatgSIUy0A1Iyxu1RmovLKSw6sMMjdQUMKpzYV3osxqRXuuXt39O/SyunndU1gIpf4GuuEmSwmMjFxC3VO183GqWd2clKhgeHg4q4Eu2gWWDil7yko0oGxKdruDnE5+o8qemWFLmAATYAJMgAkwASbABJjAGieQ8UYVD80imoL4gAmSJFEFDZkt+ow2y/FCLAxJZ7huu+XuXdW6qK8PL653w+nKR36+ktbB7SxDwwfdmIzEVnzXRiKEC+9sw/bmAYTiYkZWkETCjzMfHcPQrPLdeY1IZLIXuwwP4L1vzuHHwXMYHOjH6Y+PwGZ3YF/XxTSIaPAagsEgwotAT57/Cl8OTqhtouGIep29FhTtQun7AhOn4LKX4JQvmtaterQh4am7LDtxNpzpSUdLrCh+24OZcAwT3e+jRpxqWq12FNc3oWdsDqD3xCG81DGESPRnHK7Zj9a2Q6hwOmHJfQgH289jOjiK488WQCdLcLhfRs/Eyp6/qkBHJvtQbXwUn/8xg2l/AAH/VVz5tg1b9TYc6LyEsb5GGI1m1B/rxdCFbjTu3AizfBCXoyEMtmzB5sZ+hPweVJMMh+NptPd5cPZog3rPh0N+XD7ThlLdg3i3ZwhTscTa8NaIrxsvmKywudxwu91wuVxwCm9bX9WI70en8EPLIzBVtsIfnwMyfeULlBqteGPQj4Hm7birqR+zMx7s1hlxoOt39fmaDPejWm/Eq/2jCPi+Q5XpMfQGM1fCqvLM+cGkD/5SpKFxbKLDnzTTffokpVJEsnkdbbp7I9nEkcYvUoLs24opT6tRd3m9xUS3U5jiqYSIFohyRFLOZoIi43AYyagVaz3sQUTKIS1JJIk9TAOJ1oKLpqHKymjhpntLS+hhoxJP/SOIzyIpIMeGx9LKVFKiacpRfwtKNQwTk5NDiTmVoA0xOwpMQVXV5WTlqdjCCP6ba8YQlfg0Pjf2jN4lrUnKLy6n+PEaeuukF2N/DqGr6RU6LT9DTxQZKUfMgfBX4bHCw5Nx5WB5ToRe6VONe4Ue0kn6uvsnGg2JI9FVLGlPJbFM9XaD8LLlxV2ynzrfHKeq2jI6Apn0ujJ6vfM1KswFeXP1lJcUXckausNhJ6tuvhcpV5StZM7VkMZyG1U96aaG5x4n6vAs/yerURsKhq/rQf6JMfw29hemZubCKYVDSkQACzyUOHYhr1wXlxPhIK5O+DPqF7flPBNgAkyACTCBpQT+BpcuZFfqrtQsAAAAAElFTkSuQmCC"
-                alt="Tool-76"
-              />
-            </div>
-          </div>
+          {toolButtons()}
+          <div id="toolTable" className={classes.toolTable} />
         </div>
       </div>
     </Fragment>

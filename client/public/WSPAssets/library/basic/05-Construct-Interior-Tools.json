@@ -1,0 +1,478 @@
+{
+  "metadata": {
+    "width": 644,
+    "height": 397,
+    "wsp-version": "4.9.0",
+    "wsp-build-number": "1071",
+    "wsp-build-stamp": "stek-macbook-pro.fios-router.home/20210910104238",
+    "exporter-version": "6.00A3007(dev)",
+    "exporter-build": "3007(dev)",
+    "original-document-name": "Construct Interior Tools.gsp",
+    "start-page": "1",
+    "authorPreferences": {
+      "stylewidget": "none",
+      "tracewidget": "none",
+      "labelwidget": "none",
+      "visibilitywidget": "none",
+      "deletewidget": "none",
+      "resetbutton": "none",
+      "uploadutil": false,
+      "downloadutil": false,
+      "disablescrolling": false,
+      "removeinaccessibleobjects": false
+    }
+  },
+  "resources": {
+    "pictures": [
+      {
+        "height": 64,
+        "width": 85,
+        "src": "data:image/png;base64,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"
+      },
+      {
+        "height": 64,
+        "width": 85,
+        "src": "data:image/png;base64,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"
+      },
+      {
+        "height": 64,
+        "width": 85,
+        "src": "data:image/png;base64,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"
+      }
+    ],
+    "fontList": [
+      "\"Times New Roman\", sans-serif"
+    ]
+  },
+  "pages": [
+    {
+      "metadata": {
+        "title": "sketch",
+        "id": "1",
+        "sketchRect": {
+          "top": 0,
+          "left": 0,
+          "bottom": 397,
+          "right": 644
+        }
+      },
+      "preferences": {
+        "units": {
+          "length": "cm",
+          "angle": "deg"
+        },
+        "precision": {
+          "length": 2,
+          "angle": 2,
+          "scalar": 2
+        },
+        "colorableComponents": {
+          "ActionButton": {
+            "color": "rgb(255,128,0)"
+          }
+        },
+        "text": {
+          "mathItalicization": true,
+          "textTypes": {
+            "Label": {
+              "font-family": "\"Times New Roman\", serif",
+              "font-size": 18,
+              "font-weight": "normal",
+              "font-style": "italic"
+            },
+            "Caption": {
+              "font-family": "\"Times New Roman\", serif",
+              "font-size": 18
+            },
+            "Measurement": {
+              "font-family": "\"Times New Roman\", serif"
+            },
+            "Action": {
+              "label": {
+                "font-family": "\"Arial\", sans-serif",
+                "font-size": 24
+              }
+            },
+            "Table": {
+              "font-family": "\"Arial\", sans-serif"
+            },
+            "AxisTicksAndOptionalLabel": {
+              "font-family": "\".AppleSystemUIFont\", sans-serif",
+              "font-size": 16
+            }
+          }
+        }
+      }
+    }
+  ],
+  "tools": [
+    {
+      "metadata": {
+        "image": 0,
+        "name": "Interior (Triangle)"
+      },
+      "objects": {
+        "1": {
+          "kind": "Picture",
+          "genus": "ImportedPicture",
+          "constraint": "PictureFree",
+          "geom": {
+            "transform": {
+              "m00": 1,
+              "m10": 0,
+              "m20": 14,
+              "m01": 0,
+              "m11": 1,
+              "m21": 9
+            }
+          },
+          "image": 0,
+          "style": {
+            "color": "red",
+            "opacity": 1,
+            "layerOrder": 0
+          }
+        },
+        "2": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 232,
+              "y": 202
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 1,
+          "style": {
+            "color": "red"
+          }
+        },
+        "3": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 292,
+              "y": 126
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 2,
+          "style": {
+            "color": "red"
+          }
+        },
+        "4": {
+          "kind": "Straight",
+          "genus": "Segment",
+          "parents": {
+            "p0": "2",
+            "p1": "3"
+          },
+          "constraint": "Segment",
+          "style": {
+            "color": "navy"
+          }
+        },
+        "5": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 411,
+              "y": 266
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 3,
+          "style": {
+            "color": "red"
+          }
+        },
+        "6": {
+          "kind": "Straight",
+          "genus": "Segment",
+          "parents": {
+            "p0": "3",
+            "p1": "5"
+          },
+          "constraint": "Segment",
+          "style": {
+            "color": "navy"
+          }
+        },
+        "7": {
+          "kind": "Straight",
+          "genus": "Segment",
+          "parents": {
+            "p0": "5",
+            "p1": "2"
+          },
+          "constraint": "Segment",
+          "style": {
+            "color": "navy"
+          }
+        },
+        "8": {
+          "kind": "Polygon",
+          "genus": "Triangle",
+          "parents": {
+            "0": "2",
+            "1": "3",
+            "2": "5"
+          },
+          "constraint": "PolygonFromPoints",
+          "style": {
+            "color": "lime",
+            "layerOrder": 1
+          }
+        }
+      }
+    },
+    {
+      "metadata": {
+        "image": 1,
+        "name": "Interior (Quadrilateral)"
+      },
+      "objects": {
+        "1": {
+          "kind": "Picture",
+          "genus": "ImportedPicture",
+          "constraint": "PictureFree",
+          "geom": {
+            "transform": {
+              "m00": 1,
+              "m10": 0,
+              "m20": 20,
+              "m01": 0,
+              "m11": 1,
+              "m21": 23
+            }
+          },
+          "image": 1,
+          "style": {
+            "color": "red",
+            "opacity": 1,
+            "layerOrder": 0
+          }
+        },
+        "2": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 227,
+              "y": 223
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 1,
+          "style": {
+            "color": "red"
+          }
+        },
+        "3": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 355,
+              "y": 123
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 2,
+          "style": {
+            "color": "red"
+          }
+        },
+        "4": {
+          "kind": "Straight",
+          "genus": "Segment",
+          "parents": {
+            "p0": "2",
+            "p1": "3"
+          },
+          "constraint": "Segment",
+          "style": {
+            "color": "navy"
+          }
+        },
+        "5": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 449,
+              "y": 222
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 3,
+          "style": {
+            "color": "red"
+          }
+        },
+        "6": {
+          "kind": "Straight",
+          "genus": "Segment",
+          "parents": {
+            "p0": "3",
+            "p1": "5"
+          },
+          "constraint": "Segment",
+          "style": {
+            "color": "navy"
+          }
+        },
+        "7": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 398,
+              "y": 281
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 4,
+          "style": {
+            "color": "red"
+          }
+        },
+        "8": {
+          "kind": "Straight",
+          "genus": "Segment",
+          "parents": {
+            "p0": "5",
+            "p1": "7"
+          },
+          "constraint": "Segment",
+          "style": {
+            "color": "navy"
+          }
+        },
+        "9": {
+          "kind": "Straight",
+          "genus": "Segment",
+          "parents": {
+            "p0": "7",
+            "p1": "2"
+          },
+          "constraint": "Segment",
+          "style": {
+            "color": "navy"
+          }
+        },
+        "10": {
+          "kind": "Polygon",
+          "genus": "Quadrilateral",
+          "parents": {
+            "0": "2",
+            "1": "3",
+            "2": "5",
+            "3": "7"
+          },
+          "constraint": "PolygonFromPoints",
+          "style": {
+            "color": "red",
+            "layerOrder": 1
+          }
+        }
+      }
+    },
+    {
+      "metadata": {
+        "image": 2,
+        "name": "Interior (Circle)"
+      },
+      "objects": {
+        "1": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 322,
+              "y": 199
+            }
+          },
+          "toolRole": "givenParent",
+          "style": {
+            "color": "red"
+          }
+        },
+        "2": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 235,
+              "y": 246
+            }
+          },
+          "toolRole": "givenParent",
+          "style": {
+            "color": "red"
+          }
+        },
+        "3": {
+          "kind": "Circle",
+          "genus": "Circle",
+          "parents": {
+            "p0": "1",
+            "p1": "2"
+          },
+          "constraint": "CircleFromTwoPoints",
+          "style": {
+            "color": "green"
+          },
+          "toolRole": "constructibleGiven"
+        },
+        "4": {
+          "kind": "CircleInterior",
+          "genus": "CircleInt",
+          "parents": {
+            "circle": "3"
+          },
+          "constraint": "CircleInterior",
+          "label": "c",
+          "style": {
+            "color": "yellow",
+            "layerOrder": 0
+          }
+        },
+        "5": {
+          "kind": "Picture",
+          "genus": "ImportedPicture",
+          "constraint": "PictureFree",
+          "geom": {
+            "transform": {
+              "m00": 1,
+              "m10": 0,
+              "m20": 14,
+              "m01": 0,
+              "m11": 1,
+              "m21": 15
+            }
+          },
+          "image": 2,
+          "style": {
+            "color": "red",
+            "opacity": 1,
+            "layerOrder": 1
+          }
+        }
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 /* global GSP, UTILMENU, $, PAGENUM, WIDGETS, PREF, FileReader, Image */
 /* eslint-disable no-var */
 /* eslint "semi": [2, "always"], "one-var": ["warn", "consecutive"] */
-const TOOLS = (function() {
+var TOOLS = (function() {
   const allTools = [];
   var collectionList = [],
     $resize; // The resize control in the tool library window
@@ -57,7 +57,7 @@ const TOOLS = (function() {
     const toolIndex = allTools.length;
     const content =
       '<div class="toolItem" onclick="TOOLS.insertToolInSketch (' +
-      "'libSketch'," +
+      "'sketch'," +
       toolIndex +
       ');"></div>';
     const cell = $.parseHTML(content);
@@ -81,7 +81,7 @@ const TOOLS = (function() {
   function loadToolCollection(dirName, filesToProcess) {
     // Each loadedFiles object has its fileName and a data property,
     // whose state transitions from "waiting" to actual data, and then to "done"
-    var toolDir = './' + dirName + '/',
+    var toolDir = '/WSPAssets/library/' + dirName + '/',
       finishedIx = -1,
       numFiles = filesToProcess.length,
       processing = false,
@@ -133,9 +133,13 @@ const TOOLS = (function() {
 
     function callAjax(ix) {
       $.ajax({
+        // async: false,
+        // cache: false,
         url: toolDir + loadedFiles[ix].fName,
         success: function(data) {
-          // console.log('Loaded file #' + (ix + 1) + ': ' + loadedFiles[ix].fName);
+          console.log(
+            'Loaded file #' + (ix + 1) + ': ' + loadedFiles[ix].fName
+          );
           loadedFiles[ix].data = data;
           loadedFiles[ix].state = 'hasData';
           processData(); // install these tools only if previous tools are already in place
@@ -150,6 +154,7 @@ const TOOLS = (function() {
     $.each(filesToProcess, function(ix) {
       // all files are initially waiting
       loadedFiles.push({ fName: this, data: undefined, state: 'waiting' });
+
       callAjax(ix);
     });
   }
@@ -162,7 +167,7 @@ const TOOLS = (function() {
     // about the order in which the success() functions are processed? There's likely little harm in doing one file at a time.
     $('#toolTable').empty();
     $.ajax({
-      url: './' + dirName + '/toolList.txt',
+      url: '/WSPAssets/library/' + dirName + '/toolList.txt',
       success: function(data) {
         var fileList = data.split('\n');
         loadToolCollection(dirName, fileList);
@@ -190,7 +195,7 @@ const TOOLS = (function() {
     // Returns an array of collections, with each collection as an object of the form {name: 'Basic', dir: 'basic'}
     // The name should be used to identify the collection to the user, and dir provides the actual directory.
     $.ajax({
-      url: './collections.txt',
+      url: '/WSPAssets/library/collections.txt',
       success: function(data) {
         var temp = data.split('\n');
         // Turn each line of temp into a key/value pair in the collectionList
@@ -829,7 +834,7 @@ const TOOLS = (function() {
   }
 
   function dragToolCallback(dragIndex, target) {
-    const $canvas = $('#libSketch'),
+    const $canvas = $('#sketch'),
       doc = $canvas.data('document'),
       targetIndex = $(target).data('index'),
       specTemp = doc.docSpec.tools.splice(dragIndex, 1), // Remove this element from the tools array
@@ -941,13 +946,13 @@ const TOOLS = (function() {
 
   function initToolList(listID) {
     initDraggableList(listID, dragToolCallback);
-    $('#libSketch').on('DidChangeCurrentPage.WSP', checkTools);
+    $('#sketch').on('DidChangeCurrentPage.WSP', checkTools);
   }
 
   function setToolPref(toolName, $tool, add) {
     // Set the sketch's pref for the named pref on the current page.
     // If add is truthy, insert the page; otherwise remove it.
-    const doc = $('#libSketch').data('document'),
+    const doc = $('#sketch').data('document'),
       sketch = doc.focusPage,
       pageNum = +sketch.metadata.id,
       prefs = doc.metadata.authorPreferences,
@@ -1008,7 +1013,7 @@ const TOOLS = (function() {
   function handleToolCheck(ev) {
     const $btn = $(ev.target),
       toolIndex = $btn.parent().data('index'),
-      $tool = $('.wsp-tool', '#libSketch').eq(toolIndex);
+      $tool = $('.wsp-tool', '#sketch').eq(toolIndex);
     console.log(ev);
     setToolPref(ev.target.value, $tool, $btn[0].checked);
   }
@@ -1069,7 +1074,7 @@ const TOOLS = (function() {
   }
 
   function initLib(listID) {
-    const $node = $('#libSketch'),
+    const $node = $('#sketch'),
       $nameNode = $('#libFileName'),
       $width = $('#width'),
       $height = $('#height');
@@ -1110,7 +1115,7 @@ const TOOLS = (function() {
     }
 
     function populatePrefs() {
-      const doc = $('#libSketch').data('document'),
+      const doc = $('#sketch').data('document'),
         prefs = doc.metadata.authorPreferences;
       $('#uPrefList').empty();
       Object.keys(prefs).forEach(function(item, key) {
@@ -1155,7 +1160,7 @@ const TOOLS = (function() {
           resizer.style.top = pageY - shiftY + 'px';
           $width.val(width.toString());
           $height.val(height.toString());
-          resetWindowSize('#libSketch');
+          resetWindowSize('#sketch');
         }
       }
 
@@ -1703,7 +1708,7 @@ const TOOLS = (function() {
 })();
 
 $(function() {
-  if ($('#libSketch').length) {
+  if ($('#sketch').length) {
     TOOLS.initLibrary();
   } else if ($('#loadSketches').length) {
     TOOLS.initViewer();

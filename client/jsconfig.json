@@ -3,5 +3,5 @@
       "baseUrl": "src"
     },
     "exclude": ["**/external"],
-    "include": ["src", "public/WSPAssets/*"]
+    "include": ["src", "public/WSPAssets/**/*"]
   }

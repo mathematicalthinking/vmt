@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 // import throttle from 'lodash/throttle';
 import testConfig from './Tools/test.json';
-import WSPLoader from './Tools/WSPLoader';
+import { WSPLoader } from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests';
 import ControlWarningModal from './ControlWarningModal';
@@ -1537,6 +1537,12 @@ const WebSketch = (props) => {
           }}
         />
         <div className="buttonPane">
+          <div
+            className="util-menu-btn util-menu"
+            style={{
+              pointerEvents: !_hasControl() ? 'none' : 'auto',
+            }}
+          />
           <div
             className="page_buttons"
             style={{

@@ -1,0 +1,547 @@
+{
+  "metadata": {
+    "width": 647,
+    "height": 399,
+    "wsp-version": "4.9.0",
+    "wsp-build-number": "1071",
+    "wsp-build-stamp": "stek-macbook-pro.fios-router.home/20210910104238",
+    "exporter-version": "6.00A3007(dev)",
+    "exporter-build": "3007(dev)",
+    "original-document-name": "Arc Tools.gsp",
+    "start-page": "1",
+    "authorPreferences": {
+      "stylewidget": "none",
+      "tracewidget": "none",
+      "labelwidget": "none",
+      "visibilitywidget": "none",
+      "deletewidget": "none",
+      "resetbutton": "none",
+      "uploadutil": false,
+      "downloadutil": false,
+      "disablescrolling": false,
+      "removeinaccessibleobjects": false
+    }
+  },
+  "resources": {
+    "pictures": [
+      {
+        "height": 63,
+        "width": 85,
+        "src": "data:image/png;base64,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"
+      },
+      {
+        "height": 63,
+        "width": 85,
+        "src": "data:image/png;base64,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"
+      },
+      {
+        "height": 64,
+        "width": 84,
+        "src": "data:image/png;base64,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"
+      },
+      {
+        "height": 64,
+        "width": 84,
+        "src": "data:image/png;base64,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"
+      }
+    ],
+    "fontList": [
+      "\"Times New Roman\", sans-serif"
+    ]
+  },
+  "pages": [
+    {
+      "metadata": {
+        "title": "Sketch",
+        "id": "1",
+        "sketchRect": {
+          "top": 0,
+          "left": 0,
+          "bottom": 399,
+          "right": 647
+        }
+      },
+      "preferences": {
+        "units": {
+          "length": "cm",
+          "angle": "deg"
+        },
+        "precision": {
+          "length": 2,
+          "angle": 2,
+          "scalar": 2
+        },
+        "colorableComponents": {
+          "ActionButton": {
+            "color": "rgb(255,128,0)"
+          }
+        },
+        "text": {
+          "mathItalicization": true,
+          "textTypes": {
+            "Label": {
+              "font-family": "\"Times New Roman\", serif",
+              "font-size": 18,
+              "font-weight": "normal",
+              "font-style": "italic"
+            },
+            "Caption": {
+              "font-family": "\"Times New Roman\", serif",
+              "font-size": 18
+            },
+            "Measurement": {
+              "font-family": "\"Times New Roman\", serif"
+            },
+            "Action": {
+              "label": {
+                "font-family": "\"Arial\", sans-serif",
+                "font-size": 24
+              }
+            },
+            "Table": {
+              "font-family": "\"Arial\", sans-serif"
+            },
+            "AxisTicksAndOptionalLabel": {
+              "font-family": "\"Geneva\", sans-serif",
+              "font-size": 16
+            }
+          }
+        }
+      }
+    }
+  ],
+  "tools": [
+    {
+      "metadata": {
+        "image": 0,
+        "name": "Arc Through 3 Points"
+      },
+      "objects": {
+        "1": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 265,
+              "y": 142
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 3,
+          "style": {
+            "color": "red"
+          }
+        },
+        "2": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 351,
+              "y": 168
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 2,
+          "style": {
+            "color": "red"
+          }
+        },
+        "3": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 385,
+              "y": 233
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 1,
+          "style": {
+            "color": "red"
+          }
+        },
+        "4": {
+          "kind": "Arc",
+          "genus": "SimpleArc",
+          "parents": {
+            "p0": "1",
+            "p1": "2",
+            "p2": "3"
+          },
+          "constraint": "Arc3Points",
+          "style": {
+            "color": "green"
+          }
+        },
+        "5": {
+          "kind": "Picture",
+          "genus": "ImportedPicture",
+          "constraint": "PictureFree",
+          "geom": {
+            "transform": {
+              "m00": 1,
+              "m10": 0,
+              "m20": 14,
+              "m01": 0,
+              "m11": 1,
+              "m21": 15
+            }
+          },
+          "image": 0,
+          "style": {
+            "color": "red",
+            "opacity": 1,
+            "layerOrder": 0
+          }
+        }
+      }
+    },
+    {
+      "metadata": {
+        "image": 1,
+        "name": "Arc on Circle"
+      },
+      "objects": {
+        "1": {
+          "kind": "Picture",
+          "genus": "ImportedPicture",
+          "constraint": "PictureFree",
+          "geom": {
+            "transform": {
+              "m00": 1,
+              "m10": 0,
+              "m20": 19,
+              "m01": 0,
+              "m11": 1,
+              "m21": 20
+            }
+          },
+          "image": 1,
+          "style": {
+            "color": "red",
+            "opacity": 1,
+            "layerOrder": 0
+          }
+        },
+        "2": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 312,
+              "y": 215
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 1,
+          "style": {
+            "color": "red"
+          }
+        },
+        "3": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 438,
+              "y": 247
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 2,
+          "style": {
+            "color": "red"
+          }
+        },
+        "4": {
+          "kind": "Circle",
+          "genus": "Circle",
+          "parents": {
+            "p0": "2",
+            "p1": "3"
+          },
+          "constraint": "CircleFromTwoPoints",
+          "style": {
+            "color": "green",
+            "width": 1
+          }
+        },
+        "5": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 400,
+              "y": 107
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 3,
+          "style": {
+            "color": "red"
+          }
+        },
+        "6": {
+          "kind": "Arc",
+          "genus": "SimpleArc",
+          "parents": {
+            "circle": "4",
+            "p0": "3",
+            "p1": "5"
+          },
+          "constraint": "ArcOnCircle",
+          "style": {
+            "color": "green"
+          }
+        }
+      }
+    },
+    {
+      "metadata": {
+        "image": 2,
+        "name": "Arc Segment"
+      },
+      "objects": {
+        "1": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 293,
+              "y": 229
+            }
+          },
+          "style": {
+            "hidden": true,
+            "color": "rgb(255,128,0)",
+            "radius": 1.5
+          }
+        },
+        "2": {
+          "kind": "Picture",
+          "genus": "ImportedPicture",
+          "constraint": "PictureFree",
+          "geom": {
+            "transform": {
+              "m00": 1,
+              "m10": 0,
+              "m20": 25,
+              "m01": 0,
+              "m11": 1,
+              "m21": 309
+            }
+          },
+          "image": 2,
+          "style": {
+            "color": "red",
+            "opacity": 1,
+            "layerOrder": 4
+          }
+        },
+        "3": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 148,
+              "y": 235
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 1,
+          "style": {
+            "color": "red"
+          }
+        },
+        "4": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 142,
+              "y": 175
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 2,
+          "style": {
+            "color": "red"
+          }
+        },
+        "5": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 77,
+              "y": 159
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 3,
+          "style": {
+            "color": "red"
+          }
+        },
+        "6": {
+          "kind": "Arc",
+          "genus": "SimpleArc",
+          "parents": {
+            "p0": "3",
+            "p1": "4",
+            "p2": "5"
+          },
+          "constraint": "Arc3Points",
+          "style": {
+            "color": "green"
+          }
+        },
+        "7": {
+          "kind": "ArcInterior",
+          "genus": "ArcSegment",
+          "parents": {
+            "arc": "6"
+          },
+          "constraint": "ArcSegment",
+          "style": {
+            "color": "aqua",
+            "opacity": 1,
+            "layerOrder": 5
+          }
+        }
+      }
+    },
+    {
+      "metadata": {
+        "image": 3,
+        "name": "Arc Sector"
+      },
+      "objects": {
+        "1": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 293,
+              "y": 229
+            }
+          },
+          "style": {
+            "hidden": true,
+            "color": "rgb(255,128,0)",
+            "radius": 1.5
+          }
+        },
+        "2": {
+          "kind": "Picture",
+          "genus": "ImportedPicture",
+          "constraint": "PictureFree",
+          "geom": {
+            "transform": {
+              "m00": 1,
+              "m10": 0,
+              "m20": 36,
+              "m01": 0,
+              "m11": 1,
+              "m21": 311
+            }
+          },
+          "image": 3,
+          "style": {
+            "color": "red",
+            "opacity": 1,
+            "layerOrder": 4
+          }
+        },
+        "3": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 77,
+              "y": 159
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 3,
+          "style": {
+            "color": "red"
+          }
+        },
+        "4": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 142,
+              "y": 175
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 2,
+          "style": {
+            "color": "red"
+          }
+        },
+        "5": {
+          "kind": "Point",
+          "genus": "Point",
+          "constraint": "Free",
+          "geom": {
+            "loc": {
+              "x": 148,
+              "y": 235
+            }
+          },
+          "toolRole": "given",
+          "givenSortOrder": 1,
+          "style": {
+            "color": "red"
+          }
+        },
+        "6": {
+          "kind": "Arc",
+          "genus": "SimpleArc",
+          "parents": {
+            "p0": "5",
+            "p1": "4",
+            "p2": "3"
+          },
+          "constraint": "Arc3Points",
+          "style": {
+            "color": "green"
+          }
+        },
+        "7": {
+          "kind": "ArcInterior",
+          "genus": "ArcSector",
+          "parents": {
+            "arc": "6"
+          },
+          "constraint": "ArcSector",
+          "label": "1",
+          "style": {
+            "color": "aqua",
+            "opacity": 1,
+            "layerOrder": 5
+          }
+        }
+      }
+    }
+  ]
+}
