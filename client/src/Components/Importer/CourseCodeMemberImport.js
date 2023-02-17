@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { API, useAppModal } from 'utils';
 import { Button } from 'Components';
+import CourseCodeMemberImportModal from './CourseCodeMemberImportModal';
 
 const CourseCodeMemberImport = (props) => {
-  const { courseCode, onImport } = props;
+  const { onImport } = props;
   const [courseFromCode, setCourseFromCode] = useState();
 
   const {
@@ -13,12 +14,8 @@ const CourseCodeMemberImport = (props) => {
     showBig: showCourseCodeImportModal,
   } = useAppModal();
 
-  useEffect(() => {
-    getCourseFromCode();
-  }, [courseCode]);
-
-  const getCourseFromCode = async () => {
-    const course = await (await API.getWithCode('courses', courseCode)).data
+  const getMembersFromCourseCode = async (_courseCode) => {
+    const course = await (await API.getWithCode('courses', _courseCode)).data
       .result[0];
     setCourseFromCode(course.members);
     console.log('course');
@@ -27,18 +24,18 @@ const CourseCodeMemberImport = (props) => {
   };
 
   const handleAddMembers = () => {
-    return showCourseCodeImportModal(<div>We're here!!!</div>);
+    showCourseCodeImportModal(
+      <CourseCodeMemberImportModal
+        getMembersFromCourseCode={getMembersFromCourseCode}
+      />
+    );
   };
 
-  return (
-    courseCode && (
-      <Button onClick={handleAddMembers}>CourseCodeMemberImport</Button>
-    )
-  );
+  return <Button click={handleAddMembers}>CourseCodeMemberImport</Button>;
 };
 
 CourseCodeMemberImport.propTypes = {
-  courseCode: PropTypes.string.isRequired,
+  onImport: PropTypes.func.isRequired,
 };
 
 export default CourseCodeMemberImport;

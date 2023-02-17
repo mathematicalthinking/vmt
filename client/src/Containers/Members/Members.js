@@ -271,8 +271,6 @@ class Members extends PureComponent {
 
   /* Handler for the Import component */
   handleImport = (userObjects) => {
-    console.log('userObjects')
-    console.log(userObjects)
     Promise.all(
       userObjects.map(async (user) =>
         user._id
@@ -459,10 +457,7 @@ class Members extends PureComponent {
                     />
                     <div>
                       {/* <Button>Shared Rosters</Button> */}
-                      <CourseCodeMemberImport
-                        courseCode={'slimy-bobcat-74'}
-                        onImport={this.handleImport}
-                      />
+                      <CourseCodeMemberImport onImport={this.handleImport} />
                     </div>
                   </div>
                 ) : null
