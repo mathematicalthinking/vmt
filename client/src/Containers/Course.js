@@ -372,19 +372,19 @@ class Course extends Component {
     } = this.state;
     if (course && !guestMode) {
       const { resource } = match.params;
-      let myRooms;
-      if (resource === 'rooms') {
-        // allow course facilitators to see all rooms
-        if (course.myRole !== 'facilitator') {
-          myRooms = course.rooms.filter((room) => {
-            let included = false;
-            room.members.forEach((member) => {
-              if (member.user._id === user._id) included = true;
-            });
-            return included;
-          });
-        }
-      }
+      // let myRooms;
+      // if (resource === 'rooms') {
+      //   // allow course facilitators to see all rooms
+      //   if (course.myRole !== 'facilitator') {
+      //     myRooms = course.rooms.filter((room) => {
+      //       let included = false;
+      //       room.members.forEach((member) => {
+      //         if (member.user._id === user._id) included = true;
+      //       });
+      //       return included;
+      //     });
+      //   }
+      // }
       // let contentData = {
       //   resource,
       //   parentResource: "courses",
@@ -400,7 +400,8 @@ class Course extends Component {
       if (resource === 'rooms' || resource === 'activities') {
         mainContent = (
           <DashboardContent
-            userResources={myRooms || course[resource] || []}
+            // userResources={myRooms || course[resource] || []}
+            userResources={course[resource] || []}
             user={user}
             resource={resource}
             notifications={notifications.filter(
@@ -409,6 +410,7 @@ class Course extends Component {
             parentResource="courses"
             parentResourceId={course._id}
             context="course"
+            selectableBoxList
           />
         );
       } else if (resource === 'members') {
@@ -566,6 +568,7 @@ class Course extends Component {
                             click={this.updateCourse}
                             data-testid="save-course"
                             theme="Small"
+                            p="5px 10px"
                           >
                             Save
                           </Button>
@@ -576,7 +579,11 @@ class Course extends Component {
                           >
                             <i className="fas fa-trash-alt" />
                           </Button>
-                          <Button click={this.toggleEdit} theme="Cancel">
+                          <Button
+                            click={this.toggleEdit}
+                            theme="Cancel"
+                            p="5px 10px"
+                          >
                             Cancel
                           </Button>
                         </div>
@@ -720,14 +727,14 @@ Course.defaultProps = {
   notifications: null,
 };
 
-const combineResources = (resources) => {
-  // ensure no repeated resources
-  const obj = resources.reduce((acc, res) => {
-    acc[res._id] = res;
-    return acc;
-  }, {});
-  return [...Object.values(obj)];
-};
+// const combineResources = (resources) => {
+//   // ensure no repeated resources
+//   const obj = resources.reduce((acc, res) => {
+//     acc[res._id] = res;
+//     return acc;
+//   }, {});
+//   return [...Object.values(obj)];
+// };
 const mapStateToProps = (store, ownProps) => {
   // eslint-disable-next-line camelcase
   const { course_id } = ownProps.match.params;
@@ -737,20 +744,21 @@ const mapStateToProps = (store, ownProps) => {
   // Ownprops.course is the course from the db given by withPopulatedCourse. It has all the activities and rooms in the course; the localCourse
   // only has the resources that the user has access to.
   return {
-    course:
-      localCourse && localCourse.myRole === 'facilitator'
-        ? {
-            ...localCourse,
-            activities: combineResources([
-              ...ownProps.course.activities,
-              ...localCourse.activities,
-            ]),
-            rooms: combineResources([
-              ...ownProps.course.rooms,
-              ...localCourse.rooms,
-            ]),
-          }
-        : localCourse,
+    // course:
+    //   localCourse && localCourse.myRole === 'facilitator'
+    //     ? {
+    //         ...localCourse,
+    //         activities: combineResources([
+    //           ...ownProps.course.activities,
+    //           ...localCourse.activities,
+    //         ]),
+    //         rooms: combineResources([
+    //           ...ownProps.course.rooms,
+    //           ...localCourse.rooms,
+    //         ]),
+    //       }
+    //     : localCourse,
+    course: localCourse,
     activities: store.activities.allIds, // @TODO: Note that this prop is never used. It is all activities user has access to.
     rooms: store.rooms.allIds,
     user: store.user,

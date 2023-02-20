@@ -30,7 +30,8 @@
 }
 
 .ContentBox {
-  width: 100%;
+  min-width: 100%;
+  width: 580px;
   margin: 2px 2px 2px 0;
   transition: 0.2s;
 }

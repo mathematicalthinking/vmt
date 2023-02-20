@@ -555,7 +555,7 @@ module.exports = {
       } else if (body.status === STATUS.ARCHIVED) {
         removeAndChangeStatus(id, STATUS.ARCHIVED, reject, resolve);
       } else {
-        // unarchive is flag is set
+        // unarchive if flag is set
         let willUnarchive = false;
         if (body.unarchive) {
           delete body.unarchive;
@@ -609,7 +609,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
       const query = { $set: { currentMembers: newCurrentUserIds } };
-      db.Room.findByIdAndUpdate(roomId, query, { new: true })
+      db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members controlledBy')
         .then((room) => {
@@ -633,7 +633,7 @@ module.exports = {
       const query = members
         ? { $addToSet: { currentMembers: newCurrentUserId, members } }
         : { $addToSet: { currentMembers: newCurrentUserId } };
-      db.Room.findByIdAndUpdate(roomId, query, { new: true })
+      db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members')
         .then((room) => {
@@ -653,7 +653,11 @@ module.exports = {
 
   removeCurrentUsers: (roomId, userId) => {
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, { $pull: { currentMembers: userId } }) // dont return new! we need the original list to filter back in sockets.js
+      db.Room.findByIdAndUpdate(
+        roomId,
+        { $pull: { currentMembers: userId } },
+        { timestamps: false }
+      ) // dont return new! we need the original list to filter back in sockets.js
         .populate({ path: 'currentMembers', select: 'username' })
         .select('currentMembers controlledBy')
         .then((room) => {
@@ -680,7 +684,11 @@ module.exports = {
       }
       since = Number(momentObj.startOf('day').format('x'));
     }
-    const initialFilter = { updatedAt: { $gte: new Date(since) } };
+    const initialFilter = {
+      updatedAt: { $gte: new Date(since) },
+      isTrashed: false,
+      status: { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] },
+    };
     // eslint-disable-next-line no-unused-vars
     if (to && since && to > since) {
       let toMomentObj = moment(to, 'x', true);
@@ -1010,7 +1018,7 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
           );
         }
         // delete this room from any activities (templates)
-        if (room.course) {
+        if (room.activity) {
           promises.push(
             db.Activity.findByIdAndUpdate(room.activity, {
               $pull: { rooms: id },
@@ -1070,7 +1078,7 @@ const prefetchTabIds = async (roomIds, tabType) => {
 };
 
 const unarchive = (id) => {
-  db.Room.findById(id).then(async (room) => {
+  db.Room.findById(id).then((room) => {
     const userIds = room.members.map((member) => member.user);
     try {
       // remove the room from the list of archived rooms for members in the room
@@ -1086,14 +1094,22 @@ const unarchive = (id) => {
               },
             },
           },
-          {
-            updateOne: {
-              filter: { _id: userId },
-              update: { $addToSet: { rooms: id } },
-            },
-          },
         ]);
       });
+
+      // add this room back to course
+      if (room.course) {
+        db.Course.findByIdAndUpdate(room.course, {
+          $push: { rooms: id },
+        });
+      }
+
+      // add this room back to activity
+      if (room.activity) {
+        db.Activity.findByIdAndUpdate(room.activity, {
+          $push: { rooms: id },
+        });
+      }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);

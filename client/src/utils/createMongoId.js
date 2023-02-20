@@ -1,6 +1,6 @@
 /* eslint-disable no-bitwise */
 export default function() {
-  const timestamp = ((new Date().getTime() / 1000) | 0).toString(16);
+  const timestamp = ((Date.now() / 1000) | 0).toString(16);
   return (
     timestamp +
     'xxxxxxxxxxxxxxxx'

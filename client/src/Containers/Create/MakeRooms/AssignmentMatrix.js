@@ -1,8 +1,98 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select';
+import { useSortableData } from 'utils';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
+  const { allParticipants, roomDrafts, ...otherProps } = props;
+
+  const defaultOption = { label: 'Sort...', value: [] };
+  const keys = [
+    { label: 'Name a-z', value: { key: 'username', direction: 'ascending' } },
+    // { label: 'Name z-a', value: { key: 'username', direction: 'descending' } },
+    { label: 'By course', value: { key: 'course', direction: 'ascending' } },
+    { label: 'By room', value: 'rooms' },
+  ];
+
+  const [participantsToDisplay, setParticipantsToDisplay] = useState(
+    allParticipants
+  );
+  const [selection, setSelection] = useState(defaultOption);
+
+  // put username at top level
+
+  const { items: sortedParticipants, resetSort } = useSortableData(
+    allParticipants.map((mem) => ({
+      course: 'dummy',
+      ...mem,
+      username: mem.user.username,
+    }))
+  );
+
+  React.useEffect(() => {
+    setParticipantsToDisplay(allParticipants);
+  }, [allParticipants]);
+
+  React.useEffect(() => {
+    if (selection.value !== 'rooms')
+      setParticipantsToDisplay(sortedParticipants);
+  }, [selection]);
+
+  React.useEffect(() => {
+    if (selection.value === 'rooms') handleSort(selection);
+  }, [roomDrafts]);
+
+  const handleSort = (selectedOption) => {
+    setSelection(selectedOption);
+    if (selectedOption.value === 'rooms') {
+      // sort by rooms
+      const mems = roomDrafts.map((room) => room.members).flat();
+      const uniqueParticipants = Object.values(
+        mems.concat(participantsToDisplay).reduce((acc, curr) => {
+          return { ...acc, [curr.user._id]: curr };
+        }, {})
+      );
+      setParticipantsToDisplay(uniqueParticipants);
+    } else {
+      resetSort(selectedOption.value);
+    }
+  };
+
+  // set up what we are going to sort on
+  return (
+    <div style={{ width: '100%', maxHeight: '100%' }}>
+      <div style={{ width: '25%', zIndex: '999', position: 'relative' }}>
+        <label htmlFor="sort">
+          <Select
+            options={keys.map((key) => ({
+              label: key.label,
+              value: key.value,
+            }))}
+            onChange={handleSort}
+            isSearchable={false}
+            defaultValue={defaultOption}
+            inputId="sort"
+          />
+        </label>
+      </div>
+      <TheMatrix
+        allParticipants={participantsToDisplay}
+        roomDrafts={roomDrafts}
+        {...otherProps}
+      />
+    </div>
+  );
+};
+
+AssignmentMatrix.propTypes = {
+  allParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  roomDrafts: PropTypes.arrayOf(
+    PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) })
+  ).isRequired,
+};
+
+const TheMatrix = (props) => {
   const {
     allParticipants,
     requiredParticipants,
@@ -45,30 +135,26 @@ const AssignmentMatrix = (props) => {
     select(roomList);
   };
 
-  // ======================= HANDLE WHEN A PERSON GETS CLICKED (ASSIGNED TO A ROOM) ===========================
+  // ======================= HANDLE WHEN A PERSON GETS CLICKED (ASSIGNED TO OR UNASSIGNED FROM A ROOM) ===========================
 
   const selectParticipant = (event, data) => {
     const { roomIndex } = data;
-    const user = {
+    const member = {
       // if there isn't a role or _id, provide default values
       role: 'participant',
-      _id: data.participant.user._id,
+      user: { _id: data.participant.user._id },
       ...data.participant,
     };
-
-    if (user._id && roomIndex >= 0) {
-      // create a deep copy of roomDrafts to avoid reference sharing
-      const roomsUpdate = JSON.parse(JSON.stringify(roomDrafts));
-      const index = checkUser(roomIndex, user);
-      if (index < 0) {
-        roomsUpdate[roomIndex].members.push({ ...user });
-      }
-      if (index >= 0) {
-        roomsUpdate[roomIndex].members.splice(index, 1);
-      }
-
-      select(roomsUpdate);
+    // create a deep copy of roomDrafts to avoid reference sharing
+    const roomsUpdate = JSON.parse(JSON.stringify(roomDrafts));
+    const index = checkUser(roomIndex, member.user);
+    if (index < 0) {
+      roomsUpdate[roomIndex].members.push({ ...member });
+    } else {
+      roomsUpdate[roomIndex].members.splice(index, 1);
     }
+
+    select(roomsUpdate);
   };
 
   const checkUser = (roomIndex, user) => {
@@ -226,7 +312,7 @@ const AssignmentMatrix = (props) => {
   );
 };
 
-AssignmentMatrix.propTypes = {
+TheMatrix.propTypes = {
   allParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   requiredParticipants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   select: PropTypes.func.isRequired,
@@ -238,7 +324,7 @@ AssignmentMatrix.propTypes = {
   onAddParticipants: PropTypes.func,
 };
 
-AssignmentMatrix.defaultProps = {
+TheMatrix.defaultProps = {
   canDeleteRooms: true,
   onAddParticipants: null,
 };

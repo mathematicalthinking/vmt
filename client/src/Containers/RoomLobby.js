@@ -569,18 +569,16 @@ class Room extends Component {
                     }}
                   >
                     <div style={{ display: 'flex', marginBottom: '2rem' }}>
-                      <ToolTip text="Enter this room" delay={600}>
-                        <span>
-                          <Button
-                            theme={loading.loading ? 'SmallCancel' : 'Small'}
-                            m={10}
-                            data-testid="Enter"
-                            click={!loading.loading ? this.goToWorkspace : null}
-                          >
-                            Enter
-                          </Button>
-                        </span>
-                      </ToolTip>
+                      <span>
+                        <Button
+                          theme={loading.loading ? 'SmallCancel' : 'Small'}
+                          m={10}
+                          data-testid="Enter"
+                          click={!loading.loading ? this.goToWorkspace : null}
+                        >
+                          Enter
+                        </Button>
+                      </span>
                     </div>
                     <div
                       style={{
@@ -654,6 +652,7 @@ class Room extends Component {
                             click={this.updateRoom}
                             data-testid="save-room"
                             theme="Small"
+                            p="5px 10px"
                           >
                             Save
                           </Button>
@@ -666,7 +665,11 @@ class Room extends Component {
                             <i className="fas fa-trash-alt" />
                           </Button>
 
-                          <Button click={this.toggleEdit} theme="Cancel">
+                          <Button
+                            click={this.toggleEdit}
+                            theme="Cancel"
+                            p="5px 10px"
+                          >
                             Cancel
                           </Button>
                         </div>

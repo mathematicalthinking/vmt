@@ -45,7 +45,7 @@ const Message = new mongoose.Schema({
 // Add this message to the room's chat
 Message.pre('save', async function() {
   if (this.isNew) {
-    this.timestamp = new Date().getTime();
+    this.timestamp = Date.now();
     // @TODO CHANGIN controlledBY HERE IS TERRRRIBLLE!!!!! THIS SHOULD ALL BE DONE SOMEWHERE ELSE WHERE ITS LESS OF A SIDE EFFECT
     if (this.messageType === 'TOOK_CONTROL') {
       try {
@@ -57,13 +57,18 @@ Message.pre('save', async function() {
         console.log('ERROR: ', err);
       }
     } else if (
-      this.messageType === 'LEFT_ROOM' ||
-      this.messageType === 'RELEASED_CONTROL'
+      ['LEFT_ROOM', 'JOINED_ROOM', 'SWITCH_TAB', 'RESET_ROOM'].includes(
+        this.messageType
+      )
     ) {
       try {
-        await Room.findByIdAndUpdate(this.room, {
-          $addToSet: { chat: this._id },
-        });
+        await Room.findByIdAndUpdate(
+          this.room,
+          {
+            $addToSet: { chat: this._id },
+          },
+          { timestamps: false } // Don't update the room's updateAt if we just peek at it
+        );
       } catch (err) {
         console.log(err);
       }

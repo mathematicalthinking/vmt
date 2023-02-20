@@ -190,6 +190,7 @@ class Activity extends Component {
             parentResourceId={course ? course._id : activity._id}
             activityOwner={owner || user.isAdmin}
             context="activity"
+            selectableBoxList
           />
         );
       case 'preview':
@@ -389,6 +390,7 @@ class Activity extends Component {
                             click={this.updateActivity}
                             data-testid="save-template"
                             theme="Small"
+                            p="5px 10px"
                           >
                             Save
                           </Button>
@@ -399,7 +401,11 @@ class Activity extends Component {
                           >
                             <i className="fas fa-trash-alt" />
                           </Button>
-                          <Button click={this.toggleEdit} theme="Cancel">
+                          <Button
+                            click={this.toggleEdit}
+                            theme="Cancel"
+                            p="5px 10px"
+                          >
                             Cancel
                           </Button>
                         </div>

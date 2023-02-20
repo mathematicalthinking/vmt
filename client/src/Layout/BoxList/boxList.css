@@ -11,7 +11,8 @@
 }
 
 .ContentBox {
-  width: 36vw;
+  min-width: 100%;
+  width: 600px;
   /* min-width: 497px; */
   /* max-width: 33vw; */
   margin: 2px;

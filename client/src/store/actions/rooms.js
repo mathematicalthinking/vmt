@@ -355,6 +355,16 @@ export const updateRoom = (id, body) => {
       }
     } else {
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
+
+      // unarchive? add room to course & activity if they exist
+      if (body.unarchive) {
+        if (body.activity) {
+          dispatch(addActivityRooms(body.activity, [id]));
+        }
+        if (body.course) {
+          dispatch(addCourseRooms(body.course, [id]));
+        }
+      }
     }
     API.put('rooms', id, body)
       .then()
@@ -387,12 +397,20 @@ export const updateRoom = (id, body) => {
 };
 
 export const archiveRooms = (ids) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     ids.forEach((id) => {
+      // remove room from course & activity (template) if needed
+      const room = { ...getState().rooms.byId[id] };
+      if (room.course) {
+        dispatch(removeCourseRoom(room.course, id));
+      }
+      if (room.activity) {
+        dispatch(removeActivityRoom(room.activity, id));
+      }
+
       dispatch(addRoomToArchive(id));
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
-      dispatch(updatedRoom(id, { status: STATUS.ARCHIVED })); // Optimistically update the UI
     });
 
     for (let i = 0; i < ids.length; i += 50) {
@@ -600,11 +618,6 @@ export const restoreArchivedRoom = (id) => {
     );
     // add room to store
     dispatch(updateRoom(id, roomToUpdate));
-    // updates room status & unarchives room from db
-    // dispatchNewRoom(updatedRoom, dispatch);
-
-    // change room in db API.put('rooms', id, status.defualt)
-    // in catch undo everything
   };
 };
 

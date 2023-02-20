@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput, Button, Checkbox } from 'Components';
+import { dateAndTime } from 'utils';
 import classes from './makeRooms.css';
 
 const AssignRooms = (props) => {
@@ -40,10 +41,10 @@ const AssignRooms = (props) => {
 
   // set min date selection taking timezone into consideration
   // https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd#comment58447831_29774197:~:text=1124-,Just,-leverage%20the%20built
-  let today = new Date();
-  const offset = today.getTimezoneOffset();
-  today = new Date(today.getTime() - offset * 60 * 1000);
-  [today] = today.toISOString().split('T');
+  // let today = new Date();
+  // const offset = today.getTimezoneOffset();
+  // today = new Date(today.getTime() - offset * 60 * 1000);
+  // [today] = today.toISOString().split('T');
 
   return (
     <div className={classes.Container}>
@@ -85,10 +86,15 @@ const AssignRooms = (props) => {
           type="date"
           name="dueDate"
           width="175px"
-          minDate={today}
+          minDate={dateAndTime.toDateString(Date.now())}
           change={(e) => {
             const datePicked = e.target.value;
-            if (datePicked < today) setDueDate('');
+            if (
+              // compare only the dates (not the specific time)
+              new Date(datePicked) <=
+              new Date(dateAndTime.toDateString(Date.now()))
+            )
+              setDueDate('');
             else setDueDate(datePicked);
           }}
           value={dueDate}

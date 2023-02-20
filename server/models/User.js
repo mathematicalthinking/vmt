@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const STATUS = require('../constants/status');
 
 const { ObjectId } = mongoose.Schema.Types;
 const User = new mongoose.Schema(
@@ -50,6 +51,11 @@ const User = new mongoose.Schema(
     },
     isSuspended: { type: Boolean, default: false },
     doForceLogout: { type: Boolean, default: false },
+    status: {
+      type: String,
+      enum: Object.values(STATUS),
+      default: STATUS.DEFAULT,
+    },
   },
   { timestamps: true }
 );
