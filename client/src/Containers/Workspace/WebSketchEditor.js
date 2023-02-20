@@ -18,7 +18,7 @@ import classes from './WebSketchEditor.css';
 
 const WebSketchEditor = (props) => {
   const [activityUpdates, setActivityUpdates] = useState();
-  const [activityMoves, setActivityMoves] = useState({});
+  // const [activityMoves, setActivityMoves] = useState({});
   // const [timeSent, setTimeSent] = useState(0);
   const [activityData, setActivityData] = useState();
   const [sketchLoaded, setSketchLoaded] = useState(false);
@@ -55,7 +55,7 @@ const WebSketchEditor = (props) => {
   useEffect(() => {
     // recordGobjUpdate(activityUpdates);
     debouncedUpdate();
-  }, [activityUpdates]);
+  }, [activityUpdates, activityData]);
   // Storage API functions
   const debouncedUpdate = useCallback(debounce(putState, 250), []);
 
@@ -199,11 +199,11 @@ const WebSketchEditor = (props) => {
     if (!sketch || !sketch.gobjList || sketch.gobjList.gobjects === null) {
       console.log('syncGobjUpdates found no gobjs to track.');
       getSketch();
-      const defaultGobjsList = {
-        gobjects: {},
-        constraintList: [],
-        renderList: [],
-      };
+      // const defaultGobjsList = {
+      //   gobjects: {},
+      //   constraintList: [],
+      //   renderList: [],
+      // };
       // sketch.gobjList.gobjects = defaultGobjsList;
     } else {
       gobjsToUpdate = sketch.sQuery(updateSel);
@@ -222,7 +222,7 @@ const WebSketchEditor = (props) => {
     if (sketchDoc.current) {
       // grab current state-event list
       const responseData = sketchDoc.current.getCurrentSpecObject();
-      console.log('Response data: ', responseData);
+      console.log('Response data to save: ', responseData);
       // start creating a string-based object to update the tab
       const updateObject = {
         startingPointBase64: JSON.stringify(responseData),
@@ -419,7 +419,7 @@ const WebSketchEditor = (props) => {
 
   const checkTools = async () => {
     await new Promise((r) => setTimeout(r, 5000));
-    if (!TOOLS) {
+    if (!window.TOOLS) {
       console.log('~~~~ No Tools yet! ~~~~~');
       loadTools();
       checkTools();
@@ -488,6 +488,7 @@ const WebSketchEditor = (props) => {
       pollDOM();
     }
   };
+
   console.log('Rendered - ', sketchLoaded);
 
   return (
