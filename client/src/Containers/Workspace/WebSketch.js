@@ -42,6 +42,7 @@ const WebSketch = (props) => {
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
   const hasWidgets = useRef(false);
+  const widgetChecks = useRef(0);
   const pendingUpdate = React.createRef(null);
   let $ = window ? window.jQuery : undefined;
   const { setFirstTabLoaded } = props;
@@ -1390,7 +1391,7 @@ const WebSketch = (props) => {
     console.log('Sketch width: ', sketchWidth);
     sketchDoc = data;
     sketch = data.focusPage;
-    if (hasWidgets.current) {
+    if (hasWidgets.current && widgetChecks.current < 7) {
       checkWidgets();
     }
   };
@@ -1423,10 +1424,12 @@ const WebSketch = (props) => {
   };
 
   const shouldLoadWidgets = ({ metadata }) => {
+    widgetChecks.current += 1;
     const { authorPreferences } = metadata;
     if (authorPreferences) {
       for (let [key, value] of Object.entries(authorPreferences)) {
         if (key.includes('widget') && value !== 'none') {
+          console.log(`Loading widgets for: ${key}: ${value}`);
           hasWidgets.current = true;
         }
       }
