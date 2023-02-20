@@ -164,12 +164,11 @@ margin: 0.05rem;
 	text-align: center;
 	margin: -0.125rem 0;
 } 
-*/
 
-.firstToolItem {	/* borders are collapsed. Need to adjust first & last of a group to be same width as other cells */
+.firstToolItem {	
 	border-left: 0.25rem solid black;
-	margin-left: -0.125rem;	/* shift border 1/2 the border width to the left */
-	padding-left: 0.4375rem;	/* reduce the padding to compensate */
+	margin-left: -0.125rem;
+	padding-left: 0.4375rem;
 }
 
 .lastToolItem {
@@ -183,3 +182,4 @@ margin: 0.05rem;
 	height: 80%;
 }
   
+*/

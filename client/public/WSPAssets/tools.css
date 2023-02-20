@@ -44,6 +44,10 @@ body {
       margin-top: 1.5rem;
       margin-left: -1px;
   } */
+
+  .toolItem {
+    height: 6rem;
+  }
   
   /* .toolItem {
       display: inline-block;
@@ -74,10 +78,9 @@ body {
       padding-right: 0.4375rem;
   } */
       
-  /* .toolItem img {
-      width: 80%;
+  .toolItem img {
       height: 80%;
-  } */
+  }
   
   .debug {
     display: none;
