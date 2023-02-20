@@ -1,4 +1,4 @@
-01-Point,-Compass,-Straightedge-Tools.json
+01-Point-Compass-Straightedge-Tools.json
 02-Parallel-and-Perpendicular-Tools.json
 03-Arc-Tools.json
 04-Animate-Point-Tool.json
