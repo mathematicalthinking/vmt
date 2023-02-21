@@ -57,7 +57,7 @@ const WebSketchEditor = (props) => {
     debouncedUpdate();
   }, [activityUpdates, activityData]);
   // Storage API functions
-  const debouncedUpdate = useCallback(debounce(putState, 250), []);
+  const debouncedUpdate = useCallback(debounce(putState, 400), []);
 
   async function fetchTools() {
     fetch(
@@ -148,9 +148,18 @@ const WebSketchEditor = (props) => {
     handlers.forEach((el) => {
       $sketch.on(el.event, el.handler);
     });
+    tools.current = getTools();
+
     // getSketch();  // Required after toolplay, undo/redo, and page changes
     // establish listeners on sketch objects, to include pointsOnPath
     syncGobjUpdates();
+  };
+
+  const getTools = () => {
+    if (!sketchDoc.current) {
+      getSketch();
+    }
+    return sketchDoc.current.tools.length;
   };
 
   const reflectMessage = (event, context, attr) => {
@@ -263,6 +272,12 @@ const WebSketchEditor = (props) => {
       //   $('#sketch').data('document')
       // );
     }
+  };
+
+  const checkNewTools = () => {
+    if (tools.current != getTools()) {
+      return true;
+    } else return false;
   };
 
   // --- Initialization functions ---
@@ -492,7 +507,20 @@ const WebSketchEditor = (props) => {
   console.log('Rendered - ', sketchLoaded);
 
   return (
-    <Fragment>
+    <div
+      onClickCapture={(e) => {
+        console.log('Clicky, e: ', e);
+        if (checkNewTools()) {
+          debouncedUpdate();
+        }
+      }}
+      onDrag={(e) => {
+        console.log('Draggy, e: ', e);
+        if (checkNewTools()) {
+          debouncedUpdate();
+        }
+      }}
+    >
       <div className={classes.Activity}>
         {leftPane()}
         <div className="sketch_container" id="calculatorParent">
@@ -538,7 +566,7 @@ const WebSketchEditor = (props) => {
           <div id="toolTable" className={classes.toolTable} />
         </div>
       </div>
-    </Fragment>
+    </div>
   );
 };
 
