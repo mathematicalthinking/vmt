@@ -457,7 +457,11 @@ class Members extends PureComponent {
                     />
                     <div>
                       {/* <Button>Shared Rosters</Button> */}
-                      <CourseCodeMemberImport onImport={this.handleImport} />
+                      <CourseCodeMemberImport
+                        onImport={this.handleImport}
+                        userId={user._id}
+                        currentMembers={classList}
+                      />
                     </div>
                   </div>
                 ) : null
@@ -529,7 +533,7 @@ class Members extends PureComponent {
 
 Members.propTypes = {
   searchedUsers: PropTypes.arrayOf(PropTypes.shape({})),
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,

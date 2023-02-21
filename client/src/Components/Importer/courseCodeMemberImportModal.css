@@ -1,0 +1,47 @@
+.ParticipantsContainer {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  align-items: center;
+  height: 100%;
+  width: 75vw;
+  padding: 15px 20px 0;
+  z-index: 0;
+}
+
+.InfoBoxContainer {
+  width: 100%;
+  display: flex;
+}
+
+.InfoBox {
+  width: 50%;
+  padding: 0 5px;
+}
+
+.ModalButton {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* .AddParticipants */
+.CourseCodeSearch {
+  height: 350px;
+  width: 100%;
+  /* min-width: 450px; */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.NewParticipants {
+    height: 350px;
+    width: 100%;
+    min-width: 450px;
+    overflow-y: auto;
+  }
