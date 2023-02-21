@@ -18,13 +18,24 @@ const CourseCodeMemberImport = (props) => {
       return [];
     }
 
-    const courseMembers = course.members.filter(
-      (mem) => mem.user._id !== userId
-    );
+    const courseMembers = course.members
+      .filter((mem) => mem.user._id !== userId)
+      .map((mem) => mem.user)
+      .sort((a, b) => a.username.localeCompare(b.username));
+
     setCourseMembersFromCode(courseMembers);
-    console.log('course');
-    console.log(course);
-    return courseMembers;
+
+    const formattedCourse = {
+      courseId: course._id,
+      courseEntryCode: course.entryCode,
+      courseName: course.name,
+      courseMembers,
+    };
+
+    console.log('formattedCourse');
+    console.log(formattedCourse);
+
+    return formattedCourse;
   };
 
   const handleAddMembers = () => {

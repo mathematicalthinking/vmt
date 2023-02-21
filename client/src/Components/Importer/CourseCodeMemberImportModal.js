@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, InfoBox, Search, Member } from 'Components';
-import SearchResults from 'Containers/Members/SearchResults';
+import {
+  Button,
+  InfoBox,
+  Search,
+  Member,
+  GenericSearchResults,
+} from 'Components';
+import { SearchResults } from 'Containers';
 import classes from './courseCodeMemberImportModal.css';
 
 const CourseCodeMemberImportModal = (props) => {
@@ -13,7 +19,7 @@ const CourseCodeMemberImportModal = (props) => {
   } = props;
   const [searchText, setSearchText] = useState();
   const [initialSearchResults, setInitialSearchResults] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState({});
   const [newParticipants, setNewParticipants] = useState([]);
   const [newParticipantsObject, setNewParticipantsObject] = useState([]);
   const [currentMembersObject, _setCurrentMembersObject] = useState(
@@ -21,6 +27,15 @@ const CourseCodeMemberImportModal = (props) => {
       return { ...acc, [curr.user._id]: curr };
     }, {})
   );
+  const resultsRef = React.useRef();
+
+  useEffect(() => {
+    console.group('useEffect');
+    console.log('searchResults');
+    console.log(searchResults);
+    console.groupEnd('useEffect');
+    resultsRef.current = { ...resultsRef.current, ...searchResults };
+  }, [searchResults]);
 
   useEffect(() => {
     // before searching, match human-readable-ids pattern of
@@ -40,24 +55,79 @@ const CourseCodeMemberImportModal = (props) => {
   const search = async () => {
     console.log(searchText);
 
-    const courseMembersSearched = await getMembersFromCourseCode(searchText);
-    if (!courseMembersSearched || courseMembersSearched.length === 0) {
-      setSearchResults([]);
+    // const courseMembersSearched = await getMembersFromCourseCode(searchText);
+    // if (!courseMembersSearched || courseMembersSearched.length === 0) {
+    //   setSearchResults([]);
+    //   return;
+    // }
+    // const uniqueCourseMembersSearched = courseMembers.filter(
+    //   (mem) => !currentMembersObject[mem._id] && !newParticipantsObject[mem._id]
+    // );
+    // setInitialSearchResults((prevState) => [
+    //   ...prevState,
+    //   ...uniqueCourseMembersSearched,
+    // ]);
+    // setSearchResults(uniqueCourseMembersSearched);
+
+    const courseSearched = await getMembersFromCourseCode(searchText);
+    if (
+      !courseSearched ||
+      !courseSearched.courseMembers ||
+      !courseSearched.courseMembers.length ||
+      !courseSearched.courseId ||
+      !courseSearched.courseEntryCode
+    ) {
+      // setSearchResults([]);
       return;
     }
-    const courseMembers = courseMembersSearched
-      .map((mem) => mem.user)
-      .sort((a, b) => a.username.localeCompare(b.username));
-    console.log('courseMembers');
-    console.log(courseMembers);
-    const uniqueCourseMembersSearched = courseMembers.filter(
-      (mem) => !currentMembersObject[mem._id] && !newParticipantsObject[mem._id]
+
+    // formatted for use with GenericSearchResults
+    const searchObject = formatGenericSearchResults(
+      courseSearched.courseId,
+      courseSearched.courseName
     );
-    setInitialSearchResults((prevState) => [
-      ...prevState,
-      ...uniqueCourseMembersSearched,
-    ]);
-    setSearchResults(uniqueCourseMembersSearched);
+    setSearchResults((prevState) => {
+      return {
+        [courseSearched.courseId]: {
+          ...searchObject,
+          ...courseSearched,
+        },
+        ...prevState,
+      };
+    });
+  };
+
+  const formatGenericSearchResults = (courseId, courseName) => {
+    const buttonLabel = 'add';
+    const buttonAction = (id) => addAllToNewParticipants(id);
+    return {
+      label: courseName,
+      buttonLabel,
+      onClick: buttonAction,
+      key: courseId,
+    };
+  };
+
+  const addAllToNewParticipants = (courseId) => {
+    // if (!searchResults.length) return;
+    // searchResults.forEach((mem) =>
+    //   addParticipant({ user: { _id: mem._id, username: mem.username } })
+    // );
+    console.group('add all');
+    console.log(`courseId: ${courseId}`);
+    console.group('searchResults[courseId]');
+    console.log(searchResults[courseId]);
+    console.group('searchResults');
+    console.log(searchResults);
+    console.group('resultsRef.current');
+    console.log(resultsRef.current);
+    console.groupEnd();
+
+    resultsRef.current[courseId] &&
+      resultsRef.current[courseId].courseMembers &&
+      resultsRef.current[courseId].courseMembers.forEach((mem) =>
+        addParticipant({ user: { _id: mem._id, username: mem.username } })
+      );
   };
 
   const addParticipant = (member) => {
@@ -70,9 +140,9 @@ const CourseCodeMemberImportModal = (props) => {
       )
     );
 
-    setSearchResults((prevState) =>
-      prevState.filter((user) => user._id !== _id)
-    );
+    // setSearchResults((prevState) =>
+    //   prevState.filter((user) => user._id !== _id)
+    // );
   };
 
   const removeMember = (mem) => {
@@ -129,20 +199,9 @@ const CourseCodeMemberImportModal = (props) => {
                   placeholder="enter a course code"
                 />
               </div>
-              {/* <Button click={search}>Search</Button> */}
-              {searchResults.length > 0 && searchText > 0 && (
-                <div>
-                  <Button click={search}>Add All</Button>
-                </div>
-              )}
-              {searchResults.length > 0 && (
-                <SearchResults
-                  searchText={searchText}
-                  usersSearched={searchResults}
-                  inviteMember={(_id, username) =>
-                    addParticipant({ user: { _id, username } })
-                  }
-                  className={classes.CourseCodeSearch}
+              {Object.values(searchResults).length && (
+                <GenericSearchResults
+                  itemsSearched={Object.values(searchResults)}
                 />
               )}
             </div>
@@ -178,10 +237,10 @@ const CourseCodeMemberImportModal = (props) => {
           <Button
             m={5}
             click={submit}
-            disabled={searchResults.length === 0}
+            disabled={newParticipants.length === 0}
             data-testid="next-step-assign"
           >
-            Add Participants
+            Import
           </Button>
         </div>
       </div>
