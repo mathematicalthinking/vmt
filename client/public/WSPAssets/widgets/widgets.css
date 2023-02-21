@@ -520,13 +520,14 @@
 }
 .sketch_container .button_area {
 	font-size: 16px;
+  border-top: 1px solid black;
   border-bottom: 1px solid black;
   border-collapse: collapse;
 }
 .sketch_container .sketch_canvas {
 	border:none;
   vertical-align: top;
-	border-bottom: 1px solid black;
+  border-bottom: 1px solid black;
 }
 .button_area p {
 	margin: 2px 8px;

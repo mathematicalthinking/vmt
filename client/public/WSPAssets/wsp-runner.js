@@ -735,6 +735,7 @@
 
   function loadFromScriptUrl($target, options) {
     GSP.log('Loading Sketch: ' + options.url);
+    console.log('Loading Sketch: ' + options.url);
     var script = document.createElement('script');
     script.src = options.url;
     options.target = $target;
@@ -764,14 +765,15 @@
 
   function isVisible($target) {
     var el = $target[0],
+      parent = el.offsetParent,
       rect,
       vWidth,
       vHeight;
-    // We were getting false returns here for sketches within the viewport that need to be loaded.
-    //if (!(el.offsetWidth > 0 || el.offsetHeight > 0)) {
-    //  return false;
-    //}
-    el = $target[0];
+    // We were getting false returns here for sketches within the viewport that need to be loaded,
+    // so now we check the offsetParent (if there is one) instead of the sketch_canvas itself.
+    if (!parent || !(parent.offsetWidth > 0 || parent.offsetHeight > 0)) {
+      return false;
+    }
     rect = el.getBoundingClientRect();
     vWidth = window.innerWidth || document.documentElement.clientWidth;
     vHeight = window.innerHeight || document.documentElement.clientHeight;
@@ -786,6 +788,7 @@
   function loadFromJsonUrl($target, options) {
     var url = options.url;
     GSP.log('Loading Sketch: ' + url);
+    console.log('Loading Sketch: ' + options.url);
     $.ajax({
       url: options.url,
       success: function(text, statusMsg) {

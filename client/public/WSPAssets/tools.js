@@ -133,8 +133,6 @@ var TOOLS = (function() {
 
     function callAjax(ix) {
       $.ajax({
-        // async: false,
-        // cache: false,
         url: toolDir + loadedFiles[ix].fName,
         success: function(data) {
           console.log(
@@ -154,7 +152,6 @@ var TOOLS = (function() {
     $.each(filesToProcess, function(ix) {
       // all files are initially waiting
       loadedFiles.push({ fName: this, data: undefined, state: 'waiting' });
-
       callAjax(ix);
     });
   }
@@ -451,23 +448,42 @@ var TOOLS = (function() {
   }
 
   function getCanvas(selector) {
-    // selector is either a string identifying the id of the sketch_canvas,
+    // selector is a string identifying the id of the sketch_canvas,
+    // a DOM node within the same sketch_container as the sketch_canvas
     // or a jQuery selector of a button or command in the same sketch_container as the sketch_canvas
-    let jqSel;
+    // Returns the jQuery object for the sketch_canvas node.
+    let $canvas;
     if (selector.anchorNode) {
-      return selector.anchorNode; // sketch
+      // is this a sketch_canvas DOM node?
+      $canvas = $(selector.anchorNode); // sketch
+    } else if (selector instanceof Element) {
+      // some other DOM node; find the canvas in the same container
+      $canvas = $(selector); // use this later to find the actual sketch_canvas
     } else if (typeof selector === 'string') {
-      jqSel = selector[0] !== '.' && selector[0] !== '#' ? '#' : '';
-      jqSel += selector;
-      if ($(jqSel).hasClass('sketch_canvas')) {
-        return $(jqSel);
-      } else {
-        // selector must be a DOM node inside the sketch_container
-        return $(selector)
-          .parents('.sketch_container')
-          .find('.sketch_canvas');
+      // either a jQuery selector or a sketch_canvas id
+      $canvas = $(selector);
+      if (!$canvas.length) {
+        //jQuery couldn't find it
+        $canvas = $('#' + selector); // is the selector a sketch id?
       }
     }
+    if (!$canvas.length) {
+      console.log('TOOLS.getCanvas found no results: ', selector);
+      return;
+    } else {
+      // we have a result...
+      if ($canvas.length > 1) {
+        console.log('TOOLS.getCanvas found multiple result: ', $canvas);
+        $canvas = $($canvas[0]); // use the first result
+      }
+      // $canvas may still be a node in the same sketch_container, so find the actual canvas
+      $canvas = $canvas.closest('.sketch_container').find('.sketch_canvas');
+      if (!$canvas.hasClass('sketch_canvas')) {
+        console.log('TOOLS.getCanvas failed for selector: ', selector);
+        return;
+      }
+    }
+    return $canvas;
   }
 
   function getSketch(selector) {
@@ -527,6 +543,7 @@ var TOOLS = (function() {
       // docSpec.metatdata.authorPreferences stores arrays of page numbers. Update them...
       let list;
       const prefs = doc.docSpec.metadata.authorPreferences; // the master copy of prefs
+      if (!prefs) return; // some docs don't have prefs
       Object.keys(prefs).forEach(function(item, key) {
         // Object.keys iterates only over ownProperties
         let listPos;
@@ -579,17 +596,15 @@ var TOOLS = (function() {
     // option === "new" or option === "clone"
     // selector may be the id of a sketch_canvas or may be a New Page or Clone Page button beneath a sketch,
     // or may be a Utility Menu command
-    const canvas = getCanvas(selector),
-      doc = canvas.data('document'),
+    const $canvas = getCanvas(selector),
+      doc = $canvas.data('document'),
       theSketchJSON = doc.sQuery().getSketchJSON(), // already stringified
       sketch = JSON.parse(theSketchJSON), // the copy of the sketch in which we will make our changes
       curPageNum = doc.focusPage.metadata.id,
       newPageNum = (+curPageNum + 1).toString(),
       newPage = JSON.parse(JSON.stringify(sketch.pages[curPageNum - 1])), // copy the current page's sketch.pages data
       rect = newPage.metadata.sketchRect,
-      $pageButtons = $(canvas)
-        .parent()
-        .find('.page_buttons');
+      $pageButtons = $canvas.parent().find('.page_buttons');
 
     function insertPageData(pageNum, data) {
       // the keys of doc.pageData are the page id's. The contents all have to be moved to make space for the new data
@@ -615,6 +630,7 @@ var TOOLS = (function() {
       // docSpec.metatdata.authorPreferences stores arrays of page numbers. Update them...
       // The working copy is in doc.metatdata.authorPreferences. As it's a copy, update it as well.
       const prefs = doc.docSpec.metadata.authorPreferences; // the master copy of prefs
+      if (!prefs) return; // some docs don't have prefs
       Object.keys(prefs).forEach(function(item, key) {
         // Object.keys iterates only over ownProperties
         let list;
@@ -709,30 +725,18 @@ var TOOLS = (function() {
         $buttonArea = $sketchNode.parent().find('.button_area');
       let fixedHeight = 0,
         toolsHeight = 0;
-      /* Avoid ":visible" because it's unreliable
-      $('.wsp-fixed-tool', column).filter(':visible').each(function () {
-        fixedHeight += $(this).outerHeight();
-      });
-      $('.wsp-tool', column).filter(':visible').each(function () {
-        toolsHeight += $(this).outerHeight();
-      });
-      */
       $('.wsp-fixed-tool', column)
         .filter(':visible')
         .each(function() {
-          if (this.style.display === 'block')
-            fixedHeight += $(this).outerHeight();
+          fixedHeight += $(this).outerHeight() || 0;
         });
       $('.wsp-tool', column)
         .filter(':visible')
         .each(function() {
-          if (this.style.display === 'block')
-            toolsHeight += $(this).outerHeight();
+          toolsHeight += $(this).outerHeight() || 0;
         });
-
       $('.wsp-tool-column', $sketchNode).outerHeight(height);
       $('.wsp-user-tools', $sketchNode).outerHeight(height - fixedHeight);
-      // Set outerHeight for wsp-user-tools.
       if (fixedHeight + toolsHeight > height) {
         $('.wsp-user-tools', $sketchNode).addClass('wsp-tool-overflow-y');
       } else {
@@ -826,10 +830,10 @@ var TOOLS = (function() {
       return trial;
     }
 
-    const canvasNode = $($('.sketch_canvas')[index]);
-    const doc = canvasNode.data('document');
+    const $canvasNode = $($('.sketch_canvas')[index]);
+    const doc = $canvasNode.data('document');
     const theSketchJSON = doc.sQuery().getSketchJSON(); // already stringified
-    const theName = uniqueName(canvasNode.data('fileName'));
+    const theName = uniqueName($canvasNode.data('fileName'));
     addSketchToPage(theName, theSketchJSON);
   }
 
@@ -954,7 +958,7 @@ var TOOLS = (function() {
     // If add is truthy, insert the page; otherwise remove it.
     const doc = $('#sketch').data('document'),
       sketch = doc.focusPage,
-      pageNum = +sketch.metadata.id,
+      pageNum = sketch.metadata.id,
       prefs = doc.metadata.authorPreferences,
       specPrefs = doc.docSpec.metadata.authorPreferences,
       prefName = toolName + 'tool',
@@ -966,7 +970,7 @@ var TOOLS = (function() {
       // create an array with all page #'s
       const retVal = [];
       for (let ix = 0; ix < sketchPages.length; ix++) {
-        retVal.push(+sketchPages[ix]);
+        retVal.push(sketchPages[ix]);
       }
       return retVal;
     }
@@ -983,13 +987,7 @@ var TOOLS = (function() {
       prefArr = allPages();
     } else if (prefArr[0] === 'none') {
       prefArr = [];
-    } else {
-      // convert string elements to page #s (Can we drop this??)
-      prefArr.forEach(function(val, ix) {
-        prefArr[ix] = +val;
-      });
     }
-
     if (add && idx < 0) {
       // the tool isn't enabled for the current page, so add it
       prefArr.push(pageNum);
@@ -1257,12 +1255,14 @@ var TOOLS = (function() {
       debugMode = true;
     }
     if (checkQuery('author')) {
-      PREF.setWebPagePrefs([{ category: 'widget', value: ['all'] }]);
+      PREF.setWebPagePrefs([
+        { category: 'widget', value: ['all'] },
+        { name: 'disablescrolling', value: false },
+      ]);
     }
     checkLoadFromUrl();
     initToolList(listID);
     getCollections(true); // true param causes the first collection to be loaded.
-    // We need to use the return value to add buttons allowing the user to choose a collection.
   } // initLib
 
   function scrollToSketch(listItem) {
@@ -1298,27 +1298,37 @@ var TOOLS = (function() {
 
   function addSketchToPage(fName, jsonData) {
     const id = 'sketchDiv' + nextSketchDivID,
-      content =
-        '<div class="sketch_container"> <div class="sketch_canvas" id="' +
-        id +
-        '" data-url="empty.json" > </div> <div style="clear:both"> <div class="util-menu-btn"></div> <span class="page_buttons"></span> <button class="widget_button" onclick="WIDGETS.toggleWidgets(this);">Widgets</button> <p class="fileName"></p> <input type="button" class="newPageButton" value="New Page" onclick="TOOLS.insertPage(this,/new/");"/> <input type="button" class="newPageButton" value="Clone Page" onclick="TOOLS.insertPage(this,/"clone/");"/> </div> </div>',
-      canvasNode = $('#' + id),
-      el = $(content);
+      $el = $(
+        '<div class="sketch_container">' +
+          '<div class="sketch_canvas" id="' +
+          id +
+          '" data-url="empty.json"></div>' +
+          '<div style="clear:both">' +
+          '<div class="util-menu-btn"></div>' +
+          '<span class="page_buttons"></span>' +
+          '<button class="widget_button" onclick="WIDGETS.toggleWidgets(this);">Widgets</button>' +
+          '<p class="fileName"></p>' +
+          '<input type="button" class="newPageButton" value="New Page" onclick="TOOLS.insertPage(this, \'new\');"/>' +
+          '<input type="button" class="newPageButton" value="Clone Page" onclick="TOOLS.insertPage(this, \'clone\');"/>' +
+          '</div> </div>'
+      );
+    var $canvasNode;
     nextSketchDivID += 1;
-    el.find('.fileName')[0].innerHTML = fName.replace('.json', '');
-    $('#sketches').append(el);
+    $el.find('.fileName')[0].innerHTML = fName.replace('.json', '');
+    $('#sketches').append($el);
+    $canvasNode = $('#' + id);
     UTILMENU.initUtils(); // set up onLoad handler for the new sketch_canvas
     PAGENUM.initPageControls();
-    canvasNode.data('fileName', fName.replace('.json', ''));
-    canvasNode.data('sourceDocument', jsonData);
-    canvasNode.WSP('loadSketch');
-    canvasNode.removeData('sourceDocument'); // Once the data's loaded, it's no longer needed here
-    canvasNode.on('LoadDocument.WSP', function() {
-      const el = $(this)
+    $canvasNode.data('fileName', fName.replace('.json', ''));
+    $canvasNode.data('sourceDocument', jsonData);
+    $canvasNode.WSP('loadSketch');
+    $canvasNode.removeData('sourceDocument'); // Once the data's loaded, it's no longer needed here
+    $canvasNode.on('LoadDocument.WSP', function() {
+      const $el = $(this)
         .parent()
         .find('.fileName');
-      if (el && el.length > 0) {
-        el[0].innerHTML = $(this).data('fileName');
+      if ($el && $el.length > 0) {
+        $el[0].innerHTML = $(this).data('fileName');
       }
       repopulateSketchControl();
     });

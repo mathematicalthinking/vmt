@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.home/20230203063837
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230217111112
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -15154,8 +15154,8 @@
         } else {  // Use prepend rather than append, in case the sketch-container is already present
           node.prepend (newContent);
           // When adding tools to an existing sketch without tools, adjust the width of the base-node
-          // to fit the tools plus the sketch width      
-          $(".wsp-base-node").css({width: docWidth + $(".wsp-tool-container").outerWidth()});
+          // to fit the tools plus the sketch width
+          node.closest(".wsp-base-node").css({width: docWidth + $(".wsp-tool-container").outerWidth()});
         }
   
   
@@ -66722,7 +66722,7 @@
       },
       
       standardizeTool: function (objSpecs, poly) {
-        console.log('PolygonFromPoints.standardizeTool is a stub; a functional version is in the stek-captions GitHub branch.');
+        console.log('PolygonFromPoints.standardizeTool is a stub; a functional version is in the stek-givens GitHub branch.');
       },
             
       updateConstraintAncestry: function updateConstraintAncestry() {
@@ -69306,7 +69306,7 @@
   "/* For now, these are not in less. Just import them raw. */\n"+
   "/*!\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.home/20230105181758\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230217111107\n"+
   "*/\n"+
   "\n"+
   "/*\n"+
@@ -69979,7 +69979,7 @@
   ".wsp-version-4-8-0 {\n"+
   "  /*\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.home/20230105181758\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230217111107\n"+
   "*/\n"+
   "  /* Section Start: wsp-Button */\n"+
   "  /*\n"+
@@ -70324,6 +70324,7 @@
   "  background-color: white;\n"+
   "  word-wrap: break-word;\n"+
   "  white-space: normal;\n"+
+  "  height: fit-content;\n"+
   "}\n"+
   ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-tool.wsp-draggable-toolButton {\n"+
   "  box-sizing: content-box;\n"+
@@ -70344,6 +70345,11 @@
   ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool-image,\n"+
   ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool-image {\n"+
   "  margin: auto;\n"+
+  "  max-width: 100%;\n"+
+  "  /* Use the full width of the container */\n"+
+  "  height: 100%;\n"+
+  "  object-fit: contain;\n"+
+  "  /*  Maintain the image's aspect ratio */\n"+
   "}\n"+
   ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool,\n"+
   ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool {\n"+

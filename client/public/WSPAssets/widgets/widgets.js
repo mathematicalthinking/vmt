@@ -72,150 +72,106 @@ if (!String.prototype.includes) {
 }
 
 var PREF = (function() {
-  //  Handle sketch prefs, at this time including both widget prefs and util prefs.
-  //  The prefs stored on a sketch page (WSP_Preferences) are still handled by GetAuthorPreference() in document.js
-  // Here we check for those prefs first, and then for prefs stored in the html page, which thus take precedence.
-  // Prefs in the sketch page are of form "stylewidget=1,3,5", "visibilitywidget=none", or "uploadutil=all".
-  // In the html page we want the author to be able to easily express which widgets and utils appear on which pages of which sketches (with each sketch identified by the id of its sketch_canvas element).
-  // Thus we want to allow settings like "all widgets appear on pages 1,3,5" or "all utils appear on all pages"
-  // or "style widget appears on page 1 of sketches sk1 and sk2."
-  //
-  //  A script in the html page can set the widget preferences by passing an array of objects specifying the widget, the sketches, and the pages. See the examples below.
-  //  Sketches are identified by a comma-separated list of identifiers, each of which is the id of a sketch_canvas DOM node.
-  //  Pages are identified by a comma-separated list of page numbers or by the keyword "all".
-  //  Because the preferences specified in this array are applied in order, the example begins by turning off all widgets for all pages of all sketches,
-  //  and then turns specific widgets on for specific pages of specific sketches.
-  //  WIDGETS.setWidgetsPrefs  ([
-  //    {pages: "none"}, // turn off all widgets for all sketches (omitting widget implies all widgets; omitting sketches implies all sketches)
-  //    {widget: "style", sketches: "sketch2", pages: "1, 3, 5"}, // turn on the style widget for pages 1, 3 and 5 in the sketch with id=sketch2.
-  //    {widget: "visibility", sketches: "sketch3, sketch4", pages: "all"}, // turn on the visibility widget for all pages of the sketches with id's of sketch3 and sketch4.
-  //    {widget: "style", sketches: "sketch4"}  // Omitting pages implies all pages, so the style widget will appear on all pages of the specified sketch.
-  //  ]);
-  //  The default is for all widgets to be available on all pages of all sketches In this example the first line reverses the default by turning off all widgets for all pages of all sketches.
-  //  The remaining lines turn on specific widgets for specific pages of specific sketches.
+  /*
+   * Here we allow the Tool Library and other utilities (such as the WebSketch Viewer) to override normal sketch preferences.
+   * This allows a sketch author to use widgets to edit a sketch for which widgets are normally disabled.
+   * These preference overrides are stored in the webPagePrefs array, created by calling setWebPagePrefs().
+   * For instance, the Tool Library uses setWebPagePrefs to enable all widgets and all util-menu commands
+   * even though the resulting sketch, when downloaded, will be more limited for student use.
+   * To make this work, the widget and util-menu code calls PREF.getPref() rather than doc.getAuthorPreference()
+   * to determine whether to display a particular widget or to enable a particular util-menu command.
+   * PREF.getPref() checks the webPagePrefs array and returns either the value from that array (if it exists)
+   * or the value from doc.getAuthorPreference() (if webPagePrefs does not contain a value).
+   * For instance, the Tool Library uses this mechanism to enable the util commands "upload" and "download,"
+   * allowing a sketch author to upload, edit, and download sketches that normally forbid these actions.
+   * Here's the Tool Library code that produces this result:
+   * PREF.setWebPagePrefs([
+   *   { name: 'uploadutil', value: true },
+   *   { name: 'downloadutil', value: true }
+   * ]);
+   * util-menu preferences are boolean, so must be set to true or false.
+   * A PageArrayPrefs can be set to "all" or "none", but actually return true or false.
+   * [If the need arises, we can extend this option to allow an array of strings (the desired page id's).]
+   * For util and widget categories, you can set the entire category at once:
+   * PREF.setWebPagePrefs([
+   *   { category: 'widget', value: 'all' }  // omit the name to set all prefs for the category
+   * ]);
+   * Each element passed to setWebPagePrefs can include a category or a name, but not both.
+   * (If both are included, the category is appended to the name.)
+   * Here's another example, forbidding drag merging on all pages and putting undo/redo in the buttonBar
+   * PREF.setWebPagePrefs([
+   *   { name: 'enabledragmerging', value: ['none'] },
+   *   { name: 'undoredoinbuttonbar', value: ['all'] }
+   * ]);
+   * When you specify the value to be used for a pref, you must adhere to the allowed values
+   * for the particular type of pref: some are boolean, and some are page arrays, which have
+   * shortcuts for setting them to all or none, as shown above.
+   * (Note: For a PageArrayPrefType the return value from PREF.getPref matches the behavior
+   * of doc.getAuthorPreference(), returning true or false for the page specified in the call to getPref.)
+   * For now, the webPagePrefs apply to all sketches on the web page; specifying prefs per-sketch
+   * is not required at this time.
+   *
+   * Changes to the author prefs using this mechanism affect only the behavior of code in widgets.js that calls
+   * PREF.getPref(). Thus if drag merging is enabled via sketch preferences, you cannot use webPagePrefs
+   * to prevent drag merging, because the drag merging code directly checks the sketch's own preferences.
+   */
 
-  var webPagePrefs = []; // Each array element is a quadruple containing category ("widget" or "util"), name ("style", "visibility", "upload", etc.), sketches (the id's of the sketch_canvases), and pages.
-  // Values of "none" and "all" are permitted, and missing values are equivalent to "all".
+  var webPagePrefs = []; // Each array element is a triple containing the preferences's category ("widget" or "util"),
+  // its name ("style", "visibility", "upload", etc.), and the value.
+  // A category sets all prefs of that category, so either the category or the name can be set, but not both.
+  // We don't distinguish among pages of a sketch, so the value is either true or false.
 
-  function getPref(doc, name, cat) {
-    // returns the pref for this sketch doc, name, and category.
-    // doc and name are required; category is optional
-    var node = doc.focusPage.anchorNode,
-      sketchId = node.context.id,
-      // If the sketch is from a json, the json filename can serve as its identifier
-      sketchUrl = node.data('url') || node.data('delayed-url') || '',
-      sketchJson = sketchUrl.match(/([\w\d_-]*)\.?[^\\\/]*$/i)[1],
-      val,
-      retVal;
+  function getPref(doc, name, cat, pageId) {
+    // returns the pref for this sketch doc, category, name, and pageId.
+    // doc, name, and pageId are required. For prefs other than widget and util, pass an empty string '' for category.
+    var val, retVal;
 
     function checkOnePref(ix) {
       // returns the pref value if found, undefined otherwise
       var aPref = webPagePrefs[ix],
         prefCat = aPref.category,
-        prefName = aPref.name,
-        prefSketches = aPref.sketches,
-        pages = aPref.pages;
-      if (prefCat && prefCat[0] !== cat && prefCat[0] !== 'all') {
-        // category mismatch, so skip other checks
-        if (prefCat[0] === 'none') return 'none'; // category "none" turns off all prefs.
-        return;
+        prefName = aPref.name;
+      // Either prefCat or prefName should exist, but not both.
+      if (prefCat && prefName) {
+        throw GSP.createError(
+          'PREF.checkOnePref found an invalid entry' + prefCat + prefName
+        );
       }
-      if (prefName[0] !== 'all' && !prefName.includes(name)) {
-        // name mismatch, so skip other checks
-        if (prefName[0] === 'none') return 'none'; // name "none" turns off all prefs for this category.
-        return;
+      if (prefCat && prefCat === cat) {
+        return aPref.value;
       }
-      if (
-        prefSketches &&
-        !prefSketches.includes(sketchId) &&
-        !prefSketches.includes(sketchJson) &&
-        prefSketches[0] !== 'all'
-      ) {
-        // sketch mismatch
-        if (prefSketches[0] === 'none') return 'none'; // sketch "none" turns off all prefs for this category & name.
-        return;
+      // Allow cat = 'widget' and name = 'style' to match 'stylewidget'
+      if (prefName && (prefName === name || prefName === name + cat)) {
+        return aPref.value;
       }
-      if (typeof pages === 'string') {
-        pages = pages.split(',');
-        for (var i = 0; i < pages.length; i++) {
-          pages[i] = pages[i].trim();
-        }
-      }
-      return pages;
     }
 
     if (!cat) cat = '';
     cat = cat.toLowerCase();
     name = name.toLowerCase();
-    retVal = doc.getAuthorPreference(name + cat);
+    retVal = doc.getAuthorPreference(name + cat, pageId);
     for (var i = 0; i < webPagePrefs.length; i++) {
       val = checkOnePref(i);
-      if (val === 'none') {
-        retVal = undefined;
-      } else if (val) {
-        retVal = val;
+      if (val !== undefined) {
+        // This entry matches
+        return val;
       }
     }
     return retVal;
-  }
-
-  function parseString(raw, defaultVal, numeric) {
-    // accepts a comma-delimited string
-    // returns an array: [defaultVal] if raw = null/undefined/empty string, or the trimmed comma-delimited elements
-    // If numeric is true, the returned elements are integers, though a single-element return may be or "all" or "none".
-    var i, retVal;
-    if (!raw) return [defaultVal];
-    retVal = raw.toLowerCase().split(',');
-    for (i = 0; i < retVal.length; i += 1) {
-      retVal[i] = retVal[i].trim();
-    }
-    if (retVal.length === 1 && ['all', 'none'].includes(retVal[0])) {
-      return retVal;
-    } else if (numeric) {
-      for (i = 0; i < retVal.length; i += 1) {
-        retVal[i] = parseInt(retVal[i], 10);
-      }
-    }
-    return retVal;
-  }
-
-  function WSPPref(category, name, sketches, pages) {
-    // category and name are defined; sketches and pages may not be
-    // If category is "all", this means only the widget and util categories
-    try {
-      this.category = parseString(category, 'all');
-      if (this.category[0] === 'all') this.category = ['widget, util'];
-      this.name = parseString(name, 'all');
-      this.pages = parseString(pages, 'all', true);
-      this.sketches = parseString(sketches, 'all');
-    } catch (err) {
-      throw GSP.createError('bad arguments to WSPPref constructor');
-    }
   }
 
   function setPrefs(prefArr) {
-    var theCategory, theName;
-    if (prefArr.constructor === Array) {
-      for (var i = 0; i < prefArr.length; i++) {
-        var pref = prefArr[i];
-        if (pref.category)
-          // Determine theCategory
-          theCategory = pref.category;
-        else theCategory = 'widget, util'; // Undefined category defaults to "[widget, util]"
-        if (pref.name)
-          // Determine theName
-          theName = pref.name;
-        else theName = 'all';
-        // Account for legacy pages that have elements like {widget: "style", sketches: "all"}.
-        // This example should become {category: "widget", name: "style", sketches: "all"}
-        if (pref.widget) {
-          theCategory = 'widget';
-          theName = pref.widget;
+    if (Array.isArray(prefArr)) {
+      $.each(prefArr, function() {
+        var cat = this.category,
+          name = this.name,
+          value = this.value;
+        if (cat && name) {
+          name = name + cat;
+          cat = undefined;
         }
-        webPagePrefs.push(
-          new WSPPref(theCategory, theName, pref.sketches, pref.pages)
-        );
-      }
+        webPagePrefs.push({ category: cat, name: name, value: value });
+      });
     }
   }
 
@@ -321,7 +277,7 @@ var PREF = (function() {
     shouldEnableForCurrentPage: function(prefCat, prefName, sketch) {
       // return boolean: should the named pref be enabled for the current page of the current sketch?
       var pageNum = parseInt(sketch.metadata.id, 10), // Use numeric pageNum to check against array
-        pages = getPref(sketch.document, prefName, prefCat);
+        pages = getPref(sketch.document, prefName, prefCat, sketch.metadata.id);
       return (
         pages === true ||
         (Array.isArray(pages) &&
@@ -768,6 +724,7 @@ var WIDGETS = (function() {
       $targetNode.on('ToolAborted.WSP', restoreWidget);
       $targetNode.on('StartDragConfirmed.WSP', preserveWidget);
       $targetNode.on('EndDrag.WSP', restoreWidget);
+      $targetNode.on('MergeGobjs.WSP', restoreWidget); // end of a drag merge
     }
     if (sketchChanged) {
       // even if the node's not changed, a page switch detaches the widgets
@@ -3584,7 +3541,7 @@ var PAGENUM = (function() {
       node.className = classes.trim();
       $node.toggle(
         enabledPages[0] === 'all' ||
-          enabledPages.includes(+sketchDoc.focusPage.metadata.id)
+          enabledPages.includes(sketchDoc.focusPage.metadata.id)
       );
     });
   }
