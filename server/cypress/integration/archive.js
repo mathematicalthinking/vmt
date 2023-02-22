@@ -23,7 +23,7 @@ it('visits archive page', function() {
  */
 
 it('should have 1 room on the archive page: "room 1"', function() {
-  cy.get('h3').contains('Search your 1 archived Rooms');
+  cy.get('h3').contains('Search your 2 archived Rooms');
   cy.get('div').contains('room 1');
 });
 // 3. Archive page should have 1 room: "room 1"
@@ -41,13 +41,14 @@ it('should have 1 room on the archive page: "room 1"', function() {
  */
 
 it('should be able to be unarchived', function() {
-  cy.get('div')
-    .contains('replay')
-    .click();
+  cy.get('[data-testid="Unarchive-button-5ba289c57223b9429888b9b5"]').click();
   cy.get('button')
     .contains('Yes')
     .click();
   cy.get('h3').contains('Search your 0 archived Rooms');
+  cy.getTestElement('nav-My VMT').click();
+  cy.getTestElement('search').type('room 1');
+  cy.get('div').contains('room 1');
 });
 
 // 5. click yes on popup modal
