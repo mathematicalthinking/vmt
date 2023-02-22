@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
+import { ToolTip } from 'Components';
 import { useSortableData } from 'utils';
 import classes from './makeRooms.css';
 
@@ -101,6 +102,7 @@ const TheMatrix = (props) => {
     canDeleteRooms, // should be 'canAddDeleteRooms'
     userId,
     onAddParticipants,
+    getCourseName,
   } = props;
 
   // =========== SORT FACILITATORS TO THE END OF ALL PARTICIPANTS ==============
@@ -163,13 +165,18 @@ const TheMatrix = (props) => {
     );
   };
 
+  const handleShowCourseOnHover = (courseId) => {
+    if (!courseId) return null;
+    return getCourseName(courseId);
+  };
+
   // =========================================================
 
   return (
     <Fragment>
+      <div className={classes.Caption}>Rooms</div>
       <div className={classes.AssignmentMatrix}>
         <table className={classes.Table}>
-          <caption className={classes.Caption}>Rooms</caption>
           <thead>
             <tr className={classes.LockedTop}>
               <th className={classes.LockedColumn}>
@@ -234,12 +241,30 @@ const TheMatrix = (props) => {
                   key={participant.user._id}
                   id={participant.user._id}
                 >
-                  <td
-                    className={classes.LockedColumn}
-                    style={{ color: `${participant.displayColor || 'black'}` }}
-                  >
-                    {`${i + 1}. ${participant.user.username}`}
-                  </td>
+                  {participant.course ? (
+                    <td
+                      className={`${classes.tooltip} ${classes.LockedColumn}`}
+                      style={{
+                        color: `${participant.displayColor || 'black'}`,
+                      }}
+                    >
+                      <React.Fragment>
+                        {`${i + 1}. ${participant.user.username}`}
+                        <span className={classes.tooltiptext}>
+                          {handleShowCourseOnHover(participant.course)}
+                        </span>
+                      </React.Fragment>
+                    </td>
+                  ) : (
+                    <td
+                      className={classes.LockedColumn}
+                      style={{
+                        color: `${participant.displayColor || 'black'}`,
+                      }}
+                    >
+                      {`${i + 1}. ${participant.user.username}`}
+                    </td>
+                  )}
                   {roomDrafts.map((room, j) => {
                     const roomKey = `${participant.user._id}rm${j}`;
                     const data = {
@@ -322,11 +347,13 @@ TheMatrix.propTypes = {
   ).isRequired,
   canDeleteRooms: PropTypes.bool,
   onAddParticipants: PropTypes.func,
+  getCourseName: PropTypes.func,
 };
 
 TheMatrix.defaultProps = {
   canDeleteRooms: true,
   onAddParticipants: null,
+  getCourseName: null,
 };
 
 export default AssignmentMatrix;
