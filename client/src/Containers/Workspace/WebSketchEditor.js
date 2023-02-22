@@ -102,7 +102,7 @@ const WebSketchEditor = (props) => {
     // Call this whenever the sketch doc may have changed.
     // e.g., page changes, start of toolplay, undo/redo, etc.
     if (!$sketch) {
-      $sketch = $('#sketch');
+      $sketch = $('#libSketch');
     }
     sketchDoc.current = $sketch.data('document');
     sketch = sketchDoc && sketchDoc.focusPage;
@@ -224,7 +224,7 @@ const WebSketchEditor = (props) => {
     const { tab, activity, updateActivityTab } = props;
     if (!sketchDoc.current && window.jQuery) {
       // console.log('Setting sketc doc');
-      const sketchEl = window.jQuery('#sketch');
+      const sketchEl = window.jQuery('#libSketch');
       sketchDoc.current = sketchEl.data('document');
     }
     // console.log('Sketch document: ', sketchDoc);
@@ -254,13 +254,13 @@ const WebSketchEditor = (props) => {
       console.log(
         'Graph loaded? ',
         !!sketchDoc.current,
-        $('#sketch').data('document'),
+        $('#libSketch').data('document'),
         ' vs ',
         sketchDoc.current
       );
-      if (!$('#sketch').data('document')) {
-        $('#sketch').data('document', sketchDoc.current);
-        console.log('How about now? ', $('#sketch').data('document'));
+      if (!$('#libSketch').data('document')) {
+        $('#libSketch').data('document', sketchDoc.current);
+        console.log('How about now? ', $('#libSketch').data('document'));
       }
       // if (!!window.TOOLS) {
       //   window.TOOLS.initLibrary();
@@ -269,7 +269,7 @@ const WebSketchEditor = (props) => {
       //   'After reloading library? ',
       //   sketchDoc.current,
       //   ' sketch: ',
-      //   $('#sketch').data('document')
+      //   $('#libSketch').data('document')
       // );
     }
   };
@@ -408,11 +408,11 @@ const WebSketchEditor = (props) => {
       console.warn('No jQuerious');
       return;
     }
-    $('#sketch').WSP('loadSketch', {
+    $('#libSketch').WSP('loadSketch', {
       'data-sourceDocument': config,
       onLoad: (metadata) => {
         console.log('Loading: ', metadata);
-        $sketch = $('#sketch');
+        $sketch = $('#libSketch');
         setFirstTabLoaded();
       },
     });
@@ -526,7 +526,7 @@ const WebSketchEditor = (props) => {
         <div className="sketch_container" id="calculatorParent">
           <div
             className="sketch_canvas"
-            id="sketch"
+            id="libSketch"
             // data-url="/WSPAssets/empty.json"
             // data-url="/WSPAssets/library/basic/tester.json"
             ref={wspSketch}
