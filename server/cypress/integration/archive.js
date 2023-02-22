@@ -23,7 +23,7 @@ it('visits archive page', function() {
  */
 
 it('should have 1 room on the archive page: "room 1"', function() {
-  cy.get('h3').contains('Search your 2 archived Rooms');
+  cy.get('h3').contains('Search your 1 archived Rooms');
   cy.get('div').contains('room 1');
 });
 // 3. Archive page should have 1 room: "room 1"
