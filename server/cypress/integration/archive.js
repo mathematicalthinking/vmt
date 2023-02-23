@@ -1,11 +1,31 @@
 // 1. login as jl_picard (pw: "enterprise")
 
-// 2. click Archive page
-/*
-        // cy.findByRole('link', {  name: /archive/i}) 
-        cy.getTestElement('nav-Archive')
-*/
+const user1 = require('../fixtures/user');
 
+describe('archive page works as intended', function() {
+  beforeEach(function() {
+    cy.window().then((win) => {
+      win.sessionStorage.clear();
+      win.localStorage.clear();
+      cy.restoreAll();
+      cy.clearCookies();
+      cy.visit('/');
+    });
+  });
+});
+// 2. click Archive page
+
+it('visits archive page', function() {
+  cy.login(user1);
+  cy.contains('Archive').click();
+});
+/*
+ */
+
+it('should have 1 room on the archive page: "room 1"', function() {
+  cy.get('h3').contains('Search your 1 archived Rooms');
+  cy.get('div').contains('room 1');
+});
 // 3. Archive page should have 1 room: "room 1"
 // (maybe save "room 1" to a variable to check that it's not there after unarchiving)
 /*
@@ -19,6 +39,17 @@
         // const button = cy.findByRole('button', {  name: /unarchive unarchive output/i});within(button).getByText(/output/i);
         cy.getTestElement('Unarchive-button-5ba289c57223b9429888b9b5')
  */
+
+it('should be able to be unarchived', function() {
+  cy.get('[data-testid="Unarchive-button-5ba289c57223b9429888b9b5"]').click();
+  cy.get('button')
+    .contains('Yes')
+    .click();
+  cy.get('h3').contains('Search your 0 archived Rooms');
+  cy.getTestElement('nav-My VMT').click();
+  cy.getTestElement('search').type('room 1');
+  cy.get('div').contains('room 1');
+});
 
 // 5. click yes on popup modal
 /*
