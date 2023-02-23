@@ -592,15 +592,6 @@ export const createdRoomConfirmed = () => {
   };
 };
 
-export const updateMonitorSelections = (selections) => {
-  return (dispatch) => {
-    dispatch({
-      type: actionTypes.UPDATE_MONITOR_SELECTIONS,
-      monitorSelections: selections,
-    });
-  };
-};
-
 export const restoreArchivedRoom = (id) => {
   return async (dispatch, getState) => {
     const roomData = await API.get('rooms', { _id: id });

@@ -10,7 +10,7 @@ import {
 } from 'Components';
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
-import { dateAndTime } from 'utils';
+import { dateAndTime, useUIState } from 'utils';
 import Thumbnails from './Thumbnails';
 import QuickChat from './QuickChat';
 import classes from './monitoringView.css';
@@ -40,6 +40,7 @@ function RoomsMonitor({
   screenIndex,
   user,
   onThumbnailSelected,
+  context, // used for saving and restoring UI state
 }) {
   const constants = {
     CHAT: 'Chat',
@@ -49,12 +50,21 @@ function RoomsMonitor({
     SIMPLE: 'Simple Chat',
     DETAILED: 'Detailed Chat',
   };
+  const [uiState, setUIState] = useUIState(context, {});
 
-  const [viewType, setViewType] = React.useState(constants.ATTENDANCE);
-  const [chatType, setChatType] = React.useState(constants.DETAILED);
-  const [quickChat, setQuickChat] = React.useState(null);
+  const [viewType, setViewType] = React.useState(
+    uiState.viewType || constants.ATTENDANCE
+  );
+  const [chatType, setChatType] = React.useState(
+    uiState.chatType || constants.DETAILED
+  );
+  const [quickChat, setQuickChat] = React.useState(uiState.quickChat || null);
   const [showModal, setShowModal] = React.useState(false);
   const [roomPreview, setRoomPreview] = React.useState(null);
+
+  React.useEffect(() => {
+    setUIState({ viewType, chatType, quickChat });
+  }, [viewType, chatType, quickChat]);
 
   /**
    *
@@ -124,6 +134,7 @@ function RoomsMonitor({
           <SimpleChat
             isSimplified={chatType === constants.SIMPLE}
             log={populatedRooms[id].chat || []}
+            context={`${context}-${id}`}
           />
         );
       case constants.THUMBNAIL: {
@@ -330,6 +341,7 @@ RoomsMonitor.propTypes = {
     inAdminMode: PropTypes.bool,
   }).isRequired,
   onThumbnailSelected: PropTypes.func,
+  context: PropTypes.string.isRequired,
 };
 
 RoomsMonitor.defaultProps = {

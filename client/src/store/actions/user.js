@@ -78,13 +78,6 @@ export const toggleJustLoggedIn = () => {
   };
 };
 
-// update the local state from ResourceList (e.g., sort type, filter timeframe)
-export const updateResourceListState = (context, newState) => ({
-  type: actionTypes.UPDATE_RESOURCELIST_STATE,
-  context,
-  newState,
-});
-
 export const updateUserResource = (resource, resourceId, userId) => {
   return (dispatch) => {
     API.addUserResource(resource, resourceId, userId)
