@@ -3,7 +3,12 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
-import { useSortableData, timeFrames, amIAFacilitator } from 'utils';
+import {
+  useSortableData,
+  timeFrames,
+  amIAFacilitator,
+  useUIState,
+} from 'utils';
 import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
 import { Button, Modal, BigModal, Search, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
@@ -20,10 +25,8 @@ const ResourceList = ({
   user,
   userResources,
   notifications,
-  resourceState,
-  setResourceState,
   selectableBoxList,
-  context,
+  context, // provides the context in which ResourceList is being used
 }) => {
   const initialConfig = {
     key: 'updatedAt',
@@ -40,18 +43,24 @@ const ResourceList = ({
   const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
   const [showRoomPreview, setShowRoomPreview] = useState(false);
 
+  // store and restore the state of the sort/filters for when the user navigates away and back
+  const [resourceState, setResourceState] = useUIState(context, {
+    facilitatorConfig: initialConfig,
+    participantConfig: initialConfig,
+  });
+
   // Use useSortableData hook to enable user-controlled sorting
   const {
     items: facilitatorItems,
     resetSort: facilitatorRequestSort,
     sortConfig: facilitatorSortConfig,
-  } = useSortableData(fList, resourceState.facilitatorConfig || initialConfig);
+  } = useSortableData(fList, resourceState.facilitatorConfig);
 
   const {
     items: participantItems,
     resetSort: participantRequestSort,
     sortConfig: participantSortConfig,
-  } = useSortableData(pList, resourceState.participantConfig || initialConfig);
+  } = useSortableData(pList, resourceState.participantConfig);
 
   const keys = [
     { property: 'updatedAt', name: 'Last Updated' },
@@ -59,6 +68,14 @@ const ResourceList = ({
     { property: 'createdAt', name: 'Created Date' },
     { property: 'dueDate', name: 'Due Date' },
   ];
+
+  // if the UI state changes, update the UIState variable
+  useEffect(() => {
+    setResourceState({
+      facilitatorConfig: facilitatorSortConfig,
+      participantConfig: participantSortConfig,
+    });
+  }, [facilitatorSortConfig, participantSortConfig]);
 
   useEffect(() => {
     const { facilitatorList, participantList } = sortUserResources(
@@ -68,17 +85,9 @@ const ResourceList = ({
     setFacilitatorList(facilitatorList);
     setParticipantList(participantList);
 
-    facilitatorRequestSort(resourceState.facilitatorConfig || initialConfig);
-    participantRequestSort(resourceState.participantConfig || initialConfig);
+    facilitatorRequestSort(resourceState.facilitatorConfig);
+    participantRequestSort(resourceState.participantConfig);
   }, [userResources]);
-
-  useEffect(() => {
-    if (setResourceState)
-      setResourceState({
-        facilitatorConfig: facilitatorSortConfig,
-        participantConfig: participantSortConfig,
-      });
-  }, [facilitatorSortConfig, participantSortConfig]);
 
   const sortUserResources = (resources) => {
     const facilitatorList = [];
@@ -337,7 +346,7 @@ const ResourceList = ({
                 <SortUI
                   keys={keys}
                   sortFn={facilitatorRequestSort}
-                  sortConfig={resourceState.facilitatorConfig || initialConfig}
+                  sortConfig={facilitatorSortConfig}
                 />
               )}
 
@@ -375,7 +384,7 @@ const ResourceList = ({
                 <SortUI
                   keys={keys}
                   sortFn={participantRequestSort}
-                  sortConfig={resourceState.participantConfig || initialConfig}
+                  sortConfig={participantSortConfig}
                 />
               )}
               <BoxList
@@ -410,8 +419,8 @@ const ResourceList = ({
                 }
                 sortConfig={
                   fList.length > 0
-                    ? resourceState.facilitatorConfig || initialConfig
-                    : resourceState.participantConfig || initialConfig
+                    ? facilitatorSortConfig
+                    : participantSortConfig
                 }
               />
             )}
@@ -441,11 +450,6 @@ ResourceList.propTypes = {
   }).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  resourceState: PropTypes.shape({
-    facilitatorConfig: PropTypes.shape({}),
-    participantConfig: PropTypes.shape({}),
-  }),
-  setResourceState: PropTypes.func,
   selectableBoxList: PropTypes.bool,
   context: PropTypes.string,
 };
@@ -453,8 +457,6 @@ ResourceList.propTypes = {
 ResourceList.defaultProps = {
   parentResource: null,
   parentResourceId: null,
-  resourceState: {},
-  setResourceState: null,
   selectableBoxList: false,
   context: null,
 };

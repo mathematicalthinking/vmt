@@ -153,6 +153,9 @@
   text-align: right;
   /* max-width: 70%; */
   /* border: 1px solid blue; */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .ToggleView i {

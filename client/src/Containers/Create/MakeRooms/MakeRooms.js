@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
 import { dateAndTime, useAppModal, COLOR_MAP, addColors } from 'utils';
@@ -22,6 +22,8 @@ const MakeRooms = (props) => {
 
   const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
   const history = useHistory(); // Elsewhere we use 'withRouter()'; this is the modern approach
+
+  const courses = useSelector((state) => state.courses.byId);
 
   const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
   const [participants, setParticipants] = useState(
@@ -427,6 +429,10 @@ const MakeRooms = (props) => {
     );
   };
 
+  const getCourseName = (courseId) => {
+    return (courses[courseId] && courses[courseId].name) || null;
+  };
+
   const assignmentMatrix = (
     <AssignmentMatrix
       allParticipants={participants}
@@ -438,6 +444,7 @@ const MakeRooms = (props) => {
       roomDrafts={roomDrafts}
       canDeleteRooms
       onAddParticipants={handleAddParticipants}
+      getCourseName={getCourseName}
     />
   );
 
