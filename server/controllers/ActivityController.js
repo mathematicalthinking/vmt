@@ -222,7 +222,6 @@ module.exports = {
                     activity: activity._id,
                     ggbFile: file,
                     tabType: body.roomType,
-                    creator: body.creator,
                   });
                 })
               );
@@ -232,7 +231,6 @@ module.exports = {
               activity: activity._id,
               desmosLink: body.desmosLink,
               tabType: body.roomType,
-              creator: body.creator,
             });
           }
 
@@ -254,7 +252,6 @@ module.exports = {
                     : tab.currentStateBase64,
                 desmosLink: tab.desmosLink,
                 tabType: tab.tabType,
-                creator: body.creator,
               });
               return newTab.save();
             })
