@@ -609,7 +609,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
       const query = { $set: { currentMembers: newCurrentUserIds } };
-      db.Room.findByIdAndUpdate(roomId, query, { new: true })
+      db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members controlledBy')
         .then((room) => {
@@ -633,7 +633,7 @@ module.exports = {
       const query = members
         ? { $addToSet: { currentMembers: newCurrentUserId, members } }
         : { $addToSet: { currentMembers: newCurrentUserId } };
-      db.Room.findByIdAndUpdate(roomId, query, { new: true })
+      db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members')
         .then((room) => {
@@ -653,7 +653,11 @@ module.exports = {
 
   removeCurrentUsers: (roomId, userId) => {
     return new Promise((resolve, reject) => {
-      db.Room.findByIdAndUpdate(roomId, { $pull: { currentMembers: userId } }) // dont return new! we need the original list to filter back in sockets.js
+      db.Room.findByIdAndUpdate(
+        roomId,
+        { $pull: { currentMembers: userId } },
+        { timestamps: false }
+      ) // dont return new! we need the original list to filter back in sockets.js
         .populate({ path: 'currentMembers', select: 'username' })
         .select('currentMembers controlledBy')
         .then((room) => {
@@ -680,7 +684,11 @@ module.exports = {
       }
       since = Number(momentObj.startOf('day').format('x'));
     }
-    const initialFilter = { updatedAt: { $gte: new Date(since) } };
+    const initialFilter = {
+      updatedAt: { $gte: new Date(since) },
+      isTrashed: false,
+      status: { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] },
+    };
     // eslint-disable-next-line no-unused-vars
     if (to && since && to > since) {
       let toMomentObj = moment(to, 'x', true);

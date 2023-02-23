@@ -91,6 +91,28 @@
 .Expanded {
   margin-top: 5px;
   padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.ExpandedItemContainer {
+  width: 100%;
+}
+
+.DetailsTitle {
+  font-weight: 500;
+  /* margin-right: 5px; */
+  width: 90px;
+  display: inline-block;
+}
+
+.Facilitators {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.FacilitatorsList {
+  margin-right: 5px;
 }
 
 .Icons {

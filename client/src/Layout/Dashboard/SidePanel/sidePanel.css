@@ -45,7 +45,7 @@
   text-align: center;
 }
 
-.spAdditional {  
+.spAdditional {
   margin-top: 1rem;
   border-top: 1px solid lightBorder;
   border-bottom: 1px solid lightBorder;
@@ -65,7 +65,7 @@
   color: darkGray;
   cursor: pointer;
   border: 1px solid lightBorder;
-  padding: 12px 0;
+  padding: 12px 6px;
   margin-top: 15px;
   margin-bottom: 10px;
   border-radius: 5px;
@@ -135,6 +135,7 @@
   width: 90%;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .KeyName {
@@ -152,6 +153,9 @@
   text-align: right;
   /* max-width: 70%; */
   /* border: 1px solid blue; */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .ToggleView i {

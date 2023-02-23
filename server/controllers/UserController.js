@@ -2,6 +2,7 @@ const { ObjectId } = require('mongoose').Types;
 const moment = require('moment');
 const db = require('../models');
 const { areObjectIdsEqual } = require('../middleware/utils/helpers');
+const STATUS = require('../constants/status');
 
 module.exports = {
   get: (params) => {
@@ -165,7 +166,11 @@ module.exports = {
       }
       since = Number(momentObj.startOf('day').format('x'));
     }
-    let initialFilter = { updatedAt: { $gte: new Date(since) } };
+    let initialFilter = {
+      updatedAt: { $gte: new Date(since) },
+      isTrashed: false,
+      status: { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] },
+    };
 
     if (to && since && to > since) {
       let toMomentObj = moment(to, 'x', true);

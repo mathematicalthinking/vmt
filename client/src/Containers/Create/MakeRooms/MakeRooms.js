@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { shuffle } from 'lodash';
+import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { BigModal, Button } from 'Components';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
 import { dateAndTime, useAppModal, COLOR_MAP, addColors } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
@@ -23,15 +23,20 @@ const MakeRooms = (props) => {
   const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
   const history = useHistory(); // Elsewhere we use 'withRouter()'; this is the modern approach
 
+  const courses = useSelector((state) => state.courses.byId);
+
   const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
   const [participants, setParticipants] = useState(
     addColors(initialParticipants)
   );
   const [roomDrafts, setRoomDrafts] = useState([]);
-  const [showModal, setShowModal] = useState(false);
   const submitArgs = React.useRef(); // used for passing along submit info
   const membersToInviteToCourse = React.useRef(null);
-  const { show: showTheWarning, hide: hideTheWarning } = useAppModal();
+  const {
+    show: showTheWarning,
+    hide: hideModals,
+    showBig: showAddParticipants,
+  } = useAppModal();
 
   // NOTE: These two useEffects react when props change. That's the correct way of checking and responding to
   // changed props.  However, the correct way of detecting and responding to a changed state is to act when the
@@ -96,15 +101,25 @@ const MakeRooms = (props) => {
         );
       } else
         setRoomNum(
-          Math.max(Math.floor(filterFacilitators(participants).length / 3), 1),
+          Math.max(
+            Math.floor(
+              filterFacilitators(participants).length / participantsPerRoom
+            ),
+            1
+          ),
           true
         );
     } else {
       setRoomNum(
-        Math.max(Math.floor(filterFacilitators(participants).length / 3), 1)
+        Math.max(
+          Math.floor(
+            filterFacilitators(participants).length / participantsPerRoom
+          ),
+          1
+        )
       );
     }
-  }, [selectedAssignment, participants.length]);
+  }, [selectedAssignment]);
 
   const setRoomNum = (roomNum, clearRooms) => {
     const newRoomDrafts = clearRooms ? [] : roomDrafts;
@@ -187,33 +202,47 @@ const MakeRooms = (props) => {
     });
   };
 
+  const clusterByCourse = (members) => {
+    return Object.values(
+      members.reduce((acc, member) => {
+        if (!acc[member.course]) {
+          acc[member.course] = [];
+        }
+        acc[member.course].push(member);
+        return acc;
+      }, {})
+    );
+  };
+
   const shuffleMemberList = (members) => {
     // Cluster members by the course they are from; randomize the array clusters
-    const courseClusters = shuffle(
-      Object.values(
-        members.reduce((acc, member) => {
-          if (!acc[member.course]) {
-            acc[member.course] = [];
-          }
-          acc[member.course].push(member);
-          return acc;
-        }, {})
-      )
-    );
+    const courseClusters = _.shuffle(clusterByCourse(members));
 
     // randomize the members within each cluster
     const randomizedClusters = courseClusters.map((cluster) =>
-      shuffle(cluster)
+      _.shuffle(cluster)
     );
 
-    // returned the interleaved clusters
+    // interleave the clusters proportionally
+    const minLength = Math.min(
+      ...randomizedClusters.map((cluster) => cluster.length)
+    );
     const maxLength = Math.max(
       ...randomizedClusters.map((cluster) => cluster.length)
     );
+
+    const peoplePerRoom = randomizedClusters.map((cluster) =>
+      Math.floor(cluster.length / minLength)
+    );
+
     const result = [];
     for (let x = 0; x < maxLength; x++) {
-      randomizedClusters.forEach((cluster) => {
-        if (x < cluster.length) result.push(cluster[x]);
+      randomizedClusters.forEach((cluster, index) => {
+        const itemsToAdd = cluster.slice(
+          x * peoplePerRoom[index],
+          (x + 1) * peoplePerRoom[index]
+        );
+        result.push(...itemsToAdd);
       });
     }
 
@@ -240,17 +269,15 @@ const MakeRooms = (props) => {
     membersToInviteToCourse.current = memsToInvite;
   };
 
-  const setNumber = (numberOfParticipants) => {
-    // Make sure that number of participants is between 1 and the number of participants
-    const newNumberOfParticipants = Math.max(
-      Math.min(numberOfParticipants, filterFacilitators(participants).length),
-      1
-    );
-    setParticipantsPerRoom(newNumberOfParticipants);
+  const setPPR = (ppr, newParticipants) => {
+    const numberOfParticipants = newParticipants
+      ? filterFacilitators(newParticipants).length
+      : filterFacilitators(participants).length;
+    // Make sure that number of participants per room is between 1 and the number of participants
+    const adjustedPPR = Math.max(Math.min(ppr, numberOfParticipants), 1);
+    setParticipantsPerRoom(adjustedPPR);
     const numRooms = Math.max(
-      Math.floor(
-        filterFacilitators(participants).length / newNumberOfParticipants
-      ),
+      Math.floor(numberOfParticipants / adjustedPPR),
       1
     );
     setRoomNum(numRooms);
@@ -263,11 +290,30 @@ const MakeRooms = (props) => {
   ) => {
     const newParticipantsWithColors = addColors(newParticipants);
     setParticipants(newParticipantsWithColors);
+    setPPR(
+      calculatePPR(filterFacilitators(newParticipantsWithColors)),
+      newParticipantsWithColors
+    );
     if (shouldInviteMembersToCourse)
       handleMembersToInvite(participantsToInvite);
-    // call a function to map members of a course to a colorMap color
-    // within the participants object
-    // store this within groupings for access in EditRooms
+  };
+
+  const calculatePPR = (members) => {
+    const clusters = clusterByCourse(members);
+    const numberOfMembers = members.length;
+
+    // if more than 6 classes collaborating, set PPR to 6
+    if (clusters.length > 6) return 6;
+
+    // set the possiblePPR to be at least the number of collaborating classes
+    const possiblePPRs = [3, 4, 5, 6].filter((ppr) => ppr >= clusters.length);
+
+    // return a number that minimizes the number of 'extra' students
+    const ans = possiblePPRs.reduce((a, b) =>
+      numberOfMembers % a <= numberOfMembers % b ? a : b
+    );
+
+    return ans;
   };
 
   const checkBeforeSubmit = (submitInfo) => {
@@ -345,10 +391,7 @@ const MakeRooms = (props) => {
             course._id,
             memToInvite.user._id,
             memToInvite.user.username,
-            {
-              role: memToInvite.role,
-              course: memToInvite.course,
-            }
+            memToInvite
           )(dispatch);
         });
       }
@@ -362,6 +405,34 @@ const MakeRooms = (props) => {
     history.push(`${url.slice(0, indexOfLastSlash + 1)}rooms`);
   };
 
+  const handleAddParticipants = () => {
+    // We want to make sure that React always mounts a new AddParticipants instance because
+    // that component contains lots of state. To do this
+    // we set a unique key for the component when the user clicks on the add participants button.
+    // Note: This is NOT the anti-pattern of setting key to be a constantly changing value (Date.now()),
+    // which can lead to large numbers of renders. The key is just unique with each press of the add
+    // participants button. There shouldn't be any more renders than usual.
+    //
+    // An alternative way to handle this situation would be to put a "clean up" function inside of AddParticipants that
+    // clears out all the state.
+    const key = Date.now();
+    showAddParticipants(
+      <AddParticipants
+        key={key}
+        participants={participants}
+        userId={userId}
+        onSubmit={handleAddParticipantsSubmit}
+        onCancel={hideModals}
+        courseCheckbox={course !== null}
+        originatingCourseId={(course && course._id) || null}
+      />
+    );
+  };
+
+  const getCourseName = (courseId) => {
+    return (courses[courseId] && courses[courseId].name) || null;
+  };
+
   const assignmentMatrix = (
     <AssignmentMatrix
       allParticipants={participants}
@@ -372,7 +443,8 @@ const MakeRooms = (props) => {
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms
-      onAddParticipants={setShowModal}
+      onAddParticipants={handleAddParticipants}
+      getCourseName={getCourseName}
     />
   );
 
@@ -388,12 +460,12 @@ const MakeRooms = (props) => {
             m={10}
             click={() => {
               submit(submitArgs.current);
-              hideTheWarning();
+              hideModals();
             }}
           >
             Assign
           </Button>
-          <Button m={10} theme="Cancel" click={hideTheWarning}>
+          <Button m={10} theme="Cancel" click={hideModals}>
             Cancel
           </Button>
         </div>
@@ -402,40 +474,20 @@ const MakeRooms = (props) => {
   };
 
   return (
-    <React.Fragment>
-      {showModal && (
-        <BigModal
-          show={showModal}
-          closeModal={() => {
-            setShowModal(false);
-          }}
-        >
-          <AddParticipants
-            participants={participants}
-            userId={userId}
-            onSubmit={handleAddParticipantsSubmit}
-            onCancel={() => {
-              setShowModal(false);
-            }}
-            courseCheckbox={course !== null}
-          />
-        </BigModal>
-      )}
-      <AssignRooms
-        initialAliasMode={selectedAssignment.aliasMode || false}
-        initialDueDate={selectedAssignment.dueDate || ''}
-        initialRoomName={
-          selectedAssignment.roomName ||
-          `${activity.name} (${dateAndTime.toDateString(new Date())})`
-        }
-        participantsPerRoom={participantsPerRoom}
-        setParticipantsPerRoom={setNumber}
-        assignmentMatrix={assignmentMatrix}
-        onSubmit={checkBeforeSubmit}
-        onShuffle={shuffleParticipants}
-        onCancel={close}
-      />
-    </React.Fragment>
+    <AssignRooms
+      initialAliasMode={selectedAssignment.aliasMode || false}
+      initialDueDate={selectedAssignment.dueDate || ''}
+      initialRoomName={
+        selectedAssignment.roomName ||
+        `${activity.name} (${dateAndTime.toDateString(new Date())})`
+      }
+      participantsPerRoom={participantsPerRoom}
+      setParticipantsPerRoom={setPPR}
+      assignmentMatrix={assignmentMatrix}
+      onSubmit={checkBeforeSubmit}
+      onShuffle={shuffleParticipants}
+      onCancel={close}
+    />
   );
 };
 

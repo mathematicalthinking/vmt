@@ -1,15 +1,15 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateRoom } from 'store/actions';
 import {
   inviteToRoom,
   removeRoomMember,
   updateGroupings,
 } from 'store/actions/rooms';
-import { Button, Modal } from 'Components';
-import { addColors, dateAndTime } from 'utils';
+import { Button } from 'Components';
+import { addColors, dateAndTime, useAppModal } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 
@@ -25,11 +25,13 @@ const EditRooms = (props) => {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  const courses = useSelector((state) => state.courses.byId);
+
   const [roomDrafts, setRoomDrafts] = useState(selectedAssignment.value);
   const [participants, setParticipants] = useState([]);
-  const [showWarning, setShowWarning] = useState(false);
   const submitArgs = React.useRef(); // used for passing along submit info
   const roomNum = selectedAssignment.value.length;
+  const { show: showTheWarning, hide: hideModals } = useAppModal();
 
   useEffect(() => {
     // derive participants from members within the selected assignment
@@ -72,7 +74,7 @@ const EditRooms = (props) => {
     );
     return everyoneAssigned
       ? editPreviousAssignment(submitInfo)
-      : setShowWarning(true);
+      : showWarning();
   };
 
   const deleteRemovedRoomMembers = (
@@ -197,6 +199,10 @@ const EditRooms = (props) => {
     history.push(`${url.slice(0, indexOfLastSlash + 1)}rooms`);
   };
 
+  const getCourseName = (courseId) => {
+    return (courses[courseId] && courses[courseId].name) || null;
+  };
+
   const assignmentMatrix = (
     <AssignmentMatrix
       allParticipants={participants}
@@ -211,42 +217,47 @@ const EditRooms = (props) => {
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms={false}
+      getCourseName={getCourseName}
     />
   );
 
+  const showWarning = () => {
+    showTheWarning(
+      <Fragment>
+        <div>
+          There are unassigned participants. Do you want to continue with the
+          editing of this assignment?
+        </div>
+        <div>
+          <Button
+            m={10}
+            click={() => {
+              editPreviousAssignment(submitArgs.current);
+              hideModals();
+            }}
+          >
+            Assign
+          </Button>
+          <Button m={10} theme="Cancel" click={hideModals}>
+            Cancel
+          </Button>
+        </div>
+      </Fragment>
+    );
+  };
+
   return (
-    <Fragment>
-      {showWarning && (
-        <Modal show={showWarning} closeModal={() => setShowWarning(false)}>
-          <div>
-            There are unassigned participants. Do you want to continue with the
-            editing of this assignment?
-          </div>
-          <div>
-            <Button
-              m={10}
-              click={() => editPreviousAssignment(submitArgs.current)}
-            >
-              Assign
-            </Button>
-            <Button m={10} theme="Cancel" click={() => setShowWarning(false)}>
-              Cancel
-            </Button>
-          </div>
-        </Modal>
-      )}
-      <AssignRooms
-        initialAliasMode={selectedAssignment.aliasMode || false}
-        initialDueDate={selectedAssignment.dueDate || ''}
-        initialRoomName={
-          selectedAssignment.roomName ||
-          `${activity.name} (${dateAndTime.toDateString(new Date())})`
-        }
-        assignmentMatrix={assignmentMatrix}
-        onSubmit={checkBeforeSubmit}
-        onCancel={close}
-      />
-    </Fragment>
+    <AssignRooms
+      initialAliasMode={selectedAssignment.aliasMode || false}
+      initialDueDate={selectedAssignment.dueDate || ''}
+      initialRoomName={
+        selectedAssignment.roomName ||
+        `${activity.name} (${dateAndTime.toDateString(new Date())})`
+      }
+      assignmentMatrix={assignmentMatrix}
+      onSubmit={checkBeforeSubmit}
+      onCancel={close}
+    />
   );
 };
 

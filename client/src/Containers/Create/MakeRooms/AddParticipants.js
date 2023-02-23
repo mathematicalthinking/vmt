@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable react/no-did-update-set-state */
-import React, { useState, Fragment } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 import SearchResults from 'Containers/Members/SearchResults';
 import { amIAFacilitator } from 'utils';
 import API from 'utils/apiRequests';
@@ -18,7 +19,14 @@ import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
-  const { participants, userId, onSubmit, onCancel, courseCheckbox } = props;
+  const {
+    participants,
+    userId,
+    onSubmit,
+    onCancel,
+    courseCheckbox,
+    originatingCourseId,
+  } = props;
 
   const userCoursesById = useSelector((state) => state.courses.byId);
 
@@ -41,6 +49,12 @@ const AddParticipants = (props) => {
     setShouldInviteMembersToCourse,
   ] = useState(false);
 
+  useEffect(() => {
+    return () => debounceSearch.cancel();
+  }, []);
+
+  const debounceSearch = debounce((text) => search(text), 700);
+
   const search = (text) => {
     if (text.length > 0) {
       API.search(
@@ -57,14 +71,12 @@ const AddParticipants = (props) => {
 
           setInitialSearchResults(newSearchResults);
           setSearchResults(newSearchResults);
-          setSearchText(text);
         })
         .catch((err) => {
           console.log('err: ', err);
         });
     } else {
       setSearchResults([]);
-      setSearchText(text);
     }
   };
 
@@ -85,14 +97,16 @@ const AddParticipants = (props) => {
   };
 
   const generateRosterSearchResults = (courses) => {
-    return courses.map((course) => ({
-      key: course._id,
-      label: course.name,
-      buttonLabel: addedCourse[course._id] ? 'Remove' : 'Add',
-      onClick: addedCourse[course._id]
-        ? removeRosterFromParticipantsList
-        : addParticipantFromRoster,
-    }));
+    return courses
+      .map((course) => ({
+        key: course._id,
+        label: course.name,
+        buttonLabel: addedCourse[course._id] ? 'Remove' : 'Add',
+        onClick: addedCourse[course._id]
+          ? removeRosterFromParticipantsList
+          : addParticipantFromRoster,
+      }))
+      .filter((generatedCourse) => generatedCourse.key !== originatingCourseId);
   };
 
   const addParticipant = (member) => {
@@ -213,7 +227,10 @@ const AddParticipants = (props) => {
                   <div style={{ fontSize: '12px' }}>
                     <Search
                       data-testid="member-search"
-                      _search={search}
+                      _search={(text) => {
+                        setSearchText(text);
+                        debounceSearch(text);
+                      }}
                       placeholder="search by username or email"
                       value={searchText}
                       isControlled
@@ -315,6 +332,7 @@ AddParticipants.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   courseCheckbox: PropTypes.bool.isRequired,
+  originatingCourseId: PropTypes.string.isRequired,
 };
 
 export default AddParticipants;

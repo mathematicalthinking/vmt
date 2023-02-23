@@ -2,6 +2,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'Components/UI/Button/Button';
+import { useUIState } from 'utils';
 import Message from './Message';
 import ChatClasses from './chat.css';
 
@@ -9,13 +10,21 @@ import ChatClasses from './chat.css';
  * A simplifield version of Chat, which uses some of the original's CSS.
  * Shows an alert if new messages have appeared off screen.
  */
-
-function SimpleChat({ log, isSimplified }) {
+function SimpleChat({ log, isSimplified, context }) {
   if (!log) log = [];
   const chatScroll = React.createRef();
   const prevLogLength = React.useRef(0);
   const [showNewMessages, setShowNewMessages] = React.useState(false);
   const [messages, setMessages] = React.useState([]);
+
+  // Save the place that the user has scrolled:
+  // - if the user deliberately scrolls to a location that is not near the bottom, store that location
+  // - if the user deliberately scrolls to the end of the chat, use a big number (1e9) for the scrollTop so the chat stays scrolled to bottom
+  // - if the user clicks on the NEW MESSAGES button, use a big number so the chat stays scrolled to the bottom
+  // - if nothing is stored, scroll the chat to the bottom
+
+  const LOCK_TO_BOTTOM = 1e9;
+  const [scrollState, setScrollState] = useUIState(context, LOCK_TO_BOTTOM);
 
   const _scrollToBottom = () => {
     const chat = chatScroll.current;
@@ -51,15 +60,18 @@ function SimpleChat({ log, isSimplified }) {
   React.useEffect(resetMessages, [isSimplified]);
 
   React.useEffect(() => {
-    _scrollToBottom();
-  }, []);
-
-  React.useEffect(() => {
-    if (_isNearBottom() || prevLogLength.current === 0) _scrollToBottom();
-    else setShowNewMessages(true);
+    const wasNearBottom = _isNearBottom() || prevLogLength.current === 0;
     if (prevLogLength.current < log.length) resetMessages();
     prevLogLength.current = log.length;
+    if (wasNearBottom) _scrollToBottom();
+    else setShowNewMessages(true);
   }, [log]);
+
+  // Whenever we change the displayed messages, make sure we scroll to the saved state, which might be an intermediate value or the large value
+  // that locks the chat to the bottom of the messages (LOCK_TO_BOTTOM)
+  React.useEffect(() => {
+    chatScroll.current.scrollTop = scrollState;
+  }, [messages]);
 
   return (
     <Fragment>
@@ -68,8 +80,11 @@ function SimpleChat({ log, isSimplified }) {
         data-testid="chat"
         id="scrollable"
         ref={chatScroll}
-        onScroll={() => {
-          if (_isNearBottom()) setShowNewMessages(false);
+        onScrollCapture={() => {
+          if (_isNearBottom()) {
+            setShowNewMessages(false);
+            setScrollState(LOCK_TO_BOTTOM);
+          } else setScrollState(chatScroll.current.scrollTop);
         }}
       >
         {!messages.length ? 'No logs for this room' : messages}
@@ -79,6 +94,7 @@ function SimpleChat({ log, isSimplified }) {
         <Button
           click={() => {
             _scrollToBottom();
+            setScrollState(LOCK_TO_BOTTOM);
             setShowNewMessages(false);
           }}
           theme="xs"
@@ -93,6 +109,7 @@ function SimpleChat({ log, isSimplified }) {
 SimpleChat.propTypes = {
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   isSimplified: PropTypes.bool,
+  context: PropTypes.string.isRequired,
 };
 
 SimpleChat.defaultProps = {

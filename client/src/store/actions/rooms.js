@@ -397,12 +397,20 @@ export const updateRoom = (id, body) => {
 };
 
 export const archiveRooms = (ids) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     ids.forEach((id) => {
+      // remove room from course & activity (template) if needed
+      const room = { ...getState().rooms.byId[id] };
+      if (room.course) {
+        dispatch(removeCourseRoom(room.course, id));
+      }
+      if (room.activity) {
+        dispatch(removeActivityRoom(room.activity, id));
+      }
+
       dispatch(addRoomToArchive(id));
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
-      dispatch(updatedRoom(id, { status: STATUS.ARCHIVED })); // Optimistically update the UI
     });
 
     for (let i = 0; i < ids.length; i += 50) {
@@ -581,15 +589,6 @@ export const removeRoom = (roomId) => {
 export const createdRoomConfirmed = () => {
   return {
     type: actionTypes.CREATE_ROOM_CONFIRMED,
-  };
-};
-
-export const updateMonitorSelections = (selections) => {
-  return (dispatch) => {
-    dispatch({
-      type: actionTypes.UPDATE_MONITOR_SELECTIONS,
-      monitorSelections: selections,
-    });
   };
 };
 

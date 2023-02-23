@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const STATUS = require('../constants/status');
 
 const { ObjectId } = mongoose.Schema.Types;
 const Course = new mongoose.Schema(
@@ -40,7 +41,13 @@ const Course = new mongoose.Schema(
       ],
       default: [],
     },
+    status: {
+      type: String,
+      enum: Object.values(STATUS),
+      default: STATUS.DEFAULT,
+    },
   },
+
   { timestamps: true }
 );
 
