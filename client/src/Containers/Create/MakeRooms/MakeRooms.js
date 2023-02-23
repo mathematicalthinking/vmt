@@ -424,6 +424,7 @@ const MakeRooms = (props) => {
         onSubmit={handleAddParticipantsSubmit}
         onCancel={hideModals}
         courseCheckbox={course !== null}
+        originatingCourseId={(course && course._id) || null}
       />
     );
   };
