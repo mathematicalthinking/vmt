@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
 import { API, useAppModal } from 'utils';
 import { Button } from 'Components';
+import { inviteToCourse } from 'store/actions';
 import CourseCodeMemberImportModal from './CourseCodeMemberImportModal';
 
 const CourseCodeMemberImport = (props) => {
+  const dispatch = useDispatch();
   const { currentMembers, onImport, userId } = props;
   const [courseMembersFromCode, setCourseMembersFromCode] = useState();
 
@@ -38,6 +41,12 @@ const CourseCodeMemberImport = (props) => {
     return formattedCourse;
   };
 
+  const submit = (membersToInvite) => {
+    console.log('membersToInvite');
+    console.log(membersToInvite);
+    onImport(membersToInvite);
+  };
+
   const handleAddMembers = () => {
     showCourseCodeImportModal(
       <CourseCodeMemberImportModal
@@ -45,6 +54,7 @@ const CourseCodeMemberImport = (props) => {
         currentMembers={currentMembers}
         getMembersFromCourseCode={getMembersFromCourseCode}
         onCancel={hideModal}
+        onSubmit={submit}
       />
     );
   };

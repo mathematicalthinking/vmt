@@ -27,15 +27,28 @@ const CourseCodeMemberImportModal = (props) => {
       return { ...acc, [curr.user._id]: curr };
     }, {})
   );
-  const resultsRef = React.useRef();
+  const resultsRef = React.useRef({});
 
   useEffect(() => {
     console.group('useEffect');
     console.log('searchResults');
     console.log(searchResults);
-    console.groupEnd('useEffect');
+    // ref is used because addAllToNewParticipants
+    // didn't keep access to searchResults
     resultsRef.current = { ...resultsRef.current, ...searchResults };
+    console.groupEnd('useEffect');
   }, [searchResults]);
+
+  // useEffect(() => {
+  //   console.group('resultsRef useEffect');
+  //   console.log('resultsRef.current');
+  //   console.log(resultsRef.current);
+  //   console.log('searchResults');
+  //   console.log(searchResults);
+  //   console.groupEnd();
+
+  //   setSearchResults({ ...resultsRef.current });
+  // }, [resultsRef.current]);
 
   useEffect(() => {
     // before searching, match human-readable-ids pattern of
@@ -53,8 +66,7 @@ const CourseCodeMemberImportModal = (props) => {
   }, [newParticipants]);
 
   const search = async () => {
-    console.log(searchText);
-
+    /** This commented out block was used to return a members list after a succesful search. Now we return a course after a successful search */
     // const courseMembersSearched = await getMembersFromCourseCode(searchText);
     // if (!courseMembersSearched || courseMembersSearched.length === 0) {
     //   setSearchResults([]);
@@ -77,15 +89,21 @@ const CourseCodeMemberImportModal = (props) => {
       !courseSearched.courseId ||
       !courseSearched.courseEntryCode
     ) {
-      // setSearchResults([]);
       return;
     }
 
     // formatted for use with GenericSearchResults
-    const searchObject = formatGenericSearchResults(
+    const searchObject = formatCourseSearchResults(
       courseSearched.courseId,
       courseSearched.courseName
     );
+    // resultsRef.current = {
+    //   [courseSearched.courseId]: {
+    //     ...searchObject,
+    //     ...courseSearched,
+    //   },
+    //   ...resultsRef.current,
+    // };
     setSearchResults((prevState) => {
       return {
         [courseSearched.courseId]: {
@@ -97,9 +115,16 @@ const CourseCodeMemberImportModal = (props) => {
     });
   };
 
-  const formatGenericSearchResults = (courseId, courseName) => {
-    const buttonLabel = 'add';
-    const buttonAction = (id) => addAllToNewParticipants(id);
+  const formatCourseSearchResults = (courseId, courseName) => {
+    let buttonLabel = 'add';
+    const buttonAction = (id) => {
+      addAllToNewParticipants(id);
+      console.log('resultsRef.current[id]');
+      console.log(resultsRef.current[id]);
+      resultsRef.current[id].buttonLabel === 'add'
+        ? (buttonLabel = 'remove')
+        : (buttonLabel = 'remove');
+    };
     return {
       label: courseName,
       buttonLabel,
@@ -110,39 +135,46 @@ const CourseCodeMemberImportModal = (props) => {
 
   const addAllToNewParticipants = (courseId) => {
     // if (!searchResults.length) return;
+    // ⬇️ used for members, now we use courses
     // searchResults.forEach((mem) =>
     //   addParticipant({ user: { _id: mem._id, username: mem.username } })
     // );
     console.group('add all');
     console.log(`courseId: ${courseId}`);
-    console.group('searchResults[courseId]');
+    console.log('searchResults[courseId]');
     console.log(searchResults[courseId]);
-    console.group('searchResults');
+    console.log('searchResults');
     console.log(searchResults);
-    console.group('resultsRef.current');
+    console.log('resultsRef.current');
     console.log(resultsRef.current);
     console.groupEnd();
 
-    resultsRef.current[courseId] &&
-      resultsRef.current[courseId].courseMembers &&
+    if (
+      resultsRef.current[courseId] &&
+      resultsRef.current[courseId].courseMembers
+    )
       resultsRef.current[courseId].courseMembers.forEach((mem) =>
-        addParticipant({ user: { _id: mem._id, username: mem.username } })
+        addParticipant({
+          user: { _id: mem._id, username: mem.username, role: mem.accountType },
+        })
       );
   };
 
   const addParticipant = (member) => {
     const { _id } = member.user;
     // filter out duplicates in the right column (New Participants column)
+    console.groupCollapsed('addParticipant');
+    console.log('member');
+    console.log(member);
+    console.log('newParticipants');
+    console.log(newParticipants);
+    console.groupEnd();
     if (newParticipants.find((mem) => _id === mem.user._id)) return;
     setNewParticipants((prevState) =>
-      [...prevState, { ...member, role: 'participant' }].sort((a, b) =>
+      [...prevState, { ...member }].sort((a, b) =>
         a.user.username.localeCompare(b.user.username)
       )
     );
-
-    // setSearchResults((prevState) =>
-    //   prevState.filter((user) => user._id !== _id)
-    // );
   };
 
   const removeMember = (mem) => {
@@ -175,7 +207,7 @@ const CourseCodeMemberImportModal = (props) => {
   };
 
   const submit = () => {
-    const participantsToAdd = [...searchResults];
+    const participantsToAdd = [...newParticipants]; // newParfticipants???
     onSubmit(participantsToAdd);
     onCancel();
   };
@@ -199,7 +231,7 @@ const CourseCodeMemberImportModal = (props) => {
                   placeholder="enter a course code"
                 />
               </div>
-              {Object.values(searchResults).length && (
+              {Object.values(searchResults).length > 0 && (
                 <GenericSearchResults
                   itemsSearched={Object.values(searchResults)}
                 />
