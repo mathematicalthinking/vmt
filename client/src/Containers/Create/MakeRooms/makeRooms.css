@@ -316,12 +316,6 @@
   margin-left: 1rem;
 }
 
-.tooltip {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
-}
-
 /* Tooltip text */
 /* https://www.w3schools.com/css/css_tooltip.asp */
 .tooltip .tooltiptext {
