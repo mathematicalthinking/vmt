@@ -340,7 +340,9 @@ const Archive = () => {
       setFromDate={setFromDate}
       icons={customIcons}
       selectActions={selectActions}
-      totalNumberOfArchivedRooms={archive.rooms.length}
+      totalNumberOfArchivedRooms={
+        (archive && archive.rooms && archive.rooms.length) || 0
+      }
     />
   );
 };
