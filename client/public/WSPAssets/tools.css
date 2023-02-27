@@ -45,15 +45,16 @@ body {
       margin-left: -1px;
   } */
 
-  .toolItem {
-    height: 6rem;
-  }
-  
   /* .toolItem {
-      display: inline-block;
-      float: left;
-      height: 4.5rem;	/* Use 5 and 6.8 for close to full size, or 4 and 5.5 for small boxes 
-      width: 6.2rem;
+    height: 7rem;
+    max-width: 7rem;
+  } */
+  
+  .toolItem {
+      /* display: inline-block;
+      float: left; */
+      height: 6rem;	/* Use 5 and 6.8 for close to full size, or 4 and 5.5 for small boxes  */
+      max-width: 6.2rem;
       padding: .5rem;
       padding-top: 1rem;
       border: solid black;
@@ -64,19 +65,19 @@ body {
       text-align: center;
       margin: -0.125rem 0;
   } 
-*/
+
   
-  /* .firstToolItem {	/* borders are collapsed. Need to adjust first & last of a group to be same width as other cells 
+   .firstToolItem {	/* borders are collapsed. Need to adjust first & last of a group to be same width as other cells */ 
       border-left: 0.25rem solid black;
-      margin-left: -0.125rem;	/* shift border 1/2 the border width to the left 
-      padding-left: 0.4375rem;	/* reduce the padding to compensate 
+      margin-left: -0.125rem;	/* shift border 1/2 the border width to the left */
+      padding-left: 0.4375rem;	/* reduce the padding to compensate */
   }
   
   .lastToolItem {
       border-right: 0.25rem solid black;
       margin-right: -0.125rem;
       padding-right: 0.4375rem;
-  } */
+  } 
       
   .toolItem img {
       height: 80%;

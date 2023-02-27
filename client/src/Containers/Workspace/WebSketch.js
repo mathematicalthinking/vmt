@@ -1535,7 +1535,7 @@ const WebSketch = (props) => {
           id="sketch"
           ref={wspSketch}
           style={{
-            overflow: 'auto',
+            // overflow: 'auto',
             pointerEvents: !_hasControl() ? 'none' : 'auto',
           }}
         />

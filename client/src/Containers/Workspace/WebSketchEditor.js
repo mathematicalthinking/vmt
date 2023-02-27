@@ -59,45 +59,6 @@ const WebSketchEditor = (props) => {
   // Storage API functions
   const debouncedUpdate = useCallback(debounce(putState, 400), []);
 
-  async function fetchTools() {
-    fetch(
-      'https://geometricfunctions.org/fc/tools/library/basic/01%20Point,%20Compass,%20Straightedge%20Tools.json',
-      // 'https://geometricfunctions.org/fc/tools/library/basic/',
-      // 'https://cors-anywhere.herokuapp.com/https://geometricfunctions.org/fc/tools/library/basic/',
-      // 'https://cors-anywhere.herokuapp.com/https://geometricfunctions.org/fc/tools/library/basic/01%20Point,%20Compass,%20Straightedge%20Tools.json',
-      {
-        method: 'GET',
-        crossDomain: true,
-        // headers: {
-        //   'Content-Type': 'text/plain',
-        // },
-        // mode: 'no-cors',
-        // credentials: 'include',
-      }
-    )
-      .then((res) => {
-        console.log('Got a site res: ', res);
-        return res.text();
-      })
-      .then((json) => {
-        // console.log('HTML: ', json);
-        // Initialize the DOM parser
-        // const parser = new DOMParser();
-
-        // Parse the text
-        // const doc = parser.parseFromString(html, 'text/html');
-
-        // You can now even select part of that html as you would in the regular DOM
-        // Example:
-        // var docArticle = doc.querySelector('article').innerHTML;
-
-        console.log(doc);
-      })
-      .catch(function(err) {
-        console.log('Failed to fetch page: ', err);
-      });
-  }
-
   const getSketch = () => {
     // Call this whenever the sketch doc may have changed.
     // e.g., page changes, start of toolplay, undo/redo, etc.
@@ -159,7 +120,7 @@ const WebSketchEditor = (props) => {
     if (!sketchDoc.current) {
       getSketch();
     }
-    return sketchDoc.current.tools.length;
+    return sketchDoc.current.tools ? sketchDoc.current.tools.length : 0;
   };
 
   const reflectMessage = (event, context, attr) => {
