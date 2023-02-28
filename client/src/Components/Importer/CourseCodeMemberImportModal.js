@@ -1,13 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  InfoBox,
-  Search,
-  Member,
-  GenericSearchResults,
-} from 'Components';
-import { SearchResults } from 'Containers';
+import uniqBy from 'lodash/uniqBy';
+import { Button, InfoBox, Member, GenericSearchResults } from 'Components';
+import { addColors, hexToRGBA } from 'utils';
 import classes from './courseCodeMemberImportModal.css';
 
 const CourseCodeMemberImportModal = (props) => {
@@ -17,70 +12,50 @@ const CourseCodeMemberImportModal = (props) => {
     onCancel,
     onSubmit,
   } = props;
-  const [searchText, setSearchText] = useState();
+  const [searchText, setSearchText] = useState('');
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState({});
   const [newParticipants, setNewParticipants] = useState([]);
-  const [newParticipantsObject, setNewParticipantsObject] = useState([]);
+  const [newParticipantsObject, setNewParticipantsObject] = useState({});
   const [currentMembersObject, _setCurrentMembersObject] = useState(
     currentMembers.reduce((acc, curr) => {
       return { ...acc, [curr.user._id]: curr };
     }, {})
   );
-  const resultsRef = React.useRef({});
+
+  const searchResultsRef = useRef({});
+  const newParfticipantsRef = useRef([]);
+
+  // autofocus isn't working
+  // const autoFocusInputRef = React.useCallback((inputElement) => {
+  //   if (inputElement) inputElement.focus();
+  // }, []);
+
+  // const autoFocusInputRef = useRef();
+  // useEffect(() => {
+  //   if (autoFocusInputRef.current) autoFocusInputRef.current.focus();
+  // });
 
   useEffect(() => {
-    console.group('useEffect');
-    console.log('searchResults');
-    console.log(searchResults);
     // ref is used because addAllToNewParticipants
     // didn't keep access to searchResults
-    resultsRef.current = { ...resultsRef.current, ...searchResults };
-    console.groupEnd('useEffect');
+    searchResultsRef.current = {
+      ...searchResultsRef.current,
+      ...searchResults,
+    };
   }, [searchResults]);
 
-  // useEffect(() => {
-  //   console.group('resultsRef useEffect');
-  //   console.log('resultsRef.current');
-  //   console.log(resultsRef.current);
-  //   console.log('searchResults');
-  //   console.log(searchResults);
-  //   console.groupEnd();
-
-  //   setSearchResults({ ...resultsRef.current });
-  // }, [resultsRef.current]);
-
   useEffect(() => {
-    // before searching, match human-readable-ids pattern of
-    // word-word-number
-    if (/(?<!\S)(?!\S*--)\S+-\d+/.test(searchText)) search();
-  }, [searchText]);
-
-  useEffect(() => {
-    if (newParticipants.length === 0) return;
-    setNewParticipantsObject(
-      newParticipants.reduce((acc, curr) => {
-        return { ...acc, [curr.user._id]: curr };
-      }, {})
-    );
+    // if (newParticipants.length === 0) return;
+    // setNewParticipantsObject(
+    //   newParticipants.reduce((acc, curr) => {
+    //     return { ...acc, [curr.user._id]: curr };
+    //   }, {})
+    // );
+    // add colors for each course
   }, [newParticipants]);
 
   const search = async () => {
-    /** This commented out block was used to return a members list after a succesful search. Now we return a course after a successful search */
-    // const courseMembersSearched = await getMembersFromCourseCode(searchText);
-    // if (!courseMembersSearched || courseMembersSearched.length === 0) {
-    //   setSearchResults([]);
-    //   return;
-    // }
-    // const uniqueCourseMembersSearched = courseMembers.filter(
-    //   (mem) => !currentMembersObject[mem._id] && !newParticipantsObject[mem._id]
-    // );
-    // setInitialSearchResults((prevState) => [
-    //   ...prevState,
-    //   ...uniqueCourseMembersSearched,
-    // ]);
-    // setSearchResults(uniqueCourseMembersSearched);
-
     const courseSearched = await getMembersFromCourseCode(searchText);
     if (
       !courseSearched ||
@@ -95,38 +70,32 @@ const CourseCodeMemberImportModal = (props) => {
     // formatted for use with GenericSearchResults
     const searchObject = formatCourseSearchResults(
       courseSearched.courseId,
-      courseSearched.courseName
+      courseSearched.courseName,
+      searchText
     );
-    // resultsRef.current = {
-    //   [courseSearched.courseId]: {
-    //     ...searchObject,
-    //     ...courseSearched,
-    //   },
-    //   ...resultsRef.current,
-    // };
     setSearchResults((prevState) => {
       return {
+        ...prevState,
         [courseSearched.courseId]: {
           ...searchObject,
           ...courseSearched,
         },
-        ...prevState,
       };
     });
+    setSearchText('');
   };
 
-  const formatCourseSearchResults = (courseId, courseName) => {
+  const formatCourseSearchResults = (courseId, courseName, courseCode) => {
     let buttonLabel = 'add';
     const buttonAction = (id) => {
       addAllToNewParticipants(id);
-      console.log('resultsRef.current[id]');
-      console.log(resultsRef.current[id]);
-      resultsRef.current[id].buttonLabel === 'add'
+      searchResultsRef.current[id].buttonLabel === 'add'
         ? (buttonLabel = 'remove')
         : (buttonLabel = 'remove');
     };
     return {
       label: courseName,
+      altLabel: `Course Code: ${courseCode}`,
       buttonLabel,
       onClick: buttonAction,
       key: courseId,
@@ -134,76 +103,76 @@ const CourseCodeMemberImportModal = (props) => {
   };
 
   const addAllToNewParticipants = (courseId) => {
-    // if (!searchResults.length) return;
-    // ⬇️ used for members, now we use courses
-    // searchResults.forEach((mem) =>
-    //   addParticipant({ user: { _id: mem._id, username: mem.username } })
-    // );
-    console.group('add all');
-    console.log(`courseId: ${courseId}`);
-    console.log('searchResults[courseId]');
-    console.log(searchResults[courseId]);
-    console.log('searchResults');
-    console.log(searchResults);
-    console.log('resultsRef.current');
-    console.log(resultsRef.current);
-    console.groupEnd();
+    if (searchResults[courseId] && searchResults[courseId].courseMembers) {
+      const mems = searchResults[courseId].courseMembers.map((mem) => ({
+        user: {
+          _id: mem._id,
+          username: mem.username,
+          role: mem.accountType,
+          course: courseId,
+        },
+      }));
 
-    if (
-      resultsRef.current[courseId] &&
-      resultsRef.current[courseId].courseMembers
-    )
-      resultsRef.current[courseId].courseMembers.forEach((mem) =>
-        addParticipant({
-          user: { _id: mem._id, username: mem.username, role: mem.accountType },
-        })
+      const uniqueParticipants = uniqBy(
+        newParticipants.concat(...mems),
+        'user._id'
       );
+
+      setNewParticipants(addColorsToMembers(uniqueParticipants));
+    }
+  };
+
+  const addColorsToMembers = (mems) => {
+    const users = mems.map(({ user }) => user);
+    const usersWithColors = addColors(users);
+    const memsWithColors = usersWithColors.map((user) => ({
+      user,
+    }));
+    return memsWithColors;
   };
 
   const addParticipant = (member) => {
     const { _id } = member.user;
-    // filter out duplicates in the right column (New Participants column)
-    console.groupCollapsed('addParticipant');
-    console.log('member');
-    console.log(member);
-    console.log('newParticipants');
-    console.log(newParticipants);
-    console.groupEnd();
-    if (newParticipants.find((mem) => _id === mem.user._id)) return;
+
+    // If member is in newParticipants, ignore this add
+    // unless this version of the member is a facilitor,
+    // then we want to switch their role to facilitator, but
+    // not re-add them
+    // (currently we just ignore collisions)
+
+    if (newParfticipantsRef.current.find((mem) => _id === mem.user._id)) return;
+
+    // HOW TO SORT MEMBERS IN NEW PARTICIPANTS COLUMN?
+    // alpha by course (better)
+    // alpha all (current)
+
     setNewParticipants((prevState) =>
       [...prevState, { ...member }].sort((a, b) =>
         a.user.username.localeCompare(b.user.username)
       )
     );
+    if (
+      searchResults[member.user.course] ||
+      searchResultsRef.current[member.user.course]
+    ) {
+      // backgroundColor is static (each gets same color)
+      // doesn't change b/c we pass 1 mem at a time
+      const backgroundColor = hexToRGBA(member.user.displayColor, 0.5);
+      console.log(`backgroundColor: ${backgroundColor}`);
+      setSearchResults((prevState) => ({
+        ...prevState,
+        [member.user.course]: {
+          ...prevState[member.user.course],
+          backgroundColor,
+        },
+      }));
+    }
   };
 
   const removeMember = (mem) => {
     setNewParticipants((prevState) =>
       prevState.filter(({ user }) => user._id !== mem.user._id)
     );
-
-    // add mem back to the search results list?
-
-    /**
-     * ways to add mem back to search results list
-     * 1. track if current search yielded a result, if so add mem back
-     *  -> what if removed mem came from another search?
-     * 2. keep all search results in an object:
-     * {[userId]: ['productive-search', 'results-array']}
-     */
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const user of initialSearchResults) {
-      if (user._id === mem.user._id) {
-        setSearchText((prevState) => prevState);
-        // setSearchResults((prevState) =>
-        //   [...prevState, user].sort((a, b) =>
-        //     a.username.localeCompare(b.username)
-        //   )
-        // );
-        break;
-      }
-    }
   };
 
   const submit = () => {
@@ -221,15 +190,26 @@ const CourseCodeMemberImportModal = (props) => {
             icon={<i className="fas fa-user-plus" style={{ height: '25px' }} />}
           >
             <div className={classes.CourseCodeSearch}>
-              <div>
-                <Search
-                  _search={(text) => {
-                    setSearchText(text);
-                    // search(text);
-                  }}
-                  data-testid="CourseCodeMemberImportModal-search"
+              <div className={classes.Search}>
+                <input
+                  data-testid="CourseCodeMemberImportModal-search-input"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  type="text"
                   placeholder="enter a course code"
+                  className={classes.Input}
+                  // ref={autoFocusInputRef} // autofocus isn't working
                 />
+                <i className={`fas fa-search ${classes.Icon}`} />
+                <Button
+                  data-testid="CourseCodeMemberImportModal-search-button"
+                  disabled={!searchText}
+                  click={search}
+                  p="0px 16px"
+                  m="0px 16px"
+                >
+                  Search
+                </Button>
               </div>
               {Object.values(searchResults).length > 0 && (
                 <GenericSearchResults

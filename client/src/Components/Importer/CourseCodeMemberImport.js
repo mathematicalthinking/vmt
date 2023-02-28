@@ -1,32 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
 import { API, useAppModal } from 'utils';
 import { Button } from 'Components';
-import { inviteToCourse } from 'store/actions';
 import CourseCodeMemberImportModal from './CourseCodeMemberImportModal';
 
 const CourseCodeMemberImport = (props) => {
-  const dispatch = useDispatch();
   const { currentMembers, onImport, userId } = props;
-  const [courseMembersFromCode, setCourseMembersFromCode] = useState();
 
   const { hide: hideModal, showBig: showCourseCodeImportModal } = useAppModal();
 
   const getMembersFromCourseCode = async (_courseCode) => {
     const course = await (await API.getWithCode('courses', _courseCode)).data
       .result[0];
-    if (!course) {
-      setCourseMembersFromCode([]);
-      return [];
-    }
+    if (!course) return [];
 
     const courseMembers = course.members
       .filter((mem) => mem.user._id !== userId)
       .map((mem) => mem.user)
       .sort((a, b) => a.username.localeCompare(b.username));
-
-    setCourseMembersFromCode(courseMembers);
 
     const formattedCourse = {
       courseId: course._id,

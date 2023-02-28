@@ -11,8 +11,12 @@ function GenericSearchResults({ itemsSearched }) {
         <li
           key={item.key || uniqueId(item.label)}
           className={classes.SearchResItem}
+          style={{ backgroundColor: `${item.backgroundColor}` }}
         >
-          {item.label}
+          <div className={classes.Label}>{item.label}</div>{' '}
+          {item.altLabel && (
+            <div className={classes.AltLabel}>{item.altLabel}</div>
+          )}
           <Button click={() => item.onClick && item.onClick(item.key)}>
             {item.buttonLabel}
           </Button>
@@ -28,7 +32,9 @@ GenericSearchResults.propTypes = {
       buttonLabel: PropTypes.string,
       onClick: PropTypes.func,
       label: PropTypes.string,
+      altLabel: PropTypes.string,
       key: PropTypes.string,
+      backgroundColor: PropTypes.string,
     })
   ).isRequired,
 };
