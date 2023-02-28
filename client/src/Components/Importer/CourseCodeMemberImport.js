@@ -10,14 +10,13 @@ const CourseCodeMemberImport = (props) => {
   const { hide: hideModal, showBig: showCourseCodeImportModal } = useAppModal();
 
   const getMembersFromCourseCode = async (_courseCode) => {
-    const course = await (await API.getWithCode('courses', _courseCode)).data
-      .result[0];
+    const res = await API.getWithCode('courses', _courseCode);
+    const course = await res.data.result[0];
     if (!course) return [];
 
     const courseMembers = course.members
       .filter((mem) => mem.user._id !== userId)
-      .map((mem) => mem.user)
-      .sort((a, b) => a.username.localeCompare(b.username));
+      .sort((a, b) => a.user.username.localeCompare(b.user.username));
 
     const formattedCourse = {
       courseId: course._id,

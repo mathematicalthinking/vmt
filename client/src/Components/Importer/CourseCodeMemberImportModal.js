@@ -70,7 +70,7 @@ const CourseCodeMemberImportModal = (props) => {
     }
 
     // formatted for use with GenericSearchResults
-    const searchObject = formatCourseSearchResults(
+    const formattedCourse = formatCourseSearchResults(
       courseSearched.courseId,
       courseSearched.courseName,
       inputRef.current.value
@@ -79,7 +79,7 @@ const CourseCodeMemberImportModal = (props) => {
       return {
         ...prevState,
         [courseSearched.courseId]: {
-          ...searchObject,
+          ...formattedCourse,
           ...courseSearched,
         },
       };
@@ -93,7 +93,7 @@ const CourseCodeMemberImportModal = (props) => {
       addAllToNewParticipants(id);
       searchResultsRef.current[id].buttonLabel === 'add'
         ? (buttonLabel = 'remove')
-        : (buttonLabel = 'remove');
+        : (buttonLabel = 'add');
     };
     return {
       label: courseName,
@@ -105,15 +105,23 @@ const CourseCodeMemberImportModal = (props) => {
   };
 
   const addAllToNewParticipants = (courseId) => {
-    if (searchResults[courseId] && searchResults[courseId].courseMembers) {
-      const mems = searchResults[courseId].courseMembers.map((mem) => ({
-        user: {
-          _id: mem._id,
-          username: mem.username,
-          role: mem.accountType,
-          course: courseId,
-        },
-      }));
+    if (
+      searchResultsRef.current[courseId] &&
+      searchResultsRef.current[courseId].courseMembers
+    ) {
+      const mems = searchResultsRef.current[courseId].courseMembers.map(
+        (mem) => ({
+          user: {
+            _id: mem.user._id,
+            username: mem.user.username,
+            role: mem.user.accountType,
+            course: courseId,
+          },
+        })
+      );
+
+      console.log('mems');
+      console.log(mems);
 
       const uniqueParticipants = uniqBy(
         newParticipants.concat(...mems),
