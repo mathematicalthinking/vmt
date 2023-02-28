@@ -12,7 +12,6 @@ const CourseCodeMemberImportModal = (props) => {
     onCancel,
     onSubmit,
   } = props;
-  const [searchText, setSearchText] = useState('');
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState({});
   const [newParticipants, setNewParticipants] = useState([]);
@@ -24,6 +23,7 @@ const CourseCodeMemberImportModal = (props) => {
   );
 
   const searchResultsRef = useRef({});
+  const inputRef = useRef();
   const newParfticipantsRef = useRef([]);
 
   // autofocus isn't working
@@ -56,7 +56,9 @@ const CourseCodeMemberImportModal = (props) => {
   }, [newParticipants]);
 
   const search = async () => {
-    const courseSearched = await getMembersFromCourseCode(searchText);
+    const courseSearched = await getMembersFromCourseCode(
+      inputRef.current.value
+    );
     if (
       !courseSearched ||
       !courseSearched.courseMembers ||
@@ -71,7 +73,7 @@ const CourseCodeMemberImportModal = (props) => {
     const searchObject = formatCourseSearchResults(
       courseSearched.courseId,
       courseSearched.courseName,
-      searchText
+      inputRef.current.value
     );
     setSearchResults((prevState) => {
       return {
@@ -82,7 +84,7 @@ const CourseCodeMemberImportModal = (props) => {
         },
       };
     });
-    setSearchText('');
+    inputRef.current.value = '';
   };
 
   const formatCourseSearchResults = (courseId, courseName, courseCode) => {
@@ -193,8 +195,7 @@ const CourseCodeMemberImportModal = (props) => {
               <div className={classes.Search}>
                 <input
                   data-testid="CourseCodeMemberImportModal-search-input"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
+                  ref={inputRef}
                   type="text"
                   placeholder="enter a course code"
                   className={classes.Input}
@@ -203,7 +204,6 @@ const CourseCodeMemberImportModal = (props) => {
                 <i className={`fas fa-search ${classes.Icon}`} />
                 <Button
                   data-testid="CourseCodeMemberImportModal-search-button"
-                  disabled={!searchText}
                   click={search}
                   p="0px 16px"
                   m="0px 16px"
@@ -219,27 +219,26 @@ const CourseCodeMemberImportModal = (props) => {
             </div>
           </InfoBox>
         </div>
-        {newParticipants && (
-          <div className={classes.InfoBox}>
-            <InfoBox
-              title="New Participants"
-              icon={<i className="fas fa-users" style={{ height: '25px' }} />}
-            >
-              <div data-testid="members" className={classes.NewParticipants}>
-                {newParticipants.map((member) => (
-                  <Member
-                    info={member}
-                    key={member.user._id}
-                    resourceName="template"
-                    canRemove
-                    rejectAccess={() => removeMember(member)}
-                  />
-                  // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
-                ))}
-              </div>
-            </InfoBox>
-          </div>
-        )}
+
+        <div className={classes.InfoBox}>
+          <InfoBox
+            title="New Participants"
+            icon={<i className="fas fa-users" style={{ height: '25px' }} />}
+          >
+            <div data-testid="members" className={classes.NewParticipants}>
+              {newParticipants.map((member) => (
+                <Member
+                  info={member}
+                  key={member.user._id}
+                  resourceName="template"
+                  canRemove
+                  rejectAccess={() => removeMember(member)}
+                />
+                // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
+              ))}
+            </div>
+          </InfoBox>
+        </div>
       </div>
       <div className={classes.ModalButton}>
         <div>
