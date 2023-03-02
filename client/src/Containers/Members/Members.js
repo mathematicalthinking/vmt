@@ -67,7 +67,7 @@ class Members extends PureComponent {
     }
   }
 
-  inviteMember = (id, username) => {
+  inviteMember = (id, username, role = 'participant') => {
     let confirmingInvitation = false;
     const {
       resourceId,
@@ -82,7 +82,8 @@ class Members extends PureComponent {
       // Don't invite someone if they are already in the course
       const alreadyInCourse =
         courseMembers && courseMembers.find((mem) => mem.user._id === id);
-      if (!alreadyInCourse) connectInviteToCourse(resourceId, id, username);
+      if (!alreadyInCourse)
+        connectInviteToCourse(resourceId, id, username, { role });
     } else if (courseMembers) {
       const inCourse = courseMembers.filter(
         (member) => member.user._id === id
@@ -117,7 +118,6 @@ class Members extends PureComponent {
     const { userId, username } = this.state;
     connectInviteToCourse(parentResource, userId, username, {
       role: 'guest',
-      // guest: true,
     });
     connectInviteToRoom(resourceId, userId, username, color);
     this.setState({
@@ -283,6 +283,25 @@ class Members extends PureComponent {
       )
     ).then((newUsers) =>
       newUsers.forEach((user) => this.inviteMember(user._id, user.username))
+    );
+  };
+
+  /* Handler for the CourseCodeMemberImport component */
+  handleCourseCodeMemberImport = (memberObjects) => {
+    Promise.all(
+      memberObjects.map(async (member) =>
+        member.user._id
+          ? API.put('user', member.user._id, member.user).then(() => {
+              return member;
+            })
+          : API.post('user', member).then((res) => {
+              return res.data.result;
+            })
+      )
+    ).then((newMembers) =>
+      newMembers.forEach((member) =>
+        this.inviteMember(member.user._id, member.user.username, member.role)
+      )
     );
   };
 
@@ -458,7 +477,7 @@ class Members extends PureComponent {
                     <div>
                       {/* <Button>Shared Rosters</Button> */}
                       <CourseCodeMemberImport
-                        onImport={this.handleImport}
+                        onImport={this.handleCourseCodeMemberImport}
                         userId={user._id}
                         currentMembers={classList}
                       />

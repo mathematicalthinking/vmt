@@ -6,177 +6,177 @@ import { addColors, hexToRGBA } from 'utils';
 import classes from './courseCodeMemberImportModal.css';
 
 const CourseCodeMemberImportModal = (props) => {
-  const {
-    currentMembers,
-    getMembersFromCourseCode,
-    onCancel,
-    onSubmit,
-  } = props;
-  const [initialSearchResults, setInitialSearchResults] = useState([]);
+  const { currentMembers, getCourseFromCourseCode, onCancel, onSubmit } = props;
   const [searchResults, setSearchResults] = useState({});
   const [newParticipants, setNewParticipants] = useState([]);
-  const [newParticipantsObject, setNewParticipantsObject] = useState({});
-  const [currentMembersObject, _setCurrentMembersObject] = useState(
-    currentMembers.reduce((acc, curr) => {
-      return { ...acc, [curr.user._id]: curr };
-    }, {})
-  );
 
-  const searchResultsRef = useRef({});
   const inputRef = useRef();
-  const newParfticipantsRef = useRef([]);
 
   // autofocus isn't working
+  // autofocus 1st attempt
   // const autoFocusInputRef = React.useCallback((inputElement) => {
   //   if (inputElement) inputElement.focus();
   // }, []);
 
+  // autofocus 2nd attempt
   // const autoFocusInputRef = useRef();
   // useEffect(() => {
   //   if (autoFocusInputRef.current) autoFocusInputRef.current.focus();
   // });
 
   useEffect(() => {
-    // ref is used because addAllToNewParticipants
-    // didn't keep access to searchResults
-    searchResultsRef.current = {
-      ...searchResultsRef.current,
-      ...searchResults,
-    };
-  }, [searchResults]);
-
-  useEffect(() => {
-    // if (newParticipants.length === 0) return;
-    // setNewParticipantsObject(
-    //   newParticipants.reduce((acc, curr) => {
-    //     return { ...acc, [curr.user._id]: curr };
-    //   }, {})
-    // );
     // add colors for each course
+    const courseColorMapping = newParticipants.reduce((acc, curr) => {
+      return { ...acc, [curr.user.course]: curr.user.displayColor };
+    }, {});
+
+    const newSearchResults = Object.values(searchResults).reduce(
+      (acc, curr) => {
+        return {
+          ...acc,
+          [curr._id]: {
+            ...curr,
+            backgroundColor: hexToRGBA(
+              courseColorMapping[curr._id] || '#fff',
+              0.3
+            ),
+          },
+        };
+      },
+      {}
+    );
+
+    setSearchResults(newSearchResults);
   }, [newParticipants]);
 
   const search = async () => {
-    const courseSearched = await getMembersFromCourseCode(
+    const courseSearched = await getCourseFromCourseCode(
       inputRef.current.value
     );
     if (
       !courseSearched ||
-      !courseSearched.courseMembers ||
-      !courseSearched.courseMembers.length ||
-      !courseSearched.courseId ||
-      !courseSearched.courseEntryCode
+      !courseSearched.members ||
+      !courseSearched.members.length
     ) {
       return;
     }
 
-    // formatted for use with GenericSearchResults
-    const formattedCourse = formatCourseSearchResults(
-      courseSearched.courseId,
-      courseSearched.courseName,
-      inputRef.current.value
-    );
+    // @TODO: tag each course with the color it should have
+    // use that color when creating newParticipants
+    // forget about addoclor stuff later on ...
+    // keep a map of courses to colors
+    // make a new function that taeks an existing map and return a map of new people and the map ...
+    // searchResults -> enhance the members to match newParticipants (ie, with a course)
     setSearchResults((prevState) => {
       return {
         ...prevState,
-        [courseSearched.courseId]: {
-          ...formattedCourse,
-          ...courseSearched,
-        },
+        [courseSearched._id]: courseSearched,
       };
     });
     inputRef.current.value = '';
   };
 
-  const formatCourseSearchResults = (courseId, courseName, courseCode) => {
-    let buttonLabel = 'add';
-    const buttonAction = (id) => {
-      addAllToNewParticipants(id);
-      searchResultsRef.current[id].buttonLabel === 'add'
-        ? (buttonLabel = 'remove')
-        : (buttonLabel = 'add');
-    };
-    return {
-      label: courseName,
-      altLabel: `Course Code: ${courseCode}`,
-      buttonLabel,
-      onClick: buttonAction,
-      key: courseId,
-    };
+  const addUIElements = (courses) => {
+    return Object.values(courses).map((course) => ({
+      key: course._id,
+      label: course.name,
+      buttonLabel: course.isAdded ? 'Remove' : 'Add',
+      altLabel: course.entryCode,
+      backgroundColor: course.backgroundColor,
+      onClick: course.isAdded ? removeAllMembers : addAllToNewParticipants,
+    }));
   };
 
   const addAllToNewParticipants = (courseId) => {
-    if (
-      searchResultsRef.current[courseId] &&
-      searchResultsRef.current[courseId].courseMembers
-    ) {
-      const mems = searchResultsRef.current[courseId].courseMembers.map(
-        (mem) => ({
-          user: {
-            _id: mem.user._id,
-            username: mem.user.username,
-            role: mem.user.accountType,
-            course: courseId,
-          },
-        })
-      );
-
-      console.log('mems');
-      console.log(mems);
+    if (searchResults[courseId] && searchResults[courseId].members) {
+      const memsToAdd = searchResults[courseId].members.map((mem) => ({
+        ...mem,
+        user: { ...mem.user, course: courseId },
+      }));
 
       const uniqueParticipants = uniqBy(
-        newParticipants.concat(...mems),
+        newParticipants.concat(...memsToAdd),
         'user._id'
       );
 
-      setNewParticipants(addColorsToMembers(uniqueParticipants));
+      // if facilitators from the newly added course were previously added as
+      // participants, upgrade their role to facilitator within
+      // uniqueParticipants
+      const memsToAddObject = memsToAdd.reduce((acc, curr) => {
+        return {
+          ...acc,
+          [curr.user._id]: { ...curr },
+        };
+      }, {});
+
+      const uniqueParticipantsObject = uniqueParticipants.reduce(
+        (acc, curr) => {
+          return {
+            ...acc,
+            [curr.user._id]: { ...curr },
+          };
+        },
+        {}
+      );
+
+      Object.values(memsToAddObject).forEach((mem) => {
+        if (
+          uniqueParticipantsObject[mem.user._id] &&
+          mem.role === 'facilitator'
+        )
+          uniqueParticipantsObject[mem.user._id].role = 'facilitator';
+      });
+
+      setNewParticipants(
+        addColorsToMembers(Object.values(uniqueParticipantsObject))
+      );
+      setSearchResults((prevState) => ({
+        ...prevState,
+        [courseId]: {
+          ...prevState[courseId],
+          isAdded: true,
+        },
+      }));
     }
   };
 
   const addColorsToMembers = (mems) => {
     const users = mems.map(({ user }) => user);
     const usersWithColors = addColors(users);
-    const memsWithColors = usersWithColors.map((user) => ({
+    const memsWithColors = usersWithColors.map((user, index) => ({
+      ...mems[index],
       user,
     }));
     return memsWithColors;
   };
 
-  const addParticipant = (member) => {
-    const { _id } = member.user;
+  const removeAllMembers = (courseId) => {
+    // change isAdded to false
+    // don't remove member if they're part of another added course
 
-    // If member is in newParticipants, ignore this add
-    // unless this version of the member is a facilitor,
-    // then we want to switch their role to facilitator, but
-    // not re-add them
-    // (currently we just ignore collisions)
+    // filter to get only courses that have been added & not courseId
+    // collect together all members from all of those courses into 1 array
+    // remove any duplicates via _uniqBy
+    // set current course isAdded to false
 
-    if (newParfticipantsRef.current.find((mem) => _id === mem.user._id)) return;
-
-    // HOW TO SORT MEMBERS IN NEW PARTICIPANTS COLUMN?
-    // alpha by course (better)
-    // alpha all (current)
-
-    setNewParticipants((prevState) =>
-      [...prevState, { ...member }].sort((a, b) =>
-        a.user.username.localeCompare(b.user.username)
+    const currentlyAddedMembers = Object.values(searchResults)
+      .filter((course) => course._id !== courseId && course.isAdded)
+      .map((course) =>
+        course.members.map((mem) => ({
+          ...mem,
+          user: { ...mem.user, course: course._id },
+        }))
       )
-    );
-    if (
-      searchResults[member.user.course] ||
-      searchResultsRef.current[member.user.course]
-    ) {
-      // backgroundColor is static (each gets same color)
-      // doesn't change b/c we pass 1 mem at a time
-      const backgroundColor = hexToRGBA(member.user.displayColor, 0.5);
-      console.log(`backgroundColor: ${backgroundColor}`);
-      setSearchResults((prevState) => ({
-        ...prevState,
-        [member.user.course]: {
-          ...prevState[member.user.course],
-          backgroundColor,
-        },
-      }));
-    }
+      .flat();
+    const uniqueMembers = uniqBy(currentlyAddedMembers, 'user._id');
+    setNewParticipants(addColorsToMembers(uniqueMembers));
+    setSearchResults((prevState) => ({
+      ...prevState,
+      [courseId]: {
+        ...prevState[courseId],
+        isAdded: false,
+      },
+    }));
   };
 
   const removeMember = (mem) => {
@@ -221,7 +221,7 @@ const CourseCodeMemberImportModal = (props) => {
               </div>
               {Object.values(searchResults).length > 0 && (
                 <GenericSearchResults
-                  itemsSearched={Object.values(searchResults)}
+                  itemsSearched={addUIElements(searchResults)}
                 />
               )}
             </div>
@@ -269,7 +269,7 @@ const CourseCodeMemberImportModal = (props) => {
 
 CourseCodeMemberImportModal.propTypes = {
   currentMembers: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  getMembersFromCourseCode: PropTypes.func.isRequired,
+  getCourseFromCourseCode: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };

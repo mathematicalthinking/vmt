@@ -9,7 +9,7 @@ const CourseCodeMemberImport = (props) => {
 
   const { hide: hideModal, showBig: showCourseCodeImportModal } = useAppModal();
 
-  const getMembersFromCourseCode = async (_courseCode) => {
+  const getCourseFromCourseCode = async (_courseCode) => {
     const res = await API.getWithCode('courses', _courseCode);
     const course = await res.data.result[0];
     if (!course) return [];
@@ -18,23 +18,12 @@ const CourseCodeMemberImport = (props) => {
       .filter((mem) => mem.user._id !== userId)
       .sort((a, b) => a.user.username.localeCompare(b.user.username));
 
-    const formattedCourse = {
-      courseId: course._id,
-      courseEntryCode: course.entryCode,
-      courseName: course.name,
-      courseMembers,
-    };
-
-    console.log('formattedCourse');
-    console.log(formattedCourse);
-
-    return formattedCourse;
+    return { ...course, members: courseMembers };
   };
 
   const submit = (membersToInvite) => {
-    console.log('membersToInvite');
-    console.log(membersToInvite);
     onImport(membersToInvite);
+    hideModal();
   };
 
   const handleAddMembers = () => {
@@ -42,7 +31,7 @@ const CourseCodeMemberImport = (props) => {
       <CourseCodeMemberImportModal
         key={Date.now()}
         currentMembers={currentMembers}
-        getMembersFromCourseCode={getMembersFromCourseCode}
+        getCourseFromCourseCode={getCourseFromCourseCode}
         onCancel={hideModal}
         onSubmit={submit}
       />
