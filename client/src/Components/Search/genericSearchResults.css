@@ -1,16 +1,30 @@
 .SearchResults {
-    margin-top: 10px;
-    background: white;
+  margin-top: 10px;
+  background: white;
 }
 
 .SearchResItem {
-    padding: 5px;
-    display: flex;
-    border: 1px solid #ddd;
-    justify-content: space-between;
-  }
-  
-  .FlexRow {
-    display: flex;
-    align-items: baseline;
-  }
+  padding: 5px;
+  display: flex;
+  border: 1px solid #ddd;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.Label {
+  width: 60%;
+  text-align: left;
+}
+
+.AltLabel {
+  font-weight: 200;
+  font-size: smaller;
+  text-align: right;
+  padding-right: .5rem;
+  width: 40%;
+}
+
+.FlexRow {
+  display: flex;
+  align-items: baseline;
+}

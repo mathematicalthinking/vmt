@@ -1,0 +1,91 @@
+:import('../../colors.css') {
+  lightestShadow: lightestShadow;
+  blue: blue;
+  lightBlue: lightBlue;
+  darkGrey: darkGrey;
+}
+
+.ParticipantsContainer {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  align-items: center;
+  height: 100%;
+  width: 75vw;
+  padding: 15px 20px 0;
+  z-index: 0;
+}
+
+.InfoBoxContainer {
+  width: 100%;
+  display: flex;
+}
+
+.InfoBox {
+  width: 50%;
+  padding: 0 5px;
+}
+
+.ModalButton {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* .AddParticipants */
+.CourseCodeSearch {
+  height: 350px;
+  width: 100%;
+  /* min-width: 450px; */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.NewParticipants {
+  height: 350px;
+  width: 100%;
+  /* min-width: 450px; */
+  overflow-y: auto;
+}
+
+.Search {
+  display: flex;
+  align-items: center;
+  font-size: inherit;
+  width: 100%;
+}
+
+.Input {
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  width: 100%;
+  padding: 10px;
+  padding-left: 35px;
+  transition: 0.2s;
+  background-color: white;
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  color: #666;
+  caret-color: lightBlue;
+  font-family: inherit;
+  position: relative;
+  box-shadow: lightestShadow;
+}
+
+.Input:focus {
+  border: none;
+  border: 1px solid blue;
+  outline-width: 0;
+}
+
+.Icon {
+  font-size: inherit;
+  margin-left: 8px;
+  position: absolute;
+  color: darkGray;
+}

@@ -49,3 +49,4 @@ export { default as Loading } from './Loading/Loading';
 export { default as InfoBox } from './InfoBox/InfoBox';
 export { ModalContext } from './GeneralModal';
 export { default as TabTypes } from './TabTypes';
+export { default as GenericSearchResults } from './Search/GenericSearchResults';
