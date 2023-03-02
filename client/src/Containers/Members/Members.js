@@ -445,13 +445,9 @@ class Members extends PureComponent {
                     </div>
                     <Importer
                       user={user}
-                      buttonText="Import New Users"
                       onImport={this.handleImport}
-                    />
-                    <Importer
-                      user={user}
-                      onImport={this.handleImport}
-                      buttonText="Import to Replace"
+                      buttonText="Import New Members"
+                      preImportText="Replace all existing members"
                       preImportAction={this.removeAllMembers}
                     />
                   </div>
