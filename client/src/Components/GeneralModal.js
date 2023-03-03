@@ -11,7 +11,7 @@ export const ModalContext = createContext({
 // eslint-disable-next-line react/prop-types
 export default function GeneralModal({ children }) {
   const [show, setShow] = useState(false);
-  const [child, setChild] = useState(null);
+  const [child, setChild] = useState(<div />); // prevent Proptype warning
   const [options, setOptions] = useState({});
   const [isBig, setIsBig] = useState(false);
 

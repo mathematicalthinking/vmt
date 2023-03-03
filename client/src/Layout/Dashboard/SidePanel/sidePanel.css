@@ -31,7 +31,7 @@
 }
 
 .spMain {
-  font-size: 26px;
+  font-size: 1.25rem;
   font-weight: 600;
   margin: 10px 0 5px 0;
   text-align: center;
@@ -45,7 +45,8 @@
   text-align: center;
 }
 
-.spAdditional {  
+.spAdditional {
+  margin-top: 1rem;
   border-top: 1px solid lightBorder;
   border-bottom: 1px solid lightBorder;
 }
@@ -64,7 +65,7 @@
   color: darkGray;
   cursor: pointer;
   border: 1px solid lightBorder;
-  padding: 12px 0;
+  padding: 12px 6px;
   margin-top: 15px;
   margin-bottom: 10px;
   border-radius: 5px;
@@ -131,6 +132,10 @@
 .KeyContainer {
   margin: 10px 0;
   padding: 10px 2px;
+  width: 90%;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .KeyName {
@@ -142,7 +147,7 @@
 
 .KeyValue {
   font-weight: 400;
-  float: right;
+  /* float: right; */
   color: #666;
   /* text-transform: capitalize; */
   text-align: right;

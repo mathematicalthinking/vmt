@@ -7,8 +7,8 @@
 }
 
 .Container {
-  width: 100%;
-  min-width: 540px;
+  min-width: 100%;
+  /* min-width: 32vw; */
   position: relative;
   display: flex;
   padding: 5px;
@@ -20,7 +20,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 600px;
+  width: 558px;
 }
 
 .SubContainer {
@@ -38,7 +38,8 @@
 
 .BannerLeft {
   display: flex;
-  align-items: space-between;
+  align-items: center;
+  width: 65%;
 }
 
 .TitleIcons {
@@ -53,14 +54,17 @@
 
 .Title,
 .TitleLink {
-  font-size: 1.5em;
-  margin-right: 10px;
+  /* margin-right: 10px; */
+  /* max-width: 246px; */
+  font-size: 1.25em;
+  font-weight: 400;
   text-align: center;
   vertical-align: middle;
   color: blue;
-  max-width: 260px;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.5px;
+  display: block;
 }
 
 .Expand {
@@ -91,10 +95,10 @@
 
 .Icons {
   display: flex;
-  width: 4rem;
+  max-width: 4rem;
   justify-content: space-around;
   align-items: center;
-  margin-right: 10px;
+  /* margin-right: 10px; */
   color: #666;
 }
 

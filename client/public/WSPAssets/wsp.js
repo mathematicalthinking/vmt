@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102172944
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230227031413
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -10521,16 +10521,16 @@
         "WillUndoRedo",
         "UndoRedo",
         "WillPlayTool",
-        "ToolPlayBegan",
+        "ToolPlayBegan",  // The user has is matching the first given
         "ToolPlayed",
         "ToolAborted",
         "StartSketchFrame",
         "EndSketchFrame",      
         "StartDrag",
-        "StartDragConfirmed",
+        "StartDragConfirmed", // The StartDrag is an actual drag, not a tap
         "MoveDrag",
         "EndDrag",
-        "EndLabelDrag",
+        "EndLabelDrag",  // The drag was on a label, not a gobj
         "MergeGobjs",
         "StartAnimate",
         "EndAnimate",
@@ -10544,8 +10544,10 @@
         "StartScroll",
         "MoveScroll",
         "EndScroll",
-        "PressButton",
-        "EditExpression",  // handles start, confirm, cancel for editing of params, calcs, and functions.
+        "PressButton",     // User has pressed a button
+        "ActivateButton",  // A button's isActive T/F property has changed
+        "EditExpression",  // handles all editing of params, calcs, and functions.
+        // "ChangeStyle", use "StyleWidget" instead
         "ClearTraces",
         "StyleWidget",
         "TraceWidget",
@@ -10553,13 +10555,14 @@
         "VisibilityWidget",
         "DeleteWidget",
         "PrefChanged"
+        // When committing event names, make sure changes are documented in documentation/Document/document-event.html
       ],
   
       /**
        * Notify event listeners that the event has been triggered.
        * @param  {String}  message -- event name, e.g. 'UnloadFocusPage'
        * @param  {Object}  context -- additional arguments to be passed along to handler about the situation in which
-       *                   this event fired. Objects (such as a sketch or sketch gobj) are permitted here.
+       *                   this event fired.Objects (such as a sketch or sketch gobj) are permitted here.
        * @param  {Object}  attributes -- additional arguments to be passed along to handler, either in string form
        *                   or arguments that can be stringified (e.g. a gobj.id rather than the gobj itself).
        * The context is not suitable for external use; data that might be needed by external clients must be
@@ -12077,23 +12080,6 @@
         
         var sketch = gobj.sQuery.sketch,
             self = this;
-            
-        function score(gobj) { // hasLabel counts 2 pts, showLabel counts 1
-          var ret = gobj.hasLabel ? 2 : 0;
-          if (GSP._get(gobj, 'style.label.showLabel')) {
-            ret += 1;
-          }
-        }     
-            
-        function preferFirstLabel(gobj1, gobj2) { // return true for gobj1, false for gobj2
-          // Compare hasLabel, style.label.showLabel, and then lowest id as a tiebreaker.
-          var score1 = score(gobj1),
-              score2 = score(gobj2);
-          if (score1 > score2) return true;
-          if (score2 > score1) return false;
-          return +gobj1.id < +gobj2.id;
-        }
-        
         // if toMerge has already been removed from the gobjList, there's nothing to do.
         if (!sketch.gobjList.gobjects[toMerge.id]) return;
         
@@ -12123,11 +12109,14 @@
           });
         }
   
-        // Which label should the merged gobj have? We evaluate them based on:
-        // a) having a label
-        // b) showing a label
-        // c) having a lower id (and thus more likely an earlier-generated label)  
-        if (preferFirstLabel(toMerge, gobj)) {
+        // If we are merging something with a label, to
+        // something without one, use the label, otherwise
+        // you can get ugly default "Object 1" strings in
+        // child labels.
+  
+        // Note, when we have a createDefaultLabel() function,
+        // this will a good place to use it.
+        if( !gobj.label) {
           gobj.label = toMerge.label;
           gobj.style.label.showLabel = toMerge.style.label.showLabel;
         }
@@ -13886,37 +13875,43 @@
       },
       
       // PageArrayPrefType determines which pages have a particular pref enabled.
-      // The return value from getExplicitPref() is an array: either ["all"], ["none"],
-      // or an array of page numbers.
+      // The return value is a boolean that applies to the current page only
+      // Default values are 'all', 'none', or a comma-delimited list of page numbers.
+      // It's ok (though not recommended) to start and end the list with '[' and ']'.
       // To set a PageArrayPrefType: you can set it to either an array or a string.
       // Valid arrays are ["all"], ["none"], or an array of page numbers.
       // Valid strings are "all", "none", or a comma-delimited list of page numbers.
       // Note that the indices of the returned array are irrelevant. For instance,
       // if element #3 contains 5, the pref is enabled for page 5; it has no bearing on page 3. 
-      // Therefore use pages.includes (4) to determine whether page 4 is enabled.
-      PageArrayPrefType = {	
+      // Therefore use pages.includes (5) to determine whether page 5 is enabled.
+      PageArrayPrefType = {
         parse: function(raw) {
           var pages, i;
           if (typeof raw === "boolean")
-            {return raw ? ["all"] : ["none"];}
+            {return raw ? 'all' : 'none';}
           else if (Array.isArray(raw))
             {return raw;}
-          else if (typeof raw !== "string")
+          else if (typeof raw !== 'string')
             { return null;}
-          else if (raw.toLowerCase() === 'all' || raw.toLowerCase() === 'true') 
-            { return ['all'];}
-          else if (raw.toLowerCase() === 'none' || raw.toLowerCase() === 'false') 
-            { return ['none'];}
-          else {
-            pages = raw.split (',');
-            for (i = 0; i < pages.length; i+=1)
-              {	pages[i] = parseInt(pages[i],10);}
-            return pages;
+          else {  // it's a string
+            if (raw[0] === '[' && raw[raw.length - 1] === ']') { // the string might be delimited by square brackets
+              raw = raw.substring(1, raw.length -1);
             }
+            raw = raw.toLowerCase().replace(/\s/g,""); // make lower case; remove spaces
+            if (raw === 'all' || raw === 'true') 
+              { return 'all';}
+            else if (raw === 'none' || raw === 'false') 
+              { return 'none';}
+            pages = raw.split (',');
+            for (i = 0; i < pages.length; i+=1) {
+              pages[i] = pages[i].toString();  // page id's are always strings
+            }
+            return pages;
+          }
         }
       },
       
-      ToolLookPrefType = {	
+      ToolLookPrefType = {  
         parse: function(raw) {
           raw = raw.toLowerCase();
           switch (raw) {
@@ -13932,7 +13927,7 @@
       authorPreferenceSpecs = { // use lowercase identifiers so that user prefs are case-insensitive
         tool: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // tools appear on all pages by default
+          defaultValue: 'all' // tools appear on all pages by default
         },
         disablescrolling: {
           type: BoolPrefType,
@@ -13960,31 +13955,31 @@
         },
         enablelabelediting: {
           type: PageArrayPrefType,
-          defaultValue: ['none']  // old-style (non-widget) label editing is off by default
+          defaultValue: 'none'  // old-style (non-widget) label editing is off by default
         },
         enabletracing: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // enableTracing is true by default
+          defaultValue: 'all' // enableTracing is true by default
         },
         stylewidget: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // all pages enable the style widget, because widgets are enabled only via an exporter checkbox; perhaps should be 'none' if widgets become integrated into main code.
+          defaultValue: 'all' // all pages enable the style widget, because widgets are enabled only via an exporter checkbox; perhaps should be 'none' if widgets become integrated into main code.
         },
         visibilitywidget: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // all pages enable the visibility widget
+          defaultValue: 'all' // all pages enable the visibility widget
         },
         labelwidget: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // all pages enable the label widget
+          defaultValue: 'all' // all pages enable the label widget
         },
         tracewidget: {
           type: PageArrayPrefType,
-          defaultValue: ['all'] // all pages enable the trace widget
+          defaultValue: 'all' // all pages enable the trace widget
         },
         deletewidget: {
           type: PageArrayPrefType,
-          defaultValue: ['none'] // no pages enable the delete widget (for compatibility with old sketches)
+          defaultValue: 'none' // no pages enable the delete widget (for compatibility with old sketches)
         },
         showwidgetpanelonpagestart: {
           type: BoolPrefType,
@@ -14001,7 +13996,7 @@
         },
         resetbutton: {
           type: PageArrayPrefType,
-          defaultValue: ['all']  // include a reset button beneath the sketch
+          defaultValue: 'all'  // include a reset button beneath the sketch
         },
         wsplogo: {
           type: BoolPrefType,
@@ -14016,12 +14011,12 @@
           defaultValue: "compact"
         },
         enabledragmerging: {
-          type: BoolPrefType,
-          defaultValue: true  // drag merging should be true by default
+          type: PageArrayPrefType,
+          defaultValue: 'all'  // drag merging should be on by default
         },
         undoredoinbuttonbar: {
-          type: BoolPrefType,
-          defaultValue: false  // false until we vet the UI.
+          type: PageArrayPrefType,
+          defaultValue: 'none'  // none until we vet the UI.
         }      
       };
   
@@ -14174,15 +14169,19 @@
                         : String(iIndex+1);
         return pageId;
       },
+      
+      // Given iPageId, find the index of the page with this id in docSpec.pages[]
+      // The input (iPageId) is a string; the output is a numeric index into the array
       getIndexForPageId: function(iPageId) {
-        if(this.docSpec.pages) {
+        if (this.docSpec.pages) {
           var pageSpec, pageIndex, pageId;
-          for(pageIndex = 0; pageIndex < this.docSpec.pages.length; pageIndex++){
+          for (pageIndex = 0; pageIndex < this.docSpec.pages.length; pageIndex++) {
             pageSpec = this.docSpec.pages[pageIndex];
-            pageId = (pageSpec && pageSpec.metadata && (pageSpec.metadata.id != null))
-                        ? pageSpec.metadata.id
-                        : String(pageIndex+1);
-            if( pageId === iPageId) {
+            pageId = GSP._get(pageSpec, 'metadata,id');
+            if (pageId === undefined) {
+              pageId = String(pageIndex + 1);
+            }
+            if (pageId === iPageId) {
               return pageIndex;
             }
           }
@@ -14662,51 +14661,100 @@
       },
   
       initMetadata: function() { this.metadata = $.extend( true, {}, this.docSpec.metadata); },
+      
+      cleanPrefName: function(prefName) { // pref keys are lower case with no spaces
+        return prefName.toLowerCase().replace(/\s/g,"");
+      },
+      
+      prefSpecFromName: function(prefName) {
+        // All tool prefs use the tool spec.
+        return authorPreferenceSpecs[prefName.match (/tool$/) ? 'tool' : prefName];
+      },
   
-      getAuthorPreference: function(prefName) {
-        // BoolPrefType can return true or false
-        // PageArrayPrefType returns an array of page numbers, or ["all"] or ["none"]
-        var lowerCasePrefName = prefName.toLowerCase(),
-            isToolPref = lowerCasePrefName.match (/tool$/),
-            prefSpec = authorPreferenceSpecs[isToolPref ? 'tool' : lowerCasePrefName],
+      getAuthorPreference: function(iPrefName, optionalCurPageId) {
+        // Returns the author preference: a boolean, a string, or a pageArray.
+        // For a pageArray, if an optionalCurPage is provided, return true if that page is in the array.
+        // If optionalCurPage is not provided, return the entire array of page id's.
+        // We now standardize metadata.authorPreferences by parsing values before storing them.
+        // Thus we no longer need to check values by parsing them when a caller gets them.
+        
+        var prefName = this.cleanPrefName(iPrefName),
+            prefSpec = this.prefSpecFromName(prefName),
+            curPage,
             prefType,
             prefDefaultValue,
-            explicitPref;
+            explicitPref,
+            value,
+            pages = this.pages || this.docSpec.pages; // If called before pages is instantiated, use docSpec.pages
   
+        // Once the below error is thrown on an unknown author pref, change this error to a console.log and fail gracefully.
+        if (prefName !== this.cleanPrefName(prefName)) throw GSP.createError("prefName " + prefName + " was not cleaned.");
         if (!prefSpec) throw GSP.createError("unknown author preference");
-  
+        curPage = optionalCurPageId || GSP._get(this, 'focusPage.metadata.id');
+        if (!curPage) throw GSP.createError("getAuthorPreference called with no sketch page available");
         prefType = prefSpec.type;
         if (!prefType) throw GSP.createError("Bad author preference type");
-  
         prefDefaultValue = prefSpec.defaultValue;
         if (prefDefaultValue === undefined) throw GSP.createError("Bad author preference default");
+        if (prefSpec.type.parse(prefDefaultValue) !== prefDefaultValue) throw GSP.createError("Bad author preference default");
   
-        explicitPref = this.getExplicitPref (lowerCasePrefName, prefSpec);
-        if (explicitPref.exists) {
-          return explicitPref.value;
-        }
-        else {
-          return prefDefaultValue;
+        explicitPref = this.getExplicitPref (prefName);
+        value = explicitPref.exists ? explicitPref.value : prefDefaultValue;
+        if (prefType === PageArrayPrefType) {
+          if (optionalCurPageId) { // Return true or false for the designated page
+            return value === 'all' || value.indexOf(curPage) >= 0;
+          } else {  // Return the value: a page array containing all pages or none
+            if (!Array.isArray(value) && value !== 'all' && value !=='none') {
+              throw GSP.createError("Bad return for getAuthorPreference");
+            }
+            if (value === 'none') {
+              value = [];
+            } else if (value === 'all') {
+              value = [];
+              $.each(pages, function() {
+                value.push(this.metadata.id);
+              });
+            }
+            return value;
+          }
+        } else {
+          return value === 'true' || value;
         }
       },
       
-      //  getExplicitPref returns {exists: <boolean>, value: <PageArray | boolean>}
-      getExplicitPref: function(lowerCasePrefName, spec) {  // return the string corresponding to prefName, ignoring the case of prefName
-        var key, test,
+      // prefName: the name of an authorPref. (We depend on cleanPrefs() to have cleaned the sketch's prefs)
+      // spec: the authorPreferenceSpec for this pref.
+      // Return value is an object: {exists: boolean, value: current pref value}
+      // If exists is false, the returned value is the default value for this pref.
+      getExplicitPref: function(prefName) {
+        var key, test, retVal,
+            spec = this.prefSpecFromName(prefName),
             authorPrefs = this.metadata.authorPreferences;
+  
+        // Do some error checking to determine whether such a pref exists and
+        // to determine whether its value is of an appropriate type.
+        // ALSO CHECK TO MAKE SURE THE PREF IS ALREADY PARSED.
+        // (All keys in authorPreferences should be lower-case without spaces,
+        // as should the sketch metadata keys.
         for (key in authorPrefs) {
-          test = key.toLowerCase();
-          if (test !== lowerCasePrefName)
-            test = test.replace(/\s/g,"");
-          if (test === lowerCasePrefName)
-            return {exists: true, value: spec.type.parse (authorPrefs[key])};
+          test = key.toLowerCase().replace(/\s/g,"");
+          if (test !== key) {
+            console.log('Stored key ' + key + " doesn't match parsed key " + test);
+          }
+          if (test === prefName) {
+            retVal = spec.type.parse (authorPrefs[key]);
+            if (retVal !== authorPrefs[key]) {
+              console.log('Stored authorPrefs[' + key + "] doesn't match parsed value.");
+            }
+            return {exists: true, value: retVal};
+          }
         }
         return {exists: false};
       },
       
       authorPreferenceIsExplicitlySet: function(prefName) {
         var authorPrefs = this.metadata.authorPreferences;
-        return authorPrefs && authorPrefs[prefName.toLowerCase()] !== undefined;
+        return authorPrefs && authorPrefs[this.cleanPrefName(prefName)] !== undefined;
       },
   
       setLocale: function(locale) {  // If a locale is passed, use it; otherwise sniff the browser
@@ -14744,7 +14792,29 @@
        */
       initModel: function(docSpec, options) {
         var pageIndex, pageId, pageSpec;
+        
   
+        function cleanPrefs() { // clean the names and values of the docSpec's author prefs
+          var prefs = docSpec.metadata.authorPreferences;
+          if (prefs) {
+            $.each(prefs, function (oldKey, oldValue) { // lowercase and strip spaces from the key
+              var newKey, prefSpec, isToolPref;
+              newKey = oldKey.toLowerCase().replace(/\s/g, '');
+              if (newKey !== oldKey) {
+                prefs[newKey] = oldValue;
+                delete prefs[oldKey];
+              }
+              isToolPref = newKey.match (/tool$/);
+              prefSpec = authorPreferenceSpecs[isToolPref ? 'tool' : newKey];
+              // Make sure prefSpec exists; for instance, 'widgets' might be an authorPref, but only individual widgets have prefSpecs
+              if (prefSpec && prefSpec.type.parse) {
+                prefs[newKey] = prefSpec.type.parse(oldValue);
+              }
+            });
+          }
+        }
+  
+        cleanPrefs();
         this.docSpec = docSpec;
         this.initMetadata();
         // Shallow copy of resources so as not to duplicate resource data
@@ -15084,8 +15154,8 @@
         } else {  // Use prepend rather than append, in case the sketch-container is already present
           node.prepend (newContent);
           // When adding tools to an existing sketch without tools, adjust the width of the base-node
-          // to fit the tools plus the sketch width      
-          $(".wsp-base-node").css({width: docWidth + $(".wsp-tool-container").outerWidth()});
+          // to fit the tools plus the sketch width
+          node.closest(".wsp-base-node").css({width: docWidth + $(".wsp-tool-container").outerWidth()});
         }
   
   
@@ -15361,7 +15431,7 @@
   
         // Now, we fix up the height of the tool-container to be full height.
         fixedButtonsHeight = 0;
-        $('.wsp-fixed-tool', node[0]).filter(":visible").each(function(val) {
+        $('.wsp-fixed-tool', node[0]).filter(":visible").each(function() {
             fixedButtonsHeight += $(this).outerHeight();
         });
         if (columnLook.hasIcons) {
@@ -15501,7 +15571,7 @@
   
       if (node) {
         document.attachToNode(node);
-        $(node).data("document", document);	// The document should be available before rendering gobjs & sending events
+        $(node).data("document", document); // The document should be available before rendering gobjs & sending events
         sketch.attachToNode(node);
   
         document.event( 'LoadDocument',
@@ -15899,20 +15969,31 @@
         }
         this.monitor.stateChange("constrain");
   
-        // gobj.state.constraintFrame = Max( [gobj, gobj.parents]).state.constraintFrame
+        
+        function ignoreIfDragged(parent) { // children can ignore this parent if it's being dragged
+          // We test by checking against the shorter list of ones that don't
+          // A code improvement would be to have a childrenIgnoreDrag flag in the parent constructors.
+          // The sketch shouldn't get into this level of detail of handling different gobjs.
+          // BUT HOW do we handle the problem of a dragged parent param, calc, or measure whose value
+          // is changing at the same time? For such parents, we need to go ahead and invalidate their children.
+          // AND HOW can we tell that the parent is actually being dragged?
+          // Perhaps we can set parent.state.inDrag at the start of a drag, and unset it either at drag end
+          // or if the value is changed.
+          var ignore = parent.isOfKind("Button") ||
+                    parent.isOfKind("Text") ||
+                    parent.isOfKind("Expression");
+          // Are all Expresions also Text? I think so.
+          return ignore && parent.state.inDrag;
+        }
+        
         function updateOneConstraintFrame(index, gobj, sketch) {
-          var i, parentGObj, parentDragged, parentChanged;
+          var i, parentGObj;
           for( i = 0 ; i < gobj.numParents(); i++) {
             parentGObj = gobj.parentsList[i];
-            // has gobj been changed in a way that affects descendants, via geom or value?
-            parentChanged = parentGObj.state.constraintFrame > gobj.state.constraintFrame;
-            // has gobj been dragged without affecting descendants?
-            parentDragged = parentGObj.state.dragFrame > gobj.state.dragFrame;
-            if (parentChanged) { //only parentChanged affects descendants
+            if (parentGObj.state.constraintFrame > gobj.state.constraintFrame && !ignoreIfDragged(parentGObj)) {
+              // parent has changed in a way that affects descendants
               gobj.state.constraintFrame = parentGObj.state.constraintFrame;
-            }
-            if (parentChanged || parentDragged) {
-              // Invalidating an object (even dragging a value object) invalidates its previous (last-rendered) bounds.
+              // Invalidating an object invalidates its previous (last-rendered) bounds.
               sketch.invalidateRect( sketch.renderRefCon.renderBounds[gobj.id]);
               sketch.invalidateRect( sketch.renderRefCon.labelBounds[gobj.id]);
               sketch.isDirty = true;
@@ -15923,9 +16004,7 @@
         function constrainOneGObj(index, gobj, sketch) {
           var id, dc;
           try {
-            if ((gobj.state.constraintFrame >= sketch.constraintFrame ||
-                 gobj.state.dragFrame >= sketch.constraintFrame) &&
-                 gobj.checkParentsExist()) {
+            if (gobj.state.constraintFrame >= sketch.constraintFrame && gobj.checkParentsExist()) {
               gobj.constrain(sketch);
               // Constraining an object invalidates its current (to-be-rendered) bounds
               if( !gobj.style.hidden) {
@@ -16017,33 +16096,21 @@
        * Marks the geometry of the gobject as out of date,
        * with accompanying sketch-wide side-effects.
        * @param {Object} gobj -- the GObj whose geometry is to be invalidated
+       * @param {String} source -- optional: pass 'drag' if gobj is being dragged
        * @return {GSP.Sketch} the sketch
        */
       invalidateGeom: function(gobj, source) {
-        
-        function dragDoesntContrain(gobj) { // Identify gobjs that can be dragged w/o affecting children
-          // turn these tests into flags defined by various kind/genus/constraint files 
-          var ret;
-          ret = GSP.isParameter(gobj) ||
-                GSP.isCalculation(gobj) ||
-                gobj.isOfKind("Measure") ||
-                gobj.isOfKind("Button") ||
-                gobj.isOfKind("Text") ||
-                gobj.isOfKind("Expression");
-          return ret;
-        }
-        
         if (gobj) {
-          //if (source === 'drag' && gobj.nonGeom) {
-          if (source === 'drag' && dragDoesntContrain(gobj)) { // extend to other draggable gobjs
-            // non-geometric gobjs (parameters, functions, buttons, etc.) can be dragged
-            // without effect on their children, so don't set constraintFrame
-            // Setting dragFrame signals the constraintLoop to rerender them w/o
-            // constraining their children.
-            gobj.state.dragFrame = this.constraintFrame;
-          } else {
-            gobj.state.constraintFrame = this.constraintFrame;
+          if (source === 'drag') {
+            if (!gobj.state.inDrag) {
+              gobj.state.inDrag = true;
+              console.log('Set inDrag for ' + gobj.id, gobj);
+            }
+          } else if (gobj.state.inDrag !== undefined) {
+            delete gobj.state.inDrag;
+            console.log('Cleared inDrag for ' + gobj.id);
           }
+          gobj.state.constraintFrame = this.constraintFrame;
           this.invalidateAppearance(gobj);
         }
         return this;
@@ -16912,9 +16979,10 @@
         GSP.logPerf(this.monitor.report(this.getName(), 'final'));
       },
       getAuthorPreference: function(prefName) {
-        var pref = this.document.getAuthorPreference(prefName);
+        var pageId = this.metadata.id,
+            pref = this.document.getAuthorPreference(prefName, pageId);
         if (Array.isArray (pref)) { // Array prefs are assumed to be page arrays or "all"
-          return pref[0] === "all" || pref.indexOf (parseInt (this.metadata.id, 10)) >= 0;
+          return pref[0] === "all" || pref.indexOf (pageId) >= 0;
         } else {
           return pref;
         }
@@ -18043,7 +18111,7 @@
         if (spec.config) {
           $.extend(self.config, spec.config);
         }
-        self.preferences.tracesEnabled = self.getAuthorPreference ("enabletracing");
+        self.preferences.tracesEnabled = self.document.getAuthorPreference ("enabletracing", document.metadata['start-page']);
   
         self.sQuery = GSP.SQuery(self);
         self.gobjList = new GSP.GObjList();
@@ -38046,7 +38114,7 @@
             renderAttrs.renderable = true;
             renderAttrs.visibility= "visible";
             renderAttrs.opacity = 1;
-            renderAttrs.frame = 0;  // Change constraintFrame to frame, as a new frame may be required by dragFrame
+            renderAttrs.constraintFrame = 0;
   
             ctx.save();
             ctx.beginPath();
@@ -38397,7 +38465,7 @@
             // Check the following change, adding forceDomParse to the frame test. forceDomParse is set
             // when the MFS has changed in the absence of reconstraining the sketch (as in relabeling a gobj or button)
             // This change works with the html engine; it seems likely that it will work here also.
-            if (renderAttrs.frame !== drawRefCon.frame || renderAttrs.forceDomParse) {
+            if (renderAttrs.constraintFrame !== drawRefCon.constraintFrame || renderAttrs.forceDomParse) {
               if( renderAttrs.parsedMFS !== drawRefCon.parsedMFS) {
                 drawRefCon.parsedMFS = renderAttrs.parsedMFS;
                 
@@ -38416,7 +38484,7 @@
                   tmpCtx.scale( devicePixelRatio, devicePixelRatio);
                 }
               }
-              drawRefCon.frame = renderAttrs.frame;
+              drawRefCon.constraintFrame = renderAttrs.constraintFrame;
             }
   
             /*
@@ -39679,9 +39747,9 @@
                 /*jshint +W116*/
                 // If forceDomParse is true, reparse the MFS (via updateFromModel) even if the sketch has not been reconstrained.
                 // This handles MFS changes due to changing a label.
-                if (renderAttrs.frame !== this.frame || renderAttrs.forceDomParse) {
+                if (renderAttrs.constraintFrame !== this.constraintFrame || renderAttrs.forceDomParse) {
                   this.updateFromModel(renderAttrs);
-                  this.frame = renderAttrs.frame;
+                  this.constraintFrame = renderAttrs.constraintFrame;
                 }
                 this.updateModelToViewTransform(drawContext.modelToViewTransform);
   
@@ -40521,6 +40589,7 @@
      *    _mergeGObjToSpecGObj: function(gobj, specGObjToCreate)
      *    abortPlayback: function ()
      *    confirmPlayback: function ()
+     *    putGivenOnIntersection: function(intersectionInfo, givenGObj)
      *    putGivenOnPath: function(path, givenGObj, value)
      *    addGObjAsMatchedGiven: function (gobj)
      *    findExistingMatchedGivenWithProperty: function (propertyName, value)
@@ -41077,8 +41146,7 @@
           this.generatedLabels = undefined;        
         }
         //  Show the Calculator, _unless_ it was already shown at the end of toolplay.
-        // and _unless_ the sketchDoc's is remotely controlled
-        if (calcPresent && !$(".wsp-Calculator").is(":visible") && !self.sketch.document.isRemote) {
+        if (calcPresent && !$(".wsp-Calculator").is(":visible")) {
           calcPresent.presentUI();
         }
       },
@@ -41597,6 +41665,7 @@
           newDragPos = dragPos.add(adjustedDeltaToGiven.subtract(this.deltaToGiven));
           this.deltaToGiven = adjustedDeltaToGiven;
         }
+        console.log ("updateDeltaToGiven: new value = ", this.deltaToGiven);
         return newDragPos;
       },
       
@@ -41985,7 +42054,7 @@
         if (regime) {
           // Original code tested for activeTool AFTER popping, so never generated an event
           // Now we get tool name before popping (while activeTool exists)
-          //Popping the regime will trigger our delegate who performs all of the cleanup
+          // Popping the regime will trigger our delegate who performs all of the cleanup
           this.sketch.popAllTouchRegimesIncluding(regime);
         }
         this.sketch.event('ToolAborted', {}, {tool: {name: name}});
@@ -42088,8 +42157,8 @@
           var self = this;
           var initializeControls = !this.$closeBox;
           var container = this._getUndoRedoContainer();
-          toolRegime = this.createToolRegime();
           var newObjIds = [];
+          toolRegime = this.createToolRegime();
           $.each(toolRegime.toolplaySession.constructedObjects, function() {
             newObjIds.push(this.id);
           });
@@ -44169,9 +44238,9 @@
         return this.tapState;
       },
       
-      isTap: function() {
+      isTap: function(pos) {
         if (this.tapState === 'potential') {
-          this.checkTapState(this.pos);
+          this.checkTapState(pos);
         }
         return this.tapState === 'confirmed';
       },
@@ -44187,8 +44256,8 @@
         firstTap = this;
   
       },
-      isDoubleTap: function () {
-        if (this.maybeDouble && this.isTap()) {
+      isDoubleTap: function (pos) {
+        if (this.maybeDouble && this.isTap(pos)) {
           firstTap = null;
           return true;
         }
@@ -44202,12 +44271,12 @@
           return theGobjArr[0];
       },
       
-      checkForOverlapCycleTap: function () { // Called in touchEnded() to see if this might be a tap or drag on overlapping objects that we ought to cycle through
+      checkForOverlapCycleTap: function (pos) { // Called in touchEnded() to see if this might be a tap or drag on overlapping objects that we ought to cycle through
         var ix,
             gobjKind = this.gobjArr[0].kind;
         this.gobj = this.gobjArr[0];  // default choice if nothing else works
         if (prevTap && (ix = this.gobjArr.indexOf (prevTap.gobj)) >= 0 && prevTap.gobj.kind === gobjKind) { // is prevTap.gobj in this tap's gobjArr?
-          if (this.isTap())
+          if (this.isTap(pos))
             ix += 1;    // Advance the cycle only if this is a tap and the new target is the same kind
           if (ix < this.gobjArr.length && this.gobjArr[ix].kind === gobjKind)
             this.gobj = this.gobjArr[ix]; // if ix == length, the default will be gobjArr[0].
@@ -44267,12 +44336,9 @@
         var gobj = this.gobj,
             sketch = this.sketch,
             self = this;
-        var pageNum, thePref;  // label-editing prefs are arrays: ['all'], ['none'], or [<page numbers>]
   
-        if (!gobj.canEditLabel()) return; // wait forever for a drag
-        thePref = sketch.document.getAuthorPreference ("enablelabelediting");
-        pageNum = parseInt (sketch.metadata.id, 10);
-        if (thePref[0]==='none' || !(thePref.includes(pageNum) || thePref[0] ==='all')) return; // wait forever for a drag
+        if (!gobj.canEditLabel() ||
+            !sketch.getAuthorPreference ("enablelabelediting")) return; // wait forever for a drag
   
         function checkForLongPress() {
           if (!self.touchIsInProgress ||
@@ -44693,8 +44759,9 @@
         // takes place (behind the scenes) to the value referenced by the text (the actual candidate).
         var self = this,
             kind = this.gobj.kind,
-            arr = [];
-                
+            arr = [],
+            canUndo = this.sketch.anchorNode.parent().find('.wsp-undo-button').is(':visible');
+        
         function pushCandidate (candidate, proxy) {
           arr.push ({candidate: candidate, proxy: proxy});
         }
@@ -44736,9 +44803,11 @@
           });
         }
   
-        if (!this.sketch.getAuthorPreference ("enableDragMerging")) {
+        // Drag merging is allowed ONLY its pref is true (the default) AND it can be undone
+        if (!(this.sketch.getAuthorPreference ("enableDragMerging") && canUndo)) {
           return false;
         }
+        
         this.dmState = "Probe";   // the array of possible candidates
         this.dmCandidates = []; // Candidates to which the gobj can be merged. Each item has a proxy and
           // its candidate. Proxies are unique (and parallel to dmProxies);
@@ -44996,39 +45065,38 @@
         if (!mergeCandidate) {
           return false;
         }
-        if (mergeCandidate) { // either a gobj or an intersection
-          if (this.gobj.kind === "Point" && mergeCandidate.isAPath && mergeCandidate.isAPath()) {  // merge gobj to path
-            attr.pathValue = mergeCandidate.mapPositionToPathValue(this.gobj.geom.loc);
-            attr.pathId = mergeCandidate.id;
-            newGobj = this.sketch.putGivenOnPath(this.gobj, mergeCandidate, attr.pathValue);
-          } else if (mergeCandidate.path1) {  // merge gobj to newly created intersection
-            attr.path1Id = mergeCandidate.path1.id;
-            attr.path2Id = mergeCandidate.path2.id;
-            newGobj = this.sketch.putGivenOnIntersection (this.gobj, mergeCandidate);
-          } else {  // merge gobj to an existing object of the same kind
-            newGobj = this.sketch.mergeGobjToCandidate (this.gobj, mergeCandidate, {skipDescendantUpdate: true});
-            attr.mergeToId = mergeCandidate.id; 
-          }
-          attr.delta = doc.pushConfirmedSketchOpDelta (this.dmPreDelta);
-          if (newGobj) {
-            attr.newId = newGobj.id;
-          }
-          doc.changedUIMode();
-          // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
-          // Three options for attr; all include gobjId.
-          // point-point or param-value: mergeToId
-          // point-path: pathId & pathValue
-          // point-intersection: path1Id & path2Id
-          this.sketch.event(
-            "MergeGobjs",
-            {
-              gobj: this.gobj,
-              mergeInfo: mergeCandidate
-            },
-            attr
-          );
-          return true;
+        // mergeCandidate is either a gobj or an intersection
+        if (this.gobj.kind === "Point" && mergeCandidate.isAPath && mergeCandidate.isAPath()) {  // merge gobj to path
+          attr.pathValue = mergeCandidate.mapPositionToPathValue(this.gobj.geom.loc);
+          attr.pathId = mergeCandidate.id;
+          newGobj = this.sketch.putGivenOnPath(this.gobj, mergeCandidate, attr.pathValue);
+        } else if (mergeCandidate.path1) {  // merge gobj to newly created intersection
+          attr.path1Id = mergeCandidate.path1.id;
+          attr.path2Id = mergeCandidate.path2.id;
+          newGobj = this.sketch.putGivenOnIntersection (this.gobj, mergeCandidate);
+        } else {  // merge gobj to an existing object of the same kind
+          newGobj = this.sketch.mergeGobjToCandidate (this.gobj, mergeCandidate, {skipDescendantUpdate: true});
+          attr.mergeToId = mergeCandidate.id; 
         }
+        attr.delta = doc.pushConfirmedSketchOpDelta(this.dmPreDelta);
+        if (newGobj) {
+          attr.newId = newGobj.id;
+        }
+        doc.changedUIMode();
+        // Add a sketch event here, similar to the ToolPlayed event posted by the toolController.
+        // Three options for attr; all include gobjId.
+        // point-point or param-value: mergeToId
+        // point-path: pathId & pathValue
+        // point-intersection: path1Id & path2Id
+        this.sketch.event(
+          "MergeGobjs",
+          {
+            gobj: this.gobj,
+            mergeInfo: mergeCandidate
+          },
+          attr
+        );
+        return true;
       }
       
     };
@@ -45111,7 +45179,7 @@
        * confirmed (if the touchEnded is within the time and distance limits),
        * and rejected (if touchMoved exceeds either time or distance limit).
        */
-  
+      
         this.registerAsPossibleDoubleTap();
         this.possibleMerge = this.sketch.currentTouchRegime().name === "DisplayRegime" && this.registerAsPossibleMerge (touch);
         if (!this.gobj.style.selectable) return;  // this can't be a drag if gobj is unselectable
@@ -45145,7 +45213,7 @@
         // If gobj is unselectable, the tap has timed out or moved too far,
         // and there's a secondary choice, let the user drag the secondary object.
         if (this.options.unselectableTap && !this.gobj.style.selectable &&
-            (!this.isTap() || this.distanceMoved(pos) > this.kMaxTapMovement)) {
+            (!this.isTap(pos) || this.distanceMoved(pos) > this.kMaxTapMovement)) {
           //  It's not a tap, so look for a secondary gobj
           $.each (this.gobjArr, function () {
             if (this.style.selectable && this !== self.gobj) {
@@ -45172,7 +45240,7 @@
             });
           }
         }
-  
+        
         var refCon = {    
           transform: {
             "dx": pos.x - this.lastX,
@@ -45213,7 +45281,7 @@
       },
       
       touchEnded: function (pos, touch) {
-        var isTap = this.isTap() && this.distanceMoved(pos) < this.kMaxTapMovement,
+        var isTap = this.isTap(pos) && this.distanceMoved(pos) < this.kMaxTapMovement,
             didMerge;
         if (this.gobj.style.selectable) {
           this.motionManager.ApplyCurrent();
@@ -45235,8 +45303,8 @@
             }
           }
         }
-        this.checkForOverlapCycleTap ();
-        if (this.isDoubleTap()) {
+        this.checkForOverlapCycleTap (pos);
+        if (this.isDoubleTap(pos)) {
           this.gobj.doubleClicked(touch);
         }
         // Note: A tap event fires on each tap of a double tap.
@@ -45550,16 +45618,16 @@
       gobj: null,
       sketch: null,
       labelCornerDelta: null,
-      origX: null,
-      origY: null,
-      startTime: null,
-      endTime: null,
+      //origX: null, // why are these in the proto?
+      //origY: null,
+      //startTime: null,
+      //endTime: null,
       touchBegan: function (pos, touch) {
         // Remember the delta between the touch and the labelTopLeft
         this.labelCornerDelta = this.gobj.getLabelCornerDelta(pos);
         this.origX = pos.x;
         this.origY = pos.y;
-        this.startTime = touch.mouseEvent.timeStamp;
+        this.tapState = 'potential';  // can be potential, confirmed, or rejected
       },
       touchMoved: function (touchPos, touch) {
         this.gobj.setLabelPosition(GSP.GeometricPoint(touchPos.x, touchPos.y),
@@ -45572,8 +45640,7 @@
                         Math.abs(pos.y - this.origY));
       },
       touchEnded: function (pos, touch) {
-        this.endTime = touch.mouseEvent.timeStamp;
-        if (this.isTap() &&
+        if (this.isTap(pos) &&
             this.distanceMoved(pos) < this.kMaxTapMovement) {
           this.sketch.event("Tap", {
             gobj: this.gobj,
@@ -45891,7 +45958,7 @@
             this.unmatchedGivens[0].setRenderState("unmatchedGiven");
           }
         }
-        if (this.isDoubleTap()) {
+        if (this.isDoubleTap(pos)) {
           if (candidate) {
             candidate.doubleClicked(touch);
           }
@@ -47953,9 +48020,6 @@
           var elementText = GSP.mfs.updatedGenus[this.genus] + ' ' + GSP.mfs.makeSpeakableTextFromMFSParseTree(this.parsedMFS);
           this.htmlNode.attr('aria-label', elementText);
           this.oldParsedMFS = this.parsedMFS;
-          // Note that oldParsedMFS remains as a permanent property of the gobj.
-          // Is there some way we could mark the parsedMFS as changed and then remove
-          // that marker once the htmlNode has been updated?
         }
       }
     },
@@ -48264,8 +48328,8 @@
     invalidateAppearance: function() {
       this.sQuery.sketch.invalidateAppearance(this);
     },
-    invalidateGeom: function() {
-      this.sQuery.sketch.invalidateGeom(this);
+    invalidateGeom: function(source) {
+      this.sQuery.sketch.invalidateGeom(this, source);
     },
     /*
      * GObjects may return a colorable component, which serves
@@ -48623,12 +48687,6 @@
           kGrowthAmt = 0.7;
         }
         else if (isInterior) {
-          // If an opaque gobj is traced without fading, varying the opacity has no visible effect.
-          // Might it be better to vary the saturation rather than opacity?
-          // If we convert to HSV and clamp the original saturation to [0.3..0.7] and vary it
-          // by 0.3 up and down, that should work well for a variety of interior colors,
-          // provided the opacity is not 0. (Should we also set opacity to a minimum value
-          // such as 0.25 and restore it at the end of the job?)
           kGrowthAmt = 0.6;
           oldValue = style.opacity;
           // The basevalue must be between 0 and 1-kGrowthAmt, ideally centered on oldValue.
@@ -49856,28 +49914,25 @@
         if (this.clonedGObj.cleanupVectorRendering) {
           return this.clonedGObj.cleanupVectorRendering(drawContext, drawRefCon, this.vectorContext);
         }
-      },  
+      },
+      
       render: function (drawContext, drawRefCon, renderArgs) {
-  
-        var props = {
-                hidden: this.style.hidden,
-                width: this.style.width,
-                color: this.style.color,
-                radius: this.style.radius,
-                opacity: this.calculateOpacity(),
-                renderable: true,
-                constraintFrame: this.state.constraintFrame
-                //Must always render because some objects need to 'render' to
-                //erase themselves.  Also, though the sampleGobj is currently non-existing
-                //some samples may be existing
-            };
-  
+        var props =
+          { hidden: this.style.hidden,
+            width: this.style.width,
+            color: this.style.color,
+            radius: this.style.radius,
+            opacity: this.calculateOpacity(),
+            renderable: true,
+            constraintFrame: this.state.constraintFrame
+            // Even if the sampleGobj doesn't currently exist, we must
+            // render the vector because some samples may still exist,
+            // and they must be rendered to erase themselves.
+          };
         if (this.style["line-style"]) {
           GSP.modifyRenderAttrsForLineStyle(this.style["line-style"], props);
         }
-  
         this.modifyRenderAttrsForCurrentState(props);
-  
         if (this.clonedGObj.renderVector) {
           this.updateKindHTMLStyle();
           return this.clonedGObj.renderVector(drawContext, 
@@ -49887,6 +49942,7 @@
                                        props);
         }
       },
+      
       getGeomBounds: function () {
         
         if (this.clonedGObj.getGeomBoundsVector) {
@@ -49995,7 +50051,7 @@
           }
           
           if (this.button.state.inClick === 0) {
-            this.button.press(this.sketch);
+            this.button.press(this.sketch, "touchEnded");
             // Delay sending this event until the button is active. Otherwise an event handler has
             // no way to test whether the button has finished.
             this.sketch.event('PressButton', {gobj: this.button}, { 'buttonType': this.button.constraint});
@@ -50066,6 +50122,20 @@
                             }
                         }
                     }
+                },
+                "state": {
+                  "isActive": {
+                    "description": "Whether the button is in currently active",
+                    "type": "Boolean"
+                  },
+                  "pressedDown": {
+                    "description": "Button's appearance indicates it's currently under the user's touch",
+                    "type": "Boolean"
+                  },
+                  "pressedUp": {
+                    "description": "Button's appearance indicates it's pressed, but not currently under the user's touch",
+                    "type": "Boolean"
+                  }
                 }
             }
         },
@@ -50131,7 +50201,6 @@
               GSP.log("Unexpected render state: " + this.state.renderState + " for kind: " + this.kind);
               break;
           }
-  
         },
         renderPrepare: function(drawContext, renderArgs) {
             var labelStyle = this.style.label || { },
@@ -50162,12 +50231,9 @@
                 displayObject = drawRefCon,
                 attrs = {
                     visibility: visibility,
-                    frame: this.state.constraintFrame,
+                    constraintFrame: this.state.constraintFrame,
                     zIndex: renderArgs.zIndex
                 };
-            if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
-              attrs.frame = this.state.dragFrame;
-            }
             this.updateButtonSpeakableText(this.oldText, this.label);
   
             if (renderable) {
@@ -50322,6 +50388,14 @@
         },
         handleClick: function(event, sketch) {
           this.press(sketch);
+        },
+        
+        activate: function (newState, source) {
+          if (newState !== this.state.isActive) {
+            this.state.isActive = newState;
+            this.pressSource = newState ? source : undefined;
+            this.sQuery.sketch.event('ActivateButton', {gobj: this}, {isActive: newState, buttonType: this.constraint});
+          }
         },
   
         updateKindHTMLStyle: function() {
@@ -52674,7 +52748,7 @@
             attrs = {
                 visibility: visibility,
                 measurable: renderable || this.latentVisibility,
-                frame: this.state.constraintFrame,
+                constraintFrame: this.state.constraintFrame,
                 opacity: this.calculateOpacity(),
                 zIndex: renderArgs.zIndex,
                 wspSays: this.isGobjExistInWSPSays(),
@@ -52685,9 +52759,6 @@
             // which we'll need not just to render, but also to measure
             // and if latentVisibility, then measuring is potentially going to happen
             // in toolplay autoplacement.
-            if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
-              attrs.frame = this.state.dragFrame;
-            }
   
         if( this.nameMFSOverride) {
           attrs.width = this.nameMFSOverride.width;
@@ -53354,13 +53425,10 @@
   
           attrs = {
             visibility: visibility,
-            frame: this.state.constraintFrame,
+            constraintFrame: this.state.constraintFrame,
             opacity: this.calculateOpacity(),
             zIndex: renderArgs.zIndex
           };
-      if (this.state.dragFrame && this.state.dragFrame > attrs.frame) {
-        attrs.frame = this.state.dragFrame;
-      }
       attrs.x = this.geom.loc.getX();
       attrs.y = this.geom.loc.getY();
   
@@ -55727,6 +55795,7 @@
        *  to be a number here.  
        */        
       updateValue: function (newValue) {
+        var sketch = this.sQuery().sketch;
         if ((typeof newValue === "function") || (typeof this.value === "function")) {
           throw GSP.createError("Expression.updateValue() called on function or with value arg that is a function");
         }
@@ -55739,7 +55808,8 @@
         this.isExpressionDirty = true;
         this.fnExpression = undefined;
         this.parsedInfix = undefined;
-        this.sQuery().invalidateGeom(this);
+        sketch.invalidateGeom(this);
+        sketch.document.raiseSketchEvent(sketch.getPageId(), this.id, "update");
       },
       
       prepareToSerialize: function() {
@@ -57824,15 +57894,19 @@
       
       //Override to allow for non-existing source
       checkParentsExist: function () {
-        var didExist = this.state.exists;
-        this.state.exists = didExist && this.namedParentExists('map');
-        if (didExist && !this.state.exists) {
-          //If we're setting existence to false, we also need to wipe our 
-          //samples, since our map's constrain function won't be called and
-          //the map usually manages these tasks.
+        if (this.getParent('map').state.exists) {
+          return true;
+        }
+        // The map doesn't exist, presumably because the source doesn't,
+        // so neither does the iterated image.
+        if (this.state.exists) {
+          // When setting existence to false, we also need to wipe our 
+          // samples, since our map's constrain function won't be called and
+          // the map usually manages these tasks.
+          this.state.exists = false;
           this.clearSamples();
         }
-        return this.state.exists;
+        return false;
       }
   
   });
@@ -64493,7 +64567,7 @@
           
               this.motionID = undefined;
               //if we've only got one, we're stopping the last one
-              button.state.isActive = (button.state.motions.length > 1);  
+              button.activate(button.state.motions.length > 1);
   
               //remove from the array of motions
               for (i=0; i < button.state.motions.length; i++) {
@@ -64969,7 +65043,7 @@
         if (!this.state.isActive) {
           GSP.log("Started animation " + this.id);
           this.state.motions = [];
-          this.state.isActive = true;
+          this.activate(true, pressSource);
   
           for (i = 0; i < this.numParents(); i++) {
             motionGObj = this.parentsList[i];
@@ -65418,7 +65492,7 @@
       // movement is on hold if either object does not exist (unless we have 
       // a cached target location.
       canKeepMoving: function canKeepMoving() {
-        return this.moverGObj.state.exists && (false !== this.getDestination());
+        return this.moverGObj.state.exists && (false !== this.getDest());
       },
   
       /*
@@ -65493,7 +65567,7 @@
         
         this.motionID = undefined;
         //if we've only got one, we're stopping the last one
-        this.button.state.isActive = (this.button.state.motions.length > 1);  
+        this.button.activate(this.button.state.motions.length > 1, this.pressSource);  
         
         //remove from the array of motions
         for (i=0; i < this.button.state.motions.length; i++) {
@@ -65516,15 +65590,16 @@
        * travel. 'This' is assumed to be a motion object with a target
        * and a destination. We set this.distance to the distance of the
        * motion, or 0 if the motion should be skipped.
-       * 
+       * Subclass must define both getDestLoc to return the target's geom.loc
+       * and getDest() to return a value that determines the location.
        * @return {undefined}
        */
       initializeDistance: function initializePointDistance(){
         var mover = this.moverGObj,
-            targetLoc = this.getDestination();
+            targetLoc = this.getDestLoc();
   
         //set the distance between the target and the mover
-        if (this.getDestination()) {
+        if (targetLoc) {
           this.distance = targetLoc.subtract(mover.geom.loc).vLength();
         }
         else {
@@ -65536,24 +65611,16 @@
           //probably not desirable, but at least the two implementations are consistent.
           this.distance = 10;
         }
-      },
-  
-      getDestination: function getDestination() {
-        return this.targetGObj.geom.loc.isDefined() && this.targetGObj.geom.loc;
       }
-  
-  
     });
   
     var ParameterMotion = GSP.makeClass(MoveMotion, {
-  
       init: function init() {
         (init.base || arguments.callee.base).call(this);
         this.isValueChangingMotion = true;
       },
   
-      getDestination: function getDestination () {
-        
+      getDest: function getDest () {
         // If we're instant, and our target is blank,
         // we can become blank.
         if(this.targetGObj.blank) {
@@ -65594,7 +65661,7 @@
   
       getStep: function getStepValue() {
         var moverGObj = this.moverGObj,
-            targetValue = this.getDestination(),
+            targetValue = this.getDest(),
             delta = targetValue - moverGObj.value,
             sign = (delta < 0)? -1: 1,
             atEnd = (delta === 0),
@@ -65627,8 +65694,7 @@
                     }
   
                   } else {
-                    moverGObj.updateValue(moverGObj.value 
-                                          + sign * Math.abs(rate));
+                    moverGObj.updateValue(moverGObj.value + sign * Math.abs(rate));
                   }
                 }
                 
@@ -65644,7 +65710,7 @@
       getStep: function getStepPointRoots() {
         var kLEN_TOLERANCE = 1e-12, // rounding error might get us close but not exactly at target
             p0 = this.moverGObj.geom.loc,
-            v = this.getDestination().subtract(p0), 
+            v = this.getDest().subtract(p0), 
             len = v.vLength(),
             motion = this,
             step = {
@@ -65682,28 +65748,47 @@
               }
             };
         return step;
+      },
+      
+      getDestLoc: function getDestLoc() {
+        return this.targetGObj.geom.loc.isDefined() && this.targetGObj.geom.loc;
+      },
+      
+      getDest: function getDest() {
+        return this.getDestLoc();
       }
   
     });
   
     var PointOnPathMotion = GSP.makeClass(PointMotion, {
+      // If the point on path is moving to the target's initial destination, we use
+      // the cached initial value of the target mapped to the path as our destination.
+      // If the point on path is following a moving target, we recalculate the
+      // mapped value of the target at every step.
+      
       getStep: function getStepPointOnPath() {
-        var moverGObj = this.moverGObj,
+        var motion = this,
+            kVAL_TOLERANCE = 1e-10, // rounding error might get us close but not exactly at target
+            moverGObj = this.moverGObj,
             targetGObj = this.targetGObj,
-            targetLoc = this.getDestination(),
-            EPSILON = 0.05, //cf. TowardDestinationViaPath_SourceActuallyHitDest()
             pathGobj = moverGObj.getParent("path"),
+            samePath = targetGObj.isFreePointOnPath && targetGObj.getParent('path') === pathGobj,
             moverValue = moverGObj.value,
-            targetValue = pathGobj.mapPositionToPathValue(targetLoc),
+            targetValue = this.getDest(),
             motionPath = pathGobj.makeMotionPath(moverValue, targetValue),
             newValue, step, atEnd;
         
-        function checkAtEnd(moverValue) {
-          var moverPosition = pathGobj.mapPathValueToPosition(moverValue);
-          return moverPosition.equals(targetLoc, EPSILON);
+        function checkAtEnd() {
+          if (motion.button.towardInitialDestination) {
+            // Compare the mover's current value to the cached target value
+            return Math.abs(moverGObj.value - motion.getDest()) < kVAL_TOLERANCE;
+          } else {
+            // Compare the current locations of the mover and the target.
+            return moverGObj.geom.loc.subtract(targetGObj.geom.loc).vLength() < kVAL_TOLERANCE;
+          }
         }
   
-        atEnd = checkAtEnd(moverValue);
+        atEnd = checkAtEnd();
         step = {
           isAlreadyThere: atEnd,
           /* 
@@ -65726,11 +65811,9 @@
                 newValue = motionPath.advance(rate);
               }
               // Ensure we exactly coincide with target point on path.
-              if (checkAtEnd(newValue) && targetGObj.constraint === "PointOnPath" &&
-                  targetGObj.getParent("path") === moverGObj.getParent("path")) {
+              if (checkAtEnd(newValue) && samePath) {
                 moverGObj.updateValue(targetGObj.value);
-              }
-              else {
+              } else {
                 moverGObj.updateValue(newValue);
               }
             }
@@ -65738,7 +65821,24 @@
           }
         };
         return step;
+      },
+  
+      // The mover is a point on path, so its dest must be a value.
+      getDest: function getDest() {
+        var target = this.targetGObj,
+            path = this.moverGObj.getParent('path');
+        if (target.isFreePointOnPath && target.getParent('path') === path) {
+          return target.value;  // target is on path; return its value
+        } else {
+          return path.mapPositionToPathValue(target.geom.loc); // not on path; find target's value on path
+        }
+      },
+      
+      getDestLoc: function getDestLoc() {
+        var path = this.moverGObj.getParent("path");
+        return path.mapPathValueToPosition(this.getDest());
       }
+  
     });
   
     /**
@@ -65833,6 +65933,9 @@
          * Creates and returns a new motion given a mover and a target.  If the 
          * motion cannot begin, either because the mover is already at the target
          * or if it's a 'towardInitialDestination' motion, no motion is returned.
+         * If it's a 'towardInitialDestination' motion, we cache the target
+         * location (PointRootsMotion) or the target value (PointOnPathMotion & ParameterMotion).
+         * 
          * 
          * @param {object} mover - the gobject to move
          * @param {object} target - the gobject that the mover is moving towards
@@ -65840,7 +65943,7 @@
          * @return {object} the initialized motion
          */
         function createNewMotion(mover, target) {
-          var cachedDestination,
+          var cachedDest, // initial target value or location
               motionClass,
               motion;
   
@@ -65869,17 +65972,17 @@
               //destination.  We can't do anything.  Just bag out of this motion
               return;
             }
-  
-            cachedDestination = motion.getDestination();
-            motion.getDestination = function() {
-              return cachedDestination;
+            // Cache the value or location we're moving to.
+            cachedDest = motion.getDest();
+            motion.getDest = function() {
+              return cachedDest;
             };
           }
   
   
           if(motion.moverGObj.state.exists) {
             motion.initializeDistance();
-            if (0 !== this.distance) {
+            if (0 !== motion.distance) {
               return motion;
             }
           }
@@ -65887,7 +65990,7 @@
         }
   
         if (!this.state.isActive) {
-          this.state.isActive = true;
+          this.activate(true);
           GSP.log("Starting move " + button.id);
   
           for (i=0; i < this.numParents(); i+=2) {
@@ -65901,7 +66004,7 @@
           
           //nothing to move - bag out now!!!
           if (this.state.motions.length === 0) {
-            this.state.isActive = false;
+            this.activate(false);
             //invalidate our geometry so downstream presentation buttons have
             //a chance to proceed.
             sketch.invalidateGeom(this);
@@ -65941,7 +66044,7 @@
               } else {
                 //parameter motions
                 moverValue = aMotion.moverGObj.value;
-                targetValue = aMotion.getDestination();
+                targetValue = aMotion.getDest();
   
                 if (targetValue !== false) {
                   targetDelta = targetValue - moverValue;
@@ -66628,6 +66731,11 @@
           },
           example: "../../wsp-test/gsp-test-bed.html?sketch=documents/GSPSketches/Polygon-Polygon_export.json"
       },
+      
+      standardizeTool: function (objSpecs, poly) {
+        console.log('PolygonFromPoints.standardizeTool is a stub; a functional version is in the stek-givens GitHub branch.');
+      },
+            
       updateConstraintAncestry: function updateConstraintAncestry() {
         (updateConstraintAncestry.base || arguments.callee.base).call(this);
         this.geom.points = [];
@@ -66859,7 +66967,7 @@
             if (!gObj.state.isActive) {
               this.state.current += 1;
               if (this.state.current >= this.state.buttonList.length) {
-                this.state.isActive = false;
+                this.activate(false);
                 sketch.event("EndSequence", {
                   button: this,
                   id: this.id
@@ -66923,7 +67031,7 @@
           isActive = this.state.isActive;
   
           if (!isActive) {
-              this.state.isActive = true;
+              this.activate(true, pressSource);
               sketch.event("StartSequence", {
                 button: this,
                 id: this.id
@@ -66946,7 +67054,7 @@
                 this.state.pressedDown = true;
           }
           else {
-              this.state.isActive = false;
+              this.activate(false);
               gObj = this.state.buttonList[this.state.current];
               if (gObj.state.isActive) {
                   gObj.press(sketch, "sequenceButton");
@@ -67062,7 +67170,7 @@
               
             if (this.stopAfter==="firstActionStops") {
   
-              this.state.isActive = !aParentHasEnded;
+              this.activate(!aParentHasEnded);
   
               if ((!this.state.isActive) && aParentIsStillGoing) {
                 this.deactivateRemainingButtons(sketch);
@@ -67070,7 +67178,7 @@
               
             } else {
               
-              this.state.isActive = aParentIsStillGoing;
+              this.activate(aParentIsStillGoing);
               
               if(!this.pressSource)
                 this.state.pressedUp = true;
@@ -67110,7 +67218,7 @@
               this.state.pressedUp = true;
           }
   
-          this.state.isActive = (this.activeButtons.length > 0);
+          this.activate(this.activeButtons.length > 0, pressSource);
           
           if (newState && (typeof this.stopAfter === 'number')) {
             //Schedule the stopTimer to stop the presentation after the specified
@@ -67189,7 +67297,7 @@
         if (this.state.isActive) {
           // Check the current case. If it doesn't exist or has completed, the case is finished.
           if (!this.activeParent || !this.activeParent.state.isActive) { // current case has completed
-            this.state.isActive = false;
+            this.activate(false);
             sketch.event("EndCase", {
               button: this,
               id: this.id,
@@ -67236,7 +67344,7 @@
             if (this.activeParent && this.activeParent.state.isActive) {
               this.activeParent.press (sketch, "caseButton");
             }
-            this.state.isActive = false;
+            this.activate(false);
             sketch.event("EndCase", {
               button: this,
               id: this.id,
@@ -67255,7 +67363,7 @@
           } else {  // We didn't start a button, so force a call to constrain() so we can deactivate politely.
             this.invalidateGeom ();
           }
-          this.state.isActive = true;
+          this.activate(true, pressSource);
         }
       }
   });
@@ -67389,7 +67497,7 @@
               }
             }, false);
             
-            this.state.isActive = false;
+            this.activate(false);
             this.hideShowState = undefined;
             sketch.invalidateGeom(this);
   
@@ -67431,7 +67539,7 @@
               sketch.invalidateGeom(this);
             }, false);  
   
-            this.state.isActive = false;
+            this.activate(false);
             this.hideShowState = undefined;
             sketch.invalidateGeom(this);
   
@@ -67486,7 +67594,7 @@
           //override our state.isActive field to false so the action button 
           //won't consider this an action that started and completed after a single
           //frame.  We want it considered as an action immediately completed.
-          this.state.isActive = false;
+          this.activate(false);
         }
         
       },
@@ -67496,7 +67604,7 @@
           return;
         }
         
-        this.state.isActive = true;
+        this.activate(true, pressSource);
         sketch.invalidateGeom(this);
   
         if (this.areHidden()) {
@@ -68788,7 +68896,7 @@
           return;
         }
   
-        this.state.isActive = true;
+        this.activate(true, pressSource);
         sketch.invalidateGeom(this);
   
         this.beginAction("hide", pressSource, sketch);
@@ -69197,7 +69305,7 @@
           return;
         }
   
-        this.state.isActive = true;
+        this.activate(true, pressSource);
         sketch.invalidateGeom(this);
   
         this.beginAction("show", pressSource, sketch);
@@ -69209,7 +69317,7 @@
   "/* For now, these are not in less. Just import them raw. */\n"+
   "/*!\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102161158\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230217111107\n"+
   "*/\n"+
   "\n"+
   "/*\n"+
@@ -69882,7 +69990,7 @@
   ".wsp-version-4-8-0 {\n"+
   "  /*\n"+
   "  Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.\n"+
-  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20221102161158\n"+
+  "  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230217111107\n"+
   "*/\n"+
   "  /* Section Start: wsp-Button */\n"+
   "  /*\n"+
@@ -70227,6 +70335,7 @@
   "  background-color: white;\n"+
   "  word-wrap: break-word;\n"+
   "  white-space: normal;\n"+
+  "  height: fit-content;\n"+
   "}\n"+
   ".wsp-version-4-8-0 .wsp-tool-container .wsp-tool-column .wsp-tool.wsp-draggable-toolButton {\n"+
   "  box-sizing: content-box;\n"+
@@ -70247,6 +70356,11 @@
   ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool-image,\n"+
   ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool-image {\n"+
   "  margin: auto;\n"+
+  "  max-width: 100%;\n"+
+  "  /* Use the full width of the container */\n"+
+  "  height: 100%;\n"+
+  "  object-fit: contain;\n"+
+  "  /*  Maintain the image's aspect ratio */\n"+
   "}\n"+
   ".wsp-version-4-8-0 .wsp-tools-classicLook .wsp-tool,\n"+
   ".wsp-version-4-8-0 .wsp-tools-compactLook .wsp-tool {\n"+

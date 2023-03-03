@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import classes from './checkbox.css';
 
 const Checkbox = (props) => {
-  const { children, dataId, id, checked, change, style } = props;
+  const { children, dataId, id, checked, change, style, labelStyle } = props;
   // Previously, the id used to be either the provided id or children. The problem was if we had several checkboxes in the DOM with the same
   // label (i.e., children), then there might be more than one DOM element with the same id, which is bad.
   // Instead, we give each input a distinct id if one isn't given.
@@ -24,7 +24,9 @@ const Checkbox = (props) => {
         }}
         checked={checked}
       />
-      <label htmlFor={eltId}>{children}</label>
+      <label htmlFor={eltId} style={labelStyle}>
+        {children}
+      </label>
     </div>
   );
 };
@@ -36,10 +38,12 @@ Checkbox.propTypes = {
   checked: PropTypes.bool.isRequired,
   change: PropTypes.func.isRequired,
   style: PropTypes.shape({}),
+  labelStyle: PropTypes.shape({}),
 };
 
 Checkbox.defaultProps = {
   id: null,
   style: null,
+  labelStyle: null,
 };
 export default Checkbox;

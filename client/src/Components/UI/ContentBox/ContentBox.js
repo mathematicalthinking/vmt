@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Checkbox, ToolTip } from 'Components';
+import { Checkbox, ToolTip, TabTypes } from 'Components';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
@@ -42,7 +42,6 @@ class ContentBox extends PureComponent {
       id,
       notifications,
       link,
-      image,
       roomType,
       listType,
       title,
@@ -66,6 +65,15 @@ class ContentBox extends PureComponent {
     ) {
       return null;
     }
+    if (
+      roomType &&
+      roomType[0] === 'wsp' &&
+      window.env.REACT_APP_WSP_MODE &&
+      window.env.REACT_APP_WSP_MODE.toLowerCase() !== 'yes'
+    ) {
+      return null;
+    }
+    if (roomType && !TabTypes.isActive(roomType)) return null;
 
     const childElements = (
       <div
@@ -82,8 +90,11 @@ class ContentBox extends PureComponent {
                 listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
               />
             </div>
-            <ToolTip text={`Go To ${resourceToDisplay} Lobby`} delay={600}>
-              <div className={classes.Title} data-testid="" title={title}>
+            <ToolTip text={title} delay={600}>
+              <div
+                className={classes.Title}
+                data-testid={`ContentBox-${title}`}
+              >
                 {title}
               </div>
             </ToolTip>
@@ -125,7 +136,7 @@ class ContentBox extends PureComponent {
                 </div>
               ) : null}
               {details.sinceUpdated ? (
-                <div>Updated: {details.sinceUpdated} ago</div>
+                <div>Updated: {details.sinceUpdated}</div>
               ) : null}
               {details.createdAt ? (
                 <div>Created: {details.createdAt}</div>
@@ -189,7 +200,6 @@ ContentBox.propTypes = {
   id: PropTypes.string.isRequired,
   notifications: PropTypes.number,
   link: PropTypes.string,
-  image: PropTypes.string,
   roomType: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
@@ -197,7 +207,15 @@ ContentBox.propTypes = {
   listType: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   locked: PropTypes.bool.isRequired,
-  details: PropTypes.shape({}).isRequired,
+  details: PropTypes.shape({
+    facilitators: PropTypes.arrayOf(PropTypes.string),
+    sinceUpdated: PropTypes.string,
+    createdAt: PropTypes.string,
+    dueDate: PropTypes.string,
+    creator: PropTypes.string,
+    entryCode: PropTypes.string,
+    description: PropTypes.string,
+  }).isRequired,
   selectable: PropTypes.bool,
   isChecked: PropTypes.bool,
   onSelect: PropTypes.func,
@@ -207,7 +225,6 @@ ContentBox.propTypes = {
 
 ContentBox.defaultProps = {
   notifications: null,
-  image: null,
   roomType: null,
   selectable: false,
   isChecked: false,

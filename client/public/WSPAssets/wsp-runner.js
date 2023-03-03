@@ -1,6 +1,6 @@
 /*!
-	Web Sketchpad Sketch Runner. Copyright &copy; 2016 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-	Version: Release: 2015Q4Update2, Semantic Version: 4.5.1-alpha, Build Number: 1020, Build Stamp: stek-macbook-pro.local/20190331013328
+  Web Sketchpad Sketch Runner. Copyright &copy; 2016 KCP Technologies, a McGraw-Hill Education Company. All rights reserved.
+  Version: Release: 2015Q4Update2, Semantic Version: 4.5.1-alpha, Build Number: 1020, Build Stamp: stek-macbook-pro.local/20190331013328
 */
 (function() {
   /* When a file is loaded by data-var, there are several requirements for the supplied variable name.
@@ -31,7 +31,7 @@
    *
    */
 
-  var jsReserved = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
+  var jsReserved = /^(do|if|in|for|var|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|var|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
 
   var illegalRe = /[\/\?<>\\:\*\|":]/g; // Illegal chars for filenames
   var controlRe = /[\x00-\x1f\x80-\x9f]/g; // control codes are illegal
@@ -50,8 +50,8 @@
     }
 
     function removePathAndSuffix(fName) {
-      var st,
-        retVal = fName;
+      var st;
+      var retVal = fName;
       st = retVal.split('.');
       if (st[0] && st.length > 1 && !allow.suffix) {
         // remove suffix
@@ -73,7 +73,9 @@
         st.match(windowsReservedRe) ||
         typeof window[st] !== 'undefined'
       ) {
-        if (!st.match(digits)) st += '0';
+        if (!st.match(digits)) {
+          st += '0';
+        }
         n = st.match(digits)[0];
         st = st.replace(digits, +n + 1);
       }
@@ -125,53 +127,53 @@
   }
 
   /*  unitTest depended on forbidding duplicates, which is no longer supported
- 
-   function unitTest () {
-     
-     function check (st, expected) {
-       var result = normalize (st);
-       if (result !== expected)
-         console.log ("WspNames.unitTest error: expected ", expected, " but result was ", result);
-     }
-     
-     check ('that', 'that');
-     check ('that', 'that1');
-     check ('that', 'that2');
-     check ('that', 'that3');
-     check ('that', 'that4');
-     check ('that', 'that5');
-     check ('that', 'that6');
-     check ('that', 'that7');
-     check ('that', 'that8');
-     check ('that', 'that9');
-     check ('that', 'that10');
-     check ('that', 'that11'); // that11
-     check ('ligature ﬀ', 'ligature_ff'); // ligature_ff
-     check ('con', 'con1');  // Illegal in Windows; should return con1
-     check ('2', '_2');  // javascript variables cannot begin with a digit.
-     check ('1', '_1');
-     check ('1', '_3');  // _2 is already used, so increment the trailing numeric portion
-     check ('com', 'com');  // Legal
-     check ('com', 'com10');  // conversion to com1 makes it illegal; should turn into com10.
-     check ('.test', '_test');  // period not allowed to start filenames
-     check ('..testing', '_testing');  // no multiple periods
-     check ('_test', '_test1');  // underscore is legal first char, but append 1 because already used
-     check ('$this', '$this'); // $ is allowable first char
-     check ('per.iod', 'per'); // remove suffix
-     check ('1test', '_1test');  // variable cannot start with a digit; prepend an underscore: _1test
-     check ('test12var', 'test12var'); // legal variable name
-     check ('a+b', 'a_b');  // illegal in variables: a_b
-     check ('a/b', 'b');  // The "a/" looks like a path name and is removed. 
-     check ('a____b', 'a_b1'); // no repeated underscores
-     check ('this', 'this1'); // no javascript reserved words
-     check ('this', 'this2'); // no javascript reserved words
-     window.alert3 = "";                 // define alert3 in global namespace
-     check ('alert', 'alert1'); // alert is already defined in global namespace
-     check ('alert', 'alert2'); // alert1 is not defined in global namespace, so comes up twice
-     check ('alert', 'alert4'); // alert3 is skipped because it's defined in global namespace
-     check ('includes/scripts/some_var', 'some_var'); // any leading file-name path is removed.
-   }
-   */
+
+  function unitTest () {
+
+    function check (st, expected) {
+      var result = normalize (st);
+      if (result !== expected)
+        console.log ("WspNames.unitTest error: expected ", expected, " but result was ", result);
+    }
+
+    check ('that', 'that');
+    check ('that', 'that1');
+    check ('that', 'that2');
+    check ('that', 'that3');
+    check ('that', 'that4');
+    check ('that', 'that5');
+    check ('that', 'that6');
+    check ('that', 'that7');
+    check ('that', 'that8');
+    check ('that', 'that9');
+    check ('that', 'that10');
+    check ('that', 'that11'); // that11
+    check ('ligature ﬀ', 'ligature_ff'); // ligature_ff
+    check ('con', 'con1');  // Illegal in Windows; should return con1
+    check ('2', '_2');  // javascript variables cannot begin with a digit.
+    check ('1', '_1');
+    check ('1', '_3');  // _2 is already used, so increment the trailing numeric portion
+    check ('com', 'com');  // Legal
+    check ('com', 'com10');  // conversion to com1 makes it illegal; should turn into com10.
+    check ('.test', '_test');  // period not allowed to start filenames
+    check ('..testing', '_testing');  // no multiple periods
+    check ('_test', '_test1');  // underscore is legal first char, but append 1 because already used
+    check ('$this', '$this'); // $ is allowable first char
+    check ('per.iod', 'per'); // remove suffix
+    check ('1test', '_1test');  // variable cannot start with a digit; prepend an underscore: _1test
+    check ('test12var', 'test12var'); // legal variable name
+    check ('a+b', 'a_b');  // illegal in variables: a_b
+    check ('a/b', 'b');  // The "a/" looks like a path name and is removed.
+    check ('a____b', 'a_b1'); // no repeated underscores
+    check ('this', 'this1'); // no javascript reserved words
+    check ('this', 'this2'); // no javascript reserved words
+    window.alert3 = "";                 // define alert3 in global namespace
+    check ('alert', 'alert1'); // alert is already defined in global namespace
+    check ('alert', 'alert2'); // alert1 is not defined in global namespace, so comes up twice
+    check ('alert', 'alert4'); // alert3 is skipped because it's defined in global namespace
+    check ('includes/scripts/some_var', 'some_var'); // any leading file-name path is removed.
+  }
+  */
 
   /*  @param {string} name is the string to be converted into a legal filename / variable name
    *  @param {object} allow permits certain forms: {path: true} doesn't strip leading path name.
@@ -186,8 +188,8 @@
 })(); // WspNames
 
 (function($) {
-  var GSPConfig = window.GSPConfig,
-    useIntObserver = typeof IntersectionObserver !== 'undefined';
+  var GSPConfig = window.GSPConfig;
+  var useIntObserver = typeof IntersectionObserver !== 'undefined';
 
   function getVersion(gspInstance, field) {
     return parseInt(gspInstance.version[field], 10);
@@ -227,15 +229,14 @@
 
   function fixSketch(data) {
     // The fix here corrects erroneous export of sketches with font-family = "\"Times New Roman\", sans-serif"
-    var defaultList = ['"Times New Roman", serif', '"Arial", sans-serif'],
-      i,
-      fontList,
-      authorPrefs = data.metadata.authorPreferences,
-      wspVersion = data.metadata['wsp-version'].split('.'),
-      v49orEarlier = !(
-        wspVersion[0] > 4 ||
-        (wspVersion[0] === 4 && wspVersion[1] > 9)
-      ); // constructibleGiven, other fixes weren't in exporter through v4.9
+    var defaultList = ['"Times New Roman", serif', '"Arial", sans-serif'];
+    var i;
+    var fontList;
+    var wspVersion = data.metadata['wsp-version'].split('.');
+    var v49orEarlier = !(
+      wspVersion[0] > 4 ||
+      (wspVersion[0] === 4 && wspVersion[1] > 9)
+    ); // constructibleGiven, other fixes weren't in exporter through v4.9
 
     function fixTimesFont(s) {
       if (
@@ -243,18 +244,24 @@
         !$.isNumeric(s) &&
         s.includes('Times') &&
         s.includes('sans-serif')
-      )
+      ) {
         s = s.replace('sans-serif', 'serif');
+      }
       return s;
     }
 
     function fixGobjFont(gobj) {
       // Fix the gobj if its style lists "\"Times New Roman\", sans-serif"
       var fontStyle;
-      if (gobj.style && gobj.style.label) fontStyle = gobj.style.label;
-      if (!fontStyle) fontStyle = gobj.style;
-      if (fontStyle && fontStyle['font-family'])
+      if (gobj.style && gobj.style.label) {
+        fontStyle = gobj.style.label;
+      }
+      if (!fontStyle) {
+        fontStyle = gobj.style;
+      }
+      if (fontStyle && fontStyle['font-family']) {
         fontStyle['font-family'] = fixTimesFont(fontStyle['font-family']);
+      }
     }
 
     function fixCaseButton(gobj) {
@@ -275,11 +282,11 @@
     }
 
     function fixLabel(gobj) {
-      var nameOriginKey = 'nameOrigin:',
-        nameOrigins = GSP.labels.legalNameOrigins(gobj),
-        ix,
-        match,
-        st;
+      var nameOriginKey = 'nameOrigin:';
+      var nameOrigins = GSP.labels.legalNameOrigins(gobj);
+      var ix;
+      var match;
+      var st;
       if (!gobj.label) return;
       // It used to be legal to precede the origin code with the key; this is no longer needed.
       gobj.label = gobj.label.replace(nameOriginKey, '').trim();
@@ -295,11 +302,14 @@
     }
 
     function fixPage(page) {
-      // Fix the prefs
+      // We don't fix the page prefs here; they are now fixed in initModel's cleanPrefs() function
       $.each(page.preferences.text.textTypes, function(key, value) {
-        if (!value['font-family']) value = value.label;
-        if (value['font-family'])
+        if (!value['font-family']) {
+          value = value.label;
+        }
+        if (value['font-family']) {
           value['font-family'] = fixTimesFont(value['font-family']);
+        }
       });
       if (page.objects) {
         $.each(page.objects, function(id, gobj) {
@@ -320,13 +330,13 @@
       // Register any tool objects as constructibleGiven that have that label,
       // whose parents have labels that begin with "given",
       // and whose parents have no parents of their own.
-      var thisTool = tool,
-        constRole = 'constructibleGiven',
-        constRegEx = new RegExp('^' + constRole, 'i'),
-        constructibleConstraints =
-          'Segment, Line, Ray, PolygonFromPoints, CircleFromTwoPoints, Arc3Points',
-        name = tool.metadata.name,
-        glideReflect = name.match(/glide\xA0reflect/i); //
+      var thisTool = tool;
+      var constRole = 'constructibleGiven';
+      var constRegEx = new RegExp('^' + constRole, 'i');
+      var constructibleConstraints =
+        'Segment, Line, Ray, PolygonFromPoints, CircleFromTwoPoints, Arc3Points';
+      var name = tool.metadata.name;
+      var glideReflect = name.match(/glide\xA0reflect/i); //
 
       /* When a tool's given object is instantiated in a sketch, there are four possible
        * use cases for the label of the new sketch object, listed below. Each example is preceded
@@ -357,8 +367,8 @@
        **/
       function fixToolLabel(gobj) {
         // "given:" or "assumed:" has already been removed from given object labels
-        var fromLabel,
-          hide_label = gobj.label.indexOf('hide_label');
+        var fromLabel;
+        var hide_label = gobj.label.indexOf('hide_label');
         if (hide_label > -1) {
           // remove the flag and hide the label
           gobj.label = gobj.label.substring(0, hide_label);
@@ -426,8 +436,9 @@
       if (tool.objects) {
         $.each(tool.objects, function(id, gobj) {
           var isConstructible, sortOrder, labelArr;
-          if (gobj.expression && gobj.expression === '1+1')
+          if (gobj.expression && gobj.expression === '1+1') {
             gobj.expression = '';
+          }
           if (gobj.toolRole === 'given' && gobj.label === 'delete') {
             deleteWithDescendants(id);
             return;
@@ -474,8 +485,9 @@
               if (!gobj.label) {
                 // If label is empty, delete and hide it.
                 delete gobj.label;
-                if (gobj.style && gobj.style.label)
+                if (gobj.style && gobj.style.label) {
                   gobj.style.label.showLabel = false;
+                }
               }
               $.each(gobj.parents, function(key, idx) {
                 var par = thisTool.objects[idx];
@@ -493,23 +505,15 @@
       }
     }
 
-    if (!data.resources) data.resources = { fontList: defaultList };
-    else if (!data.resources.fontList) data.resources.fontList = defaultList;
-    else {
+    if (!data.resources) {
+      data.resources = { fontList: defaultList };
+    } else if (!data.resources.fontList) {
+      data.resources.fontList = defaultList;
+    } else {
       fontList = data.resources.fontList;
       for (i = 0; i < fontList.length; ++i) {
         fontList[i] = fixTimesFont(fontList[i]);
       }
-    }
-    if (authorPrefs) {
-      $.each(authorPrefs, function(oldKey, value) {
-        // lowercase and strip spaces from the key
-        var newKey = oldKey.toLowerCase().replace(/\s/g, '');
-        if (newKey !== oldKey) {
-          authorPrefs[newKey] = value;
-          delete authorPrefs[oldKey];
-        }
-      });
     }
     if (v49orEarlier) {
       // In versions > 4.9, the exporter has already made these fixes
@@ -636,15 +640,15 @@
       }
     }
 
-    //Note: there was once a time when Document constructor would return a sketch
-    //This is no longer the case, but since here we may be running an old version of WSP,
-    //we must continue to handle that case.
+    // Note: there was once a time when Document constructor would return a sketch
+    // This is no longer the case, but since here we may be running an old version of WSP,
+    // we must continue to handle that case.
     var Document = gspInstance.Document;
     var docOrSketch = new Document($target, data, options.sketchOptions);
     sketch = docOrSketch.focusPage || docOrSketch;
 
-    //	The new document is now attached to the node in the new Document() call abvove,
-    //	so that it's already there when before firing the LoadDocument, LoadPage, and DidChangeCurrentPage events.
+    //  The new document is now attached to the node in the new Document() call abvove,
+    //  so that it's already there when before firing the LoadDocument, LoadPage, and DidChangeCurrentPage events.
     // $target.data(isSketch? "sketch" : "document", docOrSketch);
 
     if (docOrSketch.start) {
@@ -731,6 +735,7 @@
 
   function loadFromScriptUrl($target, options) {
     GSP.log('Loading Sketch: ' + options.url);
+    console.log('Loading Sketch: ' + options.url);
     var script = document.createElement('script');
     script.src = options.url;
     options.target = $target;
@@ -744,15 +749,31 @@
     document.body.append(script);
   }
 
+  /* Possible replacement for isVisible(), per
+ * https://stackoverflow.com/questions/487073/how-to-check-if-element-is-visible-after-scrolling
+ * 
+  function isInView($target) { // Check whether the target is within the visible area
+    var viewTop = $(window).scrollTop();
+    var viewBottom = viewTop + $(window).height();
+
+    var elTop = $target.offset().top;
+    var elBottom = elTop + $target.height();
+
+    return ((elBottom <= viewBottom) && (elTop >= viewTop));
+  }
+*/
+
   function isVisible($target) {
     var el = $target[0],
+      parent = el.offsetParent,
       rect,
       vWidth,
       vHeight;
-    if (!(el.offsetWidth > 0 || el.offsetHeight > 0)) {
+    // We were getting false returns here for sketches within the viewport that need to be loaded,
+    // so now we check the offsetParent (if there is one) instead of the sketch_canvas itself.
+    if (!parent || !(parent.offsetWidth > 0 || parent.offsetHeight > 0)) {
       return false;
     }
-    el = $target[0];
     rect = el.getBoundingClientRect();
     vWidth = window.innerWidth || document.documentElement.clientWidth;
     vHeight = window.innerHeight || document.documentElement.clientHeight;
@@ -767,6 +788,7 @@
   function loadFromJsonUrl($target, options) {
     var url = options.url;
     GSP.log('Loading Sketch: ' + url);
+    console.log('Loading Sketch: ' + options.url);
     $.ajax({
       url: options.url,
       success: function(text, statusMsg) {
@@ -814,21 +836,20 @@
   }
 
   function delayLoadFromUrl($target, options) {
-    var url = options.url,
-      optKey = $target.data('url') || $target.data('var');
+    var url = options.url;
+    var optKey = $target.data('url') || $target.data('var');
     if ($target[0].innerHTML === '') {
       // If the sketch_canvas has no content, it will never be visible, so add some content.
       $target[0].innerHTML = 'Loading...';
     }
     GSP.log('Delaying load of hidden sketch: ' + url);
     /* jshint ignore:start */
-
     if (!fetchFromAttr.observer) {
       fetchFromAttr.observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
-          var $target = $(entry.target),
-            key = $target.data('url') || $target.data('var'),
-            options = fetchFromAttr.optionsList[key];
+          var $target = $(entry.target);
+          var key = $target.data('url') || $target.data('var');
+          var options = fetchFromAttr.optionsList[key];
           if (entry.isIntersecting && isVisible($target)) {
             loadNowFromUrl($target, options);
             fetchFromAttr.observer.unobserve(entry.target);
@@ -840,7 +861,6 @@
       });
     }
     /* jshint ignore:end */
-
     fetchFromAttr.observer.observe($target[0]);
     fetchFromAttr.optionsList[optKey] = options;
   }
@@ -1014,10 +1034,10 @@
        */
       loadSketch: function(options) {
         return this.each(function() {
-          var $this = $(this),
-            config = {
-              autoStart: true,
-            };
+          var $this = $(this);
+          var config = {
+            autoStart: true,
+          };
 
           var docOrSketch = $this.data('document') || $this.data('sketch');
           if (docOrSketch) {

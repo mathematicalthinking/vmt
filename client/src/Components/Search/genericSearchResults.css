@@ -1,0 +1,16 @@
+.SearchResults {
+    margin-top: 10px;
+    background: white;
+}
+
+.SearchResItem {
+    padding: 5px;
+    display: flex;
+    border: 1px solid #ddd;
+    justify-content: space-between;
+  }
+  
+  .FlexRow {
+    display: flex;
+    align-items: baseline;
+  }

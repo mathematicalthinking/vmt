@@ -2,6 +2,7 @@ const { ObjectId } = require('mongoose').Types;
 const moment = require('moment');
 const db = require('../models');
 const { areObjectIdsEqual } = require('../middleware/utils/helpers');
+const STATUS = require('../constants/status');
 
 module.exports = {
   get: (params) => {
@@ -45,12 +46,12 @@ module.exports = {
           select: '-currentState',
           populate: {
             path: 'tabs members.user',
-            select: 'username tabType name instructions',
+            select: 'username tabType desmosLink name instructions',
           },
         })
         .populate({
           path: 'activities',
-          populate: { path: 'tabs', select: 'name tabType' },
+          populate: { path: 'tabs', select: 'name tabType desmosLink' },
         })
         .populate({
           path: 'notifications',
@@ -117,19 +118,7 @@ module.exports = {
   },
 
   put: (id, body) => {
-    let query;
-    // if (body.notificationType === 'requestAccess' || body.notificationType === 'grantAccess') {
-    //   if (body.resource === 'courses') {
-    //     delete body.resource;
-    //     query = {$addToSet: {'courseNotifications.access': body}}
-    //   } else {
-    //     delete body.resource;
-    //     query = {$addToSet: {'roomNotifications.access': body}}
-    //   }
-    // }
-
     return new Promise((resolve, reject) => {
-      if (query) body = query;
       db.User.findByIdAndUpdate(id, body, { new: true })
         .then((user) => {
           resolve(user);
@@ -177,7 +166,11 @@ module.exports = {
       }
       since = Number(momentObj.startOf('day').format('x'));
     }
-    let initialFilter = { updatedAt: { $gte: new Date(since) } };
+    let initialFilter = {
+      updatedAt: { $gte: new Date(since) },
+      isTrashed: false,
+      status: { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] },
+    };
 
     if (to && since && to > since) {
       let toMomentObj = moment(to, 'x', true);

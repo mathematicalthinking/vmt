@@ -46,16 +46,13 @@ class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
   constructor(props) {
     super(props);
-    const { room } = this.props;
-    if (room && !room.instructions) {
-      room.instructions = 'No instructions set yet';
-    }
+    const { room, user } = this.props;
     this.state = {
       // member: false,
       guestMode: true,
       tabs: [
         { name: 'Details' },
-        { name: 'Members' },
+        ...(this.shouldShowMembers() ? [{ name: 'Members' }] : []),
         { name: 'Preview' },
         { name: 'Stats' },
         { name: 'Settings' },
@@ -156,7 +153,9 @@ class Room extends Component {
     }
     if (
       prevProps.room &&
+      prevProps.room.members &&
       room &&
+      room.members &&
       prevProps.room.members.length !== room.members.length
     ) {
       this.checkAccess();
@@ -192,6 +191,24 @@ class Room extends Component {
       });
     }
   }
+
+  // Don't display Members tab if:
+  // aliased usernames are turned on and user is a facilitator
+  shouldShowMembers = () => {
+    const { room } = this.props;
+    // used because room is sometimes not fully loaded from community
+    // & does not always loaded in without settings
+    if (!room || !room.settings) return true;
+    const isFacilitator = this.isUserFacilitator();
+    if (!isFacilitator && room.settings.displayAliasedUsernames) return false;
+    return true;
+  };
+
+  isUserFacilitator = () => {
+    const { room, user } = this.props;
+    const mem = room.members.find((member) => member.user._id === user._id);
+    return mem && mem.role ? mem.role === 'facilitator' : false;
+  };
 
   enterWithCode = (entryCode) => {
     const { room, user, connectJoinWithCode } = this.props;
@@ -375,7 +392,7 @@ class Room extends Component {
               editing={editing}
               name="dueDate"
             >
-              {dueDate || 'Not Set'}
+              {dueDate || null}
             </EditText>
           </Error>
         ),
@@ -552,18 +569,16 @@ class Room extends Component {
                     }}
                   >
                     <div style={{ display: 'flex', marginBottom: '2rem' }}>
-                      <ToolTip text="Enter this room" delay={600}>
-                        <span>
-                          <Button
-                            theme={loading.loading ? 'SmallCancel' : 'Small'}
-                            m={10}
-                            data-testid="Enter"
-                            click={!loading.loading ? this.goToWorkspace : null}
-                          >
-                            Enter
-                          </Button>
-                        </span>
-                      </ToolTip>
+                      <span>
+                        <Button
+                          theme={loading.loading ? 'SmallCancel' : 'Small'}
+                          m={10}
+                          data-testid="Enter"
+                          click={!loading.loading ? this.goToWorkspace : null}
+                        >
+                          Enter
+                        </Button>
+                      </span>
                     </div>
                     <div
                       style={{
@@ -637,6 +652,7 @@ class Room extends Component {
                             click={this.updateRoom}
                             data-testid="save-room"
                             theme="Small"
+                            p="5px 10px"
                           >
                             Save
                           </Button>
@@ -649,7 +665,11 @@ class Room extends Component {
                             <i className="fas fa-trash-alt" />
                           </Button>
 
-                          <Button click={this.toggleEdit} theme="Cancel">
+                          <Button
+                            click={this.toggleEdit}
+                            theme="Cancel"
+                            p="5px 10px"
+                          >
                             Cancel
                           </Button>
                         </div>
@@ -769,7 +789,7 @@ Room.propTypes = {
     entryCode: PropTypes.string,
     image: PropTypes.string,
     instructions: PropTypes.string,
-    settings: PropTypes.shape({}),
+    settings: PropTypes.shape({ displayAliasedUsernames: PropTypes.bool }),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,

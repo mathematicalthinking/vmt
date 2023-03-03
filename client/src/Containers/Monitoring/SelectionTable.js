@@ -1,10 +1,6 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable consistent-return */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
-import { useSortableData } from '../../utils';
+import { dateAndTime, useSortableData } from 'utils';
 import classes from './selectionTable.css';
 
 /**
@@ -46,12 +42,8 @@ export default function SelectionTable(props) {
   const [toggleAll, setToggleAll] = React.useState(
     !Object.values(selections).includes(false)
   );
-  const getClassNamesFor = (name) => {
-    if (!sortConfig) {
-      return;
-    }
-    return sortConfig.key === name ? sortConfig.direction : undefined;
-  };
+  const getClassNamesFor = (name) =>
+    sortConfig && sortConfig.key === name ? sortConfig.direction : undefined;
 
   const _toggleAll = () => {
     const newValue = !toggleAll;
@@ -152,8 +144,8 @@ export default function SelectionTable(props) {
             <td style={{ textAlign: 'center' }}>{item.currentMembers}</td>
             <td>{item.courseName}</td>
             <td>{item.templateName}</td>
-            <td>{moment(item.updatedAt).format('LLL')}</td>
-            <td>{moment(item.createdAt).format('LLL')}</td>
+            <td>{dateAndTime.toDateTimeString(item.updatedAt)}</td>
+            <td>{dateAndTime.toDateTimeString(item.createdAt)}</td>
           </tr>
         ))}
       </tbody>

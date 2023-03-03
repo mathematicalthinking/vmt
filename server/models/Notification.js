@@ -90,7 +90,7 @@ function buildEmitData(notification) {
               });
           }
           return Room.findById(notification.resourceId)
-            .populate({ path: 'members.user', select: 'username' })
+            .populate({ path: 'members.user tabs', select: 'username tabType' })
             .exec((err, room) => {
               if (err) {
                 return reject(err);

@@ -202,7 +202,7 @@ const CodePyretOrg = (props) => {
       console.log('Got a message VMT side', data);
       const currentState = {
         data,
-        timestampEpochMs: new Date().getTime(),
+        timestampEpochMs: Date.now(),
       };
       // console.log('Responses updated: ', responses);
       setActivityUpdates(currentState);

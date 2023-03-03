@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Checkbox, ToolTip } from 'Components';
+import { Checkbox, ToolTip, TabTypes } from 'Components';
 import Notification from 'Components/Notification/Notification';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import Icons from './Icons/Icons';
@@ -41,10 +41,12 @@ const SelectableContentBox = (props) => {
       <Notification count={notifications} data-testid="content-box-ntf" />
     ) : null;
 
+  if (roomType && !TabTypes.isActive(roomType)) return null;
+
   return (
     <Checkbox
       change={onSelect}
-      style={{ margin: '0 1rem 0 0' }}
+      style={{ margin: '0 1rem 0 0', width: '100%' }}
       checked={isChecked}
       dataId={id}
       id={id}
@@ -63,37 +65,24 @@ const SelectableContentBox = (props) => {
               <div className={classes.Icons}>
                 <Icons
                   // image={image}
-                  lock={locked}
+                  // lock={locked}
                   roomType={roomType}
                   listType={listType} // private means the list is displayed in myVMT public means its displayed on /community
                 />
               </div>
               <div
                 className={link ? classes.TitleLink : classes.Title}
-                data-testid=""
                 onClick={() => link && history.push(link)}
                 onKeyDown={() => link && history.push(link)}
                 role="button"
                 tabIndex={-1}
-                title={title}
+                data-testid={`SelectableContentBox-${title}`}
               >
-                {link ? (
-                  // only show tooltip for lobby link
-                  // when the link is provided
-                  <ToolTip
-                    text={`Go to ${resource.substring(
-                      0,
-                      resource.length - 1
-                    )} lobby`}
-                    delay={600}
-                  >
-                    {title}
-                  </ToolTip>
-                ) : (
-                  title
-                )}
+                <ToolTip text={title} delay={600}>
+                  {title}
+                </ToolTip>
               </div>
-              {notificationElements}
+              {/* {notificationElements} */}
             </div>
             <div
               style={{
@@ -104,6 +93,7 @@ const SelectableContentBox = (props) => {
                 // padding: '0 1rem',
               }}
             >
+              {notificationElements}
               {customIcons &&
                 customIcons.map((icon) => (
                   <div
@@ -114,9 +104,7 @@ const SelectableContentBox = (props) => {
                     key={`icon-${icon.title}-${id}`}
                     style={{ margin: '0 .5rem', cursor: 'pointer' }}
                   >
-                    <ToolTip text={icon.title} delay={600}>
-                      {icon.icon}
-                    </ToolTip>
+                    {icon.icon}
                   </div>
                 ))}
             </div>
@@ -144,7 +132,7 @@ const SelectableContentBox = (props) => {
                   </div>
                 ) : null}
                 {details.sinceUpdated ? (
-                  <div>Updated: {details.sinceUpdated} ago</div>
+                  <div>Updated: {details.sinceUpdated}</div>
                 ) : null}
                 {details.createdAt ? (
                   <div>Created: {details.createdAt}</div>

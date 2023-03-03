@@ -100,7 +100,7 @@ const reducer = (state = initialState, action) => {
         byId: updatedCourses,
       };
     }
-    case actionTypes.REMOVE_COURSE_ROOMS: {
+    case actionTypes.REMOVE_COURSE_ROOM: {
       const updatedById = { ...state.byId };
       const updatedCourseRooms = updatedById[action.courseId].rooms.filter(
         (id) => id !== action.roomId

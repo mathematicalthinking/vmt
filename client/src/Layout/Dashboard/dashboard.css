@@ -5,7 +5,7 @@
 }
 
 :root {
-  --side-panel-width: 280px;
+  --side-panel-width: 220px;
 }
 
 .Container {
@@ -44,7 +44,7 @@
   justify-content: space-between;
   margin-right: 30px;
   padding-right: 30px;
-  width: var(--side-panel-width);
+  width: calc(var(--side-panel-width) + 10px);
   border-right: 1px solid #ddd;
   height: 98%;
   transition: 0.2s;

@@ -200,6 +200,8 @@
 
 .OptionalHeader {
   font-style: italic;
-  padding-left: 50px;
+  font-weight: bolder;
+  font-size: 1.25rem;
+  align-self: center;
   margin-top: 10px;
 }

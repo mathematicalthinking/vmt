@@ -9,33 +9,41 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
-import testConfig from './Tools/test.json';
-import WSPLoader from './Tools/WSPLoader';
+import testConfig from './Tools/empty.json';
+import { WSPLoader, loadTools } from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests';
 
-//   import classes from './graph.css';
+import classes from './WebSketchEditor.css';
 
 const WebSketchEditor = (props) => {
   const [activityUpdates, setActivityUpdates] = useState();
-  const [activityMoves, setActivityMoves] = useState({});
+  // const [activityMoves, setActivityMoves] = useState({});
   // const [timeSent, setTimeSent] = useState(0);
   const [activityData, setActivityData] = useState();
+  const [sketchLoaded, setSketchLoaded] = useState(false);
 
   let initializing = false;
   let $sketch = null; // the jquery object for the server's sketch_canvas HTML element
-  let sketchDoc = null; // The WSP document in which the websketch lives.
+  // let sketchDoc = null; // The WSP document in which the websketch lives.
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
-  const pendingUpdate = React.createRef(null);
+  const sketchDoc = useRef(null);
+  const hasWidgets = useRef(false);
+  const tools = useRef(null);
+  // const calculatorInst = useRef();
+  // const pendingUpdate = React.createRef(null);
   let $ = window ? window.jQuery : undefined;
   const { setFirstTabLoaded } = props;
 
   useEffect(() => {
     initializing = true;
+    setSketchLoaded(false);
     // load required files and then the sketch when ready
     WSPLoader(loadSketch);
     initializing = false;
+    // fetchTools();
+    console.log('~~ Page loaded!  ~~');
     return () => {
       socket.removeAllListeners('RECEIVE_EVENT');
       // window.UTILMENU = undefined;
@@ -44,68 +52,20 @@ const WebSketchEditor = (props) => {
     };
   }, []);
 
-  // Handle new Events- escapes initialization scope
   useEffect(() => {
-    recordGobjUpdate(activityUpdates);
-  }, [activityUpdates]);
-
-  useEffect(() => {
-    handleEventData(activityData);
-  }, [activityData]);
-
+    // recordGobjUpdate(activityUpdates);
+    debouncedUpdate();
+  }, [activityUpdates, activityData]);
   // Storage API functions
-  const debouncedUpdate = useCallback(debounce(putState, 250), []);
-
-  function putState() {
-    const { tab, activity, updateActivityTab } = props;
-    if (!sketchDoc) {
-      // console.log('Setting sketc doc');
-      const sketchEl = window.jQuery('#sketch');
-      sketchDoc = sketchEl.data('document');
-    }
-    // console.log('Sketch document: ', sketchDoc);
-    if (sketchDoc) {
-      // grab current state-event list
-      const responseData = sketchDoc.getCurrentSpecObject();
-      console.log('Response data: ', responseData);
-      // start creating a string-based object to update the tab
-      const updateObject = {
-        startingPointBase64: JSON.stringify(responseData),
-      };
-      // get and add the current screen
-      // if (calculatorInst.current) {
-      //   updateObject.currentScreen = getCurrentScreen();
-      // }
-      API.put('tabs', tab._id, updateObject)
-        .then(() => updateActivityTab(activity._id, tab._id, updateObject))
-        .catch((err) => {
-          // eslint-disable-next-line no-console
-          console.log(err);
-        });
-    }
-  }
-
-  const initSketchPage = () => {
-    // Refresh vars and handlers for a new sketch page
-    // This needs to be called any time the sketch page is regenerated, for instance,
-    // due to a page change, undo or redo, or confirmed or aborted toolplay
-    // Ideally we'd like every such operation to clean up after itself by calling
-    // initSketch, but the possibility of asynchronous operations suggests that
-    // it may be safest to call getSketch(): a function that returns the sketch
-    // object from the sketchDoc.
-    if ($sketch.data('document') !== sketchDoc) {
-      console.error('follow: initSketchPage found invalid sketchDoc');
-      window.GSP.createError('follow: initSketchPage found invalid sketchDoc.');
-    }
-    sketch = sketchDoc.focusPage;
-  };
-
-  // --- Controller functions ---
+  const debouncedUpdate = useCallback(debounce(putState, 400), []);
 
   const getSketch = () => {
     // Call this whenever the sketch doc may have changed.
     // e.g., page changes, start of toolplay, undo/redo, etc.
-    sketchDoc = $sketch.data('document');
+    if (!$sketch) {
+      $sketch = $('#libSketch');
+    }
+    sketchDoc.current = $sketch.data('document');
     sketch = sketchDoc && sketchDoc.focusPage;
     if (!sketch) {
       console.error('getSketch() failed to find the sketch.');
@@ -115,6 +75,9 @@ const WebSketchEditor = (props) => {
 
   // establish listeners
   const syncToFollower = () => {
+    if (!sketch) {
+      getSketch();
+    }
     // We must be specific to avoid disconnecting other handlers for page changes, toolplay, etc.
     const handlers = [
       { event: 'WillChangeCurrentPage.WSP', handler: reflectMessage },
@@ -134,11 +97,11 @@ const WebSketchEditor = (props) => {
       { event: 'LabelWidget.WSP', handler: reflectMessage },
       { event: 'VisibilityWidget.WSP', handler: reflectMessage },
       { event: 'DeleteWidget.WSP', handler: reflectAndSync },
-      { event: 'StartEditParameter.WSP', handler: reflectMessage },
-      { event: 'CancelEditParameter.WSP', handler: reflectMessage },
-      { event: 'EditParameter.WSP', handler: reflectMessage },
+      // We now use a single EditExpression message type for editing param, calc, and function gobjs
+      { event: 'EditExpression.WSP', handler: reflectMessage },
       { event: 'ClearTraces.WSP', handler: reflectMessage },
-      { event: 'PressButton.WSP', handler: reflectMessage },
+      { event: 'PrefChanged.WSP', handler: reflectMessage },
+      { event: 'ActivateButton.WSP', handler: reflectMessage },
     ];
     handlers.forEach((el) => {
       $sketch.off(el.event, el.handler);
@@ -146,9 +109,49 @@ const WebSketchEditor = (props) => {
     handlers.forEach((el) => {
       $sketch.on(el.event, el.handler);
     });
+    tools.current = getTools();
+
     // getSketch();  // Required after toolplay, undo/redo, and page changes
     // establish listeners on sketch objects, to include pointsOnPath
     syncGobjUpdates();
+  };
+
+  const getTools = () => {
+    if (!sketchDoc.current) {
+      getSketch();
+    }
+    return sketchDoc.current.tools ? sketchDoc.current.tools.length : 0;
+  };
+
+  const reflectMessage = (event, context, attr) => {
+    // SS: removed timeout, to make sure the follower is updated right away before any subsequent drags
+    // const msgAttr = JSON.stringify(attr);
+    let sender;
+    let canvasNode;
+    if (context && context.document) {
+      canvasNode = context.document.canvasNode[0];
+      sender = { id: canvasNode.id, baseURI: canvasNode.baseURI };
+    }
+    const msg = {
+      name: event.type,
+      time: event.timeStamp,
+      sender,
+      attr,
+    };
+    // if (BUTTON_TRACKING && GSP._get(context, 'gobj.kind') === 'Button') {
+    //  let gobj = context.gobj, action = gobj.state.isActive ? 'activated ' : 'deactivated ';
+    //  console.log("Main " + action + gobj.label + " button (" + gobj.id + ").");
+    //}
+    // msg is ready to post to follower
+    setActivityData(msg);
+  };
+
+  // send msg and then reestablish listeners, could possibly be done for all events
+  const reflectAndSync = (event, context, attr) => {
+    reflectMessage(event, context, attr);
+    getSketch();
+    // sketch = sketchDoc.focusPage;
+    syncToFollower();
   };
 
   const syncGobjUpdates = () => {
@@ -161,107 +164,204 @@ const WebSketchEditor = (props) => {
     const updateSel =
       'Expression,Button,DOMKind,[constraint="Free"],[isFreePointOnPath=true]';
     let gobjsToUpdate;
+    checkGraph();
     getSketch(); // Make sure we use the current sketch
-    if (sketch.gobjList.gobjects === null) {
+    if (!sketch || !sketch.gobjList || sketch.gobjList.gobjects === null) {
       console.log('syncGobjUpdates found no gobjs to track.');
+      getSketch();
+      // const defaultGobjsList = {
+      //   gobjects: {},
+      //   constraintList: [],
+      //   renderList: [],
+      // };
+      // sketch.gobjList.gobjects = defaultGobjsList;
     } else {
       gobjsToUpdate = sketch.sQuery(updateSel);
       gobjsToUpdate.on('update', setActivityUpdates);
     }
   };
 
-  const reflectMessage = (event, context, attr) => {
-    // SS: removed timeout, to make sure the follower is updated right away before any subsequent drags
-    // const msgAttr = JSON.stringify(attr);
-    const msg = { name: event.type, time: event.timeStamp, attr };
-    // msg is ready to post to follower
-    setActivityData(msg);
-  };
-
-  // send msg and then reestablish listeners, could possibly be done for all events
-  const reflectAndSync = (event, context, attr) => {
-    reflectMessage(event, context, attr);
-    // getSketch();
-    sketch = sketchDoc.focusPage;
-    syncToFollower();
-  };
-
-  /* If a free or semi-free gobj is updated, find the gobj in the other sketch
-     with matching kind and label and move it to the same location.
-     We only need to handle certain constraints and kinds:
-     Free constraints may have changed values or locations.
-     Semi-free constraints (isFreePointOnPath) may have changed values.
-     Expressions may have been edited.
-     Don't send the entire gobj, as it may have circular references
-     (to children that refer to their parents) and thus cannot
-     be stringifiedl. */
-  const recordGobjUpdate = (event) => {
-    if (event) {
-      const gobj = event.target;
-      if (
-        gobj.constraint !== 'Free' &&
-        gobj.kind !== 'Expression' &&
-        !gobj.isFreePointOnPath
-      ) {
-        return;
-      }
-      const gobjInfo = { id: gobj.id, constraint: gobj.constraint };
-      switch (gobj.constraint) {
-        case 'Free': // Free points have locations; free parameters have values and locations
-          if (gobj.geom.loc) {
-            // free points, params, etc. have locations
-            gobjInfo.loc = gobj.geom.loc;
-          }
-          if (window.GSP.isParameter(gobj)) {
-            gobjInfo.expression = gobj.expression;
-          }
-        // break;
-        // Params should fall through, and there's no harm to points falling through as they don't have values.
-        /* falls through */
-        case 'Calculation': // Calculations have values; how do we distinguish which has been changed?
-          if (gobj.value) {
-            // free expressions (params and calcs) have values
-            gobjInfo.value = gobj.value; // free parameter or calculation
-          }
-          break;
-        case 'PointOnPath':
-        case 'PointOnPolygonEdge':
-          gobjInfo.value = gobj.value;
-          break;
-        default:
-          console.log('recordGobjUpdate() cannot handle this event:', event);
-        // Add more
-      }
-      // Don't bother with context; it has cycles and cannot easily be stringified
-      const { id } = gobjInfo;
-      setActivityMoves((prevMoves) => ({ ...prevMoves, [id]: gobjInfo }));
+  function putState() {
+    const { tab, activity, updateActivityTab } = props;
+    if (!sketchDoc.current && window.jQuery) {
+      // console.log('Setting sketc doc');
+      const sketchEl = window.jQuery('#libSketch');
+      sketchDoc.current = sketchEl.data('document');
     }
-  };
-
-  useEffect(() => {
-    postMoveMessage();
-  }, [activityMoves]);
-
-  function postMoveMessage() {
-    const msg = { name: 'GobjsUpdated', time: Date.now() };
-    const moveData = { ...activityMoves }; // create a ref to the current cache
-    setActivityMoves({});
-    if (Object.keys(moveData).length !== 0) {
-      msg.attr = JSON.stringify(moveData); // stringify removes GeometricPoint prototype baggage.
-      // msg ready to post to follower
-      handleEventData(msg);
+    // console.log('Sketch document: ', sketchDoc);
+    if (sketchDoc.current) {
+      // grab current state-event list
+      const responseData = sketchDoc.current.getCurrentSpecObject();
+      console.log('Response data to save: ', responseData);
+      // start creating a string-based object to update the tab
+      const updateObject = {
+        startingPointBase64: JSON.stringify(responseData),
+      };
+      // get and add the current screen
+      // if (calculatorInst.current) {
+      //   updateObject.currentScreen = getCurrentScreen();
+      // }
+      API.put('tabs', tab._id, updateObject)
+        .then(() => updateActivityTab(activity._id, tab._id, updateObject))
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
     }
   }
 
-  // sends an update msg object for the user in control
-  const handleEventData = (updates, type) => {
-    if (initializing) return;
-    // putState(); // save to db?
-    debouncedUpdate();
-    // use new json config with $('#sketch').data('document').getCurrentSpecObject()?
+  const checkGraph = () => {
+    if (window.jQuery) {
+      console.log(
+        'Graph loaded? ',
+        !!sketchDoc.current,
+        $('#libSketch').data('document'),
+        ' vs ',
+        sketchDoc.current
+      );
+      if (!$('#libSketch').data('document')) {
+        $('#libSketch').data('document', sketchDoc.current);
+        console.log('How about now? ', $('#libSketch').data('document'));
+      }
+      // if (!!window.TOOLS) {
+      //   window.TOOLS.initLibrary();
+      // }
+      // console.log(
+      //   'After reloading library? ',
+      //   sketchDoc.current,
+      //   ' sketch: ',
+      //   $('#libSketch').data('document')
+      // );
+    }
+  };
+
+  const checkNewTools = () => {
+    if (tools.current != getTools()) {
+      return true;
+    } else return false;
   };
 
   // --- Initialization functions ---
+  const leftPane = () => {
+    checkGraph();
+    return sketchLoaded ? (
+      <div className={classes.leftPane}>
+        <div>
+          <label htmlFor="height">Height</label>
+          <input
+            type="number"
+            id="height"
+            className="uSizeButton"
+            name="height"
+            min="50"
+            max="2000"
+            defaultValue="352"
+            onChange={
+              () => {
+                checkGraph();
+                window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch');
+              }
+              // window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch')
+            }
+          ></input>
+        </div>
+        <div>
+          <label htmlFor="width">Width</label>
+          <input
+            type="number"
+            id="width"
+            className="uSizeButton"
+            name="width"
+            min="50"
+            max="2000"
+            defaultValue="650"
+            onChange={
+              () => {
+                checkGraph();
+                window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch');
+              }
+              // window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch')
+            }
+          ></input>
+        </div>
+        <div id="uPagePane" className="uLeftSub">
+          <input
+            type="button"
+            id="newPage"
+            value="New Page"
+            onClick={() => {
+              console.log("Adding a new page via 'new'");
+              checkGraph();
+              window.TOOLS.insertPage('sketch', 'new');
+            }}
+          />
+          <br />
+          <input
+            type="button"
+            id="newPage"
+            value="Clone Page"
+            onClick={() => {
+              checkGraph();
+              window.TOOLS.insertPage('sketch', 'clone');
+            }}
+          />
+          <br />
+          <input
+            type="button"
+            id="deletePage"
+            value="Delete Page"
+            onClick={() => {
+              checkGraph();
+
+              window.TOOLS.deletePage('sketch');
+            }}
+          />
+          <br />
+
+          <input
+            type="button"
+            className="debug"
+            value="Check Graph"
+            onClick={(b) => {
+              if (window.TOOLS.checkSketchGraph('sketch', 'verbose,topology')) {
+                b.style.removeProperty('border');
+              } else $(b).css('border', 'solid 4px red');
+            }}
+          />
+          <br />
+          <div className="uLeftSub">
+            <ul id="uToolList"></ul>
+          </div>
+        </div>
+        <div id="uPrefToggle">Sketch Prefs 🔽</div>
+      </div>
+    ) : (
+      <div>Loading Sketch</div>
+    );
+  };
+
+  const toolButtons = () => {
+    return sketchLoaded ? (
+      <div className={classes.LibButtons}>
+        <button
+          type="button"
+          onClick={() => {
+            checkGraph();
+            window.TOOLS.loadLibraryTools('basic');
+          }}
+        >
+          Basic
+        </button>
+        {/* <button type="button" onClick="TOOLS.loadLibraryTools('hyperbolic');">Hyperbolic Geometry</button> */}
+      </div>
+    ) : (
+      <div>Loading Tool Buttons</div>
+    );
+  };
+
+  const resizeSketch = () => {
+    window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch');
+  };
 
   const loadSketchDoc = (config) => {
     $ = window.jQuery;
@@ -269,20 +369,39 @@ const WebSketchEditor = (props) => {
       console.warn('No jQuerious');
       return;
     }
-    $('#sketch').WSP('loadSketch', {
+    $('#libSketch').WSP('loadSketch', {
       'data-sourceDocument': config,
       onLoad: (metadata) => {
         console.log('Loading: ', metadata);
-        $sketch = $('#sketch');
+        $sketch = $('#libSketch');
         setFirstTabLoaded();
       },
     });
-    const data = $sketch.data('document');
+    setFirstTabLoaded();
+
+    console.log('Found sketch: ', $sketch);
+
+    const data = $sketch && $sketch.data('document');
     console.log('Found data: ', data);
-    const sketchWidth = data.metadata.width;
-    console.log('Sketch width: ', sketchWidth);
-    sketchDoc = data;
-    sketch = data.focusPage;
+    if (data) {
+      const sketchWidth = data.metadata.width;
+      console.log('Sketch width: ', sketchWidth);
+      sketchDoc.current = data;
+      sketch = data.focusPage;
+      setSketchLoaded(true);
+    }
+    // checkTools();
+  };
+
+  const checkTools = async () => {
+    await new Promise((r) => setTimeout(r, 5000));
+    if (!window.TOOLS) {
+      console.log('~~~~ No Tools yet! ~~~~~');
+      loadTools();
+      checkTools();
+    } else {
+      setSketchLoaded(true);
+    }
   };
 
   const getSketchConfig = (tab) => {
@@ -295,58 +414,120 @@ const WebSketchEditor = (props) => {
       const { startingPointBase64 } = tab;
       config = JSON.parse(startingPointBase64);
     }
+    // shouldLoadWidgets(config);
+    console.log('Found config! ', config);
     return config;
+  };
+
+  const shouldLoadWidgets = ({ metadata }) => {
+    const { authorPreferences } = metadata;
+    if (authorPreferences) {
+      for (let [key, value] of Object.entries(authorPreferences)) {
+        if (key.includes('widget') && value !== 'none') {
+          hasWidgets.current = true;
+        }
+      }
+    }
   };
 
   const loadSketch = () => {
     const { tab } = props;
-
+    const isToolsLoaded = () => {
+      return !!(window.UTILMENU && !!window.TOOLS);
+    };
     // When should this call happen, before or after loading the sketch?
-    let isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
-    console.log('Widgets?: ', isWidgetLoaded);
-    if (isWidgetLoaded) {
-      window.WIDGETS.initWidget();
-      window.PAGENUM.initPageControls();
-      window.UTILMENU.initUtils();
+    console.log('Tools?: ', isToolsLoaded());
+    if (isToolsLoaded()) {
+      // window.WIDGETS.initWidget();
+      // window.PAGENUM.initPageControls();
+      // window.UTILMENU.initUtils();
       loadSketchDoc(getSketchConfig(tab));
+      window.TOOLS.initLibrary();
       // establish sketch listeners for handlers
       syncToFollower();
     } else {
       const pollDOM = () => {
-        isWidgetLoaded = window.UTILMENU && !!window.UTILMENU.initUtils;
-        console.log('Widgets recheck: ', isWidgetLoaded);
-        if (isWidgetLoaded) {
+        console.log(
+          'Tools recheck: ',
+          window.TOOLS,
+          'widgets? ',
+          isToolsLoaded()
+        );
+        if (isToolsLoaded()) {
           loadSketchDoc(getSketchConfig(tab));
+          window.TOOLS.initLibrary(); //or loadLibraryTools()
           syncToFollower();
         } else {
-          setTimeout(pollDOM, 100); // try again in 100 milliseconds
+          setTimeout(pollDOM, 250); // try again in 150 milliseconds
         }
       };
       pollDOM();
     }
   };
 
+  console.log('Rendered - ', sketchLoaded);
+
   return (
-    <Fragment>
-      <div
-        // className={classes.sketch_container}
-        className="sketch_container"
-        id="calculatorParent"
-        // style={{
-        //   height: '890px', // @TODO this needs to be adjusted based on the Player instance.
-        // }}
-      >
-        <div
-          // className={classes.Graph}
-          className="sketch_canvas"
-          id="sketch"
-          ref={wspSketch}
-        />
-        <div className="buttonPane">
-          <div className="page_buttons" />
+    <div
+      onClickCapture={(e) => {
+        console.log('Clicky, e: ', e);
+        if (checkNewTools()) {
+          debouncedUpdate();
+        }
+      }}
+      onDrag={(e) => {
+        console.log('Draggy, e: ', e);
+        if (checkNewTools()) {
+          debouncedUpdate();
+        }
+      }}
+    >
+      <div className={classes.Activity}>
+        {leftPane()}
+        <div className="sketch_container" id="calculatorParent">
+          <div
+            className="sketch_canvas"
+            id="libSketch"
+            // data-url="/WSPAssets/empty.json"
+            // data-url="/WSPAssets/library/basic/tester.json"
+            ref={wspSketch}
+          />
+          <div className="button_area">
+            <div className="util-menu-btn util-menu" />
+            <div className="wsp_logo" />
+            <div className="page_buttons" />
+          </div>
         </div>
       </div>
-    </Fragment>
+      <div
+        id="resize"
+        style={{
+          position: 'absolute',
+          zIndex: 1000,
+          height: '15px',
+          width: '15px',
+          cursor: 'move',
+          padding: '0px',
+          top: '401px',
+          left: '807px',
+        }}
+      >
+        <img alt="resize handler" src="https://via.placeholder.com/30" />
+      </div>
+      <div>
+        <div
+          id="toolCollection"
+          className={classes.toolCollection}
+          style={{ backgroundColor: '#fff' }}
+        >
+          <div className="uLibDirections">
+            Tap a tool to add it to the sketch.
+          </div>
+          {toolButtons()}
+          <div id="toolTable" className={classes.toolTable} />
+        </div>
+      </div>
+    </div>
   );
 };
 

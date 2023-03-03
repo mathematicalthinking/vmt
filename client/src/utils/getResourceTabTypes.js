@@ -1,3 +1,5 @@
+import { TabTypes } from 'Components';
+
 export default function getResourceTabTypes(tabs) {
   let tabTypes = 'None';
 
@@ -9,12 +11,12 @@ export default function getResourceTabTypes(tabs) {
           (acc, curr) => (acc.includes(curr) ? acc : acc.concat(curr)),
           []
         )
+        .map((type) => TabTypes.getDisplayName(type))
         .join(', ');
   } else if (typeof tabs === 'string') {
     tabTypes = tabs;
   }
 
-  tabTypes = tabTypes.replace('geogebra', 'GeoGebra');
   const isPlural = tabTypes.includes(',');
 
   return { tabTypes, isPlural };

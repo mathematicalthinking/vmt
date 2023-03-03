@@ -25,7 +25,7 @@ const Tools = ({
   onClickControl,
   onToggleSimpleChat,
   onToggleReference,
-  onClickCreateActivity,
+  onClickCreateTemplate,
   exitText,
 }) => {
   return (
@@ -87,11 +87,11 @@ const Tools = ({
                 onClick={onClickControl}
               />
             )}
-            {onClickCreateActivity && (
+            {onClickCreateTemplate && (
               <Button
                 theme="xs"
                 data-testid="create-resource"
-                click={onClickCreateActivity}
+                click={onClickCreateTemplate}
               >
                 Create Template
               </Button>
@@ -121,7 +121,7 @@ Tools.propTypes = {
   onClickControl: PropTypes.func,
   onToggleSimpleChat: PropTypes.func,
   onToggleReference: PropTypes.func,
-  onClickCreateActivity: PropTypes.func,
+  onClickCreateTemplate: PropTypes.func,
   exitText: PropTypes.string.isRequired,
 };
 
@@ -134,7 +134,7 @@ Tools.defaultProps = {
   lastEvent: null,
   controlState: null,
   onClickSave: null,
-  onClickCreateActivity: null,
+  onClickCreateTemplate: null,
 };
 
 export default Tools;

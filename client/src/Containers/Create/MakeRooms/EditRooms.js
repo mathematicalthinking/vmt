@@ -8,7 +8,8 @@ import {
   removeRoomMember,
   updateGroupings,
 } from 'store/actions/rooms';
-import { Button, Modal } from 'Components';
+import { Button } from 'Components';
+import { addColors, dateAndTime, useAppModal } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 
@@ -26,9 +27,9 @@ const EditRooms = (props) => {
 
   const [roomDrafts, setRoomDrafts] = useState(selectedAssignment.value);
   const [participants, setParticipants] = useState([]);
-  const [showWarning, setShowWarning] = useState(false);
   const submitArgs = React.useRef(); // used for passing along submit info
   const roomNum = selectedAssignment.value.length;
+  const { show: showTheWarning, hide: hideModals } = useAppModal();
 
   useEffect(() => {
     // derive participants from members within the selected assignment
@@ -48,7 +49,7 @@ const EditRooms = (props) => {
     );
 
     setRoomDrafts(newRoomDrafts);
-    setParticipants(Object.values(assignmentParticipants));
+    setParticipants(addColors(Object.values(assignmentParticipants)));
 
     // sorting facilitators like below reverses the order that rooms are displayed
     // ex: if there's 3 rooms, room 3 members are displayed on top of the table,
@@ -71,7 +72,7 @@ const EditRooms = (props) => {
     );
     return everyoneAssigned
       ? editPreviousAssignment(submitInfo)
-      : setShowWarning(true);
+      : showWarning();
   };
 
   const deleteRemovedRoomMembers = (
@@ -154,14 +155,14 @@ const EditRooms = (props) => {
       deleteRemovedRoomMembers(
         previousMembers,
         membersToUpdate,
-        oldRoomDraft.room
+        oldRoomDraft._id
       );
 
-      inviteNewRoomMembers(previousMembers, membersToUpdate, oldRoomDraft.room);
+      inviteNewRoomMembers(previousMembers, membersToUpdate, oldRoomDraft._id);
 
       if (aliasMode !== selectedAssignment.aliasMode) {
         dispatch(
-          updateRoom(oldRoomDraft.room, {
+          updateRoom(oldRoomDraft._id, {
             settings: { displayAliasedUsernames: aliasMode },
           })
         );
@@ -171,14 +172,14 @@ const EditRooms = (props) => {
         dueDate !== selectedAssignment.dueDate && // if new dueDate
         !(!dueDate && !selectedAssignment.dueDate) // and dueDates have value
       ) {
-        dispatch(updateRoom(oldRoomDraft.room, { dueDate }));
+        dispatch(updateRoom(oldRoomDraft._id, { dueDate }));
       }
 
       // if roomName has changed,
       // update the room name for each room in selectedAssignment
       if (roomName !== initialRoomName) {
         dispatch(
-          updateRoom(oldRoomDraft.room, { name: `${roomName}: ${i + 1}` })
+          updateRoom(oldRoomDraft._id, { name: `${roomName}: ${i + 1}` })
         );
       }
     });
@@ -198,7 +199,7 @@ const EditRooms = (props) => {
 
   const assignmentMatrix = (
     <AssignmentMatrix
-      list={participants}
+      allParticipants={participants}
       requiredParticipants={participants.filter(
         // required people
         (mem) => mem.role === 'facilitator'
@@ -213,39 +214,43 @@ const EditRooms = (props) => {
     />
   );
 
+  const showWarning = () => {
+    showTheWarning(
+      <Fragment>
+        <div>
+          There are unassigned participants. Do you want to continue with the
+          editing of this assignment?
+        </div>
+        <div>
+          <Button
+            m={10}
+            click={() => {
+              editPreviousAssignment(submitArgs.current);
+              hideModals();
+            }}
+          >
+            Assign
+          </Button>
+          <Button m={10} theme="Cancel" click={hideModals}>
+            Cancel
+          </Button>
+        </div>
+      </Fragment>
+    );
+  };
+
   return (
-    <Fragment>
-      {showWarning && (
-        <Modal show={showWarning} closeModal={() => setShowWarning(false)}>
-          <div>
-            There are unassigned participants. Do you want to continue with the
-            editing of this assignment?
-          </div>
-          <div>
-            <Button
-              m={10}
-              click={() => editPreviousAssignment(submitArgs.current)}
-            >
-              Assign
-            </Button>
-            <Button m={10} theme="Cancel" click={() => setShowWarning(false)}>
-              Cancel
-            </Button>
-          </div>
-        </Modal>
-      )}
-      <AssignRooms
-        initialAliasMode={selectedAssignment.aliasMode || false}
-        initialDueDate={selectedAssignment.dueDate || ''}
-        initialRoomName={
-          selectedAssignment.roomName ||
-          `${activity.name} (${new Date().toLocaleDateString()})`
-        }
-        assignmentMatrix={assignmentMatrix}
-        onSubmit={checkBeforeSubmit}
-        onCancel={close}
-      />
-    </Fragment>
+    <AssignRooms
+      initialAliasMode={selectedAssignment.aliasMode || false}
+      initialDueDate={selectedAssignment.dueDate || ''}
+      initialRoomName={
+        selectedAssignment.roomName ||
+        `${activity.name} (${dateAndTime.toDateString(new Date())})`
+      }
+      assignmentMatrix={assignmentMatrix}
+      onSubmit={checkBeforeSubmit}
+      onCancel={close}
+    />
   );
 };
 

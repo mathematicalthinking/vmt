@@ -1,28 +1,52 @@
 /* eslint-disable no-console */
 /* eslint-disable react/no-did-update-set-state */
-import React, { useState, Fragment } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 import SearchResults from 'Containers/Members/SearchResults';
+import { amIAFacilitator } from 'utils';
 import API from 'utils/apiRequests';
-import { Button, InfoBox, Search, Member } from 'Components';
+import {
+  Button,
+  InfoBox,
+  Search,
+  Member,
+  ToggleGroup,
+  Checkbox,
+} from 'Components';
+import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
-  const {
-    participants,
-    userId,
-    updateList,
-    close,
-    updateMembersToInvite,
-  } = props;
+  const { participants, userId, onSubmit, onCancel, courseCheckbox } = props;
+
+  const userCoursesById = useSelector((state) => state.courses.byId);
+
+  const coursesUserDidNotCreate = Object.values(
+    userCoursesById
+  ).filter((course) => amIAFacilitator(course, userId));
 
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
+  const [rosterSearchResults, setRosterSearchResults] = useState(
+    coursesUserDidNotCreate
+  );
   const [searchText, setSearchText] = useState('');
-  const [currentParticipants, setCurrentParticipants] = useState([
-    ...participants,
-  ]);
+  const [rosterSearchText, setRosterSearchText] = useState('');
   const [newParticipants, setNewParticipants] = useState([]);
+  const [isAddingParticipants, setIsAddingParticipants] = useState(true);
+  const [addedCourse, setAddedCourse] = useState({});
+  const [
+    shouldInviteMembersToCourse,
+    setShouldInviteMembersToCourse,
+  ] = useState(false);
+
+  useEffect(() => {
+    return () => debounceSearch.cancel();
+  }, []);
+
+  const debounceSearch = debounce((text) => search(text), 700);
 
   const search = (text) => {
     if (text.length > 0) {
@@ -30,7 +54,7 @@ const AddParticipants = (props) => {
         'user',
         text,
         [userId]
-          .concat(currentParticipants.map((p) => p.user._id))
+          .concat([...participants].map((p) => p.user._id))
           .concat(newParticipants.map((p) => p.user._id)) // Exclude myself and already selected members from th search
       )
         .then((res) => {
@@ -40,26 +64,74 @@ const AddParticipants = (props) => {
 
           setInitialSearchResults(newSearchResults);
           setSearchResults(newSearchResults);
-          setSearchText(text);
         })
         .catch((err) => {
           console.log('err: ', err);
         });
     } else {
       setSearchResults([]);
-      setSearchText(text);
     }
   };
 
-  const addParticipant = (_id, username) => {
+  const searchRosters = (text) => {
+    // initial search -- search course names
+    // or search facilitators and return an array of course names containing those facilitators
+    const res = coursesUserDidNotCreate.filter(
+      (course) =>
+        course.name.toLowerCase().includes(text.toLowerCase()) ||
+        course.members.some(
+          (mem) =>
+            mem.role === 'facilitator' && mem.user.username.includes(text)
+        )
+    );
+
+    setRosterSearchText(text);
+    setRosterSearchResults(res);
+  };
+
+  const generateRosterSearchResults = (courses) => {
+    return courses.map((course) => ({
+      key: course._id,
+      label: course.name,
+      buttonLabel: addedCourse[course._id] ? 'Remove' : 'Add',
+      onClick: addedCourse[course._id]
+        ? removeRosterFromParticipantsList
+        : addParticipantFromRoster,
+    }));
+  };
+
+  const addParticipant = (member) => {
+    const { _id } = member.user;
+    // filter out duplicates in the right column (New Participants column)
+    if (
+      newParticipants.find((mem) => _id === mem.user._id) ||
+      participants.find((mem) => _id === mem.user._id)
+    )
+      return;
     setNewParticipants((prevState) => [
       ...prevState,
-      { role: 'participant', user: { _id, username } },
+      { ...member, role: 'participant' },
     ]);
 
     setSearchResults((prevState) =>
       prevState.filter((user) => user._id !== _id)
     );
+  };
+
+  const addParticipantFromRoster = (courseId) => {
+    const courseToAdd = coursesUserDidNotCreate.find(
+      (course) => course._id === courseId
+    );
+
+    if (courseToAdd) {
+      courseToAdd.members.forEach((mem) => {
+        addParticipant({
+          ...mem,
+          course: courseId,
+        });
+        setAddedCourse((prevState) => ({ ...prevState, [courseId]: true }));
+      });
+    }
   };
 
   const removeMember = (mem) => {
@@ -81,6 +153,33 @@ const AddParticipants = (props) => {
     }
   };
 
+  const removeRosterFromParticipantsList = (courseId) => {
+    const course = coursesUserDidNotCreate.find((c) => c._id === courseId);
+    const courseMembers = course ? course.members : [];
+    const courseMembersIds = courseMembers.map((mem) => mem.user._id);
+    setNewParticipants((prevState) =>
+      prevState.filter((mem) => !courseMembersIds.includes(mem.user._id))
+    );
+    setAddedCourse((prevState) => {
+      const { [courseId]: old, ...others } = prevState;
+      return others;
+    });
+  };
+
+  const toggleParticipantsRosters = () => {
+    setIsAddingParticipants((prevState) => !prevState);
+    // the following reset the searchTexts/searchResults
+    // currently we save searches when toggling
+    // setSearchText('');
+    // setSearchResults([]);
+    // setRosterSearchText('');
+    // setRosterSearchResults(Object.keys(coursesByNames));
+  };
+
+  const handleInviteMembersToCourse = () => {
+    setShouldInviteMembersToCourse((prevState) => !prevState);
+  };
+
   const submit = () => {
     const facilitators = participants.filter(
       (mem) => mem.role === 'facilitator'
@@ -88,69 +187,131 @@ const AddParticipants = (props) => {
     const prevParticipants = participants.filter(
       (mem) => mem.role === 'participant'
     );
-    const newList = [...prevParticipants, ...newParticipants]
+    const participantsToAdd = [...prevParticipants, ...newParticipants]
       .sort((a, b) => a.user.username.localeCompare(b.user.username))
       .concat(facilitators);
-    updateList(newList);
-    updateMembersToInvite(newParticipants);
-    close();
+    onSubmit(participantsToAdd, shouldInviteMembersToCourse, [
+      ...newParticipants,
+    ]);
+    onCancel();
   };
 
   return (
-    <div className={`${classes.ParticipantsContainer}`}>
-      <InfoBox
-        title="Add Participants"
-        icon={<i className="fas fa-user-plus" />}
-        className={classes.AddParticipants}
-      >
-        <div className={classes.AddParticipants}>
-          <Fragment>
-            <div style={{ fontSize: '12px' }}>
-              <Search
-                data-testid="member-search"
-                _search={search}
-                placeholder="search by username or email"
+    <div className={classes.ParticipantsContainer}>
+      <div className={classes.InfoBoxContainer}>
+        <div className={classes.InfoBox}>
+          <InfoBox
+            title=""
+            icon={<i className="fas fa-user-plus" style={{ height: '25px' }} />}
+            className={classes.AddParticipants}
+            rightIcons={
+              <ToggleGroup
+                buttons={['Individuals', 'Shared Rosters']}
+                onChange={toggleParticipantsRosters}
               />
-            </div>
-            {searchResults.length > 0 && (
-              <SearchResults
-                searchText={searchText}
-                usersSearched={searchResults}
-                inviteMember={addParticipant}
-                className={classes.AddParticipants}
-              />
+            }
+            // rightTitle="Shared Roster"
+          >
+            {isAddingParticipants && (
+              <div className={classes.AddParticipants}>
+                <Fragment>
+                  <div style={{ fontSize: '12px' }}>
+                    <Search
+                      data-testid="member-search"
+                      _search={(text) => {
+                        setSearchText(text);
+                        debounceSearch(text);
+                      }}
+                      placeholder="search by username or email"
+                      value={searchText}
+                      isControlled
+                    />
+                  </div>
+                  {searchResults.length > 0 && (
+                    <SearchResults
+                      searchText={searchText}
+                      usersSearched={searchResults}
+                      inviteMember={(_id, username) =>
+                        addParticipant({ user: { _id, username } })
+                      }
+                      className={classes.AddParticipants}
+                    />
+                  )}
+                </Fragment>
+              </div>
             )}
-          </Fragment>
+
+            {!isAddingParticipants && (
+              <div className={classes.AddParticipants}>
+                <Fragment>
+                  <div style={{ fontSize: '12px' }}>
+                    <Search
+                      data-testid="roster-search"
+                      _search={searchRosters}
+                      placeholder="search courses to import rosters from"
+                      value={rosterSearchText}
+                      isControlled
+                    />
+                  </div>
+                  {rosterSearchResults && (
+                    <GenericSearchResults
+                      itemsSearched={generateRosterSearchResults(
+                        rosterSearchResults
+                      )}
+                      className={classes.AddParticipants}
+                    />
+                  )}
+                </Fragment>
+              </div>
+            )}
+          </InfoBox>
         </div>
-      </InfoBox>
-      {newParticipants && (
-        <InfoBox title="New Participants" icon={<i className="fas fa-users" />}>
-          <div data-testid="members" className={classes.NewParticipants}>
-            {newParticipants.map((member) => (
-              <Member
-                info={member}
-                key={member.user._id}
-                resourceName="template"
-                canRemove
-                rejectAccess={() => removeMember(member)}
-              />
-              // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
-            ))}
+        {newParticipants && (
+          <div className={classes.InfoBox}>
+            <InfoBox
+              title="New Participants"
+              icon={<i className="fas fa-users" style={{ height: '25px' }} />}
+            >
+              <div data-testid="members" className={classes.NewParticipants}>
+                {newParticipants.map((member) => (
+                  <Member
+                    info={member}
+                    key={member.user._id}
+                    resourceName="template"
+                    canRemove
+                    rejectAccess={() => removeMember(member)}
+                  />
+                  // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
+                ))}
+              </div>
+            </InfoBox>
           </div>
-        </InfoBox>
-      )}
+        )}
+      </div>
       <div className={classes.ModalButton}>
-        <Button m={5} click={close} data-testid="next-step-assign">
-          Cancel
-        </Button>
-        <Button
-          m={5}
-          click={submit}
-          disabled={newParticipants.length === 0}
-          data-testid="next-step-assign"
-        >
-          Add Participants
-        </Button>
+        {courseCheckbox && (
+          <Checkbox
+            change={handleInviteMembersToCourse}
+            checked={shouldInviteMembersToCourse}
+            dataId="invite-members-to-course"
+            labelStyle={{ width: 'auto' }}
+          >
+            Add New Members to Course
+          </Checkbox>
+        )}
+        <div>
+          <Button m={5} click={onCancel} data-testid="next-step-assign">
+            Cancel
+          </Button>
+          <Button
+            m={5}
+            click={submit}
+            disabled={newParticipants.length === 0}
+            data-testid="next-step-assign"
+          >
+            Add Participants
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -159,9 +320,9 @@ const AddParticipants = (props) => {
 AddParticipants.propTypes = {
   participants: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   userId: PropTypes.string.isRequired,
-  updateList: PropTypes.func.isRequired,
-  close: PropTypes.func.isRequired,
-  updateMembersToInvite: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  courseCheckbox: PropTypes.bool.isRequired,
 };
 
 export default AddParticipants;

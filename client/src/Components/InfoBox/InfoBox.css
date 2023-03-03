@@ -43,8 +43,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  /* hack to center ToggleGroup */
+  margin-right: -33px;
 }
 
 .Content {
   padding: 10px;
+}
+
+.RightTitle {
+  color: darkGray;
 }

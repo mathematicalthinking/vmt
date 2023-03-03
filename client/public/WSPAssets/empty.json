@@ -1,0 +1,84 @@
+{
+  "metadata": {
+    "width": 650,
+    "height": 352,
+    "wsp-version": "4.6.2-alpha",
+    "wsp-build-number": "1043",
+    "wsp-build-stamp": "stek-macbook-pro.fios-router.home/20200414122038",
+    "exporter-version": "6.00A3007(dev)",
+    "exporter-build": "3007(dev)",
+    "original-document-name": "empty.gsp",
+    "start-page": "1",
+    "authorPreferences": {
+      "deletewidget": "all",
+      "stylewidget": "all",
+      "toollook": "compact",
+      "tracewidget": "all",
+      "labelwidget": "all",
+      "visibilitywidget": "all",
+      "resetbutton": "none",
+      "wsplogo": true,
+      "uploadutil": true,
+      "downloadutil": true,
+      "disablescrolling": true,
+      "removeinaccessibleobjects": true
+    }
+  },
+  "resources": {
+    "fontList": ["\"Times New Roman\", sans-serif", "\"Arial\", sans-serif"]
+  },
+  "pages": [
+    {
+      "metadata": {
+        "title": "1",
+        "id": "1",
+        "sketchRect": { "top": 0, "left": 0, "bottom": 352, "right": 650 }
+      },
+      "preferences": {
+        "units": { "length": "cm", "angle": "signed deg" },
+        "precision": { "length": 2, "angle": 0, "scalar": 2 },
+        "colorableComponents": {
+          "Straights": { "color": "blue" },
+          "PointLocus": { "color": "blue" },
+          "CoordSys": { "color": "rgb(160,160,160)" },
+          "ActionButton": { "color": "black" }
+        },
+        "text": {
+          "mathItalicization": true,
+          "textTypes": {
+            "Label": {
+              "font-family": "\"Times New Roman\", sans-serif",
+              "font-size": 18,
+              "font-weight": "normal"
+            },
+            "Caption": {
+              "font-family": "\"Times New Roman\", sans-serif",
+              "font-size": 18
+            },
+            "Measurement": {
+              "font-family": "\"Times New Roman\", sans-serif",
+              "font-size": 12
+            },
+            "Action": {
+              "label": {
+                "font-family": "\"Arial\", sans-serif",
+                "font-size": 18
+              }
+            },
+            "Table": {
+              "font-family": "\"Arial\", sans-serif",
+              "font-size": 12
+            },
+            "AxisTicksAndOptionalLabel": {
+              "font-family": "\"Arial\", sans-serif",
+              "font-size": 16,
+              "font-weight": "bold",
+              "color": "rgb(160,160,160)"
+            }
+          }
+        },
+        "limitScrolling": true
+      }
+    }
+  ]
+}

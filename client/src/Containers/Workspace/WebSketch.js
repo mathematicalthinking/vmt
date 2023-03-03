@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 // import throttle from 'lodash/throttle';
 import testConfig from './Tools/test.json';
-import WSPLoader from './Tools/WSPLoader';
+import { WSPLoader } from './Tools/WSPLoader';
 import socket from '../../utils/sockets';
 import API from '../../utils/apiRequests';
 import ControlWarningModal from './ControlWarningModal';
@@ -29,16 +29,20 @@ const WebSketch = (props) => {
   const [highLights, setHighLights] = useState([]); // Array of highlighted gobjs that must be turned off when new gobjs are highlighted
   // Note that highLights represents a state that needs to persist over handleMessage calls.
 
-  const moveDelay = 175; // divisor is the frame rate
+  const moveDelay = 125; // divisor is the frame rate
 
   let initializing = false;
   let receivingData = false;
+  const semiFreeKinds = 'Expression,Button,Measure,DOMKind';
+  const semiFreeArray = semiFreeKinds.split(',');
+  const BUTTON_TRACKING = true; // DEBUG ONLY
 
   let $sketch = null; // the jquery object for the server's sketch_canvas HTML element
   let sketchDoc = null; // The WSP document in which the websketch lives.
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
   const hasWidgets = useRef(false);
+  const widgetChecks = useRef(0);
   const pendingUpdate = React.createRef(null);
   let $ = window ? window.jQuery : undefined;
   const { setFirstTabLoaded } = props;
@@ -55,6 +59,36 @@ const WebSketch = (props) => {
       console.log('WSP activity ending - clean up listeners');
     };
   }, []);
+
+  // Get the previous value (was passed into hook on last render)
+  const prevUpdates = usePrevious(activityData);
+
+  // Hook
+  function usePrevious(value) {
+    // The ref object is a generic container whose current property is mutable ...
+    // ... and can hold any value, similar to an instance property on a class
+    const ref = useRef();
+    // Store current value in ref
+    useEffect(() => {
+      ref.current = value;
+    }, [value]); // Only re-run if value changes
+    // Return previous value (happens before update in useEffect above)
+    return ref.current;
+  }
+
+  function newUpdate(gobjInfo) {
+    // return true if this update info differs from the last update
+    // If this update is new, or if it differs from the last, store it in prevUpdates.
+    const { id } = gobjInfo;
+    const prevInfo = prevUpdates && prevUpdates[id];
+    const retVal =
+      !prevInfo ||
+      (window.WIDGETS && !window.WIDGETS.deepEquals(gobjInfo, prevInfo));
+    if (retVal && prevUpdates) {
+      prevUpdates[id] = gobjInfo;
+    }
+    return retVal;
+  }
 
   useEffect(() => {
     setPrependMessage('');
@@ -103,6 +137,11 @@ const WebSketch = (props) => {
             }
           });
         }
+        if (!$sketch) {
+          $sketch = $('#sketch');
+        }
+        $sketch.data('isRemote', true);
+        // Store our status with our sketch_canvas which doesn't change even if the doc changes.
       }
     }
   }, [props.inControl]);
@@ -292,7 +331,7 @@ const WebSketch = (props) => {
       { event: 'EditExpression.WSP', handler: reflectMessage },
       { event: 'ClearTraces.WSP', handler: reflectMessage },
       { event: 'PrefChanged.WSP', handler: reflectMessage },
-      { event: 'PressButton.WSP', handler: reflectMessage },
+      { event: 'ActivateButton.WSP', handler: reflectMessage },
     ];
     handlers.forEach((el) => {
       $sketch.off(el.event, el.handler);
@@ -339,6 +378,10 @@ const WebSketch = (props) => {
       sender,
       attr,
     };
+    // if (BUTTON_TRACKING && GSP._get(context, 'gobj.kind') === 'Button') {
+    //  let gobj = context.gobj, action = gobj.state.isActive ? 'activated ' : 'deactivated ';
+    //  console.log("Main " + action + gobj.label + " button (" + gobj.id + ").");
+    //}
     // msg is ready to post to follower
     setActivityData(msg);
   };
@@ -363,57 +406,69 @@ const WebSketch = (props) => {
    be stringifiedl. */
   const recordGobjUpdate = (event) => {
     if (event) {
-      const gobj = event.target;
-      let selector = gobj.constraint;
-      if (
-        gobj.constraint !== 'Free' &&
-        gobj.kind !== 'Expression' &&
-        gobj.kind !== 'Button' &&
-        !gobj.isFreePointOnPath
-      ) {
-        return;
+      let gobj = event.target,
+        selector,
+        gobjInfo;
+      if (semiFreeArray.indexOf(gobj.kind) > -1) {
+        selector = 'SemiFree';
+      } else {
+        selector = gobj.constraint;
       }
-      const gobjInfo = { id: gobj.id, constraint: gobj.constraint };
-      if (gobj.kind === 'Button') {
-        selector = 'Button';
-      }
+      gobjInfo = { id: gobj.id, constraint: gobj.constraint };
       switch (selector) {
-        case 'Free': // Free points have locations; free parameters have values and locations
+        case 'Free': // Free points have locations
           if (gobj.geom.loc) {
             // free points, params, etc. have locations
             gobjInfo.loc = gobj.geom.loc;
           }
-          if (window.GSP.isParameter(gobj)) {
-            // can we distinguish an edited param from a dragged param?
-            gobjInfo.expression = gobj.expression;
-          } else {
-            break; // Params should fall through; free points should not
-          }
-        /* falls through */
-        case 'Calculation':
-        case 'Function':
-        case 'Button':
+          /* falls through */
+          break;
+
+        case 'SemiFree':
           // All of these objects have locations, and all can be edited; dragging and editing both generate updates
           if (gobj.geom.loc) {
             // All have locations; update if needed.
             gobjInfo.loc = gobj.geom.loc;
           }
-          if (gobj.value) {
+          if (gobj.value !== undefined) {
             // free expressions (params and calcs) have values
             gobjInfo.value = gobj.value; // free parameter or calculation
           }
+          if (gobj.uValue !== undefined) {
+            gobjInfo.uValue = gobj.uValue;
+          }
+          if (window.GSP.isParameter(gobj)) {
+            // can we distinguish among dragged, animated, and edited params?
+            if (gobj.isExpressionDirty) {
+              gobjInfo.isExpressionDirty = gobj.isExpressionDirty;
+            } else {
+              gobjInfo.expression = gobj.expression;
+            }
+          }
+          if (gobj.isOfKind('Button')) {
+            gobjInfo.isActive = gobj.state.isActive;
+            gobjInfo.pressSource = gobj.pressSource;
+          }
           break;
-        case 'PointOnPath':
         case 'PointOnPolygonEdge':
+        /* In follow, we'll make the value primary, we'll call updateValue so we don't need special treatment for a point on polygon
+        gobjInfo.baseVertex = gobj.baseVertex;
+        gobjInfo.baseValue = gobj.baseValue;
+        break;
+*/
+        // fall through
+        case 'PointOnPath':
           gobjInfo.value = gobj.value;
           break;
         default:
-          console.log('recordGobjUpdate() cannot handle this event:', event);
+          console.warn('recordGobjUpdate() cannot handle this event:', event);
         // Add more
       }
       // Don't bother with context; it has cycles and cannot easily be stringified -- (?: ANZ) Do we need context here?
       const { id } = gobjInfo;
-      setActivityMoves((prevMoves) => ({ ...prevMoves, [id]: gobjInfo }));
+      if (newUpdate(gobjInfo)) {
+        setActivityMoves((prevMoves) => ({ ...prevMoves, [id]: gobjInfo }));
+      }
     }
   };
 
@@ -546,6 +601,10 @@ const WebSketch = (props) => {
         retVal = ', ' + retVal;
       }
     }
+    // Debugging check...
+    // else if (prevInfo) {
+    //    console.log('update arrived with no change for', getSketch().gobjList.gobjects[id]);
+    // }
     return retVal;
   };
 
@@ -561,6 +620,9 @@ const WebSketch = (props) => {
     // If msg references a gobj, find it and attach to attr so handlers can access it.
     const id = attr.newId ? attr.newId : attr.gobjId;
     if (id) {
+      if (!sketch || !sketch.gobjList) {
+        initSketchPage();
+      }
       gobj = sketch.gobjList.gobjects[id];
       attr.gobj = gobj;
     }
@@ -664,11 +726,17 @@ const WebSketch = (props) => {
           prefChanged(attr);
           break;
         case 'PressButton':
+          // Note that the PressButton event is not sent when a Presentation button presses its parent buttons.
+          // So we need to rely on the update event that is sent when a button is invalidated,
+          // either by user action or by a child Presentation button.
           pressButton(attr);
+          break;
+        case 'ActivateButton':
+          activateButton(attr);
           break;
         default:
           // Other messages to be defined: gobjEdited, gobjStyled, etc.
-          throw new Error(`Unkown message type: ${msg.name}`);
+          console.warn(`Unkown message type: ${msg.name}`);
       }
     }
   };
@@ -858,13 +926,30 @@ const WebSketch = (props) => {
     }
   };
 
+  // const handleButtonUpdate = (button, info) => {
+  //   const buttonsToPress = [
+  //     'ActionButtonHide',
+  //     'ActionButtonShow',
+  //     'ActionButtonToggleHideShow',
+  //   ];
+  //   if (
+  //     buttonsToPress.includes(button.constraint) &&
+  //     info.isActive !== button.state.isActive
+  //   ) {
+  //     button.press(info.pressSource);
+  //   }
+  // };
+
   const imposeGobjUpdates = (data) => {
-    function setLoc(target, source) {
-      target.x = source.x; // Avoid the need to create a new GSP.GeometricPoint
-      target.y = source.y;
+    // A gobj moved, so move the same gobj in the follower sketch
+    let source; // set to "drag" if  gobj is dragged without constraining its children
+    // FIX THIS TO GET IT RIGHT!!
+    function setLoc(target, src) {
+      target.x = src.x; // Avoid the need to create a new GSP.GeometricPoint
+      target.y = src.y;
     }
     // A gobj moved, so move the same gobj in the follower sketch
-    let moveList = JSON.parse(data);
+    const moveList = JSON.parse(data);
     initSketchPage();
     if (!sketch) {
       // console.log("Messaging error: this follower's sketch is not loaded.");
@@ -876,6 +961,7 @@ const WebSketch = (props) => {
     for (let id in moveList) {
       const gobjInfo = moveList[id];
       const destGobj = sketch.gobjList.gobjects[id];
+      const valueType = typeof gobjInfo.value;
       if (!destGobj) {
         console.log('No destination Gobj found to handle the move data!');
         continue; // The moveList might be out of date during toolplay,
@@ -884,17 +970,38 @@ const WebSketch = (props) => {
       // Use the properties of gobjInfo to determine what needs updating
       if (gobjInfo.loc) {
         setLoc(destGobj.geom.loc, gobjInfo.loc);
+        source = 'drag';
       }
-      if (gobjInfo.value) {
-        destGobj.value = gobjInfo.value;
+      if (valueType === 'number') {
+        if (
+          destGobj.updateValue &&
+          (destGobj.isOfKind('Point') || GSP.isParameter(destGobj))
+        ) {
+          destGobj.updateValue(gobjInfo.value); // call updateValue to handle points on path and params
+          // do NOT call for calculations, measurements, or functions
+        } else {
+          // console.log('Setting an unnecessary value for', destGobj);  // This value will be set via constraint.
+          destGobj.value = gobjInfo.value;
+        }
+        if (typeof destGobj.uValue !== 'undefined') {
+          destGobj.uValue = gobjInfo.uValue; // value in the current sketch units
+          // When we allow VMT users to change their sketch units, we need to check:
+          // Are units & uValues updated for follower?
+        }
       }
       if (gobjInfo.expression) {
         // Update param after it's changed
         destGobj.expression = gobjInfo.expression;
-        // Is there anything else to do for an expression?
       }
-      destGobj.invalidateGeom();
+      if (gobjInfo.isExpressionDirty) {
+        // Applies to animated params; anything else?
+        destGobj.isExpressionDirty = gobjInfo.isExpressionDirty;
+        destGobj.fnExpression = undefined;
+        destGobj.parsedInfix = undefined;
+      }
+      destGobj.invalidateGeom(source);
     }
+    console.log('moveList', moveList);
   };
 
   const startFollowerTool = (name) => {
@@ -1132,7 +1239,7 @@ const WebSketch = (props) => {
 
   function handleDeleteWidget(attr) {
     let note = '';
-    const deletedGobjs = {};
+    const deletedGobjs = [];
     let thisDelta;
     let descendantsExist = false;
     function doDelete() {
@@ -1148,7 +1255,7 @@ const WebSketch = (props) => {
         note = 'Deleted ' + gobjDesc(gobj);
       } else if (!descendantsExist) {
         note += ' and its descendants.'; // append this on second gobj
-        descendantsExist = true;
+        descendantsExist = true; // any additional object must be a descendant
       }
       deletedGobjs[id] = gobj;
     });
@@ -1216,16 +1323,48 @@ const WebSketch = (props) => {
     }
   }
 
+  function activateButton(attr) {
+    // This function actually fires any of the designated buttons activated in the controller.
+    // We intentionally omit buttons like Move or Animation because their effects come in via updates.
+    // This message arrives whether the buttons are pressed by the user or by a Presentation button.
+    // Is there a timing issue we need to address? If a presentation is activated in main, we ignore
+    // it in follower, instead waiting for messages to arrive about the other buttons being pressed,
+    // including movements, animations (for which we get updates), hide/show buttons (that we activate),
+    // and other presentations (that we similarly ignore). What if a Move button ends and triggers the
+    // next button in a sequence, while we have not yet updated the movement, and the newly-activated
+    // button takes some action that depends on a not-yet-updated value of a parameter?
+    const buttonsToPress = ['ToggleHideShow', 'Hide', 'Show', 'Scroll', 'Link'];
+    const type = String(attr.buttonType).substring(12);
+    const doPress = buttonsToPress.includes(type) && attr.isActive;
+    if (BUTTON_TRACKING) {
+      const gobj = attr.gobj;
+      const action =
+        'Controller ' + (attr.isActive ? 'activated ' : 'deactivated ');
+      let response = 'Button will be ' + (doPress ? 'pressed.' : 'ignored.');
+      if (!attr.isActive) {
+        response = '';
+      }
+      console.log(action + gobj.label + ' (' + gobj.id + ').', response);
+      if (gobj.state.isActive === attr.isActive) {
+        console.log('Button is already in desired state!!');
+      }
+    }
+    // We can use attr.isActive to tell start from stop.
+    // Fortunately we don't need to stop any of these buttons.
+    if (doPress) {
+      attr.gobj.press(sketch);
+    }
+  }
+
   function pressButton(attr) {
     // attr has category, pref, oldValue, & newValue
+    // This message arrives when the user presses a button.
+    // We just notify user; activateButton actually fires the button
     const note = attr.gobj
       ? 'Pressed ' + attr.gobj.label + ' button'
       : 'Button pressed';
+    console.log('User pressed', attr.buttonType);
     notify(note, { duration: 2000, highlitGobjs: [attr.gobj] });
-    // How can we tell start from stop, or rather, how can we use attr
-    // to transmit the button's render state (and whether to turn it on or off)
-    // Animate and Move, for instance, are very different in how they stop.
-    // attr.gobj.press();
   }
 
   // --- Initialization functions ---
@@ -1252,7 +1391,7 @@ const WebSketch = (props) => {
     console.log('Sketch width: ', sketchWidth);
     sketchDoc = data;
     sketch = data.focusPage;
-    if (hasWidgets.current) {
+    if (hasWidgets.current && widgetChecks.current < 7) {
       checkWidgets();
     }
   };
@@ -1285,10 +1424,12 @@ const WebSketch = (props) => {
   };
 
   const shouldLoadWidgets = ({ metadata }) => {
+    widgetChecks.current += 1;
     const { authorPreferences } = metadata;
     if (authorPreferences) {
       for (let [key, value] of Object.entries(authorPreferences)) {
         if (key.includes('widget') && value !== 'none') {
+          console.log(`Loading widgets for: ${key}: ${value}`);
           hasWidgets.current = true;
         }
       }
@@ -1394,11 +1535,17 @@ const WebSketch = (props) => {
           id="sketch"
           ref={wspSketch}
           style={{
-            overflow: 'auto',
+            // overflow: 'auto',
             pointerEvents: !_hasControl() ? 'none' : 'auto',
           }}
         />
         <div className="buttonPane">
+          <div
+            className="util-menu-btn util-menu"
+            style={{
+              pointerEvents: !_hasControl() ? 'none' : 'auto',
+            }}
+          />
           <div
             className="page_buttons"
             style={{

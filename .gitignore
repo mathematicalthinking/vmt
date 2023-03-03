@@ -26,3 +26,8 @@ staging/
 
 # ignore redis dumps
 dump.rdb 
+newEnv/client.env
+client/client.envOld
+newEnv/env_devLocal
+newEnv/server.env_testLocal
+server/server.envOld

@@ -3,7 +3,7 @@
 
 // callback is called when critical scipts are loaded and sketch can be loaded
 
-const WSPLoader = (callback) => {
+export const WSPLoader = (callback) => {
   const loadJquery = () => {
     // check for jQuery
     if (window.jQuery) {
@@ -94,6 +94,7 @@ const WSPLoader = (callback) => {
       link.id = 'widgetscss';
       link.onload = () => {
         console.log('Loaded Widgets...');
+        loadTools();
         // finally load the widgets and fire the ready callback
         console.log('Core WSP assets loaded: Ready to create script!');
         callback();
@@ -108,7 +109,34 @@ const WSPLoader = (callback) => {
   loadJquery();
 };
 
-export default WSPLoader;
+export const loadTools = () => {
+  if (document.getElementById('wsptools')) {
+    console.log('tools.js found - skipping');
+    // document.getElementById('wsptools').remove();
+  } else {
+    const script = document.createElement('script');
+    script.src = '/WSPAssets/tools.js';
+    script.id = 'wsptools';
+    script.type = 'text/javascript';
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = '/WSPAssets/tools.css';
+    link.id = 'toolscss';
+    script.onload = () => {
+      console.log('Loaded tools.js... ');
+      console.log('Window status: ', window.TOOLS, window);
+      // console.log('Core WSP assets loaded: Ready to create script!');
+    };
+    document.body.appendChild(script);
+    document.body.appendChild(link);
+  }
+};
+
+export default {
+  WSPLoader,
+  loadTools,
+};
 
 // Alternate jQuery option from CDN
 //     <Script
