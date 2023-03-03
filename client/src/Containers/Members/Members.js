@@ -470,7 +470,7 @@ class Members extends PureComponent {
                       preImportText="Replace all existing members"
                       preImportAction={this.removeAllMembers}
                     />
-                    <div>
+                    <div style={{ margin: '0 1rem' }}>
                       {/* <Button>Shared Rosters</Button> */}
                       <CourseCodeMemberImport
                         onImport={this.handleCourseCodeMemberImport}
