@@ -6,11 +6,12 @@ import ImportModal from './ImportModal';
 import useDataValidation from './dataValidation';
 
 export default function Importer(props) {
-  const { buttonText, preImportAction } = props;
+  const { buttonText, preImportAction, preImportText } = props;
 
   const [showModal, setShowModal] = React.useState(false);
   const [importedData, setImportedData] = React.useState([]);
   const buttonRef = React.createRef();
+  const checkboxRef = React.createRef();
   const {
     validatedData,
     validationErrors,
@@ -62,7 +63,8 @@ export default function Importer(props) {
   const handleOnSubmit = async (data) => {
     setImportedData(data);
     if (validationErrors.length === 0) {
-      if (preImportAction) await preImportAction();
+      if (preImportAction && checkboxRef.current && checkboxRef.current.checked)
+        await preImportAction();
       createAndInviteMembers();
       setShowModal(false);
     }
@@ -107,6 +109,7 @@ export default function Importer(props) {
   };
 
   const importModal = () => {
+    const key = Date.now();
     return (
       <ImportModal
         show={showModal}
@@ -130,7 +133,11 @@ export default function Importer(props) {
           {
             property: 'comment',
             header: 'Comments (* req)',
-            style: { color: 'red', textAlign: 'left', whiteSpace: 'pre-wrap' },
+            style: {
+              color: 'red',
+              textAlign: 'left',
+              whiteSpace: 'pre-wrap',
+            },
             readOnly: true,
           },
         ]}
@@ -139,6 +146,16 @@ export default function Importer(props) {
         onSubmit={handleOnSubmit}
         onCancel={handleOnCancel}
         onDeleteRow={handleOnDeleteRow}
+        footer={
+          preImportAction &&
+          preImportText && (
+            <div>
+              <input key={key} type="checkbox" id="check" ref={checkboxRef} />
+              &nbsp;&nbsp;
+              <label htmlFor="check">{preImportText}</label>
+            </div>
+          )
+        }
       />
     );
   };
@@ -170,8 +187,10 @@ Importer.propTypes = {
   onImport: PropTypes.func.isRequired,
   buttonText: PropTypes.string.isRequired,
   preImportAction: PropTypes.func,
+  preImportText: PropTypes.string,
 };
 
 Importer.defaultProps = {
   preImportAction: null,
+  preImportText: null,
 };

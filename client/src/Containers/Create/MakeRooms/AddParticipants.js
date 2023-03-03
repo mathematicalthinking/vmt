@@ -11,11 +11,11 @@ import {
   Button,
   InfoBox,
   Search,
+  GenericSearchResults,
   Member,
   ToggleGroup,
   Checkbox,
 } from 'Components';
-import GenericSearchResults from 'Components/Search/GenericSearchResults';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
@@ -56,6 +56,7 @@ const AddParticipants = (props) => {
   const debounceSearch = debounce((text) => search(text), 700);
 
   const search = (text) => {
+    // see if text is a course code
     if (text.length > 0) {
       API.search(
         'user',

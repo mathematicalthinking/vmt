@@ -231,7 +231,7 @@
 .NewParticipants {
   height: 350px;
   width: 100%;
-  min-width: 450px;
+  /* min-width: 450px; */
   overflow-y: auto;
 }
 
