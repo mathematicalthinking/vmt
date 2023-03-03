@@ -596,7 +596,11 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
         </span>
       </div>
       <div className={classes.FilterSelection}>
-        <label htmlFor={`filterUI-${labelSuffix}`} className={classes.Label}>
+        <label
+          htmlFor={`filterUI-${labelSuffix}`}
+          className={classes.Label}
+          data-testid={`filterUI-${labelSuffix}`}
+        >
           Updated:
           <Select
             placeholder="Timeframe"

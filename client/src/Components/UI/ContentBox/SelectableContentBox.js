@@ -55,6 +55,7 @@ const SelectableContentBox = (props) => {
         to={link}
         className={classes.Container}
         style={{ height: expanded ? 150 : 50, cursor: 'default' }}
+        data-testid={`SelectableContentBox-container-${title}`}
       >
         <div
           data-testid={`content-box-${title}`}
@@ -103,6 +104,7 @@ const SelectableContentBox = (props) => {
                     role="button"
                     key={`icon-${icon.title}-${id}`}
                     style={{ margin: '0 .5rem', cursor: 'pointer' }}
+                    data-testid={`${icon.title}-button-${id}`}
                   >
                     {icon.icon}
                   </div>
