@@ -114,30 +114,30 @@ class Workspace extends Component {
 
     // Set up snapshots
 
-    if (!temp) {
-      const {
-        elementRef,
-        takeSnapshot,
-        cancelSnapshots,
-        getSnapshot,
-      } = useSnapshots((newSnapshot) => {
-        const { currentTabId } = this.state;
-        const updateBody = { snapshot: newSnapshot };
-        API.put('tabs', currentTabId, updateBody).then(() => {
-          this.updateTab(currentTabId, updateBody);
-        });
-      });
+    // if (!temp) {
+    //   const {
+    //     elementRef,
+    //     takeSnapshot,
+    //     cancelSnapshots,
+    //     getSnapshot,
+    //   } = useSnapshots((newSnapshot) => {
+    //     const { currentTabId } = this.state;
+    //     const updateBody = { snapshot: newSnapshot };
+    //     API.put('tabs', currentTabId, updateBody).then(() => {
+    //       this.updateTab(currentTabId, updateBody);
+    //     });
+    //   });
 
-      this.setState(
-        {
-          takeSnapshot,
-          snapshotRef: elementRef,
-          cancelSnapshots,
-          getSnapshot,
-        },
-        () => this._takeSnapshotIfNeeded()
-      );
-    }
+    //   this.setState(
+    //     {
+    //       takeSnapshot,
+    //       snapshotRef: elementRef,
+    //       cancelSnapshots,
+    //       getSnapshot,
+    //     },
+    //     () => this._takeSnapshotIfNeeded()
+    //   );
+    // }
 
     this.setHeartbeatTimer();
   }
