@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import testConfig from '../Workspace/Tools/test.json';
-import WSPLoader from '../Workspace/Tools/WSPLoader';
+import { WSPLoader } from '../Workspace/Tools/WSPLoader';
 
 import classes from './WSPReplayer.css';
 
@@ -435,7 +435,7 @@ const WebSketch = (props) => {
       if (!gobjs) return; // Nothing to do
       gobjs.forEach((gobj) => {
         // this may be a gobj, or may be a gobj id
-        console.log('Notifying: ', gobj);
+        // console.log('Notifying: ', gobj);
         gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
         if (!gobj) return;
         const { state } = gobj;
@@ -972,6 +972,11 @@ const WebSketch = (props) => {
     let config = tab.ggbFile
       ? JSON.parse(Buffer.from(tab.ggbFile, 'base64'))
       : testConfig;
+    if (tab.startingPointBase64 && tab.startingPointBase64 !== '{}') {
+      // starting point data on tab
+      const { startingPointBase64 } = tab;
+      config = JSON.parse(startingPointBase64);
+    }
     shouldLoadWidgets(config);
     return config;
   };

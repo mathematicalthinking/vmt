@@ -477,7 +477,7 @@ const WebSketch = (props) => {
       const now = Date.now();
       const timeSince = now - timeSent;
       if (timeSince >= moveDelay) {
-        console.log('Posting moves, delay: ', timeSince);
+        // console.log('Posting moves, delay: ', timeSince);
         postMoveMessage();
       } else {
         // sweep messages that may have been missed
@@ -495,7 +495,7 @@ const WebSketch = (props) => {
   function postMoveMessage() {
     const msg = { name: 'GobjsUpdated', time: Date.now() };
     const moveData = { ...activityMoves }; // create a ref to the current cache
-    console.log('Update data: ', moveData);
+    // console.log('Update data: ', moveData);
     setActivityMoves({});
     if (Object.keys(moveData).length !== 0) {
       setTimeSent(Date.now());
@@ -616,7 +616,7 @@ const WebSketch = (props) => {
     if (!sketch) {
       getSketch();
     }
-    console.log('Follower received msg:', msg.name, msg.attr);
+    // console.log('Follower received msg:', msg.name, msg.attr);
     // If msg references a gobj, find it and attach to attr so handlers can access it.
     const id = attr.newId ? attr.newId : attr.gobjId;
     if (id) {
@@ -860,7 +860,7 @@ const WebSketch = (props) => {
       if (!gobjs) return; // Nothing to do
       gobjs.forEach((gobj) => {
         // this may be a gobj, or may be a gobj id
-        console.log('Notifying: ', gobj);
+        // console.log('Notifying: ', gobj);
         gobj = typeof gobj === 'string' ? sketch.gobjList.gobjects[gobj] : gobj;
         if (!gobj) return;
         const { state } = gobj;
@@ -955,7 +955,7 @@ const WebSketch = (props) => {
       // console.log("Messaging error: this follower's sketch is not loaded.");
       return;
     }
-    console.log('Handling Gobjs: ', moveList);
+    // console.log('Handling Gobjs: ', moveList);
 
     // eslint-disable-next-line
     for (let id in moveList) {
@@ -1001,7 +1001,7 @@ const WebSketch = (props) => {
       }
       destGobj.invalidateGeom(source);
     }
-    console.log('moveList', moveList);
+    // console.log('moveList', moveList);
   };
 
   const startFollowerTool = (name) => {
@@ -1097,7 +1097,7 @@ const WebSketch = (props) => {
       ? 'Canceled style changes for '
       : 'Changed style for ';
     // eslint-disable-next-line
-    console.log('attr changes: ', attr);
+    // console.log('attr changes: ', attr);
     if (attr.changes && attr.changes.length > 0) {
       attr.changes.forEach((change) => {
         const gobj = sketch.gobjList.gobjects[change.id];
@@ -1130,7 +1130,7 @@ const WebSketch = (props) => {
     let note;
     let toggled;
     let cBox;
-    console.log('Handling Trace Message:', attr);
+    // console.log('Handling Trace Message:', attr);
     if (gobj) {
       options.highlitGobjs = [gobj.id];
     }
@@ -1185,7 +1185,7 @@ const WebSketch = (props) => {
     if (!sketch) {
       getSketch();
     }
-    console.log('Sketch: ', sketch, ' Attr: ', attr);
+    // console.log('Sketch: ', sketch, ' Attr: ', attr);
     const gobj = attr.gobj;
     let note = attr.action || 'Modified';
     if (attr.labelStyle) {
@@ -1246,7 +1246,7 @@ const WebSketch = (props) => {
       sketch.gobjList.removeGObjects(deletedGobjs, sketch);
       thisDelta = sketch.document.pushConfirmedSketchOpDelta(attr.preDelta);
       // CHECK: thisDelta should match attr.delta.
-      console.log('Delete delta: ', thisDelta, ' vs ', attr.delta);
+      // console.log('Delete delta: ', thisDelta, ' vs ', attr.delta);
       sketch.document.changedUIMode();
     }
     attr.deletedIds.forEach((id) => {
@@ -1344,7 +1344,7 @@ const WebSketch = (props) => {
       if (!attr.isActive) {
         response = '';
       }
-      console.log(action + gobj.label + ' (' + gobj.id + ').', response);
+      // console.log(action + gobj.label + ' (' + gobj.id + ').', response);
       if (gobj.state.isActive === attr.isActive) {
         console.log('Button is already in desired state!!');
       }
@@ -1363,7 +1363,7 @@ const WebSketch = (props) => {
     const note = attr.gobj
       ? 'Pressed ' + attr.gobj.label + ' button'
       : 'Button pressed';
-    console.log('User pressed', attr.buttonType);
+    // console.log('User pressed', attr.buttonType);
     notify(note, { duration: 2000, highlitGobjs: [attr.gobj] });
   }
 
@@ -1372,7 +1372,7 @@ const WebSketch = (props) => {
   const loadSketchDoc = (config) => {
     $ = window.jQuery;
     if (!$) {
-      console.warn('No jQuerious');
+      console.warn('No jQuery loaded!');
       return;
     }
     $('#sketch').WSP('loadSketch', {
@@ -1387,8 +1387,6 @@ const WebSketch = (props) => {
 
     const data = $sketch.data('document');
     console.log('Found data: ', data);
-    const sketchWidth = data.metadata.width;
-    console.log('Sketch width: ', sketchWidth);
     sketchDoc = data;
     sketch = data.focusPage;
     if (hasWidgets.current && widgetChecks.current < 7) {
@@ -1449,7 +1447,7 @@ const WebSketch = (props) => {
       );
     };
     // When should this call happen, before or after loading the sketch?
-    console.log('Widgets?: ', isWidgetLoaded());
+    // console.log('Widgets?: ', isWidgetLoaded());
     if (isWidgetLoaded()) {
       window.WIDGETS.initWidget();
       window.PAGENUM.initPageControls();
@@ -1459,7 +1457,7 @@ const WebSketch = (props) => {
       syncToFollower();
     } else {
       const pollDOM = () => {
-        console.log('Widgets recheck: ', isWidgetLoaded());
+        console.log('Widgets recheck for load: ', isWidgetLoaded());
         if (isWidgetLoaded()) {
           loadSketchDoc(getSketchConfig(tab));
           syncToFollower();

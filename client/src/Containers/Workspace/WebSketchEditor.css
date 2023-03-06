@@ -105,8 +105,10 @@
     border-radius: 4px;
     border: 1px solid blueHover;
   }
-  .LibButtons {
 
+  .LibButtons {
+    padding: 5px;
+    float: right;
   }
 
 
