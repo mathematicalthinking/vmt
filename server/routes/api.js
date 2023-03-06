@@ -79,8 +79,9 @@ router.get('/search/:resource', (req, res) => {
   text = text.replace(/\s+/g, '');
   const regex = new RegExp(text, 'i');
   // console.log('Search: ', req.params.resource, ' for ', regex);
+  const exclude = req.query.exclude || [];
   controller
-    .search(regex, req.query.exclude)
+    .search(regex, exclude)
     .then((results) => {
       res.json({ results });
     })
