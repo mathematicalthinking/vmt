@@ -14,7 +14,12 @@
   
 
   .leftPane {
+    padding: 7px;
     max-width: 200px;
+  }
+
+  .sizeInput {
+    margin-bottom: 5px;
   }
   
   

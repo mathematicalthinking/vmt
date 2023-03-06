@@ -249,6 +249,11 @@ var TOOLS = (function() {
       docHeight,
       true /* shows undoRedo */
     );
+    doc.event(
+      'ToolAdded',
+      { document: doc },
+      { tool: { name: theTool.metadata.name }, index: doc.tools.length - 1 }
+    );
     setResizePosition($canvas);
     populateTools(doc);
   }
@@ -849,8 +854,15 @@ var TOOLS = (function() {
       docTemp = doc.tools.splice(dragIndex, 1),
       $tools = $('.wsp-tool', $canvas),
       $temp = $($tools[dragIndex]).detach();
-    if (!$(target).hasClass('uTrashIcon')) {
-      doc.docSpec.tools.splice(targetIndex, 0, specTemp[0]); // Move the dragged tool, instead of deleting
+    if ($(target).hasClass('uTrashIcon')) {
+      doc.event(
+        'ToolRemoved',
+        { document: doc },
+        { tool: { name: docTemp[0].metadata.name }, index: dragIndex }
+      );
+    } else {
+      // Move the dragged tool, instead of deleting
+      doc.docSpec.tools.splice(targetIndex, 0, specTemp[0]);
       doc.tools.splice(targetIndex, 0, docTemp[0]);
       if (targetIndex < dragIndex) {
         // dragging up
@@ -859,6 +871,15 @@ var TOOLS = (function() {
         // dragging down
         $temp.insertAfter($tools[targetIndex]);
       }
+      doc.event(
+        'ToolMoved',
+        { document: doc },
+        {
+          tool: { name: docTemp[0].metadata.name },
+          oldIndex: dragIndex,
+          newIndex: targetIndex,
+        }
+      );
     }
     populateTools(doc);
   }
@@ -984,6 +1005,11 @@ var TOOLS = (function() {
       const prefString = arr.join();
       prefs[prefName] = prefString;
       specPrefs[prefName] = prefString;
+      doc.event(
+        'ToolPagesChanged',
+        { document: doc },
+        { tool: { name: docTemp[0].metadata.name }, activePages: prefString }
+      );
     }
 
     if (!prefArr || prefArr[0] === 'all') {
@@ -1017,7 +1043,7 @@ var TOOLS = (function() {
       toolIndex = $btn.parent().data('index'),
       $tool = $('.wsp-tool', '#libSketch').eq(toolIndex);
     console.log(ev);
-    setToolPref(ev.target.value, $tool, $btn[0].checked);
+    setToolPref(ev.target.id, $tool, $btn[0].checked);
   }
 
   function checkTools(sketchDoc, context) {
@@ -1044,7 +1070,7 @@ var TOOLS = (function() {
         index++;
       });
       $('.toolCheck').off('change');
-      $('.toolCheck').change(TOOLS.handleToolCheck);
+      $('.toolCheck').change(handleToolCheck);
     }
   }
 
@@ -1055,19 +1081,24 @@ var TOOLS = (function() {
       $.each(sketchDoc.tools, function(i, val) {
         const name = val.metadata.name,
           prefName = name.toLowerCase().replace(/\s+/g, ''),
+          //content = '<li draggable="true" class = "toolCheck"><input type="checkbox" id=' +
+          //            prefName + '>' + name + '</li>';
           content =
-            '<li draggable="true"><input type="checkbox" class = "toolCheck" value=' +
+            '<li draggable="true"><input type="checkbox" class = "toolCheck"' +
+            ' id = "' +
             prefName +
-            '>' +
+            '"><span style="float:right;">⇵</span><label for="' +
+            prefName +
+            '">' +
             name +
-            '</li>';
+            '</label></li>';
         $list.append(content);
         $list
           .children()
           .last()
           .data('index', i);
       });
-      $('.toolCheck').change(TOOLS.handleToolCheck);
+      $('.toolCheck').change(handleToolCheck);
     }
     if ($list.length) {
       $list.append('<li class="uTrashIcon"></li>');
@@ -1715,8 +1746,9 @@ var TOOLS = (function() {
       return showGobjIds(sketchOrSelector);
     },
 
-    handleToolCheck: function(btn) {
-      handleToolCheck(btn);
+    populateTools: function(selector) {
+      var doc = getCanvas(selector).data('document');
+      populateTools(doc);
     },
   };
 })();
