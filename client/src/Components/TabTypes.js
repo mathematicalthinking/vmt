@@ -94,7 +94,7 @@ function homepageMessages() {
 }
 
 function getDisplayName(tabType) {
-  return tabTypeProperties[tabType].label;
+  return tabTypeProperties[tabType] ? tabTypeProperties[tabType].label : '';
 }
 
 function getCombinedIcon(tabTypes) {
@@ -102,7 +102,7 @@ function getCombinedIcon(tabTypes) {
 }
 
 function getIcon(tabType) {
-  return tabTypeProperties[tabType].icon;
+  return tabTypeProperties[tabType] ? tabTypeProperties[tabType].icon : null;
 }
 
 function Buttons({ onClick, disabled }) {
