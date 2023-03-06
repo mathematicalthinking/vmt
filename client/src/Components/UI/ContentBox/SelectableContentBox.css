@@ -67,6 +67,11 @@
   display: block;
 }
 
+.Title {
+  font-weight: 200;
+  color: black;
+}
+
 .Expand {
   color: black;
   padding: 5px;

@@ -12,7 +12,7 @@ const SelectableContentBox = (props) => {
   const {
     id,
     notifications,
-    link,
+    link: givenLink,
     roomType,
     listType,
     title,
@@ -41,7 +41,7 @@ const SelectableContentBox = (props) => {
       <Notification count={notifications} data-testid="content-box-ntf" />
     ) : null;
 
-  if (roomType && !TabTypes.isActive(roomType)) return null;
+  const link = roomType && TabTypes.isActive(roomType) ? givenLink : null;
 
   return (
     <Checkbox

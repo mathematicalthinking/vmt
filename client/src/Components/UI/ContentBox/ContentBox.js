@@ -41,7 +41,7 @@ class ContentBox extends PureComponent {
     const {
       id,
       notifications,
-      link,
+      link: givenLink,
       roomType,
       listType,
       title,
@@ -57,7 +57,8 @@ class ContentBox extends PureComponent {
       notifications > 0 ? (
         <Notification count={notifications} data-testid="content-box-ntf" />
       ) : null;
-    if (roomType && !TabTypes.isActive(roomType)) return null;
+
+    const link = roomType && TabTypes.isActive(roomType) ? givenLink : null;
 
     const childElements = (
       <div
@@ -76,7 +77,7 @@ class ContentBox extends PureComponent {
             </div>
             <ToolTip text={title} delay={600}>
               <div
-                className={classes.Title}
+                className={link ? classes.Title : classes.NoLink}
                 data-testid={`ContentBox-${title}`}
               >
                 {title}

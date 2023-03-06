@@ -54,7 +54,7 @@
   font-weight: 500;
 }
 
-.Title {
+.Title, .NoLink {
   /* max-width: 310px; */
   font-size: 1.25em;
   font-weight: 400;
@@ -65,6 +65,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   letter-spacing: 0.5px;
+}
+
+.NoLink {
+  font-weight: 200;
+  color: black;
 }
 
 .Expand {
