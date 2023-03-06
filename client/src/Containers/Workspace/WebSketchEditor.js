@@ -1,12 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-console */
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  Fragment,
-  useCallback,
-} from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import testConfig from './Tools/empty.json';
@@ -29,8 +23,7 @@ const WebSketchEditor = (props) => {
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
   const sketchDoc = useRef(null);
-  const hasWidgets = useRef(false);
-  const tools = useRef(null);
+  // const hasWidgets = useRef(false);
   // const calculatorInst = useRef();
   // const pendingUpdate = React.createRef(null);
   let $ = window ? window.jQuery : undefined;
@@ -46,6 +39,10 @@ const WebSketchEditor = (props) => {
     console.log('~~ Page loaded!  ~~');
     return () => {
       socket.removeAllListeners('RECEIVE_EVENT');
+      // clean up elements wsp added to the dom
+      if (document.getElementById('resize')) {
+        document.getElementById('resize').remove();
+      }
       // window.UTILMENU = undefined;
       // do we need to unmount or destroy the wsp instance?
       console.log('WSP activity ending - clean up listeners');
@@ -89,6 +86,10 @@ const WebSketchEditor = (props) => {
       { event: 'ToolPlayed.WSP', handler: reflectAndSync },
       { event: 'ToolPlayBegan.WSP', handler: syncGobjUpdates }, // Tool objects are instantiated, so track them
       { event: 'ToolAborted.WSP', handler: reflectAndSync },
+      { event: 'ToolMoved.WSP', handler: reflectAndSync },
+      { event: 'ToolPagesChanged.WSP', handler: reflectAndSync },
+      { event: 'ToolAdded.WSP', handler: reflectAndSync },
+      { event: 'ToolRemoved.WSP', handler: reflectAndSync },
       { event: 'MergeGobjs.WSP', handler: reflectAndSync },
       { event: 'WillUndoRedo.WSP', handler: reflectMessage },
       { event: 'UndoRedo.WSP', handler: reflectAndSync },
@@ -109,18 +110,10 @@ const WebSketchEditor = (props) => {
     handlers.forEach((el) => {
       $sketch.on(el.event, el.handler);
     });
-    tools.current = getTools();
 
     // getSketch();  // Required after toolplay, undo/redo, and page changes
     // establish listeners on sketch objects, to include pointsOnPath
     syncGobjUpdates();
-  };
-
-  const getTools = () => {
-    if (!sketchDoc.current) {
-      getSketch();
-    }
-    return sketchDoc.current.tools ? sketchDoc.current.tools.length : 0;
   };
 
   const reflectMessage = (event, context, attr) => {
@@ -192,7 +185,7 @@ const WebSketchEditor = (props) => {
     if (sketchDoc.current) {
       // grab current state-event list
       const responseData = sketchDoc.current.getCurrentSpecObject();
-      console.log('Response data to save: ', responseData);
+      // console.log('Response data to save: ', responseData);
       // start creating a string-based object to update the tab
       const updateObject = {
         startingPointBase64: JSON.stringify(responseData),
@@ -212,42 +205,56 @@ const WebSketchEditor = (props) => {
 
   const checkGraph = () => {
     if (window.jQuery) {
-      console.log(
-        'Graph loaded? ',
-        !!sketchDoc.current,
-        $('#libSketch').data('document'),
-        ' vs ',
-        sketchDoc.current
-      );
+      // console.log(
+      //   'Graph loaded? ',
+      //   !!sketchDoc.current,
+      //   $('#libSketch').data('document'),
+      //   ' vs ',
+      //   sketchDoc.current
+      // );
       if (!$('#libSketch').data('document')) {
         $('#libSketch').data('document', sketchDoc.current);
-        console.log('How about now? ', $('#libSketch').data('document'));
+        // console.log('How about now? ', $('#libSketch').data('document'));
       }
-      // if (!!window.TOOLS) {
-      //   window.TOOLS.initLibrary();
-      // }
-      // console.log(
-      //   'After reloading library? ',
-      //   sketchDoc.current,
-      //   ' sketch: ',
-      //   $('#libSketch').data('document')
-      // );
     }
   };
 
-  const checkNewTools = () => {
-    if (tools.current != getTools()) {
-      return true;
-    } else return false;
-  };
-
   // --- Initialization functions ---
+  const addResize = () => {
+    // const resizeStyle =
+    //   'position: absolute; z-index: 1000; cursor: move; padding: 0px;';
+    // const resizeHandler = document.createElement('div');
+    // resizeHandler.style = resizeStyle;
+    // const resizeIcon = document.createElement('img');
+    // resizeIcon.alt = 'resize handler';
+    // resizeIcon.source = '/WSPAssets/resize.png';
+    // resizeHandler.appendChild(resizeIcon);
+    // document.body.appendChild(resizeHandler);
+    return sketchLoaded ? (
+      <div
+        id="resize"
+        // const data = $sketch.data('document');
+        // console.log('Found data: ', data);
+        // const sketchWidth = data.metadata.width;
+        style={{
+          position: 'absolute',
+          zIndex: 1000,
+          cursor: 'move',
+          padding: '0px',
+        }}
+      >
+        <img alt="resize handler" src="/WSPAssets/resize.png" />
+      </div>
+    ) : (
+      ''
+    );
+  };
   const leftPane = () => {
     checkGraph();
     return sketchLoaded ? (
       <div className={classes.leftPane}>
-        <div>
-          <label htmlFor="height">Height</label>
+        <div className={classes.sizeInput}>
+          <label htmlFor="height">Height </label>
           <input
             type="number"
             id="height"
@@ -256,17 +263,14 @@ const WebSketchEditor = (props) => {
             min="50"
             max="2000"
             defaultValue="352"
-            onChange={
-              () => {
-                checkGraph();
-                window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch');
-              }
-              // window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch')
-            }
-          ></input>
+            onChange={() => {
+              checkGraph();
+              window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
+            }}
+          />
         </div>
-        <div>
-          <label htmlFor="width">Width</label>
+        <div className={classes.sizeInput}>
+          <label htmlFor="width">Width </label>
           <input
             type="number"
             id="width"
@@ -275,14 +279,11 @@ const WebSketchEditor = (props) => {
             min="50"
             max="2000"
             defaultValue="650"
-            onChange={
-              () => {
-                checkGraph();
-                window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch');
-              }
-              // window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch')
-            }
-          ></input>
+            onChange={() => {
+              checkGraph();
+              window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
+            }}
+          />
         </div>
         <div id="uPagePane" className="uLeftSub">
           <input
@@ -290,9 +291,8 @@ const WebSketchEditor = (props) => {
             id="newPage"
             value="New Page"
             onClick={() => {
-              console.log("Adding a new page via 'new'");
               checkGraph();
-              window.TOOLS.insertPage('sketch', 'new');
+              window.TOOLS.insertPage('libSketch', 'new');
             }}
           />
           <br />
@@ -302,7 +302,7 @@ const WebSketchEditor = (props) => {
             value="Clone Page"
             onClick={() => {
               checkGraph();
-              window.TOOLS.insertPage('sketch', 'clone');
+              window.TOOLS.insertPage('libSketch', 'clone');
             }}
           />
           <br />
@@ -312,8 +312,7 @@ const WebSketchEditor = (props) => {
             value="Delete Page"
             onClick={() => {
               checkGraph();
-
-              window.TOOLS.deletePage('sketch');
+              window.TOOLS.deletePage('libSketch');
             }}
           />
           <br />
@@ -323,7 +322,9 @@ const WebSketchEditor = (props) => {
             className="debug"
             value="Check Graph"
             onClick={(b) => {
-              if (window.TOOLS.checkSketchGraph('sketch', 'verbose,topology')) {
+              if (
+                window.TOOLS.checkSketchGraph('libSketch', 'verbose,topology')
+              ) {
                 b.style.removeProperty('border');
               } else $(b).css('border', 'solid 4px red');
             }}
@@ -333,7 +334,7 @@ const WebSketchEditor = (props) => {
             <ul id="uToolList"></ul>
           </div>
         </div>
-        <div id="uPrefToggle">Sketch Prefs 🔽</div>
+        {/* <div id="uPrefToggle">Sketch Prefs 🔽</div> */}
       </div>
     ) : (
       <div>Loading Sketch</div>
@@ -344,6 +345,7 @@ const WebSketchEditor = (props) => {
     return sketchLoaded ? (
       <div className={classes.LibButtons}>
         <button
+          className={classes.LibButton}
           type="button"
           onClick={() => {
             checkGraph();
@@ -352,7 +354,16 @@ const WebSketchEditor = (props) => {
         >
           Basic
         </button>
-        {/* <button type="button" onClick="TOOLS.loadLibraryTools('hyperbolic');">Hyperbolic Geometry</button> */}
+        <button
+          className={classes.LibButton}
+          type="button"
+          onClick={() => {
+            checkGraph();
+            window.TOOLS.loadLibraryTools('hyperbolic');
+          }}
+        >
+          Hyperbolic Geometry
+        </button>
       </div>
     ) : (
       <div>Loading Tool Buttons</div>
@@ -360,13 +371,13 @@ const WebSketchEditor = (props) => {
   };
 
   const resizeSketch = () => {
-    window.TOOLS && window.TOOLS.resetSketchWindowSize('sketch');
+    window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
   };
 
   const loadSketchDoc = (config) => {
     $ = window.jQuery;
     if (!$) {
-      console.warn('No jQuerious');
+      console.warn('No jQuery found!');
       return;
     }
     $('#libSketch').WSP('loadSketch', {
@@ -384,22 +395,8 @@ const WebSketchEditor = (props) => {
     const data = $sketch && $sketch.data('document');
     console.log('Found data: ', data);
     if (data) {
-      const sketchWidth = data.metadata.width;
-      console.log('Sketch width: ', sketchWidth);
       sketchDoc.current = data;
       sketch = data.focusPage;
-      setSketchLoaded(true);
-    }
-    // checkTools();
-  };
-
-  const checkTools = async () => {
-    await new Promise((r) => setTimeout(r, 5000));
-    if (!window.TOOLS) {
-      console.log('~~~~ No Tools yet! ~~~~~');
-      loadTools();
-      checkTools();
-    } else {
       setSketchLoaded(true);
     }
   };
@@ -419,43 +416,30 @@ const WebSketchEditor = (props) => {
     return config;
   };
 
-  const shouldLoadWidgets = ({ metadata }) => {
-    const { authorPreferences } = metadata;
-    if (authorPreferences) {
-      for (let [key, value] of Object.entries(authorPreferences)) {
-        if (key.includes('widget') && value !== 'none') {
-          hasWidgets.current = true;
-        }
-      }
-    }
-  };
-
   const loadSketch = () => {
     const { tab } = props;
+    loadTools();
     const isToolsLoaded = () => {
       return !!(window.UTILMENU && !!window.TOOLS);
     };
     // When should this call happen, before or after loading the sketch?
-    console.log('Tools?: ', isToolsLoaded());
+    // console.log('Tools?: ', isToolsLoaded());
     if (isToolsLoaded()) {
       // window.WIDGETS.initWidget();
       // window.PAGENUM.initPageControls();
       // window.UTILMENU.initUtils();
       loadSketchDoc(getSketchConfig(tab));
       window.TOOLS.initLibrary();
+      window.TOOLS.populateTools('libSketch');
       // establish sketch listeners for handlers
       syncToFollower();
     } else {
+      loadTools();
       const pollDOM = () => {
-        console.log(
-          'Tools recheck: ',
-          window.TOOLS,
-          'widgets? ',
-          isToolsLoaded()
-        );
         if (isToolsLoaded()) {
           loadSketchDoc(getSketchConfig(tab));
-          window.TOOLS.initLibrary(); //or loadLibraryTools()
+          window.TOOLS.initLibrary();
+          window.TOOLS.populateTools('libSketch');
           syncToFollower();
         } else {
           setTimeout(pollDOM, 250); // try again in 150 milliseconds
@@ -468,20 +452,7 @@ const WebSketchEditor = (props) => {
   console.log('Rendered - ', sketchLoaded);
 
   return (
-    <div
-      onClickCapture={(e) => {
-        console.log('Clicky, e: ', e);
-        if (checkNewTools()) {
-          debouncedUpdate();
-        }
-      }}
-      onDrag={(e) => {
-        console.log('Draggy, e: ', e);
-        if (checkNewTools()) {
-          debouncedUpdate();
-        }
-      }}
-    >
+    <div>
       <div className={classes.Activity}>
         {leftPane()}
         <div className="sketch_container" id="calculatorParent">
@@ -492,6 +463,7 @@ const WebSketchEditor = (props) => {
             // data-url="/WSPAssets/library/basic/tester.json"
             ref={wspSketch}
           />
+          {addResize()}
           <div className="button_area">
             <div className="util-menu-btn util-menu" />
             <div className="wsp_logo" />
@@ -499,21 +471,7 @@ const WebSketchEditor = (props) => {
           </div>
         </div>
       </div>
-      <div
-        id="resize"
-        style={{
-          position: 'absolute',
-          zIndex: 1000,
-          height: '15px',
-          width: '15px',
-          cursor: 'move',
-          padding: '0px',
-          top: '401px',
-          left: '807px',
-        }}
-      >
-        <img alt="resize handler" src="https://via.placeholder.com/30" />
-      </div>
+
       <div>
         <div
           id="toolCollection"

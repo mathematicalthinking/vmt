@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230227031413
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230228133012
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -10554,7 +10554,11 @@
         "LabelWidget", 
         "VisibilityWidget",
         "DeleteWidget",
-        "PrefChanged"
+        "PrefChanged",
+        "ToolAdded",    // A tool was added to the doc
+        "ToolRemoved",  // A tool was removed
+        "ToolMoved",    // A tool was moved to a different index in the tool array
+        "ToolPagesChanged" // A tool's active-pages setting was changed
         // When committing event names, make sure changes are documented in documentation/Document/document-event.html
       ],
   
@@ -15953,7 +15957,22 @@
         var optDisplayObj = this.renderRefCon.gobj[gobj.id];
         this.significantBounds = GSP.Geom.unionRects (this.significantBounds, gobj.getSignificantBounds(optDisplayObj)); 
       },
-  
+      
+      ignoreIfDragged: function(gobj) { // children can ignore this parent if it's being dragged
+        // We test by checking against the shorter list of ones that don't
+        // A code improvement would be to have a childrenIgnoreDrag flag in the parent constructors.
+        // The sketch shouldn't get into this level of detail of handling different gobjs.
+        // BUT HOW do we handle the problem of a dragged parent param, calc, or measure whose value
+        // is changing at the same time? For such parents, we need to go ahead and invalidate their children.
+        // AND HOW can we tell that the parent is actually being dragged?
+        // Perhaps we can set parent.state.inDrag at the start of a drag, and unset it either at drag end
+        // or if the value is changed.
+        return gobj.isOfKind("Button") ||
+                  gobj.isOfKind("Text") ||
+                  gobj.isOfKind("Expression");
+        // Are all Expresions are also Text?
+      },
+      
       /**
        * Applies constraints to each gobject instance in topological sort order.
        * Basically, this gives the gobject instances a chance to correct their
@@ -15969,28 +15988,12 @@
         }
         this.monitor.stateChange("constrain");
   
-        
-        function ignoreIfDragged(parent) { // children can ignore this parent if it's being dragged
-          // We test by checking against the shorter list of ones that don't
-          // A code improvement would be to have a childrenIgnoreDrag flag in the parent constructors.
-          // The sketch shouldn't get into this level of detail of handling different gobjs.
-          // BUT HOW do we handle the problem of a dragged parent param, calc, or measure whose value
-          // is changing at the same time? For such parents, we need to go ahead and invalidate their children.
-          // AND HOW can we tell that the parent is actually being dragged?
-          // Perhaps we can set parent.state.inDrag at the start of a drag, and unset it either at drag end
-          // or if the value is changed.
-          var ignore = parent.isOfKind("Button") ||
-                    parent.isOfKind("Text") ||
-                    parent.isOfKind("Expression");
-          // Are all Expresions also Text? I think so.
-          return ignore && parent.state.inDrag;
-        }
-        
         function updateOneConstraintFrame(index, gobj, sketch) {
           var i, parentGObj;
           for( i = 0 ; i < gobj.numParents(); i++) {
             parentGObj = gobj.parentsList[i];
-            if (parentGObj.state.constraintFrame > gobj.state.constraintFrame && !ignoreIfDragged(parentGObj)) {
+            if (parentGObj.state.constraintFrame > gobj.state.constraintFrame &&
+                       !(sketch.ignoreIfDragged(parentGObj) && parentGObj.state.inDrag)) {
               // parent has changed in a way that affects descendants
               gobj.state.constraintFrame = parentGObj.state.constraintFrame;
               // Invalidating an object invalidates its previous (last-rendered) bounds.
@@ -16101,15 +16104,16 @@
        */
       invalidateGeom: function(gobj, source) {
         if (gobj) {
-          if (source === 'drag') {
-            if (!gobj.state.inDrag) {
+          if (this.ignoreIfDragged(gobj)) {  // Track gobjs for which a drag might not constrain children
+            if (source === 'drag') {
               gobj.state.inDrag = true;
-              console.log('Set inDrag for ' + gobj.id, gobj);
+              if (!gobj.state.inDrag) console.log('Setting inDrag for ' + gobj.id, gobj);
+            } else if (gobj.state.inDrag !== undefined) { // not a drag, so clear the flag
+              console.log('Clearing inDrag for ' + gobj.id, gobj);
+              delete gobj.state.inDrag;
             }
-          } else if (gobj.state.inDrag !== undefined) {
-            delete gobj.state.inDrag;
-            console.log('Cleared inDrag for ' + gobj.id);
           }
+  
           gobj.state.constraintFrame = this.constraintFrame;
           this.invalidateAppearance(gobj);
         }

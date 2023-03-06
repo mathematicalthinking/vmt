@@ -14,7 +14,12 @@
   
 
   .leftPane {
+    padding: 7px;
     max-width: 200px;
+  }
+
+  .sizeInput {
+    margin-bottom: 5px;
   }
   
   
@@ -100,10 +105,15 @@
     border-radius: 4px;
     border: 1px solid blueHover;
   }
-  .LibButtons {
 
+  .LibButtons {
+    padding: 5px;
+    float: right;
   }
 
+  .LibButton {
+    margin-left: 5px;
+  }
 
   #uToolList li {
     display:block;

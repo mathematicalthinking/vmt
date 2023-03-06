@@ -285,6 +285,7 @@ body {
   }
   
   .uLibDirections {
+  padding: 5px;
   float: left;
   font-family: serif;
   }
