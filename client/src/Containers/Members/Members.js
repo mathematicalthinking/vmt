@@ -247,15 +247,16 @@ class Members extends PureComponent {
       // prettier-ignore
       API.search(
         'user',
-        text,
-        classList.map((member) => member.user._id).concat(temporaryExclusion)
+        text
       )
         .then((res) => {
+          const exclude = classList.map((member) => member.user._id).concat(temporaryExclusion)
           const searchResults = res.data.results.filter((user) => {
             if (user.accountType === 'temp') return false;
             if (isCourseOnly) {
               return courseMembers.some((mem) => mem.user._id === user._id);
             }
+            if (exclude.includes(user._id)) return false;
             return true;
           });
           this.setState({ searchResults, searchText: text });
@@ -491,7 +492,7 @@ class Members extends PureComponent {
                 {searchResults.length > 0 ? (
                   <SearchResults
                     searchText={searchText}
-                    usersSearched={searchResults}
+                    usersSearched={searchResults.slice(0, 7)}
                     inviteMember={this.inviteMember}
                   />
                 ) : null}
