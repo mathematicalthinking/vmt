@@ -266,9 +266,8 @@ const WebSketchEditor = (props) => {
             onChange={() => {
               checkGraph();
               window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
-              window.TOOLS.populateTools('libSketch');
             }}
-          ></input>
+          />
         </div>
         <div className={classes.sizeInput}>
           <label htmlFor="width">Width </label>
@@ -284,7 +283,7 @@ const WebSketchEditor = (props) => {
               checkGraph();
               window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
             }}
-          ></input>
+          />
         </div>
         <div id="uPagePane" className="uLeftSub">
           <input
@@ -346,6 +345,7 @@ const WebSketchEditor = (props) => {
     return sketchLoaded ? (
       <div className={classes.LibButtons}>
         <button
+          className={classes.LibButton}
           type="button"
           onClick={() => {
             checkGraph();
@@ -354,7 +354,16 @@ const WebSketchEditor = (props) => {
         >
           Basic
         </button>
-        {/* <button type="button" onClick="TOOLS.loadLibraryTools('hyperbolic');">Hyperbolic Geometry</button> */}
+        <button
+          className={classes.LibButton}
+          type="button"
+          onClick={() => {
+            checkGraph();
+            window.TOOLS.loadLibraryTools('hyperbolic');
+          }}
+        >
+          Hyperbolic Geometry
+        </button>
       </div>
     ) : (
       <div>Loading Tool Buttons</div>
@@ -390,19 +399,7 @@ const WebSketchEditor = (props) => {
       sketch = data.focusPage;
       setSketchLoaded(true);
     }
-    // checkTools();
   };
-
-  // const checkTools = async () => {
-  //   await new Promise((r) => setTimeout(r, 5000));
-  //   if (!window.TOOLS) {
-  //     console.log('~~~~ No Tools yet! ~~~~~');
-  //     loadTools();
-  //     checkTools();
-  //   } else {
-  //     setSketchLoaded(true);
-  //   }
-  // };
 
   const getSketchConfig = (tab) => {
     let config = tab.ggbFile
@@ -419,19 +416,9 @@ const WebSketchEditor = (props) => {
     return config;
   };
 
-  // const shouldLoadWidgets = ({ metadata }) => {
-  //   const { authorPreferences } = metadata;
-  //   if (authorPreferences) {
-  //     for (let [key, value] of Object.entries(authorPreferences)) {
-  //       if (key.includes('widget') && value !== 'none') {
-  //         hasWidgets.current = true;
-  //       }
-  //     }
-  //   }
-  // };
-
   const loadSketch = () => {
     const { tab } = props;
+    loadTools();
     const isToolsLoaded = () => {
       return !!(window.UTILMENU && !!window.TOOLS);
     };
@@ -447,6 +434,7 @@ const WebSketchEditor = (props) => {
       // establish sketch listeners for handlers
       syncToFollower();
     } else {
+      loadTools();
       const pollDOM = () => {
         if (isToolsLoaded()) {
           loadSketchDoc(getSketchConfig(tab));

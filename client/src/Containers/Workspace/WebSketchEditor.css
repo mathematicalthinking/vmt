@@ -111,6 +111,9 @@
     float: right;
   }
 
+  .LibButton {
+    margin-left: 5px;
+  }
 
   #uToolList li {
     display:block;

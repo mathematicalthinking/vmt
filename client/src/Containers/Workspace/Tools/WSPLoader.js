@@ -94,7 +94,7 @@ export const WSPLoader = (callback) => {
       link.id = 'widgetscss';
       link.onload = () => {
         console.log('Loaded Widgets...');
-        loadTools();
+        // loadTools();
         // finally load the widgets and fire the ready callback
         console.log('Core WSP assets loaded: Ready to create script!');
         callback();
