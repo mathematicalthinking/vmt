@@ -76,7 +76,13 @@ class Member extends PureComponent {
               <div className={classes.FlexRow}>
                 <Avatar
                   username={username}
-                  color={info.color || info.user.displayColor}
+                  color={
+                    (info && info.color) ||
+                    (info.user &&
+                      info.user.displayColor &&
+                      info.user.displayColor) ||
+                    null
+                  }
                 />
                 {info.user.email && (
                   <span className={classes.Email}>{info.user.email}</span>
@@ -90,7 +96,13 @@ class Member extends PureComponent {
             <div className={classes.Avatar}>
               <Avatar
                 username={username}
-                color={info.color || info.user.displayColor}
+                color={
+                  (info && info.color) ||
+                  (info.user &&
+                    info.user.displayColor &&
+                    info.user.displayColor) ||
+                  null
+                }
               />
             </div>
           )}
