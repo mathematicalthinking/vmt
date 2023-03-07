@@ -46,7 +46,10 @@ function CourseMonitor({ course }) {
   if (populatedRooms.isError) return <div>There was an error</div>;
 
   return populatedRooms.isSuccess ? (
-    <RoomsMonitor populatedRooms={populatedRooms.data} />
+    <RoomsMonitor
+      context={`course-${course._id}`}
+      populatedRooms={populatedRooms.data}
+    />
   ) : (
     <Loading message="Getting the course rooms" />
   );
@@ -54,6 +57,7 @@ function CourseMonitor({ course }) {
 
 CourseMonitor.propTypes = {
   course: PropTypes.shape({
+    _id: PropTypes.string,
     rooms: PropTypes.arrayOf(PropTypes.shape({ _id: PropTypes.string })),
   }).isRequired,
 };

@@ -1,11 +1,13 @@
 /* eslint-disable prettier/prettier */
 import React, { useContext } from 'react';
 import html2canvas from 'html2canvas';
-import { chunk, debounce } from 'lodash';
+import chunk from 'lodash/chunk';
+import debounce from 'lodash/debounce';
 import { useQuery } from 'react-query';
-import API from 'utils/apiRequests';
-import buildLog from 'utils/buildLog';
+import { useDispatch, useSelector } from 'react-redux';
+import { API, buildLog } from 'utils';
 import { ModalContext } from 'Components';
+import * as actionTypes from 'store/actions/actionTypes';
 
 const timeFrameFcns = {
   all: () => true,
@@ -363,6 +365,9 @@ export function usePopulatedRooms(
  *    showBig - same as show, except renders the component inside of a BigModal
  *    hide - function to hide the modal/bigModal
  * }
+ *
+ * NOTE: If the component given to show or showBig contains state, it is up to that component or its client to clear out the state
+ * on unmount. Otherwise, the next time the component is placed in the modal, the old state might show.
  */
 
 export function useAppModal() {
@@ -373,4 +378,51 @@ export function useAppModal() {
     showBig: modalContext.showBig,
     hide: modalContext.hide,
   };
+}
+
+/**
+ * Hook to store the UI state of a component so that if the user navigates away and back, that state can be restored.
+ * The hook takes a key that must be unique to that component and an optional initial value. Usage is similar to
+ * React.useState:
+ *
+ * const [uiState, setUIState] = useUIState()
+ *
+ * The client component would extract the particular state variables from uiState. If any of those states change, setUIState should
+ * be called.
+ *
+ * This hook has two key implementation pieces to ensure it works as expected:
+ * 1. uiState in the Redux store is updated only when the component unmounts. This prevents an infinite loop with the
+ * component asking uiState to change, but that change triggering further changes to the component, which would then trigger changes to
+ * uiState.
+ * 2. the uiState before unmount is stored in a ref.
+ *
+ */
+
+export function useUIState(key, initialValue = {}) {
+  const dispatch = useDispatch();
+  const [_uiState, setUIState] = React.useState(
+    useSelector((store) => store.user.uiState && store.user.uiState[key]) ||
+      initialValue
+  );
+
+  // This ref mirrors the state so that we can return it on unmount
+  // cf. https://stackoverflow.com/a/65840250/14894260
+  const stateMonitor = React.useRef(_uiState);
+  React.useEffect(() => {
+    stateMonitor.current = _uiState;
+  }, [_uiState]);
+
+  // On unmount, dispatch to the current UI state to the redux store
+  React.useEffect(() => {
+    return () => {
+      dispatch({
+        type: actionTypes.SAVE_COMPONENT_UI_STATE,
+        key,
+        // this MUST be a ref or else we won't capture the correct state (i.e., cannot be _uiState because then its initial value will always be returned)
+        value: stateMonitor.current,
+      });
+    };
+  }, []);
+
+  return [_uiState, setUIState];
 }

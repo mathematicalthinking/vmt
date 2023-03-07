@@ -85,7 +85,8 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.ADD_ROOM_TO_ARCHIVE: {
       // create a default structure if one doesn't exist
-      const prevArchivedRooms = state.archive && state.archive.rooms ? [...state.archive.rooms] : [];
+      const prevArchivedRooms =
+        state.archive && state.archive.rooms ? [...state.archive.rooms] : [];
       return {
         ...state,
         archive: {
@@ -137,11 +138,11 @@ const reducer = (state = initialState, action) => {
         presumptiveEmailAddress,
       };
     }
-    case actionTypes.UPDATE_RESOURCELIST_STATE: {
-      const { context, newState } = action;
+    case actionTypes.SAVE_COMPONENT_UI_STATE: {
+      const { key, value } = action;
       return {
         ...state,
-        resourceListState: { ...state.resourceListState, [context]: newState },
+        uiState: { ...state.uiState, [key]: value },
       };
     }
     default:

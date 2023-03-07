@@ -57,6 +57,7 @@ export default function ImportModal(props) {
     onCancel,
     canDeleteRow,
     onDeleteRow,
+    footer,
   } = props;
   const [tableData, setTableData] = React.useState([]);
   const [allChecked, setAllChecked] = React.useState({});
@@ -285,13 +286,14 @@ export default function ImportModal(props) {
             marginTop: '10px',
           }}
         >
-          <Button click={_handleOk}>
-            {highlights.length > 0 ? 'Validate' : 'Submit'}
-          </Button>
           <Button theme="Cancel" click={_handleCancel}>
             Cancel
           </Button>
+          <Button click={_handleOk}>
+            {highlights.length > 0 ? 'Validate' : 'Submit'}
+          </Button>
         </div>
+        {footer}
       </div>
     </Modal>
   );
@@ -381,6 +383,7 @@ ImportModal.propTypes = {
   onCancel: PropTypes.func,
   canDeleteRow: PropTypes.bool,
   onDeleteRow: PropTypes.func,
+  footer: PropTypes.element,
 };
 
 ImportModal.defaultProps = {
@@ -390,6 +393,7 @@ ImportModal.defaultProps = {
   onCancel: () => {},
   canDeleteRow: true,
   onDeleteRow: () => {},
+  footer: null,
 };
 
 DeleteButton.propTypes = {

@@ -19,6 +19,7 @@ import {
   removeRoomMember,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
+import CourseCodeMemberImport from 'Components/Importer/CourseCodeMemberImport';
 import Importer from '../../Components/Importer/Importer';
 import SearchResults from './SearchResults';
 import classes from './members.css';
@@ -66,7 +67,7 @@ class Members extends PureComponent {
     }
   }
 
-  inviteMember = (id, username) => {
+  inviteMember = (id, username, role = 'participant') => {
     let confirmingInvitation = false;
     const {
       resourceId,
@@ -81,7 +82,8 @@ class Members extends PureComponent {
       // Don't invite someone if they are already in the course
       const alreadyInCourse =
         courseMembers && courseMembers.find((mem) => mem.user._id === id);
-      if (!alreadyInCourse) connectInviteToCourse(resourceId, id, username);
+      if (!alreadyInCourse)
+        connectInviteToCourse(resourceId, id, username, { role });
     } else if (courseMembers) {
       const inCourse = courseMembers.filter(
         (member) => member.user._id === id
@@ -116,7 +118,6 @@ class Members extends PureComponent {
     const { userId, username } = this.state;
     connectInviteToCourse(parentResource, userId, username, {
       role: 'guest',
-      // guest: true,
     });
     connectInviteToRoom(resourceId, userId, username, color);
     this.setState({
@@ -246,15 +247,16 @@ class Members extends PureComponent {
       // prettier-ignore
       API.search(
         'user',
-        text,
-        classList.map((member) => member.user._id).concat(temporaryExclusion)
+        text
       )
         .then((res) => {
+          const exclude = classList.map((member) => member.user._id).concat(temporaryExclusion)
           const searchResults = res.data.results.filter((user) => {
             if (user.accountType === 'temp') return false;
             if (isCourseOnly) {
               return courseMembers.some((mem) => mem.user._id === user._id);
             }
+            if (exclude.includes(user._id)) return false;
             return true;
           });
           this.setState({ searchResults, searchText: text });
@@ -282,6 +284,25 @@ class Members extends PureComponent {
       )
     ).then((newUsers) =>
       newUsers.forEach((user) => this.inviteMember(user._id, user.username))
+    );
+  };
+
+  /* Handler for the CourseCodeMemberImport component */
+  handleCourseCodeMemberImport = (memberObjects) => {
+    Promise.all(
+      memberObjects.map(async (member) =>
+        member.user._id
+          ? API.put('user', member.user._id, member.user).then(() => {
+              return member;
+            })
+          : API.post('user', member).then((res) => {
+              return res.data.result;
+            })
+      )
+    ).then((newMembers) =>
+      newMembers.forEach((member) =>
+        this.inviteMember(member.user._id, member.user.username, member.role)
+      )
     );
   };
 
@@ -419,7 +440,7 @@ class Members extends PureComponent {
                   <div
                     style={{
                       display: 'flex',
-                      width: '475px',
+                      // width: '475px',
                       justifyContent: 'space-between',
                     }}
                   >
@@ -445,15 +466,19 @@ class Members extends PureComponent {
                     </div>
                     <Importer
                       user={user}
-                      buttonText="Import New Users"
                       onImport={this.handleImport}
-                    />
-                    <Importer
-                      user={user}
-                      onImport={this.handleImport}
-                      buttonText="Import to Replace"
+                      buttonText="Import New Members"
+                      preImportText="Replace all existing members"
                       preImportAction={this.removeAllMembers}
                     />
+                    <div style={{ margin: '0 1rem' }}>
+                      {/* <Button>Shared Rosters</Button> */}
+                      <CourseCodeMemberImport
+                        onImport={this.handleCourseCodeMemberImport}
+                        userId={user._id}
+                        currentMembers={classList}
+                      />
+                    </div>
                   </div>
                 ) : null
               }
@@ -467,7 +492,7 @@ class Members extends PureComponent {
                 {searchResults.length > 0 ? (
                   <SearchResults
                     searchText={searchText}
-                    usersSearched={searchResults}
+                    usersSearched={searchResults.slice(0, 7)}
                     inviteMember={this.inviteMember}
                   />
                 ) : null}
@@ -524,7 +549,7 @@ class Members extends PureComponent {
 
 Members.propTypes = {
   searchedUsers: PropTypes.arrayOf(PropTypes.shape({})),
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,

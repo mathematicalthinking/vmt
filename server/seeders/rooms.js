@@ -1,3 +1,5 @@
+const STATUS = require('../constants/status');
+
 /* 1 */
 const { ObjectId, ISODate } = require('./utils');
 
@@ -35,6 +37,7 @@ module.exports = [
     createdAt: ISODate('2018-09-19T17:39:17.490Z'),
     updatedAt: ISODate('2018-09-19T17:39:17.490Z'),
     __v: 0,
+    status: STATUS.ARCHIVED,
   },
 
   /* 2 */

@@ -154,12 +154,6 @@ const reducer = (state = initialState, action) => {
         ...state,
         createdNewRoom: false,
       };
-    case actionTypes.UPDATE_MONITOR_SELECTIONS: {
-      return {
-        ...state,
-        monitorSelections: action.monitorSelections,
-      };
-    }
     default:
       return state;
   }

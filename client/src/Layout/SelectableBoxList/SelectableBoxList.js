@@ -92,6 +92,8 @@ const SelectableBoxList = (props) => {
             // title={selectAction.title}
             key={`selectAction-${selectAction.title}`}
             style={{ margin: '0 1rem' }}
+            data-testid={`${selectAction.title}-icon`}
+            title={`${selectAction.title}-icon`}
           >
             {selectAction.icon}
           </div>
