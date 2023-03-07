@@ -50,6 +50,7 @@ const CourseCodeMemberImportModal = (props) => {
   }, [newParticipants]);
 
   const search = async () => {
+    if (!inputRef.current.value.length) return;
     const courseSearched = await getCourseFromCourseCode(
       inputRef.current.value
     );

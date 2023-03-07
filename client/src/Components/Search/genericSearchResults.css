@@ -1,6 +1,7 @@
 .SearchResults {
   margin-top: 10px;
   background: white;
+  overflow-y: auto;
 }
 
 .SearchResItem {
