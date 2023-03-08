@@ -619,18 +619,18 @@ div.page_toggle {
 }
 
 /* Utility Menu Styles */
-input + span {
+input#util-fname + span {
   padding-right: 0;
 }
 
-input:invalid+span:after {
+input#util-fname:invalid+span:after {
   position: absolute;
 	content: '\2716';
   padding-left: 5px;
 	padding-top: 2px;
 }
 
-input:valid+span:after {
+input#util-fname:valid+span:after {
   position: absolute;
   content: '\2713';
   padding-left: 6px;
@@ -775,4 +775,52 @@ input.util-popup-button:focus {
   padding: 7px 5px 0;
   height: 16px;
   content: url("wsp-logo.png");
+}
+
+/* ToolHelp styles */
+ /* The Modal (background) */
+.tool-help-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.tool-help-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 10px;
+  border: 5px solid black groove;
+  width: 400px; /* Could be more or less, depending on screen size */
+  height: 100px;
+}
+
+.tool-help-title {
+  font-family: sans-serif;
+  font-weight: 700;
+  text-align: center;
+  margin-top: -5px;
+}
+
+/* The Close Button */
+.tool-help-close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: -10px;
+}
+
+.tool-help-close:hover,
+.tool-help-close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }

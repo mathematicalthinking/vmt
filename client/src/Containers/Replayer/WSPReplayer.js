@@ -19,6 +19,7 @@ const WebSketch = (props) => {
   let sketch = null; // The websketch itself, which we'll keep in sync with the server websketch.
   const wspSketch = useRef();
   const hasWidgets = useRef(false);
+  const widgetChecks = useRef(0);
   const BUTTON_TRACKING = false; // DEBUG ONLY
 
   const { index, log, tab } = props;
@@ -982,6 +983,7 @@ const WebSketch = (props) => {
   };
 
   const shouldLoadWidgets = ({ metadata }) => {
+    widgetChecks.current += 1;
     const { authorPreferences } = metadata;
     if (authorPreferences) {
       for (let [key, value] of Object.entries(authorPreferences)) {
@@ -1010,7 +1012,7 @@ const WebSketch = (props) => {
     sketchDoc = data;
     sketch = data.focusPage;
     sketchDoc.isRemote = true;
-    if (hasWidgets.current) {
+    if (hasWidgets.current && widgetChecks.current < 7) {
       checkWidgets();
     }
   };

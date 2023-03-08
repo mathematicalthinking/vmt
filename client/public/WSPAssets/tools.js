@@ -1,7 +1,7 @@
 // JavaScript for the WSP Tool Library and the WSP Sketch Viewer. There's enough common code
 // to justify putting these together.
-/* global GSP, UTILMENU, $, PAGENUM, WIDGETS, PREF, FileReader, Image */
-/* eslint-disable */
+/* global GSP, UTILMENU, $, PAGENUM, WIDGETS, WSP.PREF, FileReader, Image */
+/* eslint-disable no-var */
 /* eslint "semi": [2, "always"], "one-var": ["warn", "consecutive"] */
 var TOOLS = (function() {
   const allTools = [];
@@ -13,9 +13,11 @@ var TOOLS = (function() {
     dragResizing, // true if the user is dragging the resize control
     debugMode;
 
-  PREF.setWebPagePrefs([
+  WSP.PREF.setWebPagePrefs([
     { category: 'util', value: true },
-    { name: 'resetbutton', value: ['all'] },
+    { name: 'resetbutton', value: 'all' },
+    { category: 'widget', value: 'all' },
+    { name: 'disablescrolling', value: false },
   ]);
   /* I've regularized the handling of collections of tools in the tool library. Original code used php to find the directory
    * of tool json files and load whatever files it found. But that solution suffered from a CORS issue and broke with later
@@ -51,6 +53,37 @@ var TOOLS = (function() {
    * To keep the tools in order on the html page, they must be in order as they add their nodes,
    * so once a tool is in the hasData state, it must not add nodes until the preceding tool has added its nodes.
    * */
+
+  function displayHelp(tool, el) {
+    GSP.ToolHelp.showModal(tool, el);
+  }
+
+  function addToolHelp(tool, el) {
+    var timeoutId, helpShown;
+    $(el)
+      .on('mousedown', function() {
+        console.log('mousedown: starting timeout');
+        timeoutId = setTimeout(function() {
+          console.log('timeout expired: showing modal');
+          helpShown = true;
+          displayHelp(tool, el);
+        }, 1000);
+      })
+      .on('mouseleave', function() {
+        console.log('mouseleave: clearing timeout');
+        if (!helpShown) {
+          clearTimeout(timeoutId);
+        }
+      })
+      .on('mouseup', function() {
+        // mouse came up before
+        console.log('mouseup: clearing timeout');
+        if (!helpShown) {
+          clearTimeout(timeoutId);
+        }
+      });
+  }
+
   function addToolToTable(tool, firstTool, lastTool) {
     const table = $('#toolTable');
     let img;
@@ -76,6 +109,9 @@ var TOOLS = (function() {
       $(cell).addClass('lastToolItem');
     }
     allTools.push(tool);
+    if (tool.metadata.help) {
+      addToolHelp(tool, cell);
+    }
   }
 
   function _getEnv() {
@@ -249,6 +285,9 @@ var TOOLS = (function() {
       docHeight,
       true /* shows undoRedo */
     );
+    if (theTool.metadata.help) {
+      addToolHelp(theTool, doc.tools[doc.tools.length - 1].$element);
+    }
     doc.event(
       'ToolAdded',
       { document: doc },
@@ -549,33 +588,26 @@ var TOOLS = (function() {
     }
 
     function updatePrefs() {
-      // docSpec.metatdata.authorPreferences stores arrays of page numbers. Update them...
-      let list;
+      // docSpec.metadata.authorPreferences stores arrays of page numbers. Update any arrays.
       const prefs = doc.docSpec.metadata.authorPreferences; // the master copy of prefs
       if (!prefs) return; // some docs don't have prefs
-      Object.keys(prefs).forEach(function(item, key) {
+      Object.keys(prefs).forEach(function(item) {
         // Object.keys iterates only over ownProperties
-        let listPos;
-        if (typeof item === 'string' && item.match(/^\d+(,\d+)*$/)) {
-          // Every element >= pageNum should be decremented
-          list = item.split(',');
-          list.forEach(function(val, i, arr) {
-            arr[i] = +arr[i];
-          }); // avoid issues of string/number conversion
-          listPos = list.indexOf(pageNum);
-          if (listPos >= 0) {
-            list.splice(listPos, 1); // remove pageNum from the list, if present
+        let list = prefs[item];
+        if (Array.isArray(list) && list[0] !== 'all' && list[0] !== 'none') {
+          let deletePos = list.indexOf(pageNum);
+          if (deletePos >= 0) {
+            list.splice(deletePos, 1); // remove pageNum from the list, if present
           }
-          list.forEach(function(val, ix, arr) {
-            // move every value after pageNum up by 1
-            if (val > pageNum) {
-              arr[ix] = val - 1;
-            }
-          });
-          prefs[key] = list.join(',');
+          for (let jx = list.length - 1; list[jx] > pageNum; jx--) {
+            list[jx] -= 1;
+          }
+          list.forEach(function(val, i, arr) {
+            arr[i] = '' + arr[i];
+          }); // make the page id's strings again
         }
       });
-      // The working copy is in doc.metatdata.authorPreferences. Update it as well.
+      // The working copy is in doc.metadata.authorPreferences. Update it as well.
       doc.metadata.authorPreferences = JSON.parse(JSON.stringify(prefs));
     }
 
@@ -636,16 +668,15 @@ var TOOLS = (function() {
     }
 
     function updatePrefs() {
-      // docSpec.metatdata.authorPreferences stores arrays of page numbers. Update them...
-      // The working copy is in doc.metatdata.authorPreferences. As it's a copy, update it as well.
+      // docSpec.metadata.authorPreferences stores arrays of page numbers. Update any arrays.
+      // The working copy is in doc.metadata.authorPreferences. As it's a copy, update it as well.
       const prefs = doc.docSpec.metadata.authorPreferences; // the master copy of prefs
       if (!prefs) return; // some docs don't have prefs
-      Object.keys(prefs).forEach(function(item, key) {
+      Object.keys(prefs).forEach(function(item) {
         // Object.keys iterates only over ownProperties
-        let list;
-        if (typeof item === 'string' && item.match(/^\d+(,\d+)*$/)) {
+        let list = prefs[item];
+        if (Array.isArray(list) && list[0] !== 'all' && list[0] !== 'none') {
           // Every element >= newPageNum should be incremented
-          list = item.split(',');
           list.forEach(function(val, i, arr) {
             arr[i] = +arr[i];
           }); // avoid issues of string/number conversion
@@ -657,7 +688,9 @@ var TOOLS = (function() {
               list.splice(jx + 1, 0, +newPageNum);
             }
           }
-          prefs[key] = list.join(',');
+          list.forEach(function(val, i, arr) {
+            arr[i] = '' + arr[i];
+          }); // make the page id's strings again
         }
       });
       doc.metadata.authorPreferences = JSON.parse(JSON.stringify(prefs));
@@ -734,11 +767,9 @@ var TOOLS = (function() {
         $buttonArea = $sketchNode.parent().find('.button_area');
       let fixedHeight = 0,
         toolsHeight = 0;
-      $('.wsp-fixed-tool', column)
-        .filter(':visible')
-        .each(function() {
-          fixedHeight += $(this).outerHeight() || 0;
-        });
+      $('.wsp-fixed-tool', column).each(function() {
+        fixedHeight += $(this).outerHeight() || 0;
+      });
       $('.wsp-tool', column)
         .filter(':visible')
         .each(function() {
@@ -979,60 +1010,61 @@ var TOOLS = (function() {
   }
 
   function setToolPref(toolName, $tool, add) {
-    // Set the sketch's pref for the named pref on the current page.
+    // Set the sketch's pref for the named tool on the current page.
+    // If the tool is new, add it to all pages.
     // If add is truthy, insert the page; otherwise remove it.
     const doc = $('#libSketch').data('document'),
       sketch = doc.focusPage,
       pageNum = sketch.metadata.id,
       prefs = doc.metadata.authorPreferences,
       specPrefs = doc.docSpec.metadata.authorPreferences,
-      prefName = toolName + 'tool',
+      prefName = (toolName + 'tool').toLowerCase(),
       sketchPages = Object.keys(doc.pageData);
-    let prefArr = doc.getAuthorPreference(prefName); // returns an array, defaulting to ["all"]
-    const idx = prefArr.indexOf(pageNum);
+    var thePref, idx;
 
     function allPages() {
       // create an array with all page #'s
-      const retVal = [];
-      for (let ix = 0; ix < sketchPages.length; ix++) {
-        retVal.push(sketchPages[ix]);
-      }
-      return retVal;
+      return sketchPages.slice(); // copies the array of pages
     }
 
     function setPref(arr) {
       // sets the passed value for prefName in both doc and docSpec prefs
-      const prefString = arr.join();
-      prefs[prefName] = prefString;
-      specPrefs[prefName] = prefString;
+      prefs[prefName] = arr;
+      specPrefs[prefName] = arr;
       doc.event(
         'ToolPagesChanged',
         { document: doc },
-        { tool: { name: docTemp[0].metadata.name }, activePages: prefString }
+        { tool: { name: toolName }, activePages: arr }
       );
     }
 
-    if (!prefArr || prefArr[0] === 'all') {
-      // doesn't yet exist, so initialize to all or leave empty
-      prefArr = allPages();
-    } else if (prefArr[0] === 'none') {
-      prefArr = [];
+    thePref = prefs[prefName];
+    if (!thePref || thePref[0] === 'all') {
+      // if the pref doesn't exist or is 'all'
+      prefs[prefName] = sketchPages.slice(); // initialize to all pages; even if removing, we'll remove from allPages.
+      thePref = prefs[prefName];
     }
-    if (add && idx < 0) {
-      // the tool isn't enabled for the current page, so add it
-      prefArr.push(pageNum);
-      prefArr.sort();
-    } else if (!add && idx >= 0) {
-      // the tool is enabled for current page, so remove it
-      prefArr.splice(idx, 1);
+    if (add) {
+      if (!thePref.includes(pageNum)) {
+        thePref.push(pageNum);
+        thePref.sort(function(a, b) {
+          return b - a;
+        });
+      }
+    } else {
+      // remove
+      idx = thePref.indexOf(pageNum);
+      if (idx >= 0) {
+        thePref.splice(idx, 1);
+      }
     }
-    if (prefArr.length === sketchPages.length) {
+    if (thePref.length === sketchPages.length) {
       // Use "all" so the pref applies to future newly added pages
       setPref(['all']);
-    } else if (prefArr.length === 0) {
-      setPref(['none']);
+    } else if (thePref.length === 0) {
+      setPref([]);
     } else {
-      setPref(prefArr);
+      setPref(thePref);
     }
     // Use PAGENUM.setToolEnabling() to set the required css styles.
     PAGENUM.setToolEnabling(doc); // Set css styles to match the changed prefs
@@ -1059,7 +1091,7 @@ var TOOLS = (function() {
     if (sketchDoc.tools) {
       $.each(sketchDoc.tools, function(i, val) {
         const prefName = val.metadata.name.toLowerCase().replace(/\s+/g, ''),
-          checked = PREF.shouldEnableForCurrentPage(
+          checked = WSP.PREF.shouldEnableForCurrentPage(
             'tool',
             prefName,
             sketchDoc.focusPage
@@ -1087,7 +1119,7 @@ var TOOLS = (function() {
             '<li draggable="true"><input type="checkbox" class = "toolCheck"' +
             ' id = "' +
             prefName +
-            '"><span style="float:right;">⇵</span><label for="' +
+            '"><span style="float:right;">\u21C5</span><label for="' +
             prefName +
             '">' +
             name +
@@ -1290,7 +1322,7 @@ var TOOLS = (function() {
       debugMode = true;
     }
     if (checkQuery('author')) {
-      PREF.setWebPagePrefs([
+      WSP.PREF.setWebPagePrefs([
         { category: 'widget', value: ['all'] },
         { name: 'disablescrolling', value: false },
       ]);

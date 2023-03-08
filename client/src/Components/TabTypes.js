@@ -56,10 +56,10 @@ const tabTypeProperties = {
     icon: <img width={28} src={pyretIcon} alt="Pyret Icon" />,
   },
   [TAB_TYPES.WEBSKETCHPAD]: {
-    message: 'WebSketchpad is active.',
+    message: 'Web SketchPad is active.',
     component: WebSketch,
     replayer: WSPReplayer,
-    label: 'WebSketchpad Activity',
+    label: 'Web SketchPad',
     icon: <img width={28} src={wspIcon} alt="Pyret Icon" />,
   },
   [TAB_TYPES.GEOGEBRA]: {
