@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230228133012
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230306155548
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -9808,9 +9808,9 @@ var hexcase = 0,
           d = {
             parse: function(e) {
               var t, n;
-              if ('boolean' == typeof e) return e ? 'all' : 'none';
+              if ('boolean' == typeof e) return e ? ['all'] : [];
               if (Array.isArray(e)) return e;
-              if ('string' != typeof e) return null;
+              if ('string' != typeof e) return [];
               if (
                 ('[' === e[0] &&
                   ']' === e[e.length - 1] &&
@@ -9818,8 +9818,8 @@ var hexcase = 0,
                 (e = e.toLowerCase().replace(/\s/g, '')),
                 'all' === e || 'true' === e)
               )
-                return 'all';
-              if ('none' === e || 'false' === e) return 'none';
+                return ['all'];
+              if ('none' === e || 'false' === e) return [];
               for (t = e.split(','), n = 0; n < t.length; n += 1)
                 t[n] = t[n].toString();
               return t;
@@ -9837,29 +9837,29 @@ var hexcase = 0,
             },
           },
           p = {
-            tool: { type: d, defaultValue: 'all' },
+            tool: { type: d, defaultValue: ['all'] },
             disablescrolling: { type: u, defaultValue: !1 },
             sequentialsnapping: { type: u, defaultValue: !0 },
             toolplaynewlook: { type: u, defaultValue: !1 },
             removeinaccessibleobjects: { type: u, defaultValue: !1 },
             pagecontrol: { type: u, defaultValue: !0 },
             enablelabeldragging: { type: u, defaultValue: !0 },
-            enablelabelediting: { type: d, defaultValue: 'none' },
-            enabletracing: { type: d, defaultValue: 'all' },
-            stylewidget: { type: d, defaultValue: 'all' },
-            visibilitywidget: { type: d, defaultValue: 'all' },
-            labelwidget: { type: d, defaultValue: 'all' },
-            tracewidget: { type: d, defaultValue: 'all' },
-            deletewidget: { type: d, defaultValue: 'none' },
+            enablelabelediting: { type: d, defaultValue: ['none'] },
+            enabletracing: { type: d, defaultValue: ['all'] },
+            stylewidget: { type: d, defaultValue: ['all'] },
+            visibilitywidget: { type: d, defaultValue: ['all'] },
+            labelwidget: { type: d, defaultValue: ['all'] },
+            tracewidget: { type: d, defaultValue: ['all'] },
+            deletewidget: { type: d, defaultValue: ['none'] },
             showwidgetpanelonpagestart: { type: u, defaultValue: !0 },
             uploadutil: { type: u, defaultValue: !1 },
             downloadutil: { type: u, defaultValue: !1 },
-            resetbutton: { type: d, defaultValue: 'all' },
+            resetbutton: { type: d, defaultValue: ['all'] },
             wsplogo: { type: u, defaultValue: !0 },
             animatetoolmatching: { type: u, defaultValue: !0 },
             toollook: { type: h, defaultValue: 'compact' },
-            enabledragmerging: { type: d, defaultValue: 'all' },
-            undoredoinbuttonbar: { type: d, defaultValue: 'none' },
+            enabledragmerging: { type: d, defaultValue: ['all'] },
+            undoredoinbuttonbar: { type: d, defaultValue: ['none'] },
           };
         a = {
           attachToNode: function(e) {
@@ -10230,48 +10230,42 @@ var hexcase = 0,
           prefSpecFromName: function(e) {
             return p[e.match(/tool$/) ? 'tool' : e];
           },
-          getAuthorPreference: function(e, i) {
+          getAuthorPreference: function(t, i) {
             var r,
               s,
               a,
               c,
               l,
-              u = this.cleanPrefName(e),
-              h = this.prefSpecFromName(u),
-              p = this.pages || this.docSpec.pages;
-            if (u !== this.cleanPrefName(u))
-              throw o.createError('prefName ' + u + ' was not cleaned.');
-            if (!h) throw o.createError('unknown author preference');
+              u,
+              h,
+              p = this.cleanPrefName(t),
+              f = this.prefSpecFromName(p),
+              m = ['true', 'all', !0];
+            if (!f) throw o.createError('unknown author preference');
             if (((r = i || o._get(this, 'focusPage.metadata.id')), !r))
               throw o.createError(
                 'getAuthorPreference called with no sketch page available'
               );
-            if (((s = h.type), !s))
+            if (((s = f.type), !s))
               throw o.createError('Bad author preference type');
-            if (((a = h.defaultValue), a === n))
+            if (((a = f.defaultValue), a === n))
               throw o.createError('Bad author preference default');
-            if (h.type.parse(a) !== a)
+            if (f.type.parse(a) !== a)
               throw o.createError('Bad author preference default');
             if (
-              ((c = this.getExplicitPref(u)),
-              (l = c.exists ? c.value : a),
+              ((c = this.getExplicitPref(p)),
+              (h = c.exists ? c.value : a),
+              (u = o._get(e, 'WSP.PREF.getWebPagePref')),
+              u && ((l = u && u(this, p, '', i)), l !== n && (h = l)),
               s === d)
             ) {
-              if (i) return 'all' === l || l.indexOf(r) >= 0;
-              if (!Array.isArray(l) && 'all' !== l && 'none' !== l)
-                throw o.createError('Bad return for getAuthorPreference');
-              return (
-                'none' === l
-                  ? (l = [])
-                  : 'all' === l &&
-                    ((l = []),
-                    t.each(p, function() {
-                      l.push(this.metadata.id);
-                    })),
-                l
+              if (Array.isArray(h))
+                return h.indexOf(r) >= 0 || m.includes(h[0]);
+              console.log(
+                'getAuthorPreference() did not find an array for iPrefName'
               );
             }
-            return 'true' === l || l;
+            return m.includes(h);
           },
           getExplicitPref: function(e) {
             var t,
@@ -10546,41 +10540,14 @@ var hexcase = 0,
             function c(n, i) {
               var r = t(n, e[0]);
               r.on('click', function(e) {
-                i.call(M), e.preventDefault();
+                i.call(y), e.preventDefault();
               });
             }
-            function l() {
-              return L;
-            }
-            function u(e, t) {
-              L = { draggable: e, liveTouchId: t.identifier };
-            }
-            function d() {
-              if (l() === n) throw o.createError('No drag in progress');
-            }
-            function h() {
-              return d(), l().draggable;
-            }
-            function p() {
-              h().css('visibility', 'hidden');
-            }
-            function f() {
-              h().css('visibility', 'visible');
-            }
-            function m() {
-              h().remove(), (L = n);
-            }
-            function g() {
-              return l() !== n;
-            }
-            function b(e) {
-              return g() && l().liveTouchId === e.identifier;
-            }
-            function v(i) {
-              function r(e) {
-                return e.attr(P), e.attr('title', i.metadata.name), e;
+            function l(e) {
+              function i(t) {
+                return t.attr(h), t.attr('title', e.metadata.name), t;
               }
-              function s(e, t) {
+              function r(e, t) {
                 var n = t.pageX,
                   i = t.pageY,
                   r = o.convertPointFromPage(e, n, i);
@@ -10591,212 +10558,170 @@ var hexcase = 0,
                   r.y <= e[0].offsetHeight
                 );
               }
-              function a(n, r) {
-                var o = M.focusPage && M.focusPage.toolController,
-                  a = t('.wsp-clip-node', e);
-                o && (s(w, n) || s(a, n)) && o.toggleTool(i, r);
+              function s() {
+                return y.getFocusPage().touchRegimeBlocksOtherButtons();
               }
-              function c(n) {
-                var i = t('.wsp-clip-node', e);
-                s(i, n)
-                  ? i.addClass('wsp-drop-target')
-                  : i.removeClass('wsp-drop-target');
+              function a(t, n) {
+                var i = y.focusPage && y.focusPage.toolController;
+                i && r(l, t) && i.toggleTool(e, n);
               }
-              function l() {
-                return M.getFocusPage().touchRegimeBlocksOtherButtons();
-              }
-              function d(e) {
-                var t = w.clone();
-                return (
-                  u(t, e),
-                  t.addClass('wsp-draggable-toolButton'),
-                  E.setDraggableDimensions(t),
-                  p(),
-                  t.prependTo(w.parent()),
-                  v(e),
-                  t
-                );
-              }
-              function v(e) {
-                var t = e.pageX,
-                  n = e.pageY,
-                  i = h(),
-                  r = i.offsetParent(),
-                  s = o.convertPointFromPage(r, t, n),
-                  a = s.x - i.width() / 2,
-                  c = s.y - i.height() / 2;
-                i.css({ left: a + 'px', top: c + 'px' });
-              }
-              function x(e, t) {
+              function c(e, t) {
                 for (var n = 0; n < e.changedTouches.length; n++)
                   t(e.changedTouches[n]);
               }
-              var w,
-                k = i.metadata.image !== n,
-                P = I.getResource('pictures', i.metadata.image) || {},
-                C = function() {
-                  var e = t('<div class="wsp-tool-text"></div>');
-                  e.text(i.metadata.name), w.append(e);
+              var l,
+                d = e.metadata.image !== n,
+                h = x.getResource('pictures', e.metadata.image) || {},
+                p = function() {
+                  var n = t('<div class="wsp-tool-text"></div>');
+                  n.text(e.metadata.name), l.append(n);
                 },
-                S = {
+                f = {
                   addImage: function() {
-                    if (k) {
-                      var e = r(t('<img class="wsp-tool-image"/>'));
-                      w.append(e);
+                    if (d) {
+                      var e = i(t('<img class="wsp-tool-image"/>'));
+                      l.append(e);
                     }
                   },
                   addText: function() {
-                    k || C();
+                    d || p();
                   },
                   finishAddingTool: function() {
-                    k && (T.hasIcons = !0);
+                    d && (v.hasIcons = !0);
                   },
                   setDraggableDimensions: function(e) {
-                    var t = w.find('img');
-                    k
-                      ? (e.width(Math.max(t.width(), w.width())),
-                        e.height(Math.max(t.height(), w.height())))
-                      : (e.width(w.width()), e.height(w.height()));
+                    var t = l.find('img');
+                    d
+                      ? (e.width(Math.max(t.width(), l.width())),
+                        e.height(Math.max(t.height(), l.height())))
+                      : (e.width(l.width()), e.height(l.height()));
                   },
                 },
-                F = {
+                m = {
                   addImage: function() {
                     var e, n;
-                    P.src || (P.src = o.Resources.defaultToolImage),
-                      (P.height = '40px'),
-                      (P.width = '40px'),
-                      (n = r(t('<img/>'))),
+                    h.src || (h.src = o.Resources.defaultToolImage),
+                      (h.height = '40px'),
+                      (h.width = '40px'),
+                      (n = i(t('<img/>'))),
                       (e = t('<div class="wsp-tool-media"></div>')),
                       e.append(n),
-                      w.append(e);
+                      l.append(e);
                   },
-                  addText: C,
+                  addText: p,
                   setDraggableDimensions: function(e) {
-                    e.width(w.width()), e.height(w.height());
+                    e.width(l.width()), e.height(l.height());
                   },
                 },
-                E = 'new' === j ? F : S;
-              (w = t('<div class="wsp-tool"></div>')),
-                E.addImage(),
-                E.addText(),
-                o.mouseTouch(w),
-                w.on('touchstart', function(e) {
+                g = 'new' === P ? m : f;
+              (l = t('<div class="wsp-tool"></div>')),
+                g.addImage(),
+                g.addText(),
+                o.mouseTouch(l),
+                l.on('touchstart', function(e) {
                   return (
-                    x(e, function(e) {
-                      var t = l() || g();
-                      t || (w.addClass('wsp-tool-active'), d(e));
+                    c(e, function(e) {
+                      s() || l.addClass('wsp-tool-active');
                     }),
                     !1
                   );
                 }),
-                w.on('touchmove', function(e) {
+                l.on('touchmove', function(e) {
+                  return !1;
+                }),
+                l.on('touchend', function(e) {
                   return (
-                    x(e, function(e) {
-                      !l() && b(e) && (c(e), v(e), f());
+                    c(e, function(t) {
+                      l.removeClass('wsp-tool-active'), a(t, e.timeStamp);
                     }),
                     !1
                   );
                 }),
-                w.on('touchend', function(n) {
-                  return (
-                    x(n, function(i) {
-                      if (b(i)) {
-                        var r = t('.wsp-clip-node', e);
-                        w.removeClass('wsp-tool-active'),
-                          a(i, n.timeStamp),
-                          r.removeClass('wsp-drop-target'),
-                          m();
-                      }
-                    }),
-                    !1
-                  );
-                }),
-                (i.$element = w),
-                y.append(w),
-                E.finishAddingTool && E.finishAddingTool(),
-                (A = Math.max(A, w.outerWidth()));
+                (e.$element = l),
+                u.append(l),
+                g.finishAddingTool && g.finishAddingTool(),
+                (b = Math.max(b, l.outerWidth()));
             }
-            var y,
-              x,
-              w,
-              k,
-              P,
-              C,
-              S,
-              A,
-              T,
-              M = this,
-              I = M.focusPage.sQuery(),
-              F = '',
-              E = this.getAuthorPreference('toolplayNewLook'),
-              j = this.getAuthorPreference('toollook'),
-              O =
-                E || 'new' === j
+            var u,
+              d,
+              h,
+              p,
+              f,
+              m,
+              g,
+              b,
+              v,
+              y = this,
+              x = y.focusPage.sQuery(),
+              w = '',
+              k = this.getAuthorPreference('toolplayNewLook'),
+              P = this.getAuthorPreference('toollook'),
+              C =
+                k || 'new' === P
                   ? 'new'
-                  : 'classic' === j
+                  : 'classic' === P
                   ? 'classic'
                   : 'compact';
-            switch (O) {
+            switch (C) {
               case 'new':
-                T = { toolsLookClass: 'wsp-tools-newLook', hasIcons: !0 };
+                v = { toolsLookClass: 'wsp-tools-newLook', hasIcons: !0 };
                 break;
               case 'classic':
-                T = { toolsLookClass: 'wsp-tools-classicLook', hasIcons: !1 };
+                v = { toolsLookClass: 'wsp-tools-classicLook', hasIcons: !1 };
                 break;
               case 'compact':
-                T = { toolsLookClass: 'wsp-tools-compactLook', hasIcons: !1 };
+                v = { toolsLookClass: 'wsp-tools-compactLook', hasIcons: !1 };
             }
             s &&
-              ((k =
+              ((p =
                 '<div class="wsp-inner-icon"></div><div class="wsp-inner-text">' +
                 o.Strings.loc('GSP.UI.undo') +
                 '</div>'),
-              (P =
+              (f =
                 '<div class="wsp-inner-icon"></div><div class="wsp-inner-text">' +
                 o.Strings.loc('GSP.UI.redo') +
                 '</div>'),
-              (F =
+              (w =
                 '<button class="wsp-undo-button">' +
-                k +
+                p +
                 '</button><button class="wsp-redo-button">' +
-                P +
+                f +
                 '</button>')),
-              (C =
+              (m =
                 '<div class="wsp-tool-container ' +
-                T.toolsLookClass +
+                v.toolsLookClass +
                 '"><div class="wsp-tool-column"><div class="wsp-tool-logo wsp-fixed-tool"></div><div class="wsp-ok-cancel-container wsp-undo-redo wsp-undo-redo-top wsp-fixed-tool">' +
-                F +
+                w +
                 '</div><div class="wsp-user-tools"><div class="wsp-tools-inner"></div></div><div class="wsp-ok-cancel-container wsp-undo-redo wsp-undo-redo-bottom wsp-fixed-tool">' +
-                F +
+                w +
                 '</div></div></div>'),
-              (S = e.find('.wsp-tool-container')),
-              S.length
-                ? S.replaceWith(C)
-                : (e.prepend(C),
+              (g = e.find('.wsp-tool-container')),
+              g.length
+                ? g.replaceWith(m)
+                : (e.prepend(m),
                   e
                     .closest('.wsp-base-node')
                     .css({ width: i + t('.wsp-tool-container').outerWidth() })),
-              (y = t('.wsp-tools-inner', e[0])),
+              (u = t('.wsp-tools-inner', e[0])),
               t('.wsp-undo-redo', e[0]).each(function(e, t) {
                 o.FastClick.attach(t);
               }),
-              c('.wsp-undo-button', M.undo),
-              c('.wsp-redo-button', M.redo),
-              (A = Math.max(A, a('.wsp-undo-redo')));
-            var L;
-            M.tools.forEach(v),
-              (x = 0),
+              c('.wsp-undo-button', y.undo),
+              c('.wsp-redo-button', y.redo),
+              (b = Math.max(b, a('.wsp-undo-redo'))),
+              y.tools.forEach(l),
+              (d = 0),
               t('.wsp-fixed-tool', e[0])
                 .filter(':visible')
                 .each(function() {
-                  x += t(this).outerHeight();
+                  d += t(this).outerHeight();
                 }),
-              T.hasIcons
-                ? A > 0 && t('.wsp-tool-column', e[0]).outerWidth(A)
+              v.hasIcons
+                ? b > 0 && t('.wsp-tool-column', e[0]).outerWidth(b)
                 : t('.wsp-tool-column', e[0]).addClass('wsp-no-tool-icons'),
-              (w = t('.wsp-tools-inner', e[0]).outerHeight()),
-              t('.wsp-user-tools', e[0]).outerHeight(r - x - 2),
-              x + w > r &&
+              (h = t('.wsp-tools-inner', e[0]).outerHeight()),
+              t('.wsp-user-tools', e[0]).outerHeight(r - d - 2),
+              d + h > r &&
                 t('.wsp-user-tools', e[0]).addClass('wsp-tool-overflow-y');
           },
         };
@@ -40224,7 +40149,10 @@ var hexcase = 0,
             usage: { abstract: !1, kinds: ['Point'] },
             existenceRule: 'Exists iff the parent path exists.',
             properties: {
-              value: { description: '', type: 'Number' },
+              value: {
+                description: '',
+                type: 'Number',
+              },
               parents: {
                 description: '',
                 properties: { path: { description: '', genus: 'Path' } },
@@ -42835,7 +42763,9 @@ var hexcase = 0,
             },
             getDestLoc: function() {
               var e = this.moverGObj.getParent('path');
-              return e.mapPathValueToPosition(this.getDest());
+              return this.button.towardInitialDestination
+                ? e.mapPathValueToPosition(this.getDest())
+                : this.targetGObj.geom.loc;
             },
           });
         o.gConstraints.ActionButtonMove = o.makeClass(

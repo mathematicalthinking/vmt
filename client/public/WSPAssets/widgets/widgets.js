@@ -71,21 +71,23 @@ if (!String.prototype.includes) {
   };
 }
 
-var PREF = (function() {
+var WSP = {}; // Is it better to use a new global, separating widget additions from GSP?
+
+WSP.PREF = (function() {
   /*
    * Here we allow the Tool Library and other utilities (such as the WebSketch Viewer) to override normal sketch preferences.
    * This allows a sketch author to use widgets to edit a sketch for which widgets are normally disabled.
    * These preference overrides are stored in the webPagePrefs array, created by calling setWebPagePrefs().
    * For instance, the Tool Library uses setWebPagePrefs to enable all widgets and all util-menu commands
    * even though the resulting sketch, when downloaded, will be more limited for student use.
-   * To make this work, the widget and util-menu code calls PREF.getPref() rather than doc.getAuthorPreference()
+   * To make this work, the widget and util-menu code calls WSP.PREF.getPref() rather than doc.getAuthorPreference()
    * to determine whether to display a particular widget or to enable a particular util-menu command.
-   * PREF.getPref() checks the webPagePrefs array and returns either the value from that array (if it exists)
+   * WSP.PREF.getPref() checks the webPagePrefs array and returns either the value from that array (if it exists)
    * or the value from doc.getAuthorPreference() (if webPagePrefs does not contain a value).
    * For instance, the Tool Library uses this mechanism to enable the util commands "upload" and "download,"
    * allowing a sketch author to upload, edit, and download sketches that normally forbid these actions.
    * Here's the Tool Library code that produces this result:
-   * PREF.setWebPagePrefs([
+   * WSP.PREF.setWebPagePrefs([
    *   { name: 'uploadutil', value: true },
    *   { name: 'downloadutil', value: true }
    * ]);
@@ -93,27 +95,24 @@ var PREF = (function() {
    * A PageArrayPrefs can be set to "all" or "none", but actually return true or false.
    * [If the need arises, we can extend this option to allow an array of strings (the desired page id's).]
    * For util and widget categories, you can set the entire category at once:
-   * PREF.setWebPagePrefs([
+   * WSP.PREF.setWebPagePrefs([
    *   { category: 'widget', value: 'all' }  // omit the name to set all prefs for the category
    * ]);
    * Each element passed to setWebPagePrefs can include a category or a name, but not both.
    * (If both are included, the category is appended to the name.)
    * Here's another example, forbidding drag merging on all pages and putting undo/redo in the buttonBar
-   * PREF.setWebPagePrefs([
+   * WSP.PREF.setWebPagePrefs([
    *   { name: 'enabledragmerging', value: ['none'] },
    *   { name: 'undoredoinbuttonbar', value: ['all'] }
    * ]);
    * When you specify the value to be used for a pref, you must adhere to the allowed values
    * for the particular type of pref: some are boolean, and some are page arrays, which have
    * shortcuts for setting them to all or none, as shown above.
-   * (Note: For a PageArrayPrefType the return value from PREF.getPref matches the behavior
+   * (Note: For a PageArrayPrefType the return value from WSP.PREF.getPref matches the behavior
    * of doc.getAuthorPreference(), returning true or false for the page specified in the call to getPref.)
    * For now, the webPagePrefs apply to all sketches on the web page; specifying prefs per-sketch
    * is not required at this time.
    *
-   * Changes to the author prefs using this mechanism affect only the behavior of code in widgets.js that calls
-   * PREF.getPref(). Thus if drag merging is enabled via sketch preferences, you cannot use webPagePrefs
-   * to prevent drag merging, because the drag merging code directly checks the sketch's own preferences.
    */
 
   var webPagePrefs = []; // Each array element is a triple containing the preferences's category ("widget" or "util"),
@@ -121,10 +120,9 @@ var PREF = (function() {
   // A category sets all prefs of that category, so either the category or the name can be set, but not both.
   // We don't distinguish among pages of a sketch, so the value is either true or false.
 
-  function getPref(doc, name, cat, pageId) {
-    // returns the pref for this sketch doc, category, name, and pageId.
-    // doc, name, and pageId are required. For prefs other than widget and util, pass an empty string '' for category.
-    var val, retVal;
+  function getWebPagePref(doc, name, cat, pageId) {
+    // returns T/F if found, otherwise undefined
+    var val;
 
     function checkOnePref(ix) {
       // returns the pref value if found, undefined otherwise
@@ -134,7 +132,7 @@ var PREF = (function() {
       // Either prefCat or prefName should exist, but not both.
       if (prefCat && prefName) {
         throw GSP.createError(
-          'PREF.checkOnePref found an invalid entry' + prefCat + prefName
+          'WSP.PREF.checkOnePref found an invalid entry' + prefCat + prefName
         );
       }
       if (prefCat && prefCat === cat) {
@@ -146,16 +144,34 @@ var PREF = (function() {
       }
     }
 
-    if (!cat) cat = '';
-    cat = cat.toLowerCase();
-    name = name.toLowerCase();
-    retVal = doc.getAuthorPreference(name + cat, pageId);
     for (var i = 0; i < webPagePrefs.length; i++) {
       val = checkOnePref(i);
       if (val !== undefined) {
         // This entry matches
+        if (pageId && Array.isArray(val)) {
+          val = val.includes(pageId);
+        } else if (val === 'all' || val === 'none') {
+          val = val === 'all'; // convert all to true, none to false
+        }
         return val;
       }
+    }
+    // return undefined
+  }
+
+  function getPref(doc, name, cat, pageId) {
+    // returns the pref for this sketch doc, category, name, and pageId.
+    // This function calls both doc.getAuthorPreference and getWebPagePref, so don't call it from either of those.
+    // doc, name, and pageId are required. For prefs other than widget and util, pass an empty string '' for category.
+    var val, retVal;
+
+    if (!cat) cat = '';
+    cat = cat.toLowerCase();
+    name = name.toLowerCase();
+    retVal = doc.getAuthorPreference(name + cat, pageId);
+    val = getWebPagePref(doc, name, cat, pageId);
+    if (val !== undefined) {
+      retVal = val; // webPagePrefs
     }
     return retVal;
   }
@@ -280,13 +296,19 @@ var PREF = (function() {
         pages = getPref(sketch.document, prefName, prefCat, sketch.metadata.id);
       return (
         pages === true ||
+        pages === 'all' ||
         (Array.isArray(pages) &&
           (pages[0] === 'all' || pages.includes(pageNum)))
       );
     },
 
-    getPref: function(doc, name, cat) {
-      return getPref(doc, name, cat);
+    getPref: function(doc, name, cat, optPageId) {
+      return getPref(doc, name, cat, optPageId);
+    },
+
+    getWebPagePref: function(doc, name, cat, pageId) {
+      // Checks for a web-page pref set by a call to setWebPagePrefs.
+      return getWebPagePref(doc, name, cat, pageId);
     },
 
     // Set a new unit pref for unit 'length' or 'angle'
@@ -295,7 +317,7 @@ var PREF = (function() {
       setUnitPref(sketch, unit, newValue);
     },
   };
-})(); // PREF
+})(); // WSP.PREF
 
 var WIDGETS = (function() {
   //define the WIDGETS namespace
@@ -449,7 +471,7 @@ var WIDGETS = (function() {
   Widget.prototype.checkEnablingForCurrentPage = function(sketch) {
     // return true if the widget should be enabled, false if not.
     var retVal;
-    retVal = PREF.shouldEnableForCurrentPage('widget', this.name, sketch);
+    retVal = WSP.PREF.shouldEnableForCurrentPage('widget', this.name, sketch);
     if (this.name === 'trace')
       retVal = retVal && sketch.preferences.tracesEnabled;
     return retVal;
@@ -640,7 +662,7 @@ var WIDGETS = (function() {
       newSketch = newDoc.sQuery.sketch,
       sketchChanged = newSketch !== targetSketch,
       buttonNode = findWidgetButton(newNode),
-      doShowWidget = PREF.getPref(newDoc, 'showWidgetPanelOnPageStart');
+      doShowWidget = WSP.PREF.getPref(newDoc, 'showWidgetPanelOnPageStart');
 
     function preserveWidget() {
       // confirm and then deactivate the active widget
@@ -3248,7 +3270,7 @@ var WIDGETS = (function() {
 
     setWidgetsPrefs: function(prefArr) {
       // Available for legacy preference calls
-      PREF.setWebPagePrefs(prefArr);
+      WSP.PREF.setWebPagePrefs(prefArr);
     },
 
     getScriptPath: function() {
@@ -3521,15 +3543,20 @@ var PAGENUM = (function() {
     tools.forEach(function(tool) {
       var $node = tool.$element,
         node = $node[0],
-        prefName = tool.metadata.name.toLowerCase().replace(/\s+/g, ''),
-        enabledPages = PREF.getPref(sketchDoc, prefName, 'tool'),
-        classes = node.className;
-      // Remove "page_toggle" and any "p_<num>" classes
+        prefName =
+          tool.metadata.name.toLowerCase().replace(/\s+/g, '') + 'tool',
+        thePref = sketchDoc.getExplicitPref(prefName),
+        prefExists = thePref.exists,
+        enabledPages = prefExists ? thePref.value : ['all'],
+        classes = node.className,
+        trueValues = ['all', true, 'true'],
+        enableAll = trueValues.includes(enabledPages[0]);
+      // Remove "page_toggle" and any "p_<num>" classes, enabling the tool on every page
       classes = classes
         .replace(/\bpage_toggle\b/, ' ')
         .replace(/\bp_\d+\b/g, ' ')
         .trim();
-      if (enabledPages && enabledPages[0] !== 'all') {
+      if (prefExists && !trueValues.includes(enabledPages[0])) {
         // Some pages have this tool and some don't, so set classes that show the tool only for enabled pages
         classes += ' page_toggle';
         if (enabledPages[0] !== 'none') {
@@ -3540,8 +3567,7 @@ var PAGENUM = (function() {
       }
       node.className = classes.trim();
       $node.toggle(
-        enabledPages[0] === 'all' ||
-          enabledPages.includes(sketchDoc.focusPage.metadata.id)
+        enableAll || enabledPages.includes(sketchDoc.focusPage.metadata.id)
       );
     });
   }
@@ -3551,9 +3577,9 @@ var PAGENUM = (function() {
     var sketchNode = sketchDoc.canvasNode[0],
       $control = getCtl(sketchNode, '.page_buttons'),
       $btnArea = getCtl(sketchNode, '.button_area'),
-      pageCtlEnabled = PREF.getPref(sketchDoc, 'pagecontrol'),
-      resetEnabled = PREF.getPref(sketchDoc, 'resetbutton'), // resetbutton should be a per-page option.
-      logo = PREF.getPref(sketchDoc, 'wsplogo'),
+      pageCtlEnabled = WSP.PREF.getPref(sketchDoc, 'pagecontrol'),
+      resetEnabled = WSP.PREF.getPref(sketchDoc, 'resetbutton'), // resetbutton should be a per-page option.
+      logo = WSP.PREF.getPref(sketchDoc, 'wsplogo'),
       newContent,
       btnAreaContent,
       $utilMenu;
@@ -3600,7 +3626,7 @@ var PAGENUM = (function() {
         getCtl(sketchNode, '.reset_button').length === 0
       ) {
         newContent = '<button class="reset_button';
-        if (resetEnabled[0] !== 'all') {
+        if (resetEnabled[0] !== 'all' && resetEnabled !== 'all') {
           newContent += ' page_toggle';
           resetEnabled.forEach(function(num) {
             newContent += ' p_' + num;
@@ -3661,8 +3687,6 @@ var PAGENUM = (function() {
       // And show undo/redo in the button bar.
       doc.attachUndoRedo();
     }
-
-    // If wsp-tools-inner is now empty,
   }
 
   function showPageNum(doc, target) {
@@ -3896,14 +3920,14 @@ var UTILMENU = (function() {
       .parent()
       .find('.util-length')
       .click(function() {
-        PREF.setUnitPref($canvas, 'length', $(event.target).data('unit'));
+        WSP.PREF.setUnitPref($canvas, 'length', $(event.target).data('unit'));
         updateUnitPrefs(event.target);
       });
     $canvas
       .parent()
       .find('.util-angle')
       .click(function() {
-        PREF.setUnitPref($canvas, 'angle', $(event.target).data('unit'));
+        WSP.PREF.setUnitPref($canvas, 'angle', $(event.target).data('unit'));
         updateUnitPrefs(event.target);
       });
     $canvas
@@ -3931,8 +3955,8 @@ var UTILMENU = (function() {
       createUtilMenu.call(doc.canvasNode); // sketch_canvas will be used as "this"
       $fileContent = $button.find('.util-file-items');
     }
-    upEnabled = PREF.getPref(doc, 'upload', 'util');
-    downEnabled = PREF.getPref(doc, 'download', 'util');
+    upEnabled = WSP.PREF.getPref(doc, 'upload', 'util');
+    downEnabled = WSP.PREF.getPref(doc, 'download', 'util');
     eitherEnabled = upEnabled || downEnabled;
     $button.find('util-download').show(downEnabled);
     $button.find('util-upload').show(upEnabled);
@@ -4100,7 +4124,7 @@ var UTILMENU = (function() {
     curSketchNode = sketchNode;
     warnUser =
       docHasChanged(sketchNode) &&
-      PREF.shouldEnableForCurrentPage(
+      WSP.PREF.shouldEnableForCurrentPage(
         'util',
         'download',
         $(sketchNode).data('document').focusPage
@@ -4301,8 +4325,82 @@ var UTILMENU = (function() {
   };
 })(); // UTILMENU
 
+/* Move the following to a new file, perhaps toolHelpModal.js
+ * Here we make a modal dialog box that appears when the user clicks and holds on a tool in the tool column.
+ * The initial implementation provides a short bit of text about the tool and two buttons that displays videos:
+ * a short silent video and a longer more informative one with narration.
+ */
+
+GSP.ToolHelp = (function() {
+  // Get the modal
+  var $modal, // the dialog box
+    toolRect; // the rect of the tool that was pressed to show help
+
+  /*   
+   // Get the button that opens the modal
+   var btn = document.getElementById("myBtn");
+   
+   // Get the <span> element that closes the modal
+   var span = document.getElementsByClassName("close")[0];
+   
+   // When the user clicks on the button, open the modal
+   btn.onclick = function() {
+     modal.style.display = "block";
+   };
+*/
+
+  function showModal(theTool, $el) {
+    var meta = theTool.metadata;
+    toolRect = $el[0].getBoundingClientRect();
+    $modal.find('span#toolName').html(meta.name);
+    $modal.show();
+    $(window).on('click', hideModal);
+  }
+
+  function hideModal(e) {
+    var x = e.pageX,
+      y = e.pageY,
+      r = toolRect,
+      inButton = x > r.left && x < r.right && y > r.top && y < r.bottom;
+    if (inButton) {
+      e.stopPropagation();
+    } else if (
+      !$modal.has(e.target).length ||
+      $(e.target).hasClass('tool-help-close')
+    ) {
+      $modal.hide();
+    }
+  }
+
+  function init() {
+    var content =
+      '<div id="toolHelpModal" class="tool-help-modal">' +
+      '<div class="tool-help-content"><span class="tool-help-close">&times;</span>' +
+      '<p class="tool-help-title">Hints for <span id="toolName"> such and so </span> Tool</p></div>' +
+      '</div>';
+    $('body').append(content);
+    $modal = $('#toolHelpModal');
+    $modal.find('.close').on('click', hideModal);
+  }
+
+  return {
+    init: function() {
+      init();
+    },
+
+    showModal: function(theTool, el) {
+      showModal(theTool, el);
+    },
+  };
+})(); // ToolHelp
+
+//$(function() {
+//  GSP.ToolHelp.init();
+//});
+
 $(function() {
   WIDGETS.initWidget();
   PAGENUM.initPageControls();
   UTILMENU.initUtils();
+  GSP.ToolHelp.init();
 });
