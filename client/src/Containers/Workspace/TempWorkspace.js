@@ -109,6 +109,9 @@ class TempWorkspace extends Component {
     if (graphType === 'pyret' && firstEntry) {
       updatedTabs[0].tabType = 'pyret';
     }
+    if (graphType === 'wsp' && firstEntry) {
+      updatedTabs[0].tabType = 'wsp';
+    }
     // this.setState({enteredRoom: true, graph: graphType})
     return socket.emit('JOIN_TEMP', sendData, (res, err) => {
       if (err) {

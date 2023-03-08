@@ -12,16 +12,18 @@ const CodePyretOrg = (props) => {
   const [iframeSrc, setIframeSrc] = useState(
     // 'http://localhost:5000/editor'
     // 'http://localhost:5000/editor' or 'https://pyret-horizon.herokuapp.com/editor'
-    window.env.REACT_APP_PYRET_URL
+    `${window.env.REACT_APP_PYRET_URL}#warnOnExit=false&headerStyle=small`
   );
+  const { inControl, user, isFirstTabLoaded } = props;
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
-  let pyret = null;
+  let pyret = useRef(null);
 
   const oldOnMessage = window.onmessage;
   let receivingData = false;
   let initializing = false;
 
+  // Pyret instance constructor
   function PyretAPI(iframeReference, onmessageHandler) {
     const handlers = {
       onmessage: onmessageHandler,
@@ -36,7 +38,7 @@ const CodePyretOrg = (props) => {
     }
     function setParams(params) {
       console.log(params, iframeReference());
-      // Test to see if this forces an iframe refresh
+      // source made stateful forces an iframe refresh
       // setIframeSrc(`http://localhost:5000/editor${params}`);
       setIframeSrc(`${window.env.REACT_APP_PYRET_URL}${params}`);
       // const pyretWindow = iframeReference();
@@ -63,6 +65,7 @@ const CodePyretOrg = (props) => {
   }
 
   // Janky copied code by Joe that needs revisiting
+  // basic function is to build and save and event history
   const putState = () => {
     const { tab } = props;
     const { _id } = tab;
@@ -84,11 +87,13 @@ const CodePyretOrg = (props) => {
     });
   };
 
+  // TODO: can we parse activity descriptions from Pyret?
   const buildDescription = (username, updates) => {
     console.log('Building description of', updates);
     return `${username} updated the program`;
   };
 
+  // checks for control before applying/communicating changes
   useEffect(() => {
     if (_hasControl()) {
       handleResponseData(activityUpdates);
@@ -96,6 +101,21 @@ const CodePyretOrg = (props) => {
 
     return () => socket.removeAllListeners('RECEIVE_EVENT');
   }, [activityUpdates]);
+
+  // communicating to Pyret Editor about control state
+  useEffect(() => {
+    if (isFirstTabLoaded && pyret.current) {
+      // states: ['gainControl', 'loseControl']
+      // VMT states: ['ME', 'NONE', 'OTHER']
+      if (inControl === 'ME') {
+        pyret.current.postMessage({ type: 'gainControl' });
+        console.log('gained Control!');
+      } else {
+        pyret.current.postMessage({ type: 'loseControl' });
+        console.log('lost Control!');
+      }
+    }
+  }, [inControl]);
 
   const handleResponseData = (updates) => {
     console.log('Response data processing: ', updates);
@@ -129,7 +149,7 @@ const CodePyretOrg = (props) => {
     // let newState = JSON.parse(stateData);
     if (stateData) {
       const newState = stateData;
-      pyret.postMessage(newState.data);
+      pyret.current.postMessage(newState.data);
     }
   }
 
@@ -189,7 +209,7 @@ const CodePyretOrg = (props) => {
       updateSavedData(data);
     };
 
-    pyret = PyretAPI(function() {
+    pyret.current = PyretAPI(function() {
       return cpoIframe.current;
     }, onMessage);
 
@@ -202,9 +222,11 @@ const CodePyretOrg = (props) => {
       // prettier-ignore
       let contents = hasSaved ? savedData.data[0].currentState.editorContents : '';
       contents = encodeURIComponent(contents);
-      pyret.setParams(`#warnOnExit=false&editorContents=${contents}`);
+      pyret.current.setParams(
+        `#warnOnExit=false&headerStyle=small&editorContents=${contents}`
+      );
       // #warnOnExit=false&editorContents=use%20context%20essentials2021%0A%0Ax%20%3D%205%0A%0Ax%0A
-      /*
+      /*  also add param: &headerStyle=small
       pyret.postMessage({
         protocol: 'pyret',
         data: {
@@ -222,7 +244,7 @@ const CodePyretOrg = (props) => {
         to: { line: 0, ch: 0 },
         text: ['Startup'],
       };
-      pyret.postMessage({ type: 'change', change });
+      pyret.current.postMessage({ type: 'change', change });
     };
   };
 
@@ -240,6 +262,7 @@ const CodePyretOrg = (props) => {
   function _hasControl() {
     return props.inControl === 'ME';
   }
+
   function _checkForControl(event) {
     if (!_hasControl()) {
       event.preventDefault();
@@ -252,7 +275,6 @@ const CodePyretOrg = (props) => {
     height: '100%',
     pointerEvents: !_hasControl() ? 'none' : 'auto',
   };
-  const { inControl, user } = props;
 
   return (
     <Fragment>

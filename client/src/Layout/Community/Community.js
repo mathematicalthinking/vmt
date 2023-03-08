@@ -173,6 +173,7 @@ Community.propTypes = {
       'desmos',
       'desmosActivity',
       'pyret',
+      'wsp',
       'all',
     ]),
   }).isRequired,

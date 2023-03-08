@@ -57,6 +57,22 @@ class ContentBox extends PureComponent {
       notifications > 0 ? (
         <Notification count={notifications} data-testid="content-box-ntf" />
       ) : null;
+    if (
+      roomType &&
+      roomType[0] === 'pyret' &&
+      window.env.REACT_APP_PYRET_MODE &&
+      window.env.REACT_APP_PYRET_MODE.toLowerCase() !== 'yes'
+    ) {
+      return null;
+    }
+    if (
+      roomType &&
+      roomType[0] === 'wsp' &&
+      window.env.REACT_APP_WSP_MODE &&
+      window.env.REACT_APP_WSP_MODE.toLowerCase() !== 'yes'
+    ) {
+      return null;
+    }
     if (roomType && !TabTypes.isActive(roomType)) return null;
 
     const childElements = (

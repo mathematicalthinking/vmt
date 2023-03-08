@@ -379,7 +379,6 @@ class Room extends Component {
     if (room && room.tabs && !guestMode) {
       // ESLINT thinks this is unnecessary but we use the keys directly in the dom and we want them to have spaces
       const dueDateText = 'Due Date'; // the fact that we have to do this make this not worth it
-
       // make component which accepts each tab & makes the appropriate icon
 
       const { updateFail, updateKeys } = loading;

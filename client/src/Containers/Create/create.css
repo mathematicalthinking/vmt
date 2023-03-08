@@ -82,6 +82,7 @@
   align-self: center;
   width: 100%;
   flex-grow: 1;
+  flex-wrap: wrap;
   align-items: center;
   font-size: 1.4em;
 }

@@ -51,6 +51,9 @@ class Homepage extends PureComponent {
     if (url.split('.')[0] === 'https://vmt-test') {
       return 'staging';
     }
+    if (url.split('.')[0] === 'https://vmt-dev') {
+      return 'dev-sandbox';
+    }
     if (process.env.NODE_ENV === 'development') {
       return 'development';
     }
@@ -64,7 +67,7 @@ class Homepage extends PureComponent {
         win ? `: maintenance window is ${win}` : ''
       }, please contact if uptime is required.`;
     }
-    if (pageLocation === 'staging') {
+    if (pageLocation === 'staging' || pageLocation === 'dev-sandbox') {
       return 'Staging deployment may have unplanned maintenance, please notify if an uptime window is required.';
     }
     return null;

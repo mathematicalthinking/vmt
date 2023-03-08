@@ -23,7 +23,7 @@ class RoomDetails extends Component {
               editing={editing}
               change={updateRoomInfo}
             >
-              {instructions || 'No instructions set yet'}
+              {instructions}
             </EditText>
           </Error>
         </InfoBox>
