@@ -99,7 +99,7 @@ export const useSortableData = (items, config = null) => {
                 ignorePuncuation: true,
               })
         );
-      } catch () {
+      } catch (error) {
         sortableItems.sort((a, b) => {
           const first =
             typeof a[sortConfig.key] === 'string'
