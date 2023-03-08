@@ -422,21 +422,37 @@ const WebSketchEditor = (props) => {
     const isToolsLoaded = () => {
       return !!(window.UTILMENU && !!window.TOOLS);
     };
+    const isWidgetLoaded = () => {
+      return !!(
+        window.UTILMENU &&
+        !!window.UTILMENU.initUtils &&
+        window.PAGENUM &&
+        !!window.PAGENUM.initPageControls &&
+        window.WIDGETS &&
+        !!window.WIDGETS.initWidget
+      );
+    };
     // When should this call happen, before or after loading the sketch?
-    // console.log('Tools?: ', isToolsLoaded());
-    if (isToolsLoaded()) {
-      // window.WIDGETS.initWidget();
-      // window.PAGENUM.initPageControls();
-      // window.UTILMENU.initUtils();
+    if (isToolsLoaded() && isWidgetLoaded()) {
+      window.WIDGETS.initWidget();
+      window.PAGENUM.initPageControls();
+      window.UTILMENU.initUtils();
       loadSketchDoc(getSketchConfig(tab));
       window.TOOLS.initLibrary();
       window.TOOLS.populateTools('libSketch');
       // establish sketch listeners for handlers
       syncToFollower();
     } else {
-      loadTools();
       const pollDOM = () => {
-        if (isToolsLoaded()) {
+        console.warn(
+          'Widgets recheck for load (widgets/tools): ',
+          isWidgetLoaded(),
+          isToolsLoaded()
+        );
+        if (isToolsLoaded() && isWidgetLoaded()) {
+          window.WIDGETS.initWidget();
+          window.PAGENUM.initPageControls();
+          window.UTILMENU.initUtils();
           loadSketchDoc(getSketchConfig(tab));
           window.TOOLS.initLibrary();
           window.TOOLS.populateTools('libSketch');
@@ -449,7 +465,7 @@ const WebSketchEditor = (props) => {
     }
   };
 
-  console.log('Rendered - ', sketchLoaded);
+  // console.log('Rendered - ', sketchLoaded);
 
   return (
     <div>
