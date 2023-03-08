@@ -68,7 +68,13 @@ const AddParticipants = (props) => {
         .then((res) => {
           const newSearchResults = res.data.results
             .filter((user) => user.accountType !== 'temp')
-            .sort((a, b) => a.username.localeCompare(b.username));
+            .sort((a, b) =>
+              a.username.localeCompare(b.username, undefined, {
+                numeric: true,
+                sensitivity: 'base',
+                ignorePuncuation: true,
+              })
+            );
 
           setInitialSearchResults(newSearchResults);
           setSearchResults(newSearchResults);
@@ -155,7 +161,11 @@ const AddParticipants = (props) => {
       if (user._id === mem.user._id) {
         setSearchResults((prevState) =>
           [...prevState, user].sort((a, b) =>
-            a.username.localeCompare(b.username)
+            a.username.localeCompare(b.username, undefined, {
+              numeric: true,
+              sensitivity: 'base',
+              ignorePuncuation: true,
+            })
           )
         );
         break;
@@ -198,7 +208,13 @@ const AddParticipants = (props) => {
       (mem) => mem.role === 'participant'
     );
     const participantsToAdd = [...prevParticipants, ...newParticipants]
-      .sort((a, b) => a.user.username.localeCompare(b.user.username))
+      .sort((a, b) =>
+        a.user.username.localeCompare(b.user.username, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+          ignorePuncuation: true,
+        })
+      )
       .concat(facilitators);
     onSubmit(participantsToAdd, shouldInviteMembersToCourse, [
       ...newParticipants,

@@ -82,25 +82,42 @@ export const useSortableData = (items, config = null) => {
     // eslint-disable-next-line prefer-const
     let sortableItems = [...items];
     if (sortConfig !== null) {
-      sortableItems.sort((a, b) => {
-        const first =
-          typeof a[sortConfig.key] === 'string'
-            ? a[sortConfig.key].toLowerCase()
-            : a[sortConfig.key];
-
-        const second =
-          typeof b[sortConfig.key] === 'string'
-            ? b[sortConfig.key].toLowerCase()
-            : b[sortConfig.key];
-
-        if (first < second) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (first > second) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
+      // this newer method of sorting has compatability issues
+      // with certain Monitor keys (like currentMembers), 
+      // thus the catch uses the older method of sorting
+      try {
+        sortableItems.sort((a, b) =>
+          sortConfig.direction === 'ascending'
+            ? a[sortConfig.key].localeCompare(b[sortConfig.key], undefined, {
+                numeric: true,
+                sensitivity: 'base',
+                ignorePuncuation: true,
+              })
+            : b[sortConfig.key].localeCompare(a[sortConfig.key], undefined, {
+                numeric: true,
+                sensitivity: 'base',
+                ignorePuncuation: true,
+              })
+        );
+      } catch () {
+        sortableItems.sort((a, b) => {
+          const first =
+            typeof a[sortConfig.key] === 'string'
+              ? a[sortConfig.key].toLowerCase()
+              : a[sortConfig.key];
+          const second =
+            typeof b[sortConfig.key] === 'string'
+              ? b[sortConfig.key].toLowerCase()
+              : b[sortConfig.key];
+          if (first < second) {
+            return sortConfig.direction === 'ascending' ? -1 : 1;
+          }
+          if (first > second) {
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+          }
+          return 0;
+        });
+      }
     }
     return sortableItems.filter(
       (item) => withinTimeframe(item) && matchesCustomFilter(item)

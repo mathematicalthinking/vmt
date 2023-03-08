@@ -16,7 +16,13 @@ const CourseCodeMemberImport = (props) => {
 
     const courseMembers = course.members
       .filter((mem) => mem.user._id !== userId)
-      .sort((a, b) => a.user.username.localeCompare(b.user.username));
+      .sort((a, b) =>
+        a.user.username.localeCompare(b.user.username, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+          ignorePuncuation: true,
+        })
+      );
 
     return { ...course, members: courseMembers };
   };

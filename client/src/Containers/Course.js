@@ -320,11 +320,23 @@ class Course extends Component {
   sortParticipants = (list) => {
     const facilitators = list
       .filter((mem) => mem.role === 'facilitator')
-      .sort((a, b) => a.user.username.localeCompare(b.user.username));
+      .sort((a, b) =>
+        a.user.username.localeCompare(b.user.username, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+          ignorePuncuation: true,
+        })
+      );
     const prevParticipants = list.filter((mem) => mem.role === 'participant');
 
     return prevParticipants
-      .sort((a, b) => a.user.username.localeCompare(b.user.username))
+      .sort((a, b) =>
+        a.user.username.localeCompare(b.user.username, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+          ignorePuncuation: true,
+        })
+      )
       .concat(facilitators);
   };
 
