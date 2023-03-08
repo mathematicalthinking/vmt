@@ -86,7 +86,7 @@ const ActivityTools = (props) => {
             )}
             {WSPTabType && (
               <Fragment>
-                WebSketch Pad Template editing is only partially supported
+                Web SketchPad Template editing is only partially supported
                 within VMT. Visit the{' '}
                 <a
                   className={classes.Link}
@@ -95,7 +95,7 @@ const ActivityTools = (props) => {
                   href="https://geometricfunctions.org/fc/tools/library/?debug=true"
                   data-testid="wsp-link"
                 >
-                  WebSketch Tool Library
+                  Web Sketch Tool Library
                 </a>{' '}
                 to access all of the available tools and configuration options
                 when creating your WSP template. When done, download the file in
