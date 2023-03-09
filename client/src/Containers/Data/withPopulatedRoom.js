@@ -25,6 +25,7 @@ function withPopulatedRoom(WrappedComponent) {
         populatedRoom: {
           ...prevState.populatedRoom,
           getCurrentMembers: this.getCurrentMembers.bind(this),
+          setCurrentMembers: this.setCurrentMembers.bind(this),
           adjustUser: this.adjustUser.bind(this),
         },
       }));
@@ -174,19 +175,25 @@ function withPopulatedRoom(WrappedComponent) {
       return userToReturn;
     }
 
+    setCurrentMembers(updatedCurrentMembers) {
+      this.setState((prevState) => ({
+        populatedRoom: {
+          ...prevState.populatedRoom,
+          currentMembers: updatedCurrentMembers,
+        },
+      }));
+    }
     // used to get aliased or un-aliased members
     // use getCurrentMembers in lieu of populatedRoom.currentMembers
     // every time we get currentMembers in Workspace's, use this function
-    getCurrentMembers(updatedCurrentMembers = []) {
+    getCurrentMembers() {
       const { populatedRoom } = this.state;
-      if (Object.keys(populatedRoom).length === 0) return updatedCurrentMembers;
+      if (Object.keys(populatedRoom).length === 0) return [];
       const { members } = populatedRoom;
       const shouldAliasUsernames =
         populatedRoom.settings.displayAliasedUsernames;
 
-      const currentMembers = updatedCurrentMembers.length
-        ? updatedCurrentMembers
-        : populatedRoom.currentMembers;
+      const { currentMembers } = populatedRoom;
 
       return currentMembers.map((currentMember) => {
         const memberIndex = members.findIndex(
