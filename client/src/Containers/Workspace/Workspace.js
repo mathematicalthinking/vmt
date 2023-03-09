@@ -328,7 +328,8 @@ class Workspace extends Component {
             return;
           }
           const { room, message } = data;
-          const currMems = populatedRoom.getCurrentMembers(room.currentMembers);
+          populatedRoom.setCurrentMembers(room.currentMembers);
+          const currMems = populatedRoom.getCurrentMembers();
           this.setState(
             {
               currentMembers: currMems,
@@ -348,7 +349,8 @@ class Workspace extends Component {
       const { controlledBy: currentControl } = controlState;
       const { currentMembers, message, releasedControl } = data;
       const controlledBy = releasedControl ? null : currentControl;
-      const currMems = populatedRoom.getCurrentMembers(currentMembers);
+      populatedRoom.setCurrentMembers(currentMembers);
+      const currMems = populatedRoom.getCurrentMembers();
       const newState = {
         currentMembers: currMems,
         ...(releasedControl ? { controlledBy } : null),
@@ -919,7 +921,6 @@ class Workspace extends Component {
     } = this.props;
     const {
       tabs: currentTabs,
-      currentMembers: activeMembers,
       log,
       membersExpanded,
       toolsExpanded,
@@ -954,9 +955,7 @@ class Workspace extends Component {
         members={temp ? tempMembers : populatedRoom.members}
         // currentMembers={temp ? tempCurrentMembers : activeMembers}
         currentMembers={
-          temp
-            ? tempCurrentMembers
-            : populatedRoom.getCurrentMembers(activeMembers)
+          temp ? tempCurrentMembers : populatedRoom.getCurrentMembers()
         }
         activeMember={controlState.controlledBy}
         expanded={membersExpanded}
@@ -1166,9 +1165,9 @@ Workspace.propTypes = {
     tabs: PropTypes.arrayOf(PropTypes.shape({ _id: PropTypes.string })),
     log: PropTypes.arrayOf(PropTypes.shape({})),
     controlledBy: PropTypes.string,
-    currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
     settings: PropTypes.shape({ participantsCanCreateTabs: PropTypes.bool }),
     getCurrentMembers: PropTypes.func.isRequired,
+    setCurrentMembers: PropTypes.func.isRequired,
     adjustUser: PropTypes.func.isRequired,
   }).isRequired,
   tempCurrentMembers: PropTypes.arrayOf(PropTypes.shape({})),
