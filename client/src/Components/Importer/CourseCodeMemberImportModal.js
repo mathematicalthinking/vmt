@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import uniqBy from 'lodash/uniqBy';
 import { Button, InfoBox, Member, GenericSearchResults } from 'Components';
 import { addColors, hexToRGBA } from 'utils';
+import CourseCodeMemberImportFunctions from './CourseCodeMemberImportFunctions';
 import classes from './courseCodeMemberImportModal.css';
 
 const CourseCodeMemberImportModal = (props) => {
-  const { currentMembers, getCourseFromCourseCode, onCancel, onSubmit } = props;
+  const { onCancel, onSubmit, userId } = props;
   const [searchResults, setSearchResults] = useState({});
   const [newParticipants, setNewParticipants] = useState([]);
 
@@ -50,10 +51,20 @@ const CourseCodeMemberImportModal = (props) => {
   }, [newParticipants]);
 
   const search = async () => {
+    // @TODO: tag each course with the color it should have
+    // use that color when creating newParticipants
+    // forget about addoclor stuff later on ...
+    // keep a map of courses to colors
+    // make a new function that taeks an existing map and return a map of new people and the map ...
+    // searchResults -> enhance the members to match newParticipants (ie, with a course)
+
     if (!inputRef.current.value.length) return;
-    const courseSearched = await getCourseFromCourseCode(
-      inputRef.current.value
+
+    const courseSearched = await CourseCodeMemberImportFunctions.getCourseFromCourseCode(
+      inputRef.current.value,
+      [userId]
     );
+
     if (
       !courseSearched ||
       !courseSearched.members ||
@@ -62,12 +73,9 @@ const CourseCodeMemberImportModal = (props) => {
       return;
     }
 
-    // @TODO: tag each course with the color it should have
-    // use that color when creating newParticipants
-    // forget about addoclor stuff later on ...
-    // keep a map of courses to colors
-    // make a new function that taeks an existing map and return a map of new people and the map ...
-    // searchResults -> enhance the members to match newParticipants (ie, with a course)
+    // @TODO: don't add the same course multiple times
+    // if it is already in searchResults and searched for again
+
     setSearchResults((prevState) => {
       return {
         ...prevState,
@@ -75,17 +83,6 @@ const CourseCodeMemberImportModal = (props) => {
       };
     });
     inputRef.current.value = '';
-  };
-
-  const addUIElements = (courses) => {
-    return Object.values(courses).map((course) => ({
-      key: course._id,
-      label: course.name,
-      buttonLabel: course.isAdded ? 'Remove' : 'Add',
-      altLabel: course.entryCode,
-      backgroundColor: course.backgroundColor,
-      onClick: course.isAdded ? removeAllMembers : addAllToNewParticipants,
-    }));
   };
 
   const addAllToNewParticipants = (courseId) => {
@@ -222,7 +219,11 @@ const CourseCodeMemberImportModal = (props) => {
               </div>
               {Object.values(searchResults).length > 0 && (
                 <GenericSearchResults
-                  itemsSearched={addUIElements(searchResults)}
+                  itemsSearched={CourseCodeMemberImportFunctions.addUIElements(
+                    searchResults,
+                    addAllToNewParticipants,
+                    removeAllMembers
+                  )}
                 />
               )}
             </div>
@@ -243,7 +244,6 @@ const CourseCodeMemberImportModal = (props) => {
                   canRemove
                   rejectAccess={() => removeMember(member)}
                 />
-                // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
               ))}
             </div>
           </InfoBox>
@@ -269,10 +269,9 @@ const CourseCodeMemberImportModal = (props) => {
 };
 
 CourseCodeMemberImportModal.propTypes = {
-  currentMembers: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  getCourseFromCourseCode: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  userId: PropTypes.string.isRequired,
 };
 
 export default CourseCodeMemberImportModal;

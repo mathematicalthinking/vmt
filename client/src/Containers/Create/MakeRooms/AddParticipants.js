@@ -3,7 +3,7 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import debounce from 'lodash/debounce';
+import { debounce, uniqBy } from 'lodash';
 import SearchResults from 'Containers/Members/SearchResults';
 import { amIAFacilitator } from 'utils';
 import API from 'utils/apiRequests';
@@ -16,6 +16,7 @@ import {
   ToggleGroup,
   Checkbox,
 } from 'Components';
+import CourseCodeMemberImportFunctions from 'Components/Importer/CourseCodeMemberImportFunctions';
 import classes from './makeRooms.css';
 
 const AddParticipants = (props) => {
@@ -28,26 +29,34 @@ const AddParticipants = (props) => {
     originatingCourseId,
   } = props;
 
+  const constants = {
+    INDIVIDUALS: 'Individuals',
+    ROSTERS: 'Your Courses',
+    COURSE_CODE: 'Course Code',
+  };
+
   const userCoursesById = useSelector((state) => state.courses.byId);
 
   const coursesUserDidNotCreate = Object.values(
     userCoursesById
   ).filter((course) => amIAFacilitator(course, userId));
 
+  const [searchText, setSearchText] = useState('');
+  const [rosterSearchText, setRosterSearchText] = useState('');
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [rosterSearchResults, setRosterSearchResults] = useState(
     coursesUserDidNotCreate
   );
-  const [searchText, setSearchText] = useState('');
-  const [rosterSearchText, setRosterSearchText] = useState('');
+  const [courseCodeSearchResults, setCourseCodeSearchResults] = useState({});
+  const [courseCodeSearchText, setCourseCodeSearchText] = useState('');
   const [newParticipants, setNewParticipants] = useState([]);
-  const [isAddingParticipants, setIsAddingParticipants] = useState(true);
   const [addedCourse, setAddedCourse] = useState({});
   const [
     shouldInviteMembersToCourse,
     setShouldInviteMembersToCourse,
   ] = useState(false);
+  const [viewType, setViewType] = useState(constants.INDIVIDUALS);
 
   useEffect(() => {
     return () => debounceSearch.cancel();
@@ -110,6 +119,33 @@ const AddParticipants = (props) => {
       .filter((generatedCourse) => generatedCourse.key !== originatingCourseId);
   };
 
+  const searchCourseCode = async () => {
+    if (!courseCodeSearchText.length) return;
+
+    const courseSearched = await CourseCodeMemberImportFunctions.getCourseFromCourseCode(
+      courseCodeSearchText,
+      // currently ignoring userId, prob ignore all newParticipants & currentParticipants
+      [userId]
+    );
+
+    if (
+      !courseSearched ||
+      !courseSearched.members ||
+      !courseSearched.members.length
+    ) {
+      return;
+    }
+
+    setCourseCodeSearchResults((prevState) => {
+      return {
+        ...prevState,
+        [courseSearched._id]: courseSearched,
+      };
+    });
+
+    setCourseCodeSearchText('');
+  };
+
   const addParticipant = (member) => {
     const { _id } = member.user;
     // filter out duplicates in the right column (New Participants column)
@@ -141,6 +177,21 @@ const AddParticipants = (props) => {
         });
         setAddedCourse((prevState) => ({ ...prevState, [courseId]: true }));
       });
+    }
+  };
+
+  const addParticipantsFromCourseCode = (courseId) => {
+    if (
+      courseCodeSearchResults[courseId] &&
+      courseCodeSearchResults[courseId].members
+    ) {
+      const memsToAdd = courseCodeSearchResults[courseId].members.map(
+        (mem) => ({
+          ...mem,
+          user: { ...mem.user, course: courseId },
+        })
+        
+      );
     }
   };
 
@@ -176,14 +227,99 @@ const AddParticipants = (props) => {
     });
   };
 
-  const toggleParticipantsRosters = () => {
-    setIsAddingParticipants((prevState) => !prevState);
-    // the following reset the searchTexts/searchResults
-    // currently we save searches when toggling
-    // setSearchText('');
-    // setSearchResults([]);
-    // setRosterSearchText('');
-    // setRosterSearchResults(Object.keys(coursesByNames));
+  const _displayViewType = () => {
+    switch (viewType) {
+      case constants.INDIVIDUALS:
+        return (
+          // 1st div is duplicated
+          <div className={classes.AddParticipants}>
+            <div style={{ fontSize: '12px' }}>
+              <Search
+                data-testid="member-search"
+                _search={(text) => {
+                  setSearchText(text);
+                  debounceSearch(text);
+                }}
+                placeholder="search by username or email"
+                value={searchText}
+                isControlled
+              />
+            </div>
+            {searchResults.length > 0 && (
+              <SearchResults
+                searchText={searchText}
+                usersSearched={searchResults}
+                inviteMember={(_id, username) =>
+                  addParticipant({ user: { _id, username } })
+                }
+                className={classes.AddParticipants}
+              />
+            )}
+          </div>
+        );
+      case constants.ROSTERS:
+        return (
+          <div className={classes.AddParticipants}>
+            <div style={{ fontSize: '12px' }}>
+              <Search
+                data-testid="roster-search"
+                _search={searchRosters}
+                placeholder="search courses to import rosters from"
+                value={rosterSearchText}
+                isControlled
+              />
+            </div>
+            {rosterSearchResults && (
+              <GenericSearchResults
+                itemsSearched={generateRosterSearchResults(rosterSearchResults)}
+                className={classes.AddParticipants}
+              />
+            )}
+          </div>
+        );
+      case constants.COURSE_CODE:
+        return (
+          <div className={classes.AddParticipants}>
+            <div className={classes.Search}>
+              <input
+                data-testid="CourseCodeMemberImportModal-search-input"
+                value={courseCodeSearchText}
+                onChange={(e) => setCourseCodeSearchText(e.target.value)}
+                type="text"
+                placeholder="enter a course code"
+                className={classes.Input}
+                // ref={autoFocusInputRef} // autofocus isn't working
+              />
+              <i className={`fas fa-search ${classes.Icon}`} />
+              <Button
+                data-testid="CourseCodeMemberImportModal-search-button"
+                click={searchCourseCode}
+                p="0px 16px"
+                m="0px 16px"
+              >
+                Search
+              </Button>
+            </div>
+            {Object.values(courseCodeSearchResults).length > 0 && (
+              <GenericSearchResults
+                itemsSearched={CourseCodeMemberImportFunctions.addUIElements(
+                  courseCodeSearchResults,
+                  () => {
+                    console.log('add');
+                  },
+                  () => {
+                    console.log('add');
+                  }
+                  // addAllToNewParticipants,
+                  // removeAllMembers
+                )}
+              />
+            )}
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   const handleInviteMembersToCourse = () => {
@@ -216,64 +352,16 @@ const AddParticipants = (props) => {
             className={classes.AddParticipants}
             rightIcons={
               <ToggleGroup
-                buttons={['Individuals', 'Shared Rosters']}
-                onChange={toggleParticipantsRosters}
+                buttons={[
+                  constants.INDIVIDUALS,
+                  constants.ROSTERS,
+                  constants.COURSE_CODE,
+                ]}
+                onChange={(type) => setViewType(type)}
               />
             }
-            // rightTitle="Shared Roster"
           >
-            {isAddingParticipants && (
-              <div className={classes.AddParticipants}>
-                <Fragment>
-                  <div style={{ fontSize: '12px' }}>
-                    <Search
-                      data-testid="member-search"
-                      _search={(text) => {
-                        setSearchText(text);
-                        debounceSearch(text);
-                      }}
-                      placeholder="search by username or email"
-                      value={searchText}
-                      isControlled
-                    />
-                  </div>
-                  {searchResults.length > 0 && (
-                    <SearchResults
-                      searchText={searchText}
-                      usersSearched={searchResults}
-                      inviteMember={(_id, username) =>
-                        addParticipant({ user: { _id, username } })
-                      }
-                      className={classes.AddParticipants}
-                    />
-                  )}
-                </Fragment>
-              </div>
-            )}
-
-            {!isAddingParticipants && (
-              <div className={classes.AddParticipants}>
-                <Fragment>
-                  <div style={{ fontSize: '12px' }}>
-                    <Search
-                      data-testid="roster-search"
-                      _search={searchRosters}
-                      placeholder="search courses to import rosters from"
-                      value={rosterSearchText}
-                      isControlled
-                    />
-                  </div>
-                  {rosterSearchResults && (
-                    <GenericSearchResults
-                      itemsSearched={generateRosterSearchResults(
-                        rosterSearchResults
-                      )}
-                      className={classes.AddParticipants}
-                    />
-                  )}
-                </Fragment>
-              </div>
-            )}
+            {_displayViewType()}
           </InfoBox>
         </div>
         {newParticipants && (
@@ -291,7 +379,6 @@ const AddParticipants = (props) => {
                     canRemove
                     rejectAccess={() => removeMember(member)}
                   />
-                  // <i className="fas fa-trash-alt" style={{ fontSize: '20px' }} />
                 ))}
               </div>
             </InfoBox>

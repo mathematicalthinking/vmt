@@ -476,7 +476,6 @@ class Members extends PureComponent {
                       <CourseCodeMemberImport
                         onImport={this.handleCourseCodeMemberImport}
                         userId={user._id}
-                        currentMembers={classList}
                       />
                     </div>
                   </div>
