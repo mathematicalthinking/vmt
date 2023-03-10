@@ -434,7 +434,12 @@ class Course extends Component {
       } else if (resource === 'stats')
         mainContent = (
           <CourseStats
-            roomIds={course.rooms.map((room) => room._id)}
+            roomIds={[
+              ...course.rooms.map((room) => room._id),
+              ...(user.archive && user.archive.rooms
+                ? user.archive.rooms
+                : null),
+            ]}
             name={course.name}
           />
         );
