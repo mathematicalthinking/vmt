@@ -13,8 +13,6 @@ const CourseCodeMemberImportFunctions = {
     return { ...course, members: courseMembers };
   },
   addUIElements: (courses, addAction, removeAction) => {
-    console.log('courses');
-    console.log(courses);
     return Object.values(courses).map((course) => ({
       key: course._id,
       label: course.name,

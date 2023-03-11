@@ -190,9 +190,46 @@ const AddParticipants = (props) => {
           ...mem,
           user: { ...mem.user, course: courseId },
         })
-        
       );
-    }
+
+      const uniqueParticipants = uniqBy(
+        newParticipants.concat(...memsToAdd),
+        'user._id'
+      );
+
+      // if facilitators from the newly added course were previously added as
+      // participants, upgrade their role to facilitator within
+      // uniqueParticipants
+      const memsToAddObject = memsToAdd.reduce((acc, curr) => {
+        return {
+          ...acc,
+          [curr.user._id]: { ...curr },
+        };
+      }, {});
+
+      const uniqueParticipantsObject = uniqueParticipants.reduce(
+        (acc, curr) => {
+          return {
+            ...acc,
+            [curr.user._id]: { ...curr },
+          };
+        },
+        {}
+      );
+
+      Object.values(memsToAddObject).forEach((mem) => {
+        if (
+          uniqueParticipantsObject[mem.user._id] &&
+          mem.role === 'facilitator'
+        )
+          uniqueParticipantsObject[mem.user._id].role = 'facilitator';
+      });
+
+      // addParticipants
+      Object.values(uniqueParticipantsObject).forEach((mem) => {
+        addParticipant({ ...mem, course: courseId });
+      });
+    } // end if
   };
 
   const removeMember = (mem) => {
@@ -304,9 +341,7 @@ const AddParticipants = (props) => {
               <GenericSearchResults
                 itemsSearched={CourseCodeMemberImportFunctions.addUIElements(
                   courseCodeSearchResults,
-                  () => {
-                    console.log('add');
-                  },
+                  addParticipantsFromCourseCode,
                   () => {
                     console.log('add');
                   }
