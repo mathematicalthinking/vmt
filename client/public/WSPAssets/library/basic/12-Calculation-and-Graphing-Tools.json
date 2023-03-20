@@ -322,7 +322,9 @@
             }
           },
           "constraint": "ActionButtonScroll",
-          "messages": ["Scroll"],
+          "messages": [
+            "Scroll"
+          ],
           "scrollDest": "topLeft"
         },
         "12": {
@@ -397,7 +399,10 @@
             }
           },
           "constraint": "ActionButtonToggleHideShow",
-          "messages": ["Hide Window Frame", "Show Window Frame"]
+          "messages": [
+            "Hide Window Frame",
+            "Show Window Frame"
+          ]
         },
         "16": {
           "kind": "Button",
@@ -419,7 +424,9 @@
             }
           },
           "constraint": "ActionButtonPresentSequentially",
-          "messages": ["Toggle Window Frame"],
+          "messages": [
+            "Toggle Window Frame"
+          ],
           "waitTime": 0
         }
       }
