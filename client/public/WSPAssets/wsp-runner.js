@@ -348,6 +348,7 @@
        *   2. “” hidden: Generate and hide a new label
        *   3. “A” shown:               Impose and show a label
        *   4. “A” hidden:              Impose and hide a (possibly empty) label
+       *   5. A legal nameOrigin:      Set the nameOrigin and empty the label
        *   For givens and constructibleGivens, the user-specified labels are always shown in the
        *   source sketch, helping the tool author to keep track of givens and constructibleGivens.
        *   The following examples apply to both givens and constructibleGivens:
@@ -367,7 +368,7 @@
        **/
       function fixToolLabel(gobj) {
         // "given:" or "assumed:" has already been removed from given object labels
-        var fromLabel;
+        var fromLabel, legalOrigins;
         var hide_label = gobj.label.indexOf('hide_label');
         if (hide_label > -1) {
           // remove the flag and hide the label
@@ -397,8 +398,15 @@
             // case 2 for a given
             gobj.style.label.showLabel = false; // showLabel is true for case 1, false for case 2
           }
+        } else {
+          legalOrigins = GSP.labels.legalNameOrigins(); // cannot pass gobj: it's still in spec form
+          if (legalOrigins.includes(gobj.label)) {
+            // case 5
+            gobj.style.nameOrigin = gobj.label;
+            gobj.label = '';
+          }
         } // nothing to do for cases 3 and 4
-      } // fiToolLabel
+      } // fixToolLabel
 
       function fixGlideReflection(gobj) {
         // If the tool is intended as a glide reflect tool, make it so.

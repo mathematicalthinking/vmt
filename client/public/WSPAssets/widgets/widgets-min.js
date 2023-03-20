@@ -9,11 +9,11 @@ Array.prototype.includes ||
       }
       if (null === this) throw new TypeError('"this" is null or not defined');
       var i = Object(this),
-        a = i.length >>> 0;
-      if (0 === a) return !1;
+        o = i.length >>> 0;
+      if (0 === o) return !1;
       for (
-        var o = 0 | t, l = Math.max(o >= 0 ? o : a - Math.abs(o), 0);
-        a > l;
+        var a = 0 | t, l = Math.max(a >= 0 ? a : o - Math.abs(a), 0);
+        o > l;
 
       ) {
         if (n(i[l], e)) return !0;
@@ -38,124 +38,142 @@ Array.prototype.includes ||
         t + e.length > this.length ? !1 : -1 !== this.indexOf(e, t)
       );
     });
-var PREF = (function() {
-    function e(e, t, n, a) {
-      function o(e) {
-        var a = i[e],
-          o = a.category,
-          l = a.name;
-        if (o && l)
-          throw GSP.createError(
-            'PREF.checkOnePref found an invalid entry' + o + l
-          );
-        return o && o === n
-          ? a.value
-          : !l || (l !== t && l !== t + n)
-          ? void 0
-          : a.value;
-      }
-      var l, s;
-      n || (n = ''),
-        (n = n.toLowerCase()),
-        (t = t.toLowerCase()),
-        (s = e.getAuthorPreference(t + n, a));
-      for (var c = 0; c < i.length; c++)
-        if (((l = o(c)), void 0 !== l)) return l;
-      return s;
-    }
-    function t(e) {
-      Array.isArray(e) &&
-        $.each(e, function() {
-          var e = this.category,
-            t = this.name,
-            n = this.value;
-          e && t && ((t += e), (e = void 0)),
-            i.push({ category: e, name: t, value: n });
-        });
-    }
-    function n(e, t, n) {
-      function i(e) {
-        return 0 > e ? 0 : e > v ? v : e;
-      }
-      function a(e, t, n, a) {
-        (t.unit = n),
-          (e.style.precision = i(e.style.precision + t.power * a)),
-          (e.state.forceDomParse = !0),
-          e.labelHasChanged();
-      }
-      var o,
-        l,
-        s,
-        c = e.data('document'),
-        r = c.focusPage,
-        d = r.sQuery().prefs(),
-        u = d.units[t],
-        p = d.precision[t],
-        f = 0,
-        g = {
-          length:
-            '[genus="DistanceMeasure"],[genus="DistanceParameter"],[genus="AreaMeasure"],[genus="Function"]',
-          angle:
-            '[genus="AngleMeasure"],[genus="AngleParameter"],[genus="Function"]',
-        },
-        v = 7;
-      if (n !== u) {
-        'pix' === n || 'rad' === u
-          ? (f = -2)
-          : ('pix' === u || 'rad' === n) && (f = 2),
-          (d.units[t] = n),
-          (r.spec.preferences.units[t] = n),
-          (c.pageData[r.metadata.id].spec.preferences.units[t] = n),
-          f &&
-            ((o = i(p + f)),
-            (d.precision[t] = o),
-            (r.spec.preferences.precision[t] = o),
-            (c.pageData[r.metadata.id].spec.preferences.precision[t] = o)),
-          (l = c.sQuery(g[t]));
-        for (var b = 0; b < l.length; b++)
-          (s = l[b]),
-            s.unitsObject[t] &&
-              (a(s, s.unitsObject[t], n, f),
-              GSP.isParameter(s) &&
-                s.unitsObject[t] &&
-                ((s.unitMultiplier = GSP.units.convertToBaseFromUnitObject(
-                  1,
-                  s.unitsObject
-                )),
-                (s.isExpressionDirty = !0),
-                (s.fnExpression = void 0),
-                (s.parsedInfix = void 0),
-                (s.uValue = s.value / s.unitMultiplier)),
-              s.fnUnits && (s.fnUnits = s.sQuery().prefs().units)),
-            s.invalidateGeom();
-        r.event(
-          'PrefChanged',
-          {},
-          { category: 'units', pref: t, oldValue: u, newValue: n }
+var WSP = {};
+WSP.PREF = (function() {
+  function e(e, t, n, i) {
+    function a(e) {
+      var i = o[e],
+        a = i.category,
+        l = i.name;
+      if (a && l)
+        throw GSP.createError(
+          'WSP.PREF.checkOnePref found an invalid entry' + a + l
         );
-      }
+      return a && a === n
+        ? i.value
+        : !l || (l !== t && l !== t + n)
+        ? void 0
+        : i.value;
     }
-    var i = [];
-    return {
-      setWebPagePrefs: function(e) {
-        t(e);
-      },
-      shouldEnableForCurrentPage: function(t, n, i) {
-        var a = parseInt(i.metadata.id, 10),
-          o = e(i.document, n, t, i.metadata.id);
+    for (var l, s = 0; s < o.length; s++)
+      if (((l = a(s)), void 0 !== l))
         return (
-          o === !0 || (Array.isArray(o) && ('all' === o[0] || o.includes(a)))
+          i && Array.isArray(l)
+            ? (l = l.includes(i))
+            : ('all' === l || 'none' === l) && (l = 'all' === l),
+          l
         );
+  }
+  function t(t, n, i, o) {
+    var a, l;
+    return (
+      i || (i = ''),
+      (i = i.toLowerCase()),
+      (n = n.toLowerCase()),
+      (l = t.getAuthorPreference(n + i, o)),
+      (a = e(t, n, i, o)),
+      void 0 !== a && (l = a),
+      l
+    );
+  }
+  function n(e) {
+    Array.isArray(e) &&
+      $.each(e, function() {
+        var e = this.category,
+          t = this.name,
+          n = this.value;
+        e && t && ((t += e), (e = void 0)),
+          o.push({ category: e, name: t, value: n });
+      });
+  }
+  function i(e, t, n) {
+    function i(e) {
+      return 0 > e ? 0 : e > v ? v : e;
+    }
+    function o(e, t, n, o) {
+      (t.unit = n),
+        (e.style.precision = i(e.style.precision + t.power * o)),
+        (e.state.forceDomParse = !0),
+        e.labelHasChanged();
+    }
+    var a,
+      l,
+      s,
+      c = e.data('document'),
+      r = c.focusPage,
+      d = r.sQuery().prefs(),
+      u = d.units[t],
+      p = d.precision[t],
+      f = 0,
+      g = {
+        length:
+          '[genus="DistanceMeasure"],[genus="DistanceParameter"],[genus="AreaMeasure"],[genus="Function"]',
+        angle:
+          '[genus="AngleMeasure"],[genus="AngleParameter"],[genus="Function"]',
       },
-      getPref: function(t, n, i) {
-        return e(t, n, i);
-      },
-      setUnitPref: function(e, t, i) {
-        n(e, t, i);
-      },
-    };
-  })(),
-  WIDGETS = (function() {
+      v = 7;
+    if (n !== u) {
+      'pix' === n || 'rad' === u
+        ? (f = -2)
+        : ('pix' === u || 'rad' === n) && (f = 2),
+        (d.units[t] = n),
+        (r.spec.preferences.units[t] = n),
+        (c.pageData[r.metadata.id].spec.preferences.units[t] = n),
+        f &&
+          ((a = i(p + f)),
+          (d.precision[t] = a),
+          (r.spec.preferences.precision[t] = a),
+          (c.pageData[r.metadata.id].spec.preferences.precision[t] = a)),
+        (l = c.sQuery(g[t]));
+      for (var h = 0; h < l.length; h++)
+        (s = l[h]),
+          s.unitsObject[t] &&
+            (o(s, s.unitsObject[t], n, f),
+            GSP.isParameter(s) &&
+              s.unitsObject[t] &&
+              ((s.unitMultiplier = GSP.units.convertToBaseFromUnitObject(
+                1,
+                s.unitsObject
+              )),
+              (s.isExpressionDirty = !0),
+              (s.fnExpression = void 0),
+              (s.parsedInfix = void 0),
+              (s.uValue = s.value / s.unitMultiplier)),
+            s.fnUnits && (s.fnUnits = s.sQuery().prefs().units)),
+          s.invalidateGeom();
+      r.event(
+        'PrefChanged',
+        {},
+        { category: 'units', pref: t, oldValue: u, newValue: n }
+      );
+    }
+  }
+  var o = [];
+  return {
+    setWebPagePrefs: function(e) {
+      n(e);
+    },
+    shouldEnableForCurrentPage: function(e, n, i) {
+      var o = parseInt(i.metadata.id, 10),
+        a = t(i.document, n, e, i.metadata.id);
+      return (
+        a === !0 ||
+        'all' === a ||
+        (Array.isArray(a) && ('all' === a[0] || a.includes(o)))
+      );
+    },
+    getPref: function(e, n, i, o) {
+      return t(e, n, i, o);
+    },
+    getWebPagePref: function(t, n, i, o) {
+      return e(t, n, i, o);
+    },
+    setUnitPref: function(e, t, n) {
+      i(e, t, n);
+    },
+  };
+})();
+var WIDGETS = (function() {
     function e(e, t) {
       return (
         (e.prototype = Object.create(t.prototype)),
@@ -173,26 +191,26 @@ var PREF = (function() {
           ? !0
           : !1;
       if (Object.keys(e).length !== Object.keys(n).length) return !1;
-      for (var a in e)
-        if (e.hasOwnProperty(a) && n.hasOwnProperty(a) && !t(e[a], n[a]))
+      for (var o in e)
+        if (e.hasOwnProperty(o) && n.hasOwnProperty(o) && !t(e[o], n[o]))
           return !1;
       return !0;
     }
     function n() {
-      return ve ? be.data('document').sQuery.sketch : void 0;
+      return ve ? he.data('document').sQuery.sketch : void 0;
     }
     function i(e) {
       return $(e).closest('.sketch_canvas')[0];
     }
-    function a(e) {
+    function o(e) {
       (this.name = e),
         (this.eventName = e + 'Widget'),
         (this.domButtonSelector = '#widget_' + e + 'ButtonID'),
         (this.promptSelector = '#w' + e + 'Prompt'),
         (this.enabled = !0);
     }
-    function o(e, t) {
-      a.call(this, e, t);
+    function a(e, t) {
+      o.call(this, e, t);
     }
     function l(e) {
       arguments.length && !e
@@ -200,7 +218,7 @@ var PREF = (function() {
         : (fe.tinyDraggable({ exclude: '.dragExclude' }),
           fe.toggle(!0),
           $('.widget_button').removeClass('widget_button_active'),
-          be
+          he
             .parent()
             .find('.widget_button')
             .addClass('widget_button_active'));
@@ -220,9 +238,9 @@ var PREF = (function() {
         t.on('UnloadDocument.WSP', function(e, t) {
           ye && n() === t.document.focusPage && ye.deactivate();
         }),
-        t.on('WillUndoRedo.WSP', b),
+        t.on('WillUndoRedo.WSP', h),
         t.on('UndoRedo.WSP', v),
-        t.on('WillChangeCurrentPage.WSP', b),
+        t.on('WillChangeCurrentPage.WSP', h),
         t.on('DidChangeCurrentPage.WSP', v),
         t.each(function(t, n) {
           var i = $(n).data('document');
@@ -243,7 +261,7 @@ var PREF = (function() {
         $('#widget').css({ opacity: 0.25, 'z-index': -1 }),
           ye && ((we = ye), WIDGETS.confirmModality());
       }
-      function a() {
+      function o() {
         var e = we,
           t = !0;
         $('#widget').css({ opacity: 1, 'z-index': 'none' }),
@@ -252,43 +270,43 @@ var PREF = (function() {
               e.activate(n(), t), (we = null);
             }, 5);
       }
-      var o = i(e),
-        c = o !== ve,
-        d = $(o),
+      var a = i(e),
+        c = a !== ve,
+        d = $(a),
         u = d.find('.wsp-tool-column'),
         p = d.data('document'),
         f = p.sQuery.sketch,
-        g = f !== he,
+        g = f !== be,
         v = r(e),
-        b = PREF.getPref(p, 'showWidgetPanelOnPageStart');
-      if ('none' === d.css('display') || f === he) return ye;
-      var h = !1;
+        h = WSP.PREF.getPref(p, 'showWidgetPanelOnPageStart');
+      if ('none' === d.css('display') || f === be) return ye;
+      var b = !1;
       return (
         Fe.forEach(function(e) {
-          e.checkEnablingForCurrentPage(f) && (h = !0);
+          e.checkEnablingForCurrentPage(f) && (b = !0);
         }),
-        v && v.toggle(h),
-        h
+        v && v.toggle(b),
+        b
           ? (ye && ((we = ye), ye.deactivate()),
             Fe.forEach(function(e) {
               e.setEnablingForCurrentPage(f, e);
             }),
             c &&
               (ve &&
-                (be.off('WillPlayTool.WSP'),
-                be.off('ToolPlayed.WSP'),
-                be.off('ToolAborted.WSP'),
-                be.off('StartDragConfirmed.WSP'),
-                be.off('EndDrag.WSP')),
-              (ve = o),
-              (be = $(ve)),
+                (he.off('WillPlayTool.WSP'),
+                he.off('ToolPlayed.WSP'),
+                he.off('ToolAborted.WSP'),
+                he.off('StartDragConfirmed.WSP'),
+                he.off('EndDrag.WSP')),
+              (ve = a),
+              (he = $(ve)),
               ge.parent().length && ge.detach(),
-              be.on('WillPlayTool.WSP', t),
-              be.on('ToolPlayed.WSP', a),
-              be.on('ToolAborted.WSP', a),
-              be.on('StartDragConfirmed.WSP', t),
-              be.on('EndDrag.WSP', a),
-              be.on('MergeGobjs.WSP', a)),
+              he.on('WillPlayTool.WSP', t),
+              he.on('ToolPlayed.WSP', o),
+              he.on('ToolAborted.WSP', o),
+              he.on('StartDragConfirmed.WSP', t),
+              he.on('EndDrag.WSP', o),
+              he.on('MergeGobjs.WSP', o)),
             g && d.prepend(ge),
             c &&
               (l(),
@@ -298,12 +316,12 @@ var PREF = (function() {
                   ? { left: u[0].offsetWidth - fe[0].offsetWidth + 4 }
                   : { left: -1 }
               )),
-            g && ((he = f), Oe.setVisColor(f), l(b)),
+            g && ((be = f), Oe.setVisColor(f), l(h)),
             v && v.show(),
-            b && we && we.enabled && we.activate(f, we, !0),
+            h && we && we.enabled && we.activate(f, we, !0),
             (we = null),
-            h && ye)
-          : ((ve && o !== ve) || (we || (we = ye), ye && ye.deactivate(), s()),
+            b && ye)
+          : ((ve && a !== ve) || (we || (we = ye), ye && ye.deactivate(), s()),
             !1)
       );
     }
@@ -335,10 +353,10 @@ var PREF = (function() {
       var n = t.document;
       d(n.canvasNode[0]);
     }
-    function b() {
+    function h() {
       ye && ((we = ye), ye.deactivate());
     }
-    function h(e, t) {
+    function b(e, t) {
       ye && ye.handleTap(e, t);
     }
     function m(e) {
@@ -351,26 +369,26 @@ var PREF = (function() {
     }
     function y(e) {
       console.log('widgets.resizeSketchFrame() called;is it needed?');
-      var t, n, i, a;
+      var t, n, i, o;
       if (
         ((t = e.canvasNode), (n = t.parent()), n.hasClass('sketch_container'))
       ) {
         if (
           ((i = t.find('.wsp-base-node')),
-          (a = n.find('.wsp-base-node').width()))
+          (o = n.find('.wsp-base-node').width()))
         )
-          a +=
+          o +=
             parseInt(n.css('border-left-width'), 10) +
             parseInt(n.css('border-right-width'), 10);
         else {
-          var o;
-          (a = e.metadata.width + n.find('.wsp-tool-column').width() + 6),
-            (o =
+          var a;
+          (o = e.metadata.width + n.find('.wsp-tool-column').width() + 6),
+            (a =
               e.metadata.height - t.find('.wsp-undo-button').outerHeight() - 2),
-            t.find('.wsp-user-tools').outerHeight(o),
-            t.find('.wsp-base-node').outerWidth(a - 4);
+            t.find('.wsp-user-tools').outerHeight(a),
+            t.find('.wsp-base-node').outerWidth(o - 4);
         }
-        n.outerWidth(a);
+        n.outerWidth(o);
       }
     }
     function w(e) {
@@ -378,10 +396,10 @@ var PREF = (function() {
         e && ((me = e), me.setRenderState(Se));
     }
     function S(e, t) {
-      var n = be.find("[wsp-id='" + t.id + "']").not('.wsp-sr-only');
+      var n = he.find("[wsp-id='" + t.id + "']").not('.wsp-sr-only');
       n[0] && (n.css({ color: e }), n.find('*').css({ color: e }));
     }
-    function k(e) {
+    function P(e) {
       me.invalidateAppearance(),
         e &&
           $e.event(
@@ -389,7 +407,7 @@ var PREF = (function() {
             { action: 'changed', changes: [{ id: me.id, style: me.style }] }
           );
     }
-    function P(e, t) {
+    function k(e, t) {
       var n = !1,
         i = t || me;
       if (!i) return !1;
@@ -423,7 +441,7 @@ var PREF = (function() {
               n.style.label.color),
             void n.invalidateAppearance()
           );
-      e && t !== e && P(e);
+      e && t !== e && k(e);
     }
     function C() {
       var e,
@@ -447,55 +465,55 @@ var PREF = (function() {
         i &&
           $e.objectColorBox.checked &&
           (i.isOfKind('Text')
-            ? (n = P(e, i))
+            ? (n = k(e, i))
             : (i.setRenderState('none'),
               (n = i.style.color !== e),
-              n && ((i.style.color = e), k(t)),
+              n && ((i.style.color = e), P(t)),
               i.setRenderState(Se))),
         n
       );
     }
     function E(e, t) {
       var n = me;
-      (ke = e),
+      (Pe = e),
         n &&
           n.style.radius &&
-          ke >= 0 &&
+          Pe >= 0 &&
           (n.setRenderState('none'),
-          (n.style.radius = Le[ke]),
+          (n.style.radius = Le[Pe]),
           n.setRenderState(Se),
-          k(t));
+          P(t));
     }
     function x(e, t, n) {
       var i = me;
       (Te = e),
-        (Pe = t),
+        (ke = t),
         i &&
           (i.setRenderState('none'),
           i.isOfGenus('Path') && Te >= 0 && (i.style['line-style'] = Ee[Te]),
-          i.style.width && Pe >= 0 && (i.style.width = xe[Pe]),
+          i.style.width && ke >= 0 && (i.style.width = xe[ke]),
           i.setRenderState(Se),
-          k(n));
+          P(n));
     }
     function O(e, t) {
       var n = C(e),
         i = $e.objectColorBox.checked,
-        a = $e.textColorBox.checked;
-      i && L(n, t && !a), a && P(n, t);
+        o = $e.textColorBox.checked;
+      i && L(n, t && !o), o && k(n, t);
     }
-    function _(e, t) {
+    function W(e, t) {
       var n = $('#lineStyleCheckbox')[0],
         i = $('#widget_lineStyleSelector')[0].style;
       if (0 > e && 0 > t) f(n, !1), (i.display = 'none');
       else {
         ($e.defaultLineThickness = e), ($e.defaultLineStyle = t), f(n, !0);
-        var a = 1.25 * e + 1.31,
-          o = 3.2 * t + 0.31;
-        (i.top = a + 'rem'), (i.left = o + 'rem'), (i.display = 'block');
+        var o = 1.25 * e + 1.31,
+          a = 3.2 * t + 0.31;
+        (i.top = o + 'rem'), (i.left = a + 'rem'), (i.display = 'block');
       }
       x(t, e, 'notify');
     }
-    function j(e) {
+    function _(e) {
       var t = $('#pointStyleCheckbox')[0],
         n = $('#pointStyleSelector')[0].style;
       if (0 > e) f(t, !1), (n.display = 'none');
@@ -506,7 +524,7 @@ var PREF = (function() {
       }
       E(e, 'notify');
     }
-    function W(e, t) {
+    function j(e, t) {
       var n = $('#widget_colorSelector')[0].style;
       0 > e
         ? ((n.display = 'none'),
@@ -551,7 +569,7 @@ var PREF = (function() {
           (t.faded = !0),
           e.invalidateAppearance());
     }
-    function I(e) {
+    function B(e) {
       var t = e.style;
       if (!t.originalColor || !t.faded)
         throw GSP.createError(
@@ -563,34 +581,34 @@ var PREF = (function() {
         (t.faded = !1),
         e.invalidateAppearance();
     }
-    function B() {
-      n().labelPool.saveState(), (_e.labelPoolSaved = !0);
+    function I() {
+      n().labelPool.saveState(), (We.labelPoolSaved = !0);
     }
     function M() {
-      _e.labelPoolSaved &&
-        (n().labelPool.restoreSavedState(), (_e.labelPoolSaved = !1));
+      We.labelPoolSaved &&
+        (n().labelPool.restoreSavedState(), (We.labelPoolSaved = !1));
     }
     function N() {
-      _e.labelPoolSaved &&
+      We.labelPoolSaved &&
         (me.sQuery.sketch.labelPool.forgetSavedState(),
-        (_e.labelPoolSaved = !1));
+        (We.labelPoolSaved = !1));
     }
     function R(e) {
-      var t = _e.inputElt;
+      var t = We.inputElt;
       'string' == typeof e && t.val(e),
         t.focus(),
         t[0].setSelectionRange(0, t.val().length);
     }
-    function U(e) {
+    function A(e) {
       var t;
-      B(),
+      I(),
         (t = n().labelPool.generateLabel(e.kind, e.genus)),
         e.hasLabel
           ? e.setLabel(t, { showLabel: !0, wasUserInitiated: !0 })
           : (e.label = t),
         R(t);
     }
-    function A(e) {
+    function U(e) {
       var t = e.sQuery.sketch,
         n = X(e),
         i = n['font-family'];
@@ -616,22 +634,22 @@ var PREF = (function() {
     function V(e, t) {
       var n,
         i,
-        a = be.find("[wsp-id='" + e.id + "']"),
-        o = X(e)['font-family'],
+        o = he.find("[wsp-id='" + e.id + "']"),
+        a = X(e)['font-family'],
         l = X(e)['font-size'],
         s = X(e).color,
         c = e.sQuery.sketch,
         r = c.renderRefCon,
         d = e.hasLabel ? r.label[e.id] : r.gobj[e.id],
         u = { label: e.label };
-      _e.defineControls(),
+      We.defineControls(),
         (e.parsedMFS = null),
         e.hasLabel
           ? (Q(
               d,
               'invalidateLabel passed a labeled gobj with no renderRefCon.label'
             ),
-            (d['font-family'] = o),
+            (d['font-family'] = a),
             (d['font-size'] = l),
             (i = r.labelBounds[e.id]),
             i && c.invalidateRect(i),
@@ -643,28 +661,28 @@ var PREF = (function() {
           : ((n = d.css),
             (d = d.baseStyles),
             Q(
-              1 === a.length,
+              1 === o.length,
               'invalidateLabel should find a single matching node.'
             ),
-            (n['font-family'] = o),
+            (n['font-family'] = a),
             (n['font-size'] = l),
             (n.color = s),
-            (d['font-family'] = o),
+            (d['font-family'] = a),
             (d['font-size'] = l),
             (d.color = s),
-            a.css({ 'font-size': l, 'font-family': o }),
-            $(a)
+            o.css({ 'font-size': l, 'font-family': a }),
+            $(o)
               .find('[style*="font-family"]')
-              .css('font-family', o),
+              .css('font-family', a),
             (e.state.forceDomParse = !0),
             e.descendantLabelGraphHasChanged(),
-            _e.showLabelElt.prop(
+            We.showLabelElt.prop(
               'checked',
               'noVisibleName' !== e.style.nameOrigin
             )),
         t && (u.action = t),
         e.invalidateAppearance(),
-        _e.event(
+        We.event(
           {},
           {
             action: t,
@@ -675,27 +693,27 @@ var PREF = (function() {
           }
         );
     }
-    function K(e, t, n) {
+    function H(e, t, n) {
       function i() {
         Q(!n, "A button or function shouldn't have a nameOrigin."),
           e.shouldAutogenerateLabel && (e.shouldAutogenerateLabel = !1),
-          o && ((t = ' '), R(t)),
+          a && ((t = ' '), R(t)),
           (e.label = t),
           e.messages && (e.messages = []);
       }
-      function a() {
+      function o() {
         (e.label = t),
           (t = t.replace(/'/g, "\\'")),
           (e.textMFS = "<VL<T'" + t + "'>>");
       }
-      var o = !t || '' === t,
+      var a = !t || '' === t,
         l = void 0 === e.style.nameOrigin || n === e.style.nameOrigin;
       return (
-        _e.defineControls(),
+        We.defineControls(),
         t || (t = ''),
         e.label === t && l
           ? t
-          : (o && M(),
+          : (a && M(),
             n && (e.style.nameOrigin = n),
             e.hasLabel
               ? ((e.shouldAutogenerateLabel = [
@@ -704,21 +722,21 @@ var PREF = (function() {
                   'namedByFullFn',
                   'namedFromTemplate',
                 ].includes(n)),
-                o && (t = e.label),
-                e.setLabel(t, { showLabel: o ? !1 : !0, wasUserIntiated: !0 }),
-                (_e.showLabelElt[0].checked = o ? !1 : !0),
+                a && (t = e.label),
+                e.setLabel(t, { showLabel: a ? !1 : !0, wasUserIntiated: !0 }),
+                (We.showLabelElt[0].checked = a ? !1 : !0),
                 (t = e.label))
               : e.isOfKind('Button') || e.isOfGenus('Function')
               ? i()
               : 'Caption' === e.genus
-              ? a()
+              ? o()
               : 'namedFromLabel' === n &&
-                (o ? (U(e), (t = e.label)) : (e.label = t)),
+                (a ? (A(e), (t = e.label)) : (e.label = t)),
             V(e, 'Changed'),
             t)
       );
     }
-    function H() {
+    function K() {
       $('#wLabelPrompt').css('display', 'none'),
         $('#wLabelPane').css('display', 'block');
     }
@@ -728,19 +746,19 @@ var PREF = (function() {
     function J(e, t) {
       var n = me,
         i = {},
-        a = _e.touchPos,
-        o = n.style.label,
-        l = o && o.showLabel;
-      n.hasLabel && !n.label && (U(n), (t = 'Generated')),
+        o = We.touchPos,
+        a = n.style.label,
+        l = a && a.showLabel;
+      n.hasLabel && !n.label && (A(n), (t = 'Generated')),
         void 0 === e &&
           (n.hasLabel
-            ? (e = !o.showLabel)
-            : _e.nameClass &&
+            ? (e = !a.showLabel)
+            : We.nameClass &&
               n.style.nameOrigin &&
               (e = 'noVisibleName' !== n.style.nameOrigin),
           (t = t || e ? 'Showed' : 'Hid')),
         n.hasLabel
-          ? ((o.showLabel = e),
+          ? ((a.showLabel = e),
             (t && 'Tapped' !== t) || l === e || (t = e ? 'Showed' : 'Hid'),
             e &&
               !l &&
@@ -749,24 +767,24 @@ var PREF = (function() {
                   (n.labelRenderBounds = Y(
                     n.sQuery.sketch.renderRefCon.labelBounds[n.id]
                   )),
-                _e.isTap &&
-                  ((i.x = a.x - n.labelRenderBounds.left),
-                  (i.y = a.y - n.labelRenderBounds.top),
+                We.isTap &&
+                  ((i.x = o.x - n.labelRenderBounds.left),
+                  (i.y = o.y - n.labelRenderBounds.top),
                   (t = t || 'Moved'))),
-              _e.isTap &&
-                ((i = o.labelOffsetX
+              We.isTap &&
+                ((i = a.labelOffsetX
                   ? {
-                      x: -o.labelOffsetX + a.x - n.labelSpec.location.x,
-                      y: -o.labelOffsetY + a.y - n.labelSpec.location.y,
+                      x: -a.labelOffsetX + o.x - n.labelSpec.location.x,
+                      y: -a.labelOffsetY + o.y - n.labelSpec.location.y,
                     }
-                  : { x: o['font-size'], y: +o['font-size'] / 2 }),
-                n.setLabelPosition(a, i),
+                  : { x: a['font-size'], y: +a['font-size'] / 2 }),
+                n.setLabelPosition(o, i),
                 (t = t || 'Modified')),
-              '' === _e.inputElt[0].value && R(n.label)))
-          : _e.nameClass &&
+              '' === We.inputElt[0].value && R(n.label)))
+          : We.nameClass &&
             n.style.nameOrigin &&
             LabelControls.labelChanged(e ? n.label : ''),
-        _e.showLabelElt.prop('checked', e),
+        We.showLabelElt.prop('checked', e),
         V(n, t);
     }
     function Y(e, t) {
@@ -785,7 +803,7 @@ var PREF = (function() {
     }
     function Z(e) {
       var t,
-        n = A(e);
+        n = U(e);
       return (
         (t = n.substring(0, 1)),
         '"' === t || "'" === t
@@ -811,18 +829,18 @@ var PREF = (function() {
     function ee(e) {
       var t = '',
         n = '',
-        i = _e.inputElt[0],
-        a = i.selectionStart,
-        o = i.selectionEnd,
+        i = We.inputElt[0],
+        o = i.selectionStart,
+        a = i.selectionEnd,
         l = i.value;
-      a > 0 && (t = l.slice(0, a)),
-        o < l.length && (n = l.slice(o)),
+      o > 0 && (t = l.slice(0, o)),
+        a < l.length && (n = l.slice(a)),
         (l = t + e + n),
         WIDGETS.labelChanged(l),
         (i.value = l),
-        (o = t.length + e.length),
+        (a = t.length + e.length),
         i.focus(),
-        i.setSelectionRange(o, o);
+        i.setSelectionRange(a, a);
     }
     function te(e) {
       return !(
@@ -840,42 +858,42 @@ var PREF = (function() {
     function ne() {
       var e,
         t,
-        n = he.MotionManager.motionList;
+        n = be.MotionManager.motionList;
       for (e = 0; e < n.length; e++)
-        if (((t = he.MotionManager.motionSet[n[e]]), t && 'active' === t.state))
+        if (((t = be.MotionManager.motionSet[n[e]]), t && 'active' === t.state))
           return !1;
       return !0;
     }
     function ie() {
-      !Ie.checked || (!ne() && De.checked)
-        ? ae('force')
-        : (je.setTraceRenderState(!0),
-          je.event({}, { action: 'glowing', glowing: !0 }));
+      !Be.checked || (!ne() && De.checked)
+        ? oe('force')
+        : (_e.setTraceRenderState(!0),
+          _e.event({}, { action: 'glowing', glowing: !0 }));
     }
-    function ae(e) {
+    function oe(e) {
       var t = De.checked,
         n = 'force' === e;
       (t || n) &&
-        (je.setTraceRenderState(!1),
-        je.event({}, { action: 'glowing', glowing: !1 }));
+        (_e.setTraceRenderState(!1),
+        _e.event({}, { action: 'glowing', glowing: !1 }));
     }
-    function oe() {
-      be.on('StartDragConfirmed.WSP', ae),
-        be.on('EndDrag.WSP', ie),
-        be.on('MergeGobjs.WSP', ie),
-        be.on('StartAnimate.WSP', ae),
-        be.on('EndAnimate.WSP', ie),
-        be.on('StartMove.WSP', ae),
-        be.on('EndMove.WSP', ie);
+    function ae() {
+      he.on('StartDragConfirmed.WSP', oe),
+        he.on('EndDrag.WSP', ie),
+        he.on('MergeGobjs.WSP', ie),
+        he.on('StartAnimate.WSP', oe),
+        he.on('EndAnimate.WSP', ie),
+        he.on('StartMove.WSP', oe),
+        he.on('EndMove.WSP', ie);
     }
     function le() {
-      be.off('StartDragConfirmed.WSP'),
-        be.off('EndDrag.WSP'),
-        be.off('MergeGobjs.WSP'),
-        be.off('StartAnimate.WSP'),
-        be.off('EndAnimate.WSP'),
-        be.off('StartMove.WSP'),
-        be.off('EndMove.WSP');
+      he.off('StartDragConfirmed.WSP'),
+        he.off('EndDrag.WSP'),
+        he.off('MergeGobjs.WSP'),
+        he.off('StartAnimate.WSP'),
+        he.off('EndAnimate.WSP'),
+        he.off('StartMove.WSP'),
+        he.off('EndMove.WSP');
     }
     function se(e, t) {
       $.each(e, function(e, n) {
@@ -924,27 +942,27 @@ var PREF = (function() {
       fe,
       ge,
       ve,
-      be,
       he,
+      be,
       me,
       ye,
       we,
       Se = 'fadeInOut',
-      ke = -1,
       Pe = -1,
+      ke = -1,
       Te = -1,
       Ce = -1,
       Le = [1.5, 2, 4, 6],
       Ee = ['solid', 'dashed', 'dotted'],
       xe = [0.5, 1, 3, 5];
-    (a.prototype.event = function(e, t) {
+    (o.prototype.event = function(e, t) {
       (t = t || {}),
         (e = e || {}),
         (e.widget = this),
         me && ((e.target = me), t.gobjId || (t.gobjId = me.id)),
         n().event(this.eventName, e, t);
     }),
-      (a.prototype.activate = function(e, t, n) {
+      (o.prototype.activate = function(e, t, n) {
         var i = { action: 'activate' };
         return (
           ye && ye !== t && ye.deactivate(),
@@ -963,7 +981,7 @@ var PREF = (function() {
               !0)
         );
       }),
-      (a.prototype.deactivate = function(e) {
+      (o.prototype.deactivate = function(e) {
         var t = { widget: e },
           n = { action: 'deactivate', promptDisplay: 'none' };
         e === ye && (ye = null),
@@ -974,18 +992,18 @@ var PREF = (function() {
             ((n.changes = e.changes), e.cancelOnExit && (n.canceled = !0)),
           e.event(t, n);
       }),
-      (a.prototype.toggle = function(e, t) {
+      (o.prototype.toggle = function(e, t) {
         this === ye ? this.deactivate(t) : this.activate(e, t);
       }),
-      (a.prototype.checkEnablingForCurrentPage = function(e) {
+      (o.prototype.checkEnablingForCurrentPage = function(e) {
         var t;
         return (
-          (t = PREF.shouldEnableForCurrentPage('widget', this.name, e)),
+          (t = WSP.PREF.shouldEnableForCurrentPage('widget', this.name, e)),
           'trace' === this.name && (t = t && e.preferences.tracesEnabled),
           t
         );
       }),
-      (a.prototype.setEnablingForCurrentPage = function(e, t) {
+      (o.prototype.setEnablingForCurrentPage = function(e, t) {
         var n = this.checkEnablingForCurrentPage(e);
         return (
           (t.enabled = n),
@@ -996,50 +1014,50 @@ var PREF = (function() {
           n
         );
       }),
-      e(o, a),
-      (o.prototype.preProcessGobj = function(e) {}),
-      (o.prototype.postProcessGobj = function(e) {}),
-      (o.prototype.activate = function(e, t, n) {
+      e(a, o),
+      (a.prototype.preProcessGobj = function(e) {}),
+      (a.prototype.postProcessGobj = function(e) {}),
+      (a.prototype.activate = function(e, t, n) {
         var i = $('.sketch_canvas'),
-          a = e.hasTouchRegimes() && e.currentTouchRegime();
+          o = e.hasTouchRegimes() && e.currentTouchRegime();
         return Object.getPrototypeOf(this).activate(e, t, n)
           ? ((i = $('.sketch_canvas')),
-            i.on('Tap.WSP', h),
-            a && 'DisplayRegime' === a.name && a.allowUnselectableTap(!0),
+            i.on('Tap.WSP', b),
+            o && 'DisplayRegime' === o.name && o.allowUnselectableTap(!0),
             u(e),
             !0)
           : !1;
       }),
-      (o.prototype.deactivate = function(e) {
+      (a.prototype.deactivate = function(e) {
         var t = n(),
           i = $('.sketch_canvas'),
-          a = t.hasTouchRegimes() && t.currentTouchRegime();
-        i.off('Tap.WSP', h),
-          i.off('WillUndoRedo.WSP', b),
+          o = t.hasTouchRegimes() && t.currentTouchRegime();
+        i.off('Tap.WSP', b),
+          i.off('WillUndoRedo.WSP', h),
           i.off('UndoRedo.WSP', v),
           ye && ye.postProcessSketch && ye.postProcessSketch(this),
-          a && 'DisplayRegime' === a.name && a.allowUnselectableTap(!1),
+          o && 'DisplayRegime' === o.name && o.allowUnselectableTap(!1),
           Object.getPrototypeOf(this).deactivate(e);
       }),
-      (o.prototype.handleTap = function(e, t) {
+      (a.prototype.handleTap = function(e, t) {
         var n = i(t.document.canvasNode[0]);
         return n === ve || d(n) ? t.gobj : null;
       });
-    var $e = new o('Style');
+    var $e = new a('Style');
     ($e.cancelOnExit = !1),
       ($e.defaultColor = { row: 0, column: 1 }),
       ($e.defaultPointStyle = 2),
       ($e.defaultLineThickness = 2),
       ($e.defaultLineStyle = 0);
-    var Oe = new o('Visibility'),
-      _e = new o('Label');
-    (_e.labelPoolSaved = !1),
-      (_e.touchPos = GSP.GeometricPoint(0, 0)),
-      (_e.textRule = null);
-    var je = new o('Trace'),
-      We = new o('Delete'),
-      Fe = [$e, je, _e, Oe, We];
-    (o.prototype.postProcessSketch = function() {
+    var Oe = new a('Visibility'),
+      We = new a('Label');
+    (We.labelPoolSaved = !1),
+      (We.touchPos = GSP.GeometricPoint(0, 0)),
+      (We.textRule = null);
+    var _e = new a('Trace'),
+      je = new a('Delete'),
+      Fe = [$e, _e, We, Oe, je];
+    (a.prototype.postProcessSketch = function() {
       var e = n(),
         t = [];
       return (
@@ -1089,8 +1107,8 @@ var PREF = (function() {
           n &&
             (w(n),
             n.oldStyle || (n.oldStyle = jQuery.extend(!0, {}, n.style)),
-            E(ke),
-            x(Te, Pe),
+            E(Pe),
+            x(Te, ke),
             Ce >= 0 && O(Ce),
             (i.id = n.id),
             (i.style = n.style),
@@ -1116,7 +1134,7 @@ var PREF = (function() {
           n,
           i = e.style;
         return (
-          i.faded && (e.hide('byUser'), I(e), (t = !0)),
+          i.faded && (e.hide('byUser'), B(e), (t = !0)),
           D(e),
           (n =
             (e.style.hidden && !e.wasHidden) ||
@@ -1130,7 +1148,7 @@ var PREF = (function() {
         var n = Object.getPrototypeOf(Oe).handleTap(e, t),
           i = {};
         n &&
-          (n.style.faded ? I(n) : G(n),
+          (n.style.faded ? B(n) : G(n),
           $('#wVisibilityPrompt').css('display', 'none'),
           (i.id = n.id),
           (i.style = n.style),
@@ -1142,79 +1160,79 @@ var PREF = (function() {
         if (n) {
           var i = document.createElement('div');
           i.style.color = n;
-          var a = window.getComputedStyle(i).color;
-          if ('rgb' === a.substring(0, 3)) {
-            var o = a.split('(')[1].split(')')[0];
-            (o = o.split(',')), (t = 'rgb(');
+          var o = window.getComputedStyle(i).color;
+          if ('rgb' === o.substring(0, 3)) {
+            var a = o.split('(')[1].split(')')[0];
+            (a = a.split(',')), (t = 'rgb(');
             for (var l = 0; 3 > l; l++)
-              (t += o[l] < 128 ? o[l] + 64 : o[l] - 32), 2 > l && (t += ',');
+              (t += a[l] < 128 ? a[l] + 64 : a[l] - 32), 2 > l && (t += ',');
             t += ')';
           }
         }
         Oe.visColor = t;
       }),
-      (_e.cacheProperties = function(e) {
+      (We.cacheProperties = function(e) {
         (this.oldLabel = 'Caption' === e.genus ? e.textMFS : e.label),
           (this.oldAutogenerate = e.shouldAutogenerateLabel),
-          A(e),
+          U(e),
           (this.oldStyle = $.extend(!0, {}, e.style));
       }),
-      (_e.emptyCache = function() {
+      (We.emptyCache = function() {
         delete this.oldLabel, delete this.oldAutogenerate, delete this.oldStyle;
       }),
-      (_e.setAction = function(e) {
+      (We.setAction = function(e) {
         (this.prevAction = ''),
           (this.prevAction = this.action),
           (this.action = e);
       }),
-      (_e.clear = function(e) {
+      (We.clear = function(e) {
         this.emptyCache(),
           N(),
           R(''),
           $('#measureButtons, #transImageButtons, #paramButtons').toggle(!1),
           e !== !1 &&
-            (_e.sizeElt.val(''),
-            _e.fontElt.val(''),
-            _e.showLabelElt.prop('checked', !1));
+            (We.sizeElt.val(''),
+            We.fontElt.val(''),
+            We.showLabelElt.prop('checked', !1));
       }),
-      (_e.finalizeLabel = function() {
+      (We.finalizeLabel = function() {
         var e,
           n,
           i,
-          a = me;
-        a &&
+          o = me;
+        o &&
           ((i = { action: 'Finalized' }),
-          (n = 'Caption' === a.genus ? a.textMFS : a.label),
+          (n = 'Caption' === o.genus ? o.textMFS : o.label),
           n !== this.oldLabel && (i.text = n),
-          this.oldAutogenerate !== a.shouldAutogenerateLabel &&
-            (i.autoGenerate = a.shouldAutogenerateLabel),
-          t(this.oldStyle.label, a.style.label) ||
-            (i.labelStyleJson = JSON.stringify(a.style.label)),
-          a.hasLabel &&
-            a.style.nameOrigin &&
-            ((e = LabelControls.originFromText(a.label)),
+          this.oldAutogenerate !== o.shouldAutogenerateLabel &&
+            (i.autoGenerate = o.shouldAutogenerateLabel),
+          t(this.oldStyle.label, o.style.label) ||
+            (i.labelStyleJson = JSON.stringify(o.style.label)),
+          o.hasLabel &&
+            o.style.nameOrigin &&
+            ((e = LabelControls.originFromText(o.label)),
             e &&
-              a.style.nameOrigin !== e &&
-              ((a.style.nameOrigin = e), (i.nameOrigin = e))),
+              o.style.nameOrigin !== e &&
+              ((o.style.nameOrigin = e), (i.nameOrigin = e))),
           this.event({}, i),
           this.emptyCache());
       }),
-      (_e.restoreLabel = function(e) {
+      (We.restoreLabel = function(e) {
         e &&
-          (e.style && (e.style = $.extend(!0, {}, _e.oldStyle)),
+          (e.style && (e.style = $.extend(!0, {}, We.oldStyle)),
           'Caption' === e.genus
-            ? ((e.textMFS = _e.oldLabel), delete e.label)
-            : _e.oldLabel
-            ? ((e.label = _e.oldLabel ? '' : ' '),
-              K(me, _e.oldLabel, e.style.nameOrigin),
-              (e.shouldAutogenerateLabel = _e.oldAutogenerate))
+            ? ((e.textMFS = We.oldLabel), delete e.label)
+            : We.oldLabel
+            ? ((e.label = We.oldLabel ? '' : ' '),
+              H(me, We.oldLabel, e.style.nameOrigin),
+              (e.shouldAutogenerateLabel = We.oldAutogenerate))
             : (delete e.label,
-              (e.shouldAutogenerateLabel = _e.oldAutogenerate)),
+              (e.shouldAutogenerateLabel = We.oldAutogenerate)),
           M(),
           V(e, 'Restored ')),
           this.emptyCache();
       }),
-      (_e.handleTap = function(e, n) {
+      (We.handleTap = function(e, n) {
         function i() {
           function e() {
             function e() {
@@ -1235,37 +1253,37 @@ var PREF = (function() {
                 (t = e('namedByPrime')),
                 (n = e('namedByShortFn')),
                 (i = e('namedByFullFn'))),
-                (o[t] = 'namedByPrime'),
-                (o[n] = 'namedByShortFn'),
-                (o[i] = 'namedByFullFn'),
-                (o['*'] = c.label ? 'namedFromLabel' : 'namedByPrime'),
-                (a.namedByPrime = t),
-                (a.namedByShortFn = n),
-                (a.namedByFullFn = i),
-                (a.namedFromLabel = c.label ? c.label : t),
+                (a[t] = 'namedByPrime'),
+                (a[n] = 'namedByShortFn'),
+                (a[i] = 'namedByFullFn'),
+                (a['*'] = c.label ? 'namedFromLabel' : 'namedByPrime'),
+                (o.namedByPrime = t),
+                (o.namedByShortFn = n),
+                (o.namedByFullFn = i),
+                (o.namedFromLabel = c.label ? c.label : t),
                 c.label
-                  ? (c.style.nameOrigin = o[c.label] || 'namedFromLabel')
+                  ? (c.style.nameOrigin = a[c.label] || 'namedFromLabel')
                   : ((c.label = t), (c.style.nameOrigin = 'namedByPrime'));
             }
             function t() {
-              (a = {
+              (o = {
                 namedFromTemplate: '',
                 noVisibleName: '',
                 namedFromLabel: '*',
               }),
-                (o = { ' ': 'noVisibleName', '*': 'namedFromLabel' });
+                (a = { ' ': 'noVisibleName', '*': 'namedFromLabel' });
             }
             var n,
-              i = _e.nameClass,
-              a = {},
-              o = {};
+              i = We.nameClass,
+              o = {},
+              a = {};
             if (
               ((n = p && z(r) === i ? r : c), $('.wLabelRadios').toggle(!1), i)
             ) {
               switch (($('#' + i + 'Buttons').toggle(!0), i)) {
                 case 'transImage':
                   e(),
-                    _e.handleTap &&
+                    We.handleTap &&
                       n &&
                       z(n) === i &&
                       'namedFromLabel' !== n.style.nameOrigin &&
@@ -1279,8 +1297,8 @@ var PREF = (function() {
                 i,
                 me,
                 WIDGETS.controlCallback,
-                a,
                 o,
+                a,
                 '#wLabelEditText',
                 '#' + i + "Buttons input[type='radio']",
                 '#wLabelShow'
@@ -1289,7 +1307,7 @@ var PREF = (function() {
           }
           function n() {
             var e = d.val();
-            e && _e.setFontSize(e), (e = u.val()), e && _e.setFont(e);
+            e && We.setFontSize(e), (e = u.val()), e && We.setFont(e);
           }
           function i(e) {
             var t,
@@ -1301,16 +1319,16 @@ var PREF = (function() {
               }
             return n;
           }
-          function a(e, t) {
+          function o(e, t) {
             var n,
               i,
-              a,
-              o = $('#wLabelFont optgroup'),
+              o,
+              a = $('#wLabelFont optgroup'),
               l = "<option value='" + e + "'>" + t + '</option>',
-              s = o.filter('[label="Sans Serif"]'),
-              c = o.filter('[label="Serif"]'),
-              r = o.filter('[label="Mono-spaced"]'),
-              d = o.filter('[label="Other"]'),
+              s = a.filter('[label="Sans Serif"]'),
+              c = a.filter('[label="Serif"]'),
+              r = a.filter('[label="Mono-spaced"]'),
+              d = a.filter('[label="Other"]'),
               p = !1;
             for (
               i = e.search(/sans-serif/i)
@@ -1322,25 +1340,25 @@ var PREF = (function() {
                 : d.length
                 ? d
                 : u.append('<optgroup label="Other"></optgroup>'),
-                a = $(i).find('option'),
+                o = $(i).find('option'),
                 n = 0;
-              n < a.length;
+              n < o.length;
               n++
             )
-              if (-1 === t.localeCompare(a[n].innerText)) {
-                $(a[n]).before($(l)), (p = !0);
+              if (-1 === t.localeCompare(o[n].innerText)) {
+                $(o[n]).before($(l)), (p = !0);
                 break;
               }
             p || i.append(l);
           }
-          function o() {
+          function a() {
             var e = X(me),
               t = e['font-size'];
             if ((d.val(t), (u[0].selectedIndex = -1), (t = Z(me, !1)), !t))
               throw GSP.createError(
                 'WIDGETS.copyGObjToStyles() found a gobj without a font family.'
               );
-            i(t) || (a(e['font-family'], t), i(t));
+            i(t) || (o(e['font-family'], t), i(t));
           }
           function l(e, n) {
             var i;
@@ -1352,7 +1370,7 @@ var PREF = (function() {
                   e.kind === n.kind ||
                   (e.isOfKind('Measure') && n.isOfKind('Measure')))),
               (i = i && !t(e.style.label, n.style.label)),
-              (i = i && (_e.isTap || !n.hasLabel || !n.style.label.showLabel))
+              (i = i && (We.isTap || !n.hasLabel || !n.style.label.showLabel))
             );
           }
           function s() {
@@ -1382,40 +1400,40 @@ var PREF = (function() {
             (c = f),
             (r = me),
             (p = l(r, c)),
-            _e.clear(!1),
+            We.clear(!1),
             me && me.setRenderState('none'),
             f.setRenderState('targetHighlit'),
             (this.prevGobj = me),
             (me = f),
-            (_e.nameClass = z(me)),
-            _e.cacheProperties(me),
+            (We.nameClass = z(me)),
+            We.cacheProperties(me),
             c.hasLabel &&
               !c.style.label.showLabel &&
               ((c.labelRenderBounds = Y(
                 c.sQuery.sketch.renderRefCon.labelBounds[c.id]
               )),
-              c.setLabelPosition(_e.touchPos, { x: 0, y: 0 })),
+              c.setLabelPosition(We.touchPos, { x: 0, y: 0 })),
             R(me.label),
-            p ? n() : o(),
+            p ? n() : a(),
             (('namedFromLabel' === c.style.nameOrigin &&
               c.label.match(/namedFromLabel/)) ||
               !c.label) &&
-              (U(c), (v = 'Generated')),
+              (A(c), (v = 'Generated')),
             e(),
             v
           );
         }
-        function a(e) {
+        function o(e) {
           r.prop('disabled', !1), J(!0, e), r.prop('checked', !0);
         }
-        function o() {
+        function a() {
           var e = me.style.nameOrigin,
             t = me.isOfKind('Button'),
-            n = 'measure' === _e.nameClass || 'param' === _e.nameClass,
+            n = 'measure' === We.nameClass || 'param' === We.nameClass,
             i = t || 'undefined' == typeof e,
-            a = i || 'namedFromLabel' === e;
+            o = i || 'namedFromLabel' === e;
           t
-            ? (r.prop('checked', a), r.prop('disabled', i))
+            ? (r.prop('checked', o), r.prop('disabled', i))
             : n &&
               ($('#wLabelPane .radio-inline input').prop('checked', !1),
               $("#wLabelPane .radio-inline input[value='" + e + "']").prop(
@@ -1430,42 +1448,42 @@ var PREF = (function() {
           return t || (t = e.match(/<T\'.*\'>/)), t ? !0 : !1;
         }
         var s,
-          c = _e.inputElt,
-          r = _e.showLabelElt,
-          d = _e.sizeElt,
-          u = _e.fontElt,
+          c = We.inputElt,
+          r = We.showLabelElt,
+          d = We.sizeElt,
+          u = We.fontElt,
           p = GSP.GeometricPoint(n.position.x, n.position.y),
-          f = Object.getPrototypeOf(_e).handleTap(e, n);
+          f = Object.getPrototypeOf(We).handleTap(e, n);
         if (
-          ((_e.touchPos = p),
-          (_e.isTap = !0),
+          ((We.touchPos = p),
+          (We.isTap = !0),
           f.canEditLabel() || ('Caption' === f.genus && l(f.textMFS)))
         ) {
-          if ((H(), f === me))
-            return me.hasLabel && (J(), R(me.label)), void (_e.isTap = !1);
-          _e.finalizeLabel(),
+          if ((K(), f === me))
+            return me.hasLabel && (J(), R(me.label)), void (We.isTap = !1);
+          We.finalizeLabel(),
             (s = i()),
-            me.hasLabel ? a(s) : o(),
+            me.hasLabel ? o(s) : a(),
             c.on('keyup', function(e) {
-              if ((e.stopPropagation(), 13 === e.keyCode)) _e.deactivate();
+              if ((e.stopPropagation(), 13 === e.keyCode)) We.deactivate();
               else if (27 === e.keyCode)
-                (_e.cancelOnExit = !0), _e.deactivate();
+                (We.cancelOnExit = !0), We.deactivate();
               else {
                 var t = c.val();
-                t.length > 0 ? K(me, t) : me.isOfKind('Button') && R(' ');
+                t.length > 0 ? H(me, t) : me.isOfKind('Button') && R(' ');
               }
             }),
-            (_e.isTap = !1);
+            (We.isTap = !1);
         }
       }),
-      (_e.defineControls = function() {
+      (We.defineControls = function() {
         this.inputElt ||
           ((this.inputElt = $('#wLabelEditText')),
           (this.showLabelElt = $('#wLabelShow')),
           (this.sizeElt = $('#wLabelFontSize')),
           (this.fontElt = $('#wLabelFont')));
       }),
-      (_e.activate = function(e, t) {
+      (We.activate = function(e, t) {
         return Object.getPrototypeOf(this).activate(e, this, t)
           ? ((this.cancelOnExit = !1),
             (me = null),
@@ -1479,7 +1497,7 @@ var PREF = (function() {
             !0)
           : !1;
       }),
-      (_e.deactivate = function() {
+      (We.deactivate = function() {
         me &&
           (me.setRenderState('none'),
           this.cancelOnExit ? this.restoreLabel(me) : this.confirmLabel()),
@@ -1490,58 +1508,58 @@ var PREF = (function() {
           $('#wLabelPrompt').css('display', 'none'),
           (this.cancelOnExit = !1);
       }),
-      (_e.confirmLabel = function() {
+      (We.confirmLabel = function() {
         this.finalizeLabel(), this.clear();
       }),
-      (_e.setFontSize = function(e) {
+      (We.setFontSize = function(e) {
         var t = X(me);
         (e = +e),
           t['font-size'] !== e && ((t['font-size'] = e), V(me, 'Set size for'));
       }),
-      (_e.setFont = function(e) {
+      (We.setFont = function(e) {
         var t = X(me),
           n = t['font-family'];
         n !== e && ((t['font-family'] = e), V(me, 'Set font for'));
       }),
-      (_e.postProcessSketch = function(e) {
-        _e.clear(),
+      (We.postProcessSketch = function(e) {
+        We.clear(),
           $('#wLabelPane').css('display', 'none'),
           $('#wLabelPrompt').css('display', 'block'),
           (me = null),
-          Object.getPrototypeOf(_e).postProcessSketch(this, e);
+          Object.getPrototypeOf(We).postProcessSketch(this, e);
       });
-    var De, Ge, Ie, Be;
+    var De, Ge, Be, Ie;
     return (
-      (je.setTraceRenderState = function(e) {
-        $.each(Be, function() {
+      (_e.setTraceRenderState = function(e) {
+        $.each(Ie, function() {
           this.setRenderState(e ? 'unmatchedGiven' : 'none');
         });
       }),
-      (je.setState = function(e, t, i, a) {
-        var o = n().preferences,
+      (_e.setState = function(e, t, i, o) {
+        var a = n().preferences,
           l = { action: i };
         return (
-          void 0 === a ? (a = e.checked) : (e.checked = a),
-          t && (o[t] = a),
-          i && ((l[i] = a), this.event({}, l)),
+          void 0 === o ? (o = e.checked) : (e.checked = o),
+          t && (a[t] = o),
+          i && ((l[i] = o), this.event({}, l)),
           $('#wTracePrompt').css('display', 'none'),
-          a
+          o
         );
       }),
-      (je.setGlowing = function(e) {
+      (_e.setGlowing = function(e) {
         void 0 === e
-          ? (e = this.setState(Ie, void 0, 'glowing', void 0))
-          : this.setState(Ie, void 0, 'glowing', e),
+          ? (e = this.setState(Be, void 0, 'glowing', void 0))
+          : this.setState(Be, void 0, 'glowing', e),
           (this.glowing = e),
-          e ? (oe(), ie()) : (le(), ae('force'));
+          e ? (ae(), ie()) : (le(), oe('force'));
       }),
-      (je.setEnabling = function(e) {
+      (_e.setEnabling = function(e) {
         this.setState(De, 'tracesEnabled', 'enabled', e);
       }),
-      (je.setFading = function(e) {
+      (_e.setFading = function(e) {
         this.setState(Ge, 'fadeTraces', 'fading', e), e && n().startFadeJob(!0);
       }),
-      (je.activate = function(e, t) {
+      (_e.activate = function(e, t) {
         function i() {
           var e = {};
           return (
@@ -1556,34 +1574,34 @@ var PREF = (function() {
         return (
           (De = $('#wTraceEnabled')[0]),
           (Ge = $('#wTraceFading')[0]),
-          (Ie = $('#wTracesGlowing')[0]),
-          (Be = i()),
+          (Be = $('#wTracesGlowing')[0]),
+          (Ie = i()),
           Object.getPrototypeOf(this).activate(e, this, t)
             ? ((De.checked = n().preferences.tracesEnabled),
               (Ge.checked = n().preferences.fadeTraces),
-              this.setGlowing(Ie.checked),
+              this.setGlowing(Be.checked),
               (this.cancelOnExit = !1),
               $('#wTracePane').css('display', 'block'),
-              (je.autoEnabled = !1),
+              (_e.autoEnabled = !1),
               !0)
             : !1
         );
       }),
-      (je.deactivate = function() {
-        Ie.checked && ae('force'),
+      (_e.deactivate = function() {
+        Be.checked && oe('force'),
           this.setGlowing(!1),
           Object.getPrototypeOf(this).deactivate(this),
           $('#wTracePane').css('display', 'none'),
           (this.cancelOnExit = !1);
       }),
-      (je.signalChangedTraceState = function(e) {
+      (_e.signalChangedTraceState = function(e) {
         function t() {
           var e = n().canvasNode.css('backgroundColor'),
             t = e.match(/rgba\(.*,.*,.*,\s*(.*)\)/);
           return t && t[1] && '0' === t[1] ? 'white' : e;
         }
         var i = e.state.renderState,
-          a = e.style.color;
+          o = e.style.color;
         e.style.traced
           ? (e.setRenderState('targetHighlit'),
             setTimeout(function() {
@@ -1598,76 +1616,76 @@ var PREF = (function() {
             e.style.width && (e.style.width += 1),
             e.invalidateAppearance(),
             setTimeout(function() {
-              (e.style.color = a),
+              (e.style.color = o),
                 e.style.width && (e.style.width -= 1),
                 e.invalidateAppearance();
             }, 500));
       }),
-      (je.toggleGobjTracing = function(e, t) {
+      (_e.toggleGobjTracing = function(e, t) {
         var n = e.style;
         (n.traced = void 0 === t ? !n.traced : t),
-          n.traced ? (Be[e.id] = e) : delete Be[e.id],
+          n.traced ? (Ie[e.id] = e) : delete Ie[e.id],
           this.event({}, { action: 'changed', gobjId: e.id, traced: n.traced }),
           n.traced
-            ? (je.autoEnabled || (je.setEnabling(!0), (je.autoEnabled = !0)),
-              Ie.checked && e.setRenderState('unmatchedGiven'))
+            ? (_e.autoEnabled || (_e.setEnabling(!0), (_e.autoEnabled = !0)),
+              Be.checked && e.setRenderState('unmatchedGiven'))
             : e.setRenderState('none'),
           $('#wTracePrompt').css('display', 'none'),
-          Ie.checked || je.signalChangedTraceState(e);
+          Be.checked || _e.signalChangedTraceState(e);
       }),
-      (je.handleTap = function(e, t) {
-        var n = Object.getPrototypeOf(je).handleTap(e, t);
+      (_e.handleTap = function(e, t) {
+        var n = Object.getPrototypeOf(_e).handleTap(e, t);
         te(n) && n && this.toggleGobjTracing(n);
       }),
-      (We.deleteWithProgeny = function(e, t) {
+      (je.deleteWithProgeny = function(e, t) {
         var i,
-          a = n(),
-          o = a.document.getRecentChangesDelta();
-        a.gobjList.removeGObjects(t, a),
-          (i = a.document.pushConfirmedSketchOpDelta(o)),
-          a.document.changedUIMode(),
+          o = n(),
+          a = o.document.getRecentChangesDelta();
+        o.gobjList.removeGObjects(t, o),
+          (i = o.document.pushConfirmedSketchOpDelta(a)),
+          o.document.changedUIMode(),
           this.event(
             {},
             {
               action: 'deleteConfirm',
               gobj: this.gobj.id,
               deletedIds: Object.keys(t),
-              preDelta: o,
+              preDelta: a,
               delta: i,
             }
           );
       }),
-      (We.activate = function(e, t) {
+      (je.activate = function(e, t) {
         return Object.getPrototypeOf(this).activate(e, this, t)
           ? ((this.cancelOnExit = !1), !0)
           : !1;
       }),
-      (We.deactivate = function() {
+      (je.deactivate = function() {
         Object.getPrototypeOf(this).deactivate(this),
           $('#wDeletePrompt').css('display', 'none'),
           (this.cancelOnExit = !1),
-          delete We.gobj,
-          delete We.progenyList;
+          delete je.gobj,
+          delete je.progenyList;
       }),
-      (We.handleTap = function(e, t) {
-        var n = Object.getPrototypeOf(We).handleTap(e, t),
+      (je.handleTap = function(e, t) {
+        var n = Object.getPrototypeOf(je).handleTap(e, t),
           i = $('#delete-confirm-modal'),
-          a = i.find('.util-popup-content');
+          o = i.find('.util-popup-content');
         n &&
-          ((We.gobj = n),
-          (We.progenyList = n.sQuery.sketch.gobjList.compileDescendants(n)),
-          se(We.progenyList, 'targetHighlit'),
+          ((je.gobj = n),
+          (je.progenyList = n.sQuery.sketch.gobjList.compileDescendants(n)),
+          se(je.progenyList, 'targetHighlit'),
           i.css('display', 'block'),
-          a.tinyDraggable({ exclude: '.dragExclude' }),
+          o.tinyDraggable({ exclude: '.dragExclude' }),
           $('#deleteCancel').focus());
       }),
-      (We.deleteConfirm = function() {
+      (je.deleteConfirm = function() {
         $('#delete-confirm-modal').css('display', 'none'),
-          We.deleteWithProgeny(We.gobj, We.progenyList);
+          je.deleteWithProgeny(je.gobj, je.progenyList);
       }),
-      (We.deleteCancel = function() {
+      (je.deleteCancel = function() {
         $('#delete-confirm-modal').css('display', 'none'),
-          se(We.progenyList, 'none');
+          se(je.progenyList, 'none');
       }),
       {
         initWidget: ue,
@@ -1721,109 +1739,109 @@ var PREF = (function() {
         toggleVisibilityModality: function() {
           ye === Oe
             ? Oe.deactivate(Oe)
-            : ve && be.data('document') && Oe.activate(n());
+            : ve && he.data('document') && Oe.activate(n());
         },
         toggleLabelModality: function() {
-          ye === _e
-            ? _e.deactivate(_e)
-            : ve && be.data('document') && _e.activate(n());
-        },
-        toggleObjectModality: function() {
           ye === We
             ? We.deactivate(We)
-            : ve && be.data('document') && We.activate(n());
+            : ve && he.data('document') && We.activate(n());
         },
-        toggleTraceModality: function() {
+        toggleObjectModality: function() {
           ye === je
             ? je.deactivate(je)
-            : ve && be.data('document') && je.activate(n());
+            : ve && he.data('document') && je.activate(n());
+        },
+        toggleTraceModality: function() {
+          ye === _e
+            ? _e.deactivate(_e)
+            : ve && he.data('document') && _e.activate(n());
         },
         setTraceEnabling: function(e) {
-          je.setEnabling(e);
+          _e.setEnabling(e);
         },
         setTraceFading: function(e) {
-          je.setFading(e);
+          _e.setFading(e);
         },
         setTraceGlowing: function(e) {
-          je.setGlowing(e);
+          _e.setGlowing(e);
         },
         clearTraces: function() {
           n().clearTraces(), $('#wTracePrompt').css('display', 'none');
         },
         toggleGobjTracing: function(e, t) {
-          je.toggleGobjTracing(e, t);
+          _e.toggleGobjTracing(e, t);
         },
         pointCheckClicked: function() {
-          j(0 > ke ? $e.defaultPointStyle : -1);
+          _(0 > Pe ? $e.defaultPointStyle : -1);
         },
         pointGridClicked: function(e) {
           var t = p();
-          j(Math.floor(e.offsetY / (20 * t)));
+          _(Math.floor(e.offsetY / (20 * t)));
         },
         lineCheckClicked: function() {
-          0 > Te && 0 > Pe
-            ? _($e.defaultLineThickness, $e.defaultLineStyle)
-            : _(-1, -1);
+          0 > Te && 0 > ke
+            ? W($e.defaultLineThickness, $e.defaultLineStyle)
+            : W(-1, -1);
         },
         lineGridClicked: function(e) {
           var t = p();
-          _(Math.floor(e.offsetY / (20 * t)), Math.floor(e.offsetX / (51 * t)));
+          W(Math.floor(e.offsetY / (20 * t)), Math.floor(e.offsetX / (51 * t)));
         },
         colorCheckClicked: function() {
           var e = g($e.objectColorBox);
           e || $e.textColorBox.checked
-            ? 0 > Ce && W($e.defaultColor.column, $e.defaultColor.row)
-            : W(-1, 0);
+            ? 0 > Ce && j($e.defaultColor.column, $e.defaultColor.row)
+            : j(-1, 0);
         },
         labelCheckClicked: function() {
           var e = g($e.textColorBox);
           e || $e.objectColorBox.checked
-            ? 0 > Ce && W($e.defaultColor.column, $e.defaultColor.row)
-            : W(-1, 0);
+            ? 0 > Ce && j($e.defaultColor.column, $e.defaultColor.row)
+            : j(-1, 0);
         },
         labelSetFontSize: function(e) {
-          me && _e.setFontSize(+e);
+          me && We.setFontSize(+e);
         },
         labelSetFont: function(e) {
-          me && _e.setFont(e);
+          me && We.setFont(e);
         },
         colorGridClicked: function(e) {
           var t = p(),
             n = e.pageX - $('#widget_colorGrid').offset().left,
             i = e.pageY - $('#widget_colorGrid').offset().top,
-            a = Math.min(8, Math.floor(n / (27.2 * t))),
-            o = Math.floor(i / (27 * t));
-          W(a, o);
+            o = Math.min(8, Math.floor(n / (27.2 * t))),
+            a = Math.floor(i / (27 * t));
+          j(o, a);
         },
         labelChanged: function(e, t) {
-          t || (t = me), LabelControls.labelChanged(e) || K(t, e);
+          t || (t = me), LabelControls.labelChanged(e) || H(t, e);
         },
         controlCallback: function(e, t) {
-          return (e = K(me, e, t));
+          return (e = H(me, e, t));
         },
         labelToggled: function() {
-          J(_e.showLabelElt.prop('checked'));
+          J(We.showLabelElt.prop('checked'));
         },
         invalidateLabel: function(e, t) {
           V(e, t);
         },
         deleteWithProgeny: function(e, t) {
           var i = n().gobjList.gobjects,
-            a = i[e],
-            o = {};
+            o = i[e],
+            a = {};
           t.forEach(function(e) {
-            o[e] = i[e];
+            a[e] = i[e];
           }),
-            We.deleteWithProgeny(a, o);
+            je.deleteWithProgeny(o, a);
         },
         deleteConfirm: function() {
-          We.deleteConfirm(this);
+          je.deleteConfirm(this);
         },
         deleteCancel: function() {
-          We.deleteCancel(this);
+          je.deleteCancel(this);
         },
         setWidgetsPrefs: function(e) {
-          PREF.setWebPagePrefs(e);
+          WSP.PREF.setWebPagePrefs(e);
         },
         getScriptPath: function() {
           return pe;
@@ -1836,13 +1854,13 @@ var PREF = (function() {
   })(),
   LabelControls = (function() {
     function e(e, t) {
-      var n = { namedFromTemplate: i, namedFromLabel: a, noVisibleName: o },
+      var n = { namedFromTemplate: i, namedFromLabel: o, noVisibleName: a },
         r = {
           namedByPrime: l,
           namedByShortFn: s,
           namedByFullFn: c,
-          namedFromLabel: a,
-          noVisibleName: o,
+          namedFromLabel: o,
+          noVisibleName: a,
         };
       switch (e) {
         case 'measure':
@@ -1852,7 +1870,7 @@ var PREF = (function() {
           return r[t];
       }
     }
-    function t(t, n, i, a, o, l, s, c) {
+    function t(t, n, i, o, a, l, s, c) {
       (this.mode = t),
         (this.oldText = n.label),
         (this.oldOrigin = n.style.nameOrigin),
@@ -1860,8 +1878,8 @@ var PREF = (function() {
         (this.labelText = n.label),
         $(l).prop('value', n.label),
         (this.callback = i),
-        (this.textRule = a),
-        (this.originRule = o),
+        (this.textRule = o),
+        (this.originRule = a),
         (this.radioSelector = s),
         (this.inputSelector = l),
         (this.showSelector = c),
@@ -1869,10 +1887,10 @@ var PREF = (function() {
         (this.radioPressed = function(t) {
           var n,
             i,
-            a = this.textRule[t],
-            o = this.tappedGobj;
-          'namedFromLabel' === t && '' === a && (a = o.label),
-            (t !== o.style.nameOrigin || a !== o.label) &&
+            o = this.textRule[t],
+            a = this.tappedGobj;
+          'namedFromLabel' === t && '' === o && (o = a.label),
+            (t !== a.style.nameOrigin || o !== a.label) &&
               ((n = e(this.mode, t)), (this.state = new n(this))),
             'namedFromLabel' === t &&
               ((i = $(this.inputSelector)[0]),
@@ -1905,21 +1923,21 @@ var PREF = (function() {
     function n(e) {
       (this.nameOrigin = e),
         (this.init = function(t, n, i) {
-          var a,
-            o = n,
+          var o,
+            a = n,
             l = 'noVisibleName' === e && 'transImage' === t.mode;
           (this.machine = t),
-            e !== t.lastOrigin && (o = t.callback(n, e)),
-            '' !== n && $(t.inputSelector).val(o),
-            (a = $(this.machine.radioSelector + '[value=' + e + ']')),
-            a.prop('checked') || a.prop('checked', !0),
+            e !== t.lastOrigin && (a = t.callback(n, e)),
+            '' !== n && $(t.inputSelector).val(a),
+            (o = $(this.machine.radioSelector + '[value=' + e + ']')),
+            o.prop('checked') || o.prop('checked', !0),
             l
               ? $(t.radioSelector).prop('checked', !1)
-              : o !== n &&
-                ((this.machine.labelText = o),
+              : a !== n &&
+                ((this.machine.labelText = a),
                 delete this.machine.originRule[n],
-                (this.machine.originRule[o] = e),
-                (this.machine.textRule[e] = o)),
+                (this.machine.originRule[a] = e),
+                (this.machine.textRule[e] = a)),
             $(t.showSelector).prop('checked', i),
             (t.lastOrigin = e);
         });
@@ -1927,10 +1945,10 @@ var PREF = (function() {
     function i(e) {
       this.init(e, '', !0);
     }
-    function a(e) {
+    function o(e) {
       this.init(e, e.labelText, !0);
     }
-    function o(e) {
+    function a(e) {
       this.init(e, '', !1), WIDGETS.labelToggled();
     }
     function l(e) {
@@ -1946,10 +1964,10 @@ var PREF = (function() {
     return (
       (i.prototype = new n('namedFromTemplate')),
       (i.prototype.constructor = i),
-      (a.prototype = new n('namedFromLabel')),
-      (a.prototype.constructor = a),
-      (o.prototype = new n('noVisibleName')),
+      (o.prototype = new n('namedFromLabel')),
       (o.prototype.constructor = o),
+      (a.prototype = new n('noVisibleName')),
+      (a.prototype.constructor = a),
       (l.prototype = new n('namedByPrime')),
       (l.prototype.constructor = l),
       (s.prototype = new n('namedByShortFn')),
@@ -1957,9 +1975,9 @@ var PREF = (function() {
       (c.prototype = new n('namedByFullFn')),
       (c.prototype.constructor = c),
       {
-        init: function(n, i, a, o, l, s, c, d) {
+        init: function(n, i, o, a, l, s, c, d) {
           var u = e(n, i.style.nameOrigin);
-          (r = new t(n, i, a, o, l, s, c, d)),
+          (r = new t(n, i, o, a, l, s, c, d)),
             (r.state = new u(r)),
             $('.wLabelRadios label').click(function(e) {
               LabelControls.transition(e);
@@ -1996,34 +2014,38 @@ var PREF = (function() {
         t.forEach(function(t) {
           var n = t.$element,
             i = n[0],
-            a = t.metadata.name.toLowerCase().replace(/\s+/g, ''),
-            o = PREF.getPref(e, a, 'tool'),
-            l = i.className;
-          (l = l
+            o = t.metadata.name.toLowerCase().replace(/\s+/g, '') + 'tool',
+            a = e.getExplicitPref(o),
+            l = a.exists,
+            s = l ? a.value : ['all'],
+            c = i.className,
+            r = ['all', !0, 'true'],
+            d = r.includes(s[0]);
+          (c = c
             .replace(/\bpage_toggle\b/, ' ')
             .replace(/\bp_\d+\b/g, ' ')
             .trim()),
-            o &&
-              'all' !== o[0] &&
-              ((l += ' page_toggle'),
-              'none' !== o[0] &&
-                o.forEach(function(e) {
-                  l += ' p_' + e;
+            l &&
+              !r.includes(s[0]) &&
+              ((c += ' page_toggle'),
+              'none' !== s[0] &&
+                s.forEach(function(e) {
+                  c += ' p_' + e;
                 })),
-            (i.className = l.trim()),
-            n.toggle('all' === o[0] || o.includes(e.focusPage.metadata.id));
+            (i.className = c.trim()),
+            n.toggle(d || s.includes(e.focusPage.metadata.id));
         });
     }
     function i(t) {
       var n,
         i,
-        a,
-        o = t.canvasNode[0],
-        l = e(o, '.page_buttons'),
-        s = e(o, '.button_area'),
-        d = PREF.getPref(t, 'pagecontrol'),
-        u = PREF.getPref(t, 'resetbutton'),
-        p = PREF.getPref(t, 'wsplogo');
+        o,
+        a = t.canvasNode[0],
+        l = e(a, '.page_buttons'),
+        s = e(a, '.button_area'),
+        d = WSP.PREF.getPref(t, 'pagecontrol'),
+        u = WSP.PREF.getPref(t, 'resetbutton'),
+        p = WSP.PREF.getPref(t, 'wsplogo');
       if (1 === l.length && d) {
         if (
           ((n =
@@ -2034,25 +2056,26 @@ var PREF = (function() {
         ) {
           i = '<div class="button_area"></div>';
           var f = l.detach();
-          (s = $(i)), (s = s.append(f)), $(o).after(s);
+          (s = $(i)), (s = s.append(f)), $(a).after(s);
         }
-        l.find('.page_num').on('click', { node: o }, function(e) {
+        l.find('.page_num').on('click', { node: a }, function(e) {
           return r(e.data.node), !1;
         }),
-          l.find('.page_prevBtn').on('click', { node: o }, function(e) {
+          l.find('.page_prevBtn').on('click', { node: a }, function(e) {
             return c(e.data.node, -1, !0), !1;
           }),
-          l.find('.page_nextBtn').on('click', { node: o }, function(e) {
+          l.find('.page_nextBtn').on('click', { node: a }, function(e) {
             return c(e.data.node, 1, !0), !1;
           }),
-          c(o, +t.metadata['start-page']);
+          c(a, +t.metadata['start-page']);
       }
       1 === s.length &&
         (u.length &&
           'none' !== u[0] &&
-          0 === e(o, '.reset_button').length &&
+          0 === e(a, '.reset_button').length &&
           ((n = '<button class="reset_button'),
           'all' !== u[0] &&
+            'all' !== u &&
             ((n += ' page_toggle'),
             u.forEach(function(e) {
               n += ' p_' + e;
@@ -2060,12 +2083,12 @@ var PREF = (function() {
           (n += '" onclick="PAGENUM.resetPage(this);">Reset</button>'),
           s.append(n)),
         p &&
-          0 === e(o, '.wsp_logo').length &&
+          0 === e(a, '.wsp_logo').length &&
           ((n = '<div class="wsp_logo"></div>'),
-          (a = s.find('.util-menu-btn')),
-          a.length > 0 ? a.after(n) : s.prepend(n)));
+          (o = s.find('.util-menu-btn')),
+          o.length > 0 ? o.after(n) : s.prepend(n)));
     }
-    function a(e) {
+    function o(e) {
       var t = e.focusPage.metadata.id,
         n = $(e.canvasNode)
           .parent()
@@ -2074,14 +2097,14 @@ var PREF = (function() {
         ($(n).css('background-color', '#fff'),
         $(n[t - 1]).css('background-color', '#ccc'));
     }
-    function o(e, t, n) {
+    function a(e, t, n) {
       var i = $(t)
         .closest('.sketch_container')
         .find('.page_toggle');
       i.length && (i.hide(), i.filter('.p_' + n).show());
-      var a = 0 === $(t, '.wsp-tools-inner').height();
+      var o = 0 === $(t, '.wsp-tools-inner').height();
       e.getAuthorPreference('UndoRedoInButtonBar') &&
-        a &&
+        o &&
         ($(t, '.wsp-ok-cancel-container').hide(), e.attachUndoRedo());
     }
     function l(e, t) {
@@ -2096,8 +2119,8 @@ var PREF = (function() {
           (s.find('.page_num').html('&nbsp;' + i + '&nbsp;'),
           s.find('.page_nextBtn').css('opacity', l > i ? '1' : '0.4'),
           s.find('.page_prevBtn').css('opacity', i > 1 ? '1' : '0.4'),
-          a(e)),
-        o(e, t, i);
+          o(e)),
+        a(e, t, i);
     }
     function s() {
       var e = $('.sketch_canvas');
@@ -2109,21 +2132,21 @@ var PREF = (function() {
         });
     }
     function c(e, n, i) {
-      var a = t(e),
-        o = a.focusPage,
-        l = +a.focusPage.metadata.id;
+      var o = t(e),
+        a = o.focusPage,
+        l = +o.focusPage.metadata.id;
       i && (n += l),
         n > 0 &&
-          n <= a.docSpec.pages.length &&
+          n <= o.docSpec.pages.length &&
           n !== l &&
-          (u && !o.preferences.fadeTraces && o.saveTraces(), a.switchPage(n));
+          (u && !a.preferences.fadeTraces && a.saveTraces(), o.switchPage(n));
     }
     function r(n) {
       function i(e) {
         return '<span class="page_popupNum">&nbsp;' + e + '&nbsp;</span>';
       }
-      var o = e(n, '.page_buttons');
-      if (o.find('.page_popup').length > 0) return void d(n);
+      var a = e(n, '.page_buttons');
+      if (a.find('.page_popup').length > 0) return void d(n);
       for (
         var l = t(n), s = l.docSpec.pages.length, r = i(1), u = 2;
         s >= u;
@@ -2133,14 +2156,14 @@ var PREF = (function() {
       var p = $.parseHTML(
         '<div class="page_popup" style="line-height:1.1rem;">' + r + '</div>'
       );
-      o.find('.page_num').after(p[0]);
+      a.find('.page_num').after(p[0]);
       var f = $(p).outerHeight() + 1;
       $(p).css({ top: -f + 'px' }),
-        a(l),
-        o.find('.page_popupNum').on('mouseover', { node: n }, function(e) {
+        o(l),
+        a.find('.page_popupNum').on('mouseover', { node: n }, function(e) {
           c(e.data.node, this.innerText.trim());
         }),
-        o.find('.page_popupNum').on('click', { node: n }, function(e) {
+        a.find('.page_popupNum').on('click', { node: n }, function(e) {
           return c(e.data.node, this.innerText.trim()), d(e.data.node), !1;
         }),
         $(window).one('click', { node: n }, function(e) {
@@ -2205,15 +2228,15 @@ var PREF = (function() {
           '</div>'
         );
       }
-      var a = WIDGETS.getScriptPath(),
-        o = $(this),
+      var o = WIDGETS.getScriptPath(),
+        a = $(this),
         l = '<div class="util-menu-btn util-menu">',
-        s = o.parent().find('.util-menu-btn');
+        s = a.parent().find('.util-menu-btn');
       s.length &&
         ((l = '<div class="util-menu-btn util-menu"> '),
         (l +=
           '<img class = "util-menu" src="' +
-          a +
+          o +
           'utility-icon.png" onclick="UTILMENU.menuBtnClicked(this);" />'),
         (l += '<div class="util-menu-content util-menu">'),
         (l += '<div class="util-unit-items util-menu">'),
@@ -2233,29 +2256,29 @@ var PREF = (function() {
         (l += '</div>'),
         (l += '</div>'),
         s.replaceWith(l),
-        o
+        a
           .parent()
           .find('.util-length')
           .click(function() {
-            PREF.setUnitPref(o, 'length', $(event.target).data('unit')),
+            WSP.PREF.setUnitPref(a, 'length', $(event.target).data('unit')),
               n(event.target);
           }),
-        o
+        a
           .parent()
           .find('.util-angle')
           .click(function() {
-            PREF.setUnitPref(o, 'angle', $(event.target).data('unit')),
+            WSP.PREF.setUnitPref(a, 'angle', $(event.target).data('unit')),
               n(event.target);
           }),
-        o
+        a
           .parent()
           .find('.util-menu-content')
           .mouseleave(i));
     }
     function t(t, n) {
       var i,
-        a,
         o,
+        a,
         l,
         s = n.document,
         c = $(s.canvasNode)
@@ -2264,11 +2287,11 @@ var PREF = (function() {
       c.length &&
         ((i = c.find('.util-file-items')),
         i.length || (e.call(s.canvasNode), (i = c.find('.util-file-items'))),
-        (o = PREF.getPref(s, 'upload', 'util')),
-        (a = PREF.getPref(s, 'download', 'util')),
-        (l = o || a),
-        c.find('util-download').show(a),
-        c.find('util-upload').show(o),
+        (a = WSP.PREF.getPref(s, 'upload', 'util')),
+        (o = WSP.PREF.getPref(s, 'download', 'util')),
+        (l = a || o),
+        c.find('util-download').show(o),
+        c.find('util-upload').show(a),
         c.find('util-file-items').show(l));
     }
     function n(e) {
@@ -2296,17 +2319,17 @@ var PREF = (function() {
         var e = this.innerText.substring(2);
         (e = e === s ? '&check; ' + e : r + e), (this.innerHTML = e);
       }
-      var a,
-        o,
+      var o,
+        a,
         l,
         s,
         c,
         r = '&nbsp; ';
       (e = $(e)),
         (e = e.closest('.util-menu-btn')),
-        (a = e.parents('.sketch_container').find('.sketch_canvas')),
-        (o = a.data('document')),
-        (l = o.focusPage.preferences.units),
+        (o = e.parents('.sketch_container').find('.sketch_canvas')),
+        (a = o.data('document')),
+        (l = a.focusPage.preferences.units),
         (c = e.find('.util-length')),
         (s = n(l.length)),
         c.each(i),
@@ -2317,11 +2340,11 @@ var PREF = (function() {
     function i() {
       $('.util-menu-content').hide();
     }
-    function a(e, t) {
+    function o(e, t) {
       var n,
         i,
-        a,
         o,
+        a,
         l,
         s = e.pageData;
       if ($('#util-fname')[0].validity.valid) {
@@ -2336,10 +2359,10 @@ var PREF = (function() {
           var n = t.metadata.id;
           s[n].session.traceData && (t.traceData = s[n].session.traceData);
         }),
-          (a = JSONcanonical.stringify(e.getCurrentSpecObject(), null, 2)),
-          n && (a = 'var ' + i + ' = ' + a + ';'),
-          (o = new Blob([a], { type: 'text/plain' })),
-          (l = URL.createObjectURL(o)),
+          (o = JSONcanonical.stringify(e.getCurrentSpecObject(), null, 2)),
+          n && (o = 'var ' + i + ' = ' + o + ';'),
+          (a = new Blob([o], { type: 'text/plain' })),
+          (l = URL.createObjectURL(a)),
           (c.href = l),
           (c.download = t),
           c.click(),
@@ -2348,7 +2371,7 @@ var PREF = (function() {
           UTILMENU.closeModal('download-modal', 'save');
       }
     }
-    function o() {
+    function a() {
       var e = $('#download-modal'),
         t = $('#util-fname');
       e.css('display', 'block'),
@@ -2367,7 +2390,7 @@ var PREF = (function() {
     }
     function s() {
       function e() {
-        a($(p).data('document'), $('#util-fname')[0].value);
+        o($(p).data('document'), $('#util-fname')[0].value);
       }
       var t = $(p).data('fileName') + $(p).data('fileExt');
       $('#download-modal').data('sketchNode', p),
@@ -2390,7 +2413,7 @@ var PREF = (function() {
       (p = e),
         (t =
           d(e) &&
-          PREF.shouldEnableForCurrentPage(
+          WSP.PREF.shouldEnableForCurrentPage(
             'util',
             'download',
             $(e).data('document').focusPage
@@ -2417,8 +2440,8 @@ var PREF = (function() {
       var t = $(e).data('document'),
         n = t.getCurrentSpecObject(),
         i = b64_md5(JSON.stringify(n)),
-        a = $(e).data('prevChecksum');
-      return i !== a;
+        o = $(e).data('prevChecksum');
+      return i !== o;
     }
     function u(e) {
       function t(e) {
@@ -2444,7 +2467,7 @@ var PREF = (function() {
               i && (n.label['font-family'] = t(i)));
         });
       }
-      function a(e) {
+      function o(e) {
         n(e.resources.fontList),
           e.pageData
             ? $.each(e.pageData, function(e, t) {
@@ -2454,17 +2477,17 @@ var PREF = (function() {
                 i(t.preferences.text.textTypes);
               });
       }
-      var o = ['"Times New Roman", serif', '"Arial", sans-serif'];
+      var a = ['"Times New Roman", serif', '"Arial", sans-serif'];
       e.resources
         ? e.resources.fontList
-          ? a(e)
-          : (e.resources.fontList = o)
-        : (e.resources = { fontList: o }),
+          ? o(e)
+          : (e.resources.fontList = a)
+        : (e.resources = { fontList: a }),
         e.docSpec.resources
           ? e.docSpec.resources.fontList
-            ? a(e.docSpec)
-            : (e.docSpec.resources.fontList = o)
-          : (e.docSpec.resources = { fontList: o }),
+            ? o(e.docSpec)
+            : (e.docSpec.resources.fontList = a)
+          : (e.docSpec.resources = { fontList: a }),
         i(e.focusPage.preferences.text.textTypes),
         r(e);
     }
@@ -2479,7 +2502,7 @@ var PREF = (function() {
         else if ('upload-modal' === e)
           switch (t) {
             case 'save':
-              o($(this).parents('.util-menu-btn'));
+              a($(this).parents('.util-menu-btn'));
               break;
             case 'dont-save':
               $('#file-name-input').click();
@@ -2491,31 +2514,31 @@ var PREF = (function() {
           $('#download-modal').data('callSave') &&
             $('#download-modal').removeData('callSave'),
           s(p),
-          o();
+          a();
       },
       loadSketch: function(e) {
-        var t, n, i, a;
+        var t, n, i, o;
         if (e) {
           if (
             ((t = new FileReader()),
             (n = $(p)),
             (i = e.name),
-            (a = i.endsWith('-json.js')))
+            (o = i.endsWith('-json.js')))
           )
             i = i.replace(/\.js$/, '');
           else if (!i.endsWith('.json')) return;
           (i = i.replace(/[\.\-]json/, '')),
             (t.onload = function(e) {
               var t,
-                o = e.target.result;
-              a &&
-                ((t = o.indexOf('{')),
-                (o = o.substring(t)),
-                (t = o.match(/}\s*;\s*$/).index),
-                (o = o.substring(0, t + 1))),
-                n.data('sourceDocument', o),
+                a = e.target.result;
+              o &&
+                ((t = a.indexOf('{')),
+                (a = a.substring(t)),
+                (t = a.match(/}\s*;\s*$/).index),
+                (a = a.substring(0, t + 1))),
+                n.data('sourceDocument', a),
                 n.data('fileName', i),
-                n.data('fileExt', a ? '-json.js' : '.json'),
+                n.data('fileExt', o ? '-json.js' : '.json'),
                 n.WSP('loadSketch'),
                 n.removeData('sourceDocument');
             }),
@@ -2538,6 +2561,123 @@ var PREF = (function() {
       },
     };
   })();
-$(function() {
-  WIDGETS.initWidget(), PAGENUM.initPageControls(), UTILMENU.initUtils();
-});
+(GSP.ToolHelp = (function() {
+  function e() {
+    return $('#toolHelpModal');
+  }
+  function t(t) {
+    e().data('timerId', t);
+  }
+  function n() {
+    return e().data('timerId');
+  }
+  function i() {
+    t(0);
+  }
+  function o(e, n, i) {
+    var o = setTimeout(i, n, e);
+    return t(o), o;
+  }
+  function a() {
+    var e = n();
+    clearTimeout(e), i();
+  }
+  function l(t) {
+    e().data('toolButton', t);
+  }
+  function s() {
+    return e().data('toolButton');
+  }
+  function c(e) {
+    var t = e.data('tool');
+    return t;
+  }
+  function r(e, t) {
+    var n = t.closest('.sketch_canvas')[0] || $('.sketch_canvas')[0],
+      i = $(n).data('document');
+    e.metadata.help &&
+      i &&
+      i.getAuthorPreference('toolhelp') &&
+      (t.data('tool', e), d(t));
+  }
+  function d(t) {
+    var i = c(t);
+    t.on('mousedown', function(e) {
+      var t = o(e, 1500, function() {
+        console.log(t, 'timeout expired: showing modal'), f(i, $(e.target));
+      });
+      console.log('mousedown: started timeout', t);
+    })
+      .on('mouseleave', function(t) {
+        var i = n();
+        i &&
+          (console.log('mouseleave: clearing timeout', i),
+          a(),
+          e().is(':visible') && t.stopPropagation());
+      })
+      .on('mouseup', function(t) {
+        var i = n();
+        i &&
+          (console.log('mouseup: clearing timeout', i),
+          a(),
+          e().is(':visible') && t.stopPropagation());
+      });
+  }
+  function u(e) {
+    e.stopPropagation();
+  }
+  function p(t) {
+    var n = s();
+    t
+      ? (e().on('mouseup', u),
+        $(window).on('click mouseup', g),
+        n.parent().hasClass('wsp-tool-active') &&
+          n.parent().removeClass('wsp-tool-active'))
+      : ($(window).off('click mouseup', g), e().off('mouseup', u));
+  }
+  function f(t, n) {
+    var i = t.metadata,
+      o = '<a href = "' + i.help.tutorialUrl + '"> Full Video </a>',
+      a = e();
+    l(n),
+      a.find('span#toolName').html(i.name),
+      a.find('p.tool-help-text').html(i.help.textHint),
+      a.find('span.tool-help-tutorial').html(o),
+      p(!0),
+      a.show();
+  }
+  function g(t) {
+    var n = e(),
+      i = s(),
+      o = i[0].getBoundingClientRect(),
+      a = t.pageX,
+      l = t.pageY,
+      c = a > o.left && a < o.right && l > o.top && l < o.bottom;
+    c
+      ? t.stopPropagation()
+      : (!n.has(t.target).length || $(t.target).hasClass('tool-help-close')) &&
+        (n.hide(), p(!1), $(window).off('click mouseup', g));
+  }
+  function v() {
+    var t =
+      '<div id="toolHelpModal" class="tool-help-modal"><div class="tool-help-content"><span class="tool-help-close">&times;</span><p class="tool-help-title">Help for the <span id="toolName"> such and so </span> Tool</p><p class="tool-help-text">Help text goes here.</p><p class="tool-help-videos"><strong><span class="tool-help-hint">Hint Video Link</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="tool-help-tutorial">Full Video Link</span></p></div></div>';
+    $('body').append(t),
+      e()
+        .find('.tool-help-close')
+        .on('click', g);
+  }
+  return {
+    init: function() {
+      v();
+    },
+    addToolHelp: function(e, t) {
+      r(e, $(t));
+    },
+  };
+})()),
+  $(function() {
+    WIDGETS.initWidget(),
+      PAGENUM.initPageControls(),
+      UTILMENU.initUtils(),
+      GSP.ToolHelp.init();
+  });

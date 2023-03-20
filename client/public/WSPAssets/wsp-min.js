@@ -1,6 +1,6 @@
 /*!
   Web Sketchpad. Copyright &copy; 2019 KCP Technologies, a McGraw-Hill Education Company. All rights reserved. 
-  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230306155548
+  Version: Release: 2020Q3, semantic Version: 4.8.0, Build Number: 1077, Build Stamp: stek-MBP-2.fios-router.home/20230317082856
 
   Web Sketchpad uses the Alphanum Algorithm by Brian Huisman and David Koelle, which is
   available here:
@@ -957,7 +957,7 @@ function bit_rol(e, t) {
     (a.StaticMath = c(
       k(R, function(e, t) {
         (e.init = function(e) {
-          this.initRoot(H(), e.addClass('mq-math-mode')),
+          this.initRoot(Y(), e.addClass('mq-math-mode')),
             this.__controller.delegateMouseEvents(),
             this.__controller.staticMathTextareaEvents();
         }),
@@ -1481,11 +1481,11 @@ function bit_rol(e, t) {
     });
   var V = (function() {
     function e(e) {
-      var t = H();
+      var t = Y();
       return e.adopt(t, 0, 0), t;
     }
     function t(e) {
-      for (var t = e[0] || H(), n = 1; n < e.length; n += 1)
+      for (var t = e[0] || Y(), n = 1; n < e.length; n += 1)
         e[n].children().adopt(t, t.ends[C], 0);
       return t;
     }
@@ -1850,7 +1850,7 @@ function bit_rol(e, t) {
             t > i;
             i += 1
           ) {
-            var r = (n[i] = H());
+            var r = (n[i] = Y());
             r.adopt(e, e.ends[C], 0);
           }
         }),
@@ -1999,7 +1999,7 @@ function bit_rol(e, t) {
         t.init.call(this, e, '<span>' + (n || e) + '</span>');
       };
     }),
-    Y = k(_, function(e, t) {
+    H = k(_, function(e, t) {
       e.init = function(e, n, i) {
         t.init.call(
           this,
@@ -2009,7 +2009,7 @@ function bit_rol(e, t) {
         );
       };
     }),
-    H = k(q, function(e, t) {
+    Y = k(q, function(e, t) {
       (e.join = function(e) {
         return this.foldChildren('', function(t, n) {
           return t + n[e]();
@@ -2078,7 +2078,7 @@ function bit_rol(e, t) {
           );
         });
     }),
-    W = k(H, l);
+    W = k(Y, l);
   a.MathField = c(
     k(N, function(e, t) {
       e.init = function(e, t) {
@@ -2212,9 +2212,9 @@ function bit_rol(e, t) {
           } else this.anticursorPosition = t[P] && t[P].text.length;
         }),
         (e.blur = function() {
-          H.prototype.blur.call(this), n(this);
+          Y.prototype.blur.call(this), n(this);
         }),
-        (e.focus = H.prototype.focus);
+        (e.focus = Y.prototype.focus);
     }),
     K = k(T, function(e, t) {
       function n(e, t) {
@@ -2326,14 +2326,14 @@ function bit_rol(e, t) {
             (this.ends[P].cursor = this.cursor),
             (this.ends[P].write = function(e, t, n) {
               '$' !== t
-                ? H.prototype.write.call(this, e, t, n)
+                ? Y.prototype.write.call(this, e, t, n)
                 : this.isEmpty()
                 ? (e.insRightOf(this.parent),
                   this.parent.deleteTowards(dir, e),
                   Q('\\$', '$').createLeftOf(e.show()))
                 : e[C]
                 ? e[P]
-                  ? H.prototype.write.call(this, e, t, n)
+                  ? Y.prototype.write.call(this, e, t, n)
                   : e.insLeftOf(this.parent)
                 : e.insRightOf(this.parent);
             });
@@ -2447,53 +2447,53 @@ function bit_rol(e, t) {
             this._replacedFragment && this._replacedFragment.remove());
       });
   });
-  (I.notin = I.cong = I.equiv = I.oplus = I.otimes = k(Y, function(e, t) {
+  (I.notin = I.cong = I.equiv = I.oplus = I.otimes = k(H, function(e, t) {
     e.init = function(e) {
       t.init.call(this, '\\' + e + ' ', '&' + e + ';');
     };
   })),
-    (I['≠'] = I.ne = I.neq = i(Y, '\\ne ', '&#x2260;')),
-    (I.ast = I.star = I.loast = I.lowast = i(Y, '\\ast ', '&#x2217;')),
-    (I.therefor = I.therefore = i(Y, '\\therefore ', '&#x2234;')),
-    (I.cuz = I.because = i(Y, '\\because ', '&#8757;')),
-    (I.prop = I.propto = i(Y, '\\propto ', '&#x221D;')),
-    (I['≈'] = I.asymp = I.approx = i(Y, '\\approx ', '&#x2248;')),
-    (I.isin = I.in = i(Y, '\\in ', '&#x2208;')),
-    (I.ni = I.contains = i(Y, '\\ni ', '&#x220B;')),
+    (I['≠'] = I.ne = I.neq = i(H, '\\ne ', '&#x2260;')),
+    (I.ast = I.star = I.loast = I.lowast = i(H, '\\ast ', '&#x2217;')),
+    (I.therefor = I.therefore = i(H, '\\therefore ', '&#x2234;')),
+    (I.cuz = I.because = i(H, '\\because ', '&#8757;')),
+    (I.prop = I.propto = i(H, '\\propto ', '&#x221D;')),
+    (I['≈'] = I.asymp = I.approx = i(H, '\\approx ', '&#x2248;')),
+    (I.isin = I.in = i(H, '\\in ', '&#x2208;')),
+    (I.ni = I.contains = i(H, '\\ni ', '&#x220B;')),
     (I.notni = I.niton = I.notcontains = I.doesnotcontain = i(
-      Y,
+      H,
       '\\not\\ni ',
       '&#8716;'
     )),
-    (I.sub = I.subset = i(Y, '\\subset ', '&#x2282;')),
-    (I.sup = I.supset = I.superset = i(Y, '\\supset ', '&#x2283;')),
+    (I.sub = I.subset = i(H, '\\subset ', '&#x2282;')),
+    (I.sup = I.supset = I.superset = i(H, '\\supset ', '&#x2283;')),
     (I.nsub = I.notsub = I.nsubset = I.notsubset = i(
-      Y,
+      H,
       '\\not\\subset ',
       '&#8836;'
     )),
     (I.nsup = I.notsup = I.nsupset = I.notsupset = I.nsuperset = I.notsuperset = i(
-      Y,
+      H,
       '\\not\\supset ',
       '&#8837;'
     )),
     (I.sube = I.subeq = I.subsete = I.subseteq = i(
-      Y,
+      H,
       '\\subseteq ',
       '&#x2286;'
     )),
     (I.supe = I.supeq = I.supsete = I.supseteq = I.supersete = I.superseteq = i(
-      Y,
+      H,
       '\\supseteq ',
       '&#x2287;'
     )),
     (I.nsube = I.nsubeq = I.notsube = I.notsubeq = I.nsubsete = I.nsubseteq = I.notsubsete = I.notsubseteq = i(
-      Y,
+      H,
       '\\not\\subseteq ',
       '&#8840;'
     )),
     (I.nsupe = I.nsupeq = I.notsupe = I.notsupeq = I.nsupsete = I.nsupseteq = I.notsupsete = I.notsupseteq = I.nsupersete = I.nsuperseteq = I.notsupersete = I.notsuperseteq = i(
-      Y,
+      H,
       '\\not\\supseteq ',
       '&#8841;'
     )),
@@ -2635,20 +2635,20 @@ function bit_rol(e, t) {
     )),
     (I.diverges = I.uarr = I.uparrow = i(Q, '\\uparrow ', '&#x2191;')),
     (I.uArr = I.Uparrow = i(Q, '\\Uparrow ', '&#x21D1;')),
-    (I.to = i(Y, '\\to ', '&#x2192;')),
+    (I.to = i(H, '\\to ', '&#x2192;')),
     (I.rarr = I.rightarrow = i(Q, '\\rightarrow ', '&#x2192;')),
-    (I.implies = i(Y, '\\Rightarrow ', '&#x21D2;')),
+    (I.implies = i(H, '\\Rightarrow ', '&#x21D2;')),
     (I.rArr = I.Rightarrow = i(Q, '\\Rightarrow ', '&#x21D2;')),
-    (I.gets = i(Y, '\\gets ', '&#x2190;')),
+    (I.gets = i(H, '\\gets ', '&#x2190;')),
     (I.larr = I.leftarrow = i(Q, '\\leftarrow ', '&#x2190;')),
-    (I.impliedby = i(Y, '\\Leftarrow ', '&#x21D0;')),
+    (I.impliedby = i(H, '\\Leftarrow ', '&#x21D0;')),
     (I.lArr = I.Leftarrow = i(Q, '\\Leftarrow ', '&#x21D0;')),
     (I.harr = I.lrarr = I.leftrightarrow = i(
       Q,
       '\\leftrightarrow ',
       '&#x2194;'
     )),
-    (I.iff = i(Y, '\\Leftrightarrow ', '&#x21D4;')),
+    (I.iff = i(H, '\\Leftrightarrow ', '&#x21D4;')),
     (I.hArr = I.lrArr = I.Leftrightarrow = i(
       Q,
       '\\Leftrightarrow ',
@@ -2667,12 +2667,12 @@ function bit_rol(e, t) {
     (I.and = I.land = I.wedge = i(Q, '\\wedge ', '&#x2227;')),
     (I.or = I.lor = I.vee = i(Q, '\\vee ', '&#x2228;')),
     (I.o = I.O = I.empty = I.emptyset = I.oslash = I.Oslash = I.nothing = I.varnothing = i(
-      Y,
+      H,
       '\\varnothing ',
       '&#x8960;'
     )),
-    (I.cup = I.union = i(Y, '\\cup ', '&#x222A;')),
-    (I.cap = I.intersect = I.intersection = i(Y, '\\cap ', '&#x2229;')),
+    (I.cup = I.union = i(H, '\\cup ', '&#x222A;')),
+    (I.cap = I.intersect = I.intersection = i(H, '\\cap ', '&#x2229;')),
     (I.deg = I.degree = i(Q, '^\\circ ', '&#x00B0;')),
     (I.ang = I.angle = i(Q, '\\angle ', '&#x2220;'));
   var $ = k(_, function(e, t) {
@@ -2684,10 +2684,10 @@ function bit_rol(e, t) {
         return (
           !this[P] ||
             this[P] instanceof $ ||
-            this[P] instanceof Y ||
+            this[P] instanceof H ||
             (e = '*' + e),
           !this[C] ||
-            this[C] instanceof Y ||
+            this[C] instanceof H ||
             '^' === this[C].ctrlSeq ||
             (e += '*'),
           e
@@ -2709,7 +2709,7 @@ function bit_rol(e, t) {
     });
   var ee = k($, function(e, t) {
       function n(e) {
-        return e instanceof _ && !(e instanceof Y);
+        return e instanceof _ && !(e instanceof H);
       }
       (e.init = function(e) {
         return t.init.call(this, (this.letter = e));
@@ -2817,7 +2817,7 @@ function bit_rol(e, t) {
           ee(t.charAt(n)).createLeftOf(e);
       }),
       (e.parser = function() {
-        for (var e = this.ctrlSeq, t = H(), n = 0; n < e.length; n += 1)
+        for (var e = this.ctrlSeq, t = Y(), n = 0; n < e.length; n += 1)
           ee(e.charAt(n)).adopt(t, t.ends[C], 0);
         return z.succeed(t.children());
       });
@@ -2927,12 +2927,12 @@ function bit_rol(e, t) {
     (I['¼'] = i(oe, '\\frac14')),
     (I['½'] = i(oe, '\\frac12')),
     (I['¾'] = i(oe, '\\frac34'));
-  var ae = k(Y, function(e) {
+  var ae = k(H, function(e) {
     (e.init = Q.prototype.init),
       (e.contactWeld = e.siblingCreated = e.siblingDeleted = function(e, t) {
         return t !== C
           ? ((this.jQ[0].className =
-              !this[P] || this[P] instanceof Y ? '' : 'mq-binary-operator'),
+              !this[P] || this[P] instanceof H ? '' : 'mq-binary-operator'),
             this)
           : void 0;
       });
@@ -2941,8 +2941,8 @@ function bit_rol(e, t) {
     (I['–'] = I['-'] = i(ae, '-', '&#x2212;')),
     (I['±'] = I.pm = I.plusmn = I.plusminus = i(ae, '\\pm ', '&#x00B1;')),
     (I.mp = I.mnplus = I.minusplus = i(ae, '\\mp ', '&#8723;')),
-    (F['*'] = I.sdot = I.cdot = i(Y, '\\cdot ', '&#x00B7;'));
-  var ce = k(Y, function(e, t) {
+    (F['*'] = I.sdot = I.cdot = i(H, '\\cdot ', '&#x00B7;'));
+  var ce = k(H, function(e, t) {
       (e.init = function(e, n) {
         (this.data = e), (this.strict = n);
         var i = n ? 'Strict' : '';
@@ -2981,7 +2981,7 @@ function bit_rol(e, t) {
     (I['>'] = I.gt = i(ce, ue, !0)),
     (I['≤'] = I.le = I.leq = i(ce, le, !1)),
     (I['≥'] = I.ge = I.geq = i(ce, ue, !1));
-  var de = k(Y, function(e, t) {
+  var de = k(H, function(e, t) {
     (e.init = function() {
       t.init.call(this, '=', '=');
     }),
@@ -2992,9 +2992,9 @@ function bit_rol(e, t) {
       });
   });
   (I['='] = de),
-    (I.times = i(Y, '\\times ', '&#x00D7;', '[x]')),
-    (I['÷'] = I.div = I.divide = I.divides = i(Y, '\\div ', '&#x00F7;', '[/]')),
-    (F['~'] = I.sim = i(Y, '\\sim ', '&#x223C;', '~'));
+    (I.times = i(H, '\\times ', '&#x00D7;', '[x]')),
+    (I['÷'] = I.div = I.divide = I.divides = i(H, '\\div ', '&#x00F7;', '[/]')),
+    (F['~'] = I.sim = i(H, '\\sim ', '&#x223C;', '~'));
   var he,
     pe,
     fe = e,
@@ -3162,7 +3162,7 @@ function bit_rol(e, t) {
             this.ends[P].write = function(e, t) {
               e.options.charsThatBreakOutOfSupSub.indexOf(t) > -1 &&
                 e.insRightOf(this.parent),
-                H.p.write.apply(this, arguments);
+                Y.p.write.apply(this, arguments);
             };
           }),
           (e.latex = function() {
@@ -3252,7 +3252,7 @@ function bit_rol(e, t) {
               n = z.succeed,
               i = V.block,
               r = this,
-              s = (r.blocks = [H(), H()]),
+              s = (r.blocks = [Y(), Y()]),
               o = 0;
             o < s.length;
             o += 1
@@ -3318,7 +3318,7 @@ function bit_rol(e, t) {
             var i = t[P];
             i &&
             !(
-              i instanceof Y ||
+              i instanceof H ||
               i instanceof (I.text || e) ||
               i instanceof we ||
               '\\ ' === i.ctrlSeq ||
@@ -8019,6 +8019,7 @@ var hexcase = 0,
               'ToolRemoved',
               'ToolMoved',
               'ToolPagesChanged',
+              'ShowToolHelp',
             ],
             trigger: function(e, n, i) {
               var r,
@@ -8738,7 +8739,8 @@ var hexcase = 0,
             },
             mergeToGObj: function(e, t, n) {
               var i = t.sQuery.sketch,
-                r = this;
+                r = this,
+                s = n && n.proxy;
               i.gobjList.gobjects[e.id] &&
                 (delete this.gobjects[e.id],
                 e.parentsList &&
@@ -8756,6 +8758,7 @@ var hexcase = 0,
                   (t.style.label.showLabel = e.style.label.showLabel)),
                 !t.style.hidden ||
                   e.style.hidden ||
+                  s ||
                   (e.toolRole && 'givenParent' === e.toolRole) ||
                   (t.style = e.style),
                 e.destroy && e.destroy(),
@@ -9860,6 +9863,7 @@ var hexcase = 0,
             toollook: { type: h, defaultValue: 'compact' },
             enabledragmerging: { type: d, defaultValue: ['all'] },
             undoredoinbuttonbar: { type: d, defaultValue: ['none'] },
+            toolhelp: { type: u, defaultValue: !0 },
           };
         a = {
           attachToNode: function(e) {
@@ -18396,8 +18400,8 @@ var hexcase = 0,
                                 ? ((c = S()),
                                   c !== E
                                     ? (41 === e.charCodeAt(an)
-                                        ? ((l = Y), an++)
-                                        : ((l = E), 0 === pn && r(H)),
+                                        ? ((l = H), an++)
+                                        : ((l = E), 0 === pn && r(Y)),
                                       l !== E
                                         ? ((cn = t), (n = W(n, a)), (t = n))
                                         : ((an = t), (t = G)))
@@ -18578,8 +18582,8 @@ var hexcase = 0,
                           ? ((o = S()),
                             o !== E
                               ? (41 === e.charCodeAt(an)
-                                  ? ((a = Y), an++)
-                                  : ((a = E), 0 === pn && r(H)),
+                                  ? ((a = H), an++)
+                                  : ((a = E), 0 === pn && r(Y)),
                                 a !== E
                                   ? ((cn = t), (n = le(s)), (t = n))
                                   : ((an = t), (t = G)))
@@ -18645,8 +18649,8 @@ var hexcase = 0,
                                 ? ((c = S()),
                                   c !== E
                                     ? (41 === e.charCodeAt(an)
-                                        ? ((l = Y), an++)
-                                        : ((l = E), 0 === pn && r(H)),
+                                        ? ((l = H), an++)
+                                        : ((l = E), 0 === pn && r(Y)),
                                       l !== E
                                         ? ((cn = t), (n = he(n, a)), (t = n))
                                         : ((an = t), (t = G)))
@@ -18673,8 +18677,8 @@ var hexcase = 0,
                                   ? ((c = S()),
                                     c !== E
                                       ? (41 === e.charCodeAt(an)
-                                          ? ((l = Y), an++)
-                                          : ((l = E), 0 === pn && r(H)),
+                                          ? ((l = H), an++)
+                                          : ((l = E), 0 === pn && r(Y)),
                                         l !== E
                                           ? ((cn = t), (n = pe(n, a)), (t = n))
                                           : ((an = t), (t = G)))
@@ -18791,8 +18795,8 @@ var hexcase = 0,
                         ? ((a = y()),
                           a !== E
                             ? (101 === e.charCodeAt(an)
-                                ? ((c = Ye), an++)
-                                : ((c = E), 0 === pn && r(He)),
+                                ? ((c = He), an++)
+                                : ((c = E), 0 === pn && r(Ye)),
                               c !== E
                                 ? (45 === e.charCodeAt(an)
                                     ? ((l = Z), an++)
@@ -18888,8 +18892,8 @@ var hexcase = 0,
                     : ((n = E), 0 === pn && r(Ze)),
                   n === E &&
                     (101 === e.charCodeAt(an)
-                      ? ((n = Ye), an++)
-                      : ((n = E), 0 === pn && r(He)))),
+                      ? ((n = He), an++)
+                      : ((n = E), 0 === pn && r(Ye)))),
                 n !== E && ((cn = t), (n = $e(n))),
                 (t = n)),
               t
@@ -19034,8 +19038,8 @@ var hexcase = 0,
             return (
               (t = an),
               120 === e.charCodeAt(an)
-                ? ((n = Yt), an++)
-                : ((n = E), 0 === pn && r(Ht)),
+                ? ((n = Ht), an++)
+                : ((n = E), 0 === pn && r(Yt)),
               n === E &&
                 (121 === e.charCodeAt(an)
                   ? ((n = Wt), an++)
@@ -19115,8 +19119,8 @@ var hexcase = 0,
               value: '[xyr\\u03B8]',
               description: '[xyr\\u03B8]',
             },
-            Y = ')',
-            H = { type: 'literal', value: ')', description: '")"' },
+            H = ')',
+            Y = { type: 'literal', value: ')', description: '")"' },
             W = function(e, t) {
               var n = e.join(''),
                 i = {
@@ -19275,8 +19279,8 @@ var hexcase = 0,
             },
             _e = '.',
             Qe = { type: 'literal', value: '.', description: '"."' },
-            Ye = 'e',
-            He = { type: 'literal', value: 'e', description: '"e"' },
+            He = 'e',
+            Ye = { type: 'literal', value: 'e', description: '"e"' },
             We = function(e) {
               var t = e.join('');
               return T({
@@ -19394,8 +19398,8 @@ var hexcase = 0,
                 name: t,
               });
             },
-            Yt = 'x',
-            Ht = { type: 'literal', value: 'x', description: '"x"' },
+            Ht = 'x',
+            Yt = { type: 'literal', value: 'x', description: '"x"' },
             Wt = 'y',
             Xt = { type: 'literal', value: 'y', description: '"y"' },
             Kt = 'θ',
@@ -19777,7 +19781,7 @@ var hexcase = 0,
           }
           function h() {
             var e;
-            return (e = U()), e === ee && (e = Y()), e;
+            return (e = U()), e === ee && (e = H()), e;
           }
           function p() {
             var t;
@@ -19830,10 +19834,10 @@ var hexcase = 0,
                                       ? ((t = _e), (Ss += 20))
                                       : ((t = ee), 0 === Es && i(Qe)),
                                     t === ee &&
-                                      (e.substr(Ss, 11) === Ye
-                                        ? ((t = Ye), (Ss += 11))
+                                      (e.substr(Ss, 11) === He
+                                        ? ((t = He), (Ss += 11))
                                         : ((t = ee),
-                                          0 === Es && i(He)))))))))))))),
+                                          0 === Es && i(Ye)))))))))))))),
               t
             );
           }
@@ -19959,9 +19963,9 @@ var hexcase = 0,
                                       ? ((t = _t), (Ss += 37))
                                       : ((t = ee), 0 === Es && i(Qt)),
                                     t === ee &&
-                                      (e.substr(Ss, 38) === Yt
-                                        ? ((t = Yt), (Ss += 38))
-                                        : ((t = ee), 0 === Es && i(Ht)),
+                                      (e.substr(Ss, 38) === Ht
+                                        ? ((t = Ht), (Ss += 38))
+                                        : ((t = ee), 0 === Es && i(Yt)),
                                       t === ee &&
                                         (e.substr(Ss, 11) === Wt
                                           ? ((t = Wt), (Ss += 11))
@@ -20088,10 +20092,10 @@ var hexcase = 0,
               t === ee &&
                 (e.substr(Ss, 10) === Qn
                   ? ((t = Qn), (Ss += 10))
-                  : ((t = ee), 0 === Es && i(Yn)),
+                  : ((t = ee), 0 === Es && i(Hn)),
                 t === ee &&
-                  (e.substr(Ss, 10) === Hn
-                    ? ((t = Hn), (Ss += 10))
+                  (e.substr(Ss, 10) === Yn
+                    ? ((t = Yn), (Ss += 10))
                     : ((t = ee), 0 === Es && i(Wn)),
                   t === ee &&
                     (e.substr(Ss, 10) === Xn
@@ -20319,9 +20323,9 @@ var hexcase = 0,
                       ? ((t = _i), (Ss += 5))
                       : ((t = ee), 0 === Es && i(Qi)),
                     t === ee &&
-                      (e.substr(Ss, 6) === Yi
-                        ? ((t = Yi), (Ss += 6))
-                        : ((t = ee), 0 === Es && i(Hi)),
+                      (e.substr(Ss, 6) === Hi
+                        ? ((t = Hi), (Ss += 6))
+                        : ((t = ee), 0 === Es && i(Yi)),
                       t === ee &&
                         (e.substr(Ss, 6) === Wi
                           ? ((t = Wi), (Ss += 6))
@@ -20373,7 +20377,7 @@ var hexcase = 0,
               n !== ee
                 ? ((r = W()),
                   r !== ee
-                    ? ((s = Y()),
+                    ? ((s = H()),
                       s !== ee
                         ? ((o = W()),
                           o !== ee
@@ -20409,7 +20413,7 @@ var hexcase = 0,
               n !== ee
                 ? ((r = W()),
                   r !== ee
-                    ? ((s = Y()),
+                    ? ((s = H()),
                       s !== ee
                         ? ((o = W()),
                           o !== ee
@@ -20472,7 +20476,7 @@ var hexcase = 0,
               n !== ee
                 ? ((r = W()),
                   r !== ee
-                    ? ((s = Y()),
+                    ? ((s = H()),
                       s !== ee
                         ? ((o = W()),
                           o !== ee
@@ -20532,7 +20536,7 @@ var hexcase = 0,
               n !== ee
                 ? ((r = W()),
                   r !== ee
-                    ? ((s = Y()),
+                    ? ((s = H()),
                       s !== ee
                         ? ((o = W()),
                           o !== ee
@@ -20608,7 +20612,7 @@ var hexcase = 0,
             return (
               e.substr(Ss, 6) === Qr
                 ? ((t = Qr), (Ss += 6))
-                : ((t = ee), 0 === Es && i(Yr)),
+                : ((t = ee), 0 === Es && i(Hr)),
               t
             );
           }
@@ -20621,7 +20625,7 @@ var hexcase = 0,
             return (
               (t = Ss),
               45 === e.charCodeAt(Ss)
-                ? ((n = Hr), Ss++)
+                ? ((n = Yr), Ss++)
                 : ((n = ee), 0 === Es && i(Wr)),
               n === ee && (n = re),
               n !== ee
@@ -20646,7 +20650,7 @@ var hexcase = 0,
                             : ((a = ee), 0 === Es && i(Zr)),
                           a !== ee
                             ? (45 === e.charCodeAt(Ss)
-                                ? ((c = Hr), Ss++)
+                                ? ((c = Yr), Ss++)
                                 : ((c = ee), 0 === Es && i(Wr)),
                               c === ee && (c = re),
                               c !== ee
@@ -20671,7 +20675,7 @@ var hexcase = 0,
             return (
               (t = Ss),
               45 === e.charCodeAt(Ss)
-                ? ((n = Hr), Ss++)
+                ? ((n = Yr), Ss++)
                 : ((n = ee), 0 === Es && i(Wr)),
               n === ee && (n = re),
               n !== ee
@@ -20690,7 +20694,7 @@ var hexcase = 0,
                         : ((o = ee), 0 === Es && i(Zr)),
                       o !== ee
                         ? (45 === e.charCodeAt(Ss)
-                            ? ((a = Hr), Ss++)
+                            ? ((a = Yr), Ss++)
                             : ((a = ee), 0 === Es && i(Wr)),
                           a === ee && (a = re),
                           a !== ee
@@ -20709,7 +20713,7 @@ var hexcase = 0,
               t
             );
           }
-          function Y() {
+          function H() {
             var t, n, r, s, o;
             if (
               ((t = Ss),
@@ -20719,7 +20723,7 @@ var hexcase = 0,
                 : ((r = ee), 0 === Es && i(ns)),
               r !== ee)
             ) {
-              for (s = [], o = H(); o !== ee; ) s.push(o), (o = H());
+              for (s = [], o = Y(); o !== ee; ) s.push(o), (o = Y());
               s !== ee
                 ? (39 === e.charCodeAt(Ss)
                     ? ((o = ts), Ss++)
@@ -20729,7 +20733,7 @@ var hexcase = 0,
             } else (Ss = n), (n = ie);
             return n !== ee && ((As = t), (n = is(n))), (t = n);
           }
-          function H() {
+          function Y() {
             var t, n;
             return (
               rs.test(e.charAt(Ss))
@@ -20921,8 +20925,8 @@ var hexcase = 0,
               value: 'RectangularUnitPoint',
               description: '"RectangularUnitPoint"',
             },
-            Ye = 'DriverPoint',
-            He = {
+            He = 'DriverPoint',
+            Ye = {
               type: 'literal',
               value: 'DriverPoint',
               description: '"DriverPoint"',
@@ -21063,8 +21067,8 @@ var hexcase = 0,
               value: 'Translation/MarkedAngle/FixedDistance',
               description: '"Translation/MarkedAngle/FixedDistance"',
             },
-            Yt = 'Translation/MarkedAngle/MarkedDistance',
-            Ht = {
+            Ht = 'Translation/MarkedAngle/MarkedDistance',
+            Yt = {
               type: 'literal',
               value: 'Translation/MarkedAngle/MarkedDistance',
               description: '"Translation/MarkedAngle/MarkedDistance"',
@@ -21196,12 +21200,12 @@ var hexcase = 0,
               description: '"ToggleVisibilityButton"',
             },
             Qn = 'ShowButton',
-            Yn = {
+            Hn = {
               type: 'literal',
               value: 'ShowButton',
               description: '"ShowButton"',
             },
-            Hn = 'HideButton',
+            Yn = 'HideButton',
             Wn = {
               type: 'literal',
               value: 'HideButton',
@@ -21316,8 +21320,8 @@ var hexcase = 0,
             },
             _i = 'thick',
             Qi = { type: 'literal', value: 'thick', description: '"thick"' },
-            Yi = 'dashed',
-            Hi = { type: 'literal', value: 'dashed', description: '"dashed"' },
+            Hi = 'dashed',
+            Yi = { type: 'literal', value: 'dashed', description: '"dashed"' },
             Wi = 'dotted',
             Xi = { type: 'literal', value: 'dotted', description: '"dotted"' },
             Ki = 'solid',
@@ -21408,8 +21412,8 @@ var hexcase = 0,
               return "digits('" + e + "')";
             },
             Qr = 'medium',
-            Yr = { type: 'literal', value: 'medium', description: '"medium"' },
-            Hr = '-',
+            Hr = { type: 'literal', value: 'medium', description: '"medium"' },
+            Yr = '-',
             Wr = { type: 'literal', value: '-', description: '"-"' },
             Xr = '.',
             Kr = { type: 'literal', value: '.', description: '"."' },
@@ -21691,9 +21695,9 @@ var hexcase = 0,
             var t, n, r, s;
             if (
               ((t = Gt),
-              e.substr(Gt, 2) === Y
-                ? ((n = Y), (Gt += 2))
-                : ((n = O), 0 === Vt && i(H)),
+              e.substr(Gt, 2) === H
+                ? ((n = H), (Gt += 2))
+                : ((n = O), 0 === Vt && i(Y)),
               n !== O)
             ) {
               for (r = [], s = o(); s !== O; ) r.push(s), (s = o());
@@ -22099,12 +22103,12 @@ var hexcase = 0,
                   ((t = Gt),
                   e.substr(Gt, 3) === Qe
                     ? ((n = Qe), (Gt += 3))
-                    : ((n = O), 0 === Vt && i(Ye)),
+                    : ((n = O), 0 === Vt && i(He)),
                   n !== O
                     ? ((r = P()),
                       r !== O
-                        ? (e.substr(Gt, 2) === He
-                            ? ((s = He), (Gt += 2))
+                        ? (e.substr(Gt, 2) === Ye
+                            ? ((s = Ye), (Gt += 2))
                             : ((s = O), 0 === Vt && i(We)),
                           s !== O
                             ? ((Dt = t), (n = Xe(r)), (t = n))
@@ -22341,8 +22345,8 @@ var hexcase = 0,
             Q = function(e) {
               return { type: 'bracket', value: e };
             },
-            Y = '<{',
-            H = { type: 'literal', value: '<{', description: '"<{"' },
+            H = '<{',
+            Y = { type: 'literal', value: '<{', description: '"<{"' },
             W = function(e) {
               return { type: 'curly', value: e };
             },
@@ -22483,8 +22487,8 @@ var hexcase = 0,
               description: '"<T\\"\\">"',
             },
             Qe = "<T'",
-            Ye = { type: 'literal', value: "<T'", description: '"<T\'"' },
-            He = "'>",
+            He = { type: 'literal', value: "<T'", description: '"<T\'"' },
+            Ye = "'>",
             We = { type: 'literal', value: "'>", description: '"\'>"' },
             Xe = function(e) {
               return { type: 'text', value: e };
@@ -22798,8 +22802,8 @@ var hexcase = 0,
                         ? ((o = f()),
                           o !== S
                             ? (93 === e.charCodeAt(Ie)
-                                ? ((a = Y), Ie++)
-                                : ((a = S), 0 === Ge && i(H)),
+                                ? ((a = H), Ie++)
+                                : ((a = S), 0 === Ge && i(Y)),
                               a !== S
                                 ? ((Fe = t), (n = W(r, s, o)), (t = n))
                                 : ((Ie = t), (t = M)))
@@ -23062,8 +23066,8 @@ var hexcase = 0,
             },
             _ = '[',
             Q = { type: 'literal', value: '[', description: '"["' },
-            Y = ']',
-            H = { type: 'literal', value: ']', description: '"]"' },
+            H = ']',
+            Y = { type: 'literal', value: ']', description: '"]"' },
             W = function(e, t, n) {
               return { type: 'attr', name: e, oper: t, value: n };
             },
@@ -26371,7 +26375,7 @@ var hexcase = 0,
                   (r = !0);
               }
               function n() {
-                s.parentsList.forEach(function(e, t) {
+                s.parentsList.forEach(function(e) {
                   e.descendantGraphHasChanged(),
                     e.descendantLabelGraphHasChanged();
                 });
@@ -26391,7 +26395,8 @@ var hexcase = 0,
               }
               var r,
                 s = this.mergeCandidate,
-                o = this.given;
+                o = this.given,
+                a = this.proxy;
               if (this.intersectInfo)
                 e.sketch.putGivenOnIntersection(o, this.intersectInfo);
               else {
@@ -26399,7 +26404,8 @@ var hexcase = 0,
                 'Point' === s.kind ||
                 s.isOfKind('Text') ||
                 (s.isAPath() && o.isAPath())
-                  ? (e.sketch.mergeGobjToCandidate(o, s), r && n(s))
+                  ? (e.sketch.mergeGobjToCandidate(o, s, { proxy: a }),
+                    r && n(s))
                   : s.isAPath() && e.sketch.putGivenOnPath(o, s, this.value),
                   'constructibleGiven' === this.given.toolRole &&
                     (o.constraint === s.constraint &&
@@ -26465,10 +26471,22 @@ var hexcase = 0,
                   .find('.wsp-ok-cancel-container')
                   .filter(':visible'));
           },
+          _setKeypressHandler: function(e) {
+            function n(e) {
+              i.activeTool &&
+                (13 === e.keyCode
+                  ? i.confirmActiveTool()
+                  : 27 === e.keyCode && i.abortActiveTool());
+            }
+            var i = this,
+              r = t('body');
+            e ? (r.on('keydown', n), r.focus()) : r.off('keydown', n);
+          },
           _clearOutActiveTool: function() {
             var e = this._getUndoRedoContainer();
             this.activeTool &&
               (this.activeTool.$element.removeClass('wsp-tool-active'),
+              this._setKeypressHandler(!1),
               (this.activeTool = null)),
               this.sketch.canvasNode.toggleClass('wsp-tool-background', !1),
               this.$closeBox &&
@@ -26487,7 +26505,8 @@ var hexcase = 0,
               t = this.sketch,
               n = this.activeRegime;
             if (this.activeTool) {
-              this.activeTool.$element.removeClass('wsp-tool-active');
+              this.activeTool.$element.removeClass('wsp-tool-active'),
+                this._setKeypressHandler(!1);
               var i = function(i) {
                 var r,
                   s = e.activeTool,
@@ -26547,7 +26566,8 @@ var hexcase = 0,
                 }
               ),
               (this.activeTool = e),
-              e.$element.addClass('wsp-tool-active');
+              e.$element.addClass('wsp-tool-active'),
+              this._setKeypressHandler(!0);
             try {
               var s = this,
                 a = !this.$closeBox,
@@ -26607,7 +26627,9 @@ var hexcase = 0,
             if (n) {
               if (n === e && t - r.startTime < i)
                 return (
-                  (r.sticky = !0), void e.$element.addClass('wsp-tool-active')
+                  (r.sticky = !0),
+                  e.$element.addClass('wsp-tool-active'),
+                  void this._setKeypressHandler(!0)
                 );
               if (
                 (r.toolplaySession.matchedGivens.length
@@ -28835,60 +28857,87 @@ var hexcase = 0,
       (o.ToolRegime = (function() {
         function e(e, t) {
           function i(e) {
-            return '' + e.x + '+' + e.y;
+            return e.subtract(x).multiply(y);
           }
           function r(e) {
-            return d[i(e)] === n;
+            return '' + Math.round(e.x) + '+' + Math.round(e.y);
           }
           function s(e) {
-            var t = h,
-              n = h;
-            u.right + t + p > c.right && ((t -= f - (g + 2 * p)), v++),
-              u.bottom + n + p > c.bottom && ((n -= m - (b + 2 * p)), y++),
-              (u.left += t),
-              (u.right += t),
-              (u.top += n),
-              (u.bottom += n),
+            return P[r(e)] === n;
+          }
+          function a(e) {
+            var t = C,
+              n = C;
+            f.right + t + S > u.right && ((t -= A - (M + 2 * S)), F++),
+              f.bottom + n + S > u.bottom && ((n -= T - (I + 2 * S)), E++),
+              (f.left += t),
+              (f.right += t),
+              (f.top += n),
+              (f.bottom += n),
               e.forEach(function(e) {
                 (e.x += t), (e.y += n);
               });
           }
-          var a = e.filter(function(e) {
+          var c = 5,
+            l = e.filter(function(e) {
               return 'Point' === e.kind;
             }),
-            c = t.metadata.sketchRect,
-            l = a.map(function(e) {
-              var t = { x: e.geom.loc.x + c.left, y: e.geom.loc.y + c.top };
-              return t;
+            u = t.metadata.sketchRect,
+            d = o.GeometricPoint(u.left, u.top),
+            h = o.GeometricPoint(u.right, u.bottom),
+            p = l.map(function(e) {
+              return o.GeometricPoint(e.geom.loc).add(d);
             }),
-            u = o.Geom.boundingRect(l),
-            d = {};
+            f = o.Geom.boundingRect(p),
+            m = o.GeometricPoint(f.left, f.top),
+            g = o.GeometricPoint(f.right, f.bottom),
+            b = g.subtract(m),
+            v = o.GeometricPoint(u.right - u.left, u.bottom - u.top),
+            y = Math.min(v.x / b.x, v.y / b.y),
+            x = o.GeometricPoint(0, 0);
+          1 > y &&
+            ((x = m.add(g).multiply(0.5)),
+            (y = 0.95 * y),
+            p.forEach(function(e, t) {
+              p[t] = i(e);
+            }),
+            (m = i(m)),
+            (g = i(g)));
+          var w = m.subtract(d),
+            k = h.subtract(g);
+          (x.x = x.y = 0),
+            w.x < 0 ? (x.x = -w.x + c) : k.x < 0 && (x.x = k.x - c),
+            w.y < 0 ? (x.y = -w.y + c) : k.y < 0 && (x.y = k.y - c),
+            p.forEach(function(e, t) {
+              p[t] = e.add(x);
+            });
+          var P = {};
           t.eachGObj(function(e, t) {
-            'Point' !== t.kind || t.style.hidden || (d[i(t.geom.loc)] = !0);
+            'Point' !== t.kind || t.style.hidden || (P[r(t.geom.loc)] = !0);
           });
           for (
-            var h = 25,
-              p = 10,
-              f = c.right - c.left,
-              m = c.bottom - c.top,
-              g = u.right - u.left,
-              b = u.bottom - u.top,
-              v = 0,
-              y = 0,
-              x = !1;
-            !(x || ((x = l.every(r)), v >= 2 && y >= 2));
+            var C = 25,
+              S = 10,
+              A = u.right - u.left,
+              T = u.bottom - u.top,
+              M = f.right - f.left,
+              I = f.bottom - f.top,
+              F = 0,
+              E = 0,
+              j = !1;
+            !(j || ((j = p.every(s)), F >= 2 && E >= 2));
 
           )
-            x || s(l);
-          if (!x) {
-            var w = Math.random() * h,
-              k = Math.random() * h;
-            l.forEach(function(e) {
-              (e.x += w), (e.y += k);
+            j || a(p);
+          if (!j) {
+            var O = Math.random() * C,
+              L = Math.random() * C;
+            p.forEach(function(e) {
+              (e.x += O), (e.y += L);
             });
           }
-          for (var P = {}, C = 0; C < a.length; ++C) P[a[C].id] = l[C];
-          return P;
+          for (var G = {}, D = 0; D < l.length; ++D) G[l[D].id] = p[D];
+          return G;
         }
         function t(e, t) {
           e.presentUI(function(e) {
@@ -40149,10 +40198,7 @@ var hexcase = 0,
             usage: { abstract: !1, kinds: ['Point'] },
             existenceRule: 'Exists iff the parent path exists.',
             properties: {
-              value: {
-                description: '',
-                type: 'Number',
-              },
+              value: { description: '', type: 'Number' },
               parents: {
                 description: '',
                 properties: { path: { description: '', genus: 'Path' } },

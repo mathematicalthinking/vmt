@@ -4325,62 +4325,209 @@ var UTILMENU = (function() {
   };
 })(); // UTILMENU
 
-/* Move the following to a new file, perhaps toolHelpModal.js
+/* Consider moving the following to a new file, perhaps toolHelpModal.js
  * Here we make a modal dialog box that appears when the user clicks and holds on a tool in the tool column.
  * The initial implementation provides a short bit of text about the tool and two buttons that displays videos:
  * a short silent video and a longer more informative one with narration.
+ * Unlike most modals, it can be closed either with its close box or by clicking outside the modal.
  */
 
 GSP.ToolHelp = (function() {
-  // Get the modal
-  var $modal, // the dialog box
-    toolRect; // the rect of the tool that was pressed to show help
+  /* Rather than storing toolhelp globals as variables, we use the dialog's data, and access them as follows:
+   * $getModal() returns the toolhelp modal dialog box in jQuery form.
+   * setTimerId(), getTimerId(), and resetTimerId() set and get timer id's, critically keeping track of state.
+   * setTimer(ev, delay, fn) sets a timer and saves its id. clearTimer() clears the timer with the current id.
+   * setButton() and $getButton() set and fetch the button (img) that generated the active help request.
+   * Crucially, the help modal doesn't need access to the tool: the tool's metadata is sufficient.
+   */
 
-  /*   
-   // Get the button that opens the modal
-   var btn = document.getElementById("myBtn");
-   
-   // Get the <span> element that closes the modal
-   var span = document.getElementsByClassName("close")[0];
-   
-   // When the user clicks on the button, open the modal
-   btn.onclick = function() {
-     modal.style.display = "block";
-   };
-*/
-
-  function showModal(theTool, $el) {
-    var meta = theTool.metadata;
-    toolRect = $el[0].getBoundingClientRect();
-    $modal.find('span#toolName').html(meta.name);
-    $modal.show();
-    $(window).on('click', hideModal);
+  function $getModal() {
+    return $('#toolHelpModal');
   }
 
-  function hideModal(e) {
-    var x = e.pageX,
+  function setTimerId(id) {
+    $getModal().data('timerId', id);
+  }
+
+  function getTimerId() {
+    return $getModal().data('timerId');
+  }
+
+  function resetTimerId() {
+    setTimerId(0);
+  }
+
+  function setTimer(ev, delay, fn) {
+    //ev is the event that prompted the timeout
+    var id = setTimeout(fn, delay, ev);
+    setTimerId(id);
+    return id;
+  }
+
+  function clearTimer() {
+    var id = getTimerId();
+    clearTimeout(id);
+    resetTimerId();
+  }
+
+  function setButton($toolButton) {
+    $getModal().data('toolButton', $toolButton);
+  }
+
+  function $getButton() {
+    return $getModal().data('toolButton');
+  }
+
+  /*
+   * showModal() and hideModal() show and hide the modal dialog showing info contained in a tool's metadata.
+   * The functions are agnostic as to source, whether a user press-and-hold or a call from an outside client.
+   * Use startModal(e) and stopModal(e) to show or hide the modal based on a user-generated event e.
+   **/
+
+  function showModal(toolData) {
+    var tutorialLink = '<a href = "' + toolData.help.tutorialUrl + '" ',
+      $modal = $getModal();
+    // Note that the format of the tutorialUrl is subject to change...
+    if (tutorialLink.includes('youtube')) {
+      tutorialLink += ' target = "_blank"';
+    }
+    tutorialLink += '> Full Video </a>';
+    $modal.find('span#toolName').html(toolData.name);
+    $modal.find('p.tool-help-text').html(toolData.help.textHint);
+    $modal.find('span.tool-help-tutorial').html(tutorialLink);
+    $modal.show();
+  }
+
+  function hideModal() {
+    $getModal().hide();
+  }
+
+  function startModal(e) {
+    var $btn = $(e.target).closest('div.wsp-tool, div.toolItem'),
+      metaData;
+    if (!$btn) {
+      console.log(
+        'Could not find proper button that stores the tool-help modal data.'
+      );
+    }
+    metaData = $btn.data('toolData');
+    setButton($btn);
+    // When activating after the timer expires, intercept the mouseup that would play the tool.
+    // We intercept that here.
+    $(window).on('click mouseup', stopModal); // a click outside the modal hides the modal
+    if ($btn.parent().hasClass('wsp-tool-active')) {
+      // the mousedown highlighted the tool icon, so...
+      $btn.parent().removeClass('wsp-tool-active'); // remove highlight
+    }
+    showModal(metaData); // the help-enabled button knows its tool's metadata
+  }
+
+  function stopModal(e) {
+    // When hiding the modal, we check whether the event is inside the tool button,
+    // to make sure the mouseup after showing the modal doesn't immediately hide it.
+    var $modal = $getModal(),
+      $btn = $getButton(),
+      r = $btn[0].getBoundingClientRect(),
+      x = e.pageX,
       y = e.pageY,
-      r = toolRect,
-      inButton = x > r.left && x < r.right && y > r.top && y < r.bottom;
-    if (inButton) {
-      e.stopPropagation();
+      inToolButton = x > r.left && x < r.right && y > r.top && y < r.bottom;
+    if (inToolButton) {
+      e.stopPropagation(); // the mouseup of a help long-press shouldn't hide the new modal
     } else if (
       !$modal.has(e.target).length ||
       $(e.target).hasClass('tool-help-close')
     ) {
-      $modal.hide();
+      hideModal();
+      $(window).off('click mouseup', stopModal);
+    }
+  }
+
+  function addToolHelp(tool, $btn) {
+    // $btn is the button that's clicked either in the sketch or in the library
+    // Need to turn these handlers off when the timeout ends or is cleared.
+    // Also, if it ends, need to turn on (and later, off) a handler that intercepts
+    // a mouseup. This will prevent a later mouseup from firing the tool.
+    // To check pref, we use either an ancestor sketch_canvas or the first sketch_canvas in the DOM.
+    var canvas = $btn.closest('.sketch_canvas')[0] || $('.sketch_canvas')[0],
+      doc = $(canvas).data('document');
+    if (!tool.metadata.help || !doc || !doc.getAuthorPreference('toolhelp')) {
+      // is help missing or turned off?
+      return;
+    }
+    if (!$btn.is('div.wsp-tool, div.toolItem')) {
+      $btn = $btn.closest('div.wsp-tool, div.toolItem');
+    }
+    if (!$btn) {
+      console.log(
+        'Could not find a proper button in which to store the tool-help data.'
+      );
+      return;
+    }
+    $btn.data('toolData', tool.metadata); // store pointer to tool metadata in the div.wsp-tool or div.toolItem (in library)
+    $btn
+      .on('mousedown', function(e) {
+        var myId = setTimer(e, 1500, function() {
+          console.log(myId, 'timeout expired: showing modal');
+          startModal(e);
+        });
+        console.log('mousedown: started timeout', myId);
+      })
+      .on('mouseleave', function(e) {
+        var myId = getTimerId();
+        if (myId) {
+          console.log('mouseleave: clearing timeout', myId);
+          clearTimer();
+          if ($getModal().is(':visible')) {
+            // if the dialog is visible, don't let this be a click
+            e.stopPropagation();
+          }
+        }
+      })
+      .on('mouseup', function(e) {
+        // mouse came up before
+        var myId = getTimerId();
+        if (myId) {
+          console.log('mouseup: clearing timeout', myId);
+          clearTimer();
+          if ($getModal().is(':visible')) {
+            // if the dialog appears, don't let this be a click
+            e.stopPropagation();
+          }
+        }
+      });
+  }
+
+  function dontPropagate(e) {
+    // Tool button events don't register when the modal is active
+    e.stopPropagation();
+  }
+
+  function showToolHelp(toolMetadata, activate) {
+    // if (activate) show else hide
+    // This function operates independently of any user-generated event.
+    if (activate) {
+      showModal(toolMetadata);
+    } else {
+      // hide the modal; No need to turn handlers off as they weren't turned on
+      hideModal();
     }
   }
 
   function init() {
-    var content =
-      '<div id="toolHelpModal" class="tool-help-modal">' +
-      '<div class="tool-help-content"><span class="tool-help-close">&times;</span>' +
-      '<p class="tool-help-title">Hints for <span id="toolName"> such and so </span> Tool</p></div>' +
-      '</div>';
+    var $modal = $getModal(),
+      content =
+        '<div id="toolHelpModal" class="tool-help-modal">' +
+        '<div class="tool-help-content">' +
+        '<span class="tool-help-close">&times;</span>' +
+        '<p class="tool-help-title">Help for the <span id="toolName"> such and so </span> Tool</p>' +
+        '<p class="tool-help-text">Help text goes here.</p>' +
+        '<p class="tool-help-videos"><strong><span class="tool-help-hint">Hint Video Link</span>' +
+        ' &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ' +
+        '<span class="tool-help-tutorial">Full Video Link</span></p>' +
+        '</div></div>';
     $('body').append(content);
-    $modal = $('#toolHelpModal');
-    $modal.find('.close').on('click', hideModal);
+    $modal.find('.tool-help-close').on('click', stopModal);
+    $modal.on('mouseup', dontPropagate); // mouseup events in the modal shouldn't affect the sketch
   }
 
   return {
@@ -4388,15 +4535,21 @@ GSP.ToolHelp = (function() {
       init();
     },
 
-    showModal: function(theTool, el) {
-      showModal(theTool, el);
+    addToolHelp: function(tool, el) {
+      // Add tool help for the given tool to the given element
+      addToolHelp(tool, $(el));
+    },
+
+    showToolHelp: function(toolMetadata, activate) {
+      // if (activate) show else hide
+      // This function is suitable for use by an external client, so operates independently of any local event.
+      // The tool is identified by its metadata; the name alone is not enough if two different tools have the same name.
+      // But if they have both the same name and the same help object (i.e., help text and url's) they must be the same.
+      // This assumes tool names are unique; a future implementation could require
+      showToolHelp(toolMetadata, activate);
     },
   };
 })(); // ToolHelp
-
-//$(function() {
-//  GSP.ToolHelp.init();
-//});
 
 $(function() {
   WIDGETS.initWidget();

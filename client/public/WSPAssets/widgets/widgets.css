@@ -7,7 +7,7 @@
 	font-size: 16px;
 	box-sizing: border-box;
   width: max-content;
-  z-index: 2; // stay above the resize button
+  z-index: 2; /* stay above the resize button */
 }
 
 #widget * {
@@ -796,10 +796,12 @@ input.util-popup-button:focus {
 .tool-help-content {
   background-color: #fefefe;
   margin: 15% auto; /* 15% from the top and centered */
-  padding: 10px;
-  border: 5px solid black groove;
-  width: 400px; /* Could be more or less, depending on screen size */
-  height: 100px;
+  padding: 15px 10px;
+  border: 5px groove black;
+  border-radius: 10px;
+  min-width: 400px;
+  width: fit-content;
+  height: fit-content;
 }
 
 .tool-help-title {
@@ -815,7 +817,11 @@ input.util-popup-button:focus {
   float: right;
   font-size: 28px;
   font-weight: bold;
-  margin-top: -10px;
+  margin-top: -15px;
+}
+
+.tool-help-text, .tool-help-videos {
+  text-align: center;
 }
 
 .tool-help-close:hover,

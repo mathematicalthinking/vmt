@@ -1,6 +1,6 @@
 // JavaScript for the WSP Tool Library and the WSP Sketch Viewer. There's enough common code
 // to justify putting these together.
-/* global GSP, UTILMENU, $, PAGENUM, WIDGETS, WSP.PREF, FileReader, Image */
+/* global GSP, UTILMENU, $, PAGENUM, WIDGETS, FileReader, Image */
 /* eslint-disable no-var */
 /* eslint "semi": [2, "always"], "one-var": ["warn", "consecutive"] */
 var TOOLS = (function() {
@@ -54,34 +54,8 @@ var TOOLS = (function() {
    * so once a tool is in the hasData state, it must not add nodes until the preceding tool has added its nodes.
    * */
 
-  function displayHelp(tool, el) {
-    GSP.ToolHelp.showModal(tool, el);
-  }
-
   function addToolHelp(tool, el) {
-    var timeoutId, helpShown;
-    $(el)
-      .on('mousedown', function() {
-        console.log('mousedown: starting timeout');
-        timeoutId = setTimeout(function() {
-          console.log('timeout expired: showing modal');
-          helpShown = true;
-          displayHelp(tool, el);
-        }, 1000);
-      })
-      .on('mouseleave', function() {
-        console.log('mouseleave: clearing timeout');
-        if (!helpShown) {
-          clearTimeout(timeoutId);
-        }
-      })
-      .on('mouseup', function() {
-        // mouse came up before
-        console.log('mouseup: clearing timeout');
-        if (!helpShown) {
-          clearTimeout(timeoutId);
-        }
-      });
+    GSP.ToolHelp.addToolHelp(tool, el);
   }
 
   function addToolToTable(tool, firstTool, lastTool) {
@@ -109,9 +83,7 @@ var TOOLS = (function() {
       $(cell).addClass('lastToolItem');
     }
     allTools.push(tool);
-    if (tool.metadata.help) {
-      addToolHelp(tool, cell);
-    }
+    addToolHelp(tool, cell);
   }
 
   function _getEnv() {
@@ -285,9 +257,7 @@ var TOOLS = (function() {
       docHeight,
       true /* shows undoRedo */
     );
-    if (theTool.metadata.help) {
-      addToolHelp(theTool, doc.tools[doc.tools.length - 1].$element);
-    }
+    addToolHelp(theTool, doc.tools[doc.tools.length - 1].$element);
     doc.event(
       'ToolAdded',
       { document: doc },
@@ -1021,11 +991,6 @@ var TOOLS = (function() {
       prefName = (toolName + 'tool').toLowerCase(),
       sketchPages = Object.keys(doc.pageData);
     var thePref, idx;
-
-    function allPages() {
-      // create an array with all page #'s
-      return sketchPages.slice(); // copies the array of pages
-    }
 
     function setPref(arr) {
       // sets the passed value for prefName in both doc and docSpec prefs
