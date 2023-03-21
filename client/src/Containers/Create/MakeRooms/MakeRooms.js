@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
@@ -30,8 +30,10 @@ const MakeRooms = (props) => {
     addColors(initialParticipants)
   );
   const [roomDrafts, setRoomDrafts] = useState([]);
-  const submitArgs = React.useRef(); // used for passing along submit info
-  const membersToInviteToCourse = React.useRef(null);
+  const submitArgs = useRef(); // used for passing along submit info
+  const membersToInviteToCourse = useRef(null);
+  const courseMembersObject = useRef({}); // {courseId: memsInThatCourse}
+
   const {
     show: showTheWarning,
     hide: hideModals,
@@ -120,6 +122,20 @@ const MakeRooms = (props) => {
       );
     }
   }, [selectedAssignment]);
+
+  // useEffect to update the courseMembersObject each time the participants change
+  useEffect(() => {
+    participants.forEach((mem) => {
+      if (mem && mem.course) {
+        if (courseMembersObject.current[mem.course])
+          courseMembersObject.current[mem.course] = [
+            ...courseMembersObject.current[mem.course],
+            mem,
+          ];
+        else courseMembersObject.current[mem.course] = [mem];
+      }
+    });
+  }, [participants]);
 
   const setRoomNum = (roomNum, clearRooms) => {
     const newRoomDrafts = clearRooms ? [] : roomDrafts;
@@ -286,7 +302,8 @@ const MakeRooms = (props) => {
   const handleAddParticipantsSubmit = (
     newParticipants,
     shouldInviteMembersToCourse,
-    participantsToInvite
+    participantsToInvite,
+    addedCourses
   ) => {
     const newParticipantsWithColors = addColors(newParticipants);
     setParticipants(newParticipantsWithColors);
@@ -296,6 +313,9 @@ const MakeRooms = (props) => {
     );
     if (shouldInviteMembersToCourse)
       handleMembersToInvite(participantsToInvite);
+
+    console.log('addedCourses');
+    console.log(addedCourses);
   };
 
   const calculatePPR = (members) => {
@@ -425,6 +445,7 @@ const MakeRooms = (props) => {
         onCancel={hideModals}
         courseCheckbox={course !== null}
         originatingCourseId={(course && course._id) || null}
+        currentCourseIds={courseMembersObject.current}
       />
     );
   };

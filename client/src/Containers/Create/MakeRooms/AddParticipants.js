@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable react/no-did-update-set-state */
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { debounce, uniqBy } from 'lodash';
@@ -59,6 +59,10 @@ const AddParticipants = (props) => {
   const [viewType, setViewType] = useState(constants.INDIVIDUALS);
 
   useEffect(() => {
+    // set currently added courses for
+    // rosters & courseCode courses
+    // to added for all currentCourseIds
+
     return () => debounceSearch.cancel();
   }, []);
 
@@ -107,16 +111,119 @@ const AddParticipants = (props) => {
   };
 
   const generateRosterSearchResults = (courses) => {
-    return courses
-      .map((course) => ({
-        key: course._id,
-        label: course.name,
-        buttonLabel: addedCourse[course._id] ? 'Remove' : 'Add',
-        onClick: addedCourse[course._id]
-          ? removeRosterFromParticipantsList
-          : addParticipantFromRoster,
-      }))
+    const generatedCourses = courses
+      .map((course) => {
+        const buttonAttributes = generateButtonAttributes(course);
+        return {
+          key: course._id,
+          label: course.name,
+          buttonLabel: buttonAttributes.buttonLabel,
+          onClick: buttonAttributes.onClick,
+          disabled: buttonAttributes.disabled,
+        };
+      })
       .filter((generatedCourse) => generatedCourse.key !== originatingCourseId);
+
+    if (viewType === constants.ROSTERS) {
+      return generatedCourses.reduce((acc, curr) => {
+        // sort courses with members lists that have already
+        // been added to the AssignmentMatrix
+        if (curr.buttonLabel.toLowerCase() === 'done') return [...acc, curr];
+        return [curr, ...acc];
+      }, []);
+    }
+    return generatedCourses;
+  };
+
+  const generateButtonAttributes = (course) => {
+    // if all members of the course are added, buttonLabel = 'done' -> disabled: true
+    // if some but not all of the course members are added to newParticipants,
+    // buttonLabel = 'Add All'
+    // else addedCourse[course._id] ? 'Remove' : 'Add';
+
+    const generateButtonLabelAndOnClick = () => {
+      const obj = {
+        buttonLabel: '',
+        onClick: addedCourse[course._id]
+          ? removeRosterFromNewParticipantsList
+          : addParticipantFromRoster,
+      };
+      if (areAllCourseMembersAddedToAssignmentMatrix(course))
+        obj.buttonLabel = 'Done';
+      // handle case for Add All e.g.
+      // a member that is in this course is also in another course
+      // that just had its members Removed from newParticipants
+
+      const courseMembersAddedToNewParticipants =
+        addedCourse[course._id] && addedCourse[course._id].members
+          ? addedCourse[course._id].members
+          : [];
+      const completeCourseMemberListIds = course.members.map(
+        (mem) => mem.user._id
+      );
+
+      console.group('members length');
+      console.log(courseMembersAddedToNewParticipants);
+      console.log(completeCourseMemberListIds);
+      console.groupEnd();
+
+      if (
+        // courseMembersAddedToNewParticipants.length &&
+        // !areAllMembersAddedToNewParticipants(completeCourseMemberListIds)
+        courseMembersAddedToNewParticipants.length > 0 &&
+        courseMembersAddedToNewParticipants.length <
+          completeCourseMemberListIds.length
+      ) {
+        obj.buttonLabel = 'Add All';
+        obj.onClick = addParticipantFromRoster;
+      } else if (
+        // courseMembersAddedToNewParticipants.length &&
+        // areAllMembersAddedToNewParticipants(completeCourseMemberListIds)
+        courseMembersAddedToNewParticipants.length ===
+        completeCourseMemberListIds.length
+      ) {
+        obj.buttonLabel = 'Remove';
+        obj.onClick = removeRosterFromNewParticipantsList;
+      } else {
+        obj.buttonLabel = addedCourse[course._id] ? 'Remove' : 'Add';
+      }
+      return obj;
+    };
+    // const obj = generateButtonLabelAndOnClick();
+
+    const buttonAttributes = {
+      // buttonLabel: obj.buttonLabel,
+      // onClick: obj.onClick,
+      buttonLabel: addedCourse[course._id] ? 'Remove' : 'Add',
+      onClick: addedCourse[course._id]
+        ? removeRosterFromNewParticipantsList
+        : addParticipantFromRoster,
+      disabled: areAllCourseMembersAddedToAssignmentMatrix(course),
+    };
+
+    return buttonAttributes;
+  };
+
+  const areAllMembersAddedToNewParticipants = (userIds) => {
+    console.group(
+      'areAllMembersAddedToNewParticipants: userIds -> newParticipants'
+    );
+    console.log(userIds);
+    console.log(newParticipants.map((mem) => mem.user._id));
+    console.groupEnd();
+    return newParticipants.every((mem) => userIds.includes(mem.user._id));
+  };
+
+  const areAllCourseMembersAddedToAssignmentMatrix = (course) => {
+    // if all members of the course are
+    // within newParticipants or within participants
+    // return true, else false
+    const courseMemberIds = course.members
+      ? course.members.map((mem) => mem.user._id)
+      : [];
+    const allAddedMembersIds = [...participants].map((mem) => mem.user._id);
+
+    return courseMemberIds.every((id) => allAddedMembersIds.includes(id));
   };
 
   const searchCourseCode = async () => {
@@ -168,29 +275,35 @@ const AddParticipants = (props) => {
     const courseToAdd = coursesUserDidNotCreate.find(
       (course) => course._id === courseId
     );
+    let memsToAdd = [];
 
-    if (courseToAdd) {
+    if (
+      courseToAdd &&
+      !(
+        courseCodeSearchResults[courseId] &&
+        courseCodeSearchResults[courseId].members
+      )
+    ) {
       courseToAdd.members.forEach((mem) => {
         addParticipant({
           ...mem,
           course: courseId,
         });
-        setAddedCourse((prevState) => ({ ...prevState, [courseId]: true }));
       });
+      setAddedCourse((prevState) => ({
+        ...prevState,
+        [courseId]: { ...courseToAdd, isAdded: true },
+      }));
     }
-  };
 
-  const addParticipantsFromCourseCode = (courseId) => {
     if (
       courseCodeSearchResults[courseId] &&
       courseCodeSearchResults[courseId].members
     ) {
-      const memsToAdd = courseCodeSearchResults[courseId].members.map(
-        (mem) => ({
-          ...mem,
-          user: { ...mem.user, course: courseId },
-        })
-      );
+      memsToAdd = courseCodeSearchResults[courseId].members.map((mem) => ({
+        ...mem,
+        user: { ...mem.user, course: courseId },
+      }));
 
       const uniqueParticipants = uniqBy(
         newParticipants.concat(...memsToAdd),
@@ -229,8 +342,92 @@ const AddParticipants = (props) => {
       Object.values(uniqueParticipantsObject).forEach((mem) => {
         addParticipant({ ...mem, course: courseId });
       });
-    } // end if
+
+      // set addedCourse[courseId].isAdded to true
+      // used in CourseCodeMemberImportFunction to swtich b/t
+      // buttonLabel & onClick
+      setCourseCodeSearchResults((prevState) => ({
+        ...prevState,
+        [courseId]: {
+          ...prevState[courseId],
+          isAdded: true,
+        },
+      }));
+
+      setAddedCourse((prevState) => ({
+        ...prevState,
+        [courseId]: { ...prevState[courseId], isAdded: true },
+      }));
+    }
   };
+
+  // const addParticipantsFromCourseCode = (courseId) => {
+  //   if (
+  //     courseCodeSearchResults[courseId] &&
+  //     courseCodeSearchResults[courseId].members
+  //   ) {
+  //     const memsToAdd = courseCodeSearchResults[courseId].members.map(
+  //       (mem) => ({
+  //         ...mem,
+  //         user: { ...mem.user, course: courseId },
+  //       })
+  //     );
+
+  //     const uniqueParticipants = uniqBy(
+  //       newParticipants.concat(...memsToAdd),
+  //       'user._id'
+  //     );
+
+  //     // if facilitators from the newly added course were previously added as
+  //     // participants, upgrade their role to facilitator within
+  //     // uniqueParticipants
+  //     const memsToAddObject = memsToAdd.reduce((acc, curr) => {
+  //       return {
+  //         ...acc,
+  //         [curr.user._id]: { ...curr },
+  //       };
+  //     }, {});
+
+  //     const uniqueParticipantsObject = uniqueParticipants.reduce(
+  //       (acc, curr) => {
+  //         return {
+  //           ...acc,
+  //           [curr.user._id]: { ...curr },
+  //         };
+  //       },
+  //       {}
+  //     );
+
+  //     Object.values(memsToAddObject).forEach((mem) => {
+  //       if (
+  //         uniqueParticipantsObject[mem.user._id] &&
+  //         mem.role === 'facilitator'
+  //       )
+  //         uniqueParticipantsObject[mem.user._id].role = 'facilitator';
+  //     });
+
+  //     // addParticipants
+  //     Object.values(uniqueParticipantsObject).forEach((mem) => {
+  //       addParticipant({ ...mem, course: courseId });
+  //     });
+
+  //     // set addedCourse[courseId].isAdded to true
+  //     // used in CourseCodeMemberImportFunction to swtich b/t
+  //     // buttonLabel & onClick
+  //     setCourseCodeSearchResults((prevState) => ({
+  //       ...prevState,
+  //       [courseId]: {
+  //         ...prevState[courseId],
+  //         isAdded: true,
+  //       },
+  //     }));
+
+  //     setAddedCourse((prevState) => ({
+  //       ...prevState,
+  //       [courseId]: { ...prevState[courseId], isAdded: true },
+  //     }));
+  //   } // end if
+  // };
 
   const removeMember = (mem) => {
     setNewParticipants((prevState) =>
@@ -251,18 +448,113 @@ const AddParticipants = (props) => {
     }
   };
 
-  const removeRosterFromParticipantsList = (courseId) => {
-    const course = coursesUserDidNotCreate.find((c) => c._id === courseId);
-    const courseMembers = course ? course.members : [];
-    const courseMembersIds = courseMembers.map((mem) => mem.user._id);
-    setNewParticipants((prevState) =>
-      prevState.filter((mem) => !courseMembersIds.includes(mem.user._id))
+  const removeRosterFromNewParticipantsList = (courseId) => {
+    // handle state changes if course is in "Your Courses"
+    const rosterCourse = coursesUserDidNotCreate.find(
+      (c) => c._id === courseId
     );
+    const rosterCourseMembers = rosterCourse ? rosterCourse.members : [];
+    const rosterCourseMembersIds = rosterCourseMembers.map(
+      (mem) => mem.user._id
+    );
+    // setNewParticipants((prevState) =>
+    //   prevState.filter((mem) => !rosterCourseMembersIds.includes(mem.user._id))
+    // );
+
+    // handle state changes if course is in courseCodeSearchResults
+    const courseCodeMembersIds =
+      courseCodeSearchResults[courseId] &&
+      courseCodeSearchResults[courseId].members
+        ? courseCodeSearchResults[courseId].members.map((mem) => mem.user._id)
+        : [];
+
+    setNewParticipants((prevState) => {
+      console.group('setNewParticipants');
+      let memsToUpdate = [];
+
+      if (rosterCourseMembersIds.length) {
+        console.log('rosterCourseMembersIds');
+        console.log(rosterCourseMembersIds);
+        memsToUpdate = prevState.filter(
+          (mem) => !rosterCourseMembersIds.includes(mem.user._id)
+        );
+      }
+
+      if (courseCodeMembersIds.length) {
+        console.log('prevState');
+        console.log(prevState);
+        console.log('courseCodeMembersIds');
+        console.log(courseCodeMembersIds);
+        console.log('memsToUpdate');
+        console.log(memsToUpdate);
+        memsToUpdate = Array.from(
+          new Set([
+            ...memsToUpdate,
+            ...prevState.filter(
+              (mem) => !courseCodeMembersIds.includes(mem.user._id)
+            ),
+          ])
+        );
+      }
+
+      console.log('end');
+      console.log('memsToUpdate');
+      console.log(memsToUpdate);
+      console.groupEnd();
+
+      return memsToUpdate;
+      // prevState.filter(
+      //   (mem) =>
+      //     !rosterCourseMembersIds.includes(mem.user._id) &&
+      //     !courseCodeMembersIds.includes(mem.user._id)
+      // );
+    });
+
+    if (
+      courseCodeSearchResults[courseId] ||
+      (courseCodeSearchResults[courseId] &&
+        courseCodeSearchResults[courseId].members &&
+        courseCodeSearchResults[courseId].members.length === 0)
+    ) {
+      setCourseCodeSearchResults((prevCourseCodeCourses) => ({
+        ...prevCourseCodeCourses,
+        [courseId]: {
+          ...prevCourseCodeCourses[courseId],
+          isAdded: false,
+        },
+      }));
+    }
+
+    // remove the course from the addedCourses
     setAddedCourse((prevState) => {
       const { [courseId]: old, ...others } = prevState;
       return others;
     });
   };
+
+  // const removeParticipantsFromCourseCode = (courseId) => {
+  //   const courseMembersIds = courseCodeSearchResults[courseId].members.map(
+  //     (mem) => mem.user._id
+  //   );
+  //   setNewParticipants((prevState) =>
+  //     prevState.filter((mem) => !courseMembersIds.includes(mem.user._id))
+  //   );
+  //   // set addedCourse[courseId].isAdded to true
+  //   // used in CourseCodeMemberImportFunction to swtich b/t
+  //   // buttonLabel & onClick
+  //   setCourseCodeSearchResults((prevState) => ({
+  //     ...prevState,
+  //     [courseId]: {
+  //       ...prevState[courseId],
+  //       isAdded: false,
+  //     },
+  //   }));
+
+  //   setAddedCourse((prevState) => {
+  //     const { [courseId]: old, ...others } = prevState;
+  //     return others;
+  //   });
+  // };
 
   const _displayViewType = () => {
     switch (viewType) {
@@ -339,14 +631,13 @@ const AddParticipants = (props) => {
             </div>
             {Object.values(courseCodeSearchResults).length > 0 && (
               <GenericSearchResults
-                itemsSearched={CourseCodeMemberImportFunctions.addUIElements(
-                  courseCodeSearchResults,
-                  addParticipantsFromCourseCode,
-                  () => {
-                    console.log('add');
-                  }
-                  // addAllToNewParticipants,
-                  // removeAllMembers
+                // itemsSearched={CourseCodeMemberImportFunctions.addUIElements(
+                //   courseCodeSearchResults,
+                //   addParticipantsFromCourseCode,
+                //   removeParticipantsFromCourseCode
+                // )}
+                itemsSearched={generateRosterSearchResults(
+                  Object.values(courseCodeSearchResults)
                 )}
               />
             )}
@@ -371,9 +662,12 @@ const AddParticipants = (props) => {
     const participantsToAdd = [...prevParticipants, ...newParticipants]
       .sort((a, b) => a.user.username.localeCompare(b.user.username))
       .concat(facilitators);
-    onSubmit(participantsToAdd, shouldInviteMembersToCourse, [
-      ...newParticipants,
-    ]);
+    onSubmit(
+      participantsToAdd,
+      shouldInviteMembersToCourse,
+      [...newParticipants],
+      addedCourse
+    );
     onCancel();
   };
 
