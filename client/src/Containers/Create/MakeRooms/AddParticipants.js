@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import { debounce, uniqBy } from 'lodash';
+import { debounce, findKey, uniqBy } from 'lodash';
 import SearchResults from 'Containers/Members/SearchResults';
 import { amIAFacilitator } from 'utils';
 import API from 'utils/apiRequests';
@@ -35,6 +35,56 @@ const AddParticipants = (props) => {
     COURSE_CODE: 'Course Code',
   };
 
+  const buttonStrategies = {
+    DONE: (assignedParticipants, listedParticipants, courseParticipants) =>
+      courseParticipants.every(
+        (mem) =>
+          assignedParticipants.findIndex(
+            (amMem) => amMem.user._id === mem.user._id
+          ) > -1
+      ),
+    REMOVE: (assignedParticipants, listedParticipants, courseParticipants) =>
+      courseParticipants.every(
+        (mem) =>
+          listedParticipants
+            .concat(assignedParticipants)
+            .findIndex((amMem) => amMem.user._id === mem.user._id) > -1
+      ),
+    ADD: (assignedParticipants, listedParticipants, courseParticipants) =>
+      !courseParticipants.some(
+        (mem) =>
+          listedParticipants.findIndex(
+            (amMem) => amMem.user._id === mem.user._id
+          ) > -1
+      ) &&
+      !courseParticipants.some(
+        (mem) =>
+          assignedParticipants.findIndex(
+            (amMem) => amMem.user._id === mem.user._id
+          ) > -1
+      ),
+    ADD_REMAINING: () => true,
+  };
+
+  const buttonAttributes = {
+    DONE: { buttonLabel: 'Done', disabled: true, onClick: null },
+    REMOVE: {
+      buttonLabel: 'Remove',
+      disabled: false,
+      onClick: (...args) => removeRosterFromNewParticipantsList(...args),
+    },
+    ADD: {
+      buttonLabel: 'Add',
+      disabled: false,
+      onClick: (...args) => addParticipantFromRoster(...args),
+    },
+    ADD_REMAINING: {
+      buttonLabel: 'Add Remaining',
+      disabled: false,
+      onClick: (...args) => addParticipantFromRoster(...args),
+    },
+  };
+
   const userCoursesById = useSelector((state) => state.courses.byId);
 
   const coursesUserDidNotCreate = Object.values(
@@ -43,13 +93,13 @@ const AddParticipants = (props) => {
 
   const [searchText, setSearchText] = useState('');
   const [rosterSearchText, setRosterSearchText] = useState('');
+  const [courseCodeSearchText, setCourseCodeSearchText] = useState('');
   const [initialSearchResults, setInitialSearchResults] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [rosterSearchResults, setRosterSearchResults] = useState(
     coursesUserDidNotCreate
   );
   const [courseCodeSearchResults, setCourseCodeSearchResults] = useState({});
-  const [courseCodeSearchText, setCourseCodeSearchText] = useState('');
   const [newParticipants, setNewParticipants] = useState([]);
   const [addedCourse, setAddedCourse] = useState({});
   const [
@@ -59,10 +109,6 @@ const AddParticipants = (props) => {
   const [viewType, setViewType] = useState(constants.INDIVIDUALS);
 
   useEffect(() => {
-    // set currently added courses for
-    // rosters & courseCode courses
-    // to added for all currentCourseIds
-
     return () => debounceSearch.cancel();
   }, []);
 
@@ -111,119 +157,27 @@ const AddParticipants = (props) => {
   };
 
   const generateRosterSearchResults = (courses) => {
-    const generatedCourses = courses
-      .map((course) => {
-        const buttonAttributes = generateButtonAttributes(course);
-        return {
-          key: course._id,
-          label: course.name,
-          buttonLabel: buttonAttributes.buttonLabel,
-          onClick: buttonAttributes.onClick,
-          disabled: buttonAttributes.disabled,
-        };
-      })
-      .filter((generatedCourse) => generatedCourse.key !== originatingCourseId);
-
-    if (viewType === constants.ROSTERS) {
-      return generatedCourses.reduce((acc, curr) => {
-        // sort courses with members lists that have already
-        // been added to the AssignmentMatrix
-        if (curr.buttonLabel.toLowerCase() === 'done') return [...acc, curr];
-        return [curr, ...acc];
-      }, []);
-    }
-    return generatedCourses;
-  };
-
-  const generateButtonAttributes = (course) => {
-    // if all members of the course are added, buttonLabel = 'done' -> disabled: true
-    // if some but not all of the course members are added to newParticipants,
-    // buttonLabel = 'Add All'
-    // else addedCourse[course._id] ? 'Remove' : 'Add';
-
-    const generateButtonLabelAndOnClick = () => {
-      const obj = {
-        buttonLabel: '',
-        onClick: addedCourse[course._id]
-          ? removeRosterFromNewParticipantsList
-          : addParticipantFromRoster,
-      };
-      if (areAllCourseMembersAddedToAssignmentMatrix(course))
-        obj.buttonLabel = 'Done';
-      // handle case for Add All e.g.
-      // a member that is in this course is also in another course
-      // that just had its members Removed from newParticipants
-
-      const courseMembersAddedToNewParticipants =
-        addedCourse[course._id] && addedCourse[course._id].members
-          ? addedCourse[course._id].members
-          : [];
-      const completeCourseMemberListIds = course.members.map(
-        (mem) => mem.user._id
+    const courseList = courses.map((course) => {
+      const notCurrentUser = course.members.filter(
+        (mem) => mem.user._id !== userId
       );
-
-      console.group('members length');
-      console.log(courseMembersAddedToNewParticipants);
-      console.log(completeCourseMemberListIds);
+      console.group(`Part, newPart, ${course.name}`);
+      console.log(participants.map((mem) => mem.user.username));
+      console.log(newParticipants.map((mem) => mem.user.username));
+      console.log(notCurrentUser.map((mem) => mem.user.username));
       console.groupEnd();
-
-      if (
-        // courseMembersAddedToNewParticipants.length &&
-        // !areAllMembersAddedToNewParticipants(completeCourseMemberListIds)
-        courseMembersAddedToNewParticipants.length > 0 &&
-        courseMembersAddedToNewParticipants.length <
-          completeCourseMemberListIds.length
-      ) {
-        obj.buttonLabel = 'Add All';
-        obj.onClick = addParticipantFromRoster;
-      } else if (
-        // courseMembersAddedToNewParticipants.length &&
-        // areAllMembersAddedToNewParticipants(completeCourseMemberListIds)
-        courseMembersAddedToNewParticipants.length ===
-        completeCourseMemberListIds.length
-      ) {
-        obj.buttonLabel = 'Remove';
-        obj.onClick = removeRosterFromNewParticipantsList;
-      } else {
-        obj.buttonLabel = addedCourse[course._id] ? 'Remove' : 'Add';
-      }
-      return obj;
-    };
-    // const obj = generateButtonLabelAndOnClick();
-
-    const buttonAttributes = {
-      // buttonLabel: obj.buttonLabel,
-      // onClick: obj.onClick,
-      buttonLabel: addedCourse[course._id] ? 'Remove' : 'Add',
-      onClick: addedCourse[course._id]
-        ? removeRosterFromNewParticipantsList
-        : addParticipantFromRoster,
-      disabled: areAllCourseMembersAddedToAssignmentMatrix(course),
-    };
-
-    return buttonAttributes;
-  };
-
-  const areAllMembersAddedToNewParticipants = (userIds) => {
-    console.group(
-      'areAllMembersAddedToNewParticipants: userIds -> newParticipants'
+      const strategy = findKey(buttonStrategies, (testFcn) =>
+        testFcn(participants, newParticipants, notCurrentUser)
+      );
+      return {
+        key: course._id,
+        label: course.name,
+        ...buttonAttributes[strategy],
+      };
+    });
+    return courseList.sort((a) =>
+      a.buttonLabel === buttonAttributes.DONE.buttonLabel ? 1 : -1
     );
-    console.log(userIds);
-    console.log(newParticipants.map((mem) => mem.user._id));
-    console.groupEnd();
-    return newParticipants.every((mem) => userIds.includes(mem.user._id));
-  };
-
-  const areAllCourseMembersAddedToAssignmentMatrix = (course) => {
-    // if all members of the course are
-    // within newParticipants or within participants
-    // return true, else false
-    const courseMemberIds = course.members
-      ? course.members.map((mem) => mem.user._id)
-      : [];
-    const allAddedMembersIds = [...participants].map((mem) => mem.user._id);
-
-    return courseMemberIds.every((id) => allAddedMembersIds.includes(id));
   };
 
   const searchCourseCode = async () => {
@@ -361,74 +315,6 @@ const AddParticipants = (props) => {
     }
   };
 
-  // const addParticipantsFromCourseCode = (courseId) => {
-  //   if (
-  //     courseCodeSearchResults[courseId] &&
-  //     courseCodeSearchResults[courseId].members
-  //   ) {
-  //     const memsToAdd = courseCodeSearchResults[courseId].members.map(
-  //       (mem) => ({
-  //         ...mem,
-  //         user: { ...mem.user, course: courseId },
-  //       })
-  //     );
-
-  //     const uniqueParticipants = uniqBy(
-  //       newParticipants.concat(...memsToAdd),
-  //       'user._id'
-  //     );
-
-  //     // if facilitators from the newly added course were previously added as
-  //     // participants, upgrade their role to facilitator within
-  //     // uniqueParticipants
-  //     const memsToAddObject = memsToAdd.reduce((acc, curr) => {
-  //       return {
-  //         ...acc,
-  //         [curr.user._id]: { ...curr },
-  //       };
-  //     }, {});
-
-  //     const uniqueParticipantsObject = uniqueParticipants.reduce(
-  //       (acc, curr) => {
-  //         return {
-  //           ...acc,
-  //           [curr.user._id]: { ...curr },
-  //         };
-  //       },
-  //       {}
-  //     );
-
-  //     Object.values(memsToAddObject).forEach((mem) => {
-  //       if (
-  //         uniqueParticipantsObject[mem.user._id] &&
-  //         mem.role === 'facilitator'
-  //       )
-  //         uniqueParticipantsObject[mem.user._id].role = 'facilitator';
-  //     });
-
-  //     // addParticipants
-  //     Object.values(uniqueParticipantsObject).forEach((mem) => {
-  //       addParticipant({ ...mem, course: courseId });
-  //     });
-
-  //     // set addedCourse[courseId].isAdded to true
-  //     // used in CourseCodeMemberImportFunction to swtich b/t
-  //     // buttonLabel & onClick
-  //     setCourseCodeSearchResults((prevState) => ({
-  //       ...prevState,
-  //       [courseId]: {
-  //         ...prevState[courseId],
-  //         isAdded: true,
-  //       },
-  //     }));
-
-  //     setAddedCourse((prevState) => ({
-  //       ...prevState,
-  //       [courseId]: { ...prevState[courseId], isAdded: true },
-  //     }));
-  //   } // end if
-  // };
-
   const removeMember = (mem) => {
     setNewParticipants((prevState) =>
       prevState.filter(({ user }) => user._id !== mem.user._id)
@@ -531,30 +417,6 @@ const AddParticipants = (props) => {
       return others;
     });
   };
-
-  // const removeParticipantsFromCourseCode = (courseId) => {
-  //   const courseMembersIds = courseCodeSearchResults[courseId].members.map(
-  //     (mem) => mem.user._id
-  //   );
-  //   setNewParticipants((prevState) =>
-  //     prevState.filter((mem) => !courseMembersIds.includes(mem.user._id))
-  //   );
-  //   // set addedCourse[courseId].isAdded to true
-  //   // used in CourseCodeMemberImportFunction to swtich b/t
-  //   // buttonLabel & onClick
-  //   setCourseCodeSearchResults((prevState) => ({
-  //     ...prevState,
-  //     [courseId]: {
-  //       ...prevState[courseId],
-  //       isAdded: false,
-  //     },
-  //   }));
-
-  //   setAddedCourse((prevState) => {
-  //     const { [courseId]: old, ...others } = prevState;
-  //     return others;
-  //   });
-  // };
 
   const _displayViewType = () => {
     switch (viewType) {
@@ -749,7 +611,10 @@ AddParticipants.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   courseCheckbox: PropTypes.bool.isRequired,
-  originatingCourseId: PropTypes.string.isRequired,
+  originatingCourseId: PropTypes.string,
 };
 
+AddParticipants.defaultProps = {
+  originatingCourseId: null,
+};
 export default AddParticipants;
