@@ -92,6 +92,7 @@ function RoomsMonitor({
   // THE DIVS THAT CHANGED VISIBILITY. We use the visibilityRef to keep track of tje visibility of all the divs that can
   // be displayed.
   React.useEffect(() => {
+    if (observerRef.current) observerRef.current.disconnect();
     // for some reason, vscode doesn't recognize InterserctionObserver
     // eslint-disable-next-line no-undef
     observerRef.current = new IntersectionObserver((entries) => {
