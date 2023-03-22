@@ -73,7 +73,7 @@ const WebSketchEditor = (props) => {
   // establish listeners
   const syncToFollower = () => {
     if (!sketch) {
-      getSketch();
+      // getSketch();
     }
     // We must be specific to avoid disconnecting other handlers for page changes, toolplay, etc.
     const handlers = [
@@ -142,7 +142,7 @@ const WebSketchEditor = (props) => {
   // send msg and then reestablish listeners, could possibly be done for all events
   const reflectAndSync = (event, context, attr) => {
     reflectMessage(event, context, attr);
-    getSketch();
+    // getSketch();
     // sketch = sketchDoc.focusPage;
     syncToFollower();
   };
@@ -158,10 +158,10 @@ const WebSketchEditor = (props) => {
       'Expression,Button,DOMKind,[constraint="Free"],[isFreePointOnPath=true]';
     let gobjsToUpdate;
     checkGraph();
-    getSketch(); // Make sure we use the current sketch
+    // getSketch(); // Make sure we use the current sketch
     if (!sketch || !sketch.gobjList || sketch.gobjList.gobjects === null) {
       console.log('syncGobjUpdates found no gobjs to track.');
-      getSketch();
+      // getSketch();
       // const defaultGobjsList = {
       //   gobjects: {},
       //   constraintList: [],
@@ -416,24 +416,36 @@ const WebSketchEditor = (props) => {
     return config;
   };
 
-  const loadSketch = () => {
+  const loadSketch = async () => {
+    const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+    $ = window.jQuery;
+    if (!$) {
+      console.warn('No jQuery found!');
+      return;
+    }
     const { tab } = props;
+    // !wait for the scripts to be loaded and executed on the dom before continuing
+    await delay(500);
     loadTools();
     const isToolsLoaded = () => {
       return !!(window.UTILMENU && !!window.TOOLS);
     };
     const isWidgetLoaded = () => {
+      const widgets = $('#widget');
       return !!(
         window.UTILMENU &&
         !!window.UTILMENU.initUtils &&
         window.PAGENUM &&
         !!window.PAGENUM.initPageControls &&
         window.WIDGETS &&
-        !!window.WIDGETS.initWidget
+        !!window.WIDGETS.initWidget &&
+        widgets
       );
     };
     // When should this call happen, before or after loading the sketch?
+    let rck = 0;
     if (isToolsLoaded() && isWidgetLoaded()) {
+      console.log('UTILITIES READY AND LOADING');
       window.WIDGETS.initWidget();
       window.PAGENUM.initPageControls();
       window.UTILMENU.initUtils();
@@ -444,12 +456,14 @@ const WebSketchEditor = (props) => {
       syncToFollower();
     } else {
       const pollDOM = () => {
+        rck += 1;
         console.warn(
           'Widgets recheck for load (widgets/tools): ',
           isWidgetLoaded(),
           isToolsLoaded()
         );
         if (isToolsLoaded() && isWidgetLoaded()) {
+          console.log('UTILITIES READY AND LOADING - rechecked: ', rck);
           window.WIDGETS.initWidget();
           window.PAGENUM.initPageControls();
           window.UTILMENU.initUtils();
@@ -458,7 +472,7 @@ const WebSketchEditor = (props) => {
           window.TOOLS.populateTools('libSketch');
           syncToFollower();
         } else {
-          setTimeout(pollDOM, 250); // try again in 150 milliseconds
+          setTimeout(pollDOM, 250); // try again in 250 milliseconds
         }
       };
       pollDOM();
