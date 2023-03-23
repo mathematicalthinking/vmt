@@ -95,3 +95,12 @@ it('should be able to be unarchived', function() {
 // click Archive tab in navbar
 
 // @TODO: test that the SelectableBoxList icons work for an archived room
+
+
+
+/** Found Bugs
+ * Test 1.
+ * Make sure you can archive
+ *
+ * UNARCHIVE BUG: the id remains in the arhive after unarchiving
+ */
