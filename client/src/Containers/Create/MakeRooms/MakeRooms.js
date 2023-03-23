@@ -302,8 +302,7 @@ const MakeRooms = (props) => {
   const handleAddParticipantsSubmit = (
     newParticipants,
     shouldInviteMembersToCourse,
-    participantsToInvite,
-    addedCourses
+    participantsToInvite
   ) => {
     const newParticipantsWithColors = addColors(newParticipants);
     setParticipants(newParticipantsWithColors);
@@ -313,9 +312,6 @@ const MakeRooms = (props) => {
     );
     if (shouldInviteMembersToCourse)
       handleMembersToInvite(participantsToInvite);
-
-    console.log('addedCourses');
-    console.log(addedCourses);
   };
 
   const calculatePPR = (members) => {

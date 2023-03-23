@@ -161,11 +161,6 @@ const AddParticipants = (props) => {
       const notCurrentUser = course.members.filter(
         (mem) => mem.user._id !== userId
       );
-      console.group(`Part, newPart, ${course.name}`);
-      console.log(participants.map((mem) => mem.user.username));
-      console.log(newParticipants.map((mem) => mem.user.username));
-      console.log(notCurrentUser.map((mem) => mem.user.username));
-      console.groupEnd();
       const strategy = findKey(buttonStrategies, (testFcn) =>
         testFcn(participants, newParticipants, notCurrentUser)
       );
@@ -185,8 +180,7 @@ const AddParticipants = (props) => {
 
     const courseSearched = await CourseCodeMemberImportFunctions.getCourseFromCourseCode(
       courseCodeSearchText,
-      // currently ignoring userId, prob ignore all newParticipants & currentParticipants
-      [userId]
+      [userId] // ignore userId
     );
 
     if (
