@@ -171,14 +171,15 @@ module.exports = function() {
       try {
         await message.save();
         const { room, releasedControl } = await killZombies(data.roomId);
-        socket.to(data.roomId).emit('USER_JOINED', {
+        const dataToReturn = {
           currentMembers: room.currentMembers,
           message,
           releasedControl,
           username: data.username,
           userId: data.userId,
-        });
-        return cb({ room, message, user }, null);
+        };
+        socket.to(data.roomId).emit('USER_JOINED', dataToReturn);
+        return cb(dataToReturn, null);
       } catch (err) {
         console.log('ERROR JOINING ROOM for user: ', data.userId, err);
         return cb(null, err);
