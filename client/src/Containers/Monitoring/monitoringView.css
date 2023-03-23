@@ -70,7 +70,6 @@
   width: 100%;
   border-radius: 3px;
   box-shadow: lightShadow;
-  position: relative;
 }
 
 .Title {
@@ -106,26 +105,3 @@
   flex: 1;
   margin: 0 15px;
 }
-
-.Spinner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border-top: 4px solid #3498db;
-  border-right: 4px solid transparent;
-  animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
