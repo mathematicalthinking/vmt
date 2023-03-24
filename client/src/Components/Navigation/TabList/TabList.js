@@ -20,7 +20,7 @@ const TabList = (props) => {
         key={tab.name}
         id={tab.name}
         className={style}
-        data-testid="tab"
+        data-testid={`tab-${tab.name}`}
       >
         {tab.name === 'Activities' ? 'Templates' : tab.name}
         {tab.notifications ? (

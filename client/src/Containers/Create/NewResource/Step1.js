@@ -23,6 +23,7 @@ const Step1 = (props) => {
         change={changeHandler}
         value={name}
         width="100%"
+        data-testid={`${resource}-name`}
       />
       <TextInput
         light

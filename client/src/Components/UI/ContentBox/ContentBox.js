@@ -61,7 +61,7 @@ class ContentBox extends PureComponent {
 
     const childElements = (
       <div
-        data-testid={`content-box-${title}`}
+        // data-testid={`content-box-${title}`}
         className={classes.SubContainer}
       >
         <div className={classes.TopBanner}>
@@ -149,6 +149,7 @@ class ContentBox extends PureComponent {
         to={link}
         className={classes.Container}
         style={{ height: expanded ? 150 : 50 }}
+        data-testid={`ContentBox-Link-${title}`}
       >
         {childElements}
       </Link>

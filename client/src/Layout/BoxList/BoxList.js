@@ -103,6 +103,7 @@ const boxList = (props) => {
                 listType={listType}
                 customIcons={icons}
                 resource={resource}
+                data-testid={`ContentBox-${item.name}`}
               >
                 {item.description}
               </ContentBox>

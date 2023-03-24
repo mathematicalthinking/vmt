@@ -370,7 +370,11 @@ class NewResourceContainer extends Component {
     let buttons;
     if (step === 0) {
       if (resource === 'courses') {
-        buttons = <Button click={this.nextStep}>next</Button>;
+        buttons = (
+          <Button click={this.nextStep} data-testid={`${resource}-next-button`}>
+            next
+          </Button>
+        );
       } else {
         buttons = (
           <Aux>
@@ -409,7 +413,10 @@ class NewResourceContainer extends Component {
       }
     } else if (step === steps.length - 1) {
       buttons = (
-        <div className={classes.ModalButton}>
+        <div
+          className={classes.ModalButton}
+          data-testid={`${resource}-create-button`}
+        >
           <Button data-testid="create" click={this.submitForm}>
             create
           </Button>
