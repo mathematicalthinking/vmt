@@ -37,3 +37,6 @@ describe('course creation works as intended', function() {
 
 // 8. "test course" course should be visible on the page
 // cy.getTestElement('ContentBox-Link-test course')
+
+
+// 9. repeat steps 1-8 for "test course 2"
