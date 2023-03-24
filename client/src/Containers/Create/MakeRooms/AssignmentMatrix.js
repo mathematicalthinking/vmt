@@ -25,7 +25,7 @@ const AssignmentMatrix = (props) => {
 
   const { items: sortedParticipants, resetSort } = useSortableData(
     allParticipants.map((mem) => ({
-      course: 'dummy',
+      course: null,
       ...mem,
       username: mem.user.username,
     }))
@@ -246,7 +246,7 @@ const TheMatrix = (props) => {
                 >
                   {participant.course ? (
                     <td
-                      className={`${classes.tooltip} ${classes.LockedColumn}`}
+                      className={`${classes.LockedColumn} ${classes.tooltip}`}
                       style={{
                         color: `${participant.displayColor || 'black'}`,
                       }}

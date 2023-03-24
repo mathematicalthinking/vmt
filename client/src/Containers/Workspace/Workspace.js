@@ -327,18 +327,7 @@ class Workspace extends Component {
             this.goBack();
             return;
           }
-          const { room, message } = data;
-          const currMems = populatedRoom.getCurrentMembers(room.currentMembers);
-          this.setState(
-            {
-              currentMembers: currMems,
-            },
-            () =>
-              connectUpdatedRoom(populatedRoom._id, {
-                currentMembers: currMems,
-              })
-          );
-          this.addToLog(message);
+          _handleJoinOrLeave(data);
         });
       }
     }

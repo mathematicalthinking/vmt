@@ -17,7 +17,10 @@ function GenericSearchResults({ itemsSearched }) {
           {item.altLabel && (
             <div className={classes.AltLabel}>{item.altLabel}</div>
           )}
-          <Button click={() => item.onClick && item.onClick(item.key)}>
+          <Button
+            click={() => item.onClick && item.onClick(item.key)}
+            disabled={item.disabled || false}
+          >
             {item.buttonLabel}
           </Button>
         </li>
@@ -35,6 +38,7 @@ GenericSearchResults.propTypes = {
       altLabel: PropTypes.string,
       key: PropTypes.string,
       backgroundColor: PropTypes.string,
+      disabled: PropTypes.bool,
     })
   ).isRequired,
 };
