@@ -22,7 +22,10 @@ function MonitoringView({ userResources, user, notifications }) {
     VIEW: 'View',
   };
 
-  const [storedSelections, setStoredSelections] = useUIState('monitoring', []);
+  const [storedSelections, setStoredSelections] = useUIState(
+    'monitoring-selections',
+    []
+  );
 
   const _wasRecentlyUpdated = (room) => {
     // integrated logic to determine default rooms to view
