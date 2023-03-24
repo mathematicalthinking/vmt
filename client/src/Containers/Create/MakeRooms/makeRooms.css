@@ -325,7 +325,7 @@
   text-align: center;
   padding: 5px 0;
   border-radius: 6px;
- 
+
   /* Position the tooltip text */
   position: absolute;
   z-index: 900;
@@ -336,4 +336,41 @@
 /* Show the tooltip text when you mouse over the tooltip container */
 .tooltip:hover .tooltiptext {
   visibility: visible;
+}
+
+.Search {
+  display: flex;
+  align-items: center;
+  font-size: inherit;
+  width: 100%;
+}
+
+.Input {
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  width: 100%;
+  padding: 10px;
+  padding-left: 35px;
+  transition: 0.2s;
+  background-color: white;
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  color: #666;
+  caret-color: lightBlue;
+  font-family: inherit;
+  position: relative;
+  box-shadow: lightestShadow;
+}
+
+.Input:focus {
+  border: none;
+  border: 1px solid blue;
+  outline-width: 0;
+}
+
+.Icon {
+  font-size: inherit;
+  margin-left: 8px;
+  position: absolute;
+  color: darkGray;
 }
