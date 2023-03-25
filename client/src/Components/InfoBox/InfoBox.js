@@ -10,9 +10,11 @@ const InfoBox = ({ title, children, icon, rightIcons, rightTitle }) => {
           <div className={classes.Icon}>{icon}</div> {title}
         </div>
         <div className={classes.Right}>{rightIcons}</div>
-        <div className={`${classes.Right} ${classes.RightTitle}`}>
-          {rightTitle}
-        </div>
+        {rightTitle && (
+          <div className={`${classes.Right} ${classes.RightTitle}`}>
+            {rightTitle}
+          </div>
+        )}
       </div>
       <div className={classes.Content}>{children}</div>
     </div>

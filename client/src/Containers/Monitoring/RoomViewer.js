@@ -52,7 +52,11 @@ function RoomViewer({ populatedRoom }) {
             Chat
           </div>
           <div className={classes.Chat}>
-            <SimpleChat isSimplified={isSimplified} log={populatedRoom.chat} />
+            <SimpleChat
+              context={`roomViewer-${populatedRoom._id || ''}`}
+              isSimplified={isSimplified}
+              log={populatedRoom.chat}
+            />
           </div>
           <div className={!isSimplified ? classes.SliderOn : classes.Slider}>
             Detailed Chat
@@ -95,7 +99,7 @@ RoomViewer.propTypes = {
     chat: PropTypes.arrayOf(PropTypes.shape({})),
     members: PropTypes.arrayOf(PropTypes.shape({})),
     currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
-    updatedAt: PropTypes.number,
+    updatedAt: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   }),
 };
 

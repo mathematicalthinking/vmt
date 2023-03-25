@@ -13,20 +13,21 @@ import {
   setRoomStartingPoint,
   updateUser,
   updateUserSettings,
-} from '../../store/actions';
-import mongoIdGenerator from '../../utils/createMongoId';
-import WorkspaceLayout from '../../Layout/Workspace/Workspace';
-import { Chat, Tabs, Tools, RoomInfo } from '.';
-import { Modal, CurrentMembers, Loading, TabTypes } from '../../Components';
-import NewTabForm from '../Create/NewTabForm';
-import CreationModal from './Tools/CreationModal';
+} from 'store/actions';
+import { Modal, CurrentMembers, Loading, TabTypes } from 'Components';
+import { ROLE } from 'constants.js';
 import {
   socket,
   useSnapshots,
   API,
   controlStates,
   controlEvents,
-} from '../../utils';
+  createMongoId as mongoIdGenerator,
+} from 'utils';
+import { WorkspaceLayout } from 'Layout';
+import { Chat, Tabs, Tools, RoomInfo } from '.';
+import NewTabForm from '../Create/NewTabForm';
+import CreationModal from './Tools/CreationModal';
 
 class Workspace extends Component {
   constructor(props) {
@@ -58,7 +59,7 @@ class Workspace extends Component {
       referFromEl: null,
       referFromCoords: null,
       currentTabId: populatedRoom.tabs[0]._id,
-      role: 'participant',
+      role: ROLE.PARTICIPANT,
       creatingNewTab: false,
       activityOnOtherTabs: [],
       chatExpanded: true,
@@ -114,30 +115,30 @@ class Workspace extends Component {
 
     // Set up snapshots
 
-    if (!temp) {
-      const {
-        elementRef,
-        takeSnapshot,
-        cancelSnapshots,
-        getSnapshot,
-      } = useSnapshots((newSnapshot) => {
-        const { currentTabId } = this.state;
-        const updateBody = { snapshot: newSnapshot };
-        API.put('tabs', currentTabId, updateBody).then(() => {
-          this.updateTab(currentTabId, updateBody);
-        });
-      });
+    // if (!temp) {
+    //   const {
+    //     elementRef,
+    //     takeSnapshot,
+    //     cancelSnapshots,
+    //     getSnapshot,
+    //   } = useSnapshots((newSnapshot) => {
+    //     const { currentTabId } = this.state;
+    //     const updateBody = { snapshot: newSnapshot };
+    //     API.put('tabs', currentTabId, updateBody).then(() => {
+    //       this.updateTab(currentTabId, updateBody);
+    //     });
+    //   });
 
-      this.setState(
-        {
-          takeSnapshot,
-          snapshotRef: elementRef,
-          cancelSnapshots,
-          getSnapshot,
-        },
-        () => this._takeSnapshotIfNeeded()
-      );
-    }
+    //   this.setState(
+    //     {
+    //       takeSnapshot,
+    //       snapshotRef: elementRef,
+    //       cancelSnapshots,
+    //       getSnapshot,
+    //     },
+    //     () => this._takeSnapshotIfNeeded()
+    //   );
+    // }
 
     this.setHeartbeatTimer();
   }
@@ -310,8 +311,8 @@ class Workspace extends Component {
         const { role } = populatedRoom.members.filter(
           (member) => member.user._id === user._id
         )[0];
-        if (role === 'facilitator') {
-          this.setState({ role: 'facilitator' });
+        if (role === ROLE.FACILITATOR) {
+          this.setState({ role });
         }
       } catch (err) {
         if (user.isAdmin) {
@@ -321,24 +322,12 @@ class Workspace extends Component {
       if (!user.inAdminMode) {
         socket.emit('JOIN', sendData, (data, err) => {
           if (err) {
-            // eslint-disable-next-line no-console
             console.log('Error joining room');
             console.log(err);
             this.goBack();
             return;
           }
-          const { room, message } = data;
-          const currMems = populatedRoom.getCurrentMembers(room.currentMembers);
-          this.setState(
-            {
-              currentMembers: currMems,
-            },
-            () =>
-              connectUpdatedRoom(populatedRoom._id, {
-                currentMembers: currMems,
-              })
-          );
-          this.addToLog(message);
+          _handleJoinOrLeave(data);
         });
       }
     }
@@ -460,7 +449,7 @@ class Workspace extends Component {
     const { role } = this.state;
     const { populatedRoom } = this.props;
     if (
-      role === 'facilitator' ||
+      role === ROLE.FACILITATOR ||
       populatedRoom.settings.participantsCanCreateTabs
     ) {
       this.setState({ creatingNewTab: true });
@@ -965,13 +954,15 @@ class Workspace extends Component {
     );
     const tabs = (
       <Tabs
-        participantCanCreate={populatedRoom.settings.participantsCanCreateTabs}
+        canCreate={
+          populatedRoom.settings.participantsCanCreateTabs ||
+          role === ROLE.FACILITATOR
+        }
         tabs={currentTabs}
         ntfTabs={activityOnOtherTabs}
         currentTabId={currentTabId}
-        memberRole={role}
-        changeTab={this.changeTab}
-        createNewTab={this.createNewTab}
+        onChangeTab={this.changeTab}
+        onCreateNewTab={this.createNewTab}
       />
     );
     const chat = (

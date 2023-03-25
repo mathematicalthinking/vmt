@@ -1,8 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
 import { dateAndTime, useAppModal, COLOR_MAP, addColors } from 'utils';
@@ -23,13 +23,17 @@ const MakeRooms = (props) => {
   const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
   const history = useHistory(); // Elsewhere we use 'withRouter()'; this is the modern approach
 
+  const courses = useSelector((state) => state.courses.byId);
+
   const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
   const [participants, setParticipants] = useState(
     addColors(initialParticipants)
   );
   const [roomDrafts, setRoomDrafts] = useState([]);
-  const submitArgs = React.useRef(); // used for passing along submit info
-  const membersToInviteToCourse = React.useRef(null);
+  const submitArgs = useRef(); // used for passing along submit info
+  const membersToInviteToCourse = useRef(null);
+  const courseMembersObject = useRef({}); // {courseId: memsInThatCourse}
+
   const {
     show: showTheWarning,
     hide: hideModals,
@@ -118,6 +122,20 @@ const MakeRooms = (props) => {
       );
     }
   }, [selectedAssignment]);
+
+  // useEffect to update the courseMembersObject each time the participants change
+  useEffect(() => {
+    participants.forEach((mem) => {
+      if (mem && mem.course) {
+        if (courseMembersObject.current[mem.course])
+          courseMembersObject.current[mem.course] = [
+            ...courseMembersObject.current[mem.course],
+            mem,
+          ];
+        else courseMembersObject.current[mem.course] = [mem];
+      }
+    });
+  }, [participants]);
 
   const setRoomNum = (roomNum, clearRooms) => {
     const newRoomDrafts = clearRooms ? [] : roomDrafts;
@@ -422,8 +440,13 @@ const MakeRooms = (props) => {
         onSubmit={handleAddParticipantsSubmit}
         onCancel={hideModals}
         courseCheckbox={course !== null}
+        originatingCourseId={course && course._id}
       />
     );
+  };
+
+  const getCourseName = (courseId) => {
+    return (courses[courseId] && courses[courseId].name) || null;
   };
 
   const assignmentMatrix = (
@@ -437,6 +460,7 @@ const MakeRooms = (props) => {
       roomDrafts={roomDrafts}
       canDeleteRooms
       onAddParticipants={handleAddParticipants}
+      getCourseName={getCourseName}
     />
   );
 

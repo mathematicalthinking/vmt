@@ -25,7 +25,6 @@ module.exports = {
         _id: { $nin: idsToExclude },
       })
         .sort([['updatedAt', -1]])
-        .limit(7)
         .select('username email accountType')
         .then((users) => {
           resolve(users);

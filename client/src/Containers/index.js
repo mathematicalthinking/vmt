@@ -36,4 +36,5 @@ export { default as statsReducer, initialState } from './Stats/statsReducer';
 export { default as MonitoringView } from './Monitoring/MonitoringView';
 export { default as RoomPreview } from './Monitoring/RoomPreview';
 export { default as Archive } from './Archive';
+export { default as SearchResults } from './Members/SearchResults';
 export * from './Create/MakeRooms';

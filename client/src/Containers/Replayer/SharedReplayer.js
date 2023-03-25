@@ -558,16 +558,7 @@ class SharedReplayer extends Component {
           graphs={graphs}
           // user={user}
           chat={this.updatedLog.length > 0 ? chat : null}
-          tabs={
-            <Tabs
-              tabs={populatedRoom.tabs}
-              changeTabs={this.changeTab}
-              currentTabId={currentTabId}
-              participantCanCreate={false}
-              replayer
-              memberRole="participant" // this controls the user's ability to make a new tab...we don't want them to make a new a tab in the replayer no matter what their role is
-            />
-          }
+          tabs={<Tabs tabs={populatedRoom.tabs} currentTabId={currentTabId} />}
           currentMembers={
             currentMembers.length > 0 ? (
               <CurrentMembers

@@ -395,7 +395,7 @@ module.exports = {
             };
           } else room.members.push(newMember);
 
-          return room.save();
+          return room.save({ timestamps: false });
         })
         .then((savedRoom) => {
           return savedRoom.populate(
@@ -445,7 +445,11 @@ module.exports = {
           });
         })
         .catch((err) => reject(err)); // @todo there is no real error handling for this
-      db.Room.findByIdAndUpdate(id, { $pull: body }, { new: true })
+      db.Room.findByIdAndUpdate(
+        id,
+        { $pull: body },
+        { new: true, timestamps: false }
+      )
         .populate({ path: 'members.user', select: 'username' })
         .then((res) => {
           resolve(res.members);

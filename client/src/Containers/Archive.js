@@ -294,9 +294,11 @@ const Archive = () => {
       },
       // icon: <i className="fas fa-external-link-alt" />,
       icon: (
-        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-          open_in_new
-        </span>
+        <ToolTip text="Preview" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            open_in_new
+          </span>
+        </ToolTip>
       ),
     },
     {
@@ -306,9 +308,11 @@ const Archive = () => {
         goToReplayer(id);
       },
       icon: (
-        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-          replay
-        </span>
+        <ToolTip text="Replayer" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            replay
+          </span>
+        </ToolTip>
       ),
     },
     restoreButton,
@@ -336,7 +340,9 @@ const Archive = () => {
       setFromDate={setFromDate}
       icons={customIcons}
       selectActions={selectActions}
-      totalNumberOfArchivedRooms={archive.rooms.length}
+      totalNumberOfArchivedRooms={
+        (archive && archive.rooms && archive.rooms.length) || 0
+      }
     />
   );
 };

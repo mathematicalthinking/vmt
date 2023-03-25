@@ -7,8 +7,10 @@ import {
   updateActivityTab,
   setActivityStartingPoint,
   getCurrentActivity,
-} from '../../store/actions';
-import { Modal, Loading } from '../../Components';
+} from 'store/actions';
+import { Modal, Loading } from 'Components';
+import { WorkspaceLayout } from 'Layout';
+import { ROLE } from 'constants.js';
 import {
   DesmosActivityGraph,
   DesmosActivityEditor,
@@ -19,7 +21,6 @@ import {
   RoomInfo,
   ActivityTools,
 } from './index';
-import { WorkspaceLayout } from '../../Layout';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
 
@@ -184,13 +185,11 @@ class ActivityWorkspace extends Component {
       });
       tabs = (
         <Tabs
-          activity
           tabs={activity.tabs}
           currentTabId={currentTabId || initialTabId}
-          participantCanCreate={false}
-          memberRole={role}
-          changeTab={this.changeTab}
-          createNewTab={this.createNewTab}
+          canCreate={role === ROLE.FACILITATOR}
+          onChangeTab={this.changeTab}
+          onCreateNewTab={this.createNewTab}
         />
       );
     }

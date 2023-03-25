@@ -181,7 +181,7 @@ export const inviteToCourse = (courseId, toUserId, toUserUsername, options) => {
       addCourseMember(courseId, {
         ...options,
         user: { _id: toUserId, username: toUserUsername },
-        role: options && options.guest ? 'guest' : 'participant',
+        role: options && options.role ? options.role : 'participant',
       })
     );
     API.grantAccess(toUserId, 'course', courseId, 'invitation', options)

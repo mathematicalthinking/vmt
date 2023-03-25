@@ -412,10 +412,17 @@ class Room extends Component {
             </EditText>
           </Error>
         ),
-        facilitators: room.members.reduce((acc, member) => {
-          if (member.role === 'facilitator') acc += `${member.user.username} `;
-          return acc;
-        }, ''),
+        facilitators: room.members
+          .filter((mem) => mem.role === 'facilitator')
+          .map((mem) => (
+            <span
+              key={`facilitators-${mem.user.username}`}
+              className={classes.FacilitatorsList}
+            >
+              {mem.user.username},{' '}
+            </span>
+          )),
+        // .join(', '),
       };
 
       if (room.myRole === 'facilitator') {

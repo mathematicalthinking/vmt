@@ -74,7 +74,16 @@ class Member extends PureComponent {
           {canRemove ? (
             <div className={`${classes.CanRemove}`}>
               <div className={classes.FlexRow}>
-                <Avatar username={username} color={info.color} />
+                <Avatar
+                  username={username}
+                  color={
+                    (info && info.color) ||
+                    (info.user &&
+                      info.user.displayColor &&
+                      info.user.displayColor) ||
+                    null
+                  }
+                />
                 {info.user.email && (
                   <span className={classes.Email}>{info.user.email}</span>
                 )}
@@ -85,7 +94,16 @@ class Member extends PureComponent {
             </div>
           ) : (
             <div className={classes.Avatar}>
-              <Avatar username={username} color={info.color} />
+              <Avatar
+                username={username}
+                color={
+                  (info && info.color) ||
+                  (info.user &&
+                    info.user.displayColor &&
+                    info.user.displayColor) ||
+                  null
+                }
+              />
             </div>
           )}
           {notification ? (
@@ -197,6 +215,7 @@ Member.propTypes = {
       _id: PropTypes.string,
       username: PropTypes.string,
       email: PropTypes.string,
+      displayColor: PropTypes.string,
     }),
     username: PropTypes.string,
     color: PropTypes.string,
@@ -209,7 +228,6 @@ Member.propTypes = {
   notification: PropTypes.bool,
   resourceName: PropTypes.string.isRequired,
   canRemove: PropTypes.bool,
-  removeFn: PropTypes.func,
 };
 
 Member.defaultProps = {
@@ -220,7 +238,6 @@ Member.defaultProps = {
   grantAccess: null,
   rejectAccess: null,
   canRemove: false,
-  removeFn: null,
 };
 
 export default Member;

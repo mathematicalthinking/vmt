@@ -87,15 +87,17 @@ const DesmosActivity = (props) => {
   // listener and event state handlers
   // Persistent Events
   useEffect(() => {
+    const { inControl } = props;
     const type = 'persistent';
-    if (props.inControl === 'ME') {
+    if (inControl === 'ME') {
       handleResponseData(activityUpdates, type);
     }
   }, [activityUpdates]);
   // Transient Events including page changes
   useEffect(() => {
+    const { inControl } = props;
     const type = 'transient';
-    if (props.inControl === 'ME') {
+    if (inControl === 'ME') {
       handleResponseData(transientUpdates, type);
     }
   }, [transientUpdates]);
@@ -136,7 +138,6 @@ const DesmosActivity = (props) => {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog, temp } = props;
 
-    socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
       // console.log('Socket: Received data: ', data);
       addToLog(data);
@@ -252,7 +253,7 @@ const DesmosActivity = (props) => {
       'Player instance: ',
       calculatorInst.current
     );
-    props.setFirstTabLoaded();
+    setFirstTabLoaded();
     initializeListeners();
     // Go to screen last used
     if (tab.currentScreen) {
@@ -304,7 +305,8 @@ const DesmosActivity = (props) => {
   }
 
   function _hasControl() {
-    return props.inControl === 'ME';
+    const { inControl } = props;
+    return inControl === 'ME';
   }
 
   // @TODO this could be selectively handled depending what div is clicked
@@ -341,6 +343,7 @@ const DesmosActivity = (props) => {
   const {
     inControl,
     user,
+    toggleControl,
     // @TODO **NONE OF THESE PROPS ARE RECEIVED RIGHT NOW **
     // showRefWarning,
     // refWarningMsg,
@@ -359,7 +362,7 @@ const DesmosActivity = (props) => {
           setShowControlWarning(false);
         }}
         takeControl={() => {
-          props.toggleControl();
+          toggleControl();
           setShowControlWarning(false);
         }}
         inControl={inControl}

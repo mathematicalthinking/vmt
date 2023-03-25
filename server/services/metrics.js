@@ -87,9 +87,9 @@ const socketMetricInc = (type, userId) => {
     users[userId] = (users[userId] || 0) + 1;
     const threshhold = Object.values(users).filter((val) => val > 1);
     disconnectGauge.set(threshhold.length);
-    console.log(`setting gauge to: ${threshhold.length}`);
+    // console.log(`setting gauge to: ${threshhold.length}`);
     disconnectByUsers.observe(users[userId]);
-    console.log(users);
+    // console.log(users);
   }
 };
 
