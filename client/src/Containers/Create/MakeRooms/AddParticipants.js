@@ -170,9 +170,11 @@ const AddParticipants = (props) => {
         ...buttonAttributes[strategy],
       };
     });
-    return courseList.sort((a) =>
-      a.buttonLabel === buttonAttributes.DONE.buttonLabel ? 1 : -1
-    );
+    return courseList
+      .filter((a) => String(a.key) !== String(originatingCourseId))
+      .sort((a) =>
+        a.buttonLabel === buttonAttributes.DONE.buttonLabel ? 1 : -1
+      );
   };
 
   const searchCourseCode = async () => {
