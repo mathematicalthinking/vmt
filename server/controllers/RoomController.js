@@ -63,40 +63,254 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
-
-  getPopulatedById: (id, params) => {
-    return (Array.isArray(id)
-      ? db.Room.find({ _id: { $in: id } })
-      : db.Room.findById(id)
-    )
-      .populate({ path: 'creator', select: 'username' })
-      .populate({
-        path: 'chat',
-        // options: { limit: 25 }, // Eventually we'll need to paginate this
-        populate: { path: 'user', select: 'username' },
-        // allow messages to have roomIds, like events do
-        // select: '-room',
-      })
-      .populate({ path: 'members.user', select: 'username' })
-      .populate({ path: 'currentMembers', select: 'username' })
-      .populate({ path: 'course', select: 'name' })
-      .populate({ path: 'activity', select: 'name' })
-      .populate(
-        params.events === 'true'
-          ? {
-              path: 'tabs',
-              populate: {
-                path: 'events',
-                populate: { path: 'user', select: 'username color' },
+  getPopulatedById: async (id, params) => {
+    const matchId = Array.isArray(id)
+      ? { _id: { $in: id.map((id) => new ObjectId(id)) } }
+      : { _id: new ObjectId(id) };
+    const eventsPipeline =
+      params.events === 'true'
+        ? [
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'events.user',
+                foreignField: '_id',
+                as: 'events.user',
               },
-            }
-          : {
-              path: 'tabs',
-              select: 'name tabType snapshot desmosLink',
-            }
-      )
-      .lean();
-    // options: { limit: 25 },
+            },
+            {
+              $unwind: {
+                path: '$events.user',
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+          ]
+        : [
+            {
+              $project: {
+                name: 1,
+                tabType: 1,
+                snapshot: 1,
+                desmosLink: 1,
+              },
+            },
+          ];
+
+    const result = await Room.aggregate([
+      { $match: matchId },
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            creatorId: '$creator',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$creatorId'],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1.0,
+                username: 1.0,
+              },
+            },
+          ],
+          as: 'creator',
+        },
+      },
+      {
+        $lookup: {
+          from: 'courses',
+          let: {
+            courseId: '$course',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$courseId'],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1.0,
+                name: 1.0,
+              },
+            },
+          ],
+          as: 'course',
+        },
+      },
+      {
+        $lookup: {
+          from: 'activities',
+          let: {
+            activityId: '$activity',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$activityId'],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1.0,
+                name: 1.0,
+              },
+            },
+          ],
+          as: 'activity',
+        },
+      },
+      {
+        $addFields: {
+          creator: {
+            $arrayElemAt: ['$creator', 0.0],
+          },
+          course: {
+            $arrayElemAt: ['$course', 0.0],
+          },
+          activity: {
+            $arrayElemAt: ['$activity', 0.0],
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'messages',
+          let: {
+            chatIds: '$chat',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', '$$chatIds'],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: 'users',
+                let: {
+                  userId: '$user',
+                },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: ['$_id', '$$userId'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1.0,
+                      username: 1.0,
+                    },
+                  },
+                ],
+                as: 'user',
+              },
+            },
+            {
+              $addFields: {
+                user: {
+                  $arrayElemAt: ['$user', 0.0],
+                },
+              },
+            },
+          ],
+          as: 'chat',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            currentMemberIds: '$currentMembers',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', '$$currentMemberIds'],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1.0,
+                username: 1.0,
+              },
+            },
+          ],
+          as: 'currentMembers',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'memberUsers',
+        },
+      },
+      {
+        $addFields: {
+          members: {
+            $map: {
+              input: '$members',
+              as: 'original',
+              in: {
+                $mergeObjects: [
+                  '$$original',
+                  {
+                    user: {
+                      $let: {
+                        vars: {
+                          userObj: {
+                            $arrayElemAt: [
+                              {
+                                $filter: {
+                                  input: '$memberUsers',
+                                  as: 'memberUser',
+                                  cond: {
+                                    $eq: [
+                                      '$$original.user',
+                                      '$$memberUser._id',
+                                    ],
+                                  },
+                                },
+                              },
+                              0.0,
+                            ],
+                          },
+                        },
+                        in: {
+                          _id: '$$userObj._id',
+                          username: '$$userObj.username',
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    return result;
   },
 
   // returns the current state for each tab...does not return events or any other information
