@@ -14,6 +14,52 @@ const { ObjectId } = Types;
 
 const colorMap = require('../constants/colorMap');
 
+const populate = (
+  from,
+  originField,
+  select,
+  options = { isArrayField: false, extract: true }
+) => {
+  const { isArrayField, extract } = options;
+  return [
+    {
+      $lookup: {
+        from,
+        let: {
+          originId: `$${originField}`,
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                [isArrayField ? '$in' : '$eq']: ['$_id', '$$originId'],
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 1.0,
+              [select]: 1.0,
+            },
+          },
+        ],
+        as: originField,
+      },
+    },
+    ...(extract
+      ? [
+          {
+            $addFields: {
+              [originField]: {
+                $arrayElemAt: [`$${originField}`, 0.0],
+              },
+            },
+          },
+        ]
+      : []),
+  ];
+};
+
 module.exports = {
   get: (params) => {
     if (params && params.constructor === Array) {
@@ -98,91 +144,13 @@ module.exports = {
 
     const result = await Room.aggregate([
       { $match: matchId },
-      {
-        $lookup: {
-          from: 'users',
-          let: {
-            creatorId: '$creator',
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$_id', '$$creatorId'],
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 1.0,
-                username: 1.0,
-              },
-            },
-          ],
-          as: 'creator',
-        },
-      },
-      {
-        $lookup: {
-          from: 'courses',
-          let: {
-            courseId: '$course',
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$_id', '$$courseId'],
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 1.0,
-                name: 1.0,
-              },
-            },
-          ],
-          as: 'course',
-        },
-      },
-      {
-        $lookup: {
-          from: 'activities',
-          let: {
-            activityId: '$activity',
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$_id', '$$activityId'],
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 1.0,
-                name: 1.0,
-              },
-            },
-          ],
-          as: 'activity',
-        },
-      },
-      {
-        $addFields: {
-          creator: {
-            $arrayElemAt: ['$creator', 0.0],
-          },
-          course: {
-            $arrayElemAt: ['$course', 0.0],
-          },
-          activity: {
-            $arrayElemAt: ['$activity', 0.0],
-          },
-        },
-      },
+      ...populate('users', 'creator', 'username'), // .populate({path: 'creator', select: 'username'})
+      ...populate('courses', 'course', 'name'), // .populate({path: 'course', select: 'name'})
+      ...populate('activities', 'activity', 'name'), // .populate({path: 'activity', select: 'name'})
+      ...populate('users', 'currentMembers', 'username', {
+        isArray: true,
+        extract: false,
+      }), // .populate({path: 'currentMembers', select: 'username'})
       {
         $lookup: {
           from: 'messages',
@@ -197,63 +165,9 @@ module.exports = {
                 },
               },
             },
-            {
-              $lookup: {
-                from: 'users',
-                let: {
-                  userId: '$user',
-                },
-                pipeline: [
-                  {
-                    $match: {
-                      $expr: {
-                        $eq: ['$_id', '$$userId'],
-                      },
-                    },
-                  },
-                  {
-                    $project: {
-                      _id: 1.0,
-                      username: 1.0,
-                    },
-                  },
-                ],
-                as: 'user',
-              },
-            },
-            {
-              $addFields: {
-                user: {
-                  $arrayElemAt: ['$user', 0.0],
-                },
-              },
-            },
+            ...populate('users', 'user', 'username'),
           ],
           as: 'chat',
-        },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          let: {
-            currentMemberIds: '$currentMembers',
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $in: ['$_id', '$$currentMemberIds'],
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 1.0,
-                username: 1.0,
-              },
-            },
-          ],
-          as: 'currentMembers',
         },
       },
       {
