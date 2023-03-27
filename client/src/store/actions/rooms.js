@@ -569,7 +569,7 @@ export const removeRoom = (roomId) => {
       .then((res) => {
         dispatch(removeUserRooms([roomId]));
         if (res.data.result.course) {
-          dispatch(removeCourseRooms(res.data.result.course, [roomId]));
+          dispatch(removeCourseRoom(res.data.result.course, [roomId]));
         }
         // if (res.data.result.activity) {
         //   dispatch(removeActivityRooms(res.data.result.activity, [roomId]));
