@@ -272,7 +272,7 @@ module.exports = {
           memberUsers: 0,
         },
       },
-    ]);
+    ]).allowDiskUse(true);
 
     console.log('right after calculating result');
     console.log(result.map((room) => room.name));
