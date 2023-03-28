@@ -179,46 +179,12 @@ router.get('/findAllMatchingIds/:resource/populated', (req, res) => {
   const { ids = [], events = false } = req.query;
 
   try {
-    return (
-      controller
-        .getPopulatedById(ids, { events })
-        // .select(
-        //   'creator user chat members currentMembers course activity tabs createdAt updatedAt name'
-        // )
-        .then((results) => {
-          const selectedResults = results.map((room) => {
-            const {
-              _id,
-              name,
-              creator,
-              user,
-              chat,
-              members,
-              currentMembers,
-              course,
-              activity,
-              tabs,
-              createdAt,
-              updatedAt,
-            } = room;
-            return {
-              _id,
-              name,
-              creator,
-              user,
-              chat,
-              members,
-              currentMembers,
-              course,
-              activity,
-              tabs,
-              createdAt,
-              updatedAt,
-            };
-          });
-          res.json({ results: selectedResults });
-        })
-    );
+    return controller
+      .getPopulatedById(ids, { events })
+      .select(
+        'creator user chat members currentMembers course activity tabs createdAt updatedAt name'
+      )
+      .then((results) => res.json({ results }));
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(`Error get ${resource}: ${err}`);
