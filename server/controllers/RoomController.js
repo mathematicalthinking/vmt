@@ -14,6 +14,55 @@ const { ObjectId } = Types;
 
 const colorMap = require('../constants/colorMap');
 
+const populate = (
+  from,
+  originField,
+  select = '',
+  options = { isArrayField: false, extract: true }
+) => {
+  const { isArrayField, extract } = options;
+  const selections = select
+    .split(' ')
+    .reduce((acc, selector) => ({ ...acc, [selector]: 1 }), {});
+  return [
+    {
+      $lookup: {
+        from,
+        let: {
+          originId: `$${originField}`,
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                [isArrayField ? '$in' : '$eq']: ['$_id', '$$originId'],
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              ...selections,
+            },
+          },
+        ],
+        as: originField,
+      },
+    },
+    ...(extract
+      ? [
+          {
+            $addFields: {
+              [originField]: {
+                $arrayElemAt: [`$${originField}`, 0],
+              },
+            },
+          },
+        ]
+      : []),
+  ];
+};
+
 module.exports = {
   get: (params) => {
     if (params && params.constructor === Array) {
@@ -63,40 +112,172 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
-
-  getPopulatedById: (id, params) => {
-    return (Array.isArray(id)
-      ? db.Room.find({ _id: { $in: id } })
-      : db.Room.findById(id)
-    )
-      .populate({ path: 'creator', select: 'username' })
-      .populate({
-        path: 'chat',
-        // options: { limit: 25 }, // Eventually we'll need to paginate this
-        populate: { path: 'user', select: 'username' },
-        // allow messages to have roomIds, like events do
-        // select: '-room',
-      })
-      .populate({ path: 'members.user', select: 'username' })
-      .populate({ path: 'currentMembers', select: 'username' })
-      .populate({ path: 'course', select: 'name' })
-      .populate({ path: 'activity', select: 'name' })
-      .populate(
-        params.events === 'true'
-          ? {
-              path: 'tabs',
-              populate: {
-                path: 'events',
-                populate: { path: 'user', select: 'username color' },
+  getPopulatedById: async (id, params) => {
+    const matchId = Array.isArray(id)
+      ? { _id: { $in: id.map((id) => new ObjectId(id)) } }
+      : { _id: new ObjectId(id) };
+    const tabsPipeline =
+      params.events === 'true'
+        ? [
+            {
+              $lookup: {
+                from: 'tabs',
+                let: {
+                  tabIds: '$tabs',
+                },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$tabIds'],
+                      },
+                    },
+                  },
+                  {
+                    $lookup: {
+                      from: 'events',
+                      let: {
+                        eventIds: '$events',
+                      },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: {
+                              $in: ['$_id', '$$tabIds'],
+                            },
+                          },
+                        },
+                        ...populate('users', 'user', 'username color'),
+                      ],
+                      as: 'events',
+                    },
+                  },
+                ],
+                as: 'tabs',
               },
-            }
-          : {
-              path: 'tabs',
-              select: 'name tabType snapshot desmosLink',
-            }
-      )
-      .lean();
-    // options: { limit: 25 },
+            },
+          ]
+        : populate('tabs', 'tabs', 'name tabType snapshot desmosLink', {
+            isArrayField: true,
+            extract: false,
+          });
+
+    console.log('right before calculating result');
+    const result = await Room.aggregate([
+      { $match: matchId },
+
+      ...tabsPipeline,
+
+      // .populate({path: 'creator', select: 'username'})
+      ...populate('users', 'creator', 'username'),
+
+      // .populate({path: 'course', select: 'name'})
+      ...populate('courses', 'course', 'name'),
+
+      // .populate({path: 'activity', select: 'name'})
+      ...populate('activities', 'activity', 'name'),
+
+      // .populate({path: 'currentMembers', select: 'username'})
+      ...populate('users', 'currentMembers', 'username', {
+        isArray: true,
+        extract: false,
+      }),
+
+      // .populate({ path: 'chat',
+      //           populate: { path: 'user', select: 'username' }
+      //            })
+      {
+        $lookup: {
+          from: 'messages',
+          let: {
+            chatIds: '$chat',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', '$$chatIds'],
+                },
+              },
+            },
+            ...populate('users', 'user', 'username'),
+          ],
+          as: 'chat',
+        },
+      },
+
+      // .populate({ path: 'members.user', select: 'username' })
+      // This was surprisingly difficult because (a) a $let inside of a $lookup (see the populate function) does not
+      // allow for use of the dot notation to get at subfields and (b) for a regular $lookup as we use below, doing
+      // as: 'member.user' will override all of each member object, leaving just the user field.
+      // The strategy that works has three steps, represented by the $lookup, $addFields, and $project stages.
+      // First, we get all the user objects and place them in a new field, memberUsers, as an array.
+      // Second, we map over our original array (members), merging each object with the corresponding object (matching
+      // ids) in memberUsers. While we are at it, we also use a $let to extract just the two fields we want (_id and username).
+      // Finally, we remove the temporary 'memberUsers' field from the main document.
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'memberUsers',
+        },
+      },
+      {
+        $addFields: {
+          members: {
+            $map: {
+              input: '$members',
+              as: 'original',
+              in: {
+                $mergeObjects: [
+                  '$$original',
+                  {
+                    user: {
+                      $let: {
+                        vars: {
+                          userObj: {
+                            $arrayElemAt: [
+                              {
+                                $filter: {
+                                  input: '$memberUsers',
+                                  as: 'memberUser',
+                                  cond: {
+                                    $eq: [
+                                      '$$original.user',
+                                      '$$memberUser._id',
+                                    ],
+                                  },
+                                },
+                              },
+                              0.0,
+                            ],
+                          },
+                        },
+                        in: {
+                          _id: '$$userObj._id',
+                          username: '$$userObj.username',
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          memberUsers: 0,
+        },
+      },
+    ]);
+
+    console.log('right after calculating result');
+    console.log(result.map((room) => room.name));
+
+    return Array.isArray(id) ? result : result[0];
   },
 
   // returns the current state for each tab...does not return events or any other information
