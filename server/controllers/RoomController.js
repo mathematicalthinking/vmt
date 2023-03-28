@@ -39,12 +39,16 @@ const populate = (
               },
             },
           },
-          {
-            $project: {
-              _id: 1,
-              ...selections,
-            },
-          },
+          ...(Object.values(selections).length !== 0
+            ? [
+                {
+                  $project: {
+                    _id: 1,
+                    ...selections,
+                  },
+                },
+              ]
+            : []),
         ],
         as: originField,
       },
@@ -189,22 +193,49 @@ module.exports = {
       {
         $lookup: {
           from: 'messages',
-          let: {
-            chatIds: '$chat',
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $in: ['$_id', '$$chatIds'],
-                },
-              },
-            },
-            // ...populate('users', 'user', 'username'),
-          ],
+          localField: 'chat',
+          foreignField: '_id',
           as: 'chat',
         },
       },
+      {
+        $addFields: {
+          chat: {
+            $map: {
+              input: '$chat',
+              as: 'original',
+              in: {
+                $mergeObjects: [
+                  '$$original',
+                  {
+                    user: { _id: 'an id', username: 'blah' },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+
+      // {
+      //   $lookup: {
+      //     from: 'messages',
+      //     let: {
+      //       chatIds: '$chat',
+      //     },
+      //     pipeline: [
+      //       {
+      //         $match: {
+      //           $expr: {
+      //             $in: ['$_id', '$$chatIds'],
+      //           },
+      //         },
+      //       },
+      //       // ...populate('users', 'user', 'username'),
+      //     ],
+      //     as: 'chat',
+      //   },
+      // },
 
       // .populate({ path: 'members.user', select: 'username' })
       // This was surprisingly difficult because (a) a $let inside of a $lookup (see the populate function) does not
@@ -223,6 +254,7 @@ module.exports = {
           as: 'memberUsers',
         },
       },
+
       {
         $addFields: {
           members: {
