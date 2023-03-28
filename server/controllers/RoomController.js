@@ -186,25 +186,25 @@ module.exports = {
       // .populate({ path: 'chat',
       //           populate: { path: 'user', select: 'username' }
       //            })
-      {
-        $lookup: {
-          from: 'messages',
-          let: {
-            chatIds: '$chat',
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $in: ['$_id', '$$chatIds'],
-                },
-              },
-            },
-            ...populate('users', 'user', 'username'),
-          ],
-          as: 'chat',
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: 'messages',
+      //     let: {
+      //       chatIds: '$chat',
+      //     },
+      //     pipeline: [
+      //       {
+      //         $match: {
+      //           $expr: {
+      //             $in: ['$_id', '$$chatIds'],
+      //           },
+      //         },
+      //       },
+      //       ...populate('users', 'user', 'username'),
+      //     ],
+      //     as: 'chat',
+      //   },
+      // },
 
       // .populate({ path: 'members.user', select: 'username' })
       // This was surprisingly difficult because (a) a $let inside of a $lookup (see the populate function) does not
