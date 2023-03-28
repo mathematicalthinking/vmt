@@ -162,6 +162,7 @@ module.exports = {
             extract: false,
           });
 
+    console.log('right before calculating result');
     const result = await Room.aggregate([
       { $match: matchId },
 
@@ -272,6 +273,9 @@ module.exports = {
         },
       },
     ]);
+
+    console.log('right after calculating result');
+    console.log(result.map((room) => room.name));
 
     return Array.isArray(id) ? result : result[0];
   },
