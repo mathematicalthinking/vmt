@@ -41,6 +41,20 @@ const boxList = (props) => {
     return `${days} day${days > 1 ? 's' : ''} ago`;
   };
 
+  // hide Preiew icon if room is aliased & user is a participant
+  const iconsToDiplay = (listItem) => {
+    if (resource === 'rooms') {
+      if (
+        listItem.settings &&
+        listItem.settings.displayAliasedUsernames &&
+        listItem.myRole === 'participant'
+      ) {
+        return icons.filter((icon) => icon.title.toLowerCase() !== 'preview');
+      }
+    }
+    return icons;
+  };
+
   let listElems = "There doesn't appear to be anything here yet";
   if (list.length > 0) {
     listElems = list.map((item) => {
@@ -101,7 +115,7 @@ const boxList = (props) => {
                 locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
                 details={details}
                 listType={listType}
-                customIcons={icons}
+                customIcons={iconsToDiplay(item)}
                 resource={resource}
               >
                 {item.description}
