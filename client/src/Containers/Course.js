@@ -344,6 +344,13 @@ class Course extends Component {
     );
   };
 
+  statRooms = (course) => {
+    const courseIds = course.rooms.map((room) => room._id);
+    // const archivedIds = (user.archive && user.archive.rooms) || [];
+    const courseArchived = (course.archive && course.archive.rooms) || [];
+    return courseIds.concat(courseArchived);
+  };
+
   render() {
     const {
       course,
@@ -433,15 +440,7 @@ class Course extends Component {
         mainContent = <CourseMonitor course={course} />;
       } else if (resource === 'stats')
         mainContent = (
-          <CourseStats
-            roomIds={[
-              ...course.rooms.map((room) => room._id),
-              ...(user.archive && user.archive.rooms
-                ? user.archive.rooms
-                : null),
-            ]}
-            name={course.name}
-          />
+          <CourseStats roomIds={this.statRooms(course)} name={course.name} />
         );
       // Updatekeys = the keys that we failed to update
       const { updateFail, updateKeys } = loading;

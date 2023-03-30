@@ -980,6 +980,14 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
       room.status = status;
       try {
         updatedRoom = await room.save({ timestamps: false });
+        if (room.course && status === STATUS.ARCHIVED) {
+          await db.Course.updateOne(
+            { _id: room.course },
+            {
+              $addToSet: { 'archive.rooms': id },
+            }
+          );
+        }
       } catch (err) {
         reject(err);
       }
@@ -1082,35 +1090,34 @@ const prefetchTabIds = async (roomIds, tabType) => {
 };
 
 const unarchive = (id) => {
-  db.Room.findById(id).then((room) => {
+  db.Room.findById(id).then(async (room) => {
     const userIds = room.members.map((member) => member.user);
     try {
       // remove the room from the list of archived rooms for members in the room
       // add the room to the list of rooms for members in the room
-      userIds.forEach((userId) => {
-        db.User.bulkWrite([
-          {
-            updateOne: {
-              filter: { _id: userId },
-              update: {
-                $pull: { 'archive.rooms': id },
-                $addToSet: { rooms: id },
-              },
+      await db.User.bulkWrite(
+        userIds.map((userId) => ({
+          updateOne: {
+            filter: { _id: userId },
+            update: {
+              $pull: { 'archive.rooms': id },
+              $addToSet: { rooms: id },
             },
           },
-        ]);
-      });
+        }))
+      );
 
       // add this room back to course
       if (room.course) {
-        db.Course.findByIdAndUpdate(room.course, {
+        await db.Course.findByIdAndUpdate(room.course, {
           $push: { rooms: id },
+          $pull: { 'archive.rooms': id },
         });
       }
 
       // add this room back to activity
       if (room.activity) {
-        db.Activity.findByIdAndUpdate(room.activity, {
+        await db.Activity.findByIdAndUpdate(room.activity, {
           $push: { rooms: id },
         });
       }
