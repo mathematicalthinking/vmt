@@ -91,7 +91,7 @@ class AdminDashboard extends Component {
               <Fragment>
                 <div className={classes.FilterOpts}>
                   <RadioBtn
-                    data-testid="last-day"
+                    testid="last-day"
                     check={() => toggleFilter('last-day')}
                     checked={dateRangePreset === 'day'}
                     name="last-day"
@@ -99,7 +99,7 @@ class AdminDashboard extends Component {
                     Last Day
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="last-week"
+                    testid="last-week"
                     check={() => toggleFilter('last-week')}
                     checked={dateRangePreset === 'week'}
                     name="last-week"
@@ -107,7 +107,7 @@ class AdminDashboard extends Component {
                     Last Week
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="last-month"
+                    testid="last-month"
                     check={() => toggleFilter('last-month')}
                     checked={dateRangePreset === 'month'}
                     name="last-month"
@@ -115,7 +115,7 @@ class AdminDashboard extends Component {
                     Last Month
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="last-year"
+                    testid="last-year"
                     check={() => toggleFilter('last-year')}
                     checked={dateRangePreset === 'year'}
                     name="last-year"
@@ -123,7 +123,7 @@ class AdminDashboard extends Component {
                     Last Year
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="custom"
+                    testid="custom"
                     check={() => toggleFilter('custom')}
                     checked={dateRangePreset === 'custom'}
                     name="custom"

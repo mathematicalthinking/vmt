@@ -80,7 +80,7 @@ const Archive = (props) => {
               <InfoBox title="Room Type" icon={<i className="fas fa-filter" />}>
                 <div className={classes.FilterOpts}>
                   <RadioBtn
-                    data-testid="all-roomType-filter"
+                    testid="all-roomType-filter"
                     check={() => toggleFilter('room-all')}
                     checked={filters.roomType === 'all'}
                     name="All-roomType"
@@ -101,7 +101,7 @@ const Archive = (props) => {
               <Fragment>
                 <div className={classes.FilterOpts}>
                   <RadioBtn
-                    data-testid="all"
+                    testid="all"
                     check={() => toggleFilter('moreThan-all')}
                     checked={dateRangePreset === 'all'}
                     name="all"
@@ -109,7 +109,7 @@ const Archive = (props) => {
                     All
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="day"
+                    testid="day"
                     check={() => toggleFilter('moreThan-afterDay')}
                     checked={dateRangePreset === 'afterDay'}
                     name="oneDay"
@@ -117,7 +117,7 @@ const Archive = (props) => {
                     1 Day
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="one-week"
+                    testid="one-week"
                     check={() => toggleFilter('moreThan-afterWeek')}
                     checked={dateRangePreset === 'afterWeek'}
                     name="oneWeek"
@@ -125,7 +125,7 @@ const Archive = (props) => {
                     1 Week
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="two-weeks"
+                    testid="two-weeks"
                     check={() => toggleFilter('moreThan-after2Weeks')}
                     checked={dateRangePreset === 'after2Weeks'}
                     name="two-weeks"
@@ -133,7 +133,7 @@ const Archive = (props) => {
                     2 Weeks
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="one-month"
+                    testid="one-month"
                     check={() => toggleFilter('moreThan-afterMonth')}
                     checked={dateRangePreset === 'afterMonth'}
                     name="one-month"
@@ -141,7 +141,7 @@ const Archive = (props) => {
                     1 Month
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="one-year"
+                    testid="one-year"
                     check={() => toggleFilter('moreThan-afterYear')}
                     checked={dateRangePreset === 'afterYear'}
                     name="one-year"
@@ -149,7 +149,7 @@ const Archive = (props) => {
                     1 Year
                   </RadioBtn>
                   <RadioBtn
-                    data-testid="custom"
+                    testid="custom"
                     check={() => toggleFilter('custom')}
                     checked={dateRangePreset === 'custom'}
                     name="custom"

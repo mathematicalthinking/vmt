@@ -389,6 +389,7 @@ class NewResourceContainer extends Component {
                 }}
                 tabIndex={0}
                 m={5}
+                data-testid={`create-a-new-${displayResource}-button`}
               >
                 create a new {displayResource}
               </Button>

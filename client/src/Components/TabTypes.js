@@ -141,7 +141,7 @@ function RadioButtons({ onClick, filters, checked }) {
       {allowedTypes.map((tabType) => (
         <RadioBtn
           key={tabType}
-          data-testid={`${tabType}-radioBtn`}
+          testid={`${tabType}-radioBtn`}
           name={tabType}
           checked={checked && checked === tabType}
           check={() => onClick && onClick(tabType)}
