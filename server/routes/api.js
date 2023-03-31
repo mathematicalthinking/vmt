@@ -173,10 +173,10 @@ router.get('/findAllMatching/:resource', (req, res) => {
     });
 });
 
-router.get('/findAllMatchingIds/:resource/populated', (req, res) => {
+router.post('/findAllMatchingIds/:resource/populated', (req, res) => {
   const resource = getResource(req);
   const controller = controllers[resource];
-  const { ids = [], events = false } = req.query;
+  const { ids = [], events = false } = req.body;
 
   try {
     return controller

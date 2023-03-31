@@ -18,8 +18,9 @@ export default {
   },
 
   findAllMatchingIdsPopulated: (resource, ids, events) => {
-    return api.get(`/api/findAllMatchingIds/${resource}/populated`, {
-      params: { ids, events },
+    return api.post(`/api/findAllMatchingIds/${resource}/populated`, {
+      ids,
+      events,
     });
   },
 
