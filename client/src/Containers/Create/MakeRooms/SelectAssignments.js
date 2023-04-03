@@ -55,7 +55,11 @@ const SelectAssignments = ({
     <Fragment>
       <div className={classes.AssignContainer}>
         <div className={classes.NewAssignmentsContainer}>
-          <label className={classes.AssignText} htmlFor="selection">
+          <label
+            className={classes.AssignText}
+            htmlFor="selection"
+            aria-label="create-grouping-label"
+          >
             {label}
           </label>
           <Select
@@ -65,6 +69,8 @@ const SelectAssignments = ({
             options={options()}
             onChange={handleSelection}
             value={selectedAssignment}
+            data-testid="create-grouping-selection"
+            aria-label="create-grouping-selection"
           />
           <div className={classes.Instructions}>
             <i

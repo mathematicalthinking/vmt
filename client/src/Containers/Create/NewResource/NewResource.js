@@ -428,6 +428,7 @@ class NewResourceContainer extends Component {
         <Button
           disabled={copying && activities.length < 1}
           click={this.nextStep}
+          data-testid="next-button"
         >
           next
         </Button>
