@@ -265,6 +265,7 @@ export default function ImportModal(props) {
           flexDirection: 'column',
           justifyContent: 'space-evenly',
           alignItems: 'center',
+          width: '90vw',
         }}
       >
         <ReactDataSheet

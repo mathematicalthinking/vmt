@@ -322,10 +322,14 @@ class Course extends Component {
       .filter((mem) => mem.role === 'facilitator')
       .sort((a, b) => a.user.username.localeCompare(b.user.username));
     const prevParticipants = list.filter((mem) => mem.role === 'participant');
+    const otherMembers = list.filter(
+      (mem) => mem.role !== 'participant' && mem.role !== 'facilitator'
+    );
 
     return prevParticipants
       .sort((a, b) => a.user.username.localeCompare(b.user.username))
-      .concat(facilitators);
+      .concat(facilitators)
+      .concat(otherMembers);
   };
 
   changeMemberRole = (updatedMember) => {

@@ -167,11 +167,18 @@ const AddParticipants = (props) => {
       return {
         key: course._id,
         label: course.name,
+        altLabel: course.courseCode || null,
         ...buttonAttributes[strategy],
       };
     });
-    return courseList.sort((a) =>
-      a.buttonLabel === buttonAttributes.DONE.buttonLabel ? 1 : -1
+    return (
+      courseList
+        // filter out course you are currently in
+        .filter((a) => a.key !== originatingCourseId)
+        // sort DONE courses to bottom of list
+        .sort((a) =>
+          a.buttonLabel === buttonAttributes.DONE.buttonLabel ? 1 : -1
+        )
     );
   };
 
@@ -190,6 +197,10 @@ const AddParticipants = (props) => {
     ) {
       return;
     }
+
+    // used to display altLabel in GenericSearchResults /
+    // generateRosterSearchResults
+    courseSearched.courseCode = courseCodeSearchText;
 
     setCourseCodeSearchResults((prevState) => {
       return {
@@ -304,7 +315,7 @@ const AddParticipants = (props) => {
 
       setAddedCourse((prevState) => ({
         ...prevState,
-        [courseId]: { ...prevState[courseId], isAdded: true },
+        [courseId]: { ...courseCodeSearchResults[courseId], isAdded: true },
       }));
     }
   };
@@ -449,7 +460,7 @@ const AddParticipants = (props) => {
               <Search
                 data-testid="roster-search"
                 _search={searchRosters}
-                placeholder="search courses to import rosters from"
+                placeholder="search your courses to import members from"
                 value={rosterSearchText}
                 isControlled
               />
@@ -532,7 +543,7 @@ const AddParticipants = (props) => {
       <div className={classes.InfoBoxContainer}>
         <div className={classes.InfoBox}>
           <InfoBox
-            title=""
+            title="Add Members"
             icon={<i className="fas fa-user-plus" style={{ height: '25px' }} />}
             className={classes.AddParticipants}
             rightIcons={

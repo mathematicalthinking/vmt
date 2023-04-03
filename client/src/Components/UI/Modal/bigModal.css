@@ -18,7 +18,7 @@
   justify-content: center;
   width: var(--modal-width);
   width: auto;
-  max-width: 90%;
+  /* max-width: 90%; */
   max-height: 90%;
   text-align: center;
   border: 1px solid #ccc;

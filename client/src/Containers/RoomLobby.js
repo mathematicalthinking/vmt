@@ -52,9 +52,9 @@ class Room extends Component {
       guestMode: true,
       tabs: [
         { name: 'Details' },
-        ...(this.shouldShowMembers() ? [{ name: 'Members' }] : []),
-        { name: 'Preview' },
-        { name: 'Stats' },
+        ...(this.shouldShowTab() ? [{ name: 'Members' }] : []),
+        ...(this.shouldShowTab() ? [{ name: 'Preview' }] : []),
+        ...(this.shouldShowTab() ? [{ name: 'Stats' }] : []),
         { name: 'Settings' },
       ],
       firstView: false,
@@ -192,9 +192,9 @@ class Room extends Component {
     }
   }
 
-  // Don't display Members tab if:
+  // Don't display Members, Preview, or Stats tabs if:
   // aliased usernames are turned on and user is a facilitator
-  shouldShowMembers = () => {
+  shouldShowTab = () => {
     const { room } = this.props;
     // used because room is sometimes not fully loaded from community
     // & does not always loaded in without settings
