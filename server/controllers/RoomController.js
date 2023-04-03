@@ -984,7 +984,7 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
           await db.Course.updateOne(
             { _id: room.course },
             {
-              $addToSet: { 'archive.rooms': id },
+              $addToSet: { 'archive.rooms': ObjectId(id) },
             }
           );
         }
@@ -1016,7 +1016,7 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
           promises.push(
             db.User.updateMany(
               { _id: { $in: facilitatorIds } },
-              { $addToSet: { 'archive.rooms': id } }
+              { $addToSet: { 'archive.rooms': ObjectId(id) } }
             )
           );
         }
@@ -1092,20 +1092,17 @@ const prefetchTabIds = async (roomIds, tabType) => {
 const unarchive = (id) => {
   db.Room.findById(id).then(async (room) => {
     const userIds = room.members.map((member) => member.user);
+
     try {
-      // remove the room from the list of archived rooms for members in the room
-      // add the room to the list of rooms for members in the room
-      await db.User.bulkWrite(
-        userIds.map((userId) => ({
-          updateOne: {
-            filter: { _id: userId },
-            update: {
-              $pull: { 'archive.rooms': id },
-              $addToSet: { rooms: id },
-            },
-          },
-        }))
-      );
+      // remove room from each archive.rooms for each room member
+      // note: only facilitators of the room have the room added to their archive.rooms field
+      // add the room to each room member's room list
+      userIds.forEach(async (userId) => {
+        await db.User.findByIdAndUpdate(userId, {
+          $pull: { 'archive.rooms': ObjectId(id) },
+          $addToSet: { rooms: id },
+        });
+      });
 
       // add this room back to course
       if (room.course) {
