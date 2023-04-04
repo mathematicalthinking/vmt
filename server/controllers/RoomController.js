@@ -1094,30 +1094,41 @@ const unarchive = (id) => {
     const userIds = room.members.map((member) => member.user);
 
     try {
+      const promises = [];
+
       // remove room from each archive.rooms for each room member
       // note: only facilitators of the room have the room added to their archive.rooms field
       // add the room to each room member's room list
-      userIds.forEach(async (userId) => {
-        await db.User.findByIdAndUpdate(userId, {
-          $pull: { 'archive.rooms': ObjectId(id) },
-          $addToSet: { rooms: id },
-        });
-      });
+      promises.push(
+        db.User.updateMany(
+          { _id: { $in: userIds } },
+          {
+            $pull: { 'archive.rooms': ObjectId(id) },
+            $addToSet: { rooms: id },
+          }
+        )
+      );
 
       // add this room back to course
       if (room.course) {
-        await db.Course.findByIdAndUpdate(room.course, {
-          $push: { rooms: id },
-          $pull: { 'archive.rooms': id },
-        });
+        promises.push(
+          db.Course.findByIdAndUpdate(room.course, {
+            $push: { rooms: id },
+            $pull: { 'archive.rooms': id },
+          })
+        );
       }
 
       // add this room back to activity
       if (room.activity) {
-        await db.Activity.findByIdAndUpdate(room.activity, {
-          $push: { rooms: id },
-        });
+        promises.push(
+          db.Activity.findByIdAndUpdate(room.activity, {
+            $push: { rooms: id },
+          })
+        );
       }
+
+      await Promise.all(promises);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);
