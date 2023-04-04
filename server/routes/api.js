@@ -183,7 +183,7 @@ router.post('/findAllMatchingIds/:resource/populated', (req, res) => {
     return controller
       .getPopulatedById(ids, { events, ...others })
       .select(
-        'creator user chat members currentMembers course activity tabs createdAt updatedAt name'
+        'creator user chat members currentMembers course activity tabs createdAt updatedAt name status'
       )
       .then((results) => res.json({ results }));
   } catch (err) {

@@ -237,11 +237,8 @@ const Archive = () => {
 
     const dispatchRestore = () => {
       if (singleResource) {
-        dispatch(restoreArchivedRoom(id, { status: STATUS.DEFAULT }));
-      } else
-        id.forEach((resId) =>
-          dispatch(restoreArchivedRoom(resId, { status: STATUS.DEFAULT }))
-        );
+        dispatch(restoreArchivedRoom(id));
+      } else id.forEach((resId) => dispatch(restoreArchivedRoom(resId)));
       // re-fetch to clear restored rooms from the page
       // and to get an accurate search
       debounceFetchData();
