@@ -123,6 +123,39 @@ const reducer = (state = initialState, action) => {
         },
       };
     }
+    case actionTypes.ADD_ROOM_TO_COURSE_ARCHIVE: {
+      const courseToUpdate = { ...state.byId[action.courseId] };
+      // create a default structure if one doesn't exist
+      const prevArchivedRooms =
+        courseToUpdate.archive && courseToUpdate.archive.rooms
+          ? [...courseToUpdate.archive.rooms, action.roomId]
+          : [action.roomId];
+      courseToUpdate.archive.rooms = prevArchivedRooms;
+
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.courseId]: { ...courseToUpdate },
+        },
+      };
+    }
+    case actionTypes.REMOVE_ROOM_FROM_COURSE_ARCHIVE: {
+      const courseToUpdate = { ...state.byId[action.courseId] };
+      const rooms = courseToUpdate.archive.rooms.filter(
+        (roomId) => roomId !== action.roomId
+      );
+
+      courseToUpdate.archive.rooms = rooms;
+
+      return {
+        ...state,
+        byId: {
+          ...state.byId,
+          [action.courseId]: { ...courseToUpdate },
+        },
+      };
+    }
     default:
       return state;
   }
