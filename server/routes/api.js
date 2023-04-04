@@ -173,14 +173,15 @@ router.get('/findAllMatching/:resource', (req, res) => {
     });
 });
 
-router.get('/findAllMatchingIds/:resource/populated', (req, res) => {
+// using post because we might get a lot of ids
+router.post('/findAllMatchingIds/:resource/populated', (req, res) => {
   const resource = getResource(req);
   const controller = controllers[resource];
-  const { ids = [], events = false } = req.query;
+  const { ids = [], events = false, ...others } = req.body;
 
   try {
     return controller
-      .getPopulatedById(ids, { events })
+      .getPopulatedById(ids, { events, ...others })
       .select(
         'creator user chat members currentMembers course activity tabs createdAt updatedAt name'
       )

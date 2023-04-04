@@ -65,10 +65,20 @@ module.exports = {
   },
 
   getPopulatedById: (id, params) => {
-    return (Array.isArray(id)
-      ? db.Room.find({ _id: { $in: id } })
-      : db.Room.findById(id)
-    )
+    let queryFcn;
+    if (Array.isArray(id)) {
+      const queryTimes = params.lastQueryTimes || {};
+      queryFcn = () =>
+        db.Room.find({
+          $or: id.map((oneId) => ({
+            _id: oneId,
+            updatedAt: { $gt: new Date(queryTimes[oneId] || 0) },
+          })),
+        });
+    } else {
+      queryFcn = () => db.Room.findById(id);
+    }
+    return queryFcn()
       .populate({ path: 'creator', select: 'username' })
       .populate({
         path: 'chat',

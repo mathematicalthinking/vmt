@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import React, { useContext } from 'react';
 import html2canvas from 'html2canvas';
-import chunk from 'lodash/chunk';
 import debounce from 'lodash/debounce';
-import { useQuery } from 'react-query';
+import keyBy from 'lodash/keyBy';
+import { useQuery, useQueryClient } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { API, buildLog } from 'utils';
 import { ModalContext } from 'Components';
@@ -321,38 +321,34 @@ export function usePopulatedRooms(
   shouldBuildLog = false,
   options = {}
 ) {
-  return useQuery(
+  return useMergedData(
     [roomIds, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
-    async () => {
-      // limit the amount of ids passed through the request header
-      // because we were encountering 414 errors
-      const CALL_LIMIT = 50;
-      const chunkedRoomIds = chunk(roomIds, CALL_LIMIT);
-      const results = chunkedRoomIds.map((ids) => {
-        return API.findAllMatchingIdsPopulated('rooms', ids, shouldBuildLog);
-      });
-
-      const resolvedResults = await Promise.all(results);
-      const fullResults = resolvedResults.map((res) => res.data.results).flat();
-
-      const roomArray = !shouldBuildLog
-        ? [...fullResults]
-        : fullResults.map((room) => {
+    async (lastQueryTimes) => {
+      // all of our API calls return the full xhttp object, with the data we want in the data>results field
+      const {
+        data: { results },
+      } = await API.findAllMatchingIdsPopulated(
+        'rooms',
+        roomIds,
+        shouldBuildLog,
+        lastQueryTimes
+      );
+      const roomArray = shouldBuildLog
+        ? results.map((room) => {
             const log = buildLog(room.tabs, room.chat);
             return { ...room, log };
-          });
+          })
+        : results;
 
-      const roomsById = roomArray.reduce(
-        (acc, room) => ({ ...acc, [room._id]: room }),
-        {}
-      );
+      const roomsById = keyBy(roomArray, '_id');
       const orderedRoomsById = roomIds.reduce(
         (acc, id) => ({ ...acc, [id]: roomsById[id] }),
         {}
       );
-
       return orderedRoomsById;
     },
+    (results) => Object.keys(results),
+    (cache, fetchedData) => ({ ...cache, ...fetchedData }),
     options
   );
 }
@@ -425,4 +421,54 @@ export function useUIState(key, initialValue = {}) {
   }, []);
 
   return [_uiState, setUIState];
+}
+
+/**
+ * A custom hook that assumes the fetchFcn might sometimes not return all documents in a key bc they hadn't been updated since the last query.
+ * The hook therefore uses a provided merge function to combine the new data coming in from the fetch with its own cache. The hook also keeps
+ * track of the last query times organized by a provided extractIds function. @TODO: I NEED A WAY OF COMMUNICATING LASTQUERYTIMES TO FETCHFCN
+ *
+ * key - The key index of the query. Should be an array of objects, one field of which is the unique identifier extracted by extractIdsFcn
+ * fetchFcn - A function to do the query
+ * extractIdsFcn - A function to extract all the unique identifiers from each object returned from the query
+ * mergeFcn - A function that merges the cached data with the new data.
+ * options - useQuery options
+ *
+ */
+
+export function useMergedData(
+  key,
+  fetchFcn,
+  extractIdsFcn,
+  mergeFcn,
+  options = {}
+) {
+  const queryClient = useQueryClient();
+  const queryInfo = queryClient.getQueryData([key, 'useMergedData']) || {};
+  const lastQueryTimes = queryInfo.lastQueryTimes || {};
+
+  return useQuery(key, () => fetchFcn(lastQueryTimes), {
+    onSuccess: (newData) => {
+      const mergedData = mergeFcn(queryInfo.data, newData);
+      const newDataIds = extractIdsFcn(newData);
+
+      const updatedLastQueryTimes = newDataIds.reduce(
+        (acc, id) => ({
+          ...acc,
+          [id]: Date.now(),
+        }),
+        {}
+      );
+      const updatedQueryInfo = {
+        data: mergedData,
+        lastQueryTimes: {
+          ...queryInfo.lastQueryTimes,
+          ...updatedLastQueryTimes,
+        },
+      };
+      // we change the key because if we use the same key as the query, the onSuccess hook is triggered by setQueryData
+      queryClient.setQueryData([key, 'useMergedData'], updatedQueryInfo);
+    },
+    ...options,
+  });
 }
