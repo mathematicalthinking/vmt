@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { API, buildLog } from 'utils';
 import { ModalContext } from 'Components';
 import * as actionTypes from 'store/actions/actionTypes';
+import { isEqual } from 'lodash';
 
 const timeFrameFcns = {
   all: () => true,
@@ -342,7 +343,7 @@ export function usePopulatedRooms(
 
       const roomsById = keyBy(roomArray, '_id');
       const orderedRoomsById = roomIds.reduce(
-        (acc, id) => ({ ...acc, [id]: roomsById[id] }),
+        (acc, id) => (roomsById[id] ? { ...acc, [id]: roomsById[id] } : acc),
         {}
       );
       return orderedRoomsById;
@@ -449,6 +450,7 @@ export function useMergedData(
 
   return useQuery(key, () => fetchFcn(lastQueryTimes), {
     onSuccess: (newData) => {
+      if (isEqual(queryInfo.data, newData)) return;
       const mergedData = mergeFcn(queryInfo.data, newData);
       const newDataIds = extractIdsFcn(newData);
 
@@ -466,8 +468,10 @@ export function useMergedData(
           ...updatedLastQueryTimes,
         },
       };
+
       // we change the key because if we use the same key as the query, the onSuccess hook is triggered by setQueryData
       queryClient.setQueryData([key, 'useMergedData'], updatedQueryInfo);
+      queryClient.setQueryData(key, mergedData);
     },
     ...options,
   });
