@@ -413,7 +413,9 @@ class Course extends Component {
         resource === 'rooms' &&
         (course.myRole === 'facilitator' || user.inAdminMode)
       ) {
-        mainContent = <CourseRooms />;
+        mainContent = (
+          <CourseRooms courseId={course._id} rooms={course.rooms} />
+        );
       } else if (resource === 'rooms' || resource === 'activities') {
         mainContent = (
           <DashboardContent

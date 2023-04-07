@@ -1,8 +1,16 @@
-import React, { useReducer } from 'react';
+import React, { Fragment, useReducer } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import { InfoBox, RadioBtn } from 'Components';
+import { Button, InfoBox, RadioBtn, ToolTip } from 'Components';
 import { SortUI } from 'Layout/Dashboard';
 import { SelectableBoxList } from 'Layout';
+import { useAppModal } from 'utils';
+import { RoomPreview } from 'Containers';
+import { updateRoom, archiveRooms } from 'store/actions';
+import { STATUS } from 'constants.js';
+import NewResource from 'Containers/Create/NewResource/NewResource';
+
 import classes from './courseRooms.css';
 
 const filtersReducer = (state, action) => {
@@ -21,11 +29,165 @@ const initialFilterSelections = {
   roomStatus: 'active',
 };
 
+const keys = [
+  { property: 'updatedAt', name: 'Last Updated' },
+  { property: 'name', name: 'Name' },
+  { property: 'createdAt', name: 'Created Date' },
+  { property: 'dueDate', name: 'Due Date' },
+];
+
 const CourseRooms = (props) => {
+  const { courseId, rooms } = props;
   const [filters, filtersDispatch] = useReducer(
     filtersReducer,
     initialFilterSelections
   );
+  const history = useHistory();
+  const dispatch = useDispatch();
+
+  const { hide: hidePreviewModal, showBig: showPreviewModal } = useAppModal();
+  const { hide: hideArchiveModal, showBig: showArchiveModal } = useAppModal();
+
+  const goToReplayer = (roomId) => {
+    history.push(`/myVMT/workspace/${roomId}/replayer`);
+  };
+
+  const goToRoomPreview = (roomId) => {
+    showPreviewModal(<RoomPreview roomId={roomId} />);
+  };
+
+  const customIcons = [
+    {
+      title: 'Preview',
+      onClick: (e, id) => {
+        e.preventDefault();
+        goToRoomPreview(id);
+      },
+      // icon: <i className="fas fa-external-link-alt" />,
+      icon: (
+        <ToolTip text="Preview" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            open_in_new
+          </span>
+        </ToolTip>
+      ),
+    },
+    {
+      title: 'Replayer',
+      onClick: (e, id) => {
+        e.preventDefault();
+        goToReplayer(id);
+      },
+      icon: (
+        <ToolTip text="Replayer" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            replay
+          </span>
+        </ToolTip>
+      ),
+    },
+    {
+      title: 'Archive',
+      onClick: (e, id) => {
+        e.preventDefault();
+        handleArchive(id);
+      },
+      icon: (
+        <ToolTip text="Archive" delay={600}>
+          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
+            input
+          </span>
+        </ToolTip>
+      ),
+    },
+  ];
+
+  const archiveAllButton = {
+    title: 'Archive',
+    onClick: (e, id) => {
+      e.preventDefault();
+      if (!id.length) return;
+      handleArchive(id);
+    },
+    icon: (
+      <ToolTip text="Archive" delay={600}>
+        <span
+          className={`material-symbols-outlined ${classes.CustomIcon}`}
+          data-testid="Archive"
+          style={{ fontSize: '23px' }}
+        >
+          input
+        </span>
+      </ToolTip>
+    ),
+  };
+
+  // create a handle multiple fn that calls this fn
+  // get rid of singleResource
+  const handleArchive = (id) => {
+    let res;
+    let msg = 'Are you sure you want to archive ';
+    let singleResource = true;
+    if (Array.isArray(id)) {
+      // display each name in list
+      singleResource = false;
+      // only dipslay first 5 resources names, otherwise total number
+      if (id.length <= 5) {
+        res = getResourceNames(id).join(', ');
+      } else {
+        res = `${id.length} rooms`;
+        msg += ' these ';
+      }
+    }
+    // or display single name
+    else res = rooms.filter((el) => el._id === id)[0].name;
+
+    const dispatchArchive = () => {
+      if (singleResource) {
+        const rtnObj = {
+          status: STATUS.ARCHIVED,
+        };
+        dispatch(updateRoom(id, rtnObj));
+      } else {
+        dispatch(archiveRooms(id));
+      }
+    };
+
+    showArchiveModal(
+      <div>
+        <span>
+          {msg}
+          <span style={{ fontWeight: 'bolder' }}>{res}</span>?
+        </span>
+        <div>
+          <Button
+            data-testid="archive-resource"
+            click={() => {
+              dispatchArchive();
+              hideArchiveModal();
+            }}
+            m={5}
+          >
+            Yes
+          </Button>
+          <Button
+            data-testid="cancel-manage-user"
+            click={hideArchiveModal}
+            theme="Cancel"
+            m={5}
+          >
+            Cancel
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const selectActions = [archiveAllButton];
+
+  const getResourceNames = (ids) => {
+    return rooms.filter((res) => ids.includes(res._id)).map((res) => res.name);
+  };
 
   const toggleFilter = (filter) => {
     const filterType = filter.split('-')[0]; // ex: myRole
@@ -34,7 +196,10 @@ const CourseRooms = (props) => {
   };
 
   return (
-    <div>
+    <div className={classes.CourseRoomsContainer}>
+      <div className={classes.CreateRoom}>
+        <NewResource resource="rooms" courseId={courseId} />
+      </div>
       <div className={classes.Filters}>
         <InfoBox title="My Role" icon={<i className="fas fa-filter" />}>
           <div className={classes.FilterOpts}>
@@ -92,6 +257,28 @@ const CourseRooms = (props) => {
             </RadioBtn>
           </div>
         </InfoBox>
+      </div>
+
+      <div className={classes.SortUI}>
+        <SortUI
+          keys={keys}
+          sortFn={() => console.log('sortFn')}
+          sortConfig={{
+            key: Object.values(keys)[0],
+            direction: 'ascending',
+            filter: () => console.log('filter'),
+          }}
+        />
+      </div>
+
+      <div className={classes.RoomsListContainer}>
+        <SelectableBoxList
+          list={rooms}
+          resource="rooms"
+          listType="private"
+          icons={customIcons}
+          selectActions={selectActions}
+        />
       </div>
     </div>
   );

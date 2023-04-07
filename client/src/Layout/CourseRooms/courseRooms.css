@@ -1,3 +1,16 @@
+.CourseRoomsContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.CreateRoom {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 14px;
+  margin-bottom: 30px;
+}
+
 .Filters {
   display: flex;
   flex-flow: row wrap;
@@ -17,4 +30,12 @@
 
 .FilterOpts > * {
   margin-right: 8px;
+}
+
+.SortUI {
+  width: 573px;
+}
+
+.RoomsListContainer {
+  width: 1000px;
 }
