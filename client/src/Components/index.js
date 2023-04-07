@@ -50,3 +50,4 @@ export { default as InfoBox } from './InfoBox/InfoBox';
 export { ModalContext } from './GeneralModal';
 export { default as TabTypes } from './TabTypes';
 export { default as GenericSearchResults } from './Search/GenericSearchResults';
+export { default as SortUI } from './SortUI';

@@ -9,13 +9,12 @@ import {
   useUIState,
 } from 'utils';
 import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
-import { Button, Modal, BigModal, ToolTip } from 'Components';
+import { Button, BigModal, Modal, SortUI, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
 import { updateRoom, archiveRooms } from 'store/actions';
 import { STATUS } from 'constants.js';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
-import { SortUI } from '..';
 import classes from './resourceList.css';
 
 const ResourceList = ({

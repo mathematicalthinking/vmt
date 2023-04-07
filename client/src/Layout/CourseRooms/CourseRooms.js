@@ -1,11 +1,10 @@
-import React, { Fragment, useReducer } from 'react';
+import React, { useReducer, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Button, InfoBox, RadioBtn, ToolTip } from 'Components';
-import { SortUI } from 'Layout/Dashboard';
+import { Button, InfoBox, RadioBtn, ToolTip, SortUI } from 'Components';
 import { SelectableBoxList } from 'Layout';
-import { useAppModal } from 'utils';
+import { useAppModal, useSortableData, useUIState, timeFrames } from 'utils';
 import { RoomPreview } from 'Containers';
 import { updateRoom, archiveRooms } from 'store/actions';
 import { STATUS } from 'constants.js';
@@ -36,8 +35,15 @@ const keys = [
   { property: 'dueDate', name: 'Due Date' },
 ];
 
+const initialConfig = {
+  key: 'updatedAt',
+  direction: 'descending',
+  filter: { timeframe: timeFrames.LASTWEEK, key: 'updatedAt' },
+};
+
 const CourseRooms = (props) => {
-  const { courseId, rooms } = props;
+  const { courseId } = props;
+  const [rooms, setRooms] = useState([]);
   const [filters, filtersDispatch] = useReducer(
     filtersReducer,
     initialFilterSelections
@@ -47,6 +53,16 @@ const CourseRooms = (props) => {
 
   const { showBig: showPreviewModal } = useAppModal();
   const { hide: hideArchiveModal, show: showArchiveModal } = useAppModal();
+
+  const [uiState, setUIState] = useUIState(`courseRooms-${courseId}`, {
+    rooms,
+    sortConfig: initialConfig,
+  });
+
+  const { items: sortedRooms, resetSort, sortConfig } = useSortableData(
+    rooms,
+    uiState.sortConfig
+  );
 
   const goToReplayer = (roomId) => {
     history.push(`/myVMT/workspace/${roomId}/replayer`);
@@ -286,6 +302,8 @@ const CourseRooms = (props) => {
   );
 };
 
-CourseRooms.propTypes = {};
+CourseRooms.propTypes = {
+  courseId: PropTypes.string.isRequired,
+};
 
 export default CourseRooms;
