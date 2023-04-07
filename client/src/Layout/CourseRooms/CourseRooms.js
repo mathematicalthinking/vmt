@@ -88,9 +88,7 @@ const CourseRooms = (props) => {
   useEffect(() => {
     API.getAllCourseRooms(courseId)
       .then((res) => {
-        console.log('res');
-        console.log(res);
-        const courseRooms = res.data.results;
+        const courseRooms = res.data.result;
         setRooms(courseRooms);
       })
       .catch((err) => console.log(err));

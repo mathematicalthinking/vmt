@@ -238,6 +238,31 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
     });
 });
 
+router.get(
+  '/getAllRooms/:resource/:id',
+  middleware.validateUser,
+  (req, res) => {
+    const id = getParamsId(req);
+    const resource = getResource(req);
+    let field = '';
+    if (resource === 'courses') field = 'course';
+    else if (resource === 'activities') field = 'activity';
+    try {
+      return controllers.rooms
+        .get({
+          status: { $ne: status.TRASHED },
+          isTrashed: false,
+          [field]: id,
+        })
+        .then((result) => res.json({ result }).sendStatus(200));
+    } catch (err) {
+      console.error(`Error getting ${resource} rooms/${id}: ${err}`);
+
+      return errors.sendError.InternalError(err, res);
+    }
+  }
+);
+
 // returns a record with all of its info populated including sensitive information about record members etc.
 router.get(
   '/:resource/:id/populated',
@@ -532,31 +557,6 @@ router.put('/archiveRooms', (req, res) => {
       });
     })
   ).then(() => res.sendStatus(200));
-});
-
-router.get(':resource/:id/getAllRooms', middleware.validateUser, (req, res) => {
-  const id = getParamsId(req);
-  const resource = getResource(req);
-  let field = '';
-  if (resource === 'courses') field = 'course';
-  else if (resource === 'activities') field = 'activity';
-  console.log(`id ${id} resource ${resource} field ${field}`);
-  try {
-    return controllers.rooms
-      .get({
-        status: { $ne: status.TRASHED },
-        isTrashed: false,
-        [field]: id,
-      })
-      .then((results) => {
-        console.log(results);
-        res.json({ results }).sendStatus(200);
-      });
-  } catch (err) {
-    console.error(`Error getting ${resource} rooms/${id}: ${err}`);
-
-    return errors.sendError.InternalError(err, res);
-  }
 });
 
 // router.delete("/:resource/:id", middleware.validateUser, (req, res, next) => {

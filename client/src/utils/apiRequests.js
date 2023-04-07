@@ -206,6 +206,6 @@ export default {
   },
 
   getAllCourseRooms: (id) => {
-    return api.get(`/api/courses/${id}/getAllRooms`);
+    return api.get(`/api/getAllRooms/courses/${id}`);
   },
 };
