@@ -1,7 +1,7 @@
 import React, { useReducer, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import PropTypes from 'prop-types';
 import { Button, InfoBox, RadioBtn, ToolTip, SortUI } from 'Components';
 import { SelectableBoxList } from 'Layout';
 import { timeFrames, useAppModal, useSortableData, useUIState } from 'utils';
@@ -23,26 +23,25 @@ const filtersReducer = (state, action) => {
   }
 };
 
-const initialFilters = {
-  myRole: 'all',
-  roomStatus: 'default',
-};
-
-const keys = [
-  { property: 'updatedAt', name: 'Last Updated' },
-  { property: 'name', name: 'Name' },
-  { property: 'createdAt', name: 'Created Date' },
-  { property: 'dueDate', name: 'Due Date' },
-];
-
-const initialConfig = {
-  key: 'updatedAt',
-  direction: 'descending',
-  filter: { timeframe: 'lastWeek', key: 'updatedAt' },
-};
-
 const CourseRooms = (props) => {
   const { courseId, rooms: courseRooms } = props;
+  const initialFilters = {
+    myRole: 'all',
+    roomStatus: 'default',
+  };
+
+  const keys = [
+    { property: 'updatedAt', name: 'Last Updated' },
+    { property: 'name', name: 'Name' },
+    { property: 'createdAt', name: 'Created Date' },
+    { property: 'dueDate', name: 'Due Date' },
+  ];
+
+  const initialConfig = {
+    key: 'updatedAt',
+    direction: 'descending',
+    filter: { timeframe: timeFrames.LASTWEEK, key: 'updatedAt' },
+  };
   const [uiState, setUIState] = useUIState(`courseRooms-${courseId}`, {
     rooms,
     sortConfig: initialConfig,
@@ -309,7 +308,7 @@ const CourseRooms = (props) => {
           icons={customIcons}
           selectActions={selectActions}
           linkPath="/myVMT/rooms/"
-          linkSuffix="/rooms"
+          linkSuffix="/details"
         />
       </div>
     </div>
