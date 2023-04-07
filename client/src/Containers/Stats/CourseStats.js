@@ -44,6 +44,7 @@ const CourseStats = ({ roomIds, name }) => {
               roomName:
                 populatedRooms.data[d.roomId] &&
                 populatedRooms.data[d.roomId].name,
+              status: populatedRooms.data[d.roomId].status,
             };
           });
         })

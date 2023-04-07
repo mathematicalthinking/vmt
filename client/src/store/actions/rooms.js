@@ -81,6 +81,7 @@ export const removeCourseRoom = (courseId, roomId) => {
     roomId,
   };
 };
+
 export const removeActivityRoom = (activityId, roomId) => {
   return {
     type: actionTypes.REMOVE_ACTIVITY_ROOM,
@@ -106,6 +107,22 @@ export const removeUserRooms = (roomIdsArr) => {
 export const addRoomToArchive = (roomId) => {
   return {
     type: actionTypes.ADD_ROOM_TO_ARCHIVE,
+    roomId,
+  };
+};
+
+export const addRoomToCourseArchive = (courseId, roomId) => {
+  return {
+    type: actionTypes.ADD_ROOM_TO_COURSE_ARCHIVE,
+    courseId,
+    roomId,
+  };
+};
+
+export const removeRoomFromCourseArchive = (courseId, roomId) => {
+  return {
+    type: actionTypes.REMOVE_ROOM_FROM_COURSE_ARCHIVE,
+    courseId,
     roomId,
   };
 };
@@ -349,6 +366,7 @@ export const updateRoom = (id, body) => {
       // remove room from course & activity (template) if needed
       if (room.course) {
         dispatch(removeCourseRoom(room.course, id));
+        dispatch(addRoomToCourseArchive(room.course, id));
       }
       if (room.activity) {
         dispatch(removeActivityRoom(room.activity, id));
@@ -363,6 +381,7 @@ export const updateRoom = (id, body) => {
         }
         if (body.course) {
           dispatch(addCourseRooms(body.course, [id]));
+          dispatch(removeRoomFromCourseArchive(body.course, id));
         }
       }
     }
@@ -403,6 +422,7 @@ export const archiveRooms = (ids) => {
       const room = { ...getState().rooms.byId[id] };
       if (room.course) {
         dispatch(removeCourseRoom(room.course, id));
+        dispatch(addRoomToCourseArchive(room.course, id));
       }
       if (room.activity) {
         dispatch(removeActivityRoom(room.activity, id));
@@ -569,7 +589,7 @@ export const removeRoom = (roomId) => {
       .then((res) => {
         dispatch(removeUserRooms([roomId]));
         if (res.data.result.course) {
-          dispatch(removeCourseRooms(res.data.result.course, [roomId]));
+          dispatch(removeCourseRoom(res.data.result.course, roomId));
         }
         // if (res.data.result.activity) {
         //   dispatch(removeActivityRooms(res.data.result.activity, [roomId]));
