@@ -278,6 +278,8 @@ const CourseRooms = (props) => {
           listType="private"
           icons={customIcons}
           selectActions={selectActions}
+          linkPath={'/myVMT/rooms/'}
+          linkSuffix={'/rooms'}
         />
       </div>
     </div>
