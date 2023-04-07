@@ -1,10 +1,16 @@
-import React, { useReducer, useState, useEffect, useRef } from 'react';
+import React, { useReducer, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Button, InfoBox, RadioBtn, ToolTip, SortUI } from 'Components';
 import { SelectableBoxList } from 'Layout';
-import { timeFrames, useAppModal, useSortableData, useUIState } from 'utils';
+import {
+  timeFrames,
+  useAppModal,
+  useSortableData,
+  useUIState,
+  API,
+} from 'utils';
 import { RoomPreview } from 'Containers';
 import { updateRoom, archiveRooms } from 'store/actions';
 import { STATUS } from 'constants.js';
@@ -24,7 +30,7 @@ const filtersReducer = (state, action) => {
 };
 
 const CourseRooms = (props) => {
-  const { courseId, rooms: courseRooms } = props;
+  const { courseId } = props;
   const initialFilters = {
     myRole: 'all',
     roomStatus: 'default',
@@ -54,8 +60,6 @@ const CourseRooms = (props) => {
     uiState.filters || initialFilters
   );
 
-  const tempFilterRef = useRef(null);
-
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -82,24 +86,18 @@ const CourseRooms = (props) => {
   }, [filters]);
 
   useEffect(() => {
-    setRooms(courseRooms);
+    API.getAllCourseRooms(courseId)
+      .then((res) => {
+        console.log('res');
+        console.log(res);
+        const courseRooms = res.data.results;
+        setRooms(courseRooms);
+      })
+      .catch((err) => console.log(err));
     return () => {
       setUIState({ rooms, sortConfig, filters });
     };
   }, []);
-
-  useEffect(() => {
-    if (filters.roomStatus !== 'default') {
-      if (!tempFilterRef.current)
-        tempFilterRef.current = sortConfig.filter.timeframe;
-      else resetSort({ filter: { timeframe: timeFrames.ALL } });
-    } else {
-      if (tempFilterRef.current === initialConfig.filter.timeframe) {
-        resetSort({ filter: { timeframe: initialConfig.filter.timeframe } });
-      }
-      tempFilterRef.current = null;
-    }
-  }, [filters.roomStatus]);
 
   const goToReplayer = (roomId) => {
     history.push(`/myVMT/workspace/${roomId}/replayer`);
