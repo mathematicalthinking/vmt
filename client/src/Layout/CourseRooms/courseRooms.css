@@ -1,0 +1,20 @@
+.Filters {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.Filters > * {
+  margin-right: 12px;
+}
+
+.FilterOpts {
+  padding-left: 12px;
+  display: flex;
+  /* justify-content: space-between; */
+  /* flex: 1; */
+}
+
+.FilterOpts > * {
+  margin-right: 8px;
+}

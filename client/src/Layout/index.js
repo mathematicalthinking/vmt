@@ -24,4 +24,5 @@ export { default as AdminDashboardLayout } from './AdminDashboard/AdminDashboard
 // prettier-ignore
 export { default as DashboardBoxList } from './DashboardBoxList/DashboardBoxList';
 export { default as SelectableBoxList } from './SelectableBoxList/SelectableBoxList';
+export { default as CourseRooms } from './CourseRooms/CourseRooms';
 export * from './Dashboard';
