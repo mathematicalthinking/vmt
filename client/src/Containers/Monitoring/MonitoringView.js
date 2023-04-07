@@ -22,10 +22,16 @@ function MonitoringView({ userResources, user, notifications }) {
     VIEW: 'View',
   };
 
-  const [storedSelections, setStoredSelections] = useUIState(
-    'monitoring-selections',
-    []
+  const [uiState, setUIState] = useUIState('monitoring-container', {});
+
+  const [storedSelections, setStoredSelections] = React.useState(
+    uiState.storedSelections || []
   );
+  const [visibleIds, setVisibleIds] = React.useState(uiState.visibleIds || []);
+
+  React.useEffect(() => {
+    setUIState({ storedSelections, visibleIds });
+  }, [storedSelections, visibleIds]);
 
   const _wasRecentlyUpdated = (room) => {
     // integrated logic to determine default rooms to view
@@ -70,6 +76,18 @@ function MonitoringView({ userResources, user, notifications }) {
     return result;
   };
 
+  const initialRooms = () => {
+    return userResources
+      .filter((room) => selections[room._id])
+      .reduce((acc, room) => {
+        const { _id, name, updatedAt, currentMembers, members } = room;
+        return {
+          ...acc,
+          [_id]: { _id, name, updatedAt, currentMembers, members },
+        };
+      }, {});
+  };
+
   const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
   const [roomIds, setRoomIds] = React.useState(
     userResources.map((room) => room._id)
@@ -77,6 +95,7 @@ function MonitoringView({ userResources, user, notifications }) {
   const [selections, setSelections] = React.useState(
     _initializeSelections(userResources)
   );
+  const [roomsToDisplay, setRoomsToDisplay] = React.useState(initialRooms());
 
   const populatedRooms = usePopulatedRooms(roomIds, false, {
     refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
@@ -119,7 +138,7 @@ function MonitoringView({ userResources, user, notifications }) {
       {viewOrSelect === constants.SELECT ? (
         <ResourceTables
           // So that we quickly display the table: use the data in userResources until we have more recent live data
-          data={Object.values(populatedRooms.data).map((room) =>
+          data={Object.values(roomsToDisplay).map((room) =>
             addUserRoleToResource(room, user._id)
           )}
           resource="rooms"
@@ -133,7 +152,9 @@ function MonitoringView({ userResources, user, notifications }) {
       ) : (
         <RoomsMonitor
           context="monitoring"
-          populatedRooms={populatedRooms.data}
+          populatedRooms={roomsToDisplay}
+          onVisible={setVisibleIds}
+          isLoading={!populatedRooms.isSuccess ? visibleIds : []}
         />
       )}
     </div>
