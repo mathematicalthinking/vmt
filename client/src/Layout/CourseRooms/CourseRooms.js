@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useEffect } from 'react';
+import React, { useReducer, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -53,6 +53,9 @@ const CourseRooms = (props) => {
     filtersReducer,
     uiState.filters || initialFilters
   );
+
+  const tempFilterRef = useRef(null);
+
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -84,6 +87,19 @@ const CourseRooms = (props) => {
       setUIState({ rooms, sortConfig, filters });
     };
   }, []);
+
+  useEffect(() => {
+    if (filters.roomStatus !== 'default') {
+      if (!tempFilterRef.current)
+        tempFilterRef.current = sortConfig.filter.timeframe;
+      else resetSort({ filter: { timeframe: timeFrames.ALL } });
+    } else {
+      if (tempFilterRef.current === initialConfig.filter.timeframe) {
+        resetSort({ filter: { timeframe: initialConfig.filter.timeframe } });
+      }
+      tempFilterRef.current = null;
+    }
+  }, [filters.roomStatus]);
 
   const goToReplayer = (roomId) => {
     history.push(`/myVMT/workspace/${roomId}/replayer`);
