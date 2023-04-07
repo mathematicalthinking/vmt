@@ -45,8 +45,8 @@ const CourseRooms = (props) => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const { hide: hidePreviewModal, showBig: showPreviewModal } = useAppModal();
-  const { hide: hideArchiveModal, showBig: showArchiveModal } = useAppModal();
+  const { showBig: showPreviewModal } = useAppModal();
+  const { hide: hideArchiveModal, show: showArchiveModal } = useAppModal();
 
   const goToReplayer = (roomId) => {
     history.push(`/myVMT/workspace/${roomId}/replayer`);
@@ -278,8 +278,8 @@ const CourseRooms = (props) => {
           listType="private"
           icons={customIcons}
           selectActions={selectActions}
-          linkPath={'/myVMT/rooms/'}
-          linkSuffix={'/rooms'}
+          linkPath="/myVMT/rooms/"
+          linkSuffix="/rooms"
         />
       </div>
     </div>
