@@ -1,10 +1,10 @@
-import React, { useReducer, useState } from 'react';
+import React, { useReducer, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, InfoBox, RadioBtn, ToolTip, SortUI } from 'Components';
 import { SelectableBoxList } from 'Layout';
-import { useAppModal, useSortableData, useUIState, timeFrames } from 'utils';
+import { timeFrames, useAppModal, useSortableData, useUIState } from 'utils';
 import { RoomPreview } from 'Containers';
 import { updateRoom, archiveRooms } from 'store/actions';
 import { STATUS } from 'constants.js';
@@ -19,13 +19,13 @@ const filtersReducer = (state, action) => {
     case 'toggle-roomStatus':
       return { ...state, roomStatus: action.filterSelection };
     default:
-      return;
+      return state;
   }
 };
 
-const initialFilterSelections = {
+const initialFilters = {
   myRole: 'all',
-  roomStatus: 'active',
+  roomStatus: 'default',
 };
 
 const keys = [
@@ -38,15 +38,21 @@ const keys = [
 const initialConfig = {
   key: 'updatedAt',
   direction: 'descending',
-  filter: { timeframe: timeFrames.LASTWEEK, key: 'updatedAt' },
+  filter: { timeframe: 'lastWeek', key: 'updatedAt' },
 };
 
 const CourseRooms = (props) => {
-  const { courseId } = props;
-  const [rooms, setRooms] = useState([]);
+  const { courseId, rooms: courseRooms } = props;
+  const [uiState, setUIState] = useUIState(`courseRooms-${courseId}`, {
+    rooms,
+    sortConfig: initialConfig,
+    filters: initialFilters,
+  });
+  const [rooms, setRooms] = useState(uiState.rooms || []);
+
   const [filters, filtersDispatch] = useReducer(
     filtersReducer,
-    initialFilterSelections
+    uiState.filters || initialFilters
   );
   const history = useHistory();
   const dispatch = useDispatch();
@@ -54,15 +60,31 @@ const CourseRooms = (props) => {
   const { showBig: showPreviewModal } = useAppModal();
   const { hide: hideArchiveModal, show: showArchiveModal } = useAppModal();
 
-  const [uiState, setUIState] = useUIState(`courseRooms-${courseId}`, {
-    rooms,
-    sortConfig: initialConfig,
-  });
-
   const { items: sortedRooms, resetSort, sortConfig } = useSortableData(
     rooms,
-    uiState.sortConfig
+    uiState.sortConfig || initialConfig
   );
+
+  const { items: displayRooms, resetSort: resetFilter } = useSortableData(
+    sortedRooms
+  );
+
+  useEffect(() => {
+    resetFilter({
+      filter: {
+        filterFcn: (item) =>
+          (filters.myRole === 'all' || filters.myRole === item.myRole) &&
+          (filters.roomStatus === 'all' || filters.roomStatus === item.status),
+      },
+    });
+  }, [filters]);
+
+  useEffect(() => {
+    setRooms(courseRooms);
+    return () => {
+      setUIState({ rooms, sortConfig, filters });
+    };
+  }, []);
 
   const goToReplayer = (roomId) => {
     history.push(`/myVMT/workspace/${roomId}/replayer`);
@@ -256,10 +278,10 @@ const CourseRooms = (props) => {
               All
             </RadioBtn>
             <RadioBtn
-              data-testid="roomStatus-active-filter"
-              check={() => toggleFilter('roomStatus-active')}
-              checked={filters.roomStatus === 'active'}
-              name="roomStatus-active"
+              data-testid="roomStatus-default-filter"
+              check={() => toggleFilter('roomStatus-default')}
+              checked={filters.roomStatus === 'default'}
+              name="roomStatus-default"
             >
               Active
             </RadioBtn>
@@ -276,20 +298,12 @@ const CourseRooms = (props) => {
       </div>
 
       <div className={classes.SortUI}>
-        <SortUI
-          keys={keys}
-          sortFn={() => console.log('sortFn')}
-          sortConfig={{
-            key: Object.values(keys)[0],
-            direction: 'ascending',
-            filter: () => console.log('filter'),
-          }}
-        />
+        <SortUI keys={keys} sortFn={resetSort} sortConfig={sortConfig} />
       </div>
 
       <div className={classes.RoomsListContainer}>
         <SelectableBoxList
-          list={rooms}
+          list={displayRooms}
           resource="rooms"
           listType="private"
           icons={customIcons}

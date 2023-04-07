@@ -1,0 +1,83 @@
+.Controls {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 14px;
+  margin-bottom: 30px;
+}
+
+.Search {
+  font-size: 20px;
+  flex-grow: 1;
+  margin: 0;
+}
+
+.ResourceHeader {
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.Row {
+  display: flex;
+}
+
+.Col {
+  display: flex;
+  flex-flow: column;
+  flex: 1;
+  margin-bottom: 2rem;
+  min-width: 600px;
+}
+
+.Col:first-child {
+  padding-right: 15px;
+  margin-right: 15px;
+  border-right: 1px solid #ddd;
+  transition: 0.2s;
+}
+
+@media screen and (max-width: 800px) {
+  .Row {
+    flex-flow: column;
+  }
+
+  .Col:first-child {
+    padding-right: 0;
+    margin-right: 0;
+    border-right: 0;
+  }
+}
+
+.Label {
+  font-weight: lighter; /* contrast font weight with .Select */
+  display: inline-block;
+  width: 16rem;
+}
+
+.Select {
+  margin: .5rem 0;
+  font-weight: normal !important; /* !important to be normal font weight here */
+}
+
+.SortUIContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  z-index: 350; /* Content box has z-index of 300 */
+}
+
+.SortSelection, .FilterSelection {
+  z-index: 350;
+}
+
+.CustomIcon {
+  margin-top: 5px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.CustomIcon:hover {
+  cursor: pointer;
+  font-size: 21px;
+  font-weight: 900;
+}
