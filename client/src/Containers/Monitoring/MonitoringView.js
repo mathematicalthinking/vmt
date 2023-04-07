@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Loading, ToggleGroup } from 'Components';
+import { ToggleGroup } from 'Components';
 import { addUserRoleToResource } from 'store/utils';
 import { usePopulatedRooms, useUIState } from 'utils';
 import ResourceTables from './ResourceTables';
@@ -76,8 +76,12 @@ function MonitoringView({ userResources, user, notifications }) {
     return result;
   };
 
-  const initialRooms = () => {
-    return userResources
+  const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
+  const [selections, setSelections] = React.useState(
+    _initializeSelections(userResources)
+  );
+  const [roomsToDisplay, setRoomsToDisplay] = React.useState(
+    userResources
       .filter((room) => selections[room._id])
       .reduce((acc, room) => {
         const { _id, name, updatedAt, currentMembers, members } = room;
@@ -85,46 +89,42 @@ function MonitoringView({ userResources, user, notifications }) {
           ...acc,
           [_id]: { _id, name, updatedAt, currentMembers, members },
         };
-      }, {});
-  };
-
-  const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
-  const [roomIds, setRoomIds] = React.useState(
-    userResources.map((room) => room._id)
+      }, {})
   );
-  const [selections, setSelections] = React.useState(
-    _initializeSelections(userResources)
-  );
-  const [roomsToDisplay, setRoomsToDisplay] = React.useState(initialRooms());
 
-  const populatedRooms = usePopulatedRooms(roomIds, false, {
+  const populatedRooms = usePopulatedRooms(visibleIds, false, {
     refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
   });
 
   React.useEffect(() => {
     const allIds = userResources.map((room) => room._id);
-    if (viewOrSelect === constants.SELECT) setRoomIds(allIds);
-    else setRoomIds(allIds.filter((id) => selections[id]));
+    if (viewOrSelect === constants.SELECT) setVisibleIds(allIds);
+    else {
+      setVisibleIds([]);
+      const selectedIds = allIds.filter((id) => selections[id]);
+      setRoomsToDisplay((prev) => {
+        const selectedRooms = selectedIds.map(
+          (id) => prev[id] || userResources.find((room) => room._id === id)
+        );
+        return selectedRooms.reduce(
+          (acc, room) => ({ ...acc, [room._id]: room }),
+          {}
+        );
+      });
+    }
   }, [userResources.length, viewOrSelect]);
 
-  /**
-   * EFFECTS THAT ARE USED TO PERSIST STATE AFTER UNMOUNT
-   *
-   * Whenever the state we want to persist changes, update the setStoredSelections.
-   *
-   * Right now, we save only the current selections. In the future, we might save:
-   *  - width and height of each tile
-   *  - the scroll location for each tile
-   *  - whether we are viewing chat, thumbnail, or graph
-   *
-   */
-
+  // store whatever room selections have been made
   React.useEffect(() => {
     setStoredSelections(selections);
   }, [selections]);
 
+  React.useEffect(() => {
+    if (populatedRooms.isSuccess)
+      setRoomsToDisplay((prev) => ({ ...prev, ...populatedRooms.data }));
+  }, [populatedRooms.isSuccess]);
+
   if (populatedRooms.isError) return <div>There was an error</div>;
-  if (!populatedRooms.isSuccess) return <Loading message="Getting the rooms" />;
 
   return (
     <div className={classes.Container}>
@@ -134,7 +134,7 @@ function MonitoringView({ userResources, user, notifications }) {
           onChange={setViewOrSelect}
         />
       </div>
-
+      {populatedRooms.isLoading && <span>Loading...</span>}
       {viewOrSelect === constants.SELECT ? (
         <ResourceTables
           // So that we quickly display the table: use the data in userResources until we have more recent live data
@@ -151,7 +151,7 @@ function MonitoringView({ userResources, user, notifications }) {
         />
       ) : (
         <RoomsMonitor
-          context="monitoring"
+          context="monitoring-rooms"
           populatedRooms={roomsToDisplay}
           onVisible={setVisibleIds}
           isLoading={!populatedRooms.isSuccess ? visibleIds : []}
