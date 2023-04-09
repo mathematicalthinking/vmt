@@ -11,7 +11,8 @@ import {
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
 import { dateAndTime, useUIState } from 'utils';
-import { debounce, isEqual } from 'lodash';
+import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 import Thumbnails from './Thumbnails';
 import QuickChat from './QuickChat';
 import classes from './monitoringView.css';
