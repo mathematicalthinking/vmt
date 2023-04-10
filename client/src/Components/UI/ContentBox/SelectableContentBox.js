@@ -106,7 +106,7 @@ const SelectableContentBox = (props) => {
                     style={{ margin: '0 .5rem', cursor: 'pointer' }}
                     data-testid={`${icon.title}-button-${id}`}
                   >
-                    {icon.icon}
+                    {icon.generateIcon ? icon.generateIcon(id) : icon.icon}
                   </div>
                 ))}
             </div>

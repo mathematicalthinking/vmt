@@ -11,6 +11,7 @@ import {
   useUIState,
   API,
 } from 'utils';
+import { addUserRoleToResource } from 'store/utils';
 import { RoomPreview } from 'Containers';
 import { updateRoom, archiveRooms } from 'store/actions';
 import { STATUS } from 'constants.js';
@@ -30,7 +31,7 @@ const filtersReducer = (state, action) => {
 };
 
 const CourseRooms = (props) => {
-  const { courseId } = props;
+  const { courseId, userId } = props;
   const initialFilters = {
     myRole: 'all',
     roomStatus: 'default',
@@ -106,6 +107,34 @@ const CourseRooms = (props) => {
   };
 
   const customIcons = [
+    {
+      title: 'My Role',
+      onClick: null,
+      generateIcon: (id) => {
+        const thisRoom = rooms.find((r) => r._id === id);
+        const roomRole = addUserRoleToResource(thisRoom, userId).myRole;
+        return (
+          <ToolTip text={`My Role: ${roomRole}`} delay={600}>
+            <span>My Role: {roomRole}</span>
+          </ToolTip>
+        );
+      },
+    },
+    {
+      title: 'Room Status',
+      onClick: null,
+      generateIcon: (id) => {
+        const thisRoom = rooms.find((r) => r._id === id);
+        const thisRoomStatus =
+          thisRoom.status === 'archived' ? thisRoom.status : 'active';
+
+        return (
+          <ToolTip text={`My Role: ${thisRoomStatus}`} delay={600}>
+            <span>Room Status: {thisRoomStatus}</span>
+          </ToolTip>
+        );
+      },
+    },
     {
       title: 'Preview',
       onClick: (e, id) => {
@@ -329,6 +358,7 @@ const CourseRooms = (props) => {
 
 CourseRooms.propTypes = {
   courseId: PropTypes.string.isRequired,
+  userId: PropTypes.string.isRequired,
 };
 
 export default CourseRooms;
