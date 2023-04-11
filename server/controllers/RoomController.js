@@ -71,7 +71,7 @@ module.exports = {
       // handle no ids case separately because $or doesn't accept an empty array
       queryFcn =
         id.length === 0
-          ? db.Room.find({ _id: { $in: [] } })
+          ? () => db.Room.find({ _id: { $in: [] } })
           : () =>
               db.Room.find({
                 $or: id.map((oneId) => ({

@@ -65,10 +65,10 @@ function MonitoringView({ userResources, user, notifications }) {
 
   const _minimalRooms = (rooms) => {
     return rooms.reduce((acc, room) => {
-      const { _id, name, updatedAt, currentMembers, members } = room;
+      const { _id, name, updatedAt, createdAt, currentMembers, members } = room;
       return {
         ...acc,
-        [_id]: { _id, name, updatedAt, currentMembers, members },
+        [_id]: { _id, name, updatedAt, createdAt, currentMembers, members },
       };
     }, {});
   };
@@ -91,11 +91,19 @@ function MonitoringView({ userResources, user, notifications }) {
     refetchInterval: 10000,
   });
 
+  const allIds = React.useMemo(() => userResources.map((room) => room._id), [
+    userResources,
+  ]);
+
   React.useEffect(() => {
     setUIState({ storedSelections: selections, visibleIds });
   }, [selections, visibleIds]);
 
   if (populatedRooms.isError) return <div>There was an error</div>;
+
+  React.useEffect(() => {
+    if (viewOrSelect === constants.SELECT) setVisibleIds(allIds);
+  }, [viewOrSelect]);
 
   return (
     <div className={classes.Container}>
@@ -109,7 +117,9 @@ function MonitoringView({ userResources, user, notifications }) {
       {viewOrSelect === constants.SELECT ? (
         <ResourceTables
           data={Object.values(
-            populatedRooms.data || _minimalRooms(userResources)
+            populatedRooms.isSuccess
+              ? populatedRooms.data
+              : _minimalRooms(userResources)
           ).map((room) => addUserRoleToResource(room, user._id))}
           resource="rooms"
           selections={selections}
@@ -123,7 +133,9 @@ function MonitoringView({ userResources, user, notifications }) {
         <RoomsMonitor
           context="monitoring-rooms"
           populatedRooms={pick(
-            populatedRooms.data || {},
+            populatedRooms.isSuccess
+              ? populatedRooms.data
+              : _minimalRooms(userResources),
             Object.keys(pickBy(selections))
           )}
           onVisible={setVisibleIds}
