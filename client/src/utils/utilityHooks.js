@@ -3,12 +3,12 @@ import React, { useContext } from 'react';
 import html2canvas from 'html2canvas';
 import debounce from 'lodash/debounce';
 import keyBy from 'lodash/keyBy';
+import isEqual from 'lodash/isEqual';
 import { useQuery, useQueryClient } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { API, buildLog } from 'utils';
 import { ModalContext } from 'Components';
 import * as actionTypes from 'store/actions/actionTypes';
-import { isEqual } from 'lodash';
 
 const timeFrameFcns = {
   all: () => true,
@@ -209,6 +209,7 @@ export function useSnapshots(callback, initialStore = {}) {
     (key, snapshotObj) => {
       // console.log('starting snapshot for', key);
       if (!elementRef.current) {
+        // eslint-disable-next-line no-console
         console.log('no elementRef');
         return;
       }
@@ -236,9 +237,11 @@ export function useSnapshots(callback, initialStore = {}) {
             } else {
               callback({ ...snapshotObj, ...newSnap });
             }
+            // eslint-disable-next-line no-console
           } else console.log('snapshot not well formed:', dataURL);
         } else {
           cancelSnapshot.current = false;
+          // eslint-disable-next-line no-console
           console.log('snapshot cancelled');
         }
       });
@@ -295,35 +298,48 @@ export function useSnapshots(callback, initialStore = {}) {
  * @param {object} [options={}] - See the docs for react-query's UseQuery for these options.
  */
 export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
-  return useQuery(
+  return useMergedData(
     [roomId, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
-    () =>
-      API.getPopulatedById('rooms', roomId, false, shouldBuildLog).then(
-        (res) => {
-          const populatedRoom = res.data.result;
-          if (shouldBuildLog)
-            populatedRoom.log = buildLog(
-              populatedRoom.tabs,
-              populatedRoom.chat
-            );
-          return populatedRoom;
-        }
-      ),
+    (lastQueryTimes) =>
+      API.findAllMatchingIdsPopulated(
+        'rooms',
+        [roomId],
+        shouldBuildLog,
+        lastQueryTimes
+      ).then((res) => {
+        const populatedRoom = res.data.results[0];
+        if (shouldBuildLog)
+          populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
+        return populatedRoom;
+      }),
+    () => [roomId],
+    (cache, fetchedData) => ({ ...cache, ...fetchedData }),
     options
   );
 }
 
 /**
- * Hook that takes an array roomIds and returns those rooms in an object key'd by the ids. The object keys are in the same
+ * Hook that takes an array of roomIds and returns those rooms in an object key'd by the ids. The object keys are in the same
  * order as the original roomIds array.
+ *
+ * The hook uses the useMergedData hook so that it builds up a cache of responses and so we only pull from the DB rooms that have changed since the
+ * last request.
+ *
+ * If usePopulatedRoom receives an initialCache in the options, it'll make sure that all data merging includes that initial cache (fourth arg to useMergedData) and
+ * will key the query on the full set of ids (ie., all the ids from the initial cache). Note that this assumes that initialCache's keys are a superset of
+ * roomIds.
  */
 export function usePopulatedRooms(
   roomIds,
   shouldBuildLog = false,
   options = {}
 ) {
+  const initialCache = options.initialCache || {};
+  const queryKey = options.initialCache
+    ? Object.keys(options.initialCache)
+    : roomIds;
   return useMergedData(
-    [roomIds, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
+    [queryKey, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
     async (lastQueryTimes) => {
       // all of our API calls return the full xhttp object, with the data we want in the data>results field
       const {
@@ -349,7 +365,7 @@ export function usePopulatedRooms(
       return orderedRoomsById;
     },
     (results) => Object.keys(results),
-    (cache, fetchedData) => ({ ...cache, ...fetchedData }),
+    (cache, fetchedData) => ({ ...initialCache, ...cache, ...fetchedData }),
     options
   );
 }
@@ -427,7 +443,7 @@ export function useUIState(key, initialValue = {}) {
 /**
  * A custom hook that assumes the fetchFcn might sometimes not return all documents in a key bc they hadn't been updated since the last query.
  * The hook therefore uses a provided merge function to combine the new data coming in from the fetch with its own cache. The hook also keeps
- * track of the last query times organized by a provided extractIds function. @TODO: I NEED A WAY OF COMMUNICATING LASTQUERYTIMES TO FETCHFCN
+ * track of the last query times organized by a provided extractIds function.
  *
  * key - The key index of the query. Should be an array of objects, one field of which is the unique identifier extracted by extractIdsFcn
  * fetchFcn - A function to do the query
@@ -445,13 +461,14 @@ export function useMergedData(
   options = {}
 ) {
   const queryClient = useQueryClient();
-  const queryInfo = queryClient.getQueryData([key, 'useMergedData']) || {};
-  const lastQueryTimes = queryInfo.lastQueryTimes || {};
+  const lastQueryTimes =
+    queryClient.getQueryData([key, 'lastQueryTimes']) || {};
+  const cachedData = queryClient.getQueryData(key) || {};
 
   return useQuery(key, () => fetchFcn(lastQueryTimes), {
     onSuccess: (newData) => {
-      if (isEqual(queryInfo.data, newData)) return;
-      const mergedData = mergeFcn(queryInfo.data, newData);
+      if (isEqual(cachedData, newData)) return; // the onSuccess hook gets triggered when setQueryData gets called (see below)
+      const mergedData = mergeFcn(cachedData, newData);
       const newDataIds = extractIdsFcn(newData);
 
       const updatedLastQueryTimes = newDataIds.reduce(
@@ -461,16 +478,11 @@ export function useMergedData(
         }),
         {}
       );
-      const updatedQueryInfo = {
-        data: mergedData,
-        lastQueryTimes: {
-          ...queryInfo.lastQueryTimes,
-          ...updatedLastQueryTimes,
-        },
-      };
 
-      // we change the key because if we use the same key as the query, the onSuccess hook is triggered by setQueryData
-      queryClient.setQueryData([key, 'useMergedData'], updatedQueryInfo);
+      queryClient.setQueryData([key, 'lastQueryTimes'], {
+        ...lastQueryTimes,
+        ...updatedLastQueryTimes,
+      });
       queryClient.setQueryData(key, mergedData);
     },
     ...options,
