@@ -461,16 +461,15 @@ export function useMergedData(
   options = {}
 ) {
   const queryClient = useQueryClient();
-  const lastQueryTimes =
-    queryClient.getQueryData([key, 'lastQueryTimes']) || {};
+  const lastQueryTimes = queryClient.getQueryData([key, 'lastQueryTimes']);
 
-  return useQuery(key, () => fetchFcn(lastQueryTimes), {
+  const { data, ...others } = useQuery(key, () => fetchFcn(lastQueryTimes), {
     onSuccess: (newData) => {
-      const cachedData = queryClient.getQueryData(key) || {};
-      const mergedData = mergeFcn(cachedData, newData);
-      if (isEqual(cachedData, mergedData)) return; // the onSuccess hook gets triggered when setQueryData gets called (see below)
-      const newDataIds = extractIdsFcn(newData);
+      queryClient.setQueryData([key, 'mergedData'], (cache) =>
+        mergeFcn(cache, newData)
+      );
 
+      const newDataIds = extractIdsFcn(newData);
       const updatedLastQueryTimes = newDataIds.reduce(
         (acc, id) => ({
           ...acc,
@@ -478,13 +477,12 @@ export function useMergedData(
         }),
         {}
       );
-
       queryClient.setQueryData([key, 'lastQueryTimes'], {
         ...lastQueryTimes,
         ...updatedLastQueryTimes,
       });
-      queryClient.setQueryData(key, mergedData);
     },
     ...options,
   });
+  return { data: queryClient.getQueryData([key, 'mergedData']), ...others };
 }

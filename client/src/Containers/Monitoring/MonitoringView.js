@@ -10,6 +10,7 @@ import ResourceTables from './ResourceTables';
 import RoomsMonitor from './RoomsMonitor';
 import classes from './monitoringView.css';
 
+const MINIMAL_ROOMS = 5;
 /**
  * The MonitoringView allows users to select which of their rooms (whether ones
  * they manage or are a member of) to monitor.
@@ -56,7 +57,7 @@ function MonitoringView({ userResources, user, notifications }) {
       );
       if (roomsResult.length !== 0)
         roomsResult
-          .slice(0, Math.min(5, roomsResult.length))
+          .slice(0, Math.min(MINIMAL_ROOMS, roomsResult.length))
           // eslint-disable-next-line no-return-assign
           .forEach((room) => (result[room._id] = true));
     }
@@ -73,6 +74,11 @@ function MonitoringView({ userResources, user, notifications }) {
     }, {});
   };
 
+  const _initialVisibleRooms = (selectedRooms) => {
+    const selectedIds = Object.keys(pickBy(selectedRooms));
+    return selectedIds.slice(0, MINIMAL_ROOMS);
+  };
+
   /* ------------------ */
 
   const constants = {
@@ -81,10 +87,12 @@ function MonitoringView({ userResources, user, notifications }) {
   };
 
   const [uiState, setUIState] = useUIState('monitoring-container', {});
-  const [visibleIds, setVisibleIds] = React.useState(uiState.visibleIds || []);
   const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
   const [selections, setSelections] = React.useState(
     _initializeSelections(userResources, uiState.storedSelections)
+  );
+  const [visibleIds, setVisibleIds] = React.useState(
+    uiState.visibleIds || _initialVisibleRooms(selections)
   );
   const populatedRooms = usePopulatedRooms(visibleIds, false, {
     initialCache: _minimalRooms(userResources),
@@ -116,11 +124,9 @@ function MonitoringView({ userResources, user, notifications }) {
       {populatedRooms.isLoading && <span>Loading...</span>}
       {viewOrSelect === constants.SELECT ? (
         <ResourceTables
-          data={Object.values(
-            populatedRooms.isSuccess
-              ? populatedRooms.data
-              : _minimalRooms(userResources)
-          ).map((room) => addUserRoleToResource(room, user._id))}
+          data={Object.values(populatedRooms.data).map((room) =>
+            addUserRoleToResource(room, user._id)
+          )}
           resource="rooms"
           selections={selections}
           onChange={(newSelections) => {
@@ -133,13 +139,11 @@ function MonitoringView({ userResources, user, notifications }) {
         <RoomsMonitor
           context="monitoring-rooms"
           populatedRooms={pick(
-            populatedRooms.isSuccess
-              ? populatedRooms.data
-              : _minimalRooms(userResources),
+            populatedRooms.data,
             Object.keys(pickBy(selections))
           )}
           onVisible={setVisibleIds}
-          isLoading={!populatedRooms.isSuccess ? visibleIds : []}
+          isLoading={populatedRooms.isFetching ? visibleIds : []}
         />
       )}
     </div>
