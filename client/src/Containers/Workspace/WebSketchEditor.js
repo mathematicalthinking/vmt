@@ -27,6 +27,8 @@ const WebSketchEditor = (props) => {
   // const calculatorInst = useRef();
   // const pendingUpdate = React.createRef(null);
   let $ = window ? window.jQuery : undefined;
+  const initHeight = useRef(352)
+  const initWidth = useRef(650)
   const { setFirstTabLoaded } = props;
 
   useEffect(() => {
@@ -230,6 +232,14 @@ const WebSketchEditor = (props) => {
     // resizeIcon.source = '/WSPAssets/resize.png';
     // resizeHandler.appendChild(resizeIcon);
     // document.body.appendChild(resizeHandler);
+    let xOffset = 0
+    let yOffset = 0
+    if (window.jQuery) {
+      const node = $('.wsp-clip-node')
+      const nodeOffset = node.offset() || {}
+      xOffset = nodeOffset.left
+      yOffset = nodeOffset.top
+    }
     return sketchLoaded ? (
       <div
         id="resize"
@@ -241,6 +251,8 @@ const WebSketchEditor = (props) => {
           zIndex: 1000,
           cursor: 'move',
           padding: '0px',
+          top: `${initHeight.current - yOffset/3.1}px`,
+          left: `${initWidth.current + xOffset/3.1}px`
         }}
       >
         <img alt="resize handler" src="/WSPAssets/resize.png" />
@@ -262,7 +274,7 @@ const WebSketchEditor = (props) => {
             name="height"
             min="50"
             max="2000"
-            defaultValue="352"
+            defaultValue={initHeight.current}
             onChange={() => {
               checkGraph();
               window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
@@ -278,7 +290,7 @@ const WebSketchEditor = (props) => {
             name="width"
             min="50"
             max="2000"
-            defaultValue="650"
+            defaultValue={initWidth.current}
             onChange={() => {
               checkGraph();
               window.TOOLS && window.TOOLS.resetSketchWindowSize('libSketch');
@@ -395,6 +407,10 @@ const WebSketchEditor = (props) => {
     const data = $sketch && $sketch.data('document');
     console.log('Found data: ', data);
     if (data) {
+      if (data.metadata) {
+      initHeight.current = data.metadata.height
+      initWidth.current = data.metadata.width
+      }
       sketchDoc.current = data;
       sketch = data.focusPage;
       setSketchLoaded(true);
