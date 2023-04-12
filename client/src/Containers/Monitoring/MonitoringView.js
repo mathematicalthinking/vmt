@@ -92,7 +92,7 @@ function MonitoringView({ userResources, user, notifications }) {
     _initializeSelections(userResources, uiState.storedSelections)
   );
   const [visibleIds, setVisibleIds] = React.useState(
-    uiState.visibleIds || _initialVisibleRooms(selections)
+    _initialVisibleRooms(selections)
   );
   const populatedRooms = usePopulatedRooms(visibleIds, false, {
     initialCache: _minimalRooms(userResources),
@@ -104,8 +104,8 @@ function MonitoringView({ userResources, user, notifications }) {
   ]);
 
   React.useEffect(() => {
-    setUIState({ storedSelections: selections, visibleIds });
-  }, [selections, visibleIds]);
+    setUIState({ storedSelections: selections });
+  }, [selections]);
 
   if (populatedRooms.isError) return <div>There was an error</div>;
 
