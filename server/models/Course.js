@@ -26,6 +26,12 @@ const Course = new mongoose.Schema(
         _id: false,
       },
     ],
+    archive: {
+      type: {
+        rooms: { type: [{ type: ObjectId, ref: 'Room' }] },
+      },
+      default: { rooms: [] },
+    },
     metadata: { type: Object },
     image: { type: String }, // URL
     isTrashed: { type: Boolean, default: false },

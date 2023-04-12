@@ -786,7 +786,9 @@ Room.propTypes = {
       PropTypes.string,
       PropTypes.arrayOf(PropTypes.shape({})),
     ]), // course might be an id or a populated object
-    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    tabs: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
+    ),
     members: PropTypes.arrayOf(PropTypes.shape({})),
     privacySetting: PropTypes.string,
     myRole: PropTypes.string,

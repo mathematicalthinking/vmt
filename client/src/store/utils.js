@@ -15,5 +15,5 @@ export const addUserRoleToResource = (resource, userId) => {
       if (member.user._id === userId) updatedResource.myRole = member.role;
     });
   }
-  return resource;
+  return updatedResource;
 };

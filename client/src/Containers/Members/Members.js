@@ -91,10 +91,10 @@ class Members extends PureComponent {
       if (!inCourse) {
         confirmingInvitation = true;
       } else {
-        connectInviteToRoom(resourceId, id, username, color, {}); // @TODO **WHY** do we invite a user if they are already in the course?!?
+        connectInviteToRoom(resourceId, id, username, color, role); // @TODO **WHY** do we invite a user if they are already in the course?!?
       }
     } else {
-      connectInviteToRoom(resourceId, id, username, color);
+      connectInviteToRoom(resourceId, id, username, color, role);
     }
     this.setState((prevState) => ({
       confirmingInvitation,

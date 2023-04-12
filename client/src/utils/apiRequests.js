@@ -17,10 +17,9 @@ export default {
     });
   },
 
-  findAllMatchingIdsPopulated: (resource, ids, events) => {
-    return api.get(`/api/findAllMatchingIds/${resource}/populated`, {
-      params: { ids, events },
-    });
+  findAllMatchingIdsPopulated: (resource, ids, events, lastQueryTimes) => {
+    const body = { ids, events, lastQueryTimes };
+    return api.post(`/api/findAllMatchingIds/${resource}/populated`, body);
   },
 
   search: (resource, text, exclude) => {
