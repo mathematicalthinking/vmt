@@ -464,7 +464,7 @@ class Course extends Component {
         ).length,
         activities: course.activities.length,
         rooms: course.rooms.length,
-        ['archived rooms']: course.archive.rooms.length,
+        // ['archived rooms']: course.archive.rooms.length,
         privacy: (
           <Error
             error={updateFail && updateKeys.indexOf('privacySetting') > -1}
