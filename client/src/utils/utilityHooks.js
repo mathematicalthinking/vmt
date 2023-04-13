@@ -407,6 +407,12 @@ export function useUIState(key, initialValue = {}) {
   const stateMonitor = React.useRef(_uiState);
   React.useEffect(() => {
     stateMonitor.current = _uiState;
+    dispatch({
+      type: actionTypes.SAVE_COMPONENT_UI_STATE,
+      key,
+      // this MUST be a ref or else we won't capture the correct state (i.e., cannot be _uiState because then its initial value will always be returned)
+      value: stateMonitor.current,
+    });
   }, [_uiState]);
 
   // On unmount, dispatch to the current UI state to the redux store

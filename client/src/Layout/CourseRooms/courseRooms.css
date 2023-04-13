@@ -4,10 +4,7 @@
 }
 
 .CreateRoom {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  margin-bottom: 14px;
+
   margin-bottom: 30px;
 }
 
@@ -33,7 +30,7 @@
 }
 
 .SortUI {
-  width: 573px;
+  max-width: 573px;
 }
 
 .RoomsListContainer {

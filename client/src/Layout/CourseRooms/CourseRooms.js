@@ -2,6 +2,9 @@ import React, { useReducer, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import _pick from 'lodash/pick';
+import _map from 'lodash/map';
+import _keyBy from 'lodash/keyBy';
 import { Button, InfoBox, RadioBtn, ToolTip, SortUI } from 'Components';
 import { SelectableBoxList } from 'Layout';
 import { RoomPreview } from 'Containers';
@@ -51,12 +54,11 @@ const CourseRooms = (props) => {
   };
 
   const [uiState, setUIState] = useUIState(`courseRooms-${courseId}`, {
-    rooms,
+    rooms: {},
     sortConfig: initialConfig,
     filters: initialFilters,
   });
-  const [rooms, setRooms] = useState(uiState.rooms || []);
-  const [roomsObj, setRoomsObj] = useState({});
+  const [rooms, setRooms] = useState(uiState.rooms || {});
 
   const [filters, filtersDispatch] = useReducer(
     filtersReducer,
@@ -71,7 +73,7 @@ const CourseRooms = (props) => {
   const { hide: hideUnarchiveModal, show: showUnarchiveModal } = useAppModal();
 
   const { items: sortedRooms, resetSort, sortConfig } = useSortableData(
-    rooms,
+    Object.values(rooms),
     uiState.sortConfig || initialConfig
   );
 
@@ -81,9 +83,6 @@ const CourseRooms = (props) => {
 
   useEffect(() => {
     fetchCourseRoomsFromDB();
-    return () => {
-      setUIState({ rooms, sortConfig, filters });
-    };
   }, []);
 
   useEffect(() => {
@@ -94,21 +93,11 @@ const CourseRooms = (props) => {
           (filters.roomStatus === 'all' || filters.roomStatus === item.status),
       },
     });
-    setUIState({ rooms, sortConfig, filters });
   }, [filters]);
 
   useEffect(() => {
     setUIState({ rooms, sortConfig, filters });
-  }, [sortConfig]);
-
-  useEffect(() => {
-    // roomsObj: { id: room }
-    // currently used in archiveAll/unarchiveAll
-    const obj = rooms.reduce((acc, curr) => {
-      return { ...acc, [curr._id]: curr };
-    }, {});
-    setRoomsObj(obj);
-  }, [rooms]);
+  }, [rooms, sortConfig, filters]);
 
   const fetchCourseRoomsFromDB = () => {
     API.getAllCourseRooms(courseId)
@@ -120,7 +109,7 @@ const CourseRooms = (props) => {
           room.myRole = addUserRoleToResource(room, userId).myRole;
           return room;
         });
-        setRooms(modifiedCourseRooms);
+        setRooms(_keyBy(modifiedCourseRooms, '_id'));
       })
       // eslint-disable-next-line no-console
       .catch((err) => console.log(err));
@@ -169,7 +158,7 @@ const CourseRooms = (props) => {
       title: 'Archive/Unarchive',
       onClick: (e, id, handleDeselectAll) => {
         e.preventDefault();
-        const currRoom = rooms.find((r) => r._id === id);
+        const currRoom = rooms[id];
 
         if (currRoom.status === 'default')
           handleArchive(id, true, handleDeselectAll);
@@ -177,7 +166,7 @@ const CourseRooms = (props) => {
           handleArchive(id, false, handleDeselectAll);
       },
       generateIcon: (id) => {
-        const currRoom = rooms.find((r) => r._id === id);
+        const currRoom = rooms[id];
 
         const toDisplay = {
           text: `${currRoom.status === 'default' ? 'Archive' : 'Unarchive'}`,
@@ -218,7 +207,7 @@ const CourseRooms = (props) => {
       // for default status rooms within seletedIds
 
       const selectedIdsHasRoomsToArchive = selectedIds.some(
-        (id) => roomsObj[id] && roomsObj[id].status === 'default'
+        (id) => rooms[id] && rooms[id].status === 'default'
       );
       const fontWeight = selectedIdsHasRoomsToArchive ? 'normal' : '200';
       const cursor = selectedIdsHasRoomsToArchive ? 'pointer' : 'default';
@@ -250,7 +239,7 @@ const CourseRooms = (props) => {
       // for archived rooms within seletedIds
 
       const selectedIdsHasRoomsToUnarchive = selectedIds.some(
-        (id) => roomsObj[id] && roomsObj[id].status === 'archived'
+        (id) => rooms[id] && rooms[id].status === 'archived'
       );
       const fontWeight = selectedIdsHasRoomsToUnarchive ? 'normal' : '200';
       const cursor = selectedIdsHasRoomsToUnarchive ? 'pointer' : 'default';
@@ -287,7 +276,7 @@ const CourseRooms = (props) => {
       }
     }
     // or display single name
-    else res = rooms.filter((el) => el._id === id)[0].name;
+    else res = rooms[id].name;
 
     const dispatchArchive = () => {
       if (singleResource) {
@@ -325,7 +314,7 @@ const CourseRooms = (props) => {
                   if (typeof handleDeselectAll === 'function') {
                     handleDeselectAll();
                   }
-                }, [500]);
+                }, 1500);
                 hideArchiveModal();
               }}
               m={5}
@@ -360,7 +349,7 @@ const CourseRooms = (props) => {
                   if (typeof handleDeselectAll === 'function') {
                     handleDeselectAll();
                   }
-                }, [500]);
+                }, 1500);
                 hideUnarchiveModal();
               }}
               m={5}
@@ -411,7 +400,7 @@ const CourseRooms = (props) => {
   };
 
   const getResourceNames = (ids) => {
-    return rooms.filter((res) => ids.includes(res._id)).map((res) => res.name);
+    return _map(_pick(rooms, ids), 'name');
   };
 
   const toggleFilter = (filter) => {
