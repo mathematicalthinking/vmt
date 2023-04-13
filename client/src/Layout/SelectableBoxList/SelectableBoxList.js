@@ -53,6 +53,11 @@ const SelectableBoxList = (props) => {
     setFormattedCustomStyles(getCustomElementStyle(customStyle));
   }, [customStyle]);
 
+  useEffect(() => {
+    // deselect all if length of items to display changes
+    handleDeselectAll();
+  }, [list.length]);
+
   const handleSelectAll = (event) => {
     const { checked } = event.target;
     if (!checked) {
@@ -147,7 +152,7 @@ const SelectableBoxList = (props) => {
                 ...formattedCustomStyles[selectAction.title],
               }}
               data-testid={`${selectAction.title}-icon`}
-              title={`${selectAction.title}-icon`}
+              // title={`${selectAction.title}-icon`}
             >
               {selectAction.generateIcon
                 ? selectAction.generateIcon(selectedIds)
