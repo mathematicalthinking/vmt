@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox } from 'Components';
 import SelectableContentBox from 'Components/UI/ContentBox/SelectableContentBox';
@@ -14,10 +14,44 @@ const SelectableBoxList = (props) => {
     linkSuffix,
     selectActions, // array of actions (Buttons) i.e. Restore, Delete
     icons,
+    customStyle,
   } = props;
 
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [formattedCustomStyles, setFormattedCustomStyles] = useState({});
+
+  useEffect(() => {
+    if (!customStyle || !Object.keys(customStyle).length) return;
+
+    const getCustomElementStyle = () => {
+      // this fn returns a formatted copy of customStyle
+      // which will be used in the render if needed
+
+      // customStyle is a prop object
+      // { classnameToStyle: cssObject }
+      const formattedCustomStyle = {};
+      const classNames = {
+        container: 'Container',
+        header: 'Header',
+        selectactions: 'SelectActions',
+        contentbox: 'ContentBox',
+        title: 'Title',
+      };
+
+      const customStyleKeys = Object.keys(customStyle);
+      customStyleKeys.forEach((elementToStyle) => {
+        // if (!classNames.includes(elementToStyle.toLowerCase)) return null;
+        formattedCustomStyle[elementToStyle] = {
+          ...formattedCustomStyle[elementToStyle.toLocaleLowerCase()],
+          ...customStyle[elementToStyle],
+        };
+      });
+      return formattedCustomStyle;
+    };
+
+    setFormattedCustomStyles(getCustomElementStyle(customStyle));
+  }, [customStyle]);
 
   const handleSelectAll = (event) => {
     const { checked } = event.target;
@@ -74,8 +108,8 @@ const SelectableBoxList = (props) => {
   }
 
   return (
-    <div className={classes.Container}>
-      <div className={classes.Header}>
+    <div className={classes.Container} style={formattedCustomStyles.container}>
+      <div className={classes.Header} style={formattedCustomStyles.header}>
         <Checkbox
           change={handleSelectAll}
           checked={selectAllChecked}
@@ -83,21 +117,31 @@ const SelectableBoxList = (props) => {
         >
           Select All
         </Checkbox>
-        {selectActions.map((selectAction) => (
-          <div
-            onClick={(e) => selectAction.onClick(e, selectedIds)}
-            onKeyDown={(e) => selectAction.onClick(e, selectedIds)}
-            role="button"
-            tabIndex={-1}
-            // title={selectAction.title}
-            key={`selectAction-${selectAction.title}`}
-            style={{ margin: '0 1rem' }}
-            data-testid={`${selectAction.title}-icon`}
-            title={`${selectAction.title}-icon`}
-          >
-            {selectAction.icon}
-          </div>
-        ))}
+        <div
+          className={classes.SelectActions}
+          style={formattedCustomStyles.selectactions}
+        >
+          {selectActions.map((selectAction) => (
+            <div
+              onClick={(e) => selectAction.onClick(e, selectedIds)}
+              onKeyDown={(e) => selectAction.onClick(e, selectedIds)}
+              role="button"
+              tabIndex={-1}
+              // title={selectAction.title}
+              key={`selectAction-${selectAction.title}`}
+              style={{
+                margin: '0 1rem',
+                ...formattedCustomStyles[selectAction.title],
+              }}
+              data-testid={`${selectAction.title}-icon`}
+              title={`${selectAction.title}-icon`}
+            >
+              {selectAction.generateIcon
+                ? selectAction.generateIcon(selectedIds)
+                : selectAction.icon}
+            </div>
+          ))}
+        </div>
       </div>
       {list.map((item) => {
         if (item) {
@@ -139,7 +183,11 @@ const SelectableBoxList = (props) => {
             details.creator = item.creator.username;
           }
           return (
-            <div className={classes.ContentBox} key={item._id}>
+            <div
+              className={classes.ContentBox}
+              key={item._id}
+              style={formattedCustomStyles.contentbox}
+            >
               <SelectableContentBox
                 title={item.name}
                 link={
@@ -157,11 +205,12 @@ const SelectableBoxList = (props) => {
                     ? item.tabs.map((tab) => tab.tabType)
                     : item.tabTypes
                 }
-                locked={item.privacySetting === 'private'} // @TODO Should it appear locked if the user has access ? I can see reasons for both
+                locked={item.privacySetting === 'private'}
                 details={details}
                 listType={listType}
                 customIcons={icons}
                 resource={resource}
+                customStyle={item.customStyle}
               >
                 {item.description}
               </SelectableContentBox>
@@ -184,6 +233,7 @@ SelectableBoxList.propTypes = {
   selectedIds: PropTypes.arrayOf(PropTypes.string),
   selectActions: PropTypes.arrayOf(PropTypes.shape({})),
   icons: PropTypes.arrayOf(PropTypes.shape({})),
+  customStyle: PropTypes.shape({}),
 };
 
 SelectableBoxList.defaultProps = {
@@ -193,6 +243,7 @@ SelectableBoxList.defaultProps = {
   icons: null,
   linkPath: null,
   linkSuffix: null,
+  customStyle: null,
 };
 
 export default SelectableBoxList;

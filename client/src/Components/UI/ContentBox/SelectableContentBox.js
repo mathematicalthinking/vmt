@@ -22,6 +22,7 @@ const SelectableContentBox = (props) => {
     onSelect,
     customIcons,
     resource,
+    customStyle,
   } = props;
 
   const history = useHistory();
@@ -54,7 +55,11 @@ const SelectableContentBox = (props) => {
       <div
         to={link}
         className={classes.Container}
-        style={{ height: expanded ? 150 : 50, cursor: 'default' }}
+        style={{
+          height: expanded ? 150 : 50,
+          cursor: 'default',
+          ...customStyle,
+        }}
         data-testid={`SelectableContentBox-container-${title}`}
       >
         <div
@@ -207,8 +212,16 @@ SelectableContentBox.propTypes = {
   }).isRequired,
   isChecked: PropTypes.bool,
   onSelect: PropTypes.func.isRequired,
-  customIcons: PropTypes.arrayOf(PropTypes.shape({})),
+  customIcons: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string,
+      onClick: PropTypes.func,
+      icon: PropTypes.node,
+      generateIcon: PropTypes.func,
+    })
+  ),
   resource: PropTypes.string,
+  customStyle: PropTypes.shape({}),
 };
 
 SelectableContentBox.defaultProps = {
@@ -219,6 +232,7 @@ SelectableContentBox.defaultProps = {
   isChecked: false,
   customIcons: [],
   resource: null,
+  customStyle: null,
 };
 
 export default SelectableContentBox;

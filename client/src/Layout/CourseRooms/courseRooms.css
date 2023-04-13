@@ -39,3 +39,11 @@
 .RoomsListContainer {
   width: 1000px;
 }
+
+.CustomIcon {
+  background-color: inherit;
+}
+
+.CustomIcon:hover {
+  cursor: pointer;
+}

@@ -11,9 +11,8 @@ import {
   useUIState,
   API,
 } from 'utils';
-import { addUserRoleToResource } from 'store/utils';
 import { RoomPreview } from 'Containers';
-import { updateRoom, archiveRooms } from 'store/actions';
+import { updateRoom, archiveRooms, restoreArchivedRoom } from 'store/actions';
 import { STATUS } from 'constants.js';
 import NewResource from 'Containers/Create/NewResource/NewResource';
 
@@ -31,7 +30,7 @@ const filtersReducer = (state, action) => {
 };
 
 const CourseRooms = (props) => {
-  const { courseId, userId } = props;
+  const { courseId } = props;
   const initialFilters = {
     myRole: 'all',
     roomStatus: 'default',
@@ -49,12 +48,14 @@ const CourseRooms = (props) => {
     direction: 'descending',
     filter: { timeframe: timeFrames.LASTWEEK, key: 'updatedAt' },
   };
+
   const [uiState, setUIState] = useUIState(`courseRooms-${courseId}`, {
     rooms,
     sortConfig: initialConfig,
     filters: initialFilters,
   });
   const [rooms, setRooms] = useState(uiState.rooms || []);
+  const [roomsObj, setRoomsObj] = useState({});
 
   const [filters, filtersDispatch] = useReducer(
     filtersReducer,
@@ -66,6 +67,7 @@ const CourseRooms = (props) => {
 
   const { showBig: showPreviewModal } = useAppModal();
   const { hide: hideArchiveModal, show: showArchiveModal } = useAppModal();
+  const { hide: hideUnarchiveModal, show: showUnarchiveModal } = useAppModal();
 
   const { items: sortedRooms, resetSort, sortConfig } = useSortableData(
     rooms,
@@ -77,6 +79,13 @@ const CourseRooms = (props) => {
   );
 
   useEffect(() => {
+    fetchCourseRoomsFromDB();
+    return () => {
+      setUIState({ rooms, sortConfig, filters });
+    };
+  }, []);
+
+  useEffect(() => {
     resetFilter({
       filter: {
         filterFcn: (item) =>
@@ -84,19 +93,35 @@ const CourseRooms = (props) => {
           (filters.roomStatus === 'all' || filters.roomStatus === item.status),
       },
     });
+    setUIState({ rooms, sortConfig, filters });
   }, [filters]);
 
   useEffect(() => {
+    setUIState({ rooms, sortConfig, filters });
+  }, [sortConfig]);
+
+  useEffect(() => {
+    // roomsObj: { id: room }
+    // currently used in archiveAll/unarchiveAll
+    const obj = rooms.reduce((acc, curr) => {
+      return { ...acc, [curr._id]: curr };
+    }, {});
+    setRoomsObj(obj);
+  }, [rooms]);
+
+  const fetchCourseRoomsFromDB = () => {
     API.getAllCourseRooms(courseId)
       .then((res) => {
         const courseRooms = res.data.result;
-        setRooms(courseRooms);
+        const modifiedCourseRooms = courseRooms.map((room) => {
+          if (room.status === 'archived')
+            room.customStyle = { backgroundColor: 'rgba(223, 229, 192, 0.3)' };
+          return room;
+        });
+        setRooms(modifiedCourseRooms);
       })
       .catch((err) => console.log(err));
-    return () => {
-      setUIState({ rooms, sortConfig, filters });
-    };
-  }, []);
+  };
 
   const goToReplayer = (roomId) => {
     history.push(`/myVMT/workspace/${roomId}/replayer`);
@@ -108,34 +133,6 @@ const CourseRooms = (props) => {
 
   const customIcons = [
     {
-      title: 'My Role',
-      onClick: null,
-      generateIcon: (id) => {
-        const thisRoom = rooms.find((r) => r._id === id);
-        const roomRole = addUserRoleToResource(thisRoom, userId).myRole;
-        return (
-          <ToolTip text={`My Role: ${roomRole}`} delay={600}>
-            <span>My Role: {roomRole}</span>
-          </ToolTip>
-        );
-      },
-    },
-    {
-      title: 'Room Status',
-      onClick: null,
-      generateIcon: (id) => {
-        const thisRoom = rooms.find((r) => r._id === id);
-        const thisRoomStatus =
-          thisRoom.status === 'archived' ? thisRoom.status : 'active';
-
-        return (
-          <ToolTip text={`My Role: ${thisRoomStatus}`} delay={600}>
-            <span>Room Status: {thisRoomStatus}</span>
-          </ToolTip>
-        );
-      },
-    },
-    {
       title: 'Preview',
       onClick: (e, id) => {
         e.preventDefault();
@@ -145,7 +142,8 @@ const CourseRooms = (props) => {
       icon: (
         <ToolTip text="Preview" delay={600}>
           <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            open_in_new
+            preview
+            {/* gallery_thumbnail */}
           </span>
         </ToolTip>
       ),
@@ -159,24 +157,47 @@ const CourseRooms = (props) => {
       icon: (
         <ToolTip text="Replayer" delay={600}>
           <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            replay
+            autoplay
           </span>
         </ToolTip>
       ),
     },
     {
-      title: 'Archive',
+      title: 'Archive/Unarchive',
       onClick: (e, id) => {
         e.preventDefault();
-        handleArchive(id);
+        const currRoom = rooms.find((r) => r._id === id);
+
+        if (currRoom.status === 'default') handleArchive(id, true);
+        else if (currRoom.status === 'archived') handleArchive(id, false);
       },
-      icon: (
-        <ToolTip text="Archive" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            input
-          </span>
-        </ToolTip>
-      ),
+      generateIcon: (id) => {
+        const currRoom = rooms.find((r) => r._id === id);
+
+        const toDisplay = {
+          text: `${currRoom.status === 'default' ? 'Archive' : 'Unarchive'}`,
+          icon:
+            currRoom.status === 'default' ? (
+              <span
+                className={`material-symbols-outlined ${classes.CustomIcon}`}
+              >
+                archive
+              </span>
+            ) : (
+              <span
+                className={`material-symbols-outlined ${classes.CustomIcon}`}
+              >
+                unarchive
+              </span>
+            ),
+        };
+
+        return (
+          <ToolTip text={toDisplay.text} delay={600}>
+            <span>{toDisplay.icon}</span>
+          </ToolTip>
+        );
+      },
     },
   ];
 
@@ -185,26 +206,69 @@ const CourseRooms = (props) => {
     onClick: (e, id) => {
       e.preventDefault();
       if (!id.length) return;
-      handleArchive(id);
+      handleArchive(id, true);
     },
-    icon: (
-      <ToolTip text="Archive" delay={600}>
-        <span
-          className={`material-symbols-outlined ${classes.CustomIcon}`}
-          data-testid="Archive"
-          style={{ fontSize: '23px' }}
-        >
-          input
-        </span>
-      </ToolTip>
-    ),
+    generateIcon: (selectedIds) => {
+      // embolden the archive icon style
+      // for default status rooms within seletedIds
+
+      const selectedIdsHasRoomsToArchive = selectedIds.some(
+        (id) => roomsObj[id] && roomsObj[id].status === 'default'
+      );
+      const fontWeight = selectedIdsHasRoomsToArchive ? 'normal' : '200';
+      const cursor = selectedIdsHasRoomsToArchive ? 'pointer' : 'default';
+      const style = { fontSize: '23px', fontWeight, cursor };
+
+      return (
+        <ToolTip text="Archive" delay={600}>
+          <span
+            className={`material-symbols-outlined ${classes.CustomIcon}`}
+            data-testid="Archive"
+            style={style}
+          >
+            archive
+          </span>
+        </ToolTip>
+      );
+    },
   };
 
-  // create a handle multiple fn that calls this fn
-  // get rid of singleResource
-  const handleArchive = (id) => {
+  const unArchiveAllButton = {
+    title: 'Unarchive',
+    onClick: (e, id) => {
+      e.preventDefault();
+      if (!id.length) return;
+      handleArchive(id, false);
+    },
+    generateIcon: (selectedIds) => {
+      // embolden the unarchive icon style
+      // for archived rooms within seletedIds
+
+      const selectedIdsHasRoomsToUnarchive = selectedIds.some(
+        (id) => roomsObj[id] && roomsObj[id].status === 'archived'
+      );
+      const fontWeight = selectedIdsHasRoomsToUnarchive ? 'normal' : '200';
+      const cursor = selectedIdsHasRoomsToUnarchive ? 'pointer' : 'default';
+      const style = { fontSize: '23px', fontWeight, cursor };
+      return (
+        <ToolTip text="Unarchive" delay={600}>
+          <span
+            className={`material-symbols-outlined ${classes.CustomIcon}`}
+            data-testid="Archive"
+            style={style}
+          >
+            unarchive
+          </span>
+        </ToolTip>
+      );
+    },
+  };
+
+  // Handles both Archive & Unarchive
+  const handleArchive = (id, showArchive) => {
     let res;
     let msg = 'Are you sure you want to archive ';
+    if (!showArchive) msg = 'Are you sure you want to unarchive ';
     let singleResource = true;
     if (Array.isArray(id)) {
       // display each name in list
@@ -231,37 +295,101 @@ const CourseRooms = (props) => {
       }
     };
 
-    showArchiveModal(
-      <div>
-        <span>
-          {msg}
-          <span style={{ fontWeight: 'bolder' }}>{res}</span>?
-        </span>
+    const dispatchRestore = () => {
+      if (singleResource) {
+        dispatch(restoreArchivedRoom(id));
+      } else {
+        id.forEach((resId) => dispatch(restoreArchivedRoom(resId)));
+      }
+    };
+
+    if (showArchive) {
+      showArchiveModal(
         <div>
-          <Button
-            data-testid="archive-resource"
-            click={() => {
-              dispatchArchive();
-              hideArchiveModal();
-            }}
-            m={5}
-          >
-            Yes
-          </Button>
-          <Button
-            data-testid="cancel-manage-user"
-            click={hideArchiveModal}
-            theme="Cancel"
-            m={5}
-          >
-            Cancel
-          </Button>
+          <span>
+            {msg}
+            <span style={{ fontWeight: 'bolder' }}>{res}</span>?
+          </span>
+          <div>
+            <Button
+              data-testid="archive-resource"
+              click={() => {
+                dispatchArchive();
+                setTimeout(() => {
+                  fetchCourseRoomsFromDB();
+                }, [500]);
+                hideArchiveModal();
+              }}
+              m={5}
+            >
+              Yes
+            </Button>
+            <Button
+              data-testid="cancel-manage-user"
+              click={hideArchiveModal}
+              theme="Cancel"
+              m={5}
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      showUnarchiveModal(
+        <div>
+          <span>
+            {msg}
+            <span style={{ fontWeight: 'bolder' }}>{res}</span>?
+          </span>
+          <div>
+            <Button
+              data-testid="archive-resource"
+              click={() => {
+                dispatchRestore();
+                setTimeout(() => {
+                  fetchCourseRoomsFromDB();
+                }, [500]);
+                hideUnarchiveModal();
+              }}
+              m={5}
+            >
+              Yes
+            </Button>
+            <Button
+              data-testid="cancel-manage-user"
+              click={hideUnarchiveModal}
+              theme="Cancel"
+              m={5}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      );
+    }
   };
 
-  const selectActions = [archiveAllButton];
+  const selectActions = [archiveAllButton, unArchiveAllButton];
+
+  const SelectableBoxListCustomStyles = {
+    container: {},
+    header: {
+      border: '4px solid blue',
+      maxWidth: '575px',
+      height: '35px',
+    },
+    selectactions: {
+      left: '230px',
+      position: 'relative',
+      border: '1px solid black',
+    },
+    contentbox: '',
+    Archive: {
+      fontWeight: 'light',
+    },
+    Unrchive: '',
+  };
 
   const getResourceNames = (ids) => {
     return rooms.filter((res) => ids.includes(res._id)).map((res) => res.name);
@@ -350,6 +478,7 @@ const CourseRooms = (props) => {
           selectActions={selectActions}
           linkPath="/myVMT/rooms/"
           linkSuffix="/details"
+          customStyle={SelectableBoxListCustomStyles}
         />
       </div>
     </div>
@@ -358,7 +487,6 @@ const CourseRooms = (props) => {
 
 CourseRooms.propTypes = {
   courseId: PropTypes.string.isRequired,
-  userId: PropTypes.string.isRequired,
 };
 
 export default CourseRooms;
