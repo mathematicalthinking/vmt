@@ -47,3 +47,8 @@
 .CustomIcon:hover {
   cursor: pointer;
 }
+
+.SelectActionsIcon {
+  font-size: 2em;
+  color: #5e5e5e;
+}

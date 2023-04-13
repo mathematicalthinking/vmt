@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Button, InfoBox, RadioBtn, ToolTip, SortUI } from 'Components';
 import { SelectableBoxList } from 'Layout';
+import { RoomPreview } from 'Containers';
 import {
   timeFrames,
   useAppModal,
@@ -11,7 +12,7 @@ import {
   useUIState,
   API,
 } from 'utils';
-import { RoomPreview } from 'Containers';
+import { addUserRoleToResource } from 'store/utils';
 import { updateRoom, archiveRooms, restoreArchivedRoom } from 'store/actions';
 import { STATUS } from 'constants.js';
 import NewResource from 'Containers/Create/NewResource/NewResource';
@@ -30,7 +31,7 @@ const filtersReducer = (state, action) => {
 };
 
 const CourseRooms = (props) => {
-  const { courseId } = props;
+  const { courseId, userId } = props;
   const initialFilters = {
     myRole: 'all',
     roomStatus: 'default',
@@ -116,10 +117,12 @@ const CourseRooms = (props) => {
         const modifiedCourseRooms = courseRooms.map((room) => {
           if (room.status === 'archived')
             room.customStyle = { backgroundColor: 'rgba(223, 229, 192, 0.3)' };
+          room.myRole = addUserRoleToResource(room, userId).myRole;
           return room;
         });
         setRooms(modifiedCourseRooms);
       })
+      // eslint-disable-next-line no-console
       .catch((err) => console.log(err));
   };
 
@@ -219,12 +222,12 @@ const CourseRooms = (props) => {
       );
       const fontWeight = selectedIdsHasRoomsToArchive ? 'normal' : '200';
       const cursor = selectedIdsHasRoomsToArchive ? 'pointer' : 'default';
-      const style = { fontSize: '23px', fontWeight, cursor };
+      const style = { fontWeight, cursor };
 
       return (
         <ToolTip text="Archive" delay={600}>
           <span
-            className={`material-symbols-outlined ${classes.CustomIcon}`}
+            className={`material-symbols-outlined ${classes.CustomIcon} ${classes.SelectActionsIcon}`}
             data-testid="Archive"
             style={style}
           >
@@ -251,11 +254,11 @@ const CourseRooms = (props) => {
       );
       const fontWeight = selectedIdsHasRoomsToUnarchive ? 'normal' : '200';
       const cursor = selectedIdsHasRoomsToUnarchive ? 'pointer' : 'default';
-      const style = { fontSize: '23px', fontWeight, cursor };
+      const style = { fontWeight, cursor };
       return (
         <ToolTip text="Unarchive" delay={600}>
           <span
-            className={`material-symbols-outlined ${classes.CustomIcon}`}
+            className={`material-symbols-outlined ${classes.CustomIcon} ${classes.SelectActionsIcon}`}
             data-testid="Archive"
             style={style}
           >
@@ -383,14 +386,22 @@ const CourseRooms = (props) => {
   const SelectableBoxListCustomStyles = {
     container: {},
     header: {
-      border: '4px solid blue',
       maxWidth: '575px',
       height: '35px',
     },
+    checkbox: {
+      padding: '10px',
+      background: 'rgb(239, 243, 246)',
+      border: '1px solid #ddd',
+      fontWeight: '600',
+      fontSize: '1.1em',
+      borderRadius: '3px',
+    },
     selectactions: {
-      left: '230px',
+      left: '200px',
       position: 'relative',
-      border: '1px solid black',
+      background: 'rgb(239, 243, 246)',
+      border: '1px solid #ddd',
     },
     contentbox: '',
     Archive: {
@@ -495,6 +506,7 @@ const CourseRooms = (props) => {
 
 CourseRooms.propTypes = {
   courseId: PropTypes.string.isRequired,
+  userId: PropTypes.string.isRequired,
 };
 
 export default CourseRooms;

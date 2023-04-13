@@ -122,6 +122,7 @@ const SelectableBoxList = (props) => {
           change={handleSelectAll}
           checked={selectAllChecked}
           dataId="select-all"
+          style={formattedCustomStyles.checkbox}
         >
           Select All
         </Checkbox>
