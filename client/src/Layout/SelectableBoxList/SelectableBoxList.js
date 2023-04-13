@@ -78,6 +78,14 @@ const SelectableBoxList = (props) => {
     }
   };
 
+  const handleDeselectAll = () => {
+    // this function is passed up to the parent component
+    // and can be used to deselect all checkboxes once
+    // certain selectAction onClicks are triggered
+    setSelectAllChecked(false);
+    setSelectedIds([]);
+  };
+
   const timeDiff = (ts) => {
     if (!ts) return 'Never';
     const diff = new Date() - new Date(ts);
@@ -123,8 +131,12 @@ const SelectableBoxList = (props) => {
         >
           {selectActions.map((selectAction) => (
             <div
-              onClick={(e) => selectAction.onClick(e, selectedIds)}
-              onKeyDown={(e) => selectAction.onClick(e, selectedIds)}
+              onClick={(e) => {
+                selectAction.onClick(e, selectedIds, handleDeselectAll);
+              }}
+              onKeyDown={(e) => {
+                selectAction.onClick(e, selectedIds, handleDeselectAll);
+              }}
               role="button"
               tabIndex={-1}
               // title={selectAction.title}

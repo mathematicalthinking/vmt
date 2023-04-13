@@ -164,12 +164,14 @@ const CourseRooms = (props) => {
     },
     {
       title: 'Archive/Unarchive',
-      onClick: (e, id) => {
+      onClick: (e, id, handleDeselectAll) => {
         e.preventDefault();
         const currRoom = rooms.find((r) => r._id === id);
 
-        if (currRoom.status === 'default') handleArchive(id, true);
-        else if (currRoom.status === 'archived') handleArchive(id, false);
+        if (currRoom.status === 'default')
+          handleArchive(id, true, handleDeselectAll);
+        else if (currRoom.status === 'archived')
+          handleArchive(id, false, handleDeselectAll);
       },
       generateIcon: (id) => {
         const currRoom = rooms.find((r) => r._id === id);
@@ -203,10 +205,10 @@ const CourseRooms = (props) => {
 
   const archiveAllButton = {
     title: 'Archive',
-    onClick: (e, id) => {
+    onClick: (e, id, handleDeselectAll) => {
       e.preventDefault();
       if (!id.length) return;
-      handleArchive(id, true);
+      handleArchive(id, true, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
       // embolden the archive icon style
@@ -235,10 +237,10 @@ const CourseRooms = (props) => {
 
   const unArchiveAllButton = {
     title: 'Unarchive',
-    onClick: (e, id) => {
+    onClick: (e, id, handleDeselectAll) => {
       e.preventDefault();
       if (!id.length) return;
-      handleArchive(id, false);
+      handleArchive(id, false, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
       // embolden the unarchive icon style
@@ -265,7 +267,7 @@ const CourseRooms = (props) => {
   };
 
   // Handles both Archive & Unarchive
-  const handleArchive = (id, showArchive) => {
+  const handleArchive = (id, showArchive, handleDeselectAll) => {
     let res;
     let msg = 'Are you sure you want to archive ';
     if (!showArchive) msg = 'Are you sure you want to unarchive ';
@@ -317,6 +319,9 @@ const CourseRooms = (props) => {
                 dispatchArchive();
                 setTimeout(() => {
                   fetchCourseRoomsFromDB();
+                  if (typeof handleDeselectAll === 'function') {
+                    handleDeselectAll();
+                  }
                 }, [500]);
                 hideArchiveModal();
               }}
@@ -349,6 +354,9 @@ const CourseRooms = (props) => {
                 dispatchRestore();
                 setTimeout(() => {
                   fetchCourseRoomsFromDB();
+                  if (typeof handleDeselectAll === 'function') {
+                    handleDeselectAll();
+                  }
                 }, [500]);
                 hideUnarchiveModal();
               }}
