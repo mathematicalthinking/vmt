@@ -4,14 +4,15 @@
 }
 
 .CreateRoom {
-
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .Filters {
   display: flex;
-  flex-flow: row wrap;
-  align-items: center;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
 }
 
 .Filters > * {
@@ -53,4 +54,3 @@
   font-size: 24px;
   color: #5e5e5e;
 }
-

@@ -380,6 +380,7 @@ const CourseRooms = (props) => {
     },
     checkbox: {
       padding: '10px',
+      marginRight: '2rem',
       background: 'rgb(239, 243, 246)',
       border: '1px solid #ddd',
       fontWeight: '600',
@@ -387,8 +388,6 @@ const CourseRooms = (props) => {
       borderRadius: '3px',
     },
     selectactions: {
-      left: '200px',
-      position: 'relative',
       background: 'rgb(239, 243, 246)',
       border: '1px solid #ddd',
     },
@@ -471,24 +470,24 @@ const CourseRooms = (props) => {
             </RadioBtn>
           </div>
         </InfoBox>
+
+        <div className={classes.SortUI}>
+          <SortUI keys={keys} sortFn={resetSort} sortConfig={sortConfig} />
+        </div>
       </div>
 
-      <div className={classes.SortUI}>
-        <SortUI keys={keys} sortFn={resetSort} sortConfig={sortConfig} />
-      </div>
-
-      <div className={classes.RoomsListContainer}>
-        <SelectableBoxList
-          list={displayRooms}
-          resource="rooms"
-          listType="private"
-          icons={customIcons}
-          selectActions={selectActions}
-          linkPath="/myVMT/rooms/"
-          linkSuffix="/details"
-          customStyle={SelectableBoxListCustomStyles}
-        />
-      </div>
+      {/* <div className={classes.RoomsListContainer}> */}
+      <SelectableBoxList
+        list={displayRooms}
+        resource="rooms"
+        listType="private"
+        icons={customIcons}
+        selectActions={selectActions}
+        linkPath="/myVMT/rooms/"
+        linkSuffix="/details"
+        customStyle={SelectableBoxListCustomStyles}
+      />
+      {/* </div> */}
     </div>
   );
 };
