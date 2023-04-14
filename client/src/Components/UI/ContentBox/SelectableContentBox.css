@@ -91,24 +91,30 @@
 .Expanded {
   margin-top: 5px;
   padding: 10px;
-  display: flex;
-  flex-wrap: wrap;
+  /* display: flex;
+  flex-wrap: wrap; */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
+  grid-gap: 1.5rem;
 }
 
 .ExpandedItemContainer {
-  width: 100%;
+  /* width: 100%; */
 }
 
 .DetailsTitle {
   font-weight: 500;
-  /* margin-right: 5px; */
-  width: 90px;
+  margin-right: 5px;
+  /* width: 90px; */
   display: inline-block;
 }
 
 .Facilitators {
   display: flex;
   flex-wrap: wrap;
+}
+
+.EntryCode {
 }
 
 .FacilitatorsList {

@@ -181,6 +181,18 @@ const SelectableBoxList = (props) => {
                       }${x < arr.length - 1 ? ', ' : ''}`
                   )
               : [],
+            participants: item.members
+              ? item.members
+                  .filter((member) => member.role === 'participant')
+                  .map(
+                    (member, x, arr) =>
+                      `${
+                        member.user
+                          ? member.user.username
+                          : 'Username not found'
+                      }${x < arr.length - 1 ? ', ' : ''}`
+                  )
+              : [],
             sinceUpdated: timeDiff(item.updatedAt),
           };
 
