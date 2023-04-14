@@ -337,67 +337,71 @@ const ResourceList = ({
         <div className={classes.Controls}>{create}</div>
         {fList.length > 0 || pList.length > 0 ? (
           <div className={classes.Row}>
-            <div className={classes.Col}>
-              <h2 className={classes.ResourceHeader}>
-                {displayResource} I Manage: {fList.length}
-              </h2>
-              {fList.length >= 1 && setResourceState && (
-                <SortUI
-                  keys={keys}
-                  sortFn={facilitatorRequestSort}
-                  sortConfig={facilitatorSortConfig}
-                />
-              )}
+            {fList.length > 0 ? (
+              <div className={classes.Col}>
+                <h2 className={classes.ResourceHeader}>
+                  {displayResource} I Manage: {fList.length}
+                </h2>
+                {fList.length >= 1 && setResourceState && (
+                  <SortUI
+                    keys={keys}
+                    sortFn={facilitatorRequestSort}
+                    sortConfig={facilitatorSortConfig}
+                  />
+                )}
 
-              {selectableBoxList &&
-              resource !== 'activities' &&
-              resource !== 'courses' ? (
-                <SelectableBoxList
-                  list={facilitatorItems}
-                  resource={resource}
-                  listType="private"
-                  linkPath={linkPath}
-                  linkSuffix={linkSuffix}
-                  notifications={notifications}
-                  parentResourec={parentResource}
-                  icons={customIcons}
-                  selectActions={selectActions}
-                />
-              ) : (
+                {selectableBoxList &&
+                resource !== 'activities' &&
+                resource !== 'courses' ? (
+                  <SelectableBoxList
+                    list={facilitatorItems}
+                    resource={resource}
+                    listType="private"
+                    linkPath={linkPath}
+                    linkSuffix={linkSuffix}
+                    notifications={notifications}
+                    parentResourec={parentResource}
+                    icons={customIcons}
+                    selectActions={selectActions}
+                  />
+                ) : (
+                  <BoxList
+                    list={facilitatorItems}
+                    resource={resource}
+                    listType="private"
+                    linkPath={linkPath}
+                    linkSuffix={linkSuffix}
+                    notifications={notifications}
+                    parentResourec={parentResource}
+                  />
+                )}
+              </div>
+            ) : null}
+            {pList.length > 0 ? (
+              <div className={classes.Col}>
+                <h2 className={classes.ResourceHeader}>
+                  {displayResource} I&#39;m a member of: {pList.length}
+                </h2>
+                {pList.length >= 1 && setResourceState && (
+                  <SortUI
+                    keys={keys}
+                    sortFn={participantRequestSort}
+                    sortConfig={participantSortConfig}
+                  />
+                )}
                 <BoxList
-                  list={facilitatorItems}
-                  resource={resource}
-                  listType="private"
+                  list={participantItems}
                   linkPath={linkPath}
                   linkSuffix={linkSuffix}
                   notifications={notifications}
+                  resource={resource}
+                  listType="private"
                   parentResourec={parentResource}
+                  icons={customIconsBoxList}
+                  // draggable
                 />
-              )}
-            </div>
-            <div className={classes.Col}>
-              <h2 className={classes.ResourceHeader}>
-                {displayResource} I&#39;m a member of: {pList.length}
-              </h2>
-              {pList.length >= 1 && setResourceState && (
-                <SortUI
-                  keys={keys}
-                  sortFn={participantRequestSort}
-                  sortConfig={participantSortConfig}
-                />
-              )}
-              <BoxList
-                list={participantItems}
-                linkPath={linkPath}
-                linkSuffix={linkSuffix}
-                notifications={notifications}
-                resource={resource}
-                listType="private"
-                parentResourec={parentResource}
-                icons={customIconsBoxList}
-                // draggable
-              />
-            </div>
+              </div>
+            ) : null}
           </div>
         ) : (
           <Fragment>
