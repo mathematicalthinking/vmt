@@ -161,94 +161,97 @@ const SelectableBoxList = (props) => {
           ))}
         </div>
       </div>
-      {list.map((item) => {
-        if (item) {
-          const details = {
-            description: item.description,
-            createdAt: item.createdAt
-              ? item.createdAt.split('T')[0].toLocaleString()
-              : '',
-            dueDate: item.dueDate,
-            facilitators: item.members
-              ? item.members
-                  .filter((member) => member.role === 'facilitator')
-                  .map(
-                    (member, x, arr) =>
-                      `${
-                        member.user
-                          ? member.user.username
-                          : 'Username not found'
-                      }${x < arr.length - 1 ? ', ' : ''}`
-                  )
-              : [],
-            participants: item.members
-              ? item.members
-                  .filter((member) => member.role === 'participant')
-                  .map(
-                    (member, x, arr) =>
-                      `${
-                        member.user
-                          ? member.user.username
-                          : 'Username not found'
-                      }${x < arr.length - 1 ? ', ' : ''}`
-                  )
-              : [],
-            sinceUpdated: timeDiff(item.updatedAt),
-          };
 
-          let notificationCount = 0;
-          if (listType === 'private') {
-            if (notifications.length > 0) {
-              notifications.forEach((ntf) => {
-                if (
-                  ntf.resourceId === item._id ||
-                  ntf.parentResource === item._id
-                ) {
-                  notificationCount += 1;
-                }
-              });
+      <div className={classes.BoxList}>
+        {list.map((item) => {
+          if (item) {
+            const details = {
+              description: item.description,
+              createdAt: item.createdAt
+                ? item.createdAt.split('T')[0].toLocaleString()
+                : '',
+              dueDate: item.dueDate,
+              facilitators: item.members
+                ? item.members
+                    .filter((member) => member.role === 'facilitator')
+                    .map(
+                      (member, x, arr) =>
+                        `${
+                          member.user
+                            ? member.user.username
+                            : 'Username not found'
+                        }${x < arr.length - 1 ? ', ' : ''}`
+                    )
+                : [],
+              participants: item.members
+                ? item.members
+                    .filter((member) => member.role === 'participant')
+                    .map(
+                      (member, x, arr) =>
+                        `${
+                          member.user
+                            ? member.user.username
+                            : 'Username not found'
+                        }${x < arr.length - 1 ? ', ' : ''}`
+                    )
+                : [],
+              sinceUpdated: timeDiff(item.updatedAt),
+            };
+
+            let notificationCount = 0;
+            if (listType === 'private') {
+              if (notifications.length > 0) {
+                notifications.forEach((ntf) => {
+                  if (
+                    ntf.resourceId === item._id ||
+                    ntf.parentResource === item._id
+                  ) {
+                    notificationCount += 1;
+                  }
+                });
+              }
+              details.entryCode = item.entryCode;
+            } else if (item.creator) {
+              details.creator = item.creator.username;
             }
-            details.entryCode = item.entryCode;
-          } else if (item.creator) {
-            details.creator = item.creator.username;
-          }
-          return (
-            <div
-              className={classes.ContentBox}
-              key={item._id}
-              style={formattedCustomStyles.contentbox}
-            >
-              <SelectableContentBox
-                title={item.name}
-                link={
-                  linkPath !== null
-                    ? `${linkPath}${item._id}${linkSuffix}`
-                    : null
-                }
+            return (
+              <div
+                className={classes.ContentBox}
                 key={item._id}
-                id={item._id}
-                isChecked={selectedIds.includes(item._id)}
-                onSelect={handleSelectOne}
-                notifications={notificationCount}
-                roomType={
-                  item && item.tabs
-                    ? item.tabs.map((tab) => tab.tabType)
-                    : item.tabTypes
-                }
-                locked={item.privacySetting === 'private'}
-                details={details}
-                listType={listType}
-                customIcons={icons}
-                resource={resource}
-                customStyle={item.customStyle}
+                style={formattedCustomStyles.contentbox}
               >
-                {item.description}
-              </SelectableContentBox>
-            </div>
-          );
-        }
-        return null;
-      })}
+                <SelectableContentBox
+                  title={item.name}
+                  link={
+                    linkPath !== null
+                      ? `${linkPath}${item._id}${linkSuffix}`
+                      : null
+                  }
+                  key={item._id}
+                  id={item._id}
+                  isChecked={selectedIds.includes(item._id)}
+                  onSelect={handleSelectOne}
+                  notifications={notificationCount}
+                  roomType={
+                    item && item.tabs
+                      ? item.tabs.map((tab) => tab.tabType)
+                      : item.tabTypes
+                  }
+                  locked={item.privacySetting === 'private'}
+                  details={details}
+                  listType={listType}
+                  customIcons={icons}
+                  resource={resource}
+                  customStyle={item.customStyle}
+                >
+                  {item.description}
+                </SelectableContentBox>
+              </div>
+            );
+          }
+          return null;
+        })}
+      </div>
     </div>
   );
 };
