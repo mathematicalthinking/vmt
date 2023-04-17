@@ -7,8 +7,6 @@
 }
 
 .Container {
-  min-width: 100%;
-  /* min-width: 540px; */
   position: relative;
   display: flex;
   padding: 5px;
@@ -20,7 +18,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 600px;
 }
 
 .SubContainer {
@@ -51,7 +48,10 @@
 
 .Container:hover {
   box-shadow: lightShadow;
-  font-weight: 500;
+}
+
+.SubContainer:hover .Title {
+  font-weight: 600;
 }
 
 .Title {
@@ -91,6 +91,13 @@
 .Expanded {
   margin-top: 5px;
   padding: 10px;
+}
+
+.DetailsTitle {
+  font-weight: 500;
+  margin-right: 5px;
+  /* width: 90px; */
+  display: inline-block;
 }
 
 .Icons {

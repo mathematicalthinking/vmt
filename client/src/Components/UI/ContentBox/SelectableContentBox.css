@@ -7,7 +7,7 @@
 }
 
 .Container {
-  min-width: 100%;
+  /* min-width: 100%; */
   /* min-width: 32vw; */
   position: relative;
   display: flex;
@@ -65,6 +65,7 @@
   text-overflow: ellipsis;
   letter-spacing: 0.5px;
   display: block;
+  padding: 8px 20px 8px 16px;
 }
 
 .Expand {
@@ -91,24 +92,30 @@
 .Expanded {
   margin-top: 5px;
   padding: 10px;
-  display: flex;
-  flex-wrap: wrap;
+  /* display: flex;
+  flex-wrap: wrap; */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
+  grid-gap: 4px 1.5rem;
 }
 
 .ExpandedItemContainer {
-  width: 100%;
+  /* width: 100%; */
 }
 
 .DetailsTitle {
   font-weight: 500;
-  /* margin-right: 5px; */
-  width: 90px;
+  margin-right: 5px;
+  /* width: 90px; */
   display: inline-block;
 }
 
 .Facilitators {
   display: flex;
   flex-wrap: wrap;
+}
+
+.EntryCode {
 }
 
 .FacilitatorsList {
@@ -151,5 +158,5 @@
 
 .TitleLink:hover {
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
 }
