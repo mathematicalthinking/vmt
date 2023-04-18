@@ -161,7 +161,9 @@ module.exports = {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
-    const courses = await db.Course.aggregate(aggregationPipeline);
+    const courses = await db.Course.aggregate(aggregationPipeline).allowDiskUse(
+      true
+    );
     return courses;
   },
 

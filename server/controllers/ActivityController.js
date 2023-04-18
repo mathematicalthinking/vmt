@@ -138,7 +138,9 @@ module.exports = {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
-    const activities = await db.Activity.aggregate(aggregationPipeline);
+    const activities = await db.Activity.aggregate(
+      aggregationPipeline
+    ).allowDiskUse(true);
     return activities;
   },
 
