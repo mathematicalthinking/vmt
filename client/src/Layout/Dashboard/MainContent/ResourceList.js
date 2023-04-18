@@ -12,7 +12,7 @@ import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
 import { Button, BigModal, Modal, SortUI, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
 import { updateRoom, archiveRooms } from 'store/actions';
-import { STATUS } from 'constants.js';
+import { GOOGLE_ICONS, STATUS } from 'constants.js';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 import classes from './resourceList.css';
@@ -161,13 +161,12 @@ const ResourceList = ({
     },
     icon: (
       <ToolTip text="Archive" delay={600}>
-        <span
-          className={`material-symbols-outlined ${classes.CustomIcon}`}
-          data-testid="Archive"
-          style={{ fontSize: '23px' }}
-        >
-          input
-        </span>
+        {GOOGLE_ICONS(
+          'archive',
+          [classes.CustomIcon],
+          { fontSize: '23px' },
+          { 'data-testid': 'Archive' }
+        )}
       </ToolTip>
     ),
   };
@@ -183,9 +182,7 @@ const ResourceList = ({
       // icon: <i className="fas fa-external-link-alt" />,
       icon: (
         <ToolTip text="Preview" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            open_in_new
-          </span>
+          {GOOGLE_ICONS('preview', [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -197,9 +194,7 @@ const ResourceList = ({
       },
       icon: (
         <ToolTip text="Replayer" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            replay
-          </span>
+          {GOOGLE_ICONS('replayer', [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -212,9 +207,7 @@ const ResourceList = ({
       },
       icon: (
         <ToolTip text="Archive" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            input
-          </span>
+          {GOOGLE_ICONS('archive', [classes.CustomIcon])}
         </ToolTip>
       ),
     },

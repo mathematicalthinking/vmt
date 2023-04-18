@@ -17,7 +17,7 @@ import {
 } from 'utils';
 import { addUserRoleToResource } from 'store/utils';
 import { updateRoom, archiveRooms, restoreArchivedRoom } from 'store/actions';
-import { STATUS } from 'constants.js';
+import { GOOGLE_ICONS, STATUS } from 'constants.js';
 import NewResource from 'Containers/Create/NewResource/NewResource';
 
 import classes from './courseRooms.css';
@@ -130,13 +130,9 @@ const CourseRooms = (props) => {
         e.preventDefault();
         goToRoomPreview(id);
       },
-      // icon: <i className="fas fa-external-link-alt" />,
       icon: (
         <ToolTip text="Preview" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            preview
-            {/* gallery_thumbnail */}
-          </span>
+          {GOOGLE_ICONS('preview', [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -148,9 +144,7 @@ const CourseRooms = (props) => {
       },
       icon: (
         <ToolTip text="Replayer" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            autoplay
-          </span>
+          {GOOGLE_ICONS('replayer', [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -167,28 +161,12 @@ const CourseRooms = (props) => {
       },
       generateIcon: (id) => {
         const currRoom = rooms[id];
-
-        const toDisplay = {
-          text: `${currRoom.status === 'default' ? 'Archive' : 'Unarchive'}`,
-          icon:
-            currRoom.status === 'default' ? (
-              <span
-                className={`material-symbols-outlined ${classes.CustomIcon}`}
-              >
-                archive
-              </span>
-            ) : (
-              <span
-                className={`material-symbols-outlined ${classes.CustomIcon}`}
-              >
-                unarchive
-              </span>
-            ),
-        };
-
+        const toDisplay = `${
+          currRoom.status === 'default' ? 'Archive' : 'Unarchive'
+        }`;
         return (
-          <ToolTip text={toDisplay.text} delay={600}>
-            <span>{toDisplay.icon}</span>
+          <ToolTip text={toDisplay} delay={600}>
+            {GOOGLE_ICONS(toDisplay, [classes.CustomIcon])}
           </ToolTip>
         );
       },
@@ -215,13 +193,11 @@ const CourseRooms = (props) => {
 
       return (
         <ToolTip text="Archive" delay={600}>
-          <span
-            className={`material-symbols-outlined ${classes.CustomIcon} ${classes.SelectActionsIcon}`}
-            data-testid="Archive"
-            style={style}
-          >
-            archive
-          </span>
+          {GOOGLE_ICONS(
+            'archive',
+            [classes.CustomIcon, classes.SelectActionsIcon],
+            style
+          )}
         </ToolTip>
       );
     },
@@ -246,13 +222,11 @@ const CourseRooms = (props) => {
       const style = { fontWeight, cursor };
       return (
         <ToolTip text="Unarchive" delay={600}>
-          <span
-            className={`material-symbols-outlined ${classes.CustomIcon} ${classes.SelectActionsIcon}`}
-            data-testid="Archive"
-            style={style}
-          >
-            unarchive
-          </span>
+          {GOOGLE_ICONS(
+            'unarchive',
+            [classes.CustomIcon, classes.SelectActionsIcon],
+            style
+          )}
         </ToolTip>
       );
     },
