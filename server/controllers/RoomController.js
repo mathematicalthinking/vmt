@@ -68,13 +68,17 @@ module.exports = {
     let queryFcn;
     if (Array.isArray(id)) {
       const queryTimes = params.lastQueryTimes || {};
-      queryFcn = () =>
-        db.Room.find({
-          $or: id.map((oneId) => ({
-            _id: oneId,
-            updatedAt: { $gt: new Date(queryTimes[oneId] || 0) },
-          })),
-        });
+      // handle no ids case separately because $or doesn't accept an empty array
+      queryFcn =
+        id.length === 0
+          ? () => db.Room.find({ _id: { $in: [] } })
+          : () =>
+              db.Room.find({
+                $or: id.map((oneId) => ({
+                  _id: oneId,
+                  updatedAt: { $gt: new Date(queryTimes[oneId] || 0) },
+                })),
+              });
     } else {
       queryFcn = () => db.Room.findById(id);
     }

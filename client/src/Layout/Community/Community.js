@@ -103,22 +103,32 @@ class Community extends Component {
               </div>
             </InfoBox>
             {resource !== 'courses' ? (
-              <InfoBox title="Room Type" icon={<i className="fas fa-filter" />}>
-                <div className={classes.FilterOpts}>
-                  <RadioBtn
-                    data-testid="all-roomType-filter"
-                    check={() => toggleFilter('all-roomType')}
-                    checked={filters.roomType === 'all'}
-                    name="All-roomType"
-                  >
-                    All
-                  </RadioBtn>
-                  <TabTypes.RadioButtons
-                    onClick={toggleFilter}
-                    checked={filters.roomType}
-                  />
+              <div className={classes.RoomTypeLoadMoreContainer}>
+                <InfoBox
+                  title="Room Type"
+                  icon={<i className="fas fa-filter" />}
+                >
+                  <div className={classes.FilterOpts}>
+                    <RadioBtn
+                      data-testid="all-roomType-filter"
+                      check={() => toggleFilter('all-roomType')}
+                      checked={filters.roomType === 'all'}
+                      name="All-roomType"
+                    >
+                      All
+                    </RadioBtn>
+                    <TabTypes.RadioButtons
+                      onClick={toggleFilter}
+                      checked={filters.roomType}
+                    />
+                  </div>
+                </InfoBox>
+                <div className={classes.LoadMore}>
+                  <Button m={20} disabled={!moreAvailable} click={setSkip}>
+                    load more results
+                  </Button>
                 </div>
-              </InfoBox>
+              </div>
             ) : null}
           </div>
         </div>
@@ -147,11 +157,6 @@ class Community extends Component {
                 linkSuffix={linkSuffix}
                 listType="public"
               />
-              <div className={classes.LoadMore}>
-                <Button m={20} disabled={!moreAvailable} click={setSkip}>
-                  load more results
-                </Button>
-              </div>
             </Fragment>
           )}
         </div>

@@ -1,0 +1,56 @@
+.CourseRoomsContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.CreateRoom {
+  margin-bottom: 24px;
+}
+
+.Filters {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+}
+
+.Filters > * {
+  margin-right: 12px;
+}
+
+.FilterOpts {
+  padding-left: 12px;
+  display: flex;
+  /* justify-content: space-between; */
+  /* flex: 1; */
+}
+
+.FilterOpts > * {
+  margin-right: 8px;
+}
+
+.SortUI {
+  max-width: 573px;
+}
+
+.RoomsListContainer {
+  width: 1000px;
+}
+
+.CustomIcon {
+  background-color: inherit;
+  font-size: 24px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+.CustomIcon:hover {
+  cursor: pointer;
+  font-size: 25px;
+}
+
+.SelectActionsIcon {
+  font-size: 24px;
+  color: #5e5e5e;
+}
