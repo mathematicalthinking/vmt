@@ -10,7 +10,6 @@
   font-size: 20px;
   flex-grow: 1;
   margin: 0;
-  min-width: 275px;
 }
 
 .ResourceHeader {
@@ -56,7 +55,7 @@
 }
 
 .Select {
-  margin: 0.5rem 0;
+  margin: .5rem 0;
   font-weight: normal !important; /* !important to be normal font weight here */
 }
 
@@ -67,8 +66,7 @@
   z-index: 350; /* Content box has z-index of 300 */
 }
 
-.SortSelection,
-.FilterSelection {
+.SortSelection, .FilterSelection {
   z-index: 350;
 }
 

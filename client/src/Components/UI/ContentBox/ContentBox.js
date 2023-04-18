@@ -115,45 +115,27 @@ class ContentBox extends PureComponent {
             <div className={classes.Expanded}>
               {details.facilitators && details.facilitators.length > 0 ? (
                 <div>
-                  <span className={classes.DetailsTitle}>Facilitators: </span>
+                  Facilitators:{' '}
                   {details.facilitators.map((facilitator) => facilitator)}
                 </div>
               ) : null}
               {details.sinceUpdated ? (
-                <div>
-                  <span className={classes.DetailsTitle}>Updated: </span>
-                  {details.sinceUpdated}
-                </div>
+                <div>Updated: {details.sinceUpdated}</div>
               ) : null}
               {details.createdAt ? (
-                <div>
-                  <span className={classes.DetailsTitle}>Created: </span>
-                  {details.createdAt}
-                </div>
+                <div>Created: {details.createdAt}</div>
               ) : null}
-              {details.dueDate ? (
-                <div>
-                  <span className={classes.DetailsTitle}>Due Date: </span>
-                  {details.dueDate}
-                </div>
-              ) : null}
+              {details.dueDate ? <div>Due Date: {details.dueDate}</div> : null}
               {details.creator ? `Creator: ${details.creator}` : null}
               {details.entryCode ? (
-                <div>
-                  <span className={classes.DetailsTitle}>Entry Code: </span>
-                  {details.entryCode}
-                </div>
+                <div>Entry Code: {details.entryCode}</div>
               ) : null}
               {details.description ? (
-                <div>
-                  <span className={classes.DetailsTitle}>Description: </span>
-                  {details.description}
-                </div>
+                <div>Description: {details.description}</div>
               ) : null}
               {tabTypes && tabTypes.length ? (
                 <div className={classes.TabTypes}>
-                  <span className={classes.DetailsTitle}>{typeKeyword}: </span>
-                  {tabTypes}
+                  {typeKeyword}: {tabTypes}
                 </div>
               ) : null}
             </div>
@@ -181,8 +163,7 @@ class ContentBox extends PureComponent {
     );
 
     return (
-      // <div style={{ display: 'flex' }}>
-      <React.Fragment>
+      <div style={{ display: 'flex' }}>
         {selectable && (
           <Checkbox
             change={onSelect}
@@ -194,8 +175,7 @@ class ContentBox extends PureComponent {
         )}
 
         {parentElement}
-        {/* </div> */}
-      </React.Fragment>
+      </div>
     );
   }
 }

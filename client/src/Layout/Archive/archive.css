@@ -52,16 +52,10 @@
   display: flex;
   flex-flow: row wrap;
   align-items: center;
-  margin-bottom: 5px;
 }
 
 .Filters > * {
   margin-right: 12px;
-}
-
-.TimePeriodLoadMoreContainer {
-  display: flex;
-  flex-wrap: wrap;
 }
 
 .FilterIcon {

@@ -22,7 +22,6 @@ const SelectableContentBox = (props) => {
     onSelect,
     customIcons,
     resource,
-    customStyle,
   } = props;
 
   const history = useHistory();
@@ -55,11 +54,7 @@ const SelectableContentBox = (props) => {
       <div
         to={link}
         className={classes.Container}
-        style={{
-          height: expanded ? 150 : 50,
-          cursor: 'default',
-          ...customStyle,
-        }}
+        style={{ height: expanded ? 150 : 50, cursor: 'default' }}
         data-testid={`SelectableContentBox-container-${title}`}
       >
         <div
@@ -111,7 +106,7 @@ const SelectableContentBox = (props) => {
                     style={{ margin: '0 .5rem', cursor: 'pointer' }}
                     data-testid={`${icon.title}-button-${id}`}
                   >
-                    {icon.generateIcon ? icon.generateIcon(id) : icon.icon}
+                    {icon.icon}
                   </div>
                 ))}
             </div>
@@ -145,19 +140,6 @@ const SelectableContentBox = (props) => {
                     ))}
                   </div>
                 ) : null}
-                {details.participants && details.participants.length > 0 ? (
-                  <div className={classes.Facilitators}>
-                    <span className={classes.DetailsTitle}>Participants: </span>
-                    {details.participants.map((participant) => (
-                      <span
-                        key={`${participant}-${id}`}
-                        className={classes.FacilitatorsList}
-                      >
-                        {participant}{' '}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
                 {details.sinceUpdated ? (
                   <div className={classes.ExpandedItemContainer}>
                     <span className={classes.DetailsTitle}>Updated: </span>
@@ -177,6 +159,12 @@ const SelectableContentBox = (props) => {
                   </div>
                 ) : null}
                 {details.creator ? `Creator: ${details.creator}` : null}
+                {details.entryCode ? (
+                  <div className={classes.ExpandedItemContainer}>
+                    <span className={classes.DetailsTitle}>Entry Code: </span>
+                    {details.entryCode}
+                  </div>
+                ) : null}
                 {details.description ? (
                   <div className={classes.ExpandedItemContainer}>
                     <span className={classes.DetailsTitle}>Description: </span>
@@ -184,21 +172,11 @@ const SelectableContentBox = (props) => {
                   </div>
                 ) : null}
                 {tabTypesText && tabTypesText.length ? (
-                  <div
-                    className={`${classes.TabTypes} ${classes.ExpandedItemContainer}`}
-                  >
+                  <div className={classes.TabTypes}>
                     <span className={classes.DetailsTitle}>
                       {typeKeyword}:{' '}
                     </span>
                     {tabTypesText}
-                  </div>
-                ) : null}
-                {details.entryCode ? (
-                  <div className={classes.ExpandedItemContainer}>
-                    <span className={classes.DetailsTitle}>Entry Code: </span>
-                    <span className={classes.EntryCode}>
-                      {details.entryCode}
-                    </span>
                   </div>
                 ) : null}
               </div>
@@ -220,7 +198,6 @@ SelectableContentBox.propTypes = {
   locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({
     facilitators: PropTypes.arrayOf(PropTypes.string),
-    participants: PropTypes.arrayOf(PropTypes.string),
     sinceUpdated: PropTypes.string,
     createdAt: PropTypes.string,
     dueDate: PropTypes.string,
@@ -230,16 +207,8 @@ SelectableContentBox.propTypes = {
   }).isRequired,
   isChecked: PropTypes.bool,
   onSelect: PropTypes.func.isRequired,
-  customIcons: PropTypes.arrayOf(
-    PropTypes.shape({
-      title: PropTypes.string,
-      onClick: PropTypes.func,
-      icon: PropTypes.node,
-      generateIcon: PropTypes.func,
-    })
-  ),
+  customIcons: PropTypes.arrayOf(PropTypes.shape({})),
   resource: PropTypes.string,
-  customStyle: PropTypes.shape({}),
 };
 
 SelectableContentBox.defaultProps = {
@@ -250,7 +219,6 @@ SelectableContentBox.defaultProps = {
   isChecked: false,
   customIcons: [],
   resource: null,
-  customStyle: null,
 };
 
 export default SelectableContentBox;

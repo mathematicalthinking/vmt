@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import find from 'lodash/find';
 import { API, getUserNotifications } from 'utils';
-import { CourseRooms } from 'Layout';
 import CourseMonitor from './Monitoring/CourseMonitor';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
@@ -409,12 +408,7 @@ class Course extends Component {
       // }
 
       let mainContent;
-      if (
-        resource === 'rooms' &&
-        (course.myRole === 'facilitator' || user.inAdminMode)
-      ) {
-        mainContent = <CourseRooms courseId={course._id} userId={user._id} />;
-      } else if (resource === 'rooms' || resource === 'activities') {
+      if (resource === 'rooms' || resource === 'activities') {
         mainContent = (
           <DashboardContent
             // userResources={myRooms || course[resource] || []}
@@ -464,7 +458,6 @@ class Course extends Component {
         ).length,
         activities: course.activities.length,
         rooms: course.rooms.length,
-        // ['archived rooms']: course.archive.rooms.length,
         privacy: (
           <Error
             error={updateFail && updateKeys.indexOf('privacySetting') > -1}

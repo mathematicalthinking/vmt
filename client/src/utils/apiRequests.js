@@ -204,8 +204,4 @@ export default {
   archiveRooms: (ids) => {
     return api.put(`/api/archiveRooms`, { ids });
   },
-
-  getAllCourseRooms: (id) => {
-    return api.get(`/api/getAllRooms/courses/${id}`);
-  },
 };

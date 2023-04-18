@@ -57,10 +57,6 @@
   margin-right: 12px;
 }
 
-.RoomTypeLoadMoreContainer{
-  display: flex;
-}
-
 .FilterIcon {
   font-size: 50px;
   color: darkGray;
