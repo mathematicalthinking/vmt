@@ -87,7 +87,7 @@ function RoomsMonitor({
     // Create a new array of refs when component mounts
     const newDivs = Object.keys(populatedRooms).map(() => React.createRef());
     setDivRefs(newDivs);
-  }, [populatedRooms.length]);
+  }, [Object.keys(populatedRooms).length]);
 
   // Whenever the visibility of divs change, the callback on InsersectionObserver gets called, but ONLY WITH
   // THE DIVS THAT CHANGED VISIBILITY. We use the visibilityRef to keep track of tje visibility of all the divs that can

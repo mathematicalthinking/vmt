@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import PropTypes from 'prop-types';
-import pick from 'lodash/pick';
-import pickBy from 'lodash/pickBy';
+import _pick from 'lodash/pick';
+import _pickBy from 'lodash/pickBy';
+import _keyBy from 'lodash/keyBy';
 import { ToggleGroup } from 'Components';
 import { addUserRoleToResource } from 'store/utils';
 import { usePopulatedRooms, useUIState } from 'utils';
@@ -64,18 +65,8 @@ function MonitoringView({ userResources, user, notifications }) {
     return result;
   };
 
-  const _minimalRooms = (rooms) => {
-    return rooms.reduce((acc, room) => {
-      const { _id, name, updatedAt, createdAt, currentMembers, members } = room;
-      return {
-        ...acc,
-        [_id]: { _id, name, updatedAt, createdAt, currentMembers, members },
-      };
-    }, {});
-  };
-
   const _initialVisibleRooms = (selectedRooms) => {
-    const selectedIds = Object.keys(pickBy(selectedRooms));
+    const selectedIds = Object.keys(_pickBy(selectedRooms));
     return selectedIds.slice(0, MINIMAL_ROOMS);
   };
 
@@ -95,7 +86,7 @@ function MonitoringView({ userResources, user, notifications }) {
     _initialVisibleRooms(selections)
   );
   const populatedRooms = usePopulatedRooms(visibleIds, false, {
-    initialCache: _minimalRooms(userResources),
+    initialCache: _keyBy(userResources, '_id'),
     refetchInterval: 10000,
   });
 
@@ -107,13 +98,11 @@ function MonitoringView({ userResources, user, notifications }) {
     setUIState({ storedSelections: selections });
   }, [selections]);
 
-  if (populatedRooms.isError) return <div>There was an error</div>;
-
   React.useEffect(() => {
     if (viewOrSelect === constants.SELECT) setVisibleIds(allIds);
   }, [viewOrSelect]);
 
-  return (
+  return !populatedRooms.isError ? (
     <div className={classes.Container}>
       <div className={classes.TogglesContainer}>
         <ToggleGroup
@@ -138,15 +127,17 @@ function MonitoringView({ userResources, user, notifications }) {
       ) : (
         <RoomsMonitor
           context="monitoring-rooms"
-          populatedRooms={pick(
+          populatedRooms={_pick(
             populatedRooms.data,
-            Object.keys(pickBy(selections))
+            Object.keys(_pickBy(selections))
           )}
           onVisible={setVisibleIds}
           isLoading={populatedRooms.isFetching ? visibleIds : []}
         />
       )}
     </div>
+  ) : (
+    <div>There was an error</div>
   );
 }
 
