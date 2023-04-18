@@ -3,11 +3,10 @@ import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
-import { API, useAppModal } from 'utils';
+import { API, useAppModal, GOOGLE_ICONS, getGoogleIcons } from 'utils';
 import { Button, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
 import { restoreArchivedRoom } from 'store/actions';
-import { GOOGLE_ICONS } from 'constants.js';
 import classes from './Archive.css';
 
 const SKIP_VALUE = 20;
@@ -219,7 +218,7 @@ const Archive = () => {
 
       return (
         <ToolTip text="Unarchive" delay={600}>
-          {GOOGLE_ICONS('unarchive', [classes.CustomIcon], style)}
+          {getGoogleIcons(GOOGLE_ICONS.UNARCHIVE, [classes.CustomIcon], style)}
         </ToolTip>
       );
     },
@@ -297,7 +296,7 @@ const Archive = () => {
       // icon: <i className="fas fa-external-link-alt" />,
       icon: (
         <ToolTip text="Preview" delay={600}>
-          {GOOGLE_ICONS('preview', [classes.CustomIcon])}
+          {getGoogleIcons(GOOGLE_ICONS.PREVIEW, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -309,7 +308,7 @@ const Archive = () => {
       },
       icon: (
         <ToolTip text="Replayer" delay={600}>
-          {GOOGLE_ICONS('replayer', [classes.CustomIcon])}
+          {getGoogleIcons(GOOGLE_ICONS.REPLAYER, [classes.CustomIcon])}
         </ToolTip>
       ),
     },

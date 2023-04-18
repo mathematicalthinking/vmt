@@ -12,7 +12,8 @@ import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
 import { Button, BigModal, Modal, SortUI, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
 import { updateRoom, archiveRooms } from 'store/actions';
-import { GOOGLE_ICONS, STATUS } from 'constants.js';
+import { STATUS } from 'constants.js';
+import { GOOGLE_ICONS, getGoogleIcons } from 'utils';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 import classes from './resourceList.css';
@@ -161,8 +162,8 @@ const ResourceList = ({
     },
     icon: (
       <ToolTip text="Archive" delay={600}>
-        {GOOGLE_ICONS(
-          'archive',
+        {getGoogleIcons(
+          GOOGLE_ICONS.ARCHIVE,
           [classes.CustomIcon],
           { fontSize: '23px' },
           { 'data-testid': 'Archive' }
@@ -182,7 +183,7 @@ const ResourceList = ({
       // icon: <i className="fas fa-external-link-alt" />,
       icon: (
         <ToolTip text="Preview" delay={600}>
-          {GOOGLE_ICONS('preview', [classes.CustomIcon])}
+          {getGoogleIcons(GOOGLE_ICONS.PREVIEW, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -194,7 +195,7 @@ const ResourceList = ({
       },
       icon: (
         <ToolTip text="Replayer" delay={600}>
-          {GOOGLE_ICONS('replayer', [classes.CustomIcon])}
+          {getGoogleIcons(GOOGLE_ICONS.REPLAYER, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -207,7 +208,7 @@ const ResourceList = ({
       },
       icon: (
         <ToolTip text="Archive" delay={600}>
-          {GOOGLE_ICONS('archive', [classes.CustomIcon])}
+          {getGoogleIcons(GOOGLE_ICONS.ARCHIVE, [classes.CustomIcon])}
         </ToolTip>
       ),
     },

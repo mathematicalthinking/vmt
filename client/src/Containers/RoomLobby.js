@@ -34,7 +34,8 @@ import {
   updateUser,
 } from 'store/actions';
 import { getUserNotifications, getResourceTabTypes } from 'utils';
-import { GOOGLE_ICONS, STATUS } from 'constants.js';
+import { STATUS } from 'constants.js';
+import { GOOGLE_ICONS, getGoogleIcons } from 'utils';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
@@ -596,8 +597,8 @@ class Room extends Component {
                       }}
                     >
                       <ToolTip text="Replayer" delay={600}>
-                        {GOOGLE_ICONS(
-                          'replayer',
+                        {getGoogleIcons(
+                          GOOGLE_ICONS.REPLAYER,
                           [classes.CustomIcon],
                           {
                             paddingRight: '0.5rem',
@@ -617,17 +618,22 @@ class Room extends Component {
                       </ToolTip>
                       {room.myRole === 'facilitator' && (
                         <ToolTip text="Archive This Room" delay={600}>
-                          {GOOGLE_ICONS('archive', [classes.CustomIcon], null, {
-                            'data-testid': 'archive-room',
-                            role: 'button',
-                            tabIndex: -1,
-                            onClick: !loading.loading
-                              ? this.showArchiveModal
-                              : null,
-                            onKeyDown: !loading.loading
-                              ? this.showArchiveModal
-                              : null,
-                          })}
+                          {getGoogleIcons(
+                            GOOGLE_ICONS.ARCHIVE,
+                            [classes.CustomIcon],
+                            null,
+                            {
+                              'data-testid': 'archive-room',
+                              role: 'button',
+                              tabIndex: -1,
+                              onClick: !loading.loading
+                                ? this.showArchiveModal
+                                : null,
+                              onKeyDown: !loading.loading
+                                ? this.showArchiveModal
+                                : null,
+                            }
+                          )}
                         </ToolTip>
                       )}
                     </div>

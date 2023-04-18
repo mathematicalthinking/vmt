@@ -17,8 +17,9 @@ import {
 } from 'utils';
 import { addUserRoleToResource } from 'store/utils';
 import { updateRoom, archiveRooms, restoreArchivedRoom } from 'store/actions';
-import { GOOGLE_ICONS, STATUS } from 'constants.js';
+import { STATUS } from 'constants.js';
 import NewResource from 'Containers/Create/NewResource/NewResource';
+import { getGoogleIcons, GOOGLE_ICONS } from 'utils';
 
 import classes from './courseRooms.css';
 
@@ -132,7 +133,7 @@ const CourseRooms = (props) => {
       },
       icon: (
         <ToolTip text="Preview" delay={600}>
-          {GOOGLE_ICONS('preview', [classes.CustomIcon])}
+          {getGoogleIcons(GOOGLE_ICONS.PREVIEW, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -144,7 +145,7 @@ const CourseRooms = (props) => {
       },
       icon: (
         <ToolTip text="Replayer" delay={600}>
-          {GOOGLE_ICONS('replayer', [classes.CustomIcon])}
+          {getGoogleIcons(GOOGLE_ICONS.REPLAYER, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -166,7 +167,9 @@ const CourseRooms = (props) => {
         }`;
         return (
           <ToolTip text={toDisplay} delay={600}>
-            {GOOGLE_ICONS(toDisplay, [classes.CustomIcon])}
+            {getGoogleIcons(GOOGLE_ICONS[toDisplay.toUpperCase()], [
+              classes.CustomIcon,
+            ])}
           </ToolTip>
         );
       },
@@ -193,8 +196,8 @@ const CourseRooms = (props) => {
 
       return (
         <ToolTip text="Archive" delay={600}>
-          {GOOGLE_ICONS(
-            'archive',
+          {getGoogleIcons(
+            GOOGLE_ICONS.ARCHIVE,
             [classes.CustomIcon, classes.SelectActionsIcon],
             style
           )}
@@ -222,8 +225,8 @@ const CourseRooms = (props) => {
       const style = { fontWeight, cursor };
       return (
         <ToolTip text="Unarchive" delay={600}>
-          {GOOGLE_ICONS(
-            'unarchive',
+          {getGoogleIcons(
+            GOOGLE_ICONS.UNARCHIVE,
             [classes.CustomIcon, classes.SelectActionsIcon],
             style
           )}
