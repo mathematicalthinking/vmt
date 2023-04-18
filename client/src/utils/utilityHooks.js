@@ -3,7 +3,6 @@ import React, { useContext } from 'react';
 import html2canvas from 'html2canvas';
 import debounce from 'lodash/debounce';
 import keyBy from 'lodash/keyBy';
-import isEqual from 'lodash/isEqual';
 import { useQuery, useQueryClient } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { API, buildLog } from 'utils';
@@ -488,6 +487,7 @@ export function useMergedData(
         ...updatedLastQueryTimes,
       });
     },
+    cacheTime: 24 * 60 * 60 * 1000, // one day
     ...options,
   });
   return { data: queryClient.getQueryData([key, 'mergedData']), ...others };
