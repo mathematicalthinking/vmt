@@ -18,7 +18,6 @@ const SelectableBoxList = (props) => {
   } = props;
 
   const [selectedIds, setSelectedIds] = useState([]);
-  const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [formattedCustomStyles, setFormattedCustomStyles] = useState({});
 
   useEffect(() => {
@@ -53,19 +52,12 @@ const SelectableBoxList = (props) => {
     setFormattedCustomStyles(getCustomElementStyle(customStyle));
   }, [customStyle]);
 
-  useEffect(() => {
-    // deselect all if length of items to display changes
-    handleDeselectAll();
-  }, [list.length]);
-
   const handleSelectAll = (event) => {
     const { checked } = event.target;
     if (!checked) {
-      setSelectAllChecked(false);
       setSelectedIds([]);
     } else {
       const ids = list.map((res) => res._id);
-      setSelectAllChecked(true);
       setSelectedIds(ids);
     }
   };
@@ -74,12 +66,8 @@ const SelectableBoxList = (props) => {
     const { checked } = event.target;
     if (checked) {
       setSelectedIds((prevState) => [...prevState, id]);
-      if (selectedIds.length + 1 === list.length) {
-        setSelectAllChecked(true);
-      } else setSelectAllChecked(false);
     } else {
       setSelectedIds((prevState) => [...prevState.filter((el) => id !== el)]);
-      setSelectAllChecked(false);
     }
   };
 
@@ -87,7 +75,6 @@ const SelectableBoxList = (props) => {
     // this function is passed up to the parent component
     // and can be used to deselect all checkboxes once
     // certain selectAction onClicks are triggered
-    setSelectAllChecked(false);
     setSelectedIds([]);
   };
 
@@ -120,12 +107,21 @@ const SelectableBoxList = (props) => {
     );
   }
 
+  const allSelected = () => {
+    return list.every((item) => selectedIds.includes(item._id));
+  };
+
+  const filterIds = () => {
+    const listedIds = list.map((item) => item._id);
+    return selectedIds.filter((id) => listedIds.includes(id));
+  };
+
   return (
     <div className={classes.Container} style={formattedCustomStyles.container}>
       <div className={classes.Header} style={formattedCustomStyles.header}>
         <Checkbox
           change={handleSelectAll}
-          checked={selectAllChecked}
+          checked={allSelected()}
           dataId="select-all"
           style={formattedCustomStyles.checkbox}
         >
@@ -138,10 +134,10 @@ const SelectableBoxList = (props) => {
           {selectActions.map((selectAction) => (
             <div
               onClick={(e) => {
-                selectAction.onClick(e, selectedIds, handleDeselectAll);
+                selectAction.onClick(e, filterIds(), handleDeselectAll);
               }}
               onKeyDown={(e) => {
-                selectAction.onClick(e, selectedIds, handleDeselectAll);
+                selectAction.onClick(e, filterIds(), handleDeselectAll);
               }}
               role="button"
               tabIndex={-1}
@@ -263,14 +259,12 @@ SelectableBoxList.propTypes = {
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   linkPath: PropTypes.string,
   linkSuffix: PropTypes.string,
-  selectedIds: PropTypes.arrayOf(PropTypes.string),
   selectActions: PropTypes.arrayOf(PropTypes.shape({})),
   icons: PropTypes.arrayOf(PropTypes.shape({})),
   customStyle: PropTypes.shape({}),
 };
 
 SelectableBoxList.defaultProps = {
-  selectedIds: [],
   selectActions: [],
   notifications: [],
   icons: null,

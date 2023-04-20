@@ -32,9 +32,9 @@ import {
   clearLoadingInfo,
   // populateRoom,
   updateUser,
+  archiveRooms,
 } from 'store/actions';
 import { getUserNotifications, getResourceTabTypes } from 'utils';
-import { STATUS } from 'constants.js';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
@@ -300,8 +300,8 @@ class Room extends Component {
   };
 
   archiveRoom = () => {
-    const { room, connectUpdateRoom, history } = this.props;
-    connectUpdateRoom(room._id, { ...room, status: STATUS.ARCHIVED });
+    const { room, connectArchiveRooms, history } = this.props;
+    connectArchiveRooms([room._id]);
     history.push(`/myVMT/rooms`);
   };
 
@@ -839,6 +839,7 @@ Room.propTypes = {
   connectClearLoadingInfo: PropTypes.func.isRequired,
   connectPopulateRoom: PropTypes.func.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
+  connectArchiveRooms: PropTypes.func.isRequired,
 };
 
 Room.defaultProps = {
@@ -866,6 +867,7 @@ export default connect(mapStateToProps, {
   connectClearError: clearError,
   connectClearNotification: clearNotification,
   connectUpdateRoom: updateRoom,
+  connectArchiveRooms: archiveRooms,
   connectGetRoom: getRoom,
   connectRemoveRoomMember: removeRoomMember,
   connectClearLoadingInfo: clearLoadingInfo,

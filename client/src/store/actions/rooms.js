@@ -351,14 +351,7 @@ export const createRoomFromActivity = (
 export const updateRoom = (id, body) => {
   return (dispatch, getState) => {
     const room = { ...getState().rooms.byId[id] };
-    if (body.status === STATUS.ARCHIVED) {
-      dispatch(addRoomToArchive(id));
-    }
-    if (
-      body.isTrashed ||
-      body.status === STATUS.TRASHED ||
-      body.status === STATUS.ARCHIVED
-    ) {
+    if (body.isTrashed || body.status === STATUS.TRASHED) {
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
@@ -366,7 +359,6 @@ export const updateRoom = (id, body) => {
       // remove room from course & activity (template) if needed
       if (room.course) {
         dispatch(removeCourseRoom(room.course, id));
-        dispatch(addRoomToCourseArchive(room.course, id));
       }
       if (room.activity) {
         dispatch(removeActivityRoom(room.activity, id));
@@ -385,33 +377,26 @@ export const updateRoom = (id, body) => {
         }
       }
     }
-    API.put('rooms', id, body)
-      .then()
-      .catch((e) => {
-        // eslint-disable-next-line no-console
-        console.log(e);
+    return API.put('rooms', id, body).catch((e) => {
+      // eslint-disable-next-line no-console
+      console.log(e);
 
-        if (
-          body.isTrashed ||
-          body.status === STATUS.TRASHED ||
-          body.status === STATUS.ARCHIVED
-        ) {
-          dispatch(addUserRooms([id]));
-          dispatch(createdRoom(room));
-          dispatch(updatedRoom(id, { ...body, status: STATUS.DEFAULT }));
-        }
-        const prevRoom = {};
-        const keys = Object.keys(body);
-        keys.forEach((key) => {
-          prevRoom[key] = room[key];
-        });
-        dispatch(updatedRoom(id, prevRoom));
-        dispatch(loading.updateFail('room', keys));
-        setTimeout(() => {
-          dispatch(loading.clearLoadingInfo());
-        }, 2000);
+      if (body.isTrashed || body.status === STATUS.TRASHED) {
+        dispatch(addUserRooms([id]));
+        dispatch(createdRoom(room));
+        dispatch(updatedRoom(id, { ...body, status: STATUS.DEFAULT }));
+      }
+      const prevRoom = {};
+      const keys = Object.keys(body);
+      keys.forEach((key) => {
+        prevRoom[key] = room[key];
       });
-    // API REQUEST
+      dispatch(updatedRoom(id, prevRoom));
+      dispatch(loading.updateFail('room', keys));
+      setTimeout(() => {
+        dispatch(loading.clearLoadingInfo());
+      }, 2000);
+    });
   };
 };
 
@@ -420,6 +405,7 @@ export const archiveRooms = (ids) => {
     ids.forEach((id) => {
       // remove room from course & activity (template) if needed
       const room = { ...getState().rooms.byId[id] };
+
       if (room.course) {
         dispatch(removeCourseRoom(room.course, id));
         dispatch(addRoomToCourseArchive(room.course, id));
@@ -427,19 +413,23 @@ export const archiveRooms = (ids) => {
       if (room.activity) {
         dispatch(removeActivityRoom(room.activity, id));
       }
-
       dispatch(addRoomToArchive(id));
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
     });
 
+    const promises = [];
     for (let i = 0; i < ids.length; i += 50) {
       const newIds = ids.slice(i, i + 50);
-      API.archiveRooms(newIds).catch((e) => {
-        // eslint-disable-next-line no-console
-        console.log(e);
-      });
+      promises.push(
+        API.archiveRooms(newIds).catch((e) => {
+          // eslint-disable-next-line no-console
+          console.log(e);
+        })
+      );
     }
+
+    return Promise.all(promises);
   };
 };
 
@@ -628,13 +618,13 @@ export const restoreArchivedRoom = (id) => {
       userId
     );
     // add room to store
-    dispatch(updateRoom(id, roomToUpdate));
+    return dispatch(updateRoom(id, roomToUpdate));
   };
 };
 
-const removeRoomFromArchive = (id) => {
+const removeRoomFromArchive = (roomIds) => {
   return {
-    type: actionTypes.REMOVE_ROOM_FROM_ARCHIVE,
-    id,
+    type: actionTypes.UNARCHIVE_USER_ROOM,
+    roomIds,
   };
 };

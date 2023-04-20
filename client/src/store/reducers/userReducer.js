@@ -96,15 +96,17 @@ const reducer = (state = initialState, action) => {
         rooms: state.rooms.filter((room) => room !== action.roomId),
       };
     }
-    case actionTypes.REMOVE_ROOM_FROM_ARCHIVE: {
-      const rooms = state.archive.rooms.filter((id) => id !== action.id);
+    case actionTypes.UNARCHIVE_USER_ROOM: {
+      const rooms = state.archive.rooms.filter(
+        (id) => !action.roomIds.includes(id)
+      );
       return {
         ...state,
         archive: {
           ...state.archive,
           rooms,
         },
-        rooms: [...state.rooms, action.id],
+        rooms: [...state.rooms, ...action.roomIds],
       };
     }
     case actionTypes.ADD_NOTIFICATION: {

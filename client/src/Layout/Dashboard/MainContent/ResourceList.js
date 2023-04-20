@@ -11,8 +11,7 @@ import {
 import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
 import { Button, BigModal, Modal, SortUI, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
-import { updateRoom, archiveRooms } from 'store/actions';
-import { STATUS } from 'constants.js';
+import { archiveRooms } from 'store/actions';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 import classes from './resourceList.css';
@@ -250,10 +249,7 @@ const ResourceList = ({
 
     const dispatchArchive = () => {
       if (singleResource) {
-        const rtnObj = {
-          status: STATUS.ARCHIVED,
-        };
-        dispatch(updateRoom(id, rtnObj));
+        dispatch(archiveRooms([id]));
       } else {
         dispatch(archiveRooms(id));
       }
