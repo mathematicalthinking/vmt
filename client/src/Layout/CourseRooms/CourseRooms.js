@@ -261,23 +261,18 @@ const CourseRooms = (props) => {
     // or display single name
     else res = rooms[id].name;
 
-    const dispatchArchive = () => {
-      if (singleResource) {
-        const rtnObj = {
-          status: STATUS.ARCHIVED,
-        };
-        dispatch(updateRoom(id, rtnObj));
-      } else {
-        dispatch(archiveRooms(id));
-      }
-    };
+    const dispatchArchive = () =>
+      singleResource
+        ? dispatch(archiveRooms([id]))
+        : dispatch(archiveRooms(id));
 
     const dispatchRestore = () => {
       if (singleResource) {
-        dispatch(restoreArchivedRoom(id));
-      } else {
-        id.forEach((resId) => dispatch(restoreArchivedRoom(resId)));
+        return dispatch(restoreArchivedRoom(id));
       }
+      return Promise.all(
+        id.map((resId) => dispatch(restoreArchivedRoom(resId)))
+      );
     };
 
     if (showArchive) {
@@ -291,13 +286,12 @@ const CourseRooms = (props) => {
             <Button
               data-testid="archive-resource"
               click={() => {
-                dispatchArchive();
-                setTimeout(() => {
+                dispatchArchive().then(() => {
                   fetchCourseRoomsFromDB();
                   if (typeof handleDeselectAll === 'function') {
                     handleDeselectAll();
                   }
-                }, 1500);
+                });
                 hideArchiveModal();
               }}
               m={5}
@@ -326,13 +320,12 @@ const CourseRooms = (props) => {
             <Button
               data-testid="archive-resource"
               click={() => {
-                dispatchRestore();
-                setTimeout(() => {
+                dispatchRestore().then(() => {
                   fetchCourseRoomsFromDB();
                   if (typeof handleDeselectAll === 'function') {
                     handleDeselectAll();
                   }
-                }, 1500);
+                });
                 hideUnarchiveModal();
               }}
               m={5}

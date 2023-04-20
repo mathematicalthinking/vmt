@@ -534,6 +534,7 @@ router.put('/archiveRooms', (req, res) => {
 
   const updatedReq = setResource(req, 'rooms');
 
+  // @TODO: Send all ids to mongo on archive / unarchive
   return Promise.all(
     ids.map((id) => {
       const newReq = setParamsId(updatedReq, id);
