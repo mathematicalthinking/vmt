@@ -19,3 +19,4 @@ export { default as amIAFacilitator } from './amIAFacilitator';
 export { default as addColors } from './addColors';
 export { default as hexToRGBA } from './hexToRGBA';
 export { default as dateAndTime } from './dateAndTime';
+export { GOOGLE_ICONS, getGoogleIcons } from './icons';

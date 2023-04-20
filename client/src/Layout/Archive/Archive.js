@@ -37,6 +37,32 @@ const Archive = (props) => {
 
   const toggleRoomFilter = (type) => toggleFilter(`room-${type}`);
 
+  const SelectableBoxListCustomStyles = {
+    container: {},
+    header: {
+      maxWidth: '575px',
+      height: '35px',
+    },
+    checkbox: {
+      padding: '10px',
+      marginRight: '2rem',
+      background: 'rgb(239, 243, 246)',
+      border: '1px solid #ddd',
+      fontWeight: '600',
+      fontSize: '1.1em',
+      borderRadius: '3px',
+    },
+    selectactions: {
+      background: 'rgb(239, 243, 246)',
+      border: '1px solid #ddd',
+    },
+    contentbox: '',
+    Archive: {
+      fontWeight: 'light',
+    },
+    Unrchive: '',
+  };
+
   return (
     <React.Fragment>
       {actionComponent}
@@ -222,6 +248,7 @@ const Archive = (props) => {
             selectable
             icons={icons}
             selectActions={selectActions}
+            customStyle={SelectableBoxListCustomStyles}
           />
         )}
         {/* </div> */}

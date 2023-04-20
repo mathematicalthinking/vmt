@@ -1,7 +1,4 @@
-// This file must be kept consistent with server/constants/status.js and server/constants/role.js
-
-export const GRAPH_HEIGHT = window.innerHeight - 400;
-
+// STATUS and ROLE must be kept consistent with server/constants/status.js and server/constants/role.js
 export const STATUS = {
   ARCHIVED: 'archived',
   TRASHED: 'trashed',
@@ -14,3 +11,5 @@ export const ROLE = {
   PARTICIPANT: 'participant',
   GUEST: 'guest',
 };
+
+export const GRAPH_HEIGHT = window.innerHeight - 400;
