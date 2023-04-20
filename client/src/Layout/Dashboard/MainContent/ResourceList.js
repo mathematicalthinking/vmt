@@ -7,6 +7,8 @@ import {
   timeFrames,
   amIAFacilitator,
   useUIState,
+  GOOGLE_ICONS, 
+  getGoogleIcons,
 } from 'utils';
 import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
 import { Button, BigModal, Modal, SortUI, ToolTip } from 'Components';
@@ -160,13 +162,12 @@ const ResourceList = ({
     },
     icon: (
       <ToolTip text="Archive" delay={600}>
-        <span
-          className={`material-symbols-outlined ${classes.CustomIcon}`}
-          data-testid="Archive"
-          style={{ fontSize: '23px' }}
-        >
-          input
-        </span>
+        {getGoogleIcons(
+          GOOGLE_ICONS.ARCHIVE,
+          [classes.CustomIcon],
+          { fontSize: '23px' },
+          { 'data-testid': 'Archive' }
+        )}
       </ToolTip>
     ),
   };
@@ -182,9 +183,7 @@ const ResourceList = ({
       // icon: <i className="fas fa-external-link-alt" />,
       icon: (
         <ToolTip text="Preview" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            open_in_new
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.PREVIEW, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -196,9 +195,7 @@ const ResourceList = ({
       },
       icon: (
         <ToolTip text="Replayer" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            replay
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.REPLAYER, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -211,9 +208,7 @@ const ResourceList = ({
       },
       icon: (
         <ToolTip text="Archive" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            input
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.ARCHIVE, [classes.CustomIcon])}
         </ToolTip>
       ),
     },

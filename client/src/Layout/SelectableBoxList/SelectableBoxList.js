@@ -219,7 +219,9 @@ const SelectableBoxList = (props) => {
                 <SelectableContentBox
                   title={item.name}
                   link={
-                    linkPath !== null
+                    // only allow default resources to be links
+                    // disallow clicking on archived rooms
+                    linkPath !== null && item.status === 'default'
                       ? `${linkPath}${item._id}${linkSuffix}`
                       : null
                   }

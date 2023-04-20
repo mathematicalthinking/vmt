@@ -34,7 +34,8 @@ import {
   updateUser,
   archiveRooms,
 } from 'store/actions';
-import { getUserNotifications, getResourceTabTypes } from 'utils';
+import { getUserNotifications, getResourceTabTypes, GOOGLE_ICONS, getGoogleIcons } from 'utils';
+import { STATUS } from 'constants.js';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
@@ -596,38 +597,43 @@ class Room extends Component {
                       }}
                     >
                       <ToolTip text="Replayer" delay={600}>
-                        <span
-                          // theme={loading.loading ? 'SmallCancel' : 'Small'}
-                          // m={10}
-                          data-testid="Replayer"
-                          onClick={!loading.loading ? this.goToReplayer : null}
-                          onKeyDown={
-                            !loading.loading ? this.goToReplayer : null
+                        {getGoogleIcons(
+                          GOOGLE_ICONS.REPLAYER,
+                          [classes.CustomIcon],
+                          {
+                            paddingRight: '0.5rem',
+                          },
+                          {
+                            'data-testid': 'Replayer',
+                            role: 'button',
+                            tabIndex: -1,
+                            onClick: !loading.loading
+                              ? this.goToReplayer
+                              : null,
+                            onKeyDown: !loading.loading
+                              ? this.goToReplayer
+                              : null,
                           }
-                          role="button"
-                          tabIndex={-1}
-                          className={`material-symbols-outlined ${classes.CustomIcon}`}
-                          style={{ paddingRight: '0.5rem' }}
-                        >
-                          replay
-                        </span>
+                        )}
                       </ToolTip>
                       {room.myRole === 'facilitator' && (
                         <ToolTip text="Archive This Room" delay={600}>
-                          <span
-                            data-testid="archive-room"
-                            onClick={
-                              !loading.loading ? this.showArchiveModal : null
+                          {getGoogleIcons(
+                            GOOGLE_ICONS.ARCHIVE,
+                            [classes.CustomIcon],
+                            null,
+                            {
+                              'data-testid': 'archive-room',
+                              role: 'button',
+                              tabIndex: -1,
+                              onClick: !loading.loading
+                                ? this.showArchiveModal
+                                : null,
+                              onKeyDown: !loading.loading
+                                ? this.showArchiveModal
+                                : null,
                             }
-                            onKeyDown={
-                              !loading.loading ? this.showArchiveModal : null
-                            }
-                            className={`material-symbols-outlined ${classes.CustomIcon}`}
-                            role="button"
-                            tabIndex={-1}
-                          >
-                            input
-                          </span>
+                          )}
                         </ToolTip>
                       )}
                     </div>
