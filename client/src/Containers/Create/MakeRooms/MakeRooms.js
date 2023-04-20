@@ -493,10 +493,7 @@ const MakeRooms = (props) => {
     <AssignRooms
       initialAliasMode={selectedAssignment.aliasMode || false}
       initialDueDate={selectedAssignment.dueDate || ''}
-      initialRoomName={
-        selectedAssignment.roomName ||
-        `${activity.name} (${dateAndTime.toDateString(new Date())})`
-      }
+      initialRoomName={`${activity.name}`}
       participantsPerRoom={participantsPerRoom}
       setParticipantsPerRoom={setPPR}
       assignmentMatrix={assignmentMatrix}
