@@ -178,10 +178,13 @@ const CourseRooms = (props) => {
 
   const archiveAllButton = {
     title: 'Archive',
-    onClick: (e, id, handleDeselectAll) => {
+    onClick: (e, selectedIds, handleDeselectAll) => {
       e.preventDefault();
-      if (!id.length) return;
-      handleArchive(id, true, handleDeselectAll);
+      if (!selectedIds.length) return;
+      const selectedIdsToArchive = selectedIds.filter(
+        (roomId) => rooms[roomId].status === 'default'
+      );
+      handleArchive(selectedIdsToArchive, true, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
       // embolden the archive icon style
@@ -208,10 +211,13 @@ const CourseRooms = (props) => {
 
   const unArchiveAllButton = {
     title: 'Unarchive',
-    onClick: (e, id, handleDeselectAll) => {
+    onClick: (e, selectedIds, handleDeselectAll) => {
       e.preventDefault();
-      if (!id.length) return;
-      handleArchive(id, false, handleDeselectAll);
+      if (!selectedIds.length) return;
+      const selectedIdsToUnarchive = selectedIds.filter(
+        (roomId) => rooms[roomId].status === 'archived'
+      );
+      handleArchive(selectedIdsToUnarchive, false, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
       // embolden the unarchive icon style
@@ -235,7 +241,7 @@ const CourseRooms = (props) => {
     },
   };
 
-  // Handles both Archive & Unarchive
+  // Handles both Archive (showArchive=true) & Unarchive (showArchive=false)
   const handleArchive = (id, showArchive, handleDeselectAll) => {
     let res;
     let msg = 'Are you sure you want to archive ';
