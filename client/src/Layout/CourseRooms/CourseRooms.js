@@ -180,10 +180,11 @@ const CourseRooms = (props) => {
     title: 'Archive',
     onClick: (e, selectedIds, handleDeselectAll) => {
       e.preventDefault();
-      if (!selectedIds.length) return;
       const selectedIdsToArchive = selectedIds.filter(
         (roomId) => rooms[roomId].status === 'default'
       );
+      // do nothing onClick if there's nothing to archive
+      if (!selectedIdsToArchive.length) return;
       handleArchive(selectedIdsToArchive, true, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
@@ -213,10 +214,10 @@ const CourseRooms = (props) => {
     title: 'Unarchive',
     onClick: (e, selectedIds, handleDeselectAll) => {
       e.preventDefault();
-      if (!selectedIds.length) return;
       const selectedIdsToUnarchive = selectedIds.filter(
         (roomId) => rooms[roomId].status === 'archived'
       );
+      if (!selectedIdsToUnarchive.length) return;
       handleArchive(selectedIdsToUnarchive, false, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
