@@ -622,9 +622,9 @@ export const restoreArchivedRoom = (id) => {
   };
 };
 
-const removeRoomFromArchive = (roomIds) => {
+const removeRoomFromArchive = (roomId) => {
   return {
     type: actionTypes.UNARCHIVE_USER_ROOM,
-    roomIds,
+    roomId,
   };
 };

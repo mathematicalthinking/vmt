@@ -97,16 +97,14 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.UNARCHIVE_USER_ROOM: {
-      const rooms = state.archive.rooms.filter(
-        (id) => !action.roomIds.includes(id)
-      );
+      const rooms = state.archive.rooms.filter((id) => id !== action.roomId);
       return {
         ...state,
         archive: {
           ...state.archive,
           rooms,
         },
-        rooms: [...state.rooms, ...action.roomIds],
+        rooms: [...state.rooms, action.roomId],
       };
     }
     case actionTypes.ADD_NOTIFICATION: {

@@ -180,10 +180,11 @@ const CourseRooms = (props) => {
     title: 'Archive',
     onClick: (e, selectedIds, handleDeselectAll) => {
       e.preventDefault();
-      if (!selectedIds.length) return;
       const selectedIdsToArchive = selectedIds.filter(
         (roomId) => rooms[roomId].status === 'default'
       );
+      // do nothing onClick if there's nothing to archive
+      if (!selectedIdsToArchive.length) return;
       handleArchive(selectedIdsToArchive, true, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
@@ -213,10 +214,10 @@ const CourseRooms = (props) => {
     title: 'Unarchive',
     onClick: (e, selectedIds, handleDeselectAll) => {
       e.preventDefault();
-      if (!selectedIds.length) return;
       const selectedIdsToUnarchive = selectedIds.filter(
         (roomId) => rooms[roomId].status === 'archived'
       );
+      if (!selectedIdsToUnarchive.length) return;
       handleArchive(selectedIdsToUnarchive, false, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
@@ -243,23 +244,28 @@ const CourseRooms = (props) => {
 
   // Handles both Archive (showArchive=true) & Unarchive (showArchive=false)
   const handleArchive = (id, showArchive, handleDeselectAll) => {
-    let res;
-    let msg = 'Are you sure you want to archive ';
-    if (!showArchive) msg = 'Are you sure you want to unarchive ';
+    let msgType = 'Archive';
+    let msgModifier = '';
+    let msgEnding;
+    if (!showArchive) {
+      msgType = 'Unarchive';
+    }
     let singleResource = true;
     if (Array.isArray(id)) {
       // display each name in list
       singleResource = false;
       // only dipslay first 5 resources names, otherwise total number
       if (id.length <= 5) {
-        res = getResourceNames(id).join(', ');
+        if (id.length === 1) msgModifier = 'the following room: ';
+        else msgModifier = `the following ${id.length} rooms:`;
+        msgEnding = getResourceNames(id).join(', ');
       } else {
-        res = `${id.length} rooms`;
-        msg += ' these ';
+        msgModifier = 'these ';
+        msgEnding = `${id.length} rooms`;
       }
     }
     // or display single name
-    else res = rooms[id].name;
+    else msgEnding = rooms[id].name;
 
     const dispatchArchive = () =>
       singleResource
@@ -270,6 +276,7 @@ const CourseRooms = (props) => {
       if (singleResource) {
         return dispatch(restoreArchivedRoom(id));
       }
+
       return Promise.all(
         id.map((resId) => dispatch(restoreArchivedRoom(resId)))
       );
@@ -279,8 +286,11 @@ const CourseRooms = (props) => {
       showArchiveModal(
         <div>
           <span>
-            {msg}
-            <span style={{ fontWeight: 'bolder' }}>{res}</span>?
+            <span style={{ fontWeight: 'bolder' }}>{`${msgType} `}</span>
+            {`${msgModifier} `}
+            <span style={{ fontWeight: 'bolder', display: 'inline-block' }}>
+              {`${msgEnding}`}
+            </span>
           </span>
           <div>
             <Button
@@ -313,8 +323,11 @@ const CourseRooms = (props) => {
       showUnarchiveModal(
         <div>
           <span>
-            {msg}
-            <span style={{ fontWeight: 'bolder' }}>{res}</span>?
+            <span style={{ fontWeight: 'bolder' }}>{`${msgType} `}</span>
+            {`${msgModifier} `}
+            <span style={{ fontWeight: 'bolder', display: 'inline-block' }}>
+              {`${msgEnding}`}
+            </span>
           </span>
           <div>
             <Button
