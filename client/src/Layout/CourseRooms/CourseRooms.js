@@ -276,6 +276,7 @@ const CourseRooms = (props) => {
       if (singleResource) {
         return dispatch(restoreArchivedRoom(id));
       }
+
       return Promise.all(
         id.map((resId) => dispatch(restoreArchivedRoom(resId)))
       );
