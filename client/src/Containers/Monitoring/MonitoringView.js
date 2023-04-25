@@ -86,7 +86,19 @@ function MonitoringView({ userResources, user, notifications }) {
     _initialVisibleRooms(selections)
   );
   const populatedRooms = usePopulatedRooms(visibleIds, false, {
-    initialCache: _keyBy(userResources, '_id'),
+    initialCache: _keyBy(
+      userResources.map((room) =>
+        _pick(room, [
+          '_id',
+          'name',
+          'createdAt',
+          'updateAt',
+          'currentMembers',
+          'members',
+        ])
+      ),
+      '_id'
+    ),
     refetchInterval: 10000,
   });
 
