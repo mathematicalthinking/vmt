@@ -410,7 +410,6 @@ class Course extends Component {
 
       let mainContent;
       if (
-        false &&
         resource === 'rooms' &&
         (course.myRole === 'facilitator' || user.inAdminMode)
       ) {

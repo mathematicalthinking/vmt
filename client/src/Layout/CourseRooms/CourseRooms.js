@@ -19,6 +19,7 @@ import { addUserRoleToResource } from 'store/utils';
 import { updateRoom, archiveRooms, restoreArchivedRoom } from 'store/actions';
 import { STATUS } from 'constants.js';
 import NewResource from 'Containers/Create/NewResource/NewResource';
+import { getGoogleIcons, GOOGLE_ICONS } from 'utils';
 
 import classes from './courseRooms.css';
 
@@ -130,13 +131,9 @@ const CourseRooms = (props) => {
         e.preventDefault();
         goToRoomPreview(id);
       },
-      // icon: <i className="fas fa-external-link-alt" />,
       icon: (
         <ToolTip text="Preview" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            preview
-            {/* gallery_thumbnail */}
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.PREVIEW, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -148,9 +145,7 @@ const CourseRooms = (props) => {
       },
       icon: (
         <ToolTip text="Replayer" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            autoplay
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.REPLAYER, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -167,28 +162,14 @@ const CourseRooms = (props) => {
       },
       generateIcon: (id) => {
         const currRoom = rooms[id];
-
-        const toDisplay = {
-          text: `${currRoom.status === 'default' ? 'Archive' : 'Unarchive'}`,
-          icon:
-            currRoom.status === 'default' ? (
-              <span
-                className={`material-symbols-outlined ${classes.CustomIcon}`}
-              >
-                archive
-              </span>
-            ) : (
-              <span
-                className={`material-symbols-outlined ${classes.CustomIcon}`}
-              >
-                unarchive
-              </span>
-            ),
-        };
-
+        const toDisplay = `${
+          currRoom.status === 'default' ? 'Archive' : 'Unarchive'
+        }`;
         return (
-          <ToolTip text={toDisplay.text} delay={600}>
-            <span>{toDisplay.icon}</span>
+          <ToolTip text={toDisplay} delay={600}>
+            {getGoogleIcons(GOOGLE_ICONS[toDisplay.toUpperCase()], [
+              classes.CustomIcon,
+            ])}
           </ToolTip>
         );
       },
@@ -197,10 +178,14 @@ const CourseRooms = (props) => {
 
   const archiveAllButton = {
     title: 'Archive',
-    onClick: (e, id, handleDeselectAll) => {
+    onClick: (e, selectedIds, handleDeselectAll) => {
       e.preventDefault();
-      if (!id.length) return;
-      handleArchive(id, true, handleDeselectAll);
+      const selectedIdsToArchive = selectedIds.filter(
+        (roomId) => rooms[roomId].status === 'default'
+      );
+      // do nothing onClick if there's nothing to archive
+      if (!selectedIdsToArchive.length) return;
+      handleArchive(selectedIdsToArchive, true, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
       // embolden the archive icon style
@@ -215,13 +200,11 @@ const CourseRooms = (props) => {
 
       return (
         <ToolTip text="Archive" delay={600}>
-          <span
-            className={`material-symbols-outlined ${classes.CustomIcon} ${classes.SelectActionsIcon}`}
-            data-testid="Archive"
-            style={style}
-          >
-            archive
-          </span>
+          {getGoogleIcons(
+            GOOGLE_ICONS.ARCHIVE,
+            [classes.CustomIcon, classes.SelectActionsIcon],
+            style
+          )}
         </ToolTip>
       );
     },
@@ -229,10 +212,13 @@ const CourseRooms = (props) => {
 
   const unArchiveAllButton = {
     title: 'Unarchive',
-    onClick: (e, id, handleDeselectAll) => {
+    onClick: (e, selectedIds, handleDeselectAll) => {
       e.preventDefault();
-      if (!id.length) return;
-      handleArchive(id, false, handleDeselectAll);
+      const selectedIdsToUnarchive = selectedIds.filter(
+        (roomId) => rooms[roomId].status === 'archived'
+      );
+      if (!selectedIdsToUnarchive.length) return;
+      handleArchive(selectedIdsToUnarchive, false, handleDeselectAll);
     },
     generateIcon: (selectedIds) => {
       // embolden the unarchive icon style
@@ -246,75 +232,76 @@ const CourseRooms = (props) => {
       const style = { fontWeight, cursor };
       return (
         <ToolTip text="Unarchive" delay={600}>
-          <span
-            className={`material-symbols-outlined ${classes.CustomIcon} ${classes.SelectActionsIcon}`}
-            data-testid="Archive"
-            style={style}
-          >
-            unarchive
-          </span>
+          {getGoogleIcons(
+            GOOGLE_ICONS.UNARCHIVE,
+            [classes.CustomIcon, classes.SelectActionsIcon],
+            style
+          )}
         </ToolTip>
       );
     },
   };
 
-  // Handles both Archive & Unarchive
+  // Handles both Archive (showArchive=true) & Unarchive (showArchive=false)
   const handleArchive = (id, showArchive, handleDeselectAll) => {
-    let res;
-    let msg = 'Are you sure you want to archive ';
-    if (!showArchive) msg = 'Are you sure you want to unarchive ';
+    let msgType = 'Archive';
+    let msgModifier = '';
+    let msgEnding;
+    if (!showArchive) {
+      msgType = 'Unarchive';
+    }
     let singleResource = true;
     if (Array.isArray(id)) {
       // display each name in list
       singleResource = false;
       // only dipslay first 5 resources names, otherwise total number
       if (id.length <= 5) {
-        res = getResourceNames(id).join(', ');
+        if (id.length === 1) msgModifier = 'the following room: ';
+        else msgModifier = `the following ${id.length} rooms:`;
+        msgEnding = getResourceNames(id).join(', ');
       } else {
-        res = `${id.length} rooms`;
-        msg += ' these ';
+        msgModifier = 'these ';
+        msgEnding = `${id.length} rooms`;
       }
     }
     // or display single name
-    else res = rooms[id].name;
+    else msgEnding = rooms[id].name;
 
-    const dispatchArchive = () => {
-      if (singleResource) {
-        const rtnObj = {
-          status: STATUS.ARCHIVED,
-        };
-        dispatch(updateRoom(id, rtnObj));
-      } else {
-        dispatch(archiveRooms(id));
-      }
-    };
+    const dispatchArchive = () =>
+      singleResource
+        ? dispatch(archiveRooms([id]))
+        : dispatch(archiveRooms(id));
 
     const dispatchRestore = () => {
       if (singleResource) {
-        dispatch(restoreArchivedRoom(id));
-      } else {
-        id.forEach((resId) => dispatch(restoreArchivedRoom(resId)));
+        return dispatch(restoreArchivedRoom(id));
       }
+
+      return Promise.all(
+        id.map((resId) => dispatch(restoreArchivedRoom(resId)))
+      );
     };
 
     if (showArchive) {
       showArchiveModal(
         <div>
           <span>
-            {msg}
-            <span style={{ fontWeight: 'bolder' }}>{res}</span>?
+            <span style={{ fontWeight: 'bolder' }}>{`${msgType} `}</span>
+            {`${msgModifier} `}
+            <span style={{ fontWeight: 'bolder', display: 'inline-block' }}>
+              {`${msgEnding}`}
+            </span>
           </span>
           <div>
             <Button
               data-testid="archive-resource"
               click={() => {
-                dispatchArchive();
-                setTimeout(() => {
+                dispatchArchive().then(() => {
                   fetchCourseRoomsFromDB();
                   if (typeof handleDeselectAll === 'function') {
                     handleDeselectAll();
                   }
-                }, 1500);
+                });
                 hideArchiveModal();
               }}
               m={5}
@@ -336,20 +323,22 @@ const CourseRooms = (props) => {
       showUnarchiveModal(
         <div>
           <span>
-            {msg}
-            <span style={{ fontWeight: 'bolder' }}>{res}</span>?
+            <span style={{ fontWeight: 'bolder' }}>{`${msgType} `}</span>
+            {`${msgModifier} `}
+            <span style={{ fontWeight: 'bolder', display: 'inline-block' }}>
+              {`${msgEnding}`}
+            </span>
           </span>
           <div>
             <Button
               data-testid="archive-resource"
               click={() => {
-                dispatchRestore();
-                setTimeout(() => {
+                dispatchRestore().then(() => {
                   fetchCourseRoomsFromDB();
                   if (typeof handleDeselectAll === 'function') {
                     handleDeselectAll();
                   }
-                }, 1500);
+                });
                 hideUnarchiveModal();
               }}
               m={5}

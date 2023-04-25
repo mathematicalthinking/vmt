@@ -29,7 +29,19 @@ function CourseMonitor({ course }) {
   // initially, do a fetch on all rooms
   const [visibleIds, setVisibleIds] = React.useState(roomIds);
   const populatedRooms = usePopulatedRooms(visibleIds, false, {
-    initialCache: _pick(course.rooms, roomIds),
+    initialCache: _pick(
+      course.rooms.map((room) =>
+        _pick(room, [
+          '_id',
+          'name',
+          'createdAt',
+          'updateAt',
+          'currentMembers',
+          'members',
+        ])
+      ),
+      roomIds
+    ),
     refetchInterval: 10000,
   });
 

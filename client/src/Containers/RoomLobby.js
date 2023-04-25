@@ -32,8 +32,9 @@ import {
   clearLoadingInfo,
   // populateRoom,
   updateUser,
+  archiveRooms,
 } from 'store/actions';
-import { getUserNotifications, getResourceTabTypes } from 'utils';
+import { getUserNotifications, getResourceTabTypes, GOOGLE_ICONS, getGoogleIcons } from 'utils';
 import { STATUS } from 'constants.js';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
@@ -300,8 +301,8 @@ class Room extends Component {
   };
 
   archiveRoom = () => {
-    const { room, connectUpdateRoom, history } = this.props;
-    connectUpdateRoom(room._id, { ...room, status: STATUS.ARCHIVED });
+    const { room, connectArchiveRooms, history } = this.props;
+    connectArchiveRooms([room._id]);
     history.push(`/myVMT/rooms`);
   };
 
@@ -596,38 +597,43 @@ class Room extends Component {
                       }}
                     >
                       <ToolTip text="Replayer" delay={600}>
-                        <span
-                          // theme={loading.loading ? 'SmallCancel' : 'Small'}
-                          // m={10}
-                          data-testid="Replayer"
-                          onClick={!loading.loading ? this.goToReplayer : null}
-                          onKeyDown={
-                            !loading.loading ? this.goToReplayer : null
+                        {getGoogleIcons(
+                          GOOGLE_ICONS.REPLAYER,
+                          [classes.CustomIcon],
+                          {
+                            paddingRight: '0.5rem',
+                          },
+                          {
+                            'data-testid': 'Replayer',
+                            role: 'button',
+                            tabIndex: -1,
+                            onClick: !loading.loading
+                              ? this.goToReplayer
+                              : null,
+                            onKeyDown: !loading.loading
+                              ? this.goToReplayer
+                              : null,
                           }
-                          role="button"
-                          tabIndex={-1}
-                          className={`material-symbols-outlined ${classes.CustomIcon}`}
-                          style={{ paddingRight: '0.5rem' }}
-                        >
-                          replay
-                        </span>
+                        )}
                       </ToolTip>
                       {room.myRole === 'facilitator' && (
                         <ToolTip text="Archive This Room" delay={600}>
-                          <span
-                            data-testid="archive-room"
-                            onClick={
-                              !loading.loading ? this.showArchiveModal : null
+                          {getGoogleIcons(
+                            GOOGLE_ICONS.ARCHIVE,
+                            [classes.CustomIcon],
+                            null,
+                            {
+                              'data-testid': 'archive-room',
+                              role: 'button',
+                              tabIndex: -1,
+                              onClick: !loading.loading
+                                ? this.showArchiveModal
+                                : null,
+                              onKeyDown: !loading.loading
+                                ? this.showArchiveModal
+                                : null,
                             }
-                            onKeyDown={
-                              !loading.loading ? this.showArchiveModal : null
-                            }
-                            className={`material-symbols-outlined ${classes.CustomIcon}`}
-                            role="button"
-                            tabIndex={-1}
-                          >
-                            input
-                          </span>
+                          )}
                         </ToolTip>
                       )}
                     </div>
@@ -839,6 +845,7 @@ Room.propTypes = {
   connectClearLoadingInfo: PropTypes.func.isRequired,
   connectPopulateRoom: PropTypes.func.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
+  connectArchiveRooms: PropTypes.func.isRequired,
 };
 
 Room.defaultProps = {
@@ -866,6 +873,7 @@ export default connect(mapStateToProps, {
   connectClearError: clearError,
   connectClearNotification: clearNotification,
   connectUpdateRoom: updateRoom,
+  connectArchiveRooms: archiveRooms,
   connectGetRoom: getRoom,
   connectRemoveRoomMember: removeRoomMember,
   connectClearLoadingInfo: clearLoadingInfo,
