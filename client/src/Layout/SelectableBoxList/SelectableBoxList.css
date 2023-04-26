@@ -40,3 +40,7 @@
   display: flex;
   align-items: center;
 }
+
+.BoxList {
+  width: 100%;
+}
