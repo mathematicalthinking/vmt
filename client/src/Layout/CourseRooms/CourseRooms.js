@@ -380,11 +380,7 @@ const CourseRooms = (props) => {
       background: 'rgb(239, 243, 246)',
       border: '1px solid #ddd',
     },
-    contentbox: '',
-    Archive: {
-      fontWeight: 'light',
-    },
-    Unrchive: '',
+    contentbox: {},
   };
 
   const InfoBoxCustomStyles = {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox } from 'Components';
 import SelectableContentBox from 'Components/UI/ContentBox/SelectableContentBox';
@@ -18,39 +18,6 @@ const SelectableBoxList = (props) => {
   } = props;
 
   const [selectedIds, setSelectedIds] = useState([]);
-  const [formattedCustomStyles, setFormattedCustomStyles] = useState({});
-
-  useEffect(() => {
-    if (!customStyle || !Object.keys(customStyle).length) return;
-
-    const getCustomElementStyle = () => {
-      // this fn returns a formatted copy of customStyle
-      // which will be used in the render if needed
-
-      // customStyle is a prop object
-      // { classnameToStyle: cssObject }
-      const formattedCustomStyle = {};
-      const classNames = {
-        container: 'Container',
-        header: 'Header',
-        selectactions: 'SelectActions',
-        contentbox: 'ContentBox',
-        title: 'Title',
-      };
-
-      const customStyleKeys = Object.keys(customStyle);
-      customStyleKeys.forEach((elementToStyle) => {
-        // if (!classNames.includes(elementToStyle.toLowerCase)) return null;
-        formattedCustomStyle[elementToStyle] = {
-          ...formattedCustomStyle[elementToStyle.toLocaleLowerCase()],
-          ...customStyle[elementToStyle],
-        };
-      });
-      return formattedCustomStyle;
-    };
-
-    setFormattedCustomStyles(getCustomElementStyle(customStyle));
-  }, [customStyle]);
 
   const handleSelectAll = (event) => {
     const { checked } = event.target;
@@ -117,19 +84,19 @@ const SelectableBoxList = (props) => {
   };
 
   return (
-    <div className={classes.Container} style={formattedCustomStyles.container}>
-      <div className={classes.Header} style={formattedCustomStyles.header}>
+    <div className={classes.Container} style={customStyle.container}>
+      <div className={classes.Header} style={customStyle.header}>
         <Checkbox
           change={handleSelectAll}
           checked={allSelected()}
           dataId="select-all"
-          style={formattedCustomStyles.checkbox}
+          style={customStyle.checkbox}
         >
           Select All
         </Checkbox>
         <div
           className={classes.SelectActions}
-          style={formattedCustomStyles.selectactions}
+          style={customStyle.selectactions}
         >
           {selectActions.map((selectAction) => (
             <div
@@ -145,10 +112,9 @@ const SelectableBoxList = (props) => {
               key={`selectAction-${selectAction.title}`}
               style={{
                 margin: '0 1rem',
-                ...formattedCustomStyles[selectAction.title],
+                ...customStyle.title,
               }}
               data-testid={`${selectAction.title}-icon`}
-              // title={`${selectAction.title}-icon`}
             >
               {selectAction.generateIcon
                 ? selectAction.generateIcon(selectedIds)
@@ -214,7 +180,7 @@ const SelectableBoxList = (props) => {
               <div
                 className={classes.ContentBox}
                 key={item._id}
-                style={formattedCustomStyles.contentbox}
+                style={customStyle.contentbox}
               >
                 <SelectableContentBox
                   title={item.name}
@@ -263,7 +229,14 @@ SelectableBoxList.propTypes = {
   linkSuffix: PropTypes.string,
   selectActions: PropTypes.arrayOf(PropTypes.shape({})),
   icons: PropTypes.arrayOf(PropTypes.shape({})),
-  customStyle: PropTypes.shape({}),
+  customStyle: PropTypes.shape({
+    container: PropTypes.shape({}),
+    header: PropTypes.shape({}),
+    selectactions: PropTypes.shape({}),
+    contentbox: PropTypes.shape({}),
+    title: PropTypes.shape({}),
+    checkbox: PropTypes.shape({}),
+  }),
 };
 
 SelectableBoxList.defaultProps = {
