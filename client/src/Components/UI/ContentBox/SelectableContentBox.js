@@ -16,12 +16,10 @@ const SelectableContentBox = (props) => {
     roomType,
     listType,
     title,
-    locked,
     details,
     isChecked,
     onSelect,
     customIcons,
-    resource,
     customStyle,
   } = props;
 
@@ -217,7 +215,6 @@ SelectableContentBox.propTypes = {
   roomType: PropTypes.arrayOf(PropTypes.string),
   listType: PropTypes.string,
   title: PropTypes.string.isRequired,
-  locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({
     facilitators: PropTypes.arrayOf(PropTypes.string),
     participants: PropTypes.arrayOf(PropTypes.string),
@@ -238,7 +235,6 @@ SelectableContentBox.propTypes = {
       generateIcon: PropTypes.func,
     })
   ),
-  resource: PropTypes.string,
   customStyle: PropTypes.shape({}),
 };
 
@@ -249,7 +245,6 @@ SelectableContentBox.defaultProps = {
   listType: null,
   isChecked: false,
   customIcons: [],
-  resource: null,
   customStyle: null,
 };
 

@@ -245,7 +245,7 @@ SelectableBoxList.defaultProps = {
   icons: null,
   linkPath: null,
   linkSuffix: null,
-  customStyle: null,
+  customStyle: {},
 };
 
 export default SelectableBoxList;
