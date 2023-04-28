@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox } from 'Components';
 import SelectableContentBox from 'Components/UI/ContentBox/SelectableContentBox';
+import Expand from '../../Components/UI/ContentBox/expand';
 import classes from './SelectableBoxList.css';
 
 const SelectableBoxList = (props) => {
@@ -18,6 +19,7 @@ const SelectableBoxList = (props) => {
   } = props;
 
   const [selectedIds, setSelectedIds] = useState([]);
+  const [expanded, setExpanded] = useState(false);
 
   const handleSelectAll = (event) => {
     const { checked } = event.target;
@@ -83,6 +85,22 @@ const SelectableBoxList = (props) => {
     return selectedIds.filter((id) => listedIds.includes(id));
   };
 
+  const expandButton = (
+    <div
+      className={classes.Expand}
+      style={{
+        transform: expanded ? `rotate(180deg)` : `rotate(0)`,
+      }}
+    >
+      <Expand
+        clickHandler={(e) => {
+          e.preventDefault();
+          setExpanded((prevState) => !prevState);
+        }}
+      />
+    </div>
+  );
+
   return (
     <div className={classes.Container} style={customStyle.container}>
       <div className={classes.Header} style={customStyle.header}>
@@ -110,10 +128,7 @@ const SelectableBoxList = (props) => {
               tabIndex={-1}
               // title={selectAction.title}
               key={`selectAction-${selectAction.title}`}
-              style={{
-                margin: '0 1rem',
-                ...customStyle.title,
-              }}
+              style={customStyle.title}
               data-testid={`${selectAction.title}-icon`}
             >
               {selectAction.generateIcon
@@ -121,6 +136,7 @@ const SelectableBoxList = (props) => {
                 : selectAction.icon}
             </div>
           ))}
+          {expandButton}
         </div>
       </div>
 
