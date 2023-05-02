@@ -35,11 +35,12 @@ const filtersReducer = (state, action) => {
 };
 
 const CourseRooms = (props) => {
-  const { courseId, userId } = props;
+  const { course, userId } = props;
   const initialFilters = {
     myRole: 'all',
     roomStatus: 'default',
   };
+  const courseId = course._id;
 
   const keys = [
     { property: 'updatedAt', name: 'Last Updated' },
@@ -84,7 +85,7 @@ const CourseRooms = (props) => {
 
   useEffect(() => {
     fetchCourseRoomsFromDB();
-  }, []);
+  }, [course.rooms]);
 
   useEffect(() => {
     resetFilter({
@@ -499,7 +500,10 @@ const CourseRooms = (props) => {
 };
 
 CourseRooms.propTypes = {
-  courseId: PropTypes.string.isRequired,
+  course: PropTypes.shape({
+    _id: PropTypes.string,
+    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
   userId: PropTypes.string.isRequired,
 };
 

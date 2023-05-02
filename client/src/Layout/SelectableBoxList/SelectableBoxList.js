@@ -104,22 +104,22 @@ const SelectableBoxList = (props) => {
       <Expand
         clickHandler={(e) => {
           e.preventDefault();
-          setExpanded((prevState) => !prevState);
-
           // if selectedIds.length is 0, expand/contract all
           if (selectedIds.length === 0) {
             setExpandedById((prevState) => {
               const prevIds = Object.keys(prevState);
-              prevIds.forEach((id) => (prevState[id] = !prevState[id]));
+              prevIds.forEach((id) => (prevState[id] = !expanded));
               return prevState;
             });
             // otherwise expand/contract selectedIds
           } else {
             setExpandedById((prevState) => {
-              selectedIds.forEach((id) => (prevState[id] = !prevState[id]));
+              selectedIds.forEach((id) => (prevState[id] = !expanded));
               return prevState;
             });
           }
+          // change icon
+          setExpanded((prevState) => !prevState);
         }}
       />
     </div>
@@ -247,7 +247,7 @@ const SelectableBoxList = (props) => {
                   customIcons={icons}
                   resource={resource}
                   customStyle={item.customStyle}
-                  expandedOrCollapsed={expandedById[item._id]}
+                  isExpanded={expandedById[item._id]}
                 >
                   {item.description}
                 </SelectableContentBox>
