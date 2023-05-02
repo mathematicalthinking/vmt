@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox } from 'Components';
 import SelectableContentBox from 'Components/UI/ContentBox/SelectableContentBox';
@@ -19,7 +19,16 @@ const SelectableBoxList = (props) => {
   } = props;
 
   const [selectedIds, setSelectedIds] = useState([]);
+  const [expandedById, setExpandedById] = useState({});
   const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    // reduce list _ids into { _id: bool }
+    const ids = list.reduce((acc, curr) => {
+      return { ...acc, [curr._id]: expandedById[curr._id] || false };
+    }, {});
+    setExpandedById(ids);
+  }, [list]);
 
   const handleSelectAll = (event) => {
     const { checked } = event.target;
@@ -96,6 +105,21 @@ const SelectableBoxList = (props) => {
         clickHandler={(e) => {
           e.preventDefault();
           setExpanded((prevState) => !prevState);
+
+          // if selectedIds.length is 0, expand/contract all
+          if (selectedIds.length === 0) {
+            setExpandedById((prevState) => {
+              const prevIds = Object.keys(prevState);
+              prevIds.forEach((id) => (prevState[id] = !prevState[id]));
+              return prevState;
+            });
+            // otherwise expand/contract selectedIds
+          } else {
+            setExpandedById((prevState) => {
+              selectedIds.forEach((id) => (prevState[id] = !prevState[id]));
+              return prevState;
+            });
+          }
         }}
       />
     </div>
@@ -223,6 +247,7 @@ const SelectableBoxList = (props) => {
                   customIcons={icons}
                   resource={resource}
                   customStyle={item.customStyle}
+                  expandedOrCollapsed={expandedById[item._id]}
                 >
                   {item.description}
                 </SelectableContentBox>

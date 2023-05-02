@@ -21,10 +21,11 @@ const SelectableContentBox = (props) => {
     onSelect,
     customIcons,
     customStyle,
+    expandedOrCollapsed,
   } = props;
 
   const history = useHistory();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(expandedOrCollapsed);
   const [typeKeyword, setTypeKeyword] = useState('Tab Type');
   const [tabTypesText, setTabTypesText] = useState('');
 
@@ -34,6 +35,10 @@ const SelectableContentBox = (props) => {
     setTypeKeyword(tempTypeKeyword);
     setTabTypesText(tabTypes);
   }, []);
+
+  useEffect(() => {
+    setExpanded(expandedOrCollapsed);
+  }, [expandedOrCollapsed]);
 
   const notificationElements =
     notifications > 0 ? (
@@ -236,6 +241,7 @@ SelectableContentBox.propTypes = {
     })
   ),
   customStyle: PropTypes.shape({}),
+  expandedOrCollapsed: PropTypes.bool,
 };
 
 SelectableContentBox.defaultProps = {
@@ -246,6 +252,7 @@ SelectableContentBox.defaultProps = {
   isChecked: false,
   customIcons: [],
   customStyle: null,
+  expandedOrCollapsed: false,
 };
 
 export default SelectableContentBox;
