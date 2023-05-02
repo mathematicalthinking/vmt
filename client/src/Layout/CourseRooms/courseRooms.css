@@ -4,34 +4,38 @@
 }
 
 .CreateRoom {
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
+  width: max-content;
 }
 
 .Filters {
   display: flex;
-  flex-direction: row-reverse;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: baseline;
+  flex-wrap: wrap-reverse;
+  align-items: center;
 }
 
-.Filters > * {
-  margin-right: 12px;
+.InfoBoxContainer {
+  display: flex;
+}
+
+.InfoBoxFilters {
+  display: flex;
+  margin-left: 4px;
 }
 
 .FilterOpts {
   padding-left: 12px;
   display: flex;
-  /* justify-content: space-between; */
-  /* flex: 1; */
-}
-
-.FilterOpts > * {
-  margin-right: 8px;
+  flex-direction: column;
 }
 
 .SortUI {
   max-width: 573px;
+}
+
+.SortUI,
+.InfoBoxFilters {
+  margin-bottom: 1rem;
 }
 
 .RoomsListContainer {

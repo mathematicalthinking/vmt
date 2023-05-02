@@ -40,3 +40,22 @@
   display: flex;
   align-items: center;
 }
+
+.BoxList {
+  width: 100%;
+}
+
+.Expand {
+  color: black;
+  /* padding: 5px; */
+  z-index: 300;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.Expand:hover {
+  background: #ddd;
+}

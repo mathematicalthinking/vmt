@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox } from 'Components';
+import { Checkbox, ToolTip } from 'Components';
 import SelectableContentBox from 'Components/UI/ContentBox/SelectableContentBox';
+import Expand from '../../Components/UI/ContentBox/expand';
 import classes from './SelectableBoxList.css';
 
 const SelectableBoxList = (props) => {
@@ -18,39 +19,16 @@ const SelectableBoxList = (props) => {
   } = props;
 
   const [selectedIds, setSelectedIds] = useState([]);
-  const [formattedCustomStyles, setFormattedCustomStyles] = useState({});
+  const [expandedById, setExpandedById] = useState({});
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    if (!customStyle || !Object.keys(customStyle).length) return;
-
-    const getCustomElementStyle = () => {
-      // this fn returns a formatted copy of customStyle
-      // which will be used in the render if needed
-
-      // customStyle is a prop object
-      // { classnameToStyle: cssObject }
-      const formattedCustomStyle = {};
-      const classNames = {
-        container: 'Container',
-        header: 'Header',
-        selectactions: 'SelectActions',
-        contentbox: 'ContentBox',
-        title: 'Title',
-      };
-
-      const customStyleKeys = Object.keys(customStyle);
-      customStyleKeys.forEach((elementToStyle) => {
-        // if (!classNames.includes(elementToStyle.toLowerCase)) return null;
-        formattedCustomStyle[elementToStyle] = {
-          ...formattedCustomStyle[elementToStyle.toLocaleLowerCase()],
-          ...customStyle[elementToStyle],
-        };
-      });
-      return formattedCustomStyle;
-    };
-
-    setFormattedCustomStyles(getCustomElementStyle(customStyle));
-  }, [customStyle]);
+    // reduce list _ids into { _id: bool }
+    const ids = list.reduce((acc, curr) => {
+      return { ...acc, [curr._id]: expandedById[curr._id] || false };
+    }, {});
+    setExpandedById(ids);
+  }, [list]);
 
   const handleSelectAll = (event) => {
     const { checked } = event.target;
@@ -116,20 +94,53 @@ const SelectableBoxList = (props) => {
     return selectedIds.filter((id) => listedIds.includes(id));
   };
 
+  const expandButton = (
+    <ToolTip text="Expand/Collapse" delay={600}>
+      <div
+        className={classes.Expand}
+        style={{
+          transform: expanded ? `rotate(180deg)` : `rotate(0)`,
+        }}
+      >
+        <Expand
+          clickHandler={(e) => {
+            e.preventDefault();
+            // if selectedIds.length is 0, expand/contract all
+            if (selectedIds.length === 0) {
+              setExpandedById((prevState) => {
+                const prevIds = Object.keys(prevState);
+                prevIds.forEach((id) => (prevState[id] = !expanded));
+                return prevState;
+              });
+              // otherwise expand/contract selectedIds
+            } else {
+              setExpandedById((prevState) => {
+                selectedIds.forEach((id) => (prevState[id] = !expanded));
+                return prevState;
+              });
+            }
+            // change icon
+            setExpanded((prevState) => !prevState);
+          }}
+        />
+      </div>
+    </ToolTip>
+  );
+
   return (
-    <div className={classes.Container} style={formattedCustomStyles.container}>
-      <div className={classes.Header} style={formattedCustomStyles.header}>
+    <div className={classes.Container} style={customStyle.container}>
+      <div className={classes.Header} style={customStyle.header}>
         <Checkbox
           change={handleSelectAll}
           checked={allSelected()}
           dataId="select-all"
-          style={formattedCustomStyles.checkbox}
+          style={customStyle.checkbox}
         >
           Select All
         </Checkbox>
         <div
           className={classes.SelectActions}
-          style={formattedCustomStyles.selectactions}
+          style={customStyle.selectactions}
         >
           {selectActions.map((selectAction) => (
             <div
@@ -143,18 +154,15 @@ const SelectableBoxList = (props) => {
               tabIndex={-1}
               // title={selectAction.title}
               key={`selectAction-${selectAction.title}`}
-              style={{
-                margin: '0 1rem',
-                ...formattedCustomStyles[selectAction.title],
-              }}
+              style={customStyle.title}
               data-testid={`${selectAction.title}-icon`}
-              // title={`${selectAction.title}-icon`}
             >
               {selectAction.generateIcon
                 ? selectAction.generateIcon(selectedIds)
                 : selectAction.icon}
             </div>
           ))}
+          {expandButton}
         </div>
       </div>
 
@@ -214,7 +222,7 @@ const SelectableBoxList = (props) => {
               <div
                 className={classes.ContentBox}
                 key={item._id}
-                style={formattedCustomStyles.contentbox}
+                style={customStyle.contentbox}
               >
                 <SelectableContentBox
                   title={item.name}
@@ -241,6 +249,7 @@ const SelectableBoxList = (props) => {
                   customIcons={icons}
                   resource={resource}
                   customStyle={item.customStyle}
+                  isExpanded={expandedById[item._id]}
                 >
                   {item.description}
                 </SelectableContentBox>
@@ -263,7 +272,14 @@ SelectableBoxList.propTypes = {
   linkSuffix: PropTypes.string,
   selectActions: PropTypes.arrayOf(PropTypes.shape({})),
   icons: PropTypes.arrayOf(PropTypes.shape({})),
-  customStyle: PropTypes.shape({}),
+  customStyle: PropTypes.shape({
+    container: PropTypes.shape({}),
+    header: PropTypes.shape({}),
+    selectactions: PropTypes.shape({}),
+    contentbox: PropTypes.shape({}),
+    title: PropTypes.shape({}),
+    checkbox: PropTypes.shape({}),
+  }),
 };
 
 SelectableBoxList.defaultProps = {
@@ -272,7 +288,7 @@ SelectableBoxList.defaultProps = {
   icons: null,
   linkPath: null,
   linkSuffix: null,
-  customStyle: null,
+  customStyle: {},
 };
 
 export default SelectableBoxList;
