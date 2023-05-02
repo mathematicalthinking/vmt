@@ -14,12 +14,12 @@ import {
   useSortableData,
   useUIState,
   API,
+  getGoogleIcons,
+  GOOGLE_ICONS,
 } from 'utils';
 import { addUserRoleToResource } from 'store/utils';
-import { updateRoom, archiveRooms, restoreArchivedRoom } from 'store/actions';
-import { STATUS } from 'constants.js';
+import { archiveRooms, restoreArchivedRoom } from 'store/actions';
 import NewResource from 'Containers/Create/NewResource/NewResource';
-import { getGoogleIcons, GOOGLE_ICONS } from 'utils';
 
 import classes from './courseRooms.css';
 
@@ -35,11 +35,12 @@ const filtersReducer = (state, action) => {
 };
 
 const CourseRooms = (props) => {
-  const { courseId, userId } = props;
+  const { course, userId } = props;
   const initialFilters = {
     myRole: 'all',
     roomStatus: 'default',
   };
+  const courseId = course._id;
 
   const keys = [
     { property: 'updatedAt', name: 'Last Updated' },
@@ -84,7 +85,7 @@ const CourseRooms = (props) => {
 
   useEffect(() => {
     fetchCourseRoomsFromDB();
-  }, []);
+  }, [course.rooms]);
 
   useEffect(() => {
     resetFilter({
@@ -380,11 +381,16 @@ const CourseRooms = (props) => {
       background: 'rgb(239, 243, 246)',
       border: '1px solid #ddd',
     },
-    contentbox: '',
-    Archive: {
-      fontWeight: 'light',
-    },
-    Unrchive: '',
+    contentbox: {},
+  };
+
+  const InfoBoxCustomStyles = {
+    section: { marginBottom: '0' },
+    header: {},
+    left: {},
+    icons: {},
+    right: {},
+    rightTitle: {},
   };
 
   const getResourceNames = (ids) => {
@@ -399,73 +405,86 @@ const CourseRooms = (props) => {
 
   return (
     <div className={classes.CourseRoomsContainer}>
-      <div className={classes.CreateRoom}>
+      <span className={classes.CreateRoom}>
         <NewResource resource="rooms" courseId={courseId} />
-      </div>
+      </span>
       <div className={classes.Filters}>
-        <InfoBox title="My Role" icon={<i className="fas fa-filter" />}>
-          <div className={classes.FilterOpts}>
-            <RadioBtn
-              data-testid="myRole-all-filter"
-              check={() => toggleFilter('myRole-all')}
-              checked={filters.myRole === 'all'}
-              name="myRole-all"
-            >
-              All
-            </RadioBtn>
-            <RadioBtn
-              data-testid="myRole-facilitator-filter"
-              check={() => toggleFilter('myRole-facilitator')}
-              checked={filters.myRole === 'facilitator'}
-              name="myRole-facilitator"
-            >
-              Facilitator
-            </RadioBtn>
-            <RadioBtn
-              data-testid="myRole-participant-filter"
-              check={() => toggleFilter('myRole-participant')}
-              checked={filters.myRole === 'participant'}
-              name="myRole-participant"
-            >
-              Participant
-            </RadioBtn>
-          </div>
-        </InfoBox>
-        <InfoBox title="Room Status" icon={<i className="fas fa-filter" />}>
-          <div className={classes.FilterOpts}>
-            <RadioBtn
-              data-testid="roomStatus-all-filter"
-              check={() => toggleFilter('roomStatus-all')}
-              checked={filters.roomStatus === 'all'}
-              name="roomStatus-all"
-            >
-              All
-            </RadioBtn>
-            <RadioBtn
-              data-testid="roomStatus-default-filter"
-              check={() => toggleFilter('roomStatus-default')}
-              checked={filters.roomStatus === 'default'}
-              name="roomStatus-default"
-            >
-              Active
-            </RadioBtn>
-            <RadioBtn
-              data-testid="roomStatus-archived-filter"
-              check={() => toggleFilter('roomStatus-archived')}
-              checked={filters.roomStatus === 'archived'}
-              name="roomStatus-archived"
-            >
-              Archived
-            </RadioBtn>
-          </div>
-        </InfoBox>
-
         <div className={classes.SortUI}>
           <SortUI keys={keys} sortFn={resetSort} sortConfig={sortConfig} />
         </div>
+        <span className={classes.InfoBoxContainer}>
+          <span className={classes.InfoBoxFilters}>
+            <InfoBox
+              title="My Role"
+              icon={<i className="fas fa-filter" />}
+              customStyle={InfoBoxCustomStyles}
+            >
+              <div className={classes.FilterOpts}>
+                <RadioBtn
+                  data-testid="myRole-all-filter"
+                  check={() => toggleFilter('myRole-all')}
+                  checked={filters.myRole === 'all'}
+                  name="myRole-all"
+                >
+                  All
+                </RadioBtn>
+                <RadioBtn
+                  data-testid="myRole-facilitator-filter"
+                  check={() => toggleFilter('myRole-facilitator')}
+                  checked={filters.myRole === 'facilitator'}
+                  name="myRole-facilitator"
+                >
+                  Facilitator
+                </RadioBtn>
+                <RadioBtn
+                  data-testid="myRole-participant-filter"
+                  check={() => toggleFilter('myRole-participant')}
+                  checked={filters.myRole === 'participant'}
+                  name="myRole-participant"
+                >
+                  Participant
+                </RadioBtn>
+              </div>
+            </InfoBox>
+          </span>
+
+          <span className={classes.InfoBoxFilters}>
+            <InfoBox
+              title="Room Status"
+              icon={<i className="fas fa-filter" />}
+              customStyle={InfoBoxCustomStyles}
+            >
+              <div className={classes.FilterOpts}>
+                <RadioBtn
+                  data-testid="roomStatus-all-filter"
+                  check={() => toggleFilter('roomStatus-all')}
+                  checked={filters.roomStatus === 'all'}
+                  name="roomStatus-all"
+                >
+                  All
+                </RadioBtn>
+                <RadioBtn
+                  data-testid="roomStatus-default-filter"
+                  check={() => toggleFilter('roomStatus-default')}
+                  checked={filters.roomStatus === 'default'}
+                  name="roomStatus-default"
+                >
+                  Active
+                </RadioBtn>
+                <RadioBtn
+                  data-testid="roomStatus-archived-filter"
+                  check={() => toggleFilter('roomStatus-archived')}
+                  checked={filters.roomStatus === 'archived'}
+                  name="roomStatus-archived"
+                >
+                  Archived
+                </RadioBtn>
+              </div>
+            </InfoBox>
+          </span>
+        </span>
       </div>
 
-      {/* <div className={classes.RoomsListContainer}> */}
       <SelectableBoxList
         list={displayRooms}
         resource="rooms"
@@ -476,13 +495,15 @@ const CourseRooms = (props) => {
         linkSuffix="/details"
         customStyle={SelectableBoxListCustomStyles}
       />
-      {/* </div> */}
     </div>
   );
 };
 
 CourseRooms.propTypes = {
-  courseId: PropTypes.string.isRequired,
+  course: PropTypes.shape({
+    _id: PropTypes.string,
+    rooms: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
   userId: PropTypes.string.isRequired,
 };
 

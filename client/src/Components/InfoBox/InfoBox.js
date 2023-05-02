@@ -2,16 +2,40 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './InfoBox.css';
 
-const InfoBox = ({ title, children, icon, rightIcons, rightTitle }) => {
+const InfoBox = ({
+  title,
+  children,
+  icon,
+  rightIcons,
+  rightTitle,
+  customStyle,
+}) => {
+  const classNames = {
+    section: 'Section',
+    header: 'Header',
+    left: 'Left',
+    icon: 'Icon',
+    right: 'Right',
+    rightTitle: 'RightTitle',
+  };
+
   return (
-    <div className={classes.Section}>
-      <div className={classes.Header}>
-        <div className={classes.Left}>
-          <div className={classes.Icon}>{icon}</div> {title}
+    <div className={classes.Section} style={customStyle.section}>
+      <div className={classes.Header} style={customStyle.header}>
+        <div className={classes.Left} style={customStyle.left}>
+          <div className={classes.Icon} style={customStyle.icon}>
+            {icon}
+          </div>{' '}
+          {title}
         </div>
-        <div className={classes.Right}>{rightIcons}</div>
+        <div className={classes.Right} style={customStyle.right}>
+          {rightIcons}
+        </div>
         {rightTitle && (
-          <div className={`${classes.Right} ${classes.RightTitle}`}>
+          <div
+            className={`${classes.Right} ${classes.RightTitle}`}
+            style={customStyle.rightTitle}
+          >
             {rightTitle}
           </div>
         )}
@@ -31,11 +55,20 @@ InfoBox.propTypes = {
     PropTypes.node,
   ]).isRequired,
   rightTitle: PropTypes.string,
+  customStyle: PropTypes.shape({
+    section: PropTypes.shape({}),
+    header: PropTypes.shape({}),
+    left: PropTypes.shape({}),
+    icon: PropTypes.shape({}),
+    right: PropTypes.shape({}),
+    rightTitle: PropTypes.shape({}),
+  }),
 };
 
 InfoBox.defaultProps = {
   icon: null,
   rightIcons: null,
   rightTitle: null,
+  customStyle: {},
 };
 export default InfoBox;

@@ -16,17 +16,16 @@ const SelectableContentBox = (props) => {
     roomType,
     listType,
     title,
-    locked,
     details,
     isChecked,
     onSelect,
     customIcons,
-    resource,
     customStyle,
+    isExpanded,
   } = props;
 
   const history = useHistory();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(isExpanded);
   const [typeKeyword, setTypeKeyword] = useState('Tab Type');
   const [tabTypesText, setTabTypesText] = useState('');
 
@@ -36,6 +35,10 @@ const SelectableContentBox = (props) => {
     setTypeKeyword(tempTypeKeyword);
     setTabTypesText(tabTypes);
   }, []);
+
+  useEffect(() => {
+    setExpanded(isExpanded);
+  }, [isExpanded]);
 
   const notificationElements =
     notifications > 0 ? (
@@ -217,7 +220,6 @@ SelectableContentBox.propTypes = {
   roomType: PropTypes.arrayOf(PropTypes.string),
   listType: PropTypes.string,
   title: PropTypes.string.isRequired,
-  locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({
     facilitators: PropTypes.arrayOf(PropTypes.string),
     participants: PropTypes.arrayOf(PropTypes.string),
@@ -238,8 +240,8 @@ SelectableContentBox.propTypes = {
       generateIcon: PropTypes.func,
     })
   ),
-  resource: PropTypes.string,
   customStyle: PropTypes.shape({}),
+  isExpanded: PropTypes.bool,
 };
 
 SelectableContentBox.defaultProps = {
@@ -249,8 +251,8 @@ SelectableContentBox.defaultProps = {
   listType: null,
   isChecked: false,
   customIcons: [],
-  resource: null,
   customStyle: null,
+  isExpanded: false,
 };
 
 export default SelectableContentBox;
