@@ -7,7 +7,7 @@ import {
   timeFrames,
   amIAFacilitator,
   useUIState,
-  GOOGLE_ICONS, 
+  GOOGLE_ICONS,
   getGoogleIcons,
 } from 'utils';
 import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
@@ -317,6 +317,31 @@ const ResourceList = ({
       .map((res) => res.name);
   };
 
+  const SelectableBoxListCustomStyles = {
+    container: {},
+    header: {
+      maxWidth: '575px',
+      height: '35px',
+    },
+    checkbox: {
+      padding: '10px',
+      marginRight: '2rem',
+      background: 'rgb(239, 243, 246)',
+      border: '1px solid #ddd',
+      fontWeight: '600',
+      fontSize: '1.1em',
+      borderRadius: '3px',
+    },
+    selectactions: {
+      background: 'rgb(239, 243, 246)',
+      border: '1px solid #ddd',
+      width: '4rem',
+      display: 'flex',
+      justifyContent: 'space-around',
+    },
+    contentbox: {},
+  };
+
   const selectActions = [archiveButton];
 
   return (
@@ -354,6 +379,7 @@ const ResourceList = ({
                     parentResourec={parentResource}
                     icons={customIcons}
                     selectActions={selectActions}
+                    customStyle={SelectableBoxListCustomStyles}
                   />
                 ) : (
                   <BoxList

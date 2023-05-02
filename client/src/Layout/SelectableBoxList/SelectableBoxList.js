@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox } from 'Components';
+import { Checkbox, ToolTip } from 'Components';
 import SelectableContentBox from 'Components/UI/ContentBox/SelectableContentBox';
 import Expand from '../../Components/UI/ContentBox/expand';
 import classes from './SelectableBoxList.css';
@@ -95,34 +95,36 @@ const SelectableBoxList = (props) => {
   };
 
   const expandButton = (
-    <div
-      className={classes.Expand}
-      style={{
-        transform: expanded ? `rotate(180deg)` : `rotate(0)`,
-      }}
-    >
-      <Expand
-        clickHandler={(e) => {
-          e.preventDefault();
-          // if selectedIds.length is 0, expand/contract all
-          if (selectedIds.length === 0) {
-            setExpandedById((prevState) => {
-              const prevIds = Object.keys(prevState);
-              prevIds.forEach((id) => (prevState[id] = !expanded));
-              return prevState;
-            });
-            // otherwise expand/contract selectedIds
-          } else {
-            setExpandedById((prevState) => {
-              selectedIds.forEach((id) => (prevState[id] = !expanded));
-              return prevState;
-            });
-          }
-          // change icon
-          setExpanded((prevState) => !prevState);
+    <ToolTip text="Expand/Collapse" delay={600}>
+      <div
+        className={classes.Expand}
+        style={{
+          transform: expanded ? `rotate(180deg)` : `rotate(0)`,
         }}
-      />
-    </div>
+      >
+        <Expand
+          clickHandler={(e) => {
+            e.preventDefault();
+            // if selectedIds.length is 0, expand/contract all
+            if (selectedIds.length === 0) {
+              setExpandedById((prevState) => {
+                const prevIds = Object.keys(prevState);
+                prevIds.forEach((id) => (prevState[id] = !expanded));
+                return prevState;
+              });
+              // otherwise expand/contract selectedIds
+            } else {
+              setExpandedById((prevState) => {
+                selectedIds.forEach((id) => (prevState[id] = !expanded));
+                return prevState;
+              });
+            }
+            // change icon
+            setExpanded((prevState) => !prevState);
+          }}
+        />
+      </div>
+    </ToolTip>
   );
 
   return (
