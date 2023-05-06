@@ -152,26 +152,6 @@ const ResourceList = ({
    * I feel like we are checking roles...which requires looping through the resources members each time.
    */
 
-  const archiveButton = {
-    title: 'Archive',
-    onClick: (e, id) => {
-      e.preventDefault();
-      if (!id.length) return;
-      setShowArchiveComponent(true);
-      handleArchive(id);
-    },
-    icon: (
-      <ToolTip text="Archive" delay={600}>
-        {getGoogleIcons(
-          GOOGLE_ICONS.ARCHIVE,
-          [classes.CustomIcon],
-          { fontSize: '23px' },
-          { 'data-testid': 'Archive' }
-        )}
-      </ToolTip>
-    ),
-  };
-
   const customIcons = [
     {
       title: 'Preview',
@@ -217,6 +197,49 @@ const ResourceList = ({
   const customIconsBoxList = [...customIcons].filter(
     (icon) => icon.title !== 'Archive'
   );
+
+  const archiveAllButton = {
+    title: 'Archive',
+    onClick: (e, selectedIds) => {
+      e.preventDefault();
+      const fListObj = fList.reduce((acc, curr) => {
+        return { ...acc, [curr._id]: curr };
+      }, {});
+      const selectedIdsToArchive = selectedIds.filter(
+        (roomId) => fListObj[roomId].status === 'default'
+      );
+      // do nothing onClick if there's nothing to archive
+      if (!selectedIdsToArchive.length) return;
+
+      setShowArchiveComponent(true);
+      handleArchive(selectedIdsToArchive);
+    },
+    generateIcon: (selectedIds) => {
+      // embolden the archive icon style
+      // for default status rooms within seletedIds
+
+      const fListObj = fList.reduce((acc, curr) => {
+        return { ...acc, [curr._id]: curr };
+      }, {});
+
+      const selectedIdsHasRoomsToArchive = selectedIds.some(
+        (id) => fListObj[id] && fListObj[id].status === 'default'
+      );
+      const fontWeight = selectedIdsHasRoomsToArchive ? 'normal' : '200';
+      const cursor = selectedIdsHasRoomsToArchive ? 'pointer' : 'default';
+      const style = { fontWeight, cursor };
+
+      return (
+        <ToolTip text="Archive" delay={600}>
+          {getGoogleIcons(
+            GOOGLE_ICONS.ARCHIVE,
+            [classes.CustomIcon, classes.SelectActionsIcon],
+            style
+          )}
+        </ToolTip>
+      );
+    },
+  };
 
   // create a handle multiple fn that calls this fn
   // get rid of singleResource
@@ -335,14 +358,13 @@ const ResourceList = ({
     selectactions: {
       background: 'rgb(239, 243, 246)',
       border: '1px solid #ddd',
-      width: '4rem',
       display: 'flex',
       justifyContent: 'space-around',
     },
     contentbox: {},
   };
 
-  const selectActions = [archiveButton];
+  const selectActions = [archiveAllButton];
 
   return (
     <React.Fragment>
