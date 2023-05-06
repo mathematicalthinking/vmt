@@ -34,7 +34,12 @@ import {
   updateUser,
   archiveRooms,
 } from 'store/actions';
-import { getUserNotifications, getResourceTabTypes, GOOGLE_ICONS, getGoogleIcons } from 'utils';
+import {
+  getUserNotifications,
+  getResourceTabTypes,
+  GOOGLE_ICONS,
+  getGoogleIcons,
+} from 'utils';
 import { STATUS } from 'constants.js';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
@@ -855,11 +860,11 @@ Room.defaultProps = {
 };
 const mapStateToProps = (state, ownProps) => {
   // eslint-disable-next-line camelcase
-  const { room_id, course_id } = ownProps.match.params;
+  const { room_id } = ownProps.match.params;
   const { room } = ownProps;
   return {
     room: room || state.rooms.byId[room_id],
-    course: state.courses.byId[course_id] || null,
+    course: state.courses.byId[room.course] || null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: state.user,
     notifications: getUserNotifications(state.user, null, 'room'), // this seems redundant
