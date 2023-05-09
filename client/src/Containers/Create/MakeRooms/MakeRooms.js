@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
-import { dateAndTime, useAppModal, COLOR_MAP, addColors } from 'utils';
+import { useAppModal, COLOR_MAP, addColors } from 'utils';
 import AssignmentMatrix from './AssignmentMatrix';
 import AssignRooms from './AssignRooms';
 import AddParticipants from './AddParticipants';
@@ -63,10 +63,14 @@ const MakeRooms = (props) => {
       setParticipants(addColors(Object.values(newParticipants)));
       updateParticipants(newRoomDrafts);
     } else {
-      setParticipants(sortParticipants(initialParticipants));
+      // const filteredParticipants = initialParticipants.filter((p) =>
+      //   ['facilitator', 'participant'].includes(p.role)
+      // );
+      const filteredParticipants = initialParticipants;
+      setParticipants(sortParticipants(filteredParticipants));
       setRoomNum(
         Math.max(
-          Math.floor(filterFacilitators(initialParticipants).length / 3),
+          Math.floor(filterFacilitators(filteredParticipants).length / 3),
           1
         )
       );
@@ -83,6 +87,7 @@ const MakeRooms = (props) => {
         .map((room) => room.members)
         .flat()
         .concat(participants) // make sure we at least have expected participants
+        // .filter((mem) => ['facilitator', 'participant'].includes(mem.role))
         .reduce(
           (acc, mem) => ({
             ...acc,
