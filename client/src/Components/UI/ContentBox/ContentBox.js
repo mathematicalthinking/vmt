@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Checkbox, ToolTip, TabTypes } from 'Components';
+import { Checkbox, ToolTip } from 'Components';
+import { TabTypes } from 'Model';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
