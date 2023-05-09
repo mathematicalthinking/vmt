@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { TabTypes } from 'Components';
+import { TabTypes } from 'Model';
 import { CommunityLayout } from 'Layout';
 import { API } from 'utils';
 

@@ -50,7 +50,7 @@ const Room = new mongoose.Schema(
     settings: {
       participantsCanCreateTabs: { type: Boolean, default: false },
       participantsCanChangePerspective: { type: Boolean, default: false },
-      controlByTab: { type: Boolean, default: false },
+      independentTabControl: { type: Boolean, default: false },
       displayAliasedUsernames: { type: Boolean, default: false },
     },
     graphImage: { type: ObjectId, ref: 'Image' },
@@ -88,6 +88,7 @@ Room.pre('save', function(next) {
           .then(() => {
             next();
           })
+          // eslint-disable-next-line no-console
           .catch((err) => console.log(err));
       } else if (field === 'currentMembers') {
         // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
@@ -106,6 +107,7 @@ Room.pre('save', function(next) {
             });
           })
           .catch((err) => {
+            // eslint-disable-next-line no-console
             console.log(err);
             next(err);
           });
@@ -175,6 +177,7 @@ Room.post('save', function(doc, next) {
         next();
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.error(err);
         next(err);
       }); // @TODO WE NEED ERROR HANDLING HERE
