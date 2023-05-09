@@ -81,5 +81,11 @@
 .CustomIcon:hover {
   cursor: pointer;
   font-size: 25px;
-  font-weight: 900;
+  /* font-weight: 500; */
+}
+
+.SelectActionsIcon {
+  font-size: 24px;
+  color: #5e5e5e;
+  padding: 5px;
 }
