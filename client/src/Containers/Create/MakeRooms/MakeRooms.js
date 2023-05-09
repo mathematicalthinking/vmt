@@ -26,13 +26,10 @@ const MakeRooms = (props) => {
   const courses = useSelector((state) => state.courses.byId);
 
   const [participantsPerRoom, setParticipantsPerRoom] = useState(3);
-  const [participants, setParticipants] = useState(
-    addColors(initialParticipants)
-  );
+  const [participants, setParticipants] = useState([]);
   const [roomDrafts, setRoomDrafts] = useState([]);
   const submitArgs = useRef(); // used for passing along submit info
   const membersToInviteToCourse = useRef(null);
-  const courseMembersObject = useRef({}); // {courseId: memsInThatCourse}
 
   const {
     show: showTheWarning,
@@ -81,66 +78,65 @@ const MakeRooms = (props) => {
   // if the selected assignment changes, reset the display
   useEffect(() => {
     if (selectedAssignment && Array.isArray(selectedAssignment.value)) {
-      setRoomDrafts(selectedAssignment.value);
-      // sort participants by their room assignments (as best as possible)
-      const sortedParticipants = selectedAssignment.value
-        .map((room) => room.members)
-        .flat()
-        .concat(participants) // make sure we at least have expected participants
-        .filter((mem) => ['facilitator', 'participant'].includes(mem.role))
-        .reduce(
-          (acc, mem) => ({
-            ...acc,
-            [mem.user._id]: mem,
-          }),
-          {}
-        );
-      setParticipants(addColors(Object.values(sortedParticipants)));
       if (selectedAssignment.value.length !== 0) {
+        setRoomDrafts(selectedAssignment.value);
+        // sort participants by their room assignments (as best as possible)
+        const sortedParticipants = selectedAssignment.value
+          .map((room) => room.members)
+          .flat()
+          .concat(participants) // make sure we at least have expected participants
+          .filter((mem) => ['facilitator', 'participant'].includes(mem.role))
+          .reduce(
+            (acc, mem) => ({
+              ...acc,
+              [mem.user._id]: mem,
+            }),
+            {}
+          );
+
+        const newParticipants = addColors(Object.values(sortedParticipants));
+
+        setParticipants(newParticipants);
+
         setParticipantsPerRoom(
           Math.max(
             Math.floor(
-              filterFacilitators(participants).length /
+              filterFacilitators(newParticipants).length /
                 selectedAssignment.value.length
             ),
             1
           )
         );
-      } else
+      } else {
+        const newParticipants = addColors(
+          initialParticipants.filter((mem) =>
+            ['facilitator', 'participant'].includes(mem.role)
+          )
+        );
+        setParticipants(newParticipants);
         setRoomNum(
           Math.max(
             Math.floor(
-              filterFacilitators(participants).length / participantsPerRoom
+              newParticipants.filter((p) => p.role === 'participant').length /
+                participantsPerRoom
             ),
             1
           ),
           true
         );
+      }
     } else {
       setRoomNum(
         Math.max(
           Math.floor(
-            filterFacilitators(participants).length / participantsPerRoom
+            initialParticipants.filter((p) => p.role === 'participant').length /
+              participantsPerRoom
           ),
           1
         )
       );
     }
   }, [selectedAssignment]);
-
-  // useEffect to update the courseMembersObject each time the participants change
-  useEffect(() => {
-    participants.forEach((mem) => {
-      if (mem && mem.course) {
-        if (courseMembersObject.current[mem.course])
-          courseMembersObject.current[mem.course] = [
-            ...courseMembersObject.current[mem.course],
-            mem,
-          ];
-        else courseMembersObject.current[mem.course] = [mem];
-      }
-    });
-  }, [participants]);
 
   const setRoomNum = (roomNum, clearRooms) => {
     const newRoomDrafts = clearRooms ? [] : roomDrafts;
