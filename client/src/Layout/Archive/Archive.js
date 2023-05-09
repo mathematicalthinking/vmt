@@ -56,11 +56,11 @@ const Archive = (props) => {
       background: 'rgb(239, 243, 246)',
       border: '1px solid #ddd',
     },
-    contentbox: '',
+    contentbox: {},
     Archive: {
       fontWeight: 'light',
     },
-    Unrchive: '',
+    Unrchive: {},
   };
 
   return (
