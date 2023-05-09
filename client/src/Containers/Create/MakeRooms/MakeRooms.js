@@ -87,7 +87,7 @@ const MakeRooms = (props) => {
         .map((room) => room.members)
         .flat()
         .concat(participants) // make sure we at least have expected participants
-        // .filter((mem) => ['facilitator', 'participant'].includes(mem.role))
+        .filter((mem) => ['facilitator', 'participant'].includes(mem.role))
         .reduce(
           (acc, mem) => ({
             ...acc,
