@@ -40,7 +40,8 @@ const AssignmentMatrix = (props) => {
   }, [selection]);
 
   React.useEffect(() => {
-    if (selection.value === 'rooms') handleSort(selection);
+    // if (selection.value === 'rooms') handleSort(selection);
+    setSelection(defaultOption);
   }, [roomDrafts]);
 
   const handleSort = (selectedOption) => {
@@ -114,7 +115,7 @@ const TheMatrix = (props) => {
       .sort((a, b) => (a.user.username < b.user.username ? -1 : 1));
 
     const participants = allParticipants.filter(
-      (mem) => mem.role === 'participant'
+      (mem) => mem.role !== 'facilitator'
     );
 
     const sorted = [...participants].concat([...facilitators]);

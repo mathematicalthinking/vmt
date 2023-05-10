@@ -268,7 +268,6 @@ router.get(
   '/:resource/:id/populated',
   middleware.validateRecordAccess,
   (req, res) => {
-    console.log('populated');
     const id = getParamsId(req);
     const resource = getResource(req);
     const controller = controllers[resource];

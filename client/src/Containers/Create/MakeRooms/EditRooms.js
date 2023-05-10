@@ -43,10 +43,13 @@ const EditRooms = (props) => {
     );
     // ensure no repeats
     const assignmentParticipants = fullMembers.reduce(
-      (acc, mem) => ({
-        ...acc,
-        [mem.user._id]: mem,
-      }),
+      (acc, mem) =>
+        ['facilitator', 'participant'].includes(mem.role)
+          ? {
+              ...acc,
+              [mem.user._id]: mem,
+            }
+          : acc,
       {}
     );
 
