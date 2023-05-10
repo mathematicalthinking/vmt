@@ -37,7 +37,6 @@ const Message = new mongoose.Schema({
     ],
     default: 'TEXT',
   },
-  tab: { type: ObjectId, ref: 'Tab' },
   color: { type: String, default: '#333' },
   description: { type: String }, // used to describe references
   isTrashed: { type: Boolean, default: false },
