@@ -11,13 +11,12 @@ import {
   DesActivityReplayer,
   DesmosReplayer,
 } from 'Containers/Replayer';
+import { RadioBtn, Button } from 'Components';
 import ggbIcon from 'assets/geogebra.png';
 import dsmIcon from 'assets/desmos.png';
 import dsmActIcon from 'assets/desmosActivity.png';
 import pyretIcon from 'assets/pyretlogo.png';
 import bothIcon from 'assets/desmosandgeogebra.png';
-import RadioBtn from './Form/RadioBtn/RadioBtn';
-import Button from './UI/Button/Button';
 
 const TAB_TYPES = {
   GEOGEBRA: 'geogebra',
