@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { TabTypes } from 'Model';
+import { TabTypes } from 'Components';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import ToolTip from '../../../ToolTip/ToolTip';
 import classes from './icons.css';

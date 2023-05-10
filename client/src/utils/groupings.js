@@ -25,7 +25,6 @@ rooms:
     }
 */
 
-import { Room } from 'Model';
 import { useSelector } from 'react-redux';
 import { STATUS } from '../constants';
 
@@ -33,7 +32,7 @@ const getDueDate = (room) =>
   room && room.dueDate ? room.dueDate.split('T', 1)[0] : null;
 
 const getAliasMode = (room) =>
-  Room.getRoomSetting(room, Room.ALIASED_USERNAMES);
+  (room && room.settings && room.settings.displayAliasedUsernames) || false;
 
 const getRoomDraft = (room) => ({
   _id: room._id,

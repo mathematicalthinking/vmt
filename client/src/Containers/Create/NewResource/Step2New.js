@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { TabTypes } from 'Model';
+import { TabTypes } from 'Components';
 import classes from '../create.css';
 
 const Step2New = (props) => {
