@@ -35,6 +35,7 @@
   font-weight: 600;
   margin: 10px 0 5px 0;
   text-align: center;
+  word-break: break-word;
 }
 
 .spSecondary {
