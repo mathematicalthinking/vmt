@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { TabTypes } from 'Model';
 import {
   populateRoom,
   removedRoom,
@@ -12,7 +13,7 @@ import {
 } from '../../store/actions';
 import generateMongoId from '../../utils/createMongoId';
 import Workspace from './Workspace';
-import { Aux, TextInput, Modal, Button, TabTypes } from '../../Components';
+import { Aux, TextInput, Modal, Button } from '../../Components';
 import Signup from '../Signup';
 import socket from '../../utils/sockets';
 import COLOR_MAP from '../../utils/colorMap';
