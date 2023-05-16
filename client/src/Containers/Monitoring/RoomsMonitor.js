@@ -202,13 +202,15 @@ function RoomsMonitor({
               },
             }))
           : [];
+        const currentMembers = populatedRooms[id].currentMembers.map(
+          (usr) => usr._id
+        );
         return (
           <CurrentMembers
             members={newMembers}
-            currentMembers={_selectFirst([
-              ...populatedRooms[id].currentMembers,
-              ...newMembers.map((m) => m.user),
-            ])}
+            currentMembers={newMembers
+              .map((m) => m.user)
+              .sort((a) => (currentMembers.includes(a._id) ? -1 : 1))}
             activeMember={(populatedRooms[id].currentMembers || []).map(
               (m) => m._id
             )}
