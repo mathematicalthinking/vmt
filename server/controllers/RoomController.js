@@ -81,8 +81,21 @@ module.exports = {
           : () =>
               db.Room.find({
                 $or: id.map((oneId) => ({
-                  _id: oneId,
-                  updatedAt: { $gt: new Date(queryTimes[oneId] || 0) },
+                  $or: [
+                    {
+                      _id: oneId,
+                      dbUpdatedAt: {
+                        $exists: false,
+                      },
+                    },
+                    {
+                      _id: oneId,
+                      dbUpdatedAt: {
+                        $exists: true,
+                        $gt: new Date(queryTimes[oneId] || 0),
+                      },
+                    },
+                  ],
                 })),
               });
     } else {
