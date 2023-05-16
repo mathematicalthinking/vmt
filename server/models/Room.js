@@ -64,11 +64,13 @@ const Room = new mongoose.Schema(
       enum: Object.values(STATUS),
       default: STATUS.DEFAULT,
     },
+    dbUpdatedAt: { type: Date },
   },
   { timestamps: true }
 );
 
 Room.pre('save', function(next) {
+  this.dbUpdatedAt = Date.now();
   if (this.isNew) {
     this.wasNew = this.isNew;
     next();
@@ -118,6 +120,27 @@ Room.pre('save', function(next) {
   } else {
     next();
   }
+});
+
+Room.pre('update', function(next) {
+  this._update = this._update || {};
+  this._update.$set = this._update.$set || {};
+  this._update.$set.dbUpdatedAt = Date.now();
+  next();
+});
+
+Room.pre('findOneAndUpdate', function(next) {
+  this._update = this._update || {};
+  this._update.$set = this._update.$set || {};
+  this._update.$set.dbUpdatedAt = Date.now();
+  next();
+});
+
+Room.pre('findByIdAndUpdate', function(next) {
+  this._update = this._update || {};
+  this._update.$set = this._update.$set || {};
+  this._update.$set.dbUpdatedAt = Date.now();
+  next();
 });
 
 Room.post('save', function(doc, next) {
