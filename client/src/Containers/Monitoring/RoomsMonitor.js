@@ -191,12 +191,23 @@ function RoomsMonitor({
         );
       }
       case constants.ATTENDANCE: {
+        const newMembers = populatedRooms[id].members
+          ? populatedRooms[id].members.map((mem) => ({
+              ...mem,
+              user: {
+                ...mem.user,
+                username: `${mem.user.username} ${
+                  mem.alias ? `(${mem.alias})` : ''
+                }`,
+              },
+            }))
+          : [];
         return (
           <CurrentMembers
-            members={populatedRooms[id].members || []}
+            members={newMembers}
             currentMembers={_selectFirst([
               ...populatedRooms[id].currentMembers,
-              ...(populatedRooms[id].members || []).map((m) => m.user),
+              ...newMembers.map((m) => m.user),
             ])}
             activeMember={(populatedRooms[id].currentMembers || []).map(
               (m) => m._id
