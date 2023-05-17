@@ -46,9 +46,9 @@ class Course extends Component {
       tabs: [
         { name: 'Rooms' },
         { name: 'Members' },
-        { name: 'Activities' },
-        { name: 'Preview' },
-        { name: 'Stats' },
+        ...(this.shouldShowTab() ? [{ name: 'Activities' }] : []),
+        ...(this.shouldShowTab() ? [{ name: 'Preview' }] : []),
+        ...(this.shouldShowTab() ? [{ name: 'Stats' }] : []),
       ],
       firstView: false,
       editing: false,
@@ -165,6 +165,17 @@ class Course extends Component {
     //   this.props.getUser(this.props.user._id)
     // }
   }
+
+  // Non-facilitators only see Rooms & Members tabs
+  shouldShowTab = () => {
+    const { course, user } = this.props;
+    const isFacilitator = course.myRole === 'facilitator';
+
+    if (isFacilitator || user.inAdminMode) {
+      return true;
+    }
+    return false;
+  };
 
   requestAccess = () => {
     // consider getting requestAccess from mapDispatchToProps instead of patent component
