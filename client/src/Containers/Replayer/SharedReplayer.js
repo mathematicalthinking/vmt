@@ -559,7 +559,13 @@ class SharedReplayer extends Component {
           graphs={graphs}
           // user={user}
           chat={this.updatedLog.length > 0 ? chat : null}
-          tabs={<Tabs tabs={populatedRoom.tabs} currentTabId={currentTabId} />}
+          tabs={
+            <Tabs
+              tabs={populatedRoom.tabs}
+              currentTabId={currentTabId}
+              onChangeTab={this.changeTab}
+            />
+          }
           currentMembers={
             currentMembers.length > 0 ? (
               <CurrentMembers
