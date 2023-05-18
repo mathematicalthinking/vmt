@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Button, CurrentMembers, Error, Loading } from 'Components';
-import { TabTypes } from 'Model';
+import { Button, TabTypes, CurrentMembers, Error, Loading } from 'Components';
 import { WorkspaceLayout } from 'Layout';
 import { dateAndTime } from 'utils';
 import ReplayerControls from './ReplayerControls';

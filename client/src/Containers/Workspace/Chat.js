@@ -168,7 +168,6 @@ class Chat extends Component {
       user: { _id: user._id, username: user.username },
       room: roomId,
       color: myColor,
-      tab: currentTabId,
       messageType: 'TEXT',
       timestamp: Date.now(),
     };
