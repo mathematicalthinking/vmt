@@ -205,6 +205,8 @@ function withPopulatedRoom(WrappedComponent) {
       });
     }
 
+    // allow for the case where member is not there
+    //
     // eslint-disable-next-line class-methods-use-this
     adjustLogUsers(log, settings, members) {
       if (!log.length) return log;
@@ -219,6 +221,7 @@ function withPopulatedRoom(WrappedComponent) {
           const member = members.find(
             (el) => el.user._id === currentLog.user._id
           );
+          if (!member) return currentLog;
           if (member.alias && member.alias.length > 0)
             currentLog.user.username = member.alias;
           else currentLog.user.username = member.user.username;
