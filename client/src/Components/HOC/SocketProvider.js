@@ -17,7 +17,6 @@ import {
   updateUser,
   clearError,
   logout,
-  updateRoom,
 } from '../../store/actions';
 import Notification from '../Notification/Notification';
 import classes from './socketProvider.css';
@@ -195,12 +194,6 @@ class SocketProvider extends Component {
     socket.on('FORCED_LOGOUT', () => {
       connectLogout();
     });
-
-    socket.on('SETTINGS_CHANGED', (data) => {
-      const { connectUpdateRoom } = this.props;
-      const { roomId, settings } = data;
-      connectUpdateRoom(roomId, { settings });
-    });
   }
 
   render() {
@@ -237,7 +230,6 @@ SocketProvider.propTypes = {
   connectUpdateUser: PropTypes.func.isRequired,
   connectClearError: PropTypes.func.isRequired,
   connectLogout: PropTypes.func.isRequired,
-  connectUpdateRoom: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => {
@@ -251,7 +243,6 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {
   connectAddNotification: addNotification,
-  connectUpdateRoom: updateRoom,
   connectAddUserCourses: addUserCourses,
   connectGetUser: getUser,
   connectAddUserRooms: addUserRooms,

@@ -1,4 +1,4 @@
-import { TabTypes } from 'Model';
+import { TabTypes } from 'Components';
 
 export default function getResourceTabTypes(tabs) {
   let tabTypes = 'None';

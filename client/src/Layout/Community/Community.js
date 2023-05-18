@@ -2,8 +2,14 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import { BoxList } from 'Layout';
-import { Search, CustomLink, Button, RadioBtn, InfoBox } from 'Components';
-import { TabTypes } from 'Model';
+import {
+  Search,
+  CustomLink,
+  Button,
+  RadioBtn,
+  InfoBox,
+  TabTypes,
+} from 'Components';
 import classes from './community.css';
 
 class Community extends Component {
