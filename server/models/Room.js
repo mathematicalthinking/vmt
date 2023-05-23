@@ -55,7 +55,7 @@ const Room = new mongoose.Schema(
       displayAliasedUsernames: { type: Boolean, default: false },
     },
     graphImage: { type: ObjectId, ref: 'Image' },
-    controlledBy: { type: ObjectId, ref: 'User', default: null },
+    controlledBy: { type: ObjectId, ref: 'User', default: null },,
     // wasNew: {type: Boolean},
     isTrashed: { type: Boolean, default: false },
     snapshot: {},
@@ -123,26 +123,18 @@ Room.pre('save', function(next) {
   }
 });
 
-Room.pre('update', function(next) {
+function updateTimestamp(next) {
   this._update = this._update || {};
   this._update.$set = this._update.$set || {};
   this._update.$set.dbUpdatedAt = Date.now();
   next();
-});
+}
 
-Room.pre('findOneAndUpdate', function(next) {
-  this._update = this._update || {};
-  this._update.$set = this._update.$set || {};
-  this._update.$set.dbUpdatedAt = Date.now();
-  next();
-});
+Room.pre('update', updateTimestamp);
 
-Room.pre('findByIdAndUpdate', function(next) {
-  this._update = this._update || {};
-  this._update.$set = this._update.$set || {};
-  this._update.$set.dbUpdatedAt = Date.now();
-  next();
-});
+Room.pre('findOneAndUpdate', updateTimestamp);
+
+Room.pre('findByIdAndUpdate', updateTimestamp);
 
 Room.post('save', function(doc, next) {
   if (this.wasNew && !this.tempRoom) {
@@ -232,4 +224,5 @@ Room.methods.summary = function() {
   return obj;
   // next();
 };
+
 module.exports = mongoose.model('Room', Room);
