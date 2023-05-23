@@ -36,6 +36,7 @@ const Room = new mongoose.Schema(
         },
         alias: { type: String },
         course: { type: ObjectId, ref: 'Course' },
+        currentTab: { type: ObjectId, ref: 'Tab' },
       },
     ],
     currentMembers: { type: [{ type: ObjectId, ref: 'User' }], default: [] },

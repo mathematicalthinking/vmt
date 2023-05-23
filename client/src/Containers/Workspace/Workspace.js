@@ -964,7 +964,11 @@ class Workspace extends Component {
             ? tempCurrentMembers
             : populatedRoom.getCurrentMembers(activeMembers)
         }
-        activeMember={controlState.controlledBy}
+        activeMember={
+          controlState.controllers
+            ? Object.values(controlState.controllers)
+            : ''
+        }
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
       />

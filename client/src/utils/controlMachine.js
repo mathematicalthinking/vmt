@@ -470,6 +470,7 @@ export function useControlMachine(context, spec) {
       buttonConfig: state.context.buttonConfig,
       controlledBy: state.context.controlledBy,
       currentTabId: state.context.currentTabId,
+      controllers: state.context.controllers,
     },
     send,
   ];
