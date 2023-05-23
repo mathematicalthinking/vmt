@@ -55,7 +55,7 @@ const Room = new mongoose.Schema(
       displayAliasedUsernames: { type: Boolean, default: false },
     },
     graphImage: { type: ObjectId, ref: 'Image' },
-    controlledBy: { type: ObjectId, ref: 'User', default: null },,
+    controlledBy: { type: ObjectId, ref: 'User', default: null },
     // wasNew: {type: Boolean},
     isTrashed: { type: Boolean, default: false },
     snapshot: {},
