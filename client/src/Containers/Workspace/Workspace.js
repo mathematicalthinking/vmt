@@ -25,7 +25,8 @@ import {
   createMongoId as mongoIdGenerator,
 } from 'utils';
 import { WorkspaceLayout } from 'Layout';
-import { Chat, Tabs, Tools, RoomInfo } from '.';
+import { Chat, Tools, RoomInfo } from '.';
+import Tabs from './DropdownTabs';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
 

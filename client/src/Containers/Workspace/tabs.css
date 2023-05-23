@@ -126,3 +126,8 @@
   color: orange;
   background-color: transparent;
 }
+
+.TabsContainer {
+  z-index: 1600;
+  display: flex;
+}
