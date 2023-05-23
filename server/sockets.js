@@ -396,6 +396,13 @@ module.exports = function() {
         usersInSockets
       );
 
+      await Promise.all(
+        roomInDb.tabs.map((tab) =>
+          // eslint-disable-next-line no-return-await
+          controllers.tabs.conformCurrentMembers(tab._id, usersInSockets)
+        )
+      );
+
       // filter any users that are in db but not in sockets into differenceInUsers
       const differenceInUsers = currMemsInDb.filter(
         (user) =>

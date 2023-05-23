@@ -49,4 +49,16 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
+
+  // Socket function
+  conformCurrentMembers: (id, allowedUsers) => {
+    db.Tab.findById(id).then((tab) => {
+      const currentUsers = tab.currentMembers || [];
+      const newUsers = currentUsers.filter((user) =>
+        allowedUsers.includes(user)
+      );
+      if (newUsers.length === currentUsers.length) return;
+      db.Tab.findByIdAndUpdate(id, { $set: { currentMembers: newUsers } });
+    });
+  },
 };
