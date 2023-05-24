@@ -14,26 +14,34 @@ const Tabs = ({
   // @TODO worry about edge cases
 
   let currentSelection;
-  const tabOptions = tabs.map((tab) => {
-    const currentOption = { label: tab.name, value: tab._id };
-    // the option associated with currentTabId
-    if (tab._id === currentTabId) currentSelection = currentOption;
-    return currentOption;
-  });
+  const tabOptions = tabs
+    .map((tab, i) => {
+      const currentOption = { label: `(${i + 1}) ${tab.name}`, value: tab._id };
+      // the option associated with currentTabId
+      if (tab._id === currentTabId) currentSelection = currentOption;
+      return currentOption;
+    })
+    .filter((tab) => tab.value !== currentTabId);
 
   return (
     <div className={classes.TabsContainer} data-testid="tabs-container">
       <Select
         options={tabOptions}
         onChange={(selectedOption) => onChangeTab(selectedOption.value)}
-        value={currentSelection}
+        value={{ ...currentSelection, label: `Tab: ${currentSelection.label}` }}
         isSearchable={false}
+        styles={{
+          menu: (base) => ({
+            ...base,
+            marginTop: 0,
+          }),
+        }}
       />
       {canCreate ? (
         <div className={[classes.Tab, classes.NewTab].join(' ')}>
           <div
             onClick={onCreateNewTab}
-            onKeyPress={onCreateNewTab}
+            onKeyDown={onCreateNewTab}
             role="button"
             tabIndex="-3"
             className={classes.TabBox}

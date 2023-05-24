@@ -67,6 +67,7 @@
 .TabsAndTitle {
   display: flex;
   height: 35px;
+  margin-bottom: 6px;
   /* border: 1px solid khaki; */
 }
 
@@ -97,7 +98,7 @@
   /* width: graphWidth; */
   display: flex;
   flex: 0 1 1;
-  z-index: 1;
+  /* z-index: 1; */
 }
 
 .Top {
