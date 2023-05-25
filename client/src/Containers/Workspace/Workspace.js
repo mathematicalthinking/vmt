@@ -399,6 +399,25 @@ class Workspace extends Component {
       this.setState({ tabs });
     });
 
+    socket.on('SWITCHED_TAB', (data) => {
+      const { connectUpdateRoomTab } = this.props;
+      const { tabs } = this.state;
+      const { tab: oldTabId, newTabId } = data;
+
+      const originalTab = tabs.find((tab) => tab._id === oldTabId);
+      const newTab = tabs.find((tab) => tab._id === newTabId);
+      // remove me from previous tab's currentMembers for everybody
+      connectUpdateRoomTab(populatedRoom._id, oldTabId, {
+        currentMembers: (originalTab.currentMembers || []).filter(
+          (m) => m._id !== user._id
+        ),
+      });
+      // add me to the new tab's currentMembers for everybody
+      connectUpdateRoomTab(populatedRoom._id, newTabId, {
+        currentMembers: [...(newTab.currentMembers || []), user._id],
+      });
+    });
+
     socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
       this.setState({ eventsWithRefs: data });
     });
@@ -484,7 +503,13 @@ class Workspace extends Component {
   };
 
   changeTab = (id) => {
-    const { populatedRoom, user, sendControlEvent, controlState } = this.props;
+    const {
+      populatedRoom,
+      user,
+      sendControlEvent,
+      controlState,
+      connectUpdateRoomTab,
+    } = this.props;
     const { activityOnOtherTabs, myColor, tabs } = this.state;
     const { currentTabId } = controlState;
     this.clearReference();
@@ -500,6 +525,7 @@ class Workspace extends Component {
       tab: currentTabId,
       color: myColor,
       timestamp: Date.now(),
+      newTabId: id,
     };
     socket.emit('SWITCH_TAB', data, (res, err) => {
       if (err) {
@@ -509,6 +535,19 @@ class Workspace extends Component {
       this.addToLog(data);
     });
     sendControlEvent(controlEvents.SWITCH_TAB, { tab: id });
+
+    const originalTab = tabs.find((tab) => tab._id === currentTabId);
+    const newTab = tabs.find((tab) => tab._id === id);
+    // remove me from previous tab's currentMembers
+    connectUpdateRoomTab(populatedRoom._id, currentTabId, {
+      currentMembers: (originalTab.currentMembers || []).filter(
+        (m) => m._id !== user._id
+      ),
+    });
+    // add me to the new tab's currentMembers
+    connectUpdateRoomTab(populatedRoom._id, id, {
+      currentMembers: [...(newTab.currentMembers || []), user._id],
+    });
     const updatedTabs = activityOnOtherTabs.filter((tab) => tab !== id);
     this.setState({ activityOnOtherTabs: updatedTabs }, () => {
       this.handleInstructionsModal();

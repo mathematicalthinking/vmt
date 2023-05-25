@@ -319,10 +319,16 @@ module.exports = function() {
     socket.on('SWITCH_TAB', (data, callback) => {
       socketMetricInc('tabswitch');
 
+      const { newTabId, tab, user, room } = data;
+
+      controllers.tabs.removeFromCurrenMembers(tab, user._id);
+      controllers.tabs.addToCurrenMembers(newTabId, user._id);
+
       controllers.messages
         .post(data)
         .then(() => {
-          socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
+          socket.broadcast.to(room).emit('RECEIVE_MESSAGE', data);
+          socket.broadcast.to(room).emit('SWITCHED_TAB', data);
           callback('success', null);
         })
         .catch((err) => {

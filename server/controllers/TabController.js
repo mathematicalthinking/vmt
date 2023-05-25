@@ -50,7 +50,7 @@ module.exports = {
     });
   },
 
-  // Socket function
+  // Socket functions
   conformCurrentMembers: (id, allowedUsers) => {
     db.Tab.findById(id).then((tab) => {
       const currentUsers = tab.currentMembers || [];
@@ -61,4 +61,15 @@ module.exports = {
       db.Tab.findByIdAndUpdate(id, { $set: { currentMembers: newUsers } });
     });
   },
+
+  removeFromCurrenMembers: async (id, memberToRemove) => {
+    await db.Tab.findByIdAndUpdate(id, {
+      $pull: { currentMembers: memberToRemove },
+    });
+  },
+  addToCurrenMembers: async (id, memberToAdd) => {
+    await db.Tab.findByIdAndUpdate(id, {
+      $addToSet: { currentMembers: memberToAdd },
+    });
+  }, // end socket functions
 };
