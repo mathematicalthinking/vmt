@@ -28,6 +28,7 @@ import { WorkspaceLayout } from 'Layout';
 import { Chat, Tabs, Tools, RoomInfo } from '.';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
+import DisplayTabsCM from 'Components/CurrentMembers/DisplayTabsCM';
 
 class Workspace extends Component {
   constructor(props) {
@@ -400,20 +401,19 @@ class Workspace extends Component {
     });
 
     socket.on('SWITCHED_TAB', (data) => {
-      const { connectUpdateRoomTab } = this.props;
       const { tabs } = this.state;
       const { tab: oldTabId, newTabId } = data;
 
       const originalTab = tabs.find((tab) => tab._id === oldTabId);
       const newTab = tabs.find((tab) => tab._id === newTabId);
       // remove me from previous tab's currentMembers for everybody
-      connectUpdateRoomTab(populatedRoom._id, oldTabId, {
+      this.updateTab(oldTabId, {
         currentMembers: (originalTab.currentMembers || []).filter(
           (m) => m._id !== user._id
         ),
       });
       // add me to the new tab's currentMembers for everybody
-      connectUpdateRoomTab(populatedRoom._id, newTabId, {
+      this.updateTab(newTabId, {
         currentMembers: [...(newTab.currentMembers || []), user._id],
       });
     });
@@ -502,14 +502,16 @@ class Workspace extends Component {
     });
   };
 
+  updateTab = (tabId, update) => {
+    const { tabs } = this.state;
+    const tab = tabs.find((t) => t._id === tabId);
+    const updatedTab = { ...tab, ...update };
+    const updatedTabs = tabs.map((t) => (t._id === tabId ? updatedTab : t));
+    this.setState({ tabs: updatedTabs });
+  };
+
   changeTab = (id) => {
-    const {
-      populatedRoom,
-      user,
-      sendControlEvent,
-      controlState,
-      connectUpdateRoomTab,
-    } = this.props;
+    const { populatedRoom, user, sendControlEvent, controlState } = this.props;
     const { activityOnOtherTabs, myColor, tabs } = this.state;
     const { currentTabId } = controlState;
     this.clearReference();
@@ -539,13 +541,13 @@ class Workspace extends Component {
     const originalTab = tabs.find((tab) => tab._id === currentTabId);
     const newTab = tabs.find((tab) => tab._id === id);
     // remove me from previous tab's currentMembers
-    connectUpdateRoomTab(populatedRoom._id, currentTabId, {
+    this.updateTab(currentTabId, {
       currentMembers: (originalTab.currentMembers || []).filter(
         (m) => m._id !== user._id
       ),
     });
     // add me to the new tab's currentMembers
-    connectUpdateRoomTab(populatedRoom._id, id, {
+    this.updateTab(id, {
       currentMembers: [...(newTab.currentMembers || []), user._id],
     });
     const updatedTabs = activityOnOtherTabs.filter((tab) => tab !== id);
@@ -995,7 +997,7 @@ class Workspace extends Component {
     const inControl = controlState.inControl || controlStates.NONE;
 
     const currentMembers = (
-      <CurrentMembers
+      <DisplayTabsCM
         members={temp ? tempMembers : populatedRoom.members}
         // currentMembers={temp ? tempCurrentMembers : activeMembers}
         currentMembers={
@@ -1010,6 +1012,7 @@ class Workspace extends Component {
         }
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
+        tabs={currentTabs}
       />
     );
     const tabs = (
