@@ -548,10 +548,8 @@ class Workspace extends Component {
     socket.emit('NEW_TAB', tabInfo, () => {
       this.addToLog(tabInfo.message);
     });
-    console.group('New Tab');
-    console.log('tabInfo: ');
-    console.log(tabInfo);
-    console.groupEnd()
+
+    // Switch to the new tab
     this.changeTab(tabInfo._id);
   };
 
