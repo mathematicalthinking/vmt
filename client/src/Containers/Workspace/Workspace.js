@@ -2,7 +2,6 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import each from 'lodash/each';
 import find from 'lodash/find';
 import {
   updateRoom,
@@ -307,7 +306,7 @@ class Workspace extends Component {
       controlState,
     } = this.props;
     const { currentTabId } = controlState;
-    const { myColor } = this.state;
+    const { myColor, tabs } = this.state;
 
     if (!temp) {
       const sendData = {
@@ -363,7 +362,11 @@ class Workspace extends Component {
         });
     };
 
-    socket.on('USER_JOINED', _handleJoinOrLeave);
+    socket.on('USER_JOINED', (data) => {
+      // add user to first tab
+      this.updateTab(tabs[0]._id, { currentMembers: data.userId });
+      _handleJoinOrLeave(data);
+    });
 
     socket.on('USER_LEFT', _handleJoinOrLeave);
 
@@ -414,7 +417,9 @@ class Workspace extends Component {
       });
       // add me to the new tab's currentMembers for everybody
       this.updateTab(newTabId, {
-        currentMembers: [...(newTab.currentMembers || []), user._id],
+        currentMembers: Array.from(
+          new Set([...newTab.currentMembers, user._id])
+        ),
       });
     });
 
@@ -548,7 +553,7 @@ class Workspace extends Component {
     });
     // add me to the new tab's currentMembers
     this.updateTab(id, {
-      currentMembers: [...(newTab.currentMembers || []), user._id],
+      currentMembers: Array.from(new Set([...newTab.currentMembers, user._id])),
     });
     const updatedTabs = activityOnOtherTabs.filter((tab) => tab !== id);
     this.setState({ activityOnOtherTabs: updatedTabs }, () => {
@@ -733,21 +738,6 @@ class Workspace extends Component {
 
   setTabs = (tabs) => {
     this.setState({ tabs });
-  };
-
-  updateTab = (updatedTabId, updateBody) => {
-    const { tabs } = this.state;
-
-    const copiedTabs = [...tabs];
-
-    copiedTabs.forEach((tab) => {
-      if (tab._id === updatedTabId) {
-        each(updateBody, (value, field) => {
-          tab[field] = value;
-        });
-      }
-    });
-    this.setTabs(copiedTabs);
   };
 
   resizeHandler = () => {

@@ -511,6 +511,7 @@ module.exports = function() {
           releasedControl, // maybe needs to be an array of tabs?
           message,
         });
+        controllers.tabs.removeFromCurrentMembers(tabId, socket.user_id);
         if (cb) cb('exited!', null);
       } catch (err) {
         if (socket.user) {
