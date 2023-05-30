@@ -39,7 +39,18 @@ const Room = new mongoose.Schema(
         currentTab: { type: ObjectId, ref: 'Tab' },
       },
     ],
-    currentMembers: { type: [{ type: ObjectId, ref: 'User' }], default: [] },
+    // currentMembers: { type: [{ type: ObjectId, ref: 'User' }], default: [] },
+    currentMembers: {
+      type: [
+        {
+          _id: { type: ObjectId, ref: 'User' },
+          username: String,
+          tab: { type: ObjectId, ref: 'Tab' },
+        },
+      ],
+      default: [],
+    },
+
     tabs: { type: [{ type: ObjectId, ref: 'Tab' }] },
     privacySetting: {
       type: String,
