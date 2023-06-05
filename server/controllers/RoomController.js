@@ -101,34 +101,37 @@ module.exports = {
     } else {
       queryFcn = () => db.Room.findById(id);
     }
-    return queryFcn()
-      .populate({ path: 'creator', select: 'username' })
-      .populate({
-        path: 'chat',
-        // options: { limit: 25 }, // Eventually we'll need to paginate this
-        populate: { path: 'user', select: 'username' },
-        // allow messages to have roomIds, like events do
-        // select: '-room',
-      })
-      .populate({ path: 'members.user', select: 'username' })
-      .populate({ path: 'currentMembers', select: 'username' })
-      .populate({ path: 'course', select: 'name' })
-      .populate({ path: 'activity', select: 'name' })
-      .populate(
-        params.events === 'true'
-          ? {
-              path: 'tabs',
-              populate: {
-                path: 'events',
-                populate: { path: 'user', select: 'username color' },
-              },
-            }
-          : {
-              path: 'tabs',
-              select: 'name tabType snapshot desmosLink controlledBy',
-            }
-      )
-      .lean();
+    return (
+      queryFcn()
+        .populate({ path: 'creator', select: 'username' })
+        .populate({
+          path: 'chat',
+          // options: { limit: 25 }, // Eventually we'll need to paginate this
+          populate: { path: 'user', select: 'username' },
+          // allow messages to have roomIds, like events do
+          // select: '-room',
+        })
+        .populate({ path: 'members.user', select: 'username' })
+        // .populate({ path: 'currentMembers', select: 'username' })
+        // .populate({ path: 'currentMembers' })
+        .populate({ path: 'course', select: 'name' })
+        .populate({ path: 'activity', select: 'name' })
+        .populate(
+          params.events === 'true'
+            ? {
+                path: 'tabs',
+                populate: {
+                  path: 'events',
+                  populate: { path: 'user', select: 'username color' },
+                },
+              }
+            : {
+                path: 'tabs',
+                select: 'name tabType snapshot desmosLink controlledBy',
+              }
+        )
+        .lean()
+    );
     // options: { limit: 25 },
   },
 
@@ -642,16 +645,19 @@ module.exports = {
 
   // SOCKET METHODS
 
-  setCurrentUsers: (roomId, newCurrentUserIds) => {
+  setCurrentUsers: (roomId, currentUsers) => {
     return new Promise(async (resolve, reject) => {
-      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
-      const query = { $set: { currentMembers: newCurrentUserIds } };
-      db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
-        // .populate({ path: 'members.user', select: 'username' })
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
+      const query = { $set: { currentMembers: currentUsers } };
+
+      db.Room.findByIdAndUpdate(roomId, query, {
+        new: true,
+        timestamps: false,
+      })
         .select('currentMembers members controlledBy')
         .then((room) => {
           room.populate(
-            { path: 'currentMembers members.user', select: 'username' },
+            { path: 'members.user', select: 'username' },
             (err, poppedRoom) => {
               if (err) {
                 reject(err);

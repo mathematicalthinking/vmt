@@ -13,9 +13,7 @@ const Tab = new mongoose.Schema(
     currentState: { type: String, default: '' },
     currentStateBase64: { type: String, default: '' },
     currentScreen: { type: Number, default: 0 },
-    // currentMembers is a secondary state field. Secondary because a room's currentMembers is truth.
-    // DEVELOPERS: Don't assume this is a perfect representation of a room's state.
-    currentMembers: { type: [{ type: ObjectId, ref: 'User' }], default: [] },
+
     ggbFile: { type: String }, // ggb base64 file
     desmosLink: { type: String },
     perspective: {

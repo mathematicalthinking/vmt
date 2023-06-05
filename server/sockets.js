@@ -397,23 +397,38 @@ module.exports = function() {
       });
       const currMemsInDb = roomInDb.currentMembers;
       const usersInSockets = await usersInRoom(roomId); // socket users
+
+      // used to update the currentMembers array in the db
+      const currentUsers = [];
+
+      // get usernames for usersInSockets from the database
+      // get Room Tab id for usersInSockets from the database
+      // set currentUsers to an array of objects with _ids, usernames and tabIds
+
+      const promises = usersInSockets.map(async (user) => {
+        const usr = await controllers.user.getById(user);
+        const tab = roomInDb.tabs.find(
+          (tabObj) => tabObj.controlledBy === usr._id
+        );
+        return {
+          _id: usr._id,
+          username: usr.username,
+          tab: tab ? tab._id : roomInDb.tabs[0]._id,
+        };
+      });
+      const resolved = await Promise.all(promises);
+      currentUsers.push(...resolved);
+
       const room = await controllers.rooms.setCurrentUsers(
         roomId,
-        usersInSockets
-      );
-
-      await Promise.all(
-        roomInDb.tabs.map((tab) =>
-          // eslint-disable-next-line no-return-await
-          controllers.tabs.conformCurrentMembers(tab._id, usersInSockets)
-        )
+        currentUsers
       );
 
       // filter any users that are in db but not in sockets into differenceInUsers
       const differenceInUsers = currMemsInDb.filter(
         (user) =>
           // currMemsInDb ids are Objects, usersInSockets ids are strings
-          !usersInSockets.includes(user._id.toString())
+          user && user._id && !usersInSockets.includes(user._id.toString())
       );
 
       if (differenceInUsers.length) {
@@ -508,10 +523,9 @@ module.exports = function() {
         message.save();
         socket.to(roomId).emit('USER_LEFT', {
           currentMembers: room.currentMembers,
-          releasedControl, // maybe needs to be an array of tabs?
+          releasedControl,
           message,
         });
-        controllers.tabs.removeFromCurrentMembers(tabId, socket.user_id);
         if (cb) cb('exited!', null);
       } catch (err) {
         if (socket.user) {

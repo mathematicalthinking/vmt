@@ -542,23 +542,6 @@ class Workspace extends Component {
       this.addToLog(data);
     });
     sendControlEvent(controlEvents.SWITCH_TAB, { tab: id });
-
-    const originalTab = tabs.find((tab) => tab._id === currentTabId);
-    const newTab = tabs.find((tab) => tab._id === id);
-    // remove me from previous tab's currentMembers
-    this.updateTab(currentTabId, {
-      currentMembers: (originalTab.currentMembers || []).filter(
-        (m) => m._id !== user._id
-      ),
-    });
-    // add me to the new tab's currentMembers
-    this.updateTab(id, {
-      currentMembers: Array.from(new Set([...newTab.currentMembers, user._id])),
-    });
-    const updatedTabs = activityOnOtherTabs.filter((tab) => tab !== id);
-    this.setState({ activityOnOtherTabs: updatedTabs }, () => {
-      this.handleInstructionsModal();
-    });
   };
 
   toggleControl = () => {
@@ -987,7 +970,8 @@ class Workspace extends Component {
     const inControl = controlState.inControl || controlStates.NONE;
 
     const currentMembers = (
-      <DisplayTabsCM
+      // <DisplayTabsCM
+      <CurrentMembers
         members={temp ? tempMembers : populatedRoom.members}
         // currentMembers={temp ? tempCurrentMembers : activeMembers}
         currentMembers={
