@@ -645,7 +645,7 @@ module.exports = {
 
   // SOCKET METHODS
 
-  setCurrentUsers: (roomId, currentUsers) => {
+  setCurrentMembers: (roomId, currentUsers) => {
     return new Promise(async (resolve, reject) => {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
       const query = { $set: { currentMembers: currentUsers } };
@@ -670,18 +670,16 @@ module.exports = {
     });
   },
 
-  addCurrentUsers: (roomId, newCurrentUserId, members) => {
+  addCurrentMember: (roomId, newCurrentMember) => {
     return new Promise(async (resolve, reject) => {
-      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
-      const query = members
-        ? { $addToSet: { currentMembers: newCurrentUserId, members } }
-        : { $addToSet: { currentMembers: newCurrentUserId } };
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
+      const query = { $addToSet: { currentMembers: newCurrentMember } };
       db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members')
         .then((room) => {
           room.populate(
-            { path: 'currentMembers members.user', select: 'username' },
+            { path: 'members.user', select: 'username' },
             (err, poppedRoom) => {
               if (err) {
                 reject(err);
@@ -694,11 +692,11 @@ module.exports = {
     });
   },
 
-  removeCurrentUsers: (roomId, userId) => {
+  removeCurrentMember: (roomId, userId) => {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(
         roomId,
-        { $pull: { currentMembers: userId } },
+        { $pull: { currentMembers: { _id: userId } } },
         { timestamps: false }
       ) // dont return new! we need the original list to filter back in sockets.js
         .populate({ path: 'currentMembers', select: 'username' })
@@ -709,6 +707,7 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
+
   getRecentActivity: async (criteria, skip, filters) => {
     let { since, to } = filters;
     const allowedSincePresets = ['day', 'week', 'month', 'year'];

@@ -91,10 +91,10 @@ module.exports = function() {
           );
         }
         promises.push(
-          controllers.rooms.addCurrentUsers(data.roomId, ObjectId(user._id), {
-            user: ObjectId(user._id),
-            role: data.firstEntry ? 'facilitator' : 'participant',
-            color: data.color,
+          controllers.rooms.addCurrentMember(data.roomId, {
+            _id: ObjectId(user._id),
+            tab: data.tab,
+            username: user.username,
           })
         );
         let results;
@@ -419,7 +419,7 @@ module.exports = function() {
       const resolved = await Promise.all(promises);
       currentUsers.push(...resolved);
 
-      const room = await controllers.rooms.setCurrentUsers(
+      const room = await controllers.rooms.setCurrentMembers(
         roomId,
         currentUsers
       );
