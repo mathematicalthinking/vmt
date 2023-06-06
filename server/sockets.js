@@ -316,24 +316,31 @@ module.exports = function() {
       }
     });
 
-    socket.on('SWITCH_TAB', (data, callback) => {
+    socket.on('SWITCH_TAB', async (data, callback) => {
       socketMetricInc('tabswitch');
 
-      const { newTabId, tab, user, room } = data;
+      const { newTabId, user, room } = data;
 
-      controllers.tabs.removeFromCurrenMembers(tab, user._id);
-      controllers.tabs.addToCurrenMembers(newTabId, user._id);
+      // update the currentMembers array in the db
+      // to reflect the new tab that the user is on
+      // Room.currentMembers is an array of objects with _ids, usernames and tabIds
+      // find the user in the array and update their tabId
+      const currentMembersFromDb = await controllers.rooms.updateCurrentMemberTab(
+        room,
+        user._id,
+        newTabId
+      );
 
-      controllers.messages
-        .post(data)
-        .then(() => {
-          socket.broadcast.to(room).emit('RECEIVE_MESSAGE', data);
-          socket.broadcast.to(room).emit('SWITCHED_TAB', data);
-          callback('success', null);
-        })
-        .catch((err) => {
-          callback(null, err);
-        });
+      data.currentMembers = currentMembersFromDb;
+
+      try {
+        await controllers.messages.post(data);
+        socket.broadcast.to(room).emit('SWITCHED_TAB', data);
+        socket.broadcast.to(room).emit('RECEIVE_MESSAGE', data);
+        callback(currentMembersFromDb, null);
+      } catch (err) {
+        callback(null, err);
+      }
     });
 
     socket.on('NEW_TAB', (data, callback) => {

@@ -404,23 +404,8 @@ class Workspace extends Component {
     });
 
     socket.on('SWITCHED_TAB', (data) => {
-      const { tabs } = this.state;
-      const { tab: oldTabId, newTabId } = data;
-
-      const originalTab = tabs.find((tab) => tab._id === oldTabId);
-      const newTab = tabs.find((tab) => tab._id === newTabId);
-      // remove me from previous tab's currentMembers for everybody
-      this.updateTab(oldTabId, {
-        currentMembers: (originalTab.currentMembers || []).filter(
-          (m) => m._id !== user._id
-        ),
-      });
-      // add me to the new tab's currentMembers for everybody
-      this.updateTab(newTabId, {
-        currentMembers: Array.from(
-          new Set([...newTab.currentMembers, user._id])
-        ),
-      });
+      const { currentMembers: currentMembersFromDb } = data;
+      this.setState({ currentMembers: currentMembersFromDb });
     });
 
     socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
@@ -534,11 +519,12 @@ class Workspace extends Component {
       timestamp: Date.now(),
       newTabId: id,
     };
-    socket.emit('SWITCH_TAB', data, (res, err) => {
+    socket.emit('SWITCH_TAB', data, (currentMembersFromDb, err) => {
       if (err) {
         // eslint-disable-next-line no-console
         console.log('something went wrong on the socket:', err);
       }
+      this.setState({ currentMembers: currentMembersFromDb });
       this.addToLog(data);
     });
     sendControlEvent(controlEvents.SWITCH_TAB, { tab: id });

@@ -670,6 +670,24 @@ module.exports = {
     });
   },
 
+  // when a currentMember switches tabs, update the currentMembers array
+  updateCurrentMemberTab: async (roomId, userId, newTabId) => {
+    const room = await db.Room.findById(roomId);
+    const currentMember = room.currentMembers.find(
+      (member) => String(member._id) === String(userId)
+    );
+    if (!currentMember) {
+      console.log(
+        'no current member found, returning previous currentMembers from db'
+      );
+      return room.currentMembers;
+    }
+    currentMember.tab = newTabId;
+
+    await room.save();
+    return room.currentMembers;
+  },
+
   addCurrentMember: (roomId, newCurrentMember) => {
     return new Promise(async (resolve, reject) => {
       // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
