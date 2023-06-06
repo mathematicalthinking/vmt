@@ -94,7 +94,7 @@ class TempWorkspace extends Component {
       roomName: `temporary room ...${_id.slice(_id.length - 5, _id.length)}`,
       roomId: _id,
       color: COLOR_MAP[populatedRoom.members.length || 0],
-      tabId: populatedRoom.tabs[0]._id,
+      tab: populatedRoom.tabs[0]._id,
       roomType: graphType, // this wil be undefined if its not the first user in the room
     };
     const updatedTabs = [...populatedRoom.tabs];
