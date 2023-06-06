@@ -13,7 +13,7 @@ import {
   updateUserSettings,
 } from 'store/actions';
 import { Room, TabTypes } from 'Model';
-import { Modal, CurrentMembers, Loading } from 'Components';
+import { Modal, DisplayTabsCM, Loading } from 'Components';
 import { ROLE } from 'constants.js';
 import {
   socket,
@@ -27,7 +27,6 @@ import { WorkspaceLayout } from 'Layout';
 import { Chat, Tabs, Tools, RoomInfo } from '.';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
-import DisplayTabsCM from 'Components/CurrentMembers/DisplayTabsCM';
 
 class Workspace extends Component {
   constructor(props) {
@@ -956,8 +955,7 @@ class Workspace extends Component {
     const inControl = controlState.inControl || controlStates.NONE;
 
     const currentMembers = (
-      // <DisplayTabsCM
-      <CurrentMembers
+      <DisplayTabsCM
         members={temp ? tempMembers : populatedRoom.members}
         // currentMembers={temp ? tempCurrentMembers : activeMembers}
         currentMembers={

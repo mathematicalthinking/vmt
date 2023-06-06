@@ -5,19 +5,15 @@ import CurrentMembers from './CurrentMembers';
 const DisplayTabsCM = (props) => {
   const { tabs, currentMembers, ...others } = props;
 
-  const updatedCurrentMembers = currentMembers.map((user) => {
-    console.group('DisplayTabsCM');
-    console.log(user);
-    console.log(tabs.map((t) => t.currentMembers));
+  const updatedCurrentMembers = currentMembers.map((mem) => {
     let tabNum = tabs.findIndex((t) => {
-      console.log(t.currentMembers, user._id);
-      return t.currentMembers.includes(user._id);
+      return t._id === mem.tab;
     });
     // assume that if someone isn't listed, they are on the first tab
     if (tabNum === -1) tabNum = 0;
-    console.log(`tabNum: ${tabNum}`)
-    console.groupEnd()
-    return { ...user, username: `${user.username} (#${tabNum + 1})` };
+    return { ...mem, username: `${mem.username} (#${tabNum + 1})` };
+
+    //
   });
 
   return <CurrentMembers currentMembers={updatedCurrentMembers} {...others} />;
