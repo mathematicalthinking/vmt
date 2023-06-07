@@ -193,7 +193,13 @@ class Workspace extends Component {
       (!this.adminModeSwitched && !user.inAdminMode) ||
       (this.adminModeSwitched && user.inAdminMode)
     ) {
-      socket.emit('LEAVE_ROOM', populatedRoom._id, currentTabId, myColor);
+      socket.emit(
+        'LEAVE_ROOM',
+        populatedRoom._id,
+        currentTabId,
+        myColor,
+        this._handleJoinOrLeave
+      );
       // Below updates the Redux store, removing the current user from the list of people in the room (currentMembers).
       // However, this might not be needed as the socket updates the DB with the current members. The next time this info is needed, in
       // some type of monitor or when this person reenters the room, that info will be pulled from the DB.
@@ -340,34 +346,18 @@ class Workspace extends Component {
             this.goBack();
             return;
           }
-          _handleJoinOrLeave(data);
+          this._handleJoinOrLeave(data);
         });
       }
     }
 
-    const _handleJoinOrLeave = (data) => {
-      const { currentMembers, message, releasedControl } = data;
-      const currMems = populatedRoom.getCurrentMembers(currentMembers);
-      const newState = {
-        currentMembers: currMems,
-      };
-      this.setState(newState, () =>
-        connectUpdatedRoom(populatedRoom._id, newState)
-      );
-      this.addToLog(message);
-      if (releasedControl.includes(currentTabId))
-        sendControlEvent(controlEvents.MSG_RELEASED_CONTROL, {
-          tab: currentTabId,
-        });
-    };
-
     socket.on('USER_JOINED', (data) => {
       // add user to first tab
       this.updateTab(tabs[0]._id, { currentMembers: data.userId });
-      _handleJoinOrLeave(data);
+      this._handleJoinOrLeave(data);
     });
 
-    socket.on('USER_LEFT', _handleJoinOrLeave);
+    socket.on('USER_LEFT', this._handleJoinOrLeave);
 
     socket.on('TOOK_CONTROL', (message) => {
       this.addToLog(message);
@@ -455,6 +445,30 @@ class Workspace extends Component {
     //   else this.setState({ connectionStatus: 'Good' });
     //   console.log('Heartbeat<3 latency: ', latency);
     // });
+  };
+
+  _handleJoinOrLeave = (data) => {
+    const {
+      populatedRoom,
+      connectUpdatedRoom,
+      sendControlEvent,
+      controlState,
+    } = this.props;
+    const { currentTabId } = controlState;
+    const { currentMembers, message, releasedControl } = data;
+    const currMems = populatedRoom.getCurrentMembers(currentMembers);
+    const newState = {
+      currentMembers: currMems,
+    };
+
+    this.setState(newState, () =>
+      connectUpdatedRoom(populatedRoom._id, newState)
+    );
+    this.addToLog(message);
+    if (releasedControl.includes(currentTabId))
+      sendControlEvent(controlEvents.MSG_RELEASED_CONTROL, {
+        tab: currentTabId,
+      });
   };
 
   setHeartbeatTimer = () => {

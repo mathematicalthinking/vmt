@@ -412,15 +412,17 @@ module.exports = function() {
       // get Room Tab id for usersInSockets from the database
       // set currentUsers to an array of objects with _ids, usernames and tabIds
 
-      const promises = usersInSockets.map(async (user) => {
-        const usr = await controllers.user.getById(user);
-        const tab = roomInDb.tabs.find(
-          (tabObj) => tabObj.controlledBy === usr._id
+      const promises = usersInSockets.map(async (userId) => {
+        const usr = await controllers.user.getById(userId);
+        const currentMember = roomInDb.currentMembers.find(
+          (mem) => mem._id.toString() === userId.toString()
         );
+        const tab =
+          (currentMember && currentMember.tab) || roomInDb.tabs[0]._id;
         return {
           _id: usr._id,
           username: usr.username,
-          tab: tab ? tab._id : roomInDb.tabs[0]._id,
+          tab,
         };
       });
       const resolved = await Promise.all(promises);
@@ -533,7 +535,16 @@ module.exports = function() {
           releasedControl,
           message,
         });
-        if (cb) cb('exited!', null);
+        if (cb) {
+          cb(
+            {
+              currentMembers: room.currentMembers,
+              message,
+              releasedControl,
+            },
+            null
+          );
+        }
       } catch (err) {
         if (socket.user) {
           // eslint-disable-next-line no-console
