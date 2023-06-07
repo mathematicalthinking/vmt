@@ -11,7 +11,7 @@ const DisplayTabsCM = (props) => {
     });
     // assume that if someone isn't listed, they are on the first tab
     if (tabNum === -1) tabNum = 0;
-    return { ...mem, username: `${mem.username} (#${tabNum + 1})` };
+    return { ...mem, tabNum: `(#${tabNum + 1})` };
 
     //
   });
