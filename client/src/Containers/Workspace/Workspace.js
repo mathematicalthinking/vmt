@@ -352,8 +352,6 @@ class Workspace extends Component {
     }
 
     socket.on('USER_JOINED', (data) => {
-      // add user to first tab
-      this.updateTab(tabs[0]._id, { currentMembers: data.userId });
       this._handleJoinOrLeave(data);
     });
 
