@@ -2,7 +2,6 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import each from 'lodash/each';
 import find from 'lodash/find';
 import {
   updateRoom,
@@ -14,7 +13,7 @@ import {
   updateUserSettings,
 } from 'store/actions';
 import { Room, TabTypes } from 'Model';
-import { Modal, CurrentMembers, Loading } from 'Components';
+import { Modal, DisplayTabsCM, Loading } from 'Components';
 import { ROLE } from 'constants.js';
 import {
   socket,
@@ -194,7 +193,13 @@ class Workspace extends Component {
       (!this.adminModeSwitched && !user.inAdminMode) ||
       (this.adminModeSwitched && user.inAdminMode)
     ) {
-      socket.emit('LEAVE_ROOM', populatedRoom._id, currentTabId, myColor);
+      socket.emit(
+        'LEAVE_ROOM',
+        populatedRoom._id,
+        currentTabId,
+        myColor,
+        this._handleJoinOrLeave
+      );
       // Below updates the Redux store, removing the current user from the list of people in the room (currentMembers).
       // However, this might not be needed as the socket updates the DB with the current members. The next time this info is needed, in
       // some type of monitor or when this person reenters the room, that info will be pulled from the DB.
@@ -306,7 +311,7 @@ class Workspace extends Component {
       controlState,
     } = this.props;
     const { currentTabId } = controlState;
-    const { myColor } = this.state;
+    const { myColor, tabs } = this.state;
 
     if (!temp) {
       const sendData = {
@@ -341,30 +346,16 @@ class Workspace extends Component {
             this.goBack();
             return;
           }
-          _handleJoinOrLeave(data);
+          this._handleJoinOrLeave(data);
         });
       }
     }
 
-    const _handleJoinOrLeave = (data) => {
-      const { currentMembers, message, releasedControl } = data;
-      const currMems = populatedRoom.getCurrentMembers(currentMembers);
-      const newState = {
-        currentMembers: currMems,
-      };
-      this.setState(newState, () =>
-        connectUpdatedRoom(populatedRoom._id, newState)
-      );
-      this.addToLog(message);
-      if (releasedControl.includes(currentTabId))
-        sendControlEvent(controlEvents.MSG_RELEASED_CONTROL, {
-          tab: currentTabId,
-        });
-    };
+    socket.on('USER_JOINED', (data) => {
+      this._handleJoinOrLeave(data);
+    });
 
-    socket.on('USER_JOINED', _handleJoinOrLeave);
-
-    socket.on('USER_LEFT', _handleJoinOrLeave);
+    socket.on('USER_LEFT', this._handleJoinOrLeave);
 
     socket.on('TOOK_CONTROL', (message) => {
       this.addToLog(message);
@@ -397,6 +388,11 @@ class Workspace extends Component {
       const tabs = [...stateTabs];
       tabs.push(data);
       this.setState({ tabs });
+    });
+
+    socket.on('SWITCHED_TAB', (data) => {
+      const { currentMembers: currentMembersFromDb } = data;
+      this.setState({ currentMembers: currentMembersFromDb });
     });
 
     socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
@@ -449,6 +445,30 @@ class Workspace extends Component {
     // });
   };
 
+  _handleJoinOrLeave = (data) => {
+    const {
+      populatedRoom,
+      connectUpdatedRoom,
+      sendControlEvent,
+      controlState,
+    } = this.props;
+    const { currentTabId } = controlState;
+    const { currentMembers, message, releasedControl } = data;
+    const currMems = populatedRoom.getCurrentMembers(currentMembers);
+    const newState = {
+      currentMembers: currMems,
+    };
+
+    this.setState(newState, () =>
+      connectUpdatedRoom(populatedRoom._id, newState)
+    );
+    this.addToLog(message);
+    if (releasedControl.includes(currentTabId))
+      sendControlEvent(controlEvents.MSG_RELEASED_CONTROL, {
+        tab: currentTabId,
+      });
+  };
+
   setHeartbeatTimer = () => {
     // threshold to determine whether no heartbeat
     const TIMEOUT = 150001;
@@ -483,6 +503,14 @@ class Workspace extends Component {
     });
   };
 
+  updateTab = (tabId, update) => {
+    const { tabs } = this.state;
+    const tab = tabs.find((t) => t._id === tabId);
+    const updatedTab = { ...tab, ...update };
+    const updatedTabs = tabs.map((t) => (t._id === tabId ? updatedTab : t));
+    this.setState({ tabs: updatedTabs });
+  };
+
   changeTab = (id) => {
     const { populatedRoom, user, sendControlEvent, controlState } = this.props;
     const { activityOnOtherTabs, myColor, tabs } = this.state;
@@ -500,19 +528,17 @@ class Workspace extends Component {
       tab: currentTabId,
       color: myColor,
       timestamp: Date.now(),
+      newTabId: id,
     };
-    socket.emit('SWITCH_TAB', data, (res, err) => {
+    socket.emit('SWITCH_TAB', data, (currentMembersFromDb, err) => {
       if (err) {
         // eslint-disable-next-line no-console
         console.log('something went wrong on the socket:', err);
       }
+      this.setState({ currentMembers: currentMembersFromDb });
       this.addToLog(data);
     });
     sendControlEvent(controlEvents.SWITCH_TAB, { tab: id });
-    const updatedTabs = activityOnOtherTabs.filter((tab) => tab !== id);
-    this.setState({ activityOnOtherTabs: updatedTabs }, () => {
-      this.handleInstructionsModal();
-    });
   };
 
   toggleControl = () => {
@@ -692,21 +718,6 @@ class Workspace extends Component {
 
   setTabs = (tabs) => {
     this.setState({ tabs });
-  };
-
-  updateTab = (updatedTabId, updateBody) => {
-    const { tabs } = this.state;
-
-    const copiedTabs = [...tabs];
-
-    copiedTabs.forEach((tab) => {
-      if (tab._id === updatedTabId) {
-        each(updateBody, (value, field) => {
-          tab[field] = value;
-        });
-      }
-    });
-    this.setTabs(copiedTabs);
   };
 
   resizeHandler = () => {
@@ -956,7 +967,7 @@ class Workspace extends Component {
     const inControl = controlState.inControl || controlStates.NONE;
 
     const currentMembers = (
-      <CurrentMembers
+      <DisplayTabsCM
         members={temp ? tempMembers : populatedRoom.members}
         // currentMembers={temp ? tempCurrentMembers : activeMembers}
         currentMembers={
@@ -964,9 +975,14 @@ class Workspace extends Component {
             ? tempCurrentMembers
             : populatedRoom.getCurrentMembers(activeMembers)
         }
-        activeMember={controlState.controlledBy}
+        activeMember={
+          controlState.controllers
+            ? Object.values(controlState.controllers)
+            : ''
+        }
         expanded={membersExpanded}
         toggleExpansion={this.toggleExpansion}
+        tabs={currentTabs}
       />
     );
     const tabs = (

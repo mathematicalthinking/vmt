@@ -13,6 +13,7 @@ const Tab = new mongoose.Schema(
     currentState: { type: String, default: '' },
     currentStateBase64: { type: String, default: '' },
     currentScreen: { type: Number, default: 0 },
+
     ggbFile: { type: String }, // ggb base64 file
     desmosLink: { type: String },
     perspective: {

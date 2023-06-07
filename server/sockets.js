@@ -91,10 +91,10 @@ module.exports = function() {
           );
         }
         promises.push(
-          controllers.rooms.addCurrentUsers(data.roomId, ObjectId(user._id), {
-            user: ObjectId(user._id),
-            role: data.firstEntry ? 'facilitator' : 'participant',
-            color: data.color,
+          controllers.rooms.addCurrentMember(data.roomId, {
+            _id: ObjectId(user._id),
+            tab: data.tab,
+            username: user.username,
           })
         );
         let results;
@@ -316,18 +316,31 @@ module.exports = function() {
       }
     });
 
-    socket.on('SWITCH_TAB', (data, callback) => {
+    socket.on('SWITCH_TAB', async (data, callback) => {
       socketMetricInc('tabswitch');
 
-      controllers.messages
-        .post(data)
-        .then(() => {
-          socket.broadcast.to(data.room).emit('RECEIVE_MESSAGE', data);
-          callback('success', null);
-        })
-        .catch((err) => {
-          callback(null, err);
-        });
+      const { newTabId, user, room } = data;
+
+      // update the currentMembers array in the db
+      // to reflect the new tab that the user is on
+      // Room.currentMembers is an array of objects with _ids, usernames and tabIds
+      // find the user in the array and update their tabId
+      const currentMembersFromDb = await controllers.rooms.updateCurrentMemberTab(
+        room,
+        user._id,
+        newTabId
+      );
+
+      data.currentMembers = currentMembersFromDb;
+
+      try {
+        await controllers.messages.post(data);
+        socket.broadcast.to(room).emit('SWITCHED_TAB', data);
+        socket.broadcast.to(room).emit('RECEIVE_MESSAGE', data);
+        callback(currentMembersFromDb, null);
+      } catch (err) {
+        callback(null, err);
+      }
     });
 
     socket.on('NEW_TAB', (data, callback) => {
@@ -391,16 +404,40 @@ module.exports = function() {
       });
       const currMemsInDb = roomInDb.currentMembers;
       const usersInSockets = await usersInRoom(roomId); // socket users
-      const room = await controllers.rooms.setCurrentUsers(
+
+      // used to update the currentMembers array in the db
+      const currentUsers = [];
+
+      // get usernames for usersInSockets from the database
+      // get Room Tab id for usersInSockets from the database
+      // set currentUsers to an array of objects with _ids, usernames and tabIds
+
+      const promises = usersInSockets.map(async (userId) => {
+        const usr = await controllers.user.getById(userId);
+        const currentMember = roomInDb.currentMembers.find(
+          (mem) => mem._id.toString() === userId.toString()
+        );
+        const tab =
+          (currentMember && currentMember.tab) || roomInDb.tabs[0]._id;
+        return {
+          _id: usr._id,
+          username: usr.username,
+          tab,
+        };
+      });
+      const resolved = await Promise.all(promises);
+      currentUsers.push(...resolved);
+
+      const room = await controllers.rooms.setCurrentMembers(
         roomId,
-        usersInSockets
+        currentUsers
       );
 
       // filter any users that are in db but not in sockets into differenceInUsers
       const differenceInUsers = currMemsInDb.filter(
         (user) =>
           // currMemsInDb ids are Objects, usersInSockets ids are strings
-          !usersInSockets.includes(user._id.toString())
+          user && user._id && !usersInSockets.includes(user._id.toString())
       );
 
       if (differenceInUsers.length) {
@@ -495,10 +532,19 @@ module.exports = function() {
         message.save();
         socket.to(roomId).emit('USER_LEFT', {
           currentMembers: room.currentMembers,
-          releasedControl, // maybe needs to be an array of tabs?
+          releasedControl,
           message,
         });
-        if (cb) cb('exited!', null);
+        if (cb) {
+          cb(
+            {
+              currentMembers: room.currentMembers,
+              message,
+              releasedControl,
+            },
+            null
+          );
+        }
       } catch (err) {
         if (socket.user) {
           // eslint-disable-next-line no-console

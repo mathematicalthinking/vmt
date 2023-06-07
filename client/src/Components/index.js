@@ -3,6 +3,7 @@ export { default as Chat } from './Chat/Chat';
 export { default as ClassList } from './ClassList/ClassList';
 export { default as SimpleChat } from './Chat/SimpleChat';
 export { default as CurrentMembers } from './CurrentMembers/CurrentMembers';
+export { default as DisplayTabsCM } from './CurrentMembers/DisplayTabsCM';
 export { default as Checkbox } from './Form/Checkbox/Checkbox';
 export { default as Dropdown } from './Form/Dropdown/Dropdown';
 export { default as RoleDropdown } from './Form/Dropdown/RoleDropdown';
