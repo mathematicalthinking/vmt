@@ -16,7 +16,10 @@ const Tabs = ({
   let currentSelection;
   const tabOptions = tabs
     .map((tab, i) => {
-      const currentOption = { label: `(${i + 1}) ${tab.name}`, value: tab._id };
+      const currentOption = {
+        label: `(#${i + 1}) ${tab.name}`,
+        value: tab._id,
+      };
       // the option associated with currentTabId
       if (tab._id === currentTabId) currentSelection = currentOption;
       return currentOption;
