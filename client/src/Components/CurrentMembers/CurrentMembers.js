@@ -57,7 +57,7 @@ function CurrentMembers({
       return {
         ...mem,
         user: { ...mem.user, username: member.username },
-        tabNum: member.tabNum,
+        tabNum: member.tabNum ? member.tabNum : '',
       };
     });
     setPresentMembers(result);

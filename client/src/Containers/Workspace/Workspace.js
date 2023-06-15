@@ -13,7 +13,7 @@ import {
   updateUserSettings,
 } from 'store/actions';
 import { Room, TabTypes } from 'Model';
-import { Modal, DisplayTabsCM, Loading } from 'Components';
+import { Modal, CurrentMembers, DisplayTabsCM, Loading } from 'Components';
 import { ROLE } from 'constants.js';
 import {
   socket,
@@ -483,6 +483,18 @@ class Workspace extends Component {
     if (this.timer) clearTimeout(this.timer);
   };
 
+  closeModal = () => {
+    this.setState({ creatingNewTab: false });
+  };
+
+  closeCreate = () => {
+    this.setState({
+      isCreatingActivity: false,
+    });
+  };
+
+  // Tab functions
+
   createNewTab = () => {
     const { role } = this.state;
     const { populatedRoom } = this.props;
@@ -492,16 +504,6 @@ class Workspace extends Component {
     ) {
       this.setState({ creatingNewTab: true });
     }
-  };
-
-  closeModal = () => {
-    this.setState({ creatingNewTab: false });
-  };
-
-  closeCreate = () => {
-    this.setState({
-      isCreatingActivity: false,
-    });
   };
 
   updateTab = (tabId, update) => {
@@ -542,6 +544,109 @@ class Workspace extends Component {
     sendControlEvent(controlEvents.SWITCH_TAB, { tab: id });
   };
 
+  emitNewTab = (tabInfo) => {
+    const { myColor } = this.state;
+    const { user } = this.props;
+    tabInfo.message.color = myColor;
+    tabInfo.message.user = user; // every event should have a 'user' property!
+    socket.emit('NEW_TAB', tabInfo, () => {
+      this.addToLog(tabInfo.message);
+    });
+
+    // Switch to the new tab
+    this.changeTab(tabInfo._id);
+  };
+
+  addNtfToTabs = (id) => {
+    this.setState((prevState) => ({
+      activityOnOtherTabs: [...prevState.activityOnOtherTabs, id],
+    }));
+  };
+
+  clearTabNtf = (id) => {
+    this.setState((prevState) => ({
+      activityOnOtherTabs: prevState.activityOnOtherTabs.filter(
+        (tab) => tab !== id
+      ),
+    }));
+  };
+
+  setFirstTabLoaded = () => {
+    this.setState({ isFirstTabLoaded: true }, () => {
+      this.handleInstructionsModal();
+    });
+  };
+
+  setTabs = (tabs) => {
+    this.setState({ tabs });
+  };
+
+  addTabIdToCopy = (event, id) => {
+    const { selectedTabIdsToCopy } = this.state;
+    if (selectedTabIdsToCopy.indexOf(id) === -1) {
+      this.setState({ selectedTabIdsToCopy: [...selectedTabIdsToCopy, id] });
+    } else {
+      this.setState({
+        selectedTabIdsToCopy: selectedTabIdsToCopy.filter(
+          (tabId) => tabId !== id
+        ),
+      });
+    }
+  };
+
+  configureCurrentMembersComponent = () => {
+    // If all currentMembers are on the first tab in the room,
+    // return <CurrentMembers />. Otherwise, return <DisplayTabsCM />
+    const { currentMembers, membersExpanded, tabs } = this.state;
+    const {
+      controlState,
+      populatedRoom,
+      temp,
+      tempMembers,
+      tempCurrentMembers,
+    } = this.props;
+    if (currentMembers.every((mem) => mem.tab === tabs[0]._id)) {
+      return (
+        <CurrentMembers
+          members={temp ? tempMembers : populatedRoom.members}
+          currentMembers={
+            temp
+              ? tempCurrentMembers
+              : populatedRoom.getCurrentMembers(currentMembers)
+          }
+          activeMember={
+            controlState.controllers
+              ? Object.values(controlState.controllers)
+              : ''
+          }
+          expanded={membersExpanded}
+          toggleExpansion={this.toggleExpansion}
+          tabs={tabs}
+        />
+      );
+    }
+    return (
+      <DisplayTabsCM
+        tabs={tabs}
+        toggleExpansion={this.toggleExpansion}
+        expanded={membersExpanded}
+        activeMember={
+          controlState.controllers
+            ? Object.values(controlState.controllers)
+            : ''
+        }
+        currentMembers={
+          temp
+            ? tempCurrentMembers
+            : populatedRoom.getCurrentMembers(currentMembers)
+        }
+        members={temp ? tempMembers : populatedRoom.members}
+      />
+    );
+  };
+
+  // End of Tab functions
+
   toggleControl = () => {
     const { controlState, sendControlEvent } = this.props;
     const { myColor } = this.state;
@@ -564,19 +669,6 @@ class Workspace extends Component {
       myColor,
       callback: this.addToLog,
     });
-  };
-
-  emitNewTab = (tabInfo) => {
-    const { myColor } = this.state;
-    const { user } = this.props;
-    tabInfo.message.color = myColor;
-    tabInfo.message.user = user; // every event should have a 'user' property!
-    socket.emit('NEW_TAB', tabInfo, () => {
-      this.addToLog(tabInfo.message);
-    });
-
-    // Switch to the new tab
-    this.changeTab(tabInfo._id);
   };
 
   startNewReference = () => {
@@ -680,20 +772,6 @@ class Workspace extends Component {
     }
   };
 
-  addNtfToTabs = (id) => {
-    this.setState((prevState) => ({
-      activityOnOtherTabs: [...prevState.activityOnOtherTabs, id],
-    }));
-  };
-
-  clearTabNtf = (id) => {
-    this.setState((prevState) => ({
-      activityOnOtherTabs: prevState.activityOnOtherTabs.filter(
-        (tab) => tab !== id
-      ),
-    }));
-  };
-
   setStartingPoint = () => {
     const { connectSetRoomStartingPoint, populatedRoom } = this.props;
     connectSetRoomStartingPoint(populatedRoom._id);
@@ -712,16 +790,6 @@ class Workspace extends Component {
 
   setGraphCoords = (graphCoords) => {
     this.setState({ graphCoords });
-  };
-
-  setFirstTabLoaded = () => {
-    this.setState({ isFirstTabLoaded: true }, () => {
-      this.handleInstructionsModal();
-    });
-  };
-
-  setTabs = (tabs) => {
-    this.setState({ tabs });
   };
 
   resizeHandler = () => {
@@ -844,19 +912,6 @@ class Workspace extends Component {
       });
   };
 
-  addTabIdToCopy = (event, id) => {
-    const { selectedTabIdsToCopy } = this.state;
-    if (selectedTabIdsToCopy.indexOf(id) === -1) {
-      this.setState({ selectedTabIdsToCopy: [...selectedTabIdsToCopy, id] });
-    } else {
-      this.setState({
-        selectedTabIdsToCopy: selectedTabIdsToCopy.filter(
-          (tabId) => tabId !== id
-        ),
-      });
-    }
-  };
-
   beginCreatingActivity = () => {
     // create a new activity that belongs to the current user
     const { tabs } = this.state;
@@ -970,25 +1025,27 @@ class Workspace extends Component {
     const { currentTabId } = controlState;
     const inControl = controlState.inControl || controlStates.NONE;
 
-    const currentMembers = (
-      <DisplayTabsCM
-        members={temp ? tempMembers : populatedRoom.members}
-        // currentMembers={temp ? tempCurrentMembers : activeMembers}
-        currentMembers={
-          temp
-            ? tempCurrentMembers
-            : populatedRoom.getCurrentMembers(activeMembers)
-        }
-        activeMember={
-          controlState.controllers
-            ? Object.values(controlState.controllers)
-            : ''
-        }
-        expanded={membersExpanded}
-        toggleExpansion={this.toggleExpansion}
-        tabs={currentTabs}
-      />
-    );
+    // const currentMembers = (
+    //   <DisplayTabsCM
+    //     members={temp ? tempMembers : populatedRoom.members}
+    //     // currentMembers={temp ? tempCurrentMembers : activeMembers}
+    //     currentMembers={
+    //       temp
+    //         ? tempCurrentMembers
+    //         : populatedRoom.getCurrentMembers(activeMembers)
+    //     }
+    //     activeMember={
+    //       controlState.controllers
+    //         ? Object.values(controlState.controllers)
+    //         : ''
+    //     }
+    //     expanded={membersExpanded}
+    //     toggleExpansion={this.toggleExpansion}
+    //     tabs={currentTabs}
+    //   />
+    // );
+    // determine if we should render DisplayTabsCM or CurrentMembers
+    const currentMembers = this.configureCurrentMembersComponent();
     const tabs = (
       <Tabs
         canCreate={
