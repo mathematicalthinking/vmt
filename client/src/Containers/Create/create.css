@@ -204,3 +204,9 @@
   align-self: center;
   margin-top: 10px;
 }
+
+.SearchWrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}

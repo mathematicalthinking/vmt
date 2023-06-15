@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SelectionList, Search } from '../../../Components';
 import API from '../../../utils/apiRequests';
+import classes from '../create.css';
 
 // import classes from '../create.css';
 class Copy extends Component {
@@ -13,6 +14,7 @@ class Copy extends Component {
   componentDidMount() {
     API.get('activities').then((res) => {
       const activties = res.data.results;
+      // eslint-disable-next-line func-names
       activties.sort(function(a, b) {
         return new Date(b.updatedAt) - new Date(a.updatedAt);
       });
@@ -44,7 +46,7 @@ class Copy extends Component {
     const { selectedActivities, addActivity } = this.props;
     return (
       <React.Fragment>
-        <div>
+        <div className={classes.SearchWrapper}>
           <Search
             data-testid="step2copysearch"
             _search={this._search}
