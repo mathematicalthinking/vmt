@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { SelectionList } from '../../../Components';
+import { SelectionList, Search } from '../../../Components';
 import API from '../../../utils/apiRequests';
 
 // import classes from '../create.css';
-class Step2Copy extends Component {
+class Copy extends Component {
   state = {
     activityList: [],
+    searchResults: [],
+    searchText: '',
   };
   componentDidMount() {
     API.get('activities').then((res) => {
@@ -17,28 +19,57 @@ class Step2Copy extends Component {
       this.setState({ activityList: activties });
     });
   }
+  _search = (searchText) => {
+    // create a function to search activity list
+    // we want to search on activity.name
+    const { activityList } = this.state;
+    const searchResults = activityList.filter((currentActivity) => {
+      return currentActivity.name
+        .toLowerCase()
+        .includes(searchText.toLowerCase());
+    });
+    this.setState({ searchResults, searchText });
+  };
+
+  displayResults = () => {
+    const { activityList, searchResults, searchText } = this.state;
+    // searchResults.length ? searchResults : activityList
+    if (searchText.length === 0) {
+      return activityList;
+    }
+    return searchResults;
+  };
+
   render() {
     const { selectedActivities, addActivity } = this.props;
-    const { activityList } = this.state;
     return (
-      <div>
-        <p>Select one or many templates to copy</p>
-        <SelectionList
-          listToSelectFrom={activityList}
-          selectItem={addActivity}
-          selected={selectedActivities}
-        />
-      </div>
+      <React.Fragment>
+        <div>
+          <Search
+            data-testid="step2copysearch"
+            _search={this._search}
+            placeholder="search for existing templates"
+          />
+        </div>
+        <div>
+          <p>Select one or many templates to copy</p>
+          <SelectionList
+            listToSelectFrom={this.displayResults()}
+            selectItem={addActivity}
+            selected={selectedActivities}
+          />
+        </div>
+      </React.Fragment>
     );
   }
 }
 
-Step2Copy.propTypes = {
+Copy.propTypes = {
   addActivity: PropTypes.func.isRequired,
   selectedActivities: PropTypes.arrayOf(PropTypes.string),
 };
 
-Step2Copy.defaultProps = {
+Copy.defaultProps = {
   selectedActivities: [],
 };
-export default Step2Copy;
+export default Copy;
