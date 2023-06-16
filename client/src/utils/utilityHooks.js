@@ -305,8 +305,10 @@ export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
         shouldBuildLog,
         lastQueryTimes
       ).then((res) => {
-        const populatedRoom = res.data.results[0];
-        if (shouldBuildLog)
+        const populatedRoom = res.data.results[0] || {};
+        // temp fix to handle Room/CourseLobby reload crashing the app when in
+        // Stats > Graph view
+        if (shouldBuildLog && populatedRoom.tabs && populatedRoom.chat)
           populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
         return populatedRoom;
       }),
