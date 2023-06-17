@@ -119,7 +119,8 @@ class Workspace extends Component {
         cancelSnapshots,
         getSnapshot,
       } = useSnapshots((newSnapshot) => {
-        const { currentTabId } = this.state;
+        const { controlState } = this.props;
+        const { currentTabId } = controlState;
         const updateBody = { snapshot: newSnapshot };
         API.put('tabs', currentTabId, updateBody).then(() => {
           this.updateTab(currentTabId, updateBody);
