@@ -595,9 +595,9 @@ class Workspace extends Component {
     }
   };
 
+  // If there's only one tab in a room, render CurrentMembers
+  // If there's more than one tab, render DisplayTabsCM
   configureCurrentMembersComponent = () => {
-    // If all currentMembers are on the first tab in the room,
-    // return <CurrentMembers />. Otherwise, return <DisplayTabsCM />
     const { currentMembers, membersExpanded, tabs } = this.state;
     const {
       controlState,
@@ -606,7 +606,7 @@ class Workspace extends Component {
       tempMembers,
       tempCurrentMembers,
     } = this.props;
-    if (currentMembers.every((mem) => mem.tab === tabs[0]._id)) {
+    if (tabs.length === 1) {
       return (
         <CurrentMembers
           members={temp ? tempMembers : populatedRoom.members}
