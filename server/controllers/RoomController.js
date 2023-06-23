@@ -27,10 +27,7 @@ module.exports = {
         .sort('-createdAt')
         .populate({ path: 'members.user', select: 'username' })
         .populate({ path: 'currentMembers', select: 'username' })
-        .populate({
-          path: 'tabs',
-          select: 'name tabType desmosLink controlledBy',
-        })
+        .populate({ path: 'tabs', select: 'name tabType desmosLink' })
         .then((rooms) => {
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
@@ -56,12 +53,9 @@ module.exports = {
         //   populate: { path: params.events ? 'events' : '' },
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
-        .populate({
-          path: 'tabs',
-          select: 'tabType name desmosLink controlledBy',
-        })
+        .populate({ path: 'tabs', select: 'tabType name desmosLink' })
         .select(
-          'name creator activity members course graphImage privacySetting _id settings'
+          'name creator activity members course graphImage privacySetting _id'
         )
         .then((room) => {
           resolve(room);
@@ -112,8 +106,6 @@ module.exports = {
           // select: '-room',
         })
         .populate({ path: 'members.user', select: 'username' })
-        // .populate({ path: 'currentMembers', select: 'username' })
-        // .populate({ path: 'currentMembers' })
         .populate({ path: 'course', select: 'name' })
         .populate({ path: 'activity', select: 'name' })
         .populate(
@@ -389,7 +381,7 @@ module.exports = {
         room.populate(
           {
             path: 'members.user tabs',
-            select: 'username tabType desmosLink name events controlledBy',
+            select: 'username tabType desmosLink name events',
           },
           (err, populatedRoom) => {
             if (err) reject(err);

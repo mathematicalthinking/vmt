@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { createMachine, assign } from 'xstate';
 import { useMachine } from '@xstate/react';
 import { createMongoId, socket } from 'utils';
-import { Room } from 'Model';
 
 const STRATEGY = {
   INDEPENDENT: 'independent',
@@ -16,7 +15,8 @@ export const controlStates = {
   OTHER: 'OTHER',
   REQUESTED: 'REQUESTED',
   CANCELLED_REQUEST: 'CANCELLED_REQUEST',
-  SWITCHING_TABS: 'SWITCHING_TABS',
+  RESTRICTED_NONE: 'RESTRICTED_NONE', // for future use
+  RESTRICTED_OTHER: 'RESTRICTED_OTHER', // for future use
 };
 
 export const controlEvents = {
@@ -25,7 +25,6 @@ export const controlEvents = {
   MSG_TOOK_CONTROL: 'MSG_TOOK_CONTROL',
   MSG_RELEASED_CONTROL: 'MSG_RELEASED_CONTROL',
   RESET: 'RESET',
-  SWITCH_TAB: 'SWITCH_TAB',
 };
 
 export const buttonConfigs = {
@@ -131,7 +130,6 @@ const iRequestControl = (context, event) => {
     messageType: 'TEXT',
     user: { _id: context.userId, username: context.username },
     room: context.roomId,
-    tab: context.currentTabId,
     color: event.myColor || '#f26247',
     timestamp: Date.now(),
   };
@@ -161,7 +159,6 @@ const iCancelRequest = (context, event) => {
     messageType: 'TEXT',
     user: { _id: context.userId, username: context.username },
     room: context.roomId,
-    tab: context.currentTabId,
     color: event.myColor || '#f26247',
     timestamp: Date.now(),
   };
@@ -289,200 +286,95 @@ const independentTabControlMachineSpec = (initial, context) => {
           {
             cond: (c, event) => c.currentTabId === event.tab,
             target: controlStates.NONE,
-            actions: ['otherReleasesControl', 'storeNull'],
+            actions: 'otherReleasesControl',
           },
-          {
-            cond: (c, event) => c.currentTabId !== event.tab,
-            actions: 'storeNull',
-          },
-        ],
-        [controlEvents.MSG_TOOK_CONTROL]: [
-          {
-            cond: (c, event) => c.currentTabId === event.tab,
+          [controlEvents.MSG_TOOK_CONTROL]: {
             target: controlStates.OTHER,
-            actions: ['otherTakesControl', 'storeController'],
-          },
-          {
-            cond: (c, event) => c.currentTabId !== event.tab,
-            actions: 'storeController',
-          },
-        ],
-      },
-      states: {
-        [controlStates.NONE]: {
-          entry: 'controlledByNone',
-          on: {
-            [controlEvents.CLICK]: {
-              target: controlStates.ME,
-              actions: 'iTakeControl',
-            },
-            [controlEvents.SWITCH_TAB]: controlStates.SWITCHING_TABS,
+            actions: 'otherTakesControl',
           },
         },
-        [controlStates.ME]: {
-          entry: 'controlledByMe',
-          on: {
-            [controlEvents.CLICK]: {
-              target: controlStates.NONE,
-              actions: 'iReleaseControl',
-            },
-            [controlEvents.RESET]: controlStates.ME,
-            [controlEvents.SWITCH_TAB]: {
-              target: controlStates.SWITCHING_TABS,
-              actions: 'iReleaseControl', // @TODO: potentially different msg if released due to switching
+        states: {
+          [controlStates.NONE]: {
+            entry: 'controlledByNone',
+            on: {
+              [controlEvents.CLICK]: {
+                target: controlStates.ME,
+                actions: 'iTakeControl',
+              },
             },
           },
-          after: {
-            60000: { target: controlStates.NONE, actions: 'iTimeOut' },
-          },
-        },
-        [controlStates.OTHER]: {
-          entry: 'controlledByOther',
-          on: {
-            [controlEvents.CLICK]: {
-              target: controlStates.REQUESTED,
-              actions: 'iRequestControl',
+          [controlStates.ME]: {
+            entry: 'controlledByMe',
+            on: {
+              [controlEvents.CLICK]: {
+                target: controlStates.NONE,
+                actions: 'iReleaseControl',
+              },
+              [controlEvents.RESET]: controlStates.ME,
             },
-            [controlEvents.SWITCH_TAB]: controlStates.SWITCHING_TABS,
-          },
-        },
-        [controlStates.REQUESTED]: {
-          entry: 'controlRequested',
-          on: {
-            [controlEvents.CLICK]: {
-              target: controlStates.CANCELLED_REQUEST,
-              actions: 'iCancelRequest',
-            },
-            [controlEvents.SWITCH_TAB]: {
-              target: controlStates.SWITCHING_TABS,
-              actions: ['iCancelRequest', 'setRestrictFlag'], // @TODO: Potentially different message when cancel via switching tabs
+            after: {
+              60000: { target: controlStates.NONE, actions: 'iTimeOut' },
             },
           },
-          after: {
-            60000: controlStates.OTHER,
-          },
-        },
-        [controlStates.CANCELLED_REQUEST]: {
-          entry: 'cancelledRequest',
-          on: {
-            [controlEvents.SWITCH_TAB]: {
-              target: controlStates.SWITCHING_TABS,
-              actions: 'setRestrictFlag', // @TODO: Potentially different message when cancel via switching tabs
+          [controlStates.OTHER]: {
+            entry: 'controlledByOther',
+            on: {
+              [controlEvents.CLICK]: {
+                target: controlStates.REQUESTED,
+                actions: 'iRequestControl',
+              },
             },
           },
-          after: {
-            60000: controlStates.OTHER,
+          [controlStates.REQUESTED]: {
+            entry: 'controlRequested',
+            on: {
+              [controlEvents.CLICK]: {
+                target: controlStates.CANCELLED_REQUEST,
+                actions: 'iCancelRequest',
+              },
+            },
+            after: {
+              60000: controlStates.OTHER,
+            },
           },
-        },
-        [controlStates.SWITCHING_TABS]: {
-          entry: 'switchingTabs',
-          always: [
-            {
-              cond: (c) =>
-                !!c.controllers[c.currentTabId] &&
-                c.restrictFlags[c.currentTabId],
-              target: controlStates.CANCELLED_REQUEST,
+          [controlStates.CANCELLED_REQUEST]: {
+            entry: 'cancelledRequest',
+            after: {
+              60000: controlStates.OTHER,
             },
-            {
-              cond: (c) =>
-                !!c.controllers[c.currentTabId] &&
-                !c.restrictFlags[c.currentTabId],
-              target: controlStates.OTHER,
-            },
-            {
-              cond: (c) => !c.controllers[c.currentTabId],
-              target: controlStates.NONE,
-            },
-          ],
+          },
         },
       },
-    },
-    {
-      actions: {
-        iTakeControl,
-        otherTakesControl,
-        iReleaseControl,
-        iTimeOut,
-        iRequestControl,
-        otherReleasesControl,
-        iCancelRequest,
-        storeNull: assign({
-          controllers: (c, event) => ({
-            ...c.controllers,
-            [event.tab]: null,
+      {
+        actions: {
+          iTakeControl,
+          otherTakesControl,
+          iReleaseControl,
+          iTimeOut,
+          iRequestControl,
+          otherReleasesControl,
+          iCancelRequest,
+          controlledByMe: assign({
+            controlledBy: (c) => c.userId,
+            buttonConfig: buttonConfigs[controlStates.ME],
           }),
-        }),
-        storeController: assign({
-          controllers: (c, event) => ({
-            ...c.controllers,
-            [event.tab]: event.id,
+          controlledByOther: assign({
+            controlledBy: (_, event) => event.id,
+            buttonConfig: buttonConfigs[controlStates.OTHER],
           }),
-        }),
-        setRestrictFlag: assign({
-          restrictFlags: (c) => ({
-            ...c.restrictFlags,
-            [c.currentTabId]: true,
+          controlledByNone: assign({
+            controlledBy: null,
+            buttonConfig: buttonConfigs[controlStates.NONE],
           }),
-        }),
-        switchingTabs: assign({
-          currentTabId: (_, event) => event.tab,
-        }),
-        controlledByMe: assign({
-          controlledBy: (c) => c.userId,
-          controllers: (c) => ({
-            ...c.controllers,
-            [c.currentTabId]: null,
+          controlRequested: assign({
+            buttonConfig: buttonConfigs[controlStates.REQUESTED],
           }),
-          buttonConfig: buttonConfigs[controlStates.ME],
-        }),
-        controlledByOther: assign({
-          controlledBy: (c) => c.controllers[c.currentTabId],
-          buttonConfig: buttonConfigs[controlStates.OTHER],
-        }),
-        controlledByNone: assign({
-          controlledBy: null,
-          controllers: (c) => ({
-            ...c.controllers,
-            [c.currentTabId]: null,
+          cancelledRequest: assign({
+            buttonConfig: buttonConfigs[controlStates.CANCELLED_REQUEST],
           }),
-          buttonConfig: buttonConfigs[controlStates.NONE],
-        }),
-        controlRequested: assign({
-          buttonConfig: buttonConfigs[controlStates.REQUESTED],
-        }),
-        cancelledRequest: assign({
-          buttonConfig: buttonConfigs[controlStates.CANCELLED_REQUEST],
-          restrictFlags: (c) => ({
-            ...c.restrictFlags,
-            [c.currentTabId]: false,
-          }),
-        }),
-      },
-    },
-  ];
-};
-
-/**
- * @returns {Array} [state, send] - 'state' is the current state object. 'send' is a function that receives a control action.
- * Keys parts of state:
- *  - state.meta -- an object that can be handed to controlButton
- *  - state.value -- a string representing the state. Right now, matches with the legacy inControl, so can be used there.
- *
- * Ideally, state would also embed the 'controlledBy' state variable now maintained by Workspace (from the DB). This would allow
- * us to keep the control state in one place (the controlMachine).
- *
- */
-export function useControlMachine(context, spec) {
-  // Figure out the initial state
-  let initial = controlStates.NONE;
-  if (!context.controlledBy) initial = controlStates.NONE;
-  else if (context.controlledBy === context.userId) initial = controlStates.ME;
-  else initial = controlStates.OTHER;
-
-  // use of the Ref prevents the re-creation of the machine, which causes a warning
-  const controlMachineRef = React.useRef(null);
-  if (!controlMachineRef.current)
-    controlMachineRef.current = createMachine(...spec(initial, context));
+        },
+      }
+    );
 
   const [state, send] = useMachine(controlMachineRef.current);
 
@@ -502,23 +394,13 @@ export function useControlMachine(context, spec) {
 export function withControlMachine(Component) {
   const ControlMachine = (props) => {
     const { populatedRoom, user } = props;
-    const [state, send] = useControlMachine(
-      {
-        userId: user._id,
-        roomId: populatedRoom._id,
-        username: user.username,
-        controlledBy: populatedRoom.tabs[0].controlledBy,
-        currentTabId: populatedRoom.tabs[0]._id,
-        controllers: populatedRoom.tabs.reduce(
-          (acc, tab) => ({ ...acc, [tab._id]: tab.controlledBy }),
-          {}
-        ),
-        restrictFlags: {},
-      },
-      Room.getRoomSetting(populatedRoom, Room.TAB_BASED_CONTROL)
-        ? independentTabControlMachineSpec
-        : defaultControlMachineSpec
-    );
+    const [state, send] = useControlMachine({
+      userId: user._id,
+      roomId: populatedRoom._id,
+      username: user.username,
+      controlledBy: populatedRoom.controlledBy,
+    });
+    // use context to send the state down to controlwarning
     return (
       <Component controlState={state} sendControlEvent={send} {...props} />
     );
@@ -528,13 +410,6 @@ export function withControlMachine(Component) {
     populatedRoom: PropTypes.shape({
       _id: PropTypes.string,
       controlledBy: PropTypes.string,
-      tabs: PropTypes.arrayOf(
-        PropTypes.shape({
-          _id: PropTypes.string,
-          controlledBy: PropTypes.string,
-        })
-      ),
-      settings: PropTypes.shape({ independentTabControl: PropTypes.bool }),
     }).isRequired,
     user: PropTypes.shape({ _id: PropTypes.string, username: PropTypes.string })
       .isRequired,

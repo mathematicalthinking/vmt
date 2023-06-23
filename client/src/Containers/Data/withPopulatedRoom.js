@@ -4,7 +4,6 @@ import { socket } from 'utils';
 import { hri } from 'human-readable-ids';
 import { connect } from 'react-redux';
 // import { updateRoom } from 'store/actions';
-import { Room } from 'Model';
 import API from '../../utils/apiRequests';
 import buildLog from '../../utils/buildLog';
 import Loading from '../../Components/Loading/Loading';
@@ -57,21 +56,14 @@ function withPopulatedRoom(WrappedComponent) {
         this.fetchRoom(populatedRoom._id);
       });
 
-      socket.on('SETTINGS_CHANGED', (data) => {
-        const { roomId } = data;
-        const { populatedRoom } = this.state;
-        if (roomId === populatedRoom._id) this.fetchRoom(populatedRoom._id);
-      });
-
       socket.on('USER_JOINED', (data) => {
         // when a user joins when we are in alias mode, keep a record of the alias. The user has saved this in the DB, but
         // instead of us reloading the room on each user join, we'll keep the alias informaiton this way.
         const { populatedRoom } = this.state;
 
-        const shouldAliasUsernames = Room.getRoomSetting(
-          populatedRoom,
-          Room.ALIASED_USERNAMES
-        );
+        const shouldAliasUsernames =
+          populatedRoom.settings &&
+          populatedRoom.settings.displayAliasedUsernames;
         if (!shouldAliasUsernames) return;
 
         const { username, userId } = data;
@@ -152,10 +144,8 @@ function withPopulatedRoom(WrappedComponent) {
       const { populatedRoom } = this.state;
       if (Object.keys(populatedRoom).length === 0) return user;
       const { members } = populatedRoom;
-      const shouldAliasUsername = Room.getRoomSetting(
-        populatedRoom,
-        Room.ALIASED_USERNAMES
-      );
+      const shouldAliasUsername =
+        populatedRoom.settings.displayAliasedUsernames;
       const memberIndex = members.findIndex((mem) => mem.user._id === user._id);
       const userToReturn = { ...user };
       let usernameToReturn = user.username;
@@ -191,10 +181,8 @@ function withPopulatedRoom(WrappedComponent) {
       const { populatedRoom } = this.state;
       if (Object.keys(populatedRoom).length === 0) return updatedCurrentMembers;
       const { members } = populatedRoom;
-      const shouldAliasUsernames = Room.getRoomSetting(
-        populatedRoom,
-        Room.ALIASED_USERNAMES
-      );
+      const shouldAliasUsernames =
+        populatedRoom.settings.displayAliasedUsernames;
 
       const currentMembers = updatedCurrentMembers.length
         ? updatedCurrentMembers

@@ -55,7 +55,6 @@ module.exports = function() {
               accountType: 'temp',
             });
           } catch (err) {
-            // eslint-disable-next-line no-console
             console.log('Error creating user ', err);
           }
         } else {
@@ -107,7 +106,6 @@ module.exports = function() {
           });
           callback({ room: results[results.length - 1], message, user }, null);
         } catch (err) {
-          // eslint-disable-next-line no-console
           console.log(err);
         }
       };
@@ -144,6 +142,7 @@ module.exports = function() {
     const joinHelper = async (data, text, cb) => {
       socket.user_id = data.userId; // store the user id on the socket so we can tell who comes and who goes
       socket.username = data.username;
+      const user = { _id: data.userId, username: data.username };
 
       // tell sockets that this user (via the socket) has joined room roomId
       socket.join(data.roomId);
@@ -182,7 +181,6 @@ module.exports = function() {
         socket.to(data.roomId).emit('USER_JOINED', dataToReturn);
         return cb(dataToReturn, null);
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.log('ERROR JOINING ROOM for user: ', data.userId, err);
         return cb(null, err);
       }
@@ -250,7 +248,7 @@ module.exports = function() {
       try {
         await Promise.all([
           controllers.messages.post(data),
-          controllers.tabs.put(data.tab, { controlledBy: data.user._id }),
+          controllers.rooms.put(data.room, { controlledBy: data.user._id }),
         ]);
       } catch (err) {
         if (callback) callback(err, null);
@@ -262,7 +260,6 @@ module.exports = function() {
           if (callback) callback(null, 'Success');
         })
         .catch((err) => {
-          // eslint-disable-next-line no-console
           console.error(err);
           if (callback) callback(err, null);
         });
@@ -272,7 +269,7 @@ module.exports = function() {
       socketMetricInc('controlrelease');
 
       controllers.messages.post(data);
-      controllers.tabs.put(data.tab, { controlledBy: null });
+      controllers.rooms.put(data.room, { controlledBy: null });
       socket.to(data.room).emit('RELEASED_CONTROL', data);
       if (callback) callback(null, {});
     });
@@ -284,7 +281,6 @@ module.exports = function() {
         await controllers.events.post(data);
         if (callback) callback();
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.log('ERROR SENDING EVENT: ', err);
       }
     });
@@ -384,18 +380,18 @@ module.exports = function() {
       io.in(roomId).emit('RESET_COMPLETE');
     });
 
-    socket.on('LEAVE_ROOM', async (roomId, tabId, color, cb) => {
+    socket.on('LEAVE_ROOM', async (roomId, color, cb) => {
       socketMetricInc('roomleave');
       socket.leave(roomId);
       const messageText = `${socket.username} left the room`;
-      leaveRoom(roomId, tabId, color, messageText, cb);
+      leaveRoom(roomId, color, messageText, cb);
     });
 
     socket.on('LEAVE_ROOM_QUICKCHAT', (roomId, color, cb) => {
       socketMetricInc('roomleave_quickchatx');
       socket.leave(roomId);
       const messageText = `QUICKCHAT: ${socket.username} left the room`;
-      leaveRoom(roomId, null, color, messageText, cb);
+      leaveRoom(roomId, color, messageText, cb);
     });
 
     const killZombies = async (roomId) => {
@@ -445,8 +441,6 @@ module.exports = function() {
           const username = getUsername(prevUser, roomInDb);
           const message = new Message({
             room: roomId,
-            // note: NOT putting tab here because it's misleading; tab should be the current tab of the user when they were removed
-            // rather than the current tab of the user leaving a room when another person was detected as a zombie.
             user: { _id: prevUser._id, username: 'VMTBot' },
             text: `${username} was removed by the system`,
             messageType: 'LEFT_ROOM',
@@ -459,20 +453,16 @@ module.exports = function() {
           socket.to(roomId).emit('RECEIVE_MESSAGE', message);
         });
       }
+      const releasedControl =
+        room.controlledBy &&
+        !usersInSockets.includes(room.controlledBy.toString()); // parse to string because it is an objectId
 
-      const releasedControl = roomInDb.tabs.filter(
-        (tab) =>
-          // parse to string because it is an objectId)
-          tab.controlledBy &&
-          !usersInSockets.includes(tab.controlledBy.toString())
-      );
-
-      await releasedControl.forEach(async (tab) => {
-        const prevUser = await controllers.user.getById(tab.controlledBy);
+      if (releasedControl) {
+        // send message that room.controlledBy changed
+        const prevUser = await controllers.user.getById(room.controlledBy);
         const username = getUsername(prevUser, roomInDb);
         const message = new Message({
           room: roomId,
-          tab: tab._id,
           user: { _id: prevUser._id, username: 'VMTBot' },
           text: `${username} has disconnected; system removed control`,
           messageType: 'RELEASED_CONTROL',
@@ -481,10 +471,10 @@ module.exports = function() {
         });
         message.save();
         socket.to(roomId).emit('RECEIVE_MESSAGE', message);
-        controllers.tabs.put(tab._id, { controlledBy: null });
-      });
+        controllers.rooms.put(roomId, { controlledBy: null });
+      }
 
-      return { room, releasedControl: releasedControl.map((tab) => tab._id) };
+      return { room, releasedControl };
     };
 
     const getUsername = (currMember, room) => {
@@ -515,13 +505,12 @@ module.exports = function() {
       return (answer || []).map((user) => user._id.toString());
     };
 
-    const leaveRoom = async (roomId, tabId, color, messageText, cb) => {
+    const leaveRoom = async (roomId, color, messageText, cb) => {
       try {
         const { releasedControl, room } = await killZombies(roomId);
         const message = new Message({
           color,
           room: roomId,
-          tab: tabId,
           user: { _id: socket.user_id, username: 'VMTBot' },
           text: messageText,
           messageType: 'LEFT_ROOM',
@@ -547,7 +536,6 @@ module.exports = function() {
         }
       } catch (err) {
         if (socket.user) {
-          // eslint-disable-next-line no-console
           console.log(
             'ERROR LEAVING ROOM ',
             roomId,
@@ -557,7 +545,6 @@ module.exports = function() {
             socket.id
           );
         } else {
-          // eslint-disable-next-line no-console
           console.log(
             'ERROR LEAVING ROOM ',
             roomId,
