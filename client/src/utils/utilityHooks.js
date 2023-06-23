@@ -296,22 +296,20 @@ export function useSnapshots(callback, initialStore = {}) {
  * @param {object} [options={}] - See the docs for react-query's UseQuery for these options.
  */
 export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
-  return useMergedData(
+  return useQuery(
     [roomId, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
-    (lastQueryTimes) =>
-      API.findAllMatchingIdsPopulated(
-        'rooms',
-        [roomId],
-        shouldBuildLog,
-        lastQueryTimes
-      ).then((res) => {
-        const populatedRoom = res.data.results[0];
-        if (shouldBuildLog)
-          populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
-        return populatedRoom;
-      }),
-    () => [roomId],
-    (cache, fetchedData) => ({ ...cache, ...fetchedData }),
+    () =>
+      API.getPopulatedById('rooms', roomId, false, shouldBuildLog).then(
+        (res) => {
+          const populatedRoom = res.data.result;
+          if (shouldBuildLog)
+            populatedRoom.log = buildLog(
+              populatedRoom.tabs,
+              populatedRoom.chat
+            );
+          return populatedRoom;
+        }
+      ),
     options
   );
 }

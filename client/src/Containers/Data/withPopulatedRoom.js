@@ -188,6 +188,7 @@ function withPopulatedRoom(WrappedComponent) {
         ? updatedCurrentMembers
         : populatedRoom.currentMembers;
 
+      // if there's an alias put it in, else use the username
       return currentMembers.map((currentMember) => {
         const memberIndex = members.findIndex(
           (el) => el.user._id === currentMember._id
