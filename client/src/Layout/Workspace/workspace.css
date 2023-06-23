@@ -26,7 +26,7 @@
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
-  /* z-index: 0; */
+  z-index: 0;
   padding: 0 20px;
   padding-top: calc(navbarHeight / 2);
   background: #f8f8f8;
@@ -67,7 +67,6 @@
 .TabsAndTitle {
   display: flex;
   height: 35px;
-  margin-bottom: 6px;
   /* border: 1px solid khaki; */
 }
 
@@ -98,7 +97,7 @@
   /* width: graphWidth; */
   display: flex;
   flex: 0 1 1;
-  /* z-index: 1; */
+  z-index: 1;
 }
 
 .Top {
@@ -125,7 +124,7 @@
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-content: stretch;
-  /* z-index: 1; */
+  z-index: 1;
   align-items: stretch;
 }
 

@@ -95,35 +95,34 @@ module.exports = {
     } else {
       queryFcn = () => db.Room.findById(id);
     }
-    return (
-      queryFcn()
-        .populate({ path: 'creator', select: 'username' })
-        .populate({
-          path: 'chat',
-          // options: { limit: 25 }, // Eventually we'll need to paginate this
-          populate: { path: 'user', select: 'username' },
-          // allow messages to have roomIds, like events do
-          // select: '-room',
-        })
-        .populate({ path: 'members.user', select: 'username' })
-        .populate({ path: 'course', select: 'name' })
-        .populate({ path: 'activity', select: 'name' })
-        .populate(
-          params.events === 'true' || params.events === true
-            ? {
-                path: 'tabs',
-                populate: {
-                  path: 'events',
-                  populate: { path: 'user', select: 'username color' },
-                },
-              }
-            : {
-                path: 'tabs',
-                select: 'name tabType snapshot desmosLink controlledBy',
-              }
-        )
-        .lean()
-    );
+    return queryFcn()
+      .populate({ path: 'creator', select: 'username' })
+      .populate({
+        path: 'chat',
+        // options: { limit: 25 }, // Eventually we'll need to paginate this
+        populate: { path: 'user', select: 'username' },
+        // allow messages to have roomIds, like events do
+        // select: '-room',
+      })
+      .populate({ path: 'members.user', select: 'username' })
+      .populate({ path: 'currentMembers', select: 'username' })
+      .populate({ path: 'course', select: 'name' })
+      .populate({ path: 'activity', select: 'name' })
+      .populate(
+        params.events === 'true'
+          ? {
+              path: 'tabs',
+              populate: {
+                path: 'events',
+                populate: { path: 'user', select: 'username color' },
+              },
+            }
+          : {
+              path: 'tabs',
+              select: 'name tabType snapshot desmosLink',
+            }
+      )
+      .lean();
     // options: { limit: 25 },
   },
 
@@ -637,19 +636,16 @@ module.exports = {
 
   // SOCKET METHODS
 
-  setCurrentMembers: (roomId, currentUsers) => {
+  setCurrentUsers: (roomId, newCurrentUserIds) => {
     return new Promise(async (resolve, reject) => {
-      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
-      const query = { $set: { currentMembers: currentUsers } };
-
-      db.Room.findByIdAndUpdate(roomId, query, {
-        new: true,
-        timestamps: false,
-      })
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
+      const query = { $set: { currentMembers: newCurrentUserIds } };
+      db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
+        // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members controlledBy')
         .then((room) => {
           room.populate(
-            { path: 'members.user', select: 'username' },
+            { path: 'currentMembers members.user', select: 'username' },
             (err, poppedRoom) => {
               if (err) {
                 reject(err);
@@ -662,34 +658,18 @@ module.exports = {
     });
   },
 
-  // when a currentMember switches tabs, update the currentMembers array
-  updateCurrentMemberTab: async (roomId, userId, newTabId) => {
-    const room = await db.Room.findById(roomId);
-    const currentMember = room.currentMembers.find(
-      (member) => String(member._id) === String(userId)
-    );
-    if (!currentMember) {
-      console.log(
-        'no current member found, returning previous currentMembers from db'
-      );
-      return room.currentMembers;
-    }
-    currentMember.tab = newTabId;
-
-    await room.save();
-    return room.currentMembers;
-  },
-
-  addCurrentMember: (roomId, newCurrentMember) => {
+  addCurrentUsers: (roomId, newCurrentUserId, members) => {
     return new Promise(async (resolve, reject) => {
-      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
-      const query = { $addToSet: { currentMembers: newCurrentMember } };
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
+      const query = members
+        ? { $addToSet: { currentMembers: newCurrentUserId, members } }
+        : { $addToSet: { currentMembers: newCurrentUserId } };
       db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members')
         .then((room) => {
           room.populate(
-            { path: 'members.user', select: 'username' },
+            { path: 'currentMembers members.user', select: 'username' },
             (err, poppedRoom) => {
               if (err) {
                 reject(err);
@@ -702,11 +682,11 @@ module.exports = {
     });
   },
 
-  removeCurrentMember: (roomId, userId) => {
+  removeCurrentUsers: (roomId, userId) => {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(
         roomId,
-        { $pull: { currentMembers: { _id: userId } } },
+        { $pull: { currentMembers: userId } },
         { timestamps: false }
       ) // dont return new! we need the original list to filter back in sockets.js
         .populate({ path: 'currentMembers', select: 'username' })
@@ -717,7 +697,6 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
-
   getRecentActivity: async (criteria, skip, filters) => {
     let { since, to } = filters;
     const allowedSincePresets = ['day', 'week', 'month', 'year'];

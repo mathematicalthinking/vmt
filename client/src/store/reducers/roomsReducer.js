@@ -41,9 +41,15 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.UPDATED_ROOM_TAB: {
-      const updatedTabs = state.byId[action.roomId].tabs.map((tab) =>
-        tab._id === action.tabId ? { ...tab, ...action.body } : tab
-      );
+      const fields = Object.keys(action.body);
+      const updatedTabs = state.byId[action.roomId].tabs.map((tab) => {
+        if (tab._id === action.tabId) {
+          fields.forEach((field) => {
+            tab[field] = action.body[field];
+          });
+        }
+        return tab;
+      });
       return {
         ...state,
         byId: {
