@@ -50,15 +50,10 @@ function CurrentMembers({
             _id: member._id,
           },
           color: COLOR_MAP[members.length + newMemCount || 0],
-          tabNum: member.tabNum,
         };
         newMemCount += 1;
       }
-      return {
-        ...mem,
-        user: { ...mem.user, username: member.username },
-        tabNum: member.tabNum ? member.tabNum : '',
-      };
+      return { ...mem, user: { ...mem.user, username: member.username } };
     });
     setPresentMembers(result);
   }, [currentMembers]);
@@ -69,14 +64,13 @@ function CurrentMembers({
     }
   };
 
-  const usernameGen = (usrnm, tabNum) => {
+  const usernameGen = (usrnm) => {
     let shortName = usrnm;
     const maxLen = 35;
     if (shortName.includes('@'))
       shortName = shortName.substring(0, shortName.lastIndexOf('@'));
     if (shortName.length > maxLen) shortName = shortName.substring(0, maxLen);
-    // ex: pug-45 (#1)
-    return `${shortName} ${tabNum}`;
+    return shortName;
   };
 
   return (
@@ -107,10 +101,7 @@ function CurrentMembers({
       >
         {presentMembers.map((presMember) => {
           if (presMember) {
-            const shortName = usernameGen(
-              presMember.user.username,
-              presMember.tabNum
-            );
+            const shortName = usernameGen(presMember.user.username);
 
             return (
               <div
