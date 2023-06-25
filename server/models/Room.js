@@ -36,9 +36,20 @@ const Room = new mongoose.Schema(
         },
         alias: { type: String },
         course: { type: ObjectId, ref: 'Course' },
+        currentTab: { type: ObjectId, ref: 'Tab' },
       },
     ],
-    currentMembers: { type: [{ type: ObjectId, ref: 'User' }], default: [] },
+    currentMembers: {
+      type: [
+        {
+          userId: { type: ObjectId, ref: 'User' },
+          username: String,
+          tab: { type: ObjectId, ref: 'Tab' },
+        },
+      ],
+      default: [],
+    },
+
     tabs: { type: [{ type: ObjectId, ref: 'Tab' }] },
     privacySetting: {
       type: String,
@@ -120,26 +131,18 @@ Room.pre('save', function(next) {
   }
 });
 
-Room.pre('update', function(next) {
+function updateTimestamp(next) {
   this._update = this._update || {};
   this._update.$set = this._update.$set || {};
   this._update.$set.dbUpdatedAt = Date.now();
   next();
-});
+}
 
-Room.pre('findOneAndUpdate', function(next) {
-  this._update = this._update || {};
-  this._update.$set = this._update.$set || {};
-  this._update.$set.dbUpdatedAt = Date.now();
-  next();
-});
+Room.pre('update', updateTimestamp);
 
-Room.pre('findByIdAndUpdate', function(next) {
-  this._update = this._update || {};
-  this._update.$set = this._update.$set || {};
-  this._update.$set.dbUpdatedAt = Date.now();
-  next();
-});
+Room.pre('findOneAndUpdate', updateTimestamp);
+
+Room.pre('findByIdAndUpdate', updateTimestamp);
 
 Room.post('save', function(doc, next) {
   if (this.wasNew && !this.tempRoom) {
@@ -228,4 +231,5 @@ Room.methods.summary = function() {
   return obj;
   // next();
 };
+
 module.exports = mongoose.model('Room', Room);
