@@ -2,8 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { dateAndTime } from 'utils';
-import { TabTypes } from 'Model';
-import { Button, Background } from 'Components';
+import { Button, Background, TabTypes } from 'Components';
 import classes from './homepage.css';
 
 class Homepage extends PureComponent {

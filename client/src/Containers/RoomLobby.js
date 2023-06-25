@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 // import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Room as RoomModel } from 'Model';
 import {
   DashboardLayout,
   SidePanel,
@@ -53,7 +52,7 @@ class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
   constructor(props) {
     super(props);
-    const { room } = this.props;
+    const { room, user } = this.props;
     this.state = {
       // member: false,
       guestMode: true,
@@ -207,11 +206,7 @@ class Room extends Component {
     // & does not always loaded in without settings
     if (!room || !room.settings) return true;
     const isFacilitator = this.isUserFacilitator();
-    if (
-      !isFacilitator &&
-      RoomModel.getRoomSetting(room, RoomModel.ALIASED_USERNAMES)
-    )
-      return false;
+    if (!isFacilitator && room.settings.displayAliasedUsernames) return false;
     return true;
   };
 
