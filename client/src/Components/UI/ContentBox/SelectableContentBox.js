@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Checkbox, ToolTip, TabTypes } from 'Components';
+import { Checkbox, ToolTip } from 'Components';
+import { TabTypes } from 'Model';
 import Notification from 'Components/Notification/Notification';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import Icons from './Icons/Icons';

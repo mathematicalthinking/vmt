@@ -2,14 +2,8 @@ import React, { Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import PropTypes from 'prop-types';
 import { SelectableBoxList } from 'Layout';
-import {
-  Search,
-  CustomLink,
-  Button,
-  RadioBtn,
-  InfoBox,
-  TabTypes,
-} from 'Components';
+import { Search, Button, RadioBtn, InfoBox } from 'Components';
+import { TabTypes } from 'Model';
 import classes from './archive.css';
 
 const Archive = (props) => {

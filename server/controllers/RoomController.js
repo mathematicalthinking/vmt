@@ -27,7 +27,10 @@ module.exports = {
         .sort('-createdAt')
         .populate({ path: 'members.user', select: 'username' })
         .populate({ path: 'currentMembers', select: 'username' })
-        .populate({ path: 'tabs', select: 'name tabType desmosLink' })
+        .populate({
+          path: 'tabs',
+          select: 'name tabType desmosLink controlledBy',
+        })
         .then((rooms) => {
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
@@ -53,9 +56,12 @@ module.exports = {
         //   populate: { path: params.events ? 'events' : '' },
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
-        .populate({ path: 'tabs', select: 'tabType name desmosLink' })
+        .populate({
+          path: 'tabs',
+          select: 'tabType name desmosLink controlledBy',
+        })
         .select(
-          'name creator activity members course graphImage privacySetting _id'
+          'name creator activity members course graphImage privacySetting _id settings'
         )
         .then((room) => {
           resolve(room);
@@ -119,7 +125,7 @@ module.exports = {
             }
           : {
               path: 'tabs',
-              select: 'name tabType snapshot desmosLink',
+              select: 'name tabType snapshot desmosLink controlledBy',
             }
       )
       .lean();
@@ -380,7 +386,7 @@ module.exports = {
         room.populate(
           {
             path: 'members.user tabs',
-            select: 'username tabType desmosLink name events',
+            select: 'username tabType desmosLink name events controlledBy',
           },
           (err, populatedRoom) => {
             if (err) reject(err);
