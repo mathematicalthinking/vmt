@@ -34,6 +34,7 @@ import {
   // populateRoom,
   updateUser,
   archiveRooms,
+  updateRoomMembers,
 } from 'store/actions';
 import {
   getUserNotifications,
@@ -41,7 +42,6 @@ import {
   GOOGLE_ICONS,
   getGoogleIcons,
 } from 'utils';
-import { STATUS } from 'constants.js';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
@@ -336,6 +336,18 @@ class Room extends Component {
     connectRemoveRoomMember(room._id, user._id);
   };
 
+  changeMemberRole = (updatedMember) => {
+    const { room, connectUpdateRoomMembers } = this.props;
+    const updatedRoomMembers = room.members.map((mem) => {
+      if (mem.user._id === updatedMember.user._id) {
+        return updatedMember;
+      }
+      return mem;
+    });
+
+    connectUpdateRoomMembers(room._id, updatedRoomMembers);
+  };
+
   checkAccess() {
     const { room, user, connectPopulateRoom } = this.props;
     const { guestMode } = this.state;
@@ -500,6 +512,7 @@ class Room extends Component {
                 : notifications.filter((ntf) => ntf.resourceId === room._id) ||
                   []
             }
+            onChangeRole={this.changeMemberRole}
           />
         );
       } else if (resource === 'settings') {
@@ -856,6 +869,7 @@ Room.propTypes = {
   connectPopulateRoom: PropTypes.func.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
   connectArchiveRooms: PropTypes.func.isRequired,
+  connectUpdateRoomMembers: PropTypes.func.isRequired,
 };
 
 Room.defaultProps = {
@@ -898,4 +912,5 @@ export default connect(mapStateToProps, {
   connectClearLoadingInfo: clearLoadingInfo,
   connectPopulateRoom: populateRoom,
   connectUpdateUser: updateUser,
+  connectUpdateRoomMembers: updateRoomMembers,
 })(Room);
