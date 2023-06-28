@@ -559,6 +559,35 @@ router.put('/archiveRooms', (req, res) => {
   ).then(() => res.sendStatus(200));
 });
 
+router.put('/addMemberToArchivedRooms', (req, res) => {
+  const { member, archivedRoomIds } = req.body;
+  const roomController = controllers.rooms;
+  const userController = controllers.user;
+  // add archivedRooms to user's archive
+  // add the user to all archived rooms
+  const promises = archivedRoomIds.map((roomId) =>
+    roomController.addMember(roomId, member)
+  );
+  promises.push(
+    userController.addArchivedRooms(member.user._id, archivedRoomIds)
+  );
+
+  return Promise.all(promises)
+    .then(() => res.sendStatus(200))
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(`Error adding member to archived rooms: ${err}`);
+
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+
+      return errors.sendError.InternalError(msg, res);
+    });
+});
+
 // router.delete("/:resource/:id", middleware.validateUser, (req, res, next) => {
 //   // for now delete not supported
 //   // add isTrashed?

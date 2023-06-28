@@ -1022,6 +1022,14 @@ module.exports = {
 
     return updatedRooms;
   },
+
+  // add a member to the course
+  addMember: (roomId, member) => {
+    return db.Room.findOneAndUpdate(
+      { _id: roomId },
+      { $addToSet: { members: member } }
+    );
+  },
 };
 
 // When the status is changed to something indicating the hiding of a room (right now, trashed or archived),
