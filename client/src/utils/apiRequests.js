@@ -208,4 +208,11 @@ export default {
   getAllCourseRooms: (id) => {
     return api.get(`/api/getAllRooms/courses/${id}`);
   },
+
+  addMemberToArchivedRooms: (member, archivedRoomIds) => {
+    return api.put(`/api/addMemberToArchivedRooms`, {
+      member,
+      archivedRoomIds,
+    });
+  },
 };

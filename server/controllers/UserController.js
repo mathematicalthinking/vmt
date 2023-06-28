@@ -268,4 +268,11 @@ module.exports = {
 
     return [usersWithStats, { totalCount }];
   },
+
+  addArchivedRooms: (userId, archivedRoomIds) => {
+    return db.User.findOneAndUpdate(
+      { _id: userId },
+      { $addToSet: { 'archive.rooms': { $each: [...archivedRoomIds] } } }
+    );
+  },
 };
