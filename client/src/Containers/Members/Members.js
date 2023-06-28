@@ -17,6 +17,8 @@ import {
   clearNotification,
   removeCourseMember,
   removeRoomMember,
+  addMemberToArchivedRoom,
+  addToUsersArchivedRooms,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
 import CourseCodeMemberImport from 'Components/Importer/CourseCodeMemberImport';
@@ -157,88 +159,6 @@ class Members extends PureComponent {
     );
   };
 
-  /**
-   * @method changeRole
-   * @param  {Object} updatedMember - member obj { color, _id, role, {_id, username}}
-   */
-
-  changeRole = (updatedMember) => {
-    const {
-      classList,
-      resourceId,
-      resourceType,
-      connectUpdateRoomMembers,
-      connectUpdateCourseMembers,
-      courseRoomsMembers,
-      connectInviteToRoom,
-      onChangeRole,
-    } = this.props;
-
-    if (onChangeRole) onChangeRole(updatedMember);
-
-    // create a new classList containing the updatedMember (with a new role). Because we are
-    // sending this to the db, reduce the user field down to just the _id
-    const updatedClassList = classList.map((member) => {
-      return member.user._id === updatedMember.user._id
-        ? { ...updatedMember, user: updatedMember.user._id }
-        : { ...member, user: member.user._id };
-    });
-
-    // If we are inside of a course, we have to update the course members' roles
-    // If we are upgrading a member into a course facilitator, we must:
-    // - check whether that course member is a member of each room in the course. For each room that they are a member of, change their role.
-    //   For each room that they aren't a member of, invite them to that room (which adds them to the room list and adds the room to
-    //   the user's list of rooms).
-    // - invite that member to each template/activity in the course (which should add them to the activity user list and add
-    //   the activity to the user's list of activities)
-    // If we are downgrading a member into a course participant, we must:
-    // - change that member to be a participant of each room in the course that they are a member of
-    // - disinvite the user from all course template/activities:
-    //   remove that member from the list of users who can access each template/activity and remove all course
-    //   templates/activities from the user's list of templates/activities.
-
-    if (resourceType === 'course') {
-      connectUpdateCourseMembers(resourceId, updatedClassList);
-      if (courseRoomsMembers && updatedMember.role === 'facilitator') {
-        Object.keys(courseRoomsMembers).forEach((roomId) => {
-          if (
-            courseRoomsMembers[roomId].find(
-              (member) => member.user._id === updatedMember.user._id
-            )
-          ) {
-            const updatedMemberList = courseRoomsMembers[roomId].map(
-              (member) => {
-                if (member.user._id === updatedMember.user._id)
-                  member.role = 'facilitator';
-                return member;
-              }
-            );
-
-            connectUpdateRoomMembers(roomId, updatedMemberList);
-          } else
-            connectInviteToRoom(
-              roomId,
-              updatedMember.user._id,
-              updatedMember.user.username,
-              undefined, // color
-              updatedMember.role
-            );
-        });
-      } else if (courseRoomsMembers && updatedMember.role === 'participant') {
-        Object.keys(courseRoomsMembers).forEach((roomId) => {
-          const updatedMemberList = courseRoomsMembers[roomId].map((member) => {
-            if (member.user._id === updatedMember.user._id)
-              member.role = 'participant';
-            return member;
-          });
-
-          connectUpdateRoomMembers(roomId, updatedMemberList);
-        });
-      }
-      // if we are in the member list of a room, just update the room with the updated members array
-    } else connectUpdateRoomMembers(resourceId, updatedClassList);
-  };
-
   // Consider finding a way to NOT duplicate this in MakeRooms and also now in Profile
   search = (text) => {
     const { classList, courseMembers } = this.props;
@@ -317,6 +237,7 @@ class Members extends PureComponent {
       courseMembers,
       connectGrantAccess,
       connectClearNotification,
+      onChangeRole,
     } = this.props;
     const {
       confirmingInvitation,
@@ -374,7 +295,7 @@ class Members extends PureComponent {
 
       return owner ? (
         <Member
-          changeRole={this.changeRole}
+          changeRole={onChangeRole}
           removeMember={this.removeMember}
           info={member}
           key={member.user._id}
@@ -394,7 +315,7 @@ class Members extends PureComponent {
     const guestListComponents = guestList.map((member) => {
       return owner ? (
         <Member
-          changeRole={this.changeRole}
+          changeRole={onChangeRole}
           removeMember={this.removeMember}
           info={member}
           key={member.user._id}
@@ -559,8 +480,6 @@ Members.propTypes = {
   // If a room, this is just the members array
   classList: PropTypes.arrayOf(PropTypes.shape({})),
   connectGrantAccess: PropTypes.func.isRequired,
-  connectUpdateCourseMembers: PropTypes.func.isRequired,
-  connectUpdateRoomMembers: PropTypes.func.isRequired,
   connectInviteToCourse: PropTypes.func.isRequired,
   connectInviteToRoom: PropTypes.func.isRequired,
   connectClearNotification: PropTypes.func.isRequired,
@@ -569,6 +488,9 @@ Members.propTypes = {
   // if a course, keys are room ids, values are the array of room members. If a room, this is an empty array
   courseRoomsMembers: PropTypes.shape({}),
   onChangeRole: PropTypes.func,
+  course: PropTypes.shape({
+    archive: PropTypes.shape({ rooms: PropTypes.arrayOf(PropTypes.string) }),
+  }),
 };
 
 Members.defaultProps = {
@@ -579,6 +501,7 @@ Members.defaultProps = {
   parentResource: null,
   courseRoomsMembers: null,
   onChangeRole: null,
+  course: null,
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -618,4 +541,6 @@ export default connect(mapStateToProps, {
   connectClearNotification: clearNotification,
   connectRemoveRoomMember: removeRoomMember,
   connectRemoveCourseMember: removeCourseMember,
+  connectAddMemberToArchivedRoom: addMemberToArchivedRoom,
+  connectAddToUsersArchivedRooms: addToUsersArchivedRooms,
 })(Members);
