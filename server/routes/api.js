@@ -254,7 +254,7 @@ router.get(
           isTrashed: false,
           [field]: id,
         })
-        .then((result) => res.json({ result }).sendStatus(200));
+        .then((result) => res.status(200).json({ result }));
     } catch (err) {
       console.error(`Error getting ${resource} rooms/${id}: ${err}`);
 
