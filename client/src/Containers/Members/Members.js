@@ -541,6 +541,4 @@ export default connect(mapStateToProps, {
   connectClearNotification: clearNotification,
   connectRemoveRoomMember: removeRoomMember,
   connectRemoveCourseMember: removeCourseMember,
-  connectAddMemberToArchivedRoom: addMemberToArchivedRoom,
-  connectAddToUsersArchivedRooms: addToUsersArchivedRooms,
 })(Members);
