@@ -17,8 +17,6 @@ import {
   clearNotification,
   removeCourseMember,
   removeRoomMember,
-  addMemberToArchivedRoom,
-  addToUsersArchivedRooms,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
 import CourseCodeMemberImport from 'Components/Importer/CourseCodeMemberImport';
