@@ -618,7 +618,7 @@ class Workspace extends Component {
               ? [
                   ...Object.values(controlState.controllers),
                   ...[controlState.controlledBy],
-                ]
+                ].filter((x) => !!x) // filter out undefined
               : controlState.controlledBy
           }
           expanded={membersExpanded}
