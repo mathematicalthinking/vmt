@@ -209,4 +209,6 @@
   position: sticky;
   top: 0;
   z-index: 1;
+  background: #75b7f6;
+  margin-bottom: 1.5rem;
 }

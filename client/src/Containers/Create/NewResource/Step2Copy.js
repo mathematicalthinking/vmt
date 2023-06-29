@@ -64,6 +64,11 @@ class Copy extends Component {
               })
             }
             dataId="show-creator-template"
+            style={{
+              background: '#75b7f6',
+              color: 'white',
+              paddingLeft: '10px',
+            }}
           >
             show only my templates
           </Checkbox>
