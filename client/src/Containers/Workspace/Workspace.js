@@ -615,8 +615,11 @@ class Workspace extends Component {
           }
           activeMember={
             controlState.controllers
-              ? Object.values(controlState.controllers)
-              : ''
+              ? [
+                  ...Object.values(controlState.controllers),
+                  ...[controlState.controlledBy],
+                ]
+              : controlState.controlledBy
           }
           expanded={membersExpanded}
           toggleExpansion={this.toggleExpansion}
@@ -1284,6 +1287,7 @@ Workspace.propTypes = {
     controlledBy: PropTypes.string,
     currentTabId: PropTypes.string,
     matches: PropTypes.func,
+    controllers: PropTypes.arrayOf(PropTypes.string),
   }),
   sendControlEvent: PropTypes.func,
 };
@@ -1300,6 +1304,7 @@ Workspace.defaultProps = {
     inControl: null,
     controlledBy: null,
     currentTabId: null,
+    controllers: [],
   },
   sendControlEvent: () => {},
 };
