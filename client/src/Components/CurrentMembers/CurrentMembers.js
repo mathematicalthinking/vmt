@@ -7,31 +7,13 @@ import COLOR_MAP from '../../utils/colorMap';
 function CurrentMembers({
   currentMembers,
   members,
-  activeMember,
+  activeMember, // either individual user id or an array of user ids.
+  inControl, // the user id of the person who should be displayed in the 'in control' area
   expanded,
   toggleExpansion,
   showTitle,
 }) {
   const [presentMembers, setPresentMembers] = useState([]);
-  const [activeUser, setActiveUser] = useState('(no one)');
-  const activeMembers = React.useRef([]);
-
-  // allow for there to be more than one active member
-  React.useEffect(() => {
-    if (Array.isArray(activeMember)) activeMembers.current = activeMember;
-    else if (!activeMember) activeMembers.current = [];
-    else activeMembers.current = [activeMember];
-    let activeMemberDisplay = '(no one)';
-    presentMembers.forEach((presMember) => {
-      if (
-        activeMembers.current &&
-        activeMembers.current.includes(presMember.user._id)
-      ) {
-        activeMemberDisplay = usernameGen(presMember.user.username);
-      }
-    });
-    setActiveUser(activeMemberDisplay);
-  }, [activeMember]);
 
   React.useEffect(() => {
     if (!currentMembers) return;
@@ -69,14 +51,26 @@ function CurrentMembers({
     }
   };
 
-  const usernameGen = (usrnm, tabNum) => {
+  const username = (id) => {
+    const member = members.find((mem) => mem.user._id === id);
+    return member && member.user ? shortenName(member.user.username) : '';
+  };
+
+  const shortenName = (usrnm) => {
     let shortName = usrnm;
     const maxLen = 35;
     if (shortName.includes('@'))
       shortName = shortName.substring(0, shortName.lastIndexOf('@'));
     if (shortName.length > maxLen) shortName = shortName.substring(0, maxLen);
     // ex: pug-45 (#1)
-    return `${shortName} ${tabNum}`;
+    return shortName;
+  };
+
+  const isActive = (id) => {
+    // activeMember might be null, an array, or a string (id)
+    if (!activeMember) return false;
+    else if (typeof activeMember === 'string') return activeMember === id;
+    else return activeMember.includes(id);
   };
 
   return (
@@ -91,7 +85,9 @@ function CurrentMembers({
         >
           <div className={classes.RoomDetail}>
             <p className={classes.RoomDetailText}>In control:</p>
-            <p className={classes.RoomDetailValue}>{activeUser}</p>
+            <p className={classes.RoomDetailValue}>
+              {inControl ? username(inControl) : '(no one)'}
+            </p>
           </div>
           <div className={classes.RoomDetail}>
             <p className={classes.RoomDetailText}>Currently in this room</p>
@@ -107,17 +103,14 @@ function CurrentMembers({
       >
         {presentMembers.map((presMember) => {
           if (presMember) {
-            const shortName = usernameGen(
-              presMember.user.username,
+            const shortName = `${shortenName(presMember.user.username)} ${
               presMember.tabNum
-            );
-
+            }`;
             return (
               <div
                 className={[
                   classes.Avatar,
-                  activeMembers.current &&
-                  activeMembers.current.includes(presMember.user._id)
+                  isActive(presMember.user._id)
                     ? classes.Active
                     : classes.Passive,
                 ].join(' ')}
@@ -146,12 +139,14 @@ CurrentMembers.propTypes = {
   expanded: PropTypes.bool.isRequired,
   showTitle: PropTypes.bool,
   toggleExpansion: PropTypes.func,
+  inControl: PropTypes.string,
 };
 
 CurrentMembers.defaultProps = {
   activeMember: null,
   toggleExpansion: null,
   showTitle: true,
+  inControl: null,
 };
 
 export default CurrentMembers;

@@ -573,6 +573,7 @@ class SharedReplayer extends Component {
                 currentMembers={currentMembers}
                 expanded
                 activeMember={activeMember}
+                inControl={activeMember}
               />
             ) : null
           }
