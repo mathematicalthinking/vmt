@@ -613,14 +613,8 @@ class Workspace extends Component {
               ? tempCurrentMembers
               : populatedRoom.getCurrentMembers(currentMembers)
           }
-          activeMember={
-            controlState.controllers
-              ? [
-                  ...Object.values(controlState.controllers),
-                  ...[controlState.controlledBy],
-                ].filter((x) => !!x) // filter out undefined
-              : controlState.controlledBy
-          }
+          activeMember={controlState.controlledBy}
+          inControl={controlState.controlledBy}
           expanded={membersExpanded}
           toggleExpansion={this.toggleExpansion}
           tabs={tabs}
@@ -634,9 +628,13 @@ class Workspace extends Component {
         expanded={membersExpanded}
         activeMember={
           controlState.controllers
-            ? Object.values(controlState.controllers)
-            : ''
+            ? [
+                ...Object.values(controlState.controllers),
+                ...[controlState.controlledBy],
+              ].filter((x) => !!x) // filter out undefined
+            : controlState.controlledBy
         }
+        inControl={controlState.controlledBy}
         currentMembers={
           temp
             ? tempCurrentMembers
@@ -992,9 +990,7 @@ class Workspace extends Component {
       connectUpdatedRoom,
       save,
       temp,
-      tempMembers,
       connectUpdateRoomTab,
-      tempCurrentMembers,
       connectUpdateUserSettings,
       resetRoom,
       user,
@@ -1002,7 +998,6 @@ class Workspace extends Component {
     } = this.props;
     const {
       tabs: currentTabs,
-      currentMembers: activeMembers,
       log,
       membersExpanded,
       toolsExpanded,
@@ -1032,26 +1027,6 @@ class Workspace extends Component {
     const { currentTabId } = controlState;
     const inControl = controlState.inControl || controlStates.NONE;
 
-    // const currentMembers = (
-    //   <DisplayTabsCM
-    //     members={temp ? tempMembers : populatedRoom.members}
-    //     // currentMembers={temp ? tempCurrentMembers : activeMembers}
-    //     currentMembers={
-    //       temp
-    //         ? tempCurrentMembers
-    //         : populatedRoom.getCurrentMembers(activeMembers)
-    //     }
-    //     activeMember={
-    //       controlState.controllers
-    //         ? Object.values(controlState.controllers)
-    //         : ''
-    //     }
-    //     expanded={membersExpanded}
-    //     toggleExpansion={this.toggleExpansion}
-    //     tabs={currentTabs}
-    //   />
-    // );
-    // determine if we should render DisplayTabsCM or CurrentMembers
     const currentMembers = this.configureCurrentMembersComponent();
     const tabs = (
       <Tabs
