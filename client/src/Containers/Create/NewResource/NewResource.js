@@ -270,7 +270,7 @@ class NewResourceContainer extends Component {
 
   render() {
     // Intro = true if and only if we've navigated from the "Become a Facilitator" page
-    const { resource } = this.props;
+    const { resource, userId } = this.props;
     const {
       name,
       description,
@@ -312,6 +312,7 @@ class NewResourceContainer extends Component {
           displayResource={displayResource}
           addActivity={this.addActivity}
           selectedActivities={activities}
+          userId={userId}
         />
       ) : (
         <Step2New
