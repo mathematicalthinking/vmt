@@ -16,6 +16,7 @@ const CourseStats = ({ roomIds, name }) => {
   const { filteredData } = state;
 
   const augmentFilteredData = (data) => {
+    // could this be improved for efficiency?
     const userIds = Array.from(
       new Set(
         filteredData

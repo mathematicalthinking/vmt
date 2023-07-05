@@ -99,6 +99,13 @@ const filterData = (
   if (users.length > 1) {
     dataSets = users.map((user) => {
       const filteredData = data.filter((d) => {
+        // could improving the performance of this nested for loop
+        // prevent the following error for courses with a ton of data? (ex: Barret Math 7 Period 7/8)
+        /*
+        RangeError: Maximum call stack size exceeded
+          at statsReducer.js:203:21
+          at p (CourseStats.js:15:29)
+        */
         let criteriaMet = false;
         if ((d.user && d.user._id === user) || d.user === user) {
           criteriaMet = true;
@@ -320,6 +327,7 @@ const buildLineData = (data, timeScale, start, end) => {
 };
 
 export const exportCSV = (dataArr, fileName = 'vmt-csv-export') => {
+  // nested for loop
   const csvString = dataArr.reduce((acc, d, idx) => {
     if (idx === 0) {
       acc += Object.keys(d).join(',');
