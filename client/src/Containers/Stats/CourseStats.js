@@ -60,6 +60,9 @@ const CourseStats = ({ roomIds, name }) => {
         (acc, populatedRoom) => [...acc, ...(populatedRoom.log || [])],
         []
       );
+      console.groupCollapsed('combinedLog.length', combinedLog.length);
+      console.log(combinedLog);
+      console.groupEnd();
       dispatch({ type: 'GENERATE_COURSE_DATA', data: combinedLog });
       setLoading(false);
     }
