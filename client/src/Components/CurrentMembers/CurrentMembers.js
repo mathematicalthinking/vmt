@@ -70,7 +70,7 @@ function CurrentMembers({
     // activeMember might be null, an array, or a string (id)
     if (!activeMember) return false;
     else if (typeof activeMember === 'string') return activeMember === id;
-    else return activeMember.includes(id);
+    return activeMember.includes(id);
   };
 
   return (
