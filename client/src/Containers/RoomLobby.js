@@ -41,6 +41,7 @@ import {
   getResourceTabTypes,
   GOOGLE_ICONS,
   getGoogleIcons,
+  getDesmosActivityUrl,
 } from 'utils';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
@@ -379,6 +380,7 @@ class Room extends Component {
       connectUpdateRoom,
       course,
       connectUpdateUser,
+      // tabs,
     } = this.props;
     const {
       guestMode,
@@ -446,23 +448,43 @@ class Room extends Component {
               {mem.user.username},{' '}
             </span>
           )),
-        // .join(', '),
+        ...(room.myRole === 'facilitator'
+          ? {
+              Code: (
+                <Error
+                  error={updateFail && updateKeys.indexOf('entryCode') > -1}
+                >
+                  <EditText
+                    change={this.updateRoomInfo}
+                    inputType="text"
+                    name="entryCode"
+                    editing={editing}
+                  >
+                    {entryCode || 'Not Set'}
+                  </EditText>
+                </Error>
+              ),
+            }
+          : null),
+        ...(room.tabs[0].desmosLink
+          ? {
+              'Desmos Activity Code': (
+                <a
+                  style={{
+                    color: 'blueviolet',
+                    textDecorationLine: 'underline',
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={getDesmosActivityUrl(room.tabs[0].desmosLink)}
+                  data-testid="desmos-link"
+                >
+                  {room.tabs[0].desmosLink}
+                </a>
+              ),
+            }
+          : null),
       };
-
-      if (room.myRole === 'facilitator') {
-        additionalDetails.code = (
-          <Error error={updateFail && updateKeys.indexOf('entryCode') > -1}>
-            <EditText
-              change={this.updateRoomInfo}
-              inputType="text"
-              name="entryCode"
-              editing={editing}
-            >
-              {entryCode || 'Not Set'}
-            </EditText>
-          </Error>
-        );
-      }
 
       const crumbs = [
         { title: 'My VMT', link: '/myVMT/rooms' },
