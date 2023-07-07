@@ -21,7 +21,7 @@ const Tabs = ({
       // display: (#1) Tab Name if there are multiple tabs
         tabs.length > 1
           ? {
-              label: `(#${i + 1}) ${tab.name}`,
+              label: `${i + 1}: ${tab.name}`,
               value: tab._id,
             }
           : {
