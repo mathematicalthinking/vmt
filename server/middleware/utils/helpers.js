@@ -76,7 +76,6 @@ const findAllMatching = (controller, fields = [], values = []) => {
     [field]: { $in: values },
   }));
 
-  // could this be improved by passing all params and not doing an or on each?
   return controller.get({ isTrashed: false, $or: params });
 };
 
