@@ -227,6 +227,7 @@ class ActivityWorkspace extends Component {
             closeModal={this.closeModal}
             updatedActivity={connectUpdatedActivity}
             user={user}
+            currentTabId={currentTabId}
           />
         </Modal>
         {addingToMyActivities && (
