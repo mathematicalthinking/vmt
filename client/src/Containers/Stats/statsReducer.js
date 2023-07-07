@@ -2,26 +2,6 @@
 import { max } from 'd3';
 import { processData, processCourseData, dateFormatMap } from './stats.utils';
 
-const maxTimestamp = (array) => {
-  let maxValue = array[0].timestamp;
-  for (let i = 1; i < array.length; i++) {
-    if (array[i].timestamp > maxValue) {
-      maxValue = array[i].timestamp;
-    }
-  }
-  return maxValue;
-};
-
-const minTimestamp = (array) => {
-  let minValue = array[0].timestamp;
-  for (let i = 1; i < array.length; i++) {
-    if (array[i].timestamp < minValue) {
-      minValue = array[i].timestamp;
-    }
-  }
-  return minValue;
-};
-
 export const initialState = {
   byUser: false,
   byEvent: false,
@@ -52,8 +32,8 @@ export default (state = initialState, action) => {
     case 'GENERATE_DATA': {
       let { data } = action;
       const { users, events } = state;
-      const start = minTimestamp(data);
-      const end = maxTimestamp(data);
+      const start = Math.min(...data.map((d) => d.timestamp));
+      const end = Math.max(...data.map((d) => d.timestamp));
       const rawDuration = end - start;
       data = data.filter((d) => !d.isMultiPart);
 
@@ -220,8 +200,8 @@ export default (state = initialState, action) => {
       let { data } = action;
       if (data.length === 0) return state;
       const { users, events } = state;
-      const start = minTimestamp(data);
-      const end = maxTimestamp(data);
+      const start = Math.min(...data.map((d) => d.timestamp));
+      const end = Math.max(...data.map((d) => d.timestamp));
       const rawDuration = end - start;
       data = data.filter((d) => !d.isMultiPart);
 
