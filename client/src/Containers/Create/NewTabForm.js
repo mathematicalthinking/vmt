@@ -13,7 +13,7 @@ class NewTabForm extends Component {
     instructions: '',
     ggbFile: '',
     desmosLink: '',
-    tabType: TabTypes.GEOGEBRA, // changed to include more room types used to be: `ggb: true`
+    tabType: TabTypes.CLONE, // changed to include more room types used to be: `ggb: true`
     appName: 'classic',
     checkedNum: 0,
   };
@@ -171,7 +171,7 @@ class NewTabForm extends Component {
           {/* !!!DELETE MEOW!!! checkedNum is used to dynamically set the checked attribute to the selected radio button  */}
           <RadioBtn
             name={CLONE}
-            checked={checkedNum === 2}
+            checked={checkedNum === 0}
             check={() => this.setState({ tabType: CLONE, checkedNum: 2 })}
           >
             Clone Current Tab
@@ -187,7 +187,7 @@ class NewTabForm extends Component {
           </RadioBtn>
           <RadioBtn
             name={TabTypes.GEOGEBRA}
-            checked={checkedNum === 0}
+            checked={checkedNum === 2}
             check={() =>
               this.setState({ tabType: TabTypes.GEOGEBRA, checkedNum: 0 })
             }
