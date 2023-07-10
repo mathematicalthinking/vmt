@@ -170,13 +170,11 @@ class NewTabForm extends Component {
         <div className={classes.RadioGroup}>
           {/* !!!DELETE MEOW!!! checkedNum is used to dynamically set the checked attribute to the selected radio button  */}
           <RadioBtn
-            name={TabTypes.GEOGEBRA}
-            checked={checkedNum === 0}
-            check={() =>
-              this.setState({ tabType: TabTypes.GEOGEBRA, checkedNum: 0 })
-            }
+            name={CLONE}
+            checked={checkedNum === 2}
+            check={() => this.setState({ tabType: CLONE, checkedNum: 2 })}
           >
-            GeoGebra
+            Clone Current Tab
           </RadioBtn>
           <RadioBtn
             name={TabTypes.DESMOS}
@@ -188,11 +186,13 @@ class NewTabForm extends Component {
             Desmos
           </RadioBtn>
           <RadioBtn
-            name={CLONE}
-            checked={checkedNum === 2}
-            check={() => this.setState({ tabType: CLONE, checkedNum: 2 })}
+            name={TabTypes.GEOGEBRA}
+            checked={checkedNum === 0}
+            check={() =>
+              this.setState({ tabType: TabTypes.GEOGEBRA, checkedNum: 0 })
+            }
           >
-            Clone Current Tab
+            GeoGebra
           </RadioBtn>
         </div>
         <Button m={10} click={this.submit} data-testid="create-tab">
