@@ -16,7 +16,6 @@ export const controlStates = {
   OTHER: 'OTHER',
   REQUESTED: 'REQUESTED',
   CANCELLED_REQUEST: 'CANCELLED_REQUEST',
-  SWITCHING_TABS: 'SWITCHING_TABS',
 };
 
 export const controlEvents = {
@@ -53,7 +52,7 @@ export const buttonConfigs = {
 /** ***************************************************************
  * actions taken when certain events occur
  ***************************************************************** */
-const iTakeControl = (context, event) => {
+const iTakeControl = assign((context, event) => {
   const isIndependent = context.strategy === STRATEGY.INDEPENDENT;
   const message = {
     _id: createMongoId(),
@@ -73,9 +72,10 @@ const iTakeControl = (context, event) => {
     message,
     typeof event.callback === 'function' ? () => event.callback(message) : null
   );
-};
+  return { lastMessage: message };
+});
 
-const iReleaseControl = (context, event) => {
+const iReleaseControl = assign((context, event) => {
   const isIndependent = context.strategy === STRATEGY.INDEPENDENT;
   const message = {
     _id: createMongoId(),
@@ -95,9 +95,10 @@ const iReleaseControl = (context, event) => {
     message,
     typeof event.callback === 'function' ? () => event.callback(message) : null
   );
-};
+  return { lastMessage: message };
+});
 
-const iTimeOut = (context) => {
+const iTimeOut = assign((context) => {
   // @TODO: At this point, we cannot provide a tab number because that's not kept in the control machine context
   // Note that iTimeOut is called by the control machine, not via a sendEvent, so the 'event' parameter is always empty
   const message = {
@@ -112,7 +113,8 @@ const iTimeOut = (context) => {
     timestamp: Date.now(),
   };
   socket.emit('RELEASE_CONTROL', message);
-};
+  return { lastMessage: message };
+});
 
 const iRequestControl = (context, event) => {
   const isIndependent = context.strategy === STRATEGY.INDEPENDENT;
@@ -144,7 +146,7 @@ const otherReleasesControl = () => {
   // nothing for me to do
 };
 
-const iCancelRequest = (context, event) => {
+const iCancelRequest = assign((context, event) => {
   const isIndependent = context.strategy === STRATEGY.INDEPENDENT;
 
   const message = {
@@ -164,7 +166,8 @@ const iCancelRequest = (context, event) => {
     message,
     typeof event.callback === 'function' ? () => event.callback(message) : null
   );
-};
+  return { lastMessage: message };
+});
 
 const defaultControlMachineSpec = (initial, context) => {
   return [
@@ -310,7 +313,7 @@ const independentTabControlMachineSpec = (initial, context) => {
               target: controlStates.ME,
               actions: 'iTakeControl',
             },
-            [controlEvents.SWITCH_TAB]: controlStates.SWITCHING_TABS,
+            [controlEvents.SWITCH_TAB]: { actions: 'switchingTabs' },
           },
         },
         [controlStates.ME]: {
@@ -322,8 +325,8 @@ const independentTabControlMachineSpec = (initial, context) => {
             },
             [controlEvents.RESET]: controlStates.ME,
             [controlEvents.SWITCH_TAB]: {
-              target: controlStates.SWITCHING_TABS,
-              actions: 'iReleaseControl', // @TODO: potentially different msg if released due to switching
+              target: controlStates.NONE,
+              actions: ['iReleaseControl', 'switchingTabs'], // @TODO: potentially different msg if released due to switching
             },
           },
           after: {
@@ -337,7 +340,7 @@ const independentTabControlMachineSpec = (initial, context) => {
               target: controlStates.REQUESTED,
               actions: 'iRequestControl',
             },
-            [controlEvents.SWITCH_TAB]: controlStates.SWITCHING_TABS,
+            [controlEvents.SWITCH_TAB]: { actions: 'switchingTabs' },
           },
         },
         [controlStates.REQUESTED]: {
@@ -348,8 +351,8 @@ const independentTabControlMachineSpec = (initial, context) => {
               actions: 'iCancelRequest',
             },
             [controlEvents.SWITCH_TAB]: {
-              target: controlStates.SWITCHING_TABS,
-              actions: ['iCancelRequest', 'setRestrictFlag'], // @TODO: Potentially different message when cancel via switching tabs
+              target: controlStates.CANCELLED_REQUEST,
+              actions: ['iCancelRequest', 'setRestrictFlag', 'switchingTabs'], // @TODO: Potentially different message when cancel via switching tabs
             },
           },
           after: {
@@ -360,34 +363,12 @@ const independentTabControlMachineSpec = (initial, context) => {
           entry: 'cancelledRequest',
           on: {
             [controlEvents.SWITCH_TAB]: {
-              target: controlStates.SWITCHING_TABS,
-              actions: 'setRestrictFlag', // @TODO: Potentially different message when cancel via switching tabs
+              actions: ['setRestrictFlag', 'switchingTabs'], // @TODO: Potentially different message when cancel via switching tabs
             },
           },
           after: {
             60000: controlStates.OTHER,
           },
-        },
-        [controlStates.SWITCHING_TABS]: {
-          entry: 'switchingTabs',
-          always: [
-            {
-              cond: (c) =>
-                !!c.controllers[c.currentTabId] &&
-                c.restrictFlags[c.currentTabId],
-              target: controlStates.CANCELLED_REQUEST,
-            },
-            {
-              cond: (c) =>
-                !!c.controllers[c.currentTabId] &&
-                !c.restrictFlags[c.currentTabId],
-              target: controlStates.OTHER,
-            },
-            {
-              cond: (c) => !c.controllers[c.currentTabId],
-              target: controlStates.NONE,
-            },
-          ],
         },
       },
     },
@@ -488,6 +469,7 @@ export function useControlMachine(context, spec) {
       controlledBy: state.context.controlledBy,
       currentTabId: state.context.currentTabId,
       controllers: state.context.controllers,
+      lastMessage: state.context.lastMessage,
     },
     send,
   ];
@@ -508,13 +490,19 @@ export function withControlMachine(Component) {
           {}
         ),
         restrictFlags: {},
+        lastMessage: null,
       },
       Room.getRoomSetting(populatedRoom, Room.TAB_BASED_CONTROL)
         ? independentTabControlMachineSpec
         : defaultControlMachineSpec
     );
     return (
-      <Component controlState={state} sendControlEvent={send} {...props} />
+      <Component
+        controlState={state}
+        sendControlEvent={send}
+        {...props}
+        lastMessage={state.lastMessage}
+      />
     );
   };
 
