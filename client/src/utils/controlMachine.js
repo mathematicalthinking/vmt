@@ -597,7 +597,10 @@ export function withControlMachine(Component) {
     const { hide, show } = useAppModal();
 
     React.useEffect(() => {
-      if (state.matches(controlStates.RECEIVED_REQUEST))
+      if (
+        state.matches(controlStates.RECEIVED_REQUEST) &&
+        !state.history.matches(controlStates.RECEIVED_REQUEST)
+      )
         show(
           <div>
             <div>Control has been requested.</div>
@@ -617,7 +620,7 @@ export function withControlMachine(Component) {
             </div>
           </div>
         );
-      else if (state.matches(controlStates.REQUEST_CANCELLED)) hide();
+      else if (!state.matches(controlStates.RECEIVED_REQUEST)) hide();
     }, [state.value]);
 
     return (
