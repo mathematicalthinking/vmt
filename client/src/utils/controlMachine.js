@@ -16,6 +16,7 @@ export const controlStates = {
   OTHER: 'OTHER',
   REQUESTED: 'REQUESTED',
   CANCELLED_REQUEST: 'CANCELLED_REQUEST',
+  SWITCHING_TABS: 'SWITCHING_TABS',
 };
 
 export const controlEvents = {
@@ -313,7 +314,7 @@ const independentTabControlMachineSpec = (initial, context) => {
               target: controlStates.ME,
               actions: 'iTakeControl',
             },
-            [controlEvents.SWITCH_TAB]: { actions: 'switchingTabs' },
+            [controlEvents.SWITCH_TAB]: controlStates.SWITCHING_TABS,
           },
         },
         [controlStates.ME]: {
@@ -325,8 +326,8 @@ const independentTabControlMachineSpec = (initial, context) => {
             },
             [controlEvents.RESET]: controlStates.ME,
             [controlEvents.SWITCH_TAB]: {
-              target: controlStates.NONE,
-              actions: ['iReleaseControl', 'switchingTabs'], // @TODO: potentially different msg if released due to switching
+              target: controlStates.SWITCHING_TABS,
+              actions: 'iReleaseControl', // @TODO: potentially different msg if released due to switching
             },
           },
           after: {
@@ -340,7 +341,7 @@ const independentTabControlMachineSpec = (initial, context) => {
               target: controlStates.REQUESTED,
               actions: 'iRequestControl',
             },
-            [controlEvents.SWITCH_TAB]: { actions: 'switchingTabs' },
+            [controlEvents.SWITCH_TAB]: controlStates.SWITCHING_TABS,
           },
         },
         [controlStates.REQUESTED]: {
@@ -351,8 +352,8 @@ const independentTabControlMachineSpec = (initial, context) => {
               actions: 'iCancelRequest',
             },
             [controlEvents.SWITCH_TAB]: {
-              target: controlStates.CANCELLED_REQUEST,
-              actions: ['iCancelRequest', 'setRestrictFlag', 'switchingTabs'], // @TODO: Potentially different message when cancel via switching tabs
+              target: controlStates.SWITCHING_TABS,
+              actions: ['iCancelRequest', 'setRestrictFlag'], // @TODO: Potentially different message when cancel via switching tabs
             },
           },
           after: {
@@ -363,12 +364,36 @@ const independentTabControlMachineSpec = (initial, context) => {
           entry: 'cancelledRequest',
           on: {
             [controlEvents.SWITCH_TAB]: {
-              actions: ['setRestrictFlag', 'switchingTabs'], // @TODO: Potentially different message when cancel via switching tabs
+              target: controlStates.SWITCHING_TABS,
+              actions: 'setRestrictFlag', // @TODO: Potentially different message when cancel via switching tabs
             },
           },
           after: {
             60000: controlStates.OTHER,
           },
+        },
+        // Because we are switching tabs, we need to use the controllers
+        // and restrictFlags to figure out what state to be in for the new tab
+        [controlStates.SWITCHING_TABS]: {
+          entry: 'switchingTabs',
+          always: [
+            {
+              cond: (c) =>
+                !!c.controllers[c.currentTabId] &&
+                c.restrictFlags[c.currentTabId],
+              target: controlStates.CANCELLED_REQUEST,
+            },
+            {
+              cond: (c) =>
+                !!c.controllers[c.currentTabId] &&
+                !c.restrictFlags[c.currentTabId],
+              target: controlStates.OTHER,
+            },
+            {
+              cond: (c) => !c.controllers[c.currentTabId],
+              target: controlStates.NONE,
+            },
+          ],
         },
       },
     },
