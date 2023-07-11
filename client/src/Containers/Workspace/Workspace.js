@@ -1008,7 +1008,6 @@ class Workspace extends Component {
       resetRoom,
       user,
       controlState,
-      sendControlEvent,
     } = this.props;
     const {
       tabs: currentTabs,
