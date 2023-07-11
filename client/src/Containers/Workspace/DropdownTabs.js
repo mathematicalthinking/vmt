@@ -43,7 +43,7 @@ const Tabs = ({
         onChange={(selectedOption) => onChangeTab(selectedOption.value)}
         value={
           tabs.length > 1
-            ? { ...currentSelection, label: `Tab: ${currentSelection.label}` }
+            ? { ...currentSelection, label: `${currentSelection.label}` }
             : { ...currentSelection, label: currentSelection.label }
         }
         isSearchable={false}
