@@ -24,7 +24,7 @@ DisplayTabsCM.propTypes = {
     PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])
   ).isRequired,
   tabs: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.arrayOf(PropTypes.shape({})),
     PropTypes.string,
   ]).isRequired,
 };

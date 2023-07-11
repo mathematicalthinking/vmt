@@ -1261,7 +1261,7 @@ Workspace.propTypes = {
     controlledBy: PropTypes.string,
     currentTabId: PropTypes.string,
     matches: PropTypes.func,
-    controllers: PropTypes.arrayOf(PropTypes.string),
+    controllers: PropTypes.shape({}),
   }),
   sendControlEvent: PropTypes.func,
 };
