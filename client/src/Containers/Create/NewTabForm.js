@@ -204,9 +204,16 @@ class NewTabForm extends Component {
 }
 
 NewTabForm.propTypes = {
-  room: PropTypes.shape({ tabs: PropTypes.arrayOf(PropTypes.shape({})) }),
-  user: PropTypes.shape({}).isRequired,
-  activity: PropTypes.shape({}),
+  room: PropTypes.shape({
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    _id: PropTypes.string,
+  }),
+  user: PropTypes.shape({ _id: PropTypes.string, username: PropTypes.string })
+    .isRequired,
+  activity: PropTypes.shape({
+    _id: PropTypes.string,
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+  }),
   updatedActivity: PropTypes.func,
   sendEvent: PropTypes.func,
   closeModal: PropTypes.func.isRequired,

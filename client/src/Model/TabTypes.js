@@ -169,6 +169,7 @@ function MathspaceComponent(property, { type, ...otherProps }) {
     const { [property]: MathSpaceComp } = tabTypeProperties[type];
     return <MathSpaceComp {...otherProps} />;
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
     return null;
   }
