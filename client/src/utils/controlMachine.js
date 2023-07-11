@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { createMachine, assign } from 'xstate';
 import { useMachine } from '@xstate/react';
-import { createMongoId, socket } from 'utils';
+import { createMongoId, socket, useAppModal } from 'utils';
 import { Room } from 'Model';
+import { Button } from 'Components';
 
 const STRATEGY = {
   INDEPENDENT: 'independent',
@@ -17,6 +18,8 @@ export const controlStates = {
   REQUESTED: 'REQUESTED',
   CANCELLED_REQUEST: 'CANCELLED_REQUEST',
   SWITCHING_TABS: 'SWITCHING_TABS',
+  RECEIVED_REQUEST: 'ME.requested',
+  REQUEST_CANCELLED: 'ME.cancelled',
 };
 
 export const controlEvents = {
@@ -24,6 +27,8 @@ export const controlEvents = {
   MSG_RECEIVED: 'MSG_RECEIVED',
   MSG_TOOK_CONTROL: 'MSG_TOOK_CONTROL',
   MSG_RELEASED_CONTROL: 'MSG_RELEASED_CONTROL',
+  MSG_RECEIVED_REQUEST: 'MSG_RECEIVED_REQUEST',
+  MSG_REQUEST_CANCELLED: 'MSG_REQUEST_CANCELLED',
   RESET: 'RESET',
   SWITCH_TAB: 'SWITCH_TAB',
 };
@@ -133,7 +138,7 @@ const iRequestControl = (context, event) => {
     timestamp: Date.now(),
   };
   socket.emit(
-    'SEND_MESSAGE',
+    'REQUEST_CONTROL',
     message,
     typeof event.callback === 'function' ? () => event.callback(message) : null
   );
@@ -163,7 +168,7 @@ const iCancelRequest = assign((context, event) => {
     timestamp: Date.now(),
   };
   socket.emit(
-    'SEND_MESSAGE',
+    'CANCEL_REQUEST',
     message,
     typeof event.callback === 'function' ? () => event.callback(message) : null
   );
@@ -199,16 +204,43 @@ const defaultControlMachineSpec = (initial, context) => {
           },
         },
         [controlStates.ME]: {
-          entry: 'controlledByMe',
-          on: {
-            [controlEvents.CLICK]: {
-              target: controlStates.NONE,
-              actions: 'iReleaseControl',
+          initial: 'normal',
+          states: {
+            normal: {
+              entry: 'controlledByMe',
+              on: {
+                [controlEvents.CLICK]: {
+                  target: `#control.${controlStates.NONE}`,
+                  actions: 'iReleaseControl',
+                },
+                [controlEvents.RESET]: 'normal',
+                [controlEvents.MSG_RECEIVED_REQUEST]: 'requested',
+              },
+              after: {
+                60000: {
+                  target: `#control.${controlStates.NONE}`,
+                  actions: 'iTimeOut',
+                },
+              },
             },
-            [controlEvents.RESET]: controlStates.ME,
-          },
-          after: {
-            60000: { target: controlStates.NONE, actions: 'iTimeOut' },
+            requested: {
+              on: {
+                [controlEvents.CLICK]: {
+                  target: `#control.${controlStates.NONE}`,
+                  actions: 'iReleaseControl',
+                },
+                [controlEvents.MSG_REQUEST_CANCELLED]: 'cancelled',
+              },
+              after: {
+                60000: {
+                  target: `#control.${controlStates.NONE}`,
+                  actions: 'iTimeOut',
+                },
+              },
+            },
+            cancelled: {
+              after: { 10: 'normal' },
+            },
           },
         },
         [controlStates.OTHER]: {
@@ -318,20 +350,57 @@ const independentTabControlMachineSpec = (initial, context) => {
           },
         },
         [controlStates.ME]: {
-          entry: 'controlledByMe',
-          on: {
-            [controlEvents.CLICK]: {
-              target: controlStates.NONE,
-              actions: 'iReleaseControl',
+          initial: 'normal',
+          states: {
+            normal: {
+              entry: 'controlledByMe',
+              on: {
+                [controlEvents.CLICK]: {
+                  target: `#control.${controlStates.NONE}`,
+                  actions: 'iReleaseControl',
+                },
+                [controlEvents.RESET]: 'normal',
+                [controlEvents.MSG_RECEIVED_REQUEST]: {
+                  cond: (c, event) => c.currentTabId === event.tab,
+                  target: 'requested',
+                },
+                [controlEvents.SWITCH_TAB]: {
+                  target: `#control.${controlStates.SWITCHING_TABS}`,
+                  actions: 'iReleaseControl', // @TODO: potentially different msg if released due to switching
+                },
+              },
+              after: {
+                60000: {
+                  target: `#control.${controlStates.NONE}`,
+                  actions: 'iTimeOut',
+                },
+              },
             },
-            [controlEvents.RESET]: controlStates.ME,
-            [controlEvents.SWITCH_TAB]: {
-              target: controlStates.SWITCHING_TABS,
-              actions: 'iReleaseControl', // @TODO: potentially different msg if released due to switching
+            requested: {
+              on: {
+                [controlEvents.CLICK]: {
+                  target: `#control.${controlStates.NONE}`,
+                  actions: 'iReleaseControl',
+                },
+                [controlEvents.SWITCH_TAB]: {
+                  target: `#control.${controlStates.SWITCHING_TABS}`,
+                  actions: 'iReleaseControl', // @TODO: potentially different msg if released due to switching
+                },
+                [controlEvents.MSG_REQUEST_CANCELLED]: {
+                  cond: (c, event) => c.currentTabId === event.tab,
+                  target: 'cancelled',
+                },
+              },
+              after: {
+                60000: {
+                  target: `#control.${controlStates.NONE}`,
+                  actions: 'iTimeOut',
+                },
+              },
             },
-          },
-          after: {
-            60000: { target: controlStates.NONE, actions: 'iTimeOut' },
+            cancelled: {
+              after: { 10: 'normal' },
+            },
           },
         },
         [controlStates.OTHER]: {
@@ -486,10 +555,13 @@ export function useControlMachine(context, spec) {
 
   const [state, send] = useMachine(controlMachineRef.current);
 
+  const topLevelState = (stateValue) =>
+    typeof stateValue === 'string' ? stateValue : Object.keys(stateValue)[0];
+
   return [
     {
       ...state,
-      inControl: state.value,
+      inControl: topLevelState(state.value),
       buttonConfig: state.context.buttonConfig,
       controlledBy: state.context.controlledBy,
       currentTabId: state.context.currentTabId,
@@ -521,6 +593,33 @@ export function withControlMachine(Component) {
         ? independentTabControlMachineSpec
         : defaultControlMachineSpec
     );
+
+    const { hide, show } = useAppModal();
+
+    React.useEffect(() => {
+      if (state.matches(controlStates.RECEIVED_REQUEST))
+        show(
+          <div>
+            <div>Control has been requested.</div>
+            <div>
+              <Button
+                m={5}
+                click={() => {
+                  send(controlEvents.CLICK);
+                  hide();
+                }}
+              >
+                Release Control
+              </Button>
+              <Button m={5} click={hide}>
+                One more minute
+              </Button>
+            </div>
+          </div>
+        );
+      else if (state.matches(controlStates.REQUEST_CANCELLED)) hide();
+    }, [state.value]);
+
     return (
       <Component
         controlState={state}
