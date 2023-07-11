@@ -103,7 +103,7 @@ function CurrentMembers({
       >
         {presentMembers.map((presMember) => {
           if (presMember) {
-            const shortName = `${shortenName(presMember.user.username)} ${
+            const shortName = `${shortenName(presMember.user.username)}: ${
               presMember.tabNum
             }`;
             return (
