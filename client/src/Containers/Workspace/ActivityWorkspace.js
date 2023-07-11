@@ -152,7 +152,7 @@ class ActivityWorkspace extends Component {
             />
           );
         }
-        console.log('Building a geogebra thing');
+
         return (
           <GgbActivityGraph
             activity={activity}
@@ -249,10 +249,19 @@ class ActivityWorkspace extends Component {
 }
 
 ActivityWorkspace.propTypes = {
-  activity: PropTypes.shape({}),
-  match: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
-  history: PropTypes.shape({}).isRequired,
+  activity: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    tabs: PropTypes.arrayOf(
+      PropTypes.shape({ _id: PropTypes.string, name: PropTypes.string })
+    ),
+  }),
+  match: PropTypes.shape({
+    params: PropTypes.shape({ activity_id: PropTypes.string }),
+  }).isRequired,
+  user: PropTypes.shape({ activities: PropTypes.arrayOf(PropTypes.string) })
+    .isRequired,
+  history: PropTypes.shape({ goBack: PropTypes.func }).isRequired,
   temp: PropTypes.bool,
   connectUpdatedActivity: PropTypes.func.isRequired,
   connectSetActivityStartingPoint: PropTypes.func.isRequired,
