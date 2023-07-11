@@ -379,6 +379,20 @@ class Workspace extends Component {
       });
     });
 
+    socket.on('CONTROL_REQUESTED', (message) => {
+      this.addToLog(message);
+      sendControlEvent(controlEvents.MSG_RECEIVED_REQUEST, {
+        tab: message.tab,
+      });
+    });
+
+    socket.on('REQUEST_CANCELLED', (message) => {
+      this.addToLog(message);
+      sendControlEvent(controlEvents.MSG_REQUEST_CANCELLED, {
+        tab: message.tab,
+      });
+    });
+
     socket.on('CREATED_TAB', (data) => {
       const { tabs: stateTabs } = this.state;
       this.addToLog(data.message);

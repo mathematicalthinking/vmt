@@ -277,6 +277,22 @@ module.exports = function() {
       if (callback) callback(null, {});
     });
 
+    socket.on('REQUEST_CONTROL', (data, callback) => {
+      socketMetricInc('requestcontrol');
+
+      controllers.messages.post(data);
+      socket.to(data.room).emit('CONTROL_REQUESTED', data);
+      if (callback) callback(null, {});
+    });
+
+    socket.on('CANCEL_REQUEST', (data, callback) => {
+      socketMetricInc('cancelrequest');
+
+      controllers.messages.post(data);
+      socket.to(data.room).emit('REQUEST_CANCELLED', data);
+      if (callback) callback(null, {});
+    });
+
     socket.on('SEND_EVENT', async (data, lastEventId, callback) => {
       socketMetricInc('eventsend');
       try {
