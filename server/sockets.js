@@ -523,7 +523,7 @@ module.exports = function() {
         ['socketId'],
         socketsInRoom
       );
-      if (answer.length !== usersInRoom.length)
+      if (answer.length !== socketsInRoom.length)
         console.log(
           `There are ${socketsInRoom.length -
             answer.length} sockets with unknown users`
