@@ -9,6 +9,7 @@ const Activity = new mongoose.Schema(
   {
     name: { type: String, required: true },
     description: { type: String },
+    gradeLevel: { type: Number, default: null },
     course: { type: ObjectId, ref: 'Course' },
     courses: {
       type: [{ type: ObjectId, ref: 'Course' }],
