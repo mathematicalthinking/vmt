@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
+import { Checkbox } from 'Components';
 import { useSortableData } from 'utils';
 import classes from './makeRooms.css';
 
@@ -108,6 +109,9 @@ const TheMatrix = (props) => {
     getCourseName,
   } = props;
 
+  // absentParticipants is an arry of user ids
+  const [absentParticipants, setAbsentParticipants] = useState([]);
+
   // =========== SORT FACILITATORS TO THE END OF ALL PARTICIPANTS ==============
   const sortAllParticipants = () => {
     const facilitators = allParticipants
@@ -183,6 +187,7 @@ const TheMatrix = (props) => {
           <thead>
             <tr className={classes.LockedTop}>
               <th className={classes.LockedColumn}>
+                <span className={classes.AbsentHeader}>Absent</span>
                 Participants{' '}
                 {onAddParticipants && (
                   <div
@@ -265,7 +270,30 @@ const TheMatrix = (props) => {
                         color: `${participant.displayColor || 'black'}`,
                       }}
                     >
-                      {`${i + 1}. ${participant.user.username}`}
+                      {/* Absence Checkbox */}
+                      <Checkbox
+                        change={(event, dataId) => {
+                          if (absentParticipants.includes(dataId))
+                            setAbsentParticipants((prev) =>
+                              [...prev].filter((id) => id !== dataId)
+                            );
+                          else
+                            setAbsentParticipants((prev) => [...prev, dataId]);
+                        }}
+                        checked={absentParticipants.includes(
+                          participant.user._id
+                        )}
+                        id={`absent-checkbox-${participant.user._id}`}
+                        dataId={participant.user._id}
+                        style={{
+                          display: 'inline-block',
+                          marginRight: '5px',
+                          position: 'relative',
+                          top: '-4px',
+                        }}
+                      >
+                        {`${i + 1}. ${participant.user.username}`}
+                      </Checkbox>
                     </td>
                   )}
                   {roomDrafts.map((room, j) => {

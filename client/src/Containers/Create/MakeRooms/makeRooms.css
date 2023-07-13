@@ -113,7 +113,7 @@
   /* Displayed on top of other rows when scrolling */
   z-index: 87;
   /* reduce column size w/Participants' names */
-  width: 150px;
+  width: 200px;
   cursor: default;
 }
 
@@ -373,4 +373,8 @@
   margin-left: 8px;
   position: absolute;
   color: darkGray;
+}
+
+.AbsentHeader {
+  margin-right: 10px;
 }
