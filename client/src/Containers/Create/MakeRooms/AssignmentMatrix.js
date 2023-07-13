@@ -167,6 +167,7 @@ const TheMatrix = (props) => {
   };
 
   const checkUser = (roomIndex, user) => {
+    if (absentParticipants.includes(user._id)) return -1;
     return roomDrafts[roomIndex].members.findIndex(
       (mem) => mem.user._id === user._id
     );
@@ -311,7 +312,10 @@ const TheMatrix = (props) => {
                         <input
                           type="checkbox"
                           id={roomKey}
-                          disabled={userId === participant.user._id}
+                          disabled={
+                            userId === participant.user._id ||
+                            absentParticipants.includes(participant.user._id)
+                          }
                           data-testid={`checkbox${i + 1}-${j + 1}`}
                           onChange={(event) => {
                             selectParticipant(event, data);
