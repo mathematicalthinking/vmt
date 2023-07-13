@@ -274,12 +274,23 @@ const TheMatrix = (props) => {
                       {/* Absence Checkbox */}
                       <Checkbox
                         change={(event, dataId) => {
-                          if (absentParticipants.includes(dataId))
+                          if (absentParticipants.includes(dataId)) {
                             setAbsentParticipants((prev) =>
                               [...prev].filter((id) => id !== dataId)
                             );
-                          else
+                            // add absent participants back to every room they are in within the roomDrafts
+                          } else {
                             setAbsentParticipants((prev) => [...prev, dataId]);
+                            // remove absent participants from all rooms
+                            roomDrafts.forEach((room) => {
+                              const index = room.members.findIndex(
+                                (mem) => mem.user._id === dataId
+                              );
+                              if (index >= 0) {
+                                room.members.splice(index, 1);
+                              }
+                            });
+                          }
                         }}
                         checked={absentParticipants.includes(
                           participant.user._id
