@@ -996,6 +996,17 @@ class Workspace extends Component {
     socket.emit('SEND_EVENT', eventData, lastEventId, () => {});
   };
 
+  inControl = (tabId) => {
+    const { controlState } = this.props;
+    const { currentTabId } = controlState;
+
+    if (tabId === currentTabId)
+      return controlState.inControl || controlStates.NONE;
+    return controlState.controllers[tabId]
+      ? controlStates.OTHER
+      : controlStates.NONE;
+  };
+
   render() {
     const {
       populatedRoom,
@@ -1038,7 +1049,6 @@ class Workspace extends Component {
       connectionStatus,
     } = this.state;
     const { currentTabId } = controlState;
-    const inControl = controlState.inControl || controlStates.NONE;
 
     const currentMembers = this.configureCurrentMembersComponent();
     const tabs = (
@@ -1097,7 +1107,7 @@ class Workspace extends Component {
         currentTabId={currentTabId}
         updateRoomTab={connectUpdateRoomTab}
         tab={tab}
-        inControl={inControl}
+        inControl={this.inControl(tab._id)}
         toggleControl={this.toggleControl}
         updatedRoom={connectUpdatedRoom}
         addNtfToTabs={this.addNtfToTabs}
