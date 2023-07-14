@@ -122,7 +122,7 @@ function withPopulatedRoom(WrappedComponent) {
             'we should probably just go back to the previous page? maybe display the error'
           );
           const { history } = this.props;
-          window.alert('There was error loading the room');
+          window.alert('There was an error loading the room');
           history.goBack();
         });
     }
