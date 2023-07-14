@@ -618,6 +618,7 @@ class Workspace extends Component {
       tempMembers,
       tempCurrentMembers,
     } = this.props;
+    const { getControlledBy } = controlState;
     if (tabs.length === 1) {
       return (
         <CurrentMembers
@@ -640,14 +641,9 @@ class Workspace extends Component {
         tabs={tabs}
         toggleExpansion={this.toggleExpansion}
         expanded={membersExpanded}
-        activeMember={
-          controlState.controllers
-            ? [
-                ...Object.values(controlState.controllers),
-                ...[controlState.controlledBy],
-              ].filter((x) => !!x) // filter out undefined
-            : controlState.controlledBy
-        }
+        activeMember={tabs
+          .map((tab) => getControlledBy(tab._id))
+          .filter(Boolean)}
         inControl={controlState.controlledBy}
         currentMembers={
           temp
@@ -1037,8 +1033,7 @@ class Workspace extends Component {
       isCreatingActivity,
       connectionStatus,
     } = this.state;
-    const { currentTabId } = controlState;
-    const inControl = controlState.inControl || controlStates.NONE;
+    const { currentTabId, getInControl } = controlState;
 
     const currentMembers = this.configureCurrentMembersComponent();
     const tabs = (
@@ -1097,7 +1092,7 @@ class Workspace extends Component {
         currentTabId={currentTabId}
         updateRoomTab={connectUpdateRoomTab}
         tab={tab}
-        inControl={inControl}
+        inControl={getInControl(tab._id)}
         toggleControl={this.toggleControl}
         updatedRoom={connectUpdatedRoom}
         addNtfToTabs={this.addNtfToTabs}
@@ -1271,11 +1266,11 @@ Workspace.propTypes = {
   resetRoom: PropTypes.func,
   controlState: PropTypes.shape({
     buttonConfig: PropTypes.shape({}),
-    inControl: PropTypes.string,
     controlledBy: PropTypes.string,
     currentTabId: PropTypes.string,
     matches: PropTypes.func,
-    controllers: PropTypes.shape({}),
+    getControlledBy: PropTypes.func,
+    getInControl: PropTypes.func,
   }),
   sendControlEvent: PropTypes.func,
 };
@@ -1289,10 +1284,8 @@ Workspace.defaultProps = {
   resetRoom: () => {},
   controlState: {
     buttonConfig: null,
-    inControl: null,
     controlledBy: null,
     currentTabId: null,
-    controllers: [],
   },
   sendControlEvent: () => {},
 };
