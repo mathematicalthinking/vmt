@@ -181,7 +181,7 @@ const defaultControlMachineSpec = (initial, context) => {
       predictableActionArguments: true,
       id: 'control',
       initial,
-      context: { ...context, strategy: STRATEGY.DEFAULT },
+      context: { ...context, controllers: null, strategy: STRATEGY.DEFAULT },
       on: {
         [controlEvents.MSG_RELEASED_CONTROL]: {
           target: controlStates.NONE,
@@ -558,15 +558,29 @@ export function useControlMachine(context, spec) {
   const topLevelState = (stateValue) =>
     typeof stateValue === 'string' ? stateValue : Object.keys(stateValue)[0];
 
+  const getControlledBy = (tabId) => {
+    if (tabId === state.context.currentTabId || !state.context.controllers)
+      return state.context.controlledBy;
+    return state.context.controllers[tabId];
+  };
+
+  const getInControl = (tabId) => {
+    if (tabId === state.context.currentTabId || !state.context.controllers)
+      return topLevelState(state.value);
+    return state.context.controllers[tabId]
+      ? controlStates.OTHER
+      : controlStates.NONE;
+  };
+
   return [
     {
       ...state,
-      inControl: topLevelState(state.value),
       buttonConfig: state.context.buttonConfig,
       controlledBy: state.context.controlledBy,
       currentTabId: state.context.currentTabId,
-      controllers: state.context.controllers,
       lastMessage: state.context.lastMessage,
+      getControlledBy,
+      getInControl,
     },
     send,
   ];
