@@ -161,7 +161,10 @@ class NewResourceContainer extends Component {
       newResource.entryCode = hri.random();
     }
     if (gradeLevel) {
-      newResource.gradeLevel = gradeLevel.value;
+      // newResource.gradeLevel = gradeLevel.value;
+      // add gradeLevel to tags array
+      const tags = [{ gradeLevel: gradeLevel.value }];
+      newResource.tags = tags;
     }
     return this.uploadGgbFiles().then((results) => {
       if (results && results.data) {
