@@ -212,3 +212,15 @@
   background: #75b7f6;
   margin-bottom: 1.5rem;
 }
+
+.Label {
+  margin-top: 15px;
+  text-align: left;
+  font-size: 15px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.Select {
+  margin-bottom: 10px;
+}

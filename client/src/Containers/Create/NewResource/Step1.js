@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select';
 import { TextInput } from 'Components';
 import classes from '../create.css';
 
@@ -13,6 +14,9 @@ const Step1 = (props) => {
     organization,
     school,
     district,
+    gradeSelectHandler,
+    gradeSelectOptions,
+    gradeSelectValue,
   } = props;
   return (
     <div className={classes.FormSection}>
@@ -67,6 +71,20 @@ const Step1 = (props) => {
           />
         </div>
       ) : null}
+      {resource === 'activities' && (
+        <label htmlFor="GradeSelect" className={classes.Label}>
+          <Select
+            className={classes.Select}
+            inputId="GradeSelect"
+            onChange={(selectedOption) => gradeSelectHandler(selectedOption)}
+            value={gradeSelectValue}
+            options={gradeSelectOptions}
+            isSearchable={false}
+            placeholder="Choose Grade Level"
+          />
+          Select Grade Level
+        </label>
+      )}
     </div>
   );
 };
@@ -80,12 +98,23 @@ Step1.propTypes = {
   district: PropTypes.string,
   school: PropTypes.string,
   organization: PropTypes.string,
+  gradeSelectHandler: PropTypes.func,
+  gradeSelectOptions: PropTypes.arrayOf(
+    PropTypes.shape({ label: PropTypes.string, value: PropTypes.number })
+  ),
+  gradeSelectValue: PropTypes.shape({
+    label: PropTypes.string,
+    value: PropTypes.number,
+  }),
 };
 
 Step1.defaultProps = {
   district: '',
   school: '',
   organization: '',
+  gradeSelectHandler: null,
+  gradeSelectOptions: null,
+  gradeSelectValue: null,
 };
 
 export default Step1;
