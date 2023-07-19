@@ -47,17 +47,38 @@ class Copy extends Component {
         (currentActivity) => userId === currentActivity.creator
       );
     }
+    if (filters.grade6) {
+      return results.filter((currentActivity) => {
+        const { tags } = currentActivity;
+        return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 6;
+      });
+    }
+    if (filters.grade7) {
+      return results.filter((currentActivity) => {
+        const { tags } = currentActivity;
+        return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 7;
+      });
+    }
+    if (filters.grade8) {
+      return results.filter((currentActivity) => {
+        const { tags } = currentActivity;
+        return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 8;
+      });
+    }
     return results;
   };
 
   filterResults = (event, selectedFilter) => {
-    this.setState((prevState) => ({
-      ...prevState,
-      filters: {
-        ...prevState.filters,
-        [selectedFilter]: !prevState.filters[selectedFilter],
-      },
-    }));
+    this.setState(
+      (prevState) => ({
+        ...prevState,
+        filters: {
+          ...prevState.filters,
+          [selectedFilter]: !prevState.filters[selectedFilter],
+        },
+      }),
+      () => this.displayResults()
+    );
   };
 
   render() {
