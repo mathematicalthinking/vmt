@@ -31,6 +31,7 @@ export const controlEvents = {
   MSG_REQUEST_CANCELLED: 'MSG_REQUEST_CANCELLED',
   RESET: 'RESET',
   SWITCH_TAB: 'SWITCH_TAB',
+  TAKE_MORE_TIME: 'TAKE_MORE_TIME',
 };
 
 export const buttonConfigs = {
@@ -122,7 +123,7 @@ const iTimeOut = assign((context) => {
   return { lastMessage: message };
 });
 
-const iRequestControl = (context, event) => {
+const iRequestControl = assign((context, event) => {
   const isIndependent = context.strategy === STRATEGY.INDEPENDENT;
 
   const message = {
@@ -142,7 +143,8 @@ const iRequestControl = (context, event) => {
     message,
     typeof event.callback === 'function' ? () => event.callback(message) : null
   );
-};
+  return { lastMessage: message };
+});
 
 const otherTakesControl = () => {
   // nothing to do
@@ -169,6 +171,25 @@ const iCancelRequest = assign((context, event) => {
   };
   socket.emit(
     'CANCEL_REQUEST',
+    message,
+    typeof event.callback === 'function' ? () => event.callback(message) : null
+  );
+  return { lastMessage: message };
+});
+
+const iTakeMoreTime = assign((context, event) => {
+  const message = {
+    _id: createMongoId(),
+    text: 'I will take one more minute.',
+    messageType: 'TEXT',
+    user: { _id: context.userId, username: context.username },
+    room: context.roomId,
+    tab: context.currentTabId,
+    color: event.myColor || '#f26247',
+    timestamp: Date.now(),
+  };
+  socket.emit(
+    'SEND_MESSAGE',
     message,
     typeof event.callback === 'function' ? () => event.callback(message) : null
   );
@@ -230,6 +251,7 @@ const defaultControlMachineSpec = (initial, context) => {
                   actions: 'iReleaseControl',
                 },
                 [controlEvents.MSG_REQUEST_CANCELLED]: 'cancelled',
+                [controlEvents.TAKE_MORE_TIME]: { actions: 'iTakeMoreTime' },
               },
               after: {
                 60000: {
@@ -281,6 +303,7 @@ const defaultControlMachineSpec = (initial, context) => {
         iRequestControl,
         otherReleasesControl,
         iCancelRequest,
+        iTakeMoreTime,
         controlledByMe: assign({
           controlledBy: (c) => c.userId,
           buttonConfig: buttonConfigs[controlStates.ME],
@@ -390,6 +413,7 @@ const independentTabControlMachineSpec = (initial, context) => {
                   cond: (c, event) => c.currentTabId === event.tab,
                   target: 'cancelled',
                 },
+                [controlEvents.TAKE_MORE_TIME]: { actions: 'iTakeMoreTime' },
               },
               after: {
                 60000: {
@@ -475,6 +499,7 @@ const independentTabControlMachineSpec = (initial, context) => {
         iRequestControl,
         otherReleasesControl,
         iCancelRequest,
+        iTakeMoreTime,
         storeNull: assign({
           controllers: (c, event) => ({
             ...c.controllers,
@@ -618,6 +643,7 @@ export function withControlMachine(Component) {
         show(
           <div>
             <div>Control has been requested.</div>
+            <br />
             <div>
               <Button
                 m={5}
@@ -628,7 +654,13 @@ export function withControlMachine(Component) {
               >
                 Release Control
               </Button>
-              <Button m={5} click={hide}>
+              <Button
+                m={5}
+                click={() => {
+                  send(controlEvents.TAKE_MORE_TIME);
+                  hide();
+                }}
+              >
                 One more minute
               </Button>
             </div>

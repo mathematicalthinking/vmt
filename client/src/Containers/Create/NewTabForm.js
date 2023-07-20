@@ -173,7 +173,7 @@ class NewTabForm extends Component {
           <RadioBtn
             name={CLONE}
             checked={checkedNum === 0}
-            check={() => this.setState({ tabType: CLONE, checkedNum: 2 })}
+            check={() => this.setState({ tabType: CLONE, checkedNum: 0 })}
           >
             Clone Current Tab
           </RadioBtn>
@@ -190,7 +190,7 @@ class NewTabForm extends Component {
             name={TabTypes.GEOGEBRA}
             checked={checkedNum === 2}
             check={() =>
-              this.setState({ tabType: TabTypes.GEOGEBRA, checkedNum: 0 })
+              this.setState({ tabType: TabTypes.GEOGEBRA, checkedNum: 2 })
             }
           >
             GeoGebra
