@@ -72,18 +72,15 @@ const Step1 = (props) => {
         </div>
       ) : null}
       {resource === 'activities' && (
-        <label htmlFor="GradeSelect" className={classes.Label}>
-          <Select
-            className={classes.Select}
-            inputId="GradeSelect"
-            onChange={(selectedOption) => gradeSelectHandler(selectedOption)}
-            value={gradeSelectValue}
-            options={gradeSelectOptions}
-            isSearchable={false}
-            placeholder="Choose Grade Level"
-          />
-          Select Grade Level
-        </label>
+        <Select
+          className={classes.Select}
+          inputId="GradeSelect"
+          onChange={(selectedOption) => gradeSelectHandler(selectedOption)}
+          value={gradeSelectValue}
+          options={gradeSelectOptions}
+          isSearchable={false}
+          placeholder="Choose Grade Level"
+        />
       )}
     </div>
   );

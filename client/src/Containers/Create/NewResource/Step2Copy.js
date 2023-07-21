@@ -42,30 +42,42 @@ class Copy extends Component {
     const { activityList, searchResults, searchText, filters } = this.state;
     const { userId } = this.props;
     const results = searchText.length ? searchResults : activityList;
+    const checkedFilters = Object.keys(filters).filter(
+      (key) => filters[key] === true
+    );
+    const filteredResults = [];
     if (filters.myTemplates) {
-      return results.filter(
-        (currentActivity) => userId === currentActivity.creator
+      filteredResults.push(
+        ...results.filter(
+          (currentActivity) => userId === currentActivity.creator
+        )
       );
     }
     if (filters.grade6) {
-      return results.filter((currentActivity) => {
-        const { tags } = currentActivity;
-        return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 6;
-      });
+      filteredResults.push(
+        ...results.filter((currentActivity) => {
+          const { tags } = currentActivity;
+          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 6;
+        })
+      );
     }
     if (filters.grade7) {
-      return results.filter((currentActivity) => {
-        const { tags } = currentActivity;
-        return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 7;
-      });
+      filteredResults.push(
+        ...results.filter((currentActivity) => {
+          const { tags } = currentActivity;
+          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 7;
+        })
+      );
     }
     if (filters.grade8) {
-      return results.filter((currentActivity) => {
-        const { tags } = currentActivity;
-        return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 8;
-      });
+      filteredResults.push(
+        ...results.filter((currentActivity) => {
+          const { tags } = currentActivity;
+          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 8;
+        })
+      );
     }
-    return results;
+    return filteredResults.length ? filteredResults : results;
   };
 
   filterResults = (event, selectedFilter) => {
