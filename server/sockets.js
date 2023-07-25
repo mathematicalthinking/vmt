@@ -422,16 +422,20 @@ module.exports = function() {
       const usersInSockets = await usersInRoom(roomId); // socket users
 
       // used to update the currentMembers array in the db
-      const currentUsers = [];
+      // const currentUsers = [];
+
+      const usersInDb = await controllers.user.get({
+        _id: { $in: usersInSockets },
+      });
 
       // get usernames for usersInSockets from the database
       // get Room Tab id for usersInSockets from the database
       // set currentUsers to an array of objects with _ids, usernames and tabIds
 
-      const promises = usersInSockets.map(async (userId) => {
-        const usr = await controllers.user.getById(userId);
+      const currentUsers = usersInDb.map((usr) => {
+        // const usr = await controllers.user.getById(userId);
         const currentMember = roomInDb.currentMembers.find(
-          (mem) => mem._id.toString() === userId.toString()
+          (mem) => mem._id.toString() === usr._id.toString()
         );
         const tab =
           (currentMember && currentMember.tab) || roomInDb.tabs[0]._id;
@@ -441,8 +445,8 @@ module.exports = function() {
           tab,
         };
       });
-      const resolved = await Promise.all(promises);
-      currentUsers.push(...resolved);
+      // const resolved = await Promise.all(promises);
+      // currentUsers.push(...resolved);
 
       const room = await controllers.rooms.setCurrentMembers(
         roomId,
