@@ -171,7 +171,9 @@ module.exports = function() {
 
       try {
         await message.save();
-        const { room, releasedControl } = await killZombies(data.roomId);
+        // const { room, releasedControl } = await killZombies(data.roomId);
+        const room = await controllers.rooms.getById(data.roomId);
+        const releasedControl = [];
         const dataToReturn = {
           currentMembers: room.currentMembers,
           message,
@@ -536,7 +538,9 @@ module.exports = function() {
       try {
         // remove user before killing zombies to prevent killZombies from thinking the user to be removed is a zombie
         await controllers.rooms.removeCurrentMember(roomId, socket.user_id);
-        const { releasedControl, room } = await killZombies(roomId);
+        // const { releasedControl, room } = await killZombies(roomId);
+        const room = await controllers.rooms.getById(roomId);
+        const releasedControl = [];
         const message = new Message({
           color,
           room: roomId,
