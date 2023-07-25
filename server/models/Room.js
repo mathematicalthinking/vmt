@@ -42,7 +42,7 @@ const Room = new mongoose.Schema(
     currentMembers: {
       type: [
         {
-          userId: { type: ObjectId, ref: 'User' },
+          _id: { type: ObjectId, ref: 'User' },
           username: String,
           tab: { type: ObjectId, ref: 'Tab' },
         },
