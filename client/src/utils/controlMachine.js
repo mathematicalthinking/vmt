@@ -180,7 +180,7 @@ const iCancelRequest = assign((context, event) => {
 const iTakeMoreTime = assign((context, event) => {
   const message = {
     _id: createMongoId(),
-    text: 'I will take one more minute.',
+    text: 'I have requested one more minute to try an idea I have. Thank you.',
     messageType: 'TEXT',
     user: { _id: context.userId, username: context.username },
     room: context.roomId,
