@@ -42,30 +42,42 @@ class Copy extends Component {
     const { activityList, searchResults, searchText, filters } = this.state;
     const { userId } = this.props;
     const results = searchText.length ? searchResults : activityList;
+    const checkedFilters = Object.keys(filters).filter(
+      (key) => filters[key] === true
+    );
+    const filteredResults = [];
     if (filters.myTemplates) {
-      return results.filter(
-        (currentActivity) => userId === currentActivity.creator
+      filteredResults.push(
+        ...results.filter(
+          (currentActivity) => userId === currentActivity.creator
+        )
       );
     }
     if (filters.grade6) {
-      return results.filter((currentActivity) => {
-        const { tags } = currentActivity;
-        return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 6;
-      });
+      filteredResults.push(
+        ...results.filter((currentActivity) => {
+          const { tags } = currentActivity;
+          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 6;
+        })
+      );
     }
     if (filters.grade7) {
-      return results.filter((currentActivity) => {
-        const { tags } = currentActivity;
-        return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 7;
-      });
+      filteredResults.push(
+        ...results.filter((currentActivity) => {
+          const { tags } = currentActivity;
+          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 7;
+        })
+      );
     }
     if (filters.grade8) {
-      return results.filter((currentActivity) => {
-        const { tags } = currentActivity;
-        return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 8;
-      });
+      filteredResults.push(
+        ...results.filter((currentActivity) => {
+          const { tags } = currentActivity;
+          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 8;
+        })
+      );
     }
-    return results;
+    return filteredResults.length ? filteredResults : results;
   };
 
   filterResults = (event, selectedFilter) => {
@@ -91,55 +103,58 @@ class Copy extends Component {
             data-testid="step2copysearch"
             _search={this._search}
             placeholder="search for existing templates"
+            customStyle={{ width: '65%', padding: '0 30px' }}
           />
-          <Checkbox
-            checked={filters.myTemplates}
-            change={this.filterResults}
-            dataId="myTemplates"
-            style={{
-              background: '#75b7f6',
-              color: 'white',
-              paddingLeft: '10px',
-            }}
-          >
-            show only my templates
-          </Checkbox>
-          <Checkbox
-            checked={filters.grade6}
-            change={this.filterResults}
-            dataId="grade6"
-            style={{
-              background: '#75b7f6',
-              color: 'white',
-              paddingLeft: '10px',
-            }}
-          >
-            show Grade 6 templates
-          </Checkbox>
-          <Checkbox
-            checked={filters.grade7}
-            change={this.filterResults}
-            dataId="grade7"
-            style={{
-              background: '#75b7f6',
-              color: 'white',
-              paddingLeft: '10px',
-            }}
-          >
-            show Grade 7 templates
-          </Checkbox>
-          <Checkbox
-            checked={filters.grade8}
-            change={this.filterResults}
-            dataId="grade8"
-            style={{
-              background: '#75b7f6',
-              color: 'white',
-              paddingLeft: '10px',
-            }}
-          >
-            show Grade 8 templates
-          </Checkbox>
+          <div className={classes.CheckboxFilters}>
+            <Checkbox
+              checked={filters.myTemplates}
+              change={this.filterResults}
+              dataId="myTemplates"
+              style={{
+                background: '#75b7f6',
+                color: 'white',
+                paddingLeft: '10px',
+              }}
+            >
+              show only my templates
+            </Checkbox>
+            <Checkbox
+              checked={filters.grade6}
+              change={this.filterResults}
+              dataId="grade6"
+              style={{
+                background: '#75b7f6',
+                color: 'white',
+                paddingLeft: '10px',
+              }}
+            >
+              show Grade 6 templates
+            </Checkbox>
+            <Checkbox
+              checked={filters.grade7}
+              change={this.filterResults}
+              dataId="grade7"
+              style={{
+                background: '#75b7f6',
+                color: 'white',
+                paddingLeft: '10px',
+              }}
+            >
+              show Grade 7 templates
+            </Checkbox>
+            <Checkbox
+              checked={filters.grade8}
+              change={this.filterResults}
+              dataId="grade8"
+              style={{
+                background: '#75b7f6',
+                color: 'white',
+                paddingLeft: '10px',
+              }}
+            >
+              show Grade 8 templates
+            </Checkbox>
+          </div>
         </div>
         <div>
           <p>Select one or many templates to copy</p>
