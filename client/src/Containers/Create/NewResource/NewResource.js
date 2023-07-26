@@ -458,7 +458,12 @@ class NewResourceContainer extends Component {
     return (
       <Aux>
         {creating ? (
-          <Modal height={470} show={creating} closeModal={this.closeModal}>
+          <Modal
+            height={600}
+            width={650}
+            show={creating}
+            closeModal={this.closeModal}
+          >
             {step > 0 ? (
               <i
                 onClick={this.prevStep}
