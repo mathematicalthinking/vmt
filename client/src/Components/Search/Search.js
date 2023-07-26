@@ -18,9 +18,14 @@ class Search extends Component {
       value,
       isControlled,
       'data-testid': dataTestId,
+      customStyle,
     } = this.props;
+
     return (
-      <div className={[classes.Search].join(' ')}>
+      <div
+        className={[classes.Search].join(' ')}
+        style={customStyle ? { ...customStyle } : null}
+      >
         {isControlled ? ( // if value this will be controlled else it won't
           <input
             value={value}
@@ -54,6 +59,7 @@ Search.propTypes = {
   _search: PropTypes.func.isRequired,
   isControlled: PropTypes.bool,
   'data-testid': PropTypes.string.isRequired,
+  customStyle: PropTypes.shape({}),
 };
 
 Search.defaultProps = {
@@ -61,6 +67,7 @@ Search.defaultProps = {
   placeholder: '',
   value: null,
   isControlled: false,
+  customStyle: null,
 };
 
 export default Search;

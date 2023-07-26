@@ -1,44 +1,182 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { SelectionList } from '../../../Components';
+import { SelectionList, Search, Checkbox } from '../../../Components';
 import API from '../../../utils/apiRequests';
+import classes from '../create.css';
 
 // import classes from '../create.css';
-class Step2Copy extends Component {
+class Copy extends Component {
   state = {
     activityList: [],
+    searchResults: [],
+    searchText: '',
+    filters: {
+      myTemplates: false,
+      grade6: false,
+      grade7: false,
+      grade8: false,
+    },
   };
   componentDidMount() {
     API.get('activities').then((res) => {
       const activties = res.data.results;
-      activties.sort(function(a, b) {
+      activties.sort((a, b) => {
         return new Date(b.updatedAt) - new Date(a.updatedAt);
       });
       this.setState({ activityList: activties });
     });
   }
-  render() {
-    const { selectedActivities, addActivity } = this.props;
+  _search = (searchText) => {
+    // create a function to search activity list
+    // we want to search on activity.name
     const { activityList } = this.state;
+    const searchResults = activityList.filter((currentActivity) => {
+      return currentActivity.name
+        .toLowerCase()
+        .includes(searchText.toLowerCase());
+    });
+    this.setState({ searchResults, searchText });
+  };
+
+  displayResults = () => {
+    const { activityList, searchResults, searchText, filters } = this.state;
+    const { userId } = this.props;
+    const results = searchText.length ? searchResults : activityList;
+    const checkedFilters = Object.keys(filters).filter(
+      (key) => filters[key] === true
+    );
+    const filteredResults = [];
+    if (filters.myTemplates) {
+      filteredResults.push(
+        ...results.filter(
+          (currentActivity) => userId === currentActivity.creator
+        )
+      );
+    }
+    if (filters.grade6) {
+      filteredResults.push(
+        ...results.filter((currentActivity) => {
+          const { tags } = currentActivity;
+          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 6;
+        })
+      );
+    }
+    if (filters.grade7) {
+      filteredResults.push(
+        ...results.filter((currentActivity) => {
+          const { tags } = currentActivity;
+          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 7;
+        })
+      );
+    }
+    if (filters.grade8) {
+      filteredResults.push(
+        ...results.filter((currentActivity) => {
+          const { tags } = currentActivity;
+          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 8;
+        })
+      );
+    }
+    return filteredResults.length ? filteredResults : results;
+  };
+
+  filterResults = (event, selectedFilter) => {
+    this.setState(
+      (prevState) => ({
+        ...prevState,
+        filters: {
+          ...prevState.filters,
+          [selectedFilter]: !prevState.filters[selectedFilter],
+        },
+      }),
+      () => this.displayResults()
+    );
+  };
+
+  render() {
+    const { filters } = this.state;
+    const { selectedActivities, addActivity } = this.props;
     return (
-      <div>
-        <p>Select one or many templates to copy</p>
-        <SelectionList
-          listToSelectFrom={activityList}
-          selectItem={addActivity}
-          selected={selectedActivities}
-        />
-      </div>
+      <React.Fragment>
+        <div className={classes.SearchWrapper}>
+          <Search
+            data-testid="step2copysearch"
+            _search={this._search}
+            placeholder="search for existing templates"
+            customStyle={{ width: '65%', padding: '0 30px' }}
+          />
+          <div className={classes.CheckboxFilters}>
+            <Checkbox
+              checked={filters.myTemplates}
+              change={this.filterResults}
+              dataId="myTemplates"
+              style={{
+                background: '#75b7f6',
+                color: 'white',
+                paddingLeft: '10px',
+              }}
+            >
+              show only my templates
+            </Checkbox>
+            <Checkbox
+              checked={filters.grade6}
+              change={this.filterResults}
+              dataId="grade6"
+              style={{
+                background: '#75b7f6',
+                color: 'white',
+                paddingLeft: '10px',
+              }}
+            >
+              show Grade 6 templates
+            </Checkbox>
+            <Checkbox
+              checked={filters.grade7}
+              change={this.filterResults}
+              dataId="grade7"
+              style={{
+                background: '#75b7f6',
+                color: 'white',
+                paddingLeft: '10px',
+              }}
+            >
+              show Grade 7 templates
+            </Checkbox>
+            <Checkbox
+              checked={filters.grade8}
+              change={this.filterResults}
+              dataId="grade8"
+              style={{
+                background: '#75b7f6',
+                color: 'white',
+                paddingLeft: '10px',
+              }}
+            >
+              show Grade 8 templates
+            </Checkbox>
+          </div>
+        </div>
+        <div>
+          <p>Select one or many templates to copy</p>
+          <SelectionList
+            listToSelectFrom={this.displayResults()}
+            selectItem={addActivity}
+            selected={selectedActivities}
+          />
+        </div>
+      </React.Fragment>
     );
   }
 }
 
-Step2Copy.propTypes = {
+Copy.propTypes = {
   addActivity: PropTypes.func.isRequired,
   selectedActivities: PropTypes.arrayOf(PropTypes.string),
+  userId: PropTypes.string,
 };
 
-Step2Copy.defaultProps = {
+Copy.defaultProps = {
   selectedActivities: [],
+  userId: '',
 };
-export default Step2Copy;
+export default Copy;
