@@ -66,6 +66,7 @@ const login = async (req, res) => {
       })
       .populate({
         path: 'rooms',
+        match: { status: 'default' },
         select: '-currentState',
         populate: {
           path: 'tabs members.user',
@@ -83,12 +84,38 @@ const login = async (req, res) => {
       .lean()
       .exec();
 
+    const vmtUserArchive = await User.findById(verifiedToken.vmtUserId)
+      .populate({
+        path: 'rooms',
+        match: { status: 'archived' },
+        select:
+          'updatedAt createdAt name instructions description chat members.role',
+        populate: {
+          path: 'members.user',
+          select: 'username',
+        },
+      })
+      .lean()
+      .exec();
+
+    vmtUser.rooms = [...vmtUser.rooms, ...vmtUserArchive.rooms];
+
+    const updatedRooms = vmtUser.rooms.map((populatedRoom) => {
+      populatedRoom.messagesCount = populatedRoom.chat.length; // Calculate the "messagesCount" manually
+      delete populatedRoom.chat; // Remove the "chat" array if you don't need it anymore
+      return populatedRoom;
+      // Now you have the "messagesCount" property in each room object along with other properties.
+    });
+
+    vmtUser.rooms = updatedRooms;
+
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken);
 
     const data = vmtUser;
     return res.json(data);
   } catch (err) {
+    console.log(err);
     return errors.sendError.InternalError(null, res);
   }
 };

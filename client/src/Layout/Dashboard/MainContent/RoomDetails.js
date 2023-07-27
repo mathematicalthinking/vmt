@@ -34,7 +34,7 @@ class RoomDetails extends Component {
           {room.tabs ? room.tabs.length : 0}
         </InfoBox>
         <InfoBox title="Messages" icon={<i className="fas fa-comments" />}>
-          {room.chat ? room.chat.length : 0}
+          {room.messagesCount}
         </InfoBox>
       </div>
     );
