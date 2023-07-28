@@ -91,8 +91,8 @@ const login = async (req, res) => {
         select:
           'updatedAt createdAt name instructions description chat members.role',
         populate: {
-          path: 'members.user',
-          select: 'username',
+          path: 'tabs members.user',
+          select: 'tabType desmosLink username',
         },
       })
       .lean()
