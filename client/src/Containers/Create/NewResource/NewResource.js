@@ -463,6 +463,7 @@ class NewResourceContainer extends Component {
             width={650}
             show={creating}
             closeModal={this.closeModal}
+            isLoading
           >
             {step > 0 ? (
               <i

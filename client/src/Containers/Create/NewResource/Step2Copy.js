@@ -16,6 +16,7 @@ class Copy extends Component {
       grade7: false,
       grade8: false,
     },
+    isLoading: true,
   };
   componentDidMount() {
     API.get('activities').then((res) => {
@@ -23,7 +24,7 @@ class Copy extends Component {
       activties.sort((a, b) => {
         return new Date(b.updatedAt) - new Date(a.updatedAt);
       });
-      this.setState({ activityList: activties });
+      this.setState({ activityList: activties, isLoading: false });
     });
   }
   _search = (searchText) => {
@@ -42,9 +43,7 @@ class Copy extends Component {
     const { activityList, searchResults, searchText, filters } = this.state;
     const { userId } = this.props;
     const results = searchText.length ? searchResults : activityList;
-    const checkedFilters = Object.keys(filters).filter(
-      (key) => filters[key] === true
-    );
+
     const filteredResults = [];
     if (filters.myTemplates) {
       filteredResults.push(
@@ -77,7 +76,9 @@ class Copy extends Component {
         })
       );
     }
-    return filteredResults.length ? filteredResults : results;
+    return Object.values(filters).every((filter) => filter === false)
+      ? results
+      : filteredResults;
   };
 
   filterResults = (event, selectedFilter) => {
@@ -94,7 +95,7 @@ class Copy extends Component {
   };
 
   render() {
-    const { filters } = this.state;
+    const { filters, isLoading } = this.state;
     const { selectedActivities, addActivity } = this.props;
     return (
       <React.Fragment>
@@ -157,12 +158,18 @@ class Copy extends Component {
           </div>
         </div>
         <div>
-          <p>Select one or many templates to copy</p>
-          <SelectionList
-            listToSelectFrom={this.displayResults()}
-            selectItem={addActivity}
-            selected={selectedActivities}
-          />
+          {isLoading ? (
+            <div className={classes.Spinner} />
+          ) : (
+            <React.Fragment>
+              <p>Select one or many templates to copy</p>
+              <SelectionList
+                listToSelectFrom={this.displayResults()}
+                selectItem={addActivity}
+                selected={selectedActivities}
+              />
+            </React.Fragment>
+          )}
         </div>
       </React.Fragment>
     );
