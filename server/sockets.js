@@ -510,6 +510,8 @@ module.exports = function() {
 
     const getUsername = (currMember, room) => {
       const allMembers = room.members || [];
+      // Note: This requires knowledge of how settings are represented.
+      // On the client side, this knowledge has been abstracted by Model>Room.
       const showAliases =
         (room.settings && room.settings.displayAliasedUsernames) || false;
       const member = allMembers.find(

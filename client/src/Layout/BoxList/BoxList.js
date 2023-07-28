@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Room } from 'Model';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import DragContentBox from '../../Components/UI/ContentBox/DragContentBox';
 import classes from './boxList.css';
@@ -45,8 +46,7 @@ const boxList = (props) => {
   const iconsToDiplay = (listItem) => {
     if (resource === 'rooms') {
       if (
-        listItem.settings &&
-        listItem.settings.displayAliasedUsernames &&
+        Room.getRoomSetting(listItem, Room.ALIASED_USERNAMES) &&
         listItem.myRole === 'participant'
       ) {
         return icons.filter((icon) => icon.title.toLowerCase() !== 'preview');
@@ -59,7 +59,7 @@ const boxList = (props) => {
   if (list.length > 0) {
     listElems = list.map((item) => {
       if (item) {
-        let details = {
+        const details = {
           description: item.description,
           createdAt: item.createdAt
             ? item.createdAt.split('T')[0].toLocaleString()

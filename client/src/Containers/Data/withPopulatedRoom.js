@@ -102,11 +102,7 @@ function withPopulatedRoom(WrappedComponent) {
           populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
 
           // @TODO: do we need to make sure current User has an alias?
-          const newLog = this.adjustLogUsers(
-            populatedRoom.log,
-            populatedRoom.settings,
-            populatedRoom.members
-          );
+          const newLog = this.adjustLogUsers(populatedRoom);
           populatedRoom.log = newLog;
 
           if (!this.cancelFetch) {
@@ -221,10 +217,13 @@ function withPopulatedRoom(WrappedComponent) {
     // allow for the case where member is not there
     //
     // eslint-disable-next-line class-methods-use-this
-    adjustLogUsers(log, settings, members) {
+    adjustLogUsers(room) {
+      const { log, members } = room;
       if (!log.length) return log;
-
-      const shouldAliasUsername = settings.displayAliasedUsernames;
+      const shouldAliasUsername = Room.getRoomSetting(
+        room,
+        Room.ALIASED_USERNAMES
+      );
 
       // if there's an alias put it in, else use the username
       if (shouldAliasUsername) {

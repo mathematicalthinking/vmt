@@ -1241,7 +1241,7 @@ Workspace.propTypes = {
     log: PropTypes.arrayOf(PropTypes.shape({})),
     controlledBy: PropTypes.string,
     currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
-    settings: PropTypes.shape({ participantsCanCreateTabs: PropTypes.bool }),
+    settings: PropTypes.shape({}),
     getCurrentMembers: PropTypes.func.isRequired,
     adjustUser: PropTypes.func.isRequired,
   }).isRequired,

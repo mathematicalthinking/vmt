@@ -850,7 +850,7 @@ Room.propTypes = {
     entryCode: PropTypes.string,
     image: PropTypes.string,
     instructions: PropTypes.string,
-    settings: PropTypes.shape({ displayAliasedUsernames: PropTypes.bool }),
+    settings: PropTypes.shape({}),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
