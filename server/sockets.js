@@ -1,4 +1,5 @@
 const { ObjectId } = require('mongoose').Types;
+const { hri } = require('human-readable-ids');
 // const cookie = require('cookie');
 const socketInit = require('./socketInit');
 const controllers = require('./controllers');
@@ -172,6 +173,10 @@ module.exports = function() {
       try {
         await message.save();
         const { room, releasedControl } = await killZombies(data.roomId);
+        const showAliases = room.settings.displayAliasedUsernames || false;
+        room.members = showAliases ? createAliases(room.members) : room.members;
+        await controllers.rooms.put(room._id, { members: room.members });
+
         const dataToReturn = {
           currentMembers: room.currentMembers,
           message,
@@ -180,6 +185,9 @@ module.exports = function() {
           userId: data.userId,
         };
         socket.to(data.roomId).emit('USER_JOINED', dataToReturn);
+        socket
+          .to(data.roomId)
+          .emit('SETTINGS_CHANGED', data.roomId, room.settings);
         return cb(dataToReturn, null);
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -309,6 +317,9 @@ module.exports = function() {
       socketMetricInc('settingsChange');
       try {
         const room = await controllers.rooms.getById(roomId);
+        const showAliases = settings.displayAliasedUsernames || false;
+        room.members = showAliases ? createAliases(room.members) : room.members;
+
         const memberIds =
           room.members && room.members.map((mem) => mem.user._id);
         const users = await controllers.user.get({ _id: { $in: memberIds } });
@@ -321,9 +332,11 @@ module.exports = function() {
           timestamp: Date.now(),
         });
 
+        await controllers.rooms.put(roomId, { members: room.members });
+
         message.save();
         socket.broadcast
-          .to(users.map((user) => user.socketId))
+          .to(users.map((user) => user.socketId)) // so that all members get live updates of room settings
           .emit('SETTINGS_CHANGED', { roomId, settings });
         if (callback) callback();
       } catch (err) {
@@ -594,6 +607,38 @@ module.exports = function() {
         }
         if (cb) cb(null, err);
       }
+    };
+
+    // hri format: adjective-animal-number
+    // alias format: animal-number
+    // eslint-disable-next-line class-methods-use-this, react/sort-comp
+    const getUniqueAlias = (aliases) => {
+      let newAlias = hri
+        .random()
+        .split('-')
+        .splice(1, 2)
+        .join('-');
+      while (aliases.includes(newAlias)) {
+        newAlias = hri
+          .random()
+          .split('-')
+          .splice(1, 2)
+          .join('-');
+      }
+      return newAlias;
+    };
+
+    const createAliases = (members) => {
+      const membersNeedingAliases = members.filter((mem) => !mem.alias);
+      const membersWithAliases = members.filter((mem) => mem.alias);
+      if (membersNeedingAliases.length === 0) return members;
+
+      membersNeedingAliases.forEach((member) => {
+        member.alias = getUniqueAlias(membersWithAliases);
+        membersWithAliases.push(member);
+      });
+
+      return membersWithAliases;
     };
   });
 };

@@ -962,6 +962,12 @@ class Workspace extends Component {
     }
 
     if (
+      Room.getRoomSetting(oldRoom, Room.ALIASED_USERNAMES) !==
+      Room.getRoomSetting(newRoom, Room.ALIASED_USERNAMES)
+    )
+      results.log = newRoom.log;
+
+    if (
       JSON.stringify(oldRoom.currentMembers) !==
       JSON.stringify(newRoom.currentMembers)
     ) {
