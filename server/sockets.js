@@ -201,6 +201,21 @@ module.exports = function() {
         ', from rooms',
         socket.rooms
       );
+
+      if (reason === 'transport close') {
+        const roomNames = Array.from(socket.rooms);
+
+        const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Regular expression for ObjectId
+
+        const roomId = roomNames.find((roomName) =>
+          objectIdPattern.test(roomName)
+        );
+        if (roomId) {
+          socket.leave(roomId);
+          const messageText = `${socket.username} exited unexpectedly from VMT`;
+          leaveRoom(roomId, null, null, messageText);
+        }
+      }
     });
 
     socket.on('SYNC_SOCKET', (_id, cb) => {
