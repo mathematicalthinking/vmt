@@ -42,7 +42,7 @@ const boxList = (props) => {
     return `${days} day${days > 1 ? 's' : ''} ago`;
   };
 
-  // hide Preiew icon if room is aliased & user is a participant
+  // hide Preview icon if room is aliased & user is a participant
   const iconsToDiplay = (listItem) => {
     if (resource === 'rooms') {
       if (
