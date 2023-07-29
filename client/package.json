@@ -3,6 +3,10 @@
   "version": "3.2.6",
   "private": true,
   "dependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^12.1.5",
+    "@testing-library/react-hooks": "^8.0.1",
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "@xstate/react": "^3.0.1",
     "autoprefixer": "7.1.6",
     "axios": ">=0.21.1",
@@ -22,6 +26,7 @@
     "d3": "^5.9.7",
     "dotenv": "4.0.0",
     "dotenv-expand": "4.2.0",
+    "enzyme": "^3.11.0",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^4.3.0",
@@ -40,7 +45,7 @@
     "html-webpack-plugin": "^3.2.0",
     "html2canvas": "0.5.0-beta4",
     "human-readable-ids": "^1.0.4",
-    "jest": "20.0.4",
+    "jest": "^22.4.4",
     "loader-utils": "^2.0.4",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
@@ -89,7 +94,8 @@
     "start": "node --max-old-space-size=3072 scripts/start.js",
     "build-production": "node scripts/build.js production",
     "build-staging": "node scripts/build.js staging",
-    "test": "node scripts/test.js --env=jsdom"
+    "test": "node scripts/test.js --env=jsdom",
+    "unitTest": "jest __tests__"
   },
   "proxy": "http://localhost:3001/",
   "jest": {
@@ -101,10 +107,10 @@
       "<rootDir>/config/polyfills.js"
     ],
     "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.{js,jsx,mjs}",
+      "<rootDir>/**/__tests__/**/?(*.)(spec|test).{js,jsx,mjs}",
       "<rootDir>/src/**/?(*.)(spec|test).{js,jsx,mjs}"
     ],
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "testURL": "http://localhost",
     "transform": {
       "^.+\\.(js|jsx|mjs)$": "<rootDir>/node_modules/babel-jest",
@@ -115,7 +121,13 @@
       "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs)$"
     ],
     "moduleNameMapper": {
-      "^react-native$": "react-native-web"
+      "^react-native$": "react-native-web",
+      "^utils(.*)$": "<rootDir>/src/utils$1",
+      "^Components(.*)$": "<rootDir>/src/Components$1",
+      "^Containers(.*)$": "<rootDir>/src/Containers$1",
+      "^Layout(.*)$": "<rootDir>/src/Layout$1",
+      "^store/(.*)$": "<rootDir>/src/store/$1",
+      "^assets/(.*)$": "<rootDir>/src/assets/$1"
     },
     "moduleFileExtensions": [
       "web.js",

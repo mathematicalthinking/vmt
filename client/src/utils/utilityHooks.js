@@ -1,8 +1,9 @@
+/* eslint-disable prettier/prettier */
 import React, { useContext } from 'react';
 import html2canvas from 'html2canvas';
 import debounce from 'lodash/debounce';
 import keyBy from 'lodash/keyBy';
-import { QueryClient, useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { API, buildLog } from 'utils';
 import { ModalContext } from 'Components';
@@ -419,12 +420,6 @@ export function useUIState(key, initialValue = {}) {
   const stateMonitor = React.useRef(_uiState);
   React.useEffect(() => {
     stateMonitor.current = _uiState;
-    // dispatch({
-    //   type: actionTypes.SAVE_COMPONENT_UI_STATE,
-    //   key,
-    //   // this MUST be a ref or else we won't capture the correct state (i.e., cannot be _uiState because then its initial value will always be returned)
-    //   value: stateMonitor.current,
-    // });
   }, [_uiState]);
 
   // On unmount, dispatch to the current UI state to the redux store
@@ -462,16 +457,7 @@ export function useMergedData(
   mergeFcn,
   options = {}
 ) {
-  const queryClientRef = React.useRef(null);
-  if (!queryClientRef.current)
-    queryClientRef.current = new QueryClient({
-      defaultOptions: {
-        queries: {
-          cacheTime: 24 * 60 * 60 * 1000, // one day
-        },
-      },
-    });
-  const queryClient = queryClientRef.current;
+  const queryClient = useQueryClient();
   const lastQueryTimes = queryClient.getQueryData([key, 'lastQueryTimes']);
 
   const { data, ...others } = useQuery(key, () => fetchFcn(lastQueryTimes), {
@@ -497,3 +483,4 @@ export function useMergedData(
   });
   return { data: queryClient.getQueryData([key, 'mergedData']), ...others };
 }
+>>>>>>> 18d833fd (just working through setup)
