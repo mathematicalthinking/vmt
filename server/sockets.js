@@ -215,6 +215,31 @@ module.exports = function() {
           const messageText = `${socket.username} exited unexpectedly from VMT`;
           leaveRoom(roomId, null, null, messageText);
         }
+      } else {
+        if (socket.timer) clearTimeout(socket.timer);
+        socket.timer = setTimeout(() => {
+          const roomNames = Array.from(socket.rooms);
+
+          const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Regular expression for ObjectId
+
+          const roomId = roomNames.find((roomName) =>
+            objectIdPattern.test(roomName)
+          );
+          if (roomId) {
+            socket.leave(roomId);
+            const messageText = `${socket.username} exited unexpectedly from VMT`;
+            leaveRoom(roomId, null, null, messageText);
+          }
+        }, 15000);
+        // set up a timer that will disconnect stuff as above after 30 seconds
+        // clear timer on reconnect event
+      }
+    });
+
+    socket.on('reconnect', () => {
+      if (socket.timer) {
+        clearTimeout(socket.timer);
+        socket.timer = null;
       }
     });
 
