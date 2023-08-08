@@ -7,6 +7,7 @@ import {
   SimpleChat,
   CurrentMembers,
   BigModal,
+  Spinner,
 } from 'Components';
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
@@ -298,7 +299,7 @@ function RoomsMonitor({
                         list={_makeMenu(room._id)}
                         name={<i className="fas fa-bars" />}
                       />
-                      {populatedRooms[room._id] ? (
+                      {populatedRooms[room._id] && (
                         <Fragment>
                           {populatedRooms[room._id].name}
                           <span className={classes.Timestamp}>
@@ -318,12 +319,12 @@ function RoomsMonitor({
                             role="button"
                           />
                         </Fragment>
-                      ) : (
-                        'Loading...'
                       )}
                     </div>
                     {isLoading.includes(room._id) && (
-                      <div className={classes.Spinner} />
+                      <span>
+                        <Spinner />
+                      </span>
                     )}
                     {_displayViewType(room._id)}
                   </div>
