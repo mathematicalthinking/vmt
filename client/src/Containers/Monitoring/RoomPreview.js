@@ -1,8 +1,8 @@
 import React from 'react';
+import { Spinner } from 'Components';
 import PropTypes from 'prop-types';
 import { usePopulatedRoom } from 'utils/utilityHooks';
 import RoomViewer from './RoomViewer';
-import classes from './monitoringView.css';
 
 /**
  * The RoomPreview provides a snapshot of a room, with the main math space (as a Thumbnail), Chat, and Attendance views.
@@ -18,7 +18,11 @@ function RoomPreview({ roomId }) {
   return (
     <div style={{ position: 'relative', minHeight: '50vh', minWidth: '80vw' }}>
       <RoomViewer populatedRoom={isSuccess ? data : minimalRoom} />
-      {!isSuccess && <div className={classes.Spinner} />}
+      {!isSuccess && <Spinner /> && (
+        <span>
+          <Spinner />
+        </span>
+      )}
     </div>
   );
 }
