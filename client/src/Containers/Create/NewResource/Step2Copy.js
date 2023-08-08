@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { SelectionList, Search, Checkbox } from '../../../Components';
+import { Spinner, SelectionList, Search, Checkbox } from '../../../Components';
 import API from '../../../utils/apiRequests';
 import classes from '../create.css';
 
@@ -159,7 +159,7 @@ class Copy extends Component {
         </div>
         <div>
           {isLoading ? (
-            <div className={classes.Spinner} />
+            <Spinner />
           ) : (
             <React.Fragment>
               <p>Select one or many templates to copy</p>
