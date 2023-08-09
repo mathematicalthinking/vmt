@@ -1,47 +1,60 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useUIState } from 'utils';
 import { Spinner, SelectionList, Search, Checkbox } from '../../../Components';
 import API from '../../../utils/apiRequests';
 import classes from '../create.css';
 
 // import classes from '../create.css';
-class Copy extends Component {
-  state = {
-    activityList: [],
-    searchResults: [],
-    searchText: '',
-    filters: {
-      myTemplates: false,
-      grade6: false,
-      grade7: false,
-      grade8: false,
-    },
-    isLoading: true,
-  };
-  componentDidMount() {
+const Copy = (props) => {
+  const { addActivity, selectedActivities, userId } = props;
+  const [loadedTemplates, setLoadedTemplates] = useUIState(
+    'use-existing-templates',
+    []
+  );
+  const [activityList, setActivityList] = useState(loadedTemplates || []);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchText, setSearchText] = useState('');
+  const [filters, setFilters] = useState({
+    myTemplates: false,
+    grade6: false,
+    grade7: false,
+    grade8: false,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    // if we already have loadedTemplates, ignore API call
+    if (loadedTemplates.length) {
+      setIsLoading(false);
+      return;
+    }
     API.get('activities').then((res) => {
-      const activties = res.data.results;
-      activties.sort((a, b) => {
+      const activities = res.data.results;
+      activities.sort((a, b) => {
         return new Date(b.updatedAt) - new Date(a.updatedAt);
       });
-      this.setState({ activityList: activties, isLoading: false });
+      setActivityList(activities);
+      setIsLoading(false);
+      // store activityList in uiState
+      setLoadedTemplates(activities);
     });
-  }
-  _search = (searchText) => {
+  }, []);
+  useEffect(() => {
+    displayResults();
+  }, [filters]);
+  const _search = (searchTextInput) => {
     // create a function to search activity list
     // we want to search on activity.name
-    const { activityList } = this.state;
-    const searchResults = activityList.filter((currentActivity) => {
+    const filteredSearchResults = activityList.filter((currentActivity) => {
       return currentActivity.name
         .toLowerCase()
         .includes(searchText.toLowerCase());
     });
-    this.setState({ searchResults, searchText });
+    setSearchResults(filteredSearchResults);
+    setSearchText(searchTextInput);
   };
 
-  displayResults = () => {
-    const { activityList, searchResults, searchText, filters } = this.state;
-    const { userId } = this.props;
+  const displayResults = () => {
     const results = searchText.length ? searchResults : activityList;
 
     const filteredResults = [];
@@ -81,100 +94,90 @@ class Copy extends Component {
       : filteredResults;
   };
 
-  filterResults = (event, selectedFilter) => {
-    this.setState(
-      (prevState) => ({
-        ...prevState,
-        filters: {
-          ...prevState.filters,
-          [selectedFilter]: !prevState.filters[selectedFilter],
-        },
-      }),
-      () => this.displayResults()
-    );
+  const filterResults = (event, selectedFilter) => {
+    setFilters((prevState) => ({
+      ...prevState,
+      [selectedFilter]: !prevState[selectedFilter],
+    }));
   };
 
-  render() {
-    const { filters, isLoading } = this.state;
-    const { selectedActivities, addActivity } = this.props;
-    return (
-      <React.Fragment>
-        <div className={classes.SearchWrapper}>
-          <Search
-            data-testid="step2copysearch"
-            _search={this._search}
-            placeholder="search for existing templates"
-            customStyle={{ width: '65%', padding: '0 30px' }}
-          />
-          <div className={classes.CheckboxFilters}>
-            <Checkbox
-              checked={filters.myTemplates}
-              change={this.filterResults}
-              dataId="myTemplates"
-              style={{
-                background: '#75b7f6',
-                color: 'white',
-                paddingLeft: '10px',
-              }}
-            >
-              show only my templates
-            </Checkbox>
-            <Checkbox
-              checked={filters.grade6}
-              change={this.filterResults}
-              dataId="grade6"
-              style={{
-                background: '#75b7f6',
-                color: 'white',
-                paddingLeft: '10px',
-              }}
-            >
-              show Grade 6 templates
-            </Checkbox>
-            <Checkbox
-              checked={filters.grade7}
-              change={this.filterResults}
-              dataId="grade7"
-              style={{
-                background: '#75b7f6',
-                color: 'white',
-                paddingLeft: '10px',
-              }}
-            >
-              show Grade 7 templates
-            </Checkbox>
-            <Checkbox
-              checked={filters.grade8}
-              change={this.filterResults}
-              dataId="grade8"
-              style={{
-                background: '#75b7f6',
-                color: 'white',
-                paddingLeft: '10px',
-              }}
-            >
-              show Grade 8 templates
-            </Checkbox>
-          </div>
+  return (
+    <React.Fragment>
+      <div className={classes.SearchWrapper}>
+        <Search
+          data-testid="step2copysearch"
+          _search={_search}
+          placeholder="search for existing templates"
+          customStyle={{ width: '65%', padding: '0 30px' }}
+        />
+        <div className={classes.CheckboxFilters}>
+          <Checkbox
+            checked={filters.myTemplates}
+            change={filterResults}
+            dataId="myTemplates"
+            style={{
+              background: '#75b7f6',
+              color: 'white',
+              paddingLeft: '10px',
+            }}
+          >
+            show only my templates
+          </Checkbox>
+          <Checkbox
+            checked={filters.grade6}
+            change={filterResults}
+            dataId="grade6"
+            style={{
+              background: '#75b7f6',
+              color: 'white',
+              paddingLeft: '10px',
+            }}
+          >
+            show Grade 6 templates
+          </Checkbox>
+          <Checkbox
+            checked={filters.grade7}
+            change={filterResults}
+            dataId="grade7"
+            style={{
+              background: '#75b7f6',
+              color: 'white',
+              paddingLeft: '10px',
+            }}
+          >
+            show Grade 7 templates
+          </Checkbox>
+          <Checkbox
+            checked={filters.grade8}
+            change={filterResults}
+            dataId="grade8"
+            style={{
+              background: '#75b7f6',
+              color: 'white',
+              paddingLeft: '10px',
+            }}
+          >
+            show Grade 8 templates
+          </Checkbox>
         </div>
-        <div>
-          {isLoading ? (
-            <Spinner />
-          ) : (
-            <React.Fragment>
-              <p>Select one or many templates to copy</p>
-              <SelectionList
-                listToSelectFrom={this.displayResults()}
-                selectItem={addActivity}
-                selected={selectedActivities}
-              />
-            </React.Fragment>
-          )}
-        </div>
-      </React.Fragment>
-    );
-  }
-}
+      </div>
+      <div>
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <React.Fragment>
+            <p>Select one or many templates to copy</p>
+            <SelectionList
+              listToSelectFrom={displayResults()}
+              selectItem={addActivity}
+              selected={selectedActivities}
+            />
+          </React.Fragment>
+        )}
+      </div>
+    </React.Fragment>
+  );
+};
 
 Copy.propTypes = {
   addActivity: PropTypes.func.isRequired,
