@@ -654,7 +654,7 @@ module.exports = {
         new: true,
         timestamps: false,
       })
-        .select('currentMembers members controlledBy')
+        .select('currentMembers members controlledBy settings')
         .then((room) => {
           room.populate(
             { path: 'members.user', select: 'username' },

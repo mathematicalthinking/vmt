@@ -27,7 +27,7 @@ const Message = React.forwardRef((props, ref) => {
 
   const nameGen = () => {
     let shortName = message.user.username;
-    const maxLen = isSimplified ? 12 : 35;
+    const maxLen = isSimplified ? 15 : 35;
     // currently always using abbreviated naming for both detailed and simple chat
     // if (!isSimplified) return shortName;
     if (shortName.includes('@'))
