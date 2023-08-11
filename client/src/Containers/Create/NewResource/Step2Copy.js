@@ -54,45 +54,75 @@ const Copy = (props) => {
     setSearchText(searchTextInput);
   };
 
+  // This function gets the search results and filters them based on the user's filters.
   const displayResults = () => {
     const results = searchText.length ? searchResults : activityList;
 
-    const filteredResults = [];
-    if (filters.myTemplates) {
-      filteredResults.push(
-        ...results.filter(
-          (currentActivity) => userId === currentActivity.creator
-        )
+    const filteredResults = results.filter((currentActivity) => {
+      if (filters.myTemplates === true) {
+        // If the "My Templates" filter is enabled, then we only return activities that were created by the current user.
+        return (
+          currentActivity.creator === userId &&
+          // The activity must also be in the user's grade level.
+          (filters.grade6 === false ||
+            (currentActivity.tags[0] &&
+              currentActivity.tags[0].gradeLevel === 6)) &&
+          (filters.grade7 === false ||
+            (currentActivity.tags[0] &&
+              currentActivity.tags[0].gradeLevel === 7)) &&
+          (filters.grade8 === false ||
+            (currentActivity.tags[0] &&
+              currentActivity.tags[0].gradeLevel === 8))
+        );
+      }
+      // If the "My Templates" filter is not enabled, then we only return activities that match the selected grade level(s).
+      return (
+        (filters.grade6 === false ||
+          (currentActivity.tags[0] &&
+            currentActivity.tags[0].gradeLevel === 6)) &&
+        (filters.grade7 === false ||
+          (currentActivity.tags[0] &&
+            currentActivity.tags[0].gradeLevel === 7)) &&
+        (filters.grade8 === false ||
+          (currentActivity.tags[0] && currentActivity.tags[0].gradeLevel === 8))
       );
-    }
-    if (filters.grade6) {
-      filteredResults.push(
-        ...results.filter((currentActivity) => {
-          const { tags } = currentActivity;
-          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 6;
-        })
-      );
-    }
-    if (filters.grade7) {
-      filteredResults.push(
-        ...results.filter((currentActivity) => {
-          const { tags } = currentActivity;
-          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 7;
-        })
-      );
-    }
-    if (filters.grade8) {
-      filteredResults.push(
-        ...results.filter((currentActivity) => {
-          const { tags } = currentActivity;
-          return tags[0] && tags[0].gradeLevel && tags[0].gradeLevel === 8;
-        })
-      );
-    }
-    return Object.values(filters).every((filter) => filter === false)
-      ? results
-      : filteredResults;
+    });
+
+    return filteredResults;
   };
+
+  // const displayResults = () => {
+  //   const results = searchText.length ? searchResults : activityList;
+
+  //   const filteredResults = results.filter((currentActivity) => {
+  //     if (filters.myTemplates === true) {
+  //       return (
+  //         currentActivity.creator === userId &&
+  //         (filters.grade6 === false ||
+  //           (currentActivity.tags[0] &&
+  //             currentActivity.tags[0].gradeLevel === 6)) &&
+  //         (filters.grade7 === false ||
+  //           (currentActivity.tags[0] &&
+  //             currentActivity.tags[0].gradeLevel === 7)) &&
+  //         (filters.grade8 === false ||
+  //           (currentActivity.tags[0] &&
+  //             currentActivity.tags[0].gradeLevel === 8))
+  //       );
+  //     }
+  //     return (
+  //       (filters.grade6 === false ||
+  //         (currentActivity.tags[0] &&
+  //           currentActivity.tags[0].gradeLevel === 6)) &&
+  //       (filters.grade7 === false ||
+  //         (currentActivity.tags[0] &&
+  //           currentActivity.tags[0].gradeLevel === 7)) &&
+  //       (filters.grade8 === false ||
+  //         (currentActivity.tags[0] && currentActivity.tags[0].gradeLevel === 8))
+  //     );
+  //   });
+
+  //   return filteredResults;
+  // };
 
   const filterResults = (event, selectedFilter) => {
     setFilters((prevState) => ({
