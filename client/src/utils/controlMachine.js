@@ -24,13 +24,6 @@ export const controlStates = {
   DEFAULT: 'default',
 };
 
-const reportableStates = [
-  controlStates.NONE,
-  controlStates.ME,
-  controlStates.OTHER,
-  controlStates.CANCELLED_REQUEST,
-];
-
 export const controlEvents = {
   CLICK: 'CLICK',
   MSG_RECEIVED: 'MSG_RECEIVED',
@@ -375,21 +368,26 @@ const defaultControlMachineSpec = (context) => {
         iCancelRequest,
         iTakeMoreTime,
         controlledByMe: assign({
+          inControl: controlStates.ME,
           controlledBy: (c) => c.userId,
           buttonConfig: buttonConfigs[controlStates.ME],
         }),
         controlledByOther: assign({
+          inControl: controlStates.OTHER,
           controlledBy: (_, event) => event.id,
           buttonConfig: buttonConfigs[controlStates.OTHER],
         }),
         controlledByNone: assign({
+          inControl: controlStates.NONE,
           controlledBy: null,
           buttonConfig: buttonConfigs[controlStates.NONE],
         }),
         controlRequested: assign({
+          inControl: controlStates.OTHER,
           buttonConfig: buttonConfigs[controlStates.REQUESTED],
         }),
         cancelledRequest: assign({
+          inControl: controlStates.OTHER,
           buttonConfig: buttonConfigs[controlStates.CANCELLED_REQUEST],
         }),
         switchingTabs: assign({
@@ -593,6 +591,7 @@ const independentTabControlMachineSpec = (context) => {
           currentTabId: (_, event) => event.tab,
         }),
         controlledByMe_ind: assign({
+          inControl: controlStates.ME,
           controlledBy: (c) => c.userId,
           controllers: (c) => ({
             ...c.controllers,
@@ -601,10 +600,12 @@ const independentTabControlMachineSpec = (context) => {
           buttonConfig: buttonConfigs[controlStates.ME],
         }),
         controlledByOther_ind: assign({
+          inControl: controlStates.OTHER,
           controlledBy: (c) => c.controllers[c.currentTabId],
           buttonConfig: buttonConfigs[controlStates.OTHER],
         }),
         controlledByNone_ind: assign({
+          inControl: controlStates.NONE,
           controlledBy: null,
           controllers: (c) => ({
             ...c.controllers,
@@ -613,9 +614,11 @@ const independentTabControlMachineSpec = (context) => {
           buttonConfig: buttonConfigs[controlStates.NONE],
         }),
         controlRequested_ind: assign({
+          inControl: controlStates.OTHER,
           buttonConfig: buttonConfigs[controlStates.REQUESTED],
         }),
         cancelledRequest_ind: assign({
+          inControl: controlStates.OTHER,
           buttonConfig: buttonConfigs[controlStates.CANCELLED_REQUEST],
           restrictFlags: (c) => ({
             ...c.restrictFlags,
@@ -645,11 +648,6 @@ export function useControlMachine(context, spec) {
 
   const [state, send] = useMachine(controlMachineRef.current);
 
-  const reportableState = () => {
-    const reportingState = reportableStates.find((rs) => state.matches(rs));
-    return reportingState || controlStates.NONE;
-  };
-
   const getControlledBy = (tabId) => {
     if (tabId === state.context.currentTabId || !state.context.controllers)
       return state.context.controlledBy;
@@ -658,7 +656,7 @@ export function useControlMachine(context, spec) {
 
   const getInControl = (tabId) => {
     if (tabId === state.context.currentTabId || !state.context.controllers)
-      return reportableState();
+      return state.context.inControl || controlStates.NONE;
     return state.context.controllers[tabId]
       ? controlStates.OTHER
       : controlStates.NONE;
