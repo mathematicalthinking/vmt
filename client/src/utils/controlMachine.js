@@ -213,7 +213,7 @@ const initialState = (context) => {
   return controlStates.OTHER;
 };
 
-const masterControlMachineSpec = (context) => {
+const mainControlMachineSpec = (context) => {
   const initial = context.strategy;
   const defaultStrategy = defaultControlMachineSpec(context);
   const independentStrategy = independentTabControlMachineSpec(context);
@@ -701,7 +701,7 @@ export function withControlMachine(Component) {
         lastMessage: null,
         strategy,
       },
-      masterControlMachineSpec
+      mainControlMachineSpec
     );
 
     const { hide, show } = useAppModal();
