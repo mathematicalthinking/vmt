@@ -689,7 +689,7 @@ export function withControlMachine(Component) {
           controlledBy: PropTypes.string,
         })
       ),
-      settings: PropTypes.shape({ independentTabControl: PropTypes.bool }),
+      settings: PropTypes.shape({}),
     }).isRequired,
     user: PropTypes.shape({ _id: PropTypes.string, username: PropTypes.string })
       .isRequired,
