@@ -20,7 +20,16 @@ export const controlStates = {
   SWITCHING_TABS: 'SWITCHING_TABS',
   RECEIVED_REQUEST: 'ME.requested',
   REQUEST_CANCELLED: 'ME.cancelled',
+  INDEPENDENT: 'independent',
+  DEFAULT: 'default',
 };
+
+const reportableStates = [
+  controlStates.NONE,
+  controlStates.ME,
+  controlStates.OTHER,
+  controlStates.CANCELLED_REQUEST,
+];
 
 export const controlEvents = {
   CLICK: 'CLICK',
@@ -32,6 +41,7 @@ export const controlEvents = {
   RESET: 'RESET',
   SWITCH_TAB: 'SWITCH_TAB',
   TAKE_MORE_TIME: 'TAKE_MORE_TIME',
+  SWITCH_STRATEGY: 'SWITCH_STRATEGY',
 };
 
 export const buttonConfigs = {
@@ -196,20 +206,80 @@ const iTakeMoreTime = assign((context, event) => {
   return { lastMessage: message };
 });
 
-const defaultControlMachineSpec = (initial, context) => {
+const initialState = (context) => {
+  // Figure out the initial state
+  if (!context.controlledBy) return controlStates.NONE;
+  if (context.controlledBy === context.userId) return controlStates.ME;
+  return controlStates.OTHER;
+};
+
+const masterControlMachineSpec = (context) => {
+  const initial = context.strategy;
+  const defaultStrategy = defaultControlMachineSpec(context);
+  const independentStrategy = independentTabControlMachineSpec(context);
   return [
     {
       predictableActionArguments: true,
-      id: 'control',
+      id: 'main',
+      initial,
+      context,
+      states: {
+        [controlStates.DEFAULT]: {
+          id: 'default',
+          entry: 'switchToDefault',
+          initial: defaultStrategy[0].initial,
+          on: {
+            [controlEvents.SWITCH_STRATEGY]: `#independent.${controlStates.NONE}`,
+            ...defaultStrategy[0].on,
+          },
+          states: defaultStrategy[0].states,
+        },
+        [controlStates.INDEPENDENT]: {
+          id: 'independent',
+          entry: 'switchToIndependent',
+          initial: independentStrategy[0].initial,
+          on: {
+            [controlEvents.SWITCH_STRATEGY]: `#default.${controlStates.NONE}`,
+            ...independentStrategy[0].on,
+          },
+          states: independentStrategy[0].states,
+        },
+      },
+    },
+    {
+      actions: {
+        switchToDefault: assign({
+          controllers: null,
+          strategy: STRATEGY.DEFAULT,
+          restrictFlags: null,
+        }),
+        switchToIndependent: assign({
+          controllers: {},
+          restrictFlags: {},
+          strategy: STRATEGY.INDEPENDENT,
+        }),
+        ...defaultStrategy[1].actions,
+        ...independentStrategy[1].actions,
+      },
+    },
+  ];
+};
+
+const defaultControlMachineSpec = (context) => {
+  const initial = initialState(context);
+  return [
+    {
+      predictableActionArguments: true,
+      id: 'default',
       initial,
       context: { ...context, controllers: null, strategy: STRATEGY.DEFAULT },
       on: {
         [controlEvents.MSG_RELEASED_CONTROL]: {
-          target: controlStates.NONE,
+          target: `#default.${controlStates.NONE}`,
           actions: 'otherReleasesControl',
         },
         [controlEvents.MSG_TOOK_CONTROL]: {
-          target: controlStates.OTHER,
+          target: `#default.${controlStates.OTHER}`,
           actions: 'otherTakesControl',
         },
         [controlEvents.SWITCH_TAB]: { actions: 'switchingTabs' },
@@ -219,7 +289,7 @@ const defaultControlMachineSpec = (initial, context) => {
           entry: 'controlledByNone',
           on: {
             [controlEvents.CLICK]: {
-              target: controlStates.ME,
+              target: `#default.${controlStates.ME}`,
               actions: 'iTakeControl',
             },
           },
@@ -231,7 +301,7 @@ const defaultControlMachineSpec = (initial, context) => {
               entry: 'controlledByMe',
               on: {
                 [controlEvents.CLICK]: {
-                  target: `#control.${controlStates.NONE}`,
+                  target: `#default.${controlStates.NONE}`,
                   actions: 'iReleaseControl',
                 },
                 [controlEvents.RESET]: 'normal',
@@ -239,7 +309,7 @@ const defaultControlMachineSpec = (initial, context) => {
               },
               after: {
                 60000: {
-                  target: `#control.${controlStates.NONE}`,
+                  target: `#default.${controlStates.NONE}`,
                   actions: 'iTimeOut',
                 },
               },
@@ -247,7 +317,7 @@ const defaultControlMachineSpec = (initial, context) => {
             requested: {
               on: {
                 [controlEvents.CLICK]: {
-                  target: `#control.${controlStates.NONE}`,
+                  target: `#default.${controlStates.NONE}`,
                   actions: 'iReleaseControl',
                 },
                 [controlEvents.MSG_REQUEST_CANCELLED]: 'cancelled',
@@ -255,7 +325,7 @@ const defaultControlMachineSpec = (initial, context) => {
               },
               after: {
                 60000: {
-                  target: `#control.${controlStates.NONE}`,
+                  target: `#default.${controlStates.NONE}`,
                   actions: 'iTimeOut',
                 },
               },
@@ -269,7 +339,7 @@ const defaultControlMachineSpec = (initial, context) => {
           entry: 'controlledByOther',
           on: {
             [controlEvents.CLICK]: {
-              target: controlStates.REQUESTED,
+              target: `#default.${controlStates.REQUESTED}`,
               actions: 'iRequestControl',
             },
           },
@@ -278,18 +348,18 @@ const defaultControlMachineSpec = (initial, context) => {
           entry: 'controlRequested',
           on: {
             [controlEvents.CLICK]: {
-              target: controlStates.CANCELLED_REQUEST,
+              target: `#default.${controlStates.CANCELLED_REQUEST}`,
               actions: 'iCancelRequest',
             },
           },
           after: {
-            60000: controlStates.OTHER,
+            60000: `#default.${controlStates.OTHER}`,
           },
         },
         [controlStates.CANCELLED_REQUEST]: {
           entry: 'cancelledRequest',
           after: {
-            60000: controlStates.OTHER,
+            60000: `#default.${controlStates.OTHER}`,
           },
         },
       },
@@ -330,18 +400,19 @@ const defaultControlMachineSpec = (initial, context) => {
   ];
 };
 
-const independentTabControlMachineSpec = (initial, context) => {
+const independentTabControlMachineSpec = (context) => {
+  const initial = initialState(context);
   return [
     {
       predictableActionArguments: true,
-      id: 'control',
+      id: 'independent',
       initial,
       context: { ...context, strategy: STRATEGY.INDEPENDENT },
       on: {
         [controlEvents.MSG_RELEASED_CONTROL]: [
           {
             cond: (c, event) => c.currentTabId === event.tab,
-            target: controlStates.NONE,
+            target: `#independent.${controlStates.NONE}`,
             actions: ['otherReleasesControl', 'storeNull'],
           },
           {
@@ -352,7 +423,7 @@ const independentTabControlMachineSpec = (initial, context) => {
         [controlEvents.MSG_TOOK_CONTROL]: [
           {
             cond: (c, event) => c.currentTabId === event.tab,
-            target: controlStates.OTHER,
+            target: `#independent.${controlStates.OTHER}`,
             actions: ['otherTakesControl', 'storeController'],
           },
           {
@@ -363,23 +434,23 @@ const independentTabControlMachineSpec = (initial, context) => {
       },
       states: {
         [controlStates.NONE]: {
-          entry: 'controlledByNone',
+          entry: 'controlledByNone_ind',
           on: {
             [controlEvents.CLICK]: {
-              target: controlStates.ME,
+              target: `#independent.${controlStates.ME}`,
               actions: 'iTakeControl',
             },
-            [controlEvents.SWITCH_TAB]: controlStates.SWITCHING_TABS,
+            [controlEvents.SWITCH_TAB]: `#independent.${controlStates.SWITCHING_TABS}`,
           },
         },
         [controlStates.ME]: {
           initial: 'normal',
           states: {
             normal: {
-              entry: 'controlledByMe',
+              entry: 'controlledByMe_ind',
               on: {
                 [controlEvents.CLICK]: {
-                  target: `#control.${controlStates.NONE}`,
+                  target: `#independent.${controlStates.NONE}`,
                   actions: 'iReleaseControl',
                 },
                 [controlEvents.RESET]: 'normal',
@@ -388,13 +459,13 @@ const independentTabControlMachineSpec = (initial, context) => {
                   target: 'requested',
                 },
                 [controlEvents.SWITCH_TAB]: {
-                  target: `#control.${controlStates.SWITCHING_TABS}`,
+                  target: `#independent.${controlStates.SWITCHING_TABS}`,
                   actions: 'iReleaseControl', // @TODO: potentially different msg if released due to switching
                 },
               },
               after: {
                 60000: {
-                  target: `#control.${controlStates.NONE}`,
+                  target: `#independent.${controlStates.NONE}`,
                   actions: 'iTimeOut',
                 },
               },
@@ -402,11 +473,11 @@ const independentTabControlMachineSpec = (initial, context) => {
             requested: {
               on: {
                 [controlEvents.CLICK]: {
-                  target: `#control.${controlStates.NONE}`,
+                  target: `#independent.${controlStates.NONE}`,
                   actions: 'iReleaseControl',
                 },
                 [controlEvents.SWITCH_TAB]: {
-                  target: `#control.${controlStates.SWITCHING_TABS}`,
+                  target: `#independent.${controlStates.SWITCHING_TABS}`,
                   actions: 'iReleaseControl', // @TODO: potentially different msg if released due to switching
                 },
                 [controlEvents.MSG_REQUEST_CANCELLED]: {
@@ -417,7 +488,7 @@ const independentTabControlMachineSpec = (initial, context) => {
               },
               after: {
                 60000: {
-                  target: `#control.${controlStates.NONE}`,
+                  target: `#independent.${controlStates.NONE}`,
                   actions: 'iTimeOut',
                 },
               },
@@ -428,41 +499,41 @@ const independentTabControlMachineSpec = (initial, context) => {
           },
         },
         [controlStates.OTHER]: {
-          entry: 'controlledByOther',
+          entry: 'controlledByOther_ind',
           on: {
             [controlEvents.CLICK]: {
-              target: controlStates.REQUESTED,
+              target: `#independent.${controlStates.REQUESTED}`,
               actions: 'iRequestControl',
             },
-            [controlEvents.SWITCH_TAB]: controlStates.SWITCHING_TABS,
+            [controlEvents.SWITCH_TAB]: `#independent.${controlStates.SWITCHING_TABS}`,
           },
         },
         [controlStates.REQUESTED]: {
-          entry: 'controlRequested',
+          entry: 'controlRequested_ind',
           on: {
             [controlEvents.CLICK]: {
-              target: controlStates.CANCELLED_REQUEST,
+              target: `#independent.${controlStates.CANCELLED_REQUEST}`,
               actions: 'iCancelRequest',
             },
             [controlEvents.SWITCH_TAB]: {
-              target: controlStates.SWITCHING_TABS,
+              target: `#independent.${controlStates.SWITCHING_TABS}`,
               actions: ['iCancelRequest', 'setRestrictFlag'], // @TODO: Potentially different message when cancel via switching tabs
             },
           },
           after: {
-            60000: controlStates.OTHER,
+            60000: `#independent.${controlStates.OTHER}`,
           },
         },
         [controlStates.CANCELLED_REQUEST]: {
-          entry: 'cancelledRequest',
+          entry: 'cancelledRequest_ind',
           on: {
             [controlEvents.SWITCH_TAB]: {
-              target: controlStates.SWITCHING_TABS,
+              target: `#independent.${controlStates.SWITCHING_TABS}`,
               actions: 'setRestrictFlag', // @TODO: Potentially different message when cancel via switching tabs
             },
           },
           after: {
-            60000: controlStates.OTHER,
+            60000: `#independent.${controlStates.OTHER}`,
           },
         },
         // Because we are switching tabs, we need to use the controllers
@@ -474,17 +545,17 @@ const independentTabControlMachineSpec = (initial, context) => {
               cond: (c) =>
                 !!c.controllers[c.currentTabId] &&
                 c.restrictFlags[c.currentTabId],
-              target: controlStates.CANCELLED_REQUEST,
+              target: `#independent.${controlStates.CANCELLED_REQUEST}`,
             },
             {
               cond: (c) =>
                 !!c.controllers[c.currentTabId] &&
                 !c.restrictFlags[c.currentTabId],
-              target: controlStates.OTHER,
+              target: `#independent.${controlStates.OTHER}`,
             },
             {
               cond: (c) => !c.controllers[c.currentTabId],
-              target: controlStates.NONE,
+              target: `#independent.${controlStates.NONE}`,
             },
           ],
         },
@@ -521,7 +592,7 @@ const independentTabControlMachineSpec = (initial, context) => {
         switchingTabs: assign({
           currentTabId: (_, event) => event.tab,
         }),
-        controlledByMe: assign({
+        controlledByMe_ind: assign({
           controlledBy: (c) => c.userId,
           controllers: (c) => ({
             ...c.controllers,
@@ -529,11 +600,11 @@ const independentTabControlMachineSpec = (initial, context) => {
           }),
           buttonConfig: buttonConfigs[controlStates.ME],
         }),
-        controlledByOther: assign({
+        controlledByOther_ind: assign({
           controlledBy: (c) => c.controllers[c.currentTabId],
           buttonConfig: buttonConfigs[controlStates.OTHER],
         }),
-        controlledByNone: assign({
+        controlledByNone_ind: assign({
           controlledBy: null,
           controllers: (c) => ({
             ...c.controllers,
@@ -541,10 +612,10 @@ const independentTabControlMachineSpec = (initial, context) => {
           }),
           buttonConfig: buttonConfigs[controlStates.NONE],
         }),
-        controlRequested: assign({
+        controlRequested_ind: assign({
           buttonConfig: buttonConfigs[controlStates.REQUESTED],
         }),
-        cancelledRequest: assign({
+        cancelledRequest_ind: assign({
           buttonConfig: buttonConfigs[controlStates.CANCELLED_REQUEST],
           restrictFlags: (c) => ({
             ...c.restrictFlags,
@@ -567,21 +638,17 @@ const independentTabControlMachineSpec = (initial, context) => {
  *
  */
 export function useControlMachine(context, spec) {
-  // Figure out the initial state
-  let initial = controlStates.NONE;
-  if (!context.controlledBy) initial = controlStates.NONE;
-  else if (context.controlledBy === context.userId) initial = controlStates.ME;
-  else initial = controlStates.OTHER;
-
   // use of the Ref prevents the re-creation of the machine, which causes a warning
   const controlMachineRef = React.useRef(null);
   if (!controlMachineRef.current)
-    controlMachineRef.current = createMachine(...spec(initial, context));
+    controlMachineRef.current = createMachine(...spec(context));
 
   const [state, send] = useMachine(controlMachineRef.current);
 
-  const topLevelState = (stateValue) =>
-    typeof stateValue === 'string' ? stateValue : Object.keys(stateValue)[0];
+  const reportableState = () => {
+    const reportingState = reportableStates.find((rs) => state.matches(rs));
+    return reportingState || controlStates.NONE;
+  };
 
   const getControlledBy = (tabId) => {
     if (tabId === state.context.currentTabId || !state.context.controllers)
@@ -591,7 +658,7 @@ export function useControlMachine(context, spec) {
 
   const getInControl = (tabId) => {
     if (tabId === state.context.currentTabId || !state.context.controllers)
-      return topLevelState(state.value);
+      return reportableState();
     return state.context.controllers[tabId]
       ? controlStates.OTHER
       : controlStates.NONE;
@@ -614,6 +681,11 @@ export function useControlMachine(context, spec) {
 export function withControlMachine(Component) {
   const ControlMachine = (props) => {
     const { populatedRoom, user } = props;
+    const [strategy, setStrategy] = React.useState(
+      Room.getRoomSetting(populatedRoom, Room.TAB_BASED_CONTROL)
+        ? 'independent'
+        : 'default'
+    );
     const [state, send] = useControlMachine(
       {
         userId: user._id,
@@ -627,13 +699,32 @@ export function withControlMachine(Component) {
         ),
         restrictFlags: {},
         lastMessage: null,
+        strategy,
       },
-      Room.getRoomSetting(populatedRoom, Room.TAB_BASED_CONTROL)
-        ? independentTabControlMachineSpec
-        : defaultControlMachineSpec
+      masterControlMachineSpec
     );
 
     const { hide, show } = useAppModal();
+
+    const handleSettingsChanged = (_, settings) => {
+      const newStrategy = Room.getRoomSetting(
+        { settings },
+        Room.TAB_BASED_CONTROL
+      )
+        ? 'independent'
+        : 'default';
+      if (newStrategy !== strategy) {
+        // Because there are only two strategies currently, we don't use the strategy event info
+        send(controlEvents.SWITCH_STRATEGY, { strategy: newStrategy });
+        setStrategy(newStrategy);
+      }
+    };
+
+    React.useEffect(() => {
+      socket.on('SETTINGS_CHANGED', handleSettingsChanged);
+      return () =>
+        socket.removeListener('SETTINGS_CHANGED', handleSettingsChanged);
+    }, []);
 
     React.useEffect(() => {
       if (
