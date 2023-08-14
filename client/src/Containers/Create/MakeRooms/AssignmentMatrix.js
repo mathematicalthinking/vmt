@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { useSortableData } from 'utils';
-import { ROOM_SETTINGS } from 'constants.js';
+import { RoomSettingsDropdown } from '.';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
@@ -61,22 +61,6 @@ const AssignmentMatrix = (props) => {
     }
   };
 
-  const handleRoomSettingsChange = (roomSetting) => {
-    // if the room setting hasn't been set, set it to true
-    // otherwise, toggle it to the opposite of what it is
-    const updatedRoomDrafts = roomDrafts.map((room) => {
-      const updatedRoom = { ...room };
-      if (roomSetting in updatedRoom.settings) {
-        updatedRoom.settings[roomSetting] = !updatedRoom.settings[roomSetting];
-      } else {
-        updatedRoom.settings[roomSetting] = true;
-      }
-      return updatedRoom;
-    });
-    // do something with updatedRoomDrafts
-    // props.setRoomDrafts(updatedRoomDrafts);
-  };
-
   // set up what we are going to sort on
   return (
     <div className={classes.AssignmentMatrixContainer}>
@@ -101,20 +85,7 @@ const AssignmentMatrix = (props) => {
         <label htmlFor="room-settings" className={classes.SortText}>
           Room Settings:
           <div className={classes.SortSelection}>
-            <Select
-              options={Object.keys(ROOM_SETTINGS).map((key) => ({
-                label: ROOM_SETTINGS[key],
-                value: key,
-              }))}
-              // create and onchange function that updates the
-              // room settings for each room with the selected value
-              onChange={(selectedOption) =>
-                handleRoomSettingsChange(selectedOption.value)
-              }
-              isSearchable={false}
-              inputId="room-settings"
-              defaultValue={{ label: 'Change room settings', value: null }}
-            />
+            <RoomSettingsDropdown />
           </div>
         </label>
       </div>

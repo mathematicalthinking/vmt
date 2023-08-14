@@ -6,9 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
 import { useAppModal, COLOR_MAP, addColors } from 'utils';
-import AssignmentMatrix from './AssignmentMatrix';
-import AssignRooms from './AssignRooms';
-import AddParticipants from './AddParticipants';
+import { AssignmentMatrix, AssignRooms, AddParticipants } from '.';
 
 const MakeRooms = (props) => {
   const {

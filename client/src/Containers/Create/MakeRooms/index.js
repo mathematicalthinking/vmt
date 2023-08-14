@@ -7,3 +7,4 @@ export { default as MakeRooms } from './MakeRooms';
 export { default as EditRooms } from './EditRooms';
 export { default as AddParticipants } from './AddParticipants';
 export { default as SelectAssignments } from './SelectAssignments';
+export { default as RoomSettingsDropdown } from './roomSettings';
