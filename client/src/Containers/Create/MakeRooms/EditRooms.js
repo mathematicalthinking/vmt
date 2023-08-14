@@ -12,6 +12,7 @@ import {
 import { Button } from 'Components';
 import { addColors, dateAndTime, useAppModal } from 'utils';
 import { AssignmentMatrix, AssignRooms } from '.';
+import classes from './makeRooms.css';
 
 const EditRooms = (props) => {
   const {
@@ -204,6 +205,14 @@ const EditRooms = (props) => {
     return (courses[courseId] && courses[courseId].name) || null;
   };
 
+  const headerComponent = (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    <label htmlFor="room-settings" className={classes.SortText}>
+      Room Settings:
+      <div className={classes.SortSelection}>{roomSettingsComponent}</div>
+    </label>
+  );
+
   const assignmentMatrix = (
     <AssignmentMatrix
       allParticipants={participants}
@@ -219,7 +228,7 @@ const EditRooms = (props) => {
       roomDrafts={roomDrafts}
       canDeleteRooms={false}
       getCourseName={getCourseName}
-      roomSettings={roomSettingsComponent}
+      headerComponent={headerComponent}
     />
   );
 
@@ -287,6 +296,8 @@ EditRooms.propTypes = {
   userId: PropTypes.string.isRequired,
   close: PropTypes.func.isRequired,
   participants: PropTypes.arrayOf(PropTypes.shape({})),
+  roomSettings: PropTypes.shape({}).isRequired,
+  roomSettingsComponent: PropTypes.node.isRequired,
 };
 
 EditRooms.defaultProps = {

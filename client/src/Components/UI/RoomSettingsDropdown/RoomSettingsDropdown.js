@@ -21,12 +21,10 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
   };
 
   useEffect(() => {
-    const defaultRoomSettingsOptions = Object.keys(
-      initialSettings || Room.getDefaultRoomSettings()
-    ).map((setting) => {
+    const source = initialSettings || Room.getDefaultRoomSettings();
+    const defaultRoomSettingsOptions = Object.keys(source).map((setting) => {
       return {
-        value:
-          initialSettings[setting] || Room.getDefaultRoomSettings()[setting],``
+        value: source[setting],
         label: Room.settings[setting].label,
         setting,
       };
@@ -38,29 +36,8 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
       return acc;
     }, {});
     onChange(roomSettings);
+    setRoomSettingsOptions(defaultRoomSettingsOptions);
   }, [initialSettings]);
-
-  const Option = (props) => {
-    const {
-      children,
-      data: { setting },
-      isSelected,
-    } = props;
-
-    return (
-      <components.Option {...props}>
-        <div className={classes.RoomSettingsOption}>
-          <Checkbox
-            checked={isSelected}
-            change={() => {}}
-            dataId={`${setting}-checkbox`}
-          >
-            {children}
-          </Checkbox>
-        </div>
-      </components.Option>
-    );
-  };
 
   return (
     <Select
@@ -90,6 +67,42 @@ RoomSettingsDropdown.propTypes = {
 
 RoomSettingsDropdown.defaultProps = {
   roomSettings: {},
+};
+
+const Option = (props) => {
+  const {
+    children,
+    data: { setting },
+    isSelected,
+  } = props;
+
+  return (
+    <components.Option {...props}>
+      <div className={classes.RoomSettingsOption}>
+        <Checkbox
+          checked={isSelected}
+          change={() => {}}
+          dataId={`${setting}-checkbox`}
+        >
+          {children}
+        </Checkbox>
+      </div>
+    </components.Option>
+  );
+};
+
+Option.propTypes = {
+  children: PropTypes.node,
+  data: PropTypes.shape({
+    setting: PropTypes.string,
+  }),
+  isSelected: PropTypes.bool,
+};
+
+Option.defaultProps = {
+  children: null,
+  data: {},
+  isSelected: false,
 };
 
 export default RoomSettingsDropdown;

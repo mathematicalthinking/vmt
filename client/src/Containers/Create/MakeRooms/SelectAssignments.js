@@ -26,12 +26,6 @@ const SelectAssignments = ({
   );
 
   useEffect(() => {
-    console.groupCollapsed('SelectAssignments');
-    console.log('defaultOption', defaultOption);
-    console.log('selectedAssignment', selectedAssignment);
-    console.log('roomSettings', roomSettings);
-    console.log('Room.getDefaultRoomSettings()', Room.getDefaultRoomSettings());
-    console.groupEnd();
     setRoomSettings(Room.getDefaultRoomSettings());
   }, [defaultOption, selectedAssignment]);
 

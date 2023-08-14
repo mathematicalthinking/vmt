@@ -7,6 +7,7 @@ import { Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
 import { useAppModal, COLOR_MAP, addColors } from 'utils';
 import { AssignmentMatrix, AssignRooms, AddParticipants } from '.';
+import classes from './makeRooms.css';
 
 const MakeRooms = (props) => {
   const {
@@ -450,6 +451,14 @@ const MakeRooms = (props) => {
     return (courses[courseId] && courses[courseId].name) || null;
   };
 
+  const headerComponent = (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    <label htmlFor="room-settings" className={classes.SortText}>
+      Room Settings:
+      <div className={classes.SortSelection}>{roomSettingsComponent}</div>
+    </label>
+  );
+
   const assignmentMatrix = (
     <AssignmentMatrix
       allParticipants={participants}
@@ -462,7 +471,7 @@ const MakeRooms = (props) => {
       canDeleteRooms
       onAddParticipants={handleAddParticipants}
       getCourseName={getCourseName}
-      roomSettings={roomSettingsComponent}
+      headerComponent={headerComponent}
     />
   );
 
@@ -529,6 +538,8 @@ MakeRooms.propTypes = {
   userId: PropTypes.string.isRequired,
   close: PropTypes.func.isRequired,
   participants: PropTypes.arrayOf(PropTypes.shape({})),
+  roomSettings: PropTypes.shape({}).isRequired,
+  roomSettingsComponent: PropTypes.node.isRequired,
 };
 
 MakeRooms.defaultProps = {
