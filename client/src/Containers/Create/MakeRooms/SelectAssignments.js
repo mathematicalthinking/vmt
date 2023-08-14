@@ -39,6 +39,14 @@ const SelectAssignments = ({
     setSelectedAssignment(selectedOption);
   };
 
+  const handleRoomSettingsChange = (option) => {
+    setRoomSettings((prevRoomSettings) => {
+      const newRoomSettings = { ...prevRoomSettings };
+      newRoomSettings[option.setting] = option.value;
+      return newRoomSettings;
+    });
+  };
+
   const previousAssignments = () => {
     const courseGroupings = course && course.groupings;
     const activityGroupings = activity && activity.groupings;
@@ -96,7 +104,7 @@ const SelectAssignments = ({
           roomSettings={roomSettings}
           roomSettingsComponent={
             <RoomSettingsDropdown
-              onChange={setRoomSettings}
+              onChange={handleRoomSettingsChange}
               initialSettings={selectedAssignment.settings}
             />
           }

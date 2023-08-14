@@ -18,6 +18,7 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
         return opt;
       })
     );
+    onChange({ ...option, value: !option.value });
   };
 
   useEffect(() => {
@@ -62,11 +63,12 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
 };
 
 RoomSettingsDropdown.propTypes = {
-  roomSettings: PropTypes.shape({}),
+  initialSettings: PropTypes.shape({}),
+  onChange: PropTypes.func.isRequired,
 };
 
 RoomSettingsDropdown.defaultProps = {
-  roomSettings: {},
+  initialSettings: {},
 };
 
 const Option = (props) => {

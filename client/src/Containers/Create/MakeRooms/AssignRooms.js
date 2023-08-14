@@ -59,27 +59,6 @@ const AssignRooms = (props) => {
             width="185px"
           />
         )}
-
-        <TextInput
-          light
-          label="Due Date (Optional)"
-          type="date"
-          name="dueDate"
-          width="175px"
-          minDate={dateAndTime.toDateString(Date.now())}
-          change={(e) => {
-            const datePicked = e.target.value;
-            if (
-              // compare only the dates (not the specific time)
-              new Date(datePicked) <=
-              new Date(dateAndTime.toDateString(Date.now()))
-            )
-              setDueDate('');
-            else setDueDate(datePicked);
-          }}
-          value={dueDate}
-          hover
-        />
         <div className={classes.RoomNameInput}>
           {/* New room name input */}
           <TextInput
@@ -87,7 +66,7 @@ const AssignRooms = (props) => {
             label="Prefix for room names (editable)"
             type="text"
             name="roomName"
-            width="300px"
+            width="275px"
             change={(event) => setRoomName(event.target.value)}
             value={roomName}
             placeholder={roomName === '' ? 'Enter a room name prefix' : ''}
@@ -104,7 +83,26 @@ const AssignRooms = (props) => {
             />
           )}
         </div>
-        {/* onKeyDown, role, & tabIndex are all included for eslint errs */}
+        <TextInput
+          light
+          label="Due Date (Optional)"
+          type="date"
+          name="dueDate"
+          width="160px"
+          minDate={dateAndTime.toDateString(Date.now())}
+          change={(e) => {
+            const datePicked = e.target.value;
+            if (
+              // compare only the dates (not the specific time)
+              new Date(datePicked) <=
+              new Date(dateAndTime.toDateString(Date.now()))
+            )
+              setDueDate('');
+            else setDueDate(datePicked);
+          }}
+          value={dueDate}
+          hover
+        />
       </div>
       {assignmentMatrix}
       <div className={classes.BottomButtons}>
