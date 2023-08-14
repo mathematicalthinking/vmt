@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { Room } from 'Model';
@@ -22,6 +22,9 @@ const SelectAssignments = ({
     defaultOption
   );
   const [roomSettings, setRoomSettings] = React.useState({});
+  const initialMember = useMemo(() => {
+    return [member];
+  }, [member]);
 
   useEffect(() => {
     // if selectedAssignment has settings and settings is not an empty object
@@ -113,7 +116,7 @@ const SelectAssignments = ({
           course={course}
           userId={userId}
           close={close}
-          participants={course ? course.members : [member]}
+          participants={course ? course.members : initialMember}
           selectedAssignment={selectedAssignment}
           roomSettings={roomSettings}
           roomSettingsComponent={
