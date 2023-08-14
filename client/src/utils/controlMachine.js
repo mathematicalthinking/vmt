@@ -677,7 +677,7 @@ export function useControlMachine(context, spec) {
 export function withControlMachine(Component) {
   const ControlMachine = (props) => {
     const { populatedRoom, user } = props;
-    const [strategy, setStrategy] = React.useState(
+    const strategy = React.useRef(
       Room.getRoomSetting(populatedRoom, Room.TAB_BASED_CONTROL)
         ? STRATEGY.INDEPENDENT
         : STRATEGY.DEFAULT
@@ -695,24 +695,21 @@ export function withControlMachine(Component) {
         ),
         restrictFlags: {},
         lastMessage: null,
-        strategy,
+        strategy: strategy.current,
       },
       mainControlMachineSpec
     );
 
     const { hide, show } = useAppModal();
 
-    const handleSettingsChanged = (_, settings) => {
-      const newStrategy = Room.getRoomSetting(
-        { settings },
-        Room.TAB_BASED_CONTROL
-      )
+    const handleSettingsChanged = (room) => {
+      const newStrategy = Room.getRoomSetting(room, Room.TAB_BASED_CONTROL)
         ? STRATEGY.INDEPENDENT
         : STRATEGY.DEFAULT;
-      if (newStrategy !== strategy) {
+      if (newStrategy !== strategy.current) {
         // Because there are only two strategies currently, we don't use the strategy event info
         send(controlEvents.SWITCH_STRATEGY, { strategy: newStrategy });
-        setStrategy(newStrategy);
+        strategy.current = newStrategy;
       }
     };
 
