@@ -38,10 +38,6 @@ const SelectAssignments = ({
     }
   }, [selectedAssignment]);
 
-  useEffect(() => {
-    console.log('SelectAssignments roomSettings', roomSettings);
-  }, [roomSettings]);
-
   const close = () => {
     setShowAssignments(false);
     setSelectedAssignment(defaultOption);

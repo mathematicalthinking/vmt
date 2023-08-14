@@ -51,7 +51,6 @@ const getDefaultRoomSettings = () => {
   Object.keys(settings).forEach((setting) => {
     defaultRoomSettings[setting] = false;
   });
-  console.log('Room.js defaultRoomSettings', defaultRoomSettings);
   return defaultRoomSettings;
 };
 

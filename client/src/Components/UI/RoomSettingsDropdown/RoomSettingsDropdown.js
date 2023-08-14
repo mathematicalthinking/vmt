@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Checkbox } from 'Components';
 import { Room } from 'Model';
 import Select, { components } from 'react-select';
-import classes from './roomSettingsDropdown.css';
 
 const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
   const [roomSettingsOptions, setRoomSettingsOptions] = useState([]);
@@ -22,17 +21,7 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
   };
 
   useEffect(() => {
-    console.log('RoomSettingsDropdown mounted');
-    console.log('initialSettings', initialSettings);
-  }, []);
-
-  useEffect(() => {
     const source = initialSettings || Room.getDefaultRoomSettings();
-    console.groupCollapsed('RoomSettingsDropdown useEffect');
-    console.log('initialSettings', initialSettings);
-    console.log('Room.getDefaultRoomSettings()', Room.getDefaultRoomSettings());
-    console.log('source', source);
-    console.groupEnd();
     const defaultRoomSettingsOptions = Object.keys(source).map((setting) => {
       return {
         value: source[setting],
@@ -40,13 +29,6 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
         setting,
       };
     });
-
-    // change roomSettings Option to an object in the form of { setting: value }
-    const roomSettings = defaultRoomSettingsOptions.reduce((acc, curr) => {
-      acc[curr.setting] = curr.value;
-      return acc;
-    }, {});
-    onChange(roomSettings);
     setRoomSettingsOptions(defaultRoomSettingsOptions);
   }, [initialSettings]);
 
@@ -66,8 +48,12 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
       }
       components={{ Option }}
       name="roomSettings"
-      className="basic-multi-select"
-      classNamePrefix="select"
+      styles={{
+        option: (provided) => ({
+          ...provided,
+          cursor: 'pointer',
+        }),
+      }}
     />
   );
 };
@@ -86,7 +72,13 @@ const Option = (props) => {
 
   return (
     <components.Option {...props}>
-      <div className={classes.RoomSettingsOption}>
+      <div
+        onClick={(e) => e.preventDefault()}
+        onKeyDown={(e) => e.preventDefault()}
+        role="checkbox"
+        aria-checked={isSelected}
+        tabIndex={0}
+      >
         <Checkbox
           checked={isSelected}
           change={() => {}}
