@@ -302,16 +302,18 @@
   position: relative;
   z-index: 299;
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .SortText {
   display: flex;
   align-items: center;
-  width: 25%;
 }
 
 .SortSelection {
-  width: 100%;
+  width: 250px;
   margin-left: 1rem;
 }
 
