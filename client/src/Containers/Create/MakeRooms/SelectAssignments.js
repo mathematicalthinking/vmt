@@ -34,7 +34,12 @@ const SelectAssignments = ({
     ) {
       setRoomSettings(selectedAssignment.settings);
     } else {
-      setRoomSettings(Room.getDefaultRoomSettings());
+      setRoomSettings(
+        Room.getDefaultRoomSettings(
+          // decide whether to include GGB setting based on room type
+          activity.roomType === Room.ROOM_TYPES.GEOGEBRA
+        )
+      );
     }
   }, [selectedAssignment]);
 
@@ -127,6 +132,7 @@ SelectAssignments.propTypes = {
   activity: PropTypes.shape({
     groupings: PropTypes.arrayOf(PropTypes.shape({})),
     _id: PropTypes.string,
+    roomType: PropTypes.string,
   }).isRequired,
   userId: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,

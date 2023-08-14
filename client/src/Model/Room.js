@@ -29,6 +29,14 @@ const settings = {
   },
 };
 
+const ROOM_TYPES = {
+  GEOGEBRA: 'geogebra',
+  DESMOS: 'desmos',
+  DESMOS_ACTIVITY: 'desmosActivity',
+  PYRET: 'pyret',
+  WEBSKETCHPAD: 'webSketchpad',
+};
+
 /**
  * Returns the boolean representing whether the room setting is on or off.
  * If the setting does not exist, returns false for now.
@@ -67,6 +75,7 @@ const getDefaultRoomSettings = (includeGGBSetting = false) => {
 
 const Room = {
   ...settingsConstants,
+  ROOM_TYPES,
   settings,
   getRoomSetting,
   getRoomSettings,

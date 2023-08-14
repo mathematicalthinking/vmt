@@ -60,10 +60,16 @@ const MakeRooms = (props) => {
 
       setParticipants(addColors(Object.values(newParticipants)));
       updateParticipants(newRoomDrafts);
+    } else if (!course && participants.length > initialParticipants.length) {
+      // if we are in the standalone template and the number of participants has increased,
+      // then we have added new participants via the AddParticipants modal
+      // we don't want to update the participants to be just the initial 
+      // participants, so just return
+      // one case where this happens is if we use AddParticipants and then change the settings within a new grouping
+      // note: this is a bit of a hack, but it works
+      return;
+      // setParticipants(addColors(participants));
     } else {
-      // const filteredParticipants = initialParticipants.filter((p) =>
-      //   ['facilitator', 'participant'].includes(p.role)
-      // );
       const filteredParticipants = initialParticipants;
       setParticipants(sortParticipants(filteredParticipants));
       setRoomNum(
