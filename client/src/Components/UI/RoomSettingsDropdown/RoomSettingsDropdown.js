@@ -22,7 +22,17 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
   };
 
   useEffect(() => {
+    console.log('RoomSettingsDropdown mounted');
+    console.log('initialSettings', initialSettings);
+  }, []);
+
+  useEffect(() => {
     const source = initialSettings || Room.getDefaultRoomSettings();
+    console.groupCollapsed('RoomSettingsDropdown useEffect');
+    console.log('initialSettings', initialSettings);
+    console.log('Room.getDefaultRoomSettings()', Room.getDefaultRoomSettings());
+    console.log('source', source);
+    console.groupEnd();
     const defaultRoomSettingsOptions = Object.keys(source).map((setting) => {
       return {
         value: source[setting],
@@ -63,12 +73,8 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
 };
 
 RoomSettingsDropdown.propTypes = {
-  initialSettings: PropTypes.shape({}),
+  initialSettings: PropTypes.shape({}).isRequired,
   onChange: PropTypes.func.isRequired,
-};
-
-RoomSettingsDropdown.defaultProps = {
-  initialSettings: {},
 };
 
 const Option = (props) => {

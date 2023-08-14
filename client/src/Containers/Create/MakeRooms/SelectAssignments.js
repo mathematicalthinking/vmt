@@ -21,13 +21,26 @@ const SelectAssignments = ({
   const [selectedAssignment, setSelectedAssignment] = React.useState(
     defaultOption
   );
-  const [roomSettings, setRoomSettings] = React.useState(
-    Room.getDefaultRoomSettings()
-  );
+  const [roomSettings, setRoomSettings] = React.useState({});
 
   useEffect(() => {
-    setRoomSettings(Room.getDefaultRoomSettings());
-  }, [defaultOption, selectedAssignment]);
+    // if selectedAssignment has settings and settings is not an empty object
+    // then set roomSettings to selectedAssignment.settings
+    // otherwise, set roomSettings to Room.defaultRoomSettings
+    if (
+      selectedAssignment &&
+      selectedAssignment.settings &&
+      Object.keys(selectedAssignment.settings).length
+    ) {
+      setRoomSettings(selectedAssignment.settings);
+    } else {
+      setRoomSettings(Room.getDefaultRoomSettings());
+    }
+  }, [selectedAssignment]);
+
+  useEffect(() => {
+    console.log('SelectAssignments roomSettings', roomSettings);
+  }, [roomSettings]);
 
   const close = () => {
     setShowAssignments(false);
@@ -105,7 +118,7 @@ const SelectAssignments = ({
           roomSettingsComponent={
             <RoomSettingsDropdown
               onChange={handleRoomSettingsChange}
-              initialSettings={selectedAssignment.settings}
+              initialSettings={roomSettings}
             />
           }
         />
