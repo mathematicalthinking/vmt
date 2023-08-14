@@ -46,11 +46,22 @@ const getRoomSettings = (room) => {
   return room && room.settings ? room.settings : getDefaultRoomSettings();
 };
 
-const getDefaultRoomSettings = () => {
+const getDefaultRoomSettings = (includeGGBSetting = false) => {
   const defaultRoomSettings = {};
-  Object.keys(settings).forEach((setting) => {
-    defaultRoomSettings[setting] = false;
-  });
+  if (!includeGGBSetting) {
+    // add all settings except GGB setting
+    Object.keys(settings).forEach((setting) => {
+      if (setting !== settingsConstants.PARTICIPANTS_CAN_CHANGE_PERSPECTIVE) {
+        defaultRoomSettings[setting] = false;
+      }
+    });
+  } else {
+    // add all settings including GGB setting
+    Object.keys(settings).forEach((setting) => {
+      defaultRoomSettings[setting] = false;
+    });
+  }
+
   return defaultRoomSettings;
 };
 
