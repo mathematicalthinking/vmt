@@ -3,6 +3,7 @@ const settingsConstants = {
   CREATE_TABS: 'participantsCanCreateTabs',
   ALIASED_USERNAMES: 'displayAliasedUsernames',
   TAB_BASED_CONTROL: 'independentTabControl',
+  PARTICIPANTS_CAN_CHANGE_PERSPECTIVE: 'participantsCanChangePerspective',
 };
 
 const settings = {
@@ -21,6 +22,11 @@ const settings = {
     onLabel: 'Yes',
     offLabel: 'No',
   },
+  [settingsConstants.PARTICIPANTS_CAN_CHANGE_PERSPECTIVE]: {
+    label: 'Participants can change the perspective (GeoGebra)',
+    onLabel: 'Yes',
+    offLabel: 'No',
+  },
 };
 
 /**
@@ -36,5 +42,23 @@ const getRoomSetting = (room, settingName) => {
   return room && room.settings && room.settings[settingName];
 };
 
-const Room = { settings, ...settingsConstants, getRoomSetting };
+const getRoomSettings = (room) => {
+  return room && room.settings ? room.settings : getDefaultRoomSettings();
+};
+
+const getDefaultRoomSettings = () => {
+  const defaultRoomSettings = {};
+  Object.keys(settings).forEach((setting) => {
+    defaultRoomSettings[setting] = false;
+  });
+  return defaultRoomSettings;
+};
+
+const Room = {
+  ...settingsConstants,
+  settings,
+  getRoomSetting,
+  getRoomSettings,
+  getDefaultRoomSettings,
+};
 export default Room;

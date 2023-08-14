@@ -2,11 +2,10 @@ import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { useSortableData } from 'utils';
-import { RoomSettingsDropdown } from '.';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
-  const { allParticipants, roomDrafts, ...otherProps } = props;
+  const { allParticipants, roomDrafts, roomSettings, ...otherProps } = props;
 
   const defaultOption = { label: 'Sort...', value: [] };
   const keys = [
@@ -81,13 +80,13 @@ const AssignmentMatrix = (props) => {
             />
           </div>
         </label>
-        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-        <label htmlFor="room-settings" className={classes.SortText}>
-          Room Settings:
-          <div className={classes.SortSelection}>
-            <RoomSettingsDropdown />
-          </div>
-        </label>
+        {roomSettings && (
+          // eslint-disable-next-line jsx-a11y/label-has-associated-control
+          <label htmlFor="room-settings" className={classes.SortText}>
+            Room Settings:
+            <div className={classes.SortSelection}>{roomSettings}</div>
+          </label>
+        )}
       </div>
       <TheMatrix
         allParticipants={participantsToDisplay}
@@ -103,6 +102,11 @@ AssignmentMatrix.propTypes = {
   roomDrafts: PropTypes.arrayOf(
     PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) })
   ).isRequired,
+  roomSettings: PropTypes.node,
+};
+
+AssignmentMatrix.defaultProps = {
+  roomSettings: null,
 };
 
 const TheMatrix = (props) => {

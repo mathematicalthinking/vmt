@@ -12,12 +12,4 @@ export const ROLE = {
   GUEST: 'guest',
 };
 
-export const ROOM_SETTINGS = {
-  participantsCanCreateTabs: 'Participants can create new tabs',
-  independentTabControl: 'Independent tab control',
-  displayAliasedUsernames: 'Use aliased usernames',
-  participantsCanChangePerspective:
-    'Participants can change the perspective (GeoGebra)',
-};
-
 export const GRAPH_HEIGHT = window.innerHeight - 400;

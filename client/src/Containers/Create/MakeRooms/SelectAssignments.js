@@ -1,6 +1,8 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
+import { Room } from 'Model';
+import { RoomSettingsDropdown } from 'Components';
 import classes from './selectAssignment.css';
 
 const SelectAssignments = ({
@@ -19,6 +21,19 @@ const SelectAssignments = ({
   const [selectedAssignment, setSelectedAssignment] = React.useState(
     defaultOption
   );
+  const [roomSettings, setRoomSettings] = React.useState(
+    Room.getDefaultRoomSettings()
+  );
+
+  useEffect(() => {
+    console.groupCollapsed('SelectAssignments');
+    console.log('defaultOption', defaultOption);
+    console.log('selectedAssignment', selectedAssignment);
+    console.log('roomSettings', roomSettings);
+    console.log('Room.getDefaultRoomSettings()', Room.getDefaultRoomSettings());
+    console.groupEnd();
+    setRoomSettings(Room.getDefaultRoomSettings());
+  }, [defaultOption, selectedAssignment]);
 
   const close = () => {
     setShowAssignments(false);
@@ -40,7 +55,7 @@ const SelectAssignments = ({
   const options = () => {
     const assignments = previousAssignments().map((assignment) => ({
       _id: assignment._id,
-      aliasMode: assignment.aliasMode,
+      settings: assignment.settings,
       dueDate: assignment.dueDate,
       label: `${assignment.name}: ${new Date(
         assignment.timestamp
@@ -84,6 +99,13 @@ const SelectAssignments = ({
           close={close}
           participants={course ? course.members : [member]}
           selectedAssignment={selectedAssignment}
+          roomSettings={roomSettings}
+          roomSettingsComponent={
+            <RoomSettingsDropdown
+              onChange={setRoomSettings}
+              initialSettings={selectedAssignment.settings}
+            />
+          }
         />
       )}
     </Fragment>

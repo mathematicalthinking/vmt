@@ -16,6 +16,8 @@ const MakeRooms = (props) => {
     selectedAssignment,
     userId,
     close,
+    roomSettings,
+    roomSettingsComponent,
   } = props;
 
   const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
@@ -345,7 +347,7 @@ const MakeRooms = (props) => {
     return everyoneAssigned ? submit(submitInfo) : showWarning();
   };
 
-  const submit = ({ aliasMode, dueDate, roomName }) => {
+  const submit = ({ dueDate, roomName }) => {
     const {
       _id,
       description,
@@ -367,7 +369,7 @@ const MakeRooms = (props) => {
       ggbFile,
       instructions,
       dueDate,
-      settings: { displayAliasedUsernames: aliasMode },
+      settings: { ...roomSettings },
       image,
       tabs,
     };
@@ -460,6 +462,7 @@ const MakeRooms = (props) => {
       canDeleteRooms
       onAddParticipants={handleAddParticipants}
       getCourseName={getCourseName}
+      roomSettings={roomSettingsComponent}
     />
   );
 
@@ -490,7 +493,6 @@ const MakeRooms = (props) => {
 
   return (
     <AssignRooms
-      initialAliasMode={selectedAssignment.aliasMode || false}
       initialDueDate={selectedAssignment.dueDate || ''}
       initialRoomName={`${activity.name}`}
       participantsPerRoom={participantsPerRoom}
@@ -505,11 +507,11 @@ const MakeRooms = (props) => {
 
 MakeRooms.propTypes = {
   selectedAssignment: PropTypes.shape({
-    aliasMode: PropTypes.bool,
     dueDate: PropTypes.string,
     label: PropTypes.string,
     value: PropTypes.arrayOf(PropTypes.shape({})),
     roomName: PropTypes.string,
+    settings: PropTypes.shape({}),
   }),
   activity: PropTypes.shape({
     name: PropTypes.string,

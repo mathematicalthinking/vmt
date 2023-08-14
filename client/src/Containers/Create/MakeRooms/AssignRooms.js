@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { TextInput, Button, Checkbox } from 'Components';
+import { TextInput, Button } from 'Components';
 import { dateAndTime } from 'utils';
 import classes from './makeRooms.css';
 
 const AssignRooms = (props) => {
   const {
-    initialAliasMode,
     initialDueDate,
     initialRoomName,
     participantsPerRoom,
@@ -17,7 +16,6 @@ const AssignRooms = (props) => {
     onCancel,
   } = props;
 
-  const [aliasMode, setAliasMode] = React.useState(initialAliasMode);
   const [dueDate, setDueDate] = React.useState(initialDueDate);
   const [roomName, setRoomName] = React.useState(initialRoomName);
 
@@ -125,9 +123,7 @@ const AssignRooms = (props) => {
           )}
           <Button
             m={5}
-            click={() =>
-              onSubmit({ aliasMode, dueDate, roomName, initialRoomName })
-            }
+            click={() => onSubmit({ dueDate, roomName, initialRoomName })}
             data-testid="assign-rooms"
             disabled={roomName === ''}
           >
@@ -140,7 +136,6 @@ const AssignRooms = (props) => {
 };
 
 AssignRooms.propTypes = {
-  initialAliasMode: PropTypes.bool,
   initialDueDate: PropTypes.string,
   initialRoomName: PropTypes.string,
   participantsPerRoom: PropTypes.number,
@@ -152,7 +147,6 @@ AssignRooms.propTypes = {
 };
 
 AssignRooms.defaultProps = {
-  initialAliasMode: false,
   initialDueDate: '',
   initialRoomName: '',
   setParticipantsPerRoom: null,
