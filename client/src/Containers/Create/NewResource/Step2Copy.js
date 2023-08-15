@@ -8,10 +8,11 @@ import classes from '../create.css';
 // import classes from '../create.css';
 const Copy = (props) => {
   const { addActivity, selectedActivities, userId } = props;
-  const [loadedTemplates, setLoadedTemplates] = useUIState(
-    'use-existing-templates',
-    []
-  );
+  // const [loadedTemplates, setLoadedTemplates] = useUIState(
+  //   'use-existing-templates',
+  //   []
+  // );
+  const [loadedTemplates, setLoadedTemplates] = useState([]);
   const [activityList, setActivityList] = useState(loadedTemplates || []);
   const [searchResults, setSearchResults] = useState([]);
   const [searchText, setSearchText] = useState('');
