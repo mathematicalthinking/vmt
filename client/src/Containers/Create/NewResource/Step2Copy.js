@@ -42,6 +42,9 @@ const Copy = (props) => {
   useEffect(() => {
     displayResults();
   }, [filters]);
+
+  // add filteredSearchResults & setSearchResults in a useEffect
+  // that runs when searchText changes
   const _search = (searchTextInput) => {
     // create a function to search activity list
     // we want to search on activity.name
@@ -91,40 +94,7 @@ const Copy = (props) => {
     return filteredResults;
   };
 
-  // const displayResults = () => {
-  //   const results = searchText.length ? searchResults : activityList;
-
-  //   const filteredResults = results.filter((currentActivity) => {
-  //     if (filters.myTemplates === true) {
-  //       return (
-  //         currentActivity.creator === userId &&
-  //         (filters.grade6 === false ||
-  //           (currentActivity.tags[0] &&
-  //             currentActivity.tags[0].gradeLevel === 6)) &&
-  //         (filters.grade7 === false ||
-  //           (currentActivity.tags[0] &&
-  //             currentActivity.tags[0].gradeLevel === 7)) &&
-  //         (filters.grade8 === false ||
-  //           (currentActivity.tags[0] &&
-  //             currentActivity.tags[0].gradeLevel === 8))
-  //       );
-  //     }
-  //     return (
-  //       (filters.grade6 === false ||
-  //         (currentActivity.tags[0] &&
-  //           currentActivity.tags[0].gradeLevel === 6)) &&
-  //       (filters.grade7 === false ||
-  //         (currentActivity.tags[0] &&
-  //           currentActivity.tags[0].gradeLevel === 7)) &&
-  //       (filters.grade8 === false ||
-  //         (currentActivity.tags[0] && currentActivity.tags[0].gradeLevel === 8))
-  //     );
-  //   });
-
-  //   return filteredResults;
-  // };
-
-  const filterResults = (event, selectedFilter) => {
+  const filterResults = (_event, selectedFilter) => {
     setFilters((prevState) => ({
       ...prevState,
       [selectedFilter]: !prevState[selectedFilter],
@@ -133,7 +103,7 @@ const Copy = (props) => {
 
   return (
     <React.Fragment>
-      <div className={classes.SearchWrapper}>
+      {/* <div className={classes.SearchWrapper}>
         <Search
           data-testid="step2copysearch"
           _search={_search}
@@ -190,7 +160,7 @@ const Copy = (props) => {
             show Grade 8 templates
           </Checkbox>
         </div>
-      </div>
+      </div> */}
       <div>
         {isLoading ? (
           <Spinner />
