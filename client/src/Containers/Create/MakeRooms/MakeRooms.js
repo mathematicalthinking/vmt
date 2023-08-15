@@ -6,9 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'Components';
 import { createGrouping, inviteToCourse } from 'store/actions';
 import { useAppModal, COLOR_MAP, addColors } from 'utils';
-import AssignmentMatrix from './AssignmentMatrix';
-import AssignRooms from './AssignRooms';
-import AddParticipants from './AddParticipants';
+import { AssignmentMatrix, AssignRooms, AddParticipants } from '.';
+import classes from './makeRooms.css';
 
 const MakeRooms = (props) => {
   const {
@@ -18,6 +17,8 @@ const MakeRooms = (props) => {
     selectedAssignment,
     userId,
     close,
+    roomSettings,
+    roomSettingsComponent,
   } = props;
 
   const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
@@ -60,9 +61,6 @@ const MakeRooms = (props) => {
       setParticipants(addColors(Object.values(newParticipants)));
       updateParticipants(newRoomDrafts);
     } else {
-      // const filteredParticipants = initialParticipants.filter((p) =>
-      //   ['facilitator', 'participant'].includes(p.role)
-      // );
       const filteredParticipants = initialParticipants;
       setParticipants(sortParticipants(filteredParticipants));
       setRoomNum(
@@ -347,7 +345,7 @@ const MakeRooms = (props) => {
     return everyoneAssigned ? submit(submitInfo) : showWarning();
   };
 
-  const submit = ({ aliasMode, dueDate, roomName }) => {
+  const submit = ({ dueDate, roomName }) => {
     const {
       _id,
       description,
@@ -369,7 +367,7 @@ const MakeRooms = (props) => {
       ggbFile,
       instructions,
       dueDate,
-      settings: { displayAliasedUsernames: aliasMode },
+      settings: { ...roomSettings },
       image,
       tabs,
     };
@@ -450,6 +448,14 @@ const MakeRooms = (props) => {
     return (courses[courseId] && courses[courseId].name) || null;
   };
 
+  const headerComponent = (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    <label htmlFor="room-settings" className={classes.SortText}>
+      Room Settings:
+      <div className={classes.SortSelection}>{roomSettingsComponent}</div>
+    </label>
+  );
+
   const assignmentMatrix = (
     <AssignmentMatrix
       allParticipants={participants}
@@ -462,6 +468,7 @@ const MakeRooms = (props) => {
       canDeleteRooms
       onAddParticipants={handleAddParticipants}
       getCourseName={getCourseName}
+      headerComponent={headerComponent}
     />
   );
 
@@ -492,7 +499,6 @@ const MakeRooms = (props) => {
 
   return (
     <AssignRooms
-      initialAliasMode={selectedAssignment.aliasMode || false}
       initialDueDate={selectedAssignment.dueDate || ''}
       initialRoomName={`${activity.name}`}
       participantsPerRoom={participantsPerRoom}
@@ -507,11 +513,11 @@ const MakeRooms = (props) => {
 
 MakeRooms.propTypes = {
   selectedAssignment: PropTypes.shape({
-    aliasMode: PropTypes.bool,
     dueDate: PropTypes.string,
     label: PropTypes.string,
     value: PropTypes.arrayOf(PropTypes.shape({})),
     roomName: PropTypes.string,
+    settings: PropTypes.shape({}),
   }),
   activity: PropTypes.shape({
     name: PropTypes.string,
@@ -529,6 +535,8 @@ MakeRooms.propTypes = {
   userId: PropTypes.string.isRequired,
   close: PropTypes.func.isRequired,
   participants: PropTypes.arrayOf(PropTypes.shape({})),
+  roomSettings: PropTypes.shape({}).isRequired,
+  roomSettingsComponent: PropTypes.node.isRequired,
 };
 
 MakeRooms.defaultProps = {

@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { TextInput, Button, Checkbox } from 'Components';
+import { TextInput, Button } from 'Components';
 import { dateAndTime } from 'utils';
 import classes from './makeRooms.css';
 
 const AssignRooms = (props) => {
   const {
-    initialAliasMode,
     initialDueDate,
     initialRoomName,
     participantsPerRoom,
@@ -17,7 +16,6 @@ const AssignRooms = (props) => {
     onCancel,
   } = props;
 
-  const [aliasMode, setAliasMode] = React.useState(initialAliasMode);
   const [dueDate, setDueDate] = React.useState(initialDueDate);
   const [roomName, setRoomName] = React.useState(initialRoomName);
 
@@ -61,45 +59,6 @@ const AssignRooms = (props) => {
             width="185px"
           />
         )}
-
-        <div className={classes.AliasInstructions}>
-          <Checkbox
-            light
-            name="aliasUsernames"
-            dataId="aliasUsernames"
-            style={{ width: '175px' }}
-            change={() => setAliasMode(!aliasMode)}
-            checked={aliasMode || false}
-          >
-            Alias Usernames?
-            <div className={classes.AliasTooltipContent}>
-              When selected, members in the room will be given a random
-              username. When not selected, members in the room will have their
-              normal usernames.{' '}
-            </div>
-          </Checkbox>
-        </div>
-
-        <TextInput
-          light
-          label="Due Date (Optional)"
-          type="date"
-          name="dueDate"
-          width="175px"
-          minDate={dateAndTime.toDateString(Date.now())}
-          change={(e) => {
-            const datePicked = e.target.value;
-            if (
-              // compare only the dates (not the specific time)
-              new Date(datePicked) <=
-              new Date(dateAndTime.toDateString(Date.now()))
-            )
-              setDueDate('');
-            else setDueDate(datePicked);
-          }}
-          value={dueDate}
-          hover
-        />
         <div className={classes.RoomNameInput}>
           {/* New room name input */}
           <TextInput
@@ -107,7 +66,7 @@ const AssignRooms = (props) => {
             label="Prefix for room names (editable)"
             type="text"
             name="roomName"
-            width="300px"
+            width="275px"
             change={(event) => setRoomName(event.target.value)}
             value={roomName}
             placeholder={roomName === '' ? 'Enter a room name prefix' : ''}
@@ -124,7 +83,26 @@ const AssignRooms = (props) => {
             />
           )}
         </div>
-        {/* onKeyDown, role, & tabIndex are all included for eslint errs */}
+        <TextInput
+          light
+          label="Due Date (Optional)"
+          type="date"
+          name="dueDate"
+          width="160px"
+          minDate={dateAndTime.toDateString(Date.now())}
+          change={(e) => {
+            const datePicked = e.target.value;
+            if (
+              // compare only the dates (not the specific time)
+              new Date(datePicked) <=
+              new Date(dateAndTime.toDateString(Date.now()))
+            )
+              setDueDate('');
+            else setDueDate(datePicked);
+          }}
+          value={dueDate}
+          hover
+        />
       </div>
       {assignmentMatrix}
       <div className={classes.BottomButtons}>
@@ -143,9 +121,7 @@ const AssignRooms = (props) => {
           )}
           <Button
             m={5}
-            click={() =>
-              onSubmit({ aliasMode, dueDate, roomName, initialRoomName })
-            }
+            click={() => onSubmit({ dueDate, roomName, initialRoomName })}
             data-testid="assign-rooms"
             disabled={roomName === ''}
           >
@@ -158,7 +134,6 @@ const AssignRooms = (props) => {
 };
 
 AssignRooms.propTypes = {
-  initialAliasMode: PropTypes.bool,
   initialDueDate: PropTypes.string,
   initialRoomName: PropTypes.string,
   participantsPerRoom: PropTypes.number,
@@ -170,7 +145,6 @@ AssignRooms.propTypes = {
 };
 
 AssignRooms.defaultProps = {
-  initialAliasMode: false,
   initialDueDate: '',
   initialRoomName: '',
   setParticipantsPerRoom: null,

@@ -5,7 +5,7 @@ import { useSortableData } from 'utils';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
-  const { allParticipants, roomDrafts, ...otherProps } = props;
+  const { allParticipants, roomDrafts, headerComponent, ...otherProps } = props;
 
   const defaultOption = { label: 'Sort...', value: [] };
   const keys = [
@@ -64,6 +64,7 @@ const AssignmentMatrix = (props) => {
   return (
     <div className={classes.AssignmentMatrixContainer}>
       <div className={classes.SortContainer}>
+        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label htmlFor="sort" className={classes.SortText}>
           Sort:
           <div className={classes.SortSelection}>
@@ -79,6 +80,7 @@ const AssignmentMatrix = (props) => {
             />
           </div>
         </label>
+        {headerComponent}
       </div>
       <TheMatrix
         allParticipants={participantsToDisplay}
@@ -94,6 +96,11 @@ AssignmentMatrix.propTypes = {
   roomDrafts: PropTypes.arrayOf(
     PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) })
   ).isRequired,
+  headerComponent: PropTypes.node,
+};
+
+AssignmentMatrix.defaultProps = {
+  headerComponent: null,
 };
 
 const TheMatrix = (props) => {

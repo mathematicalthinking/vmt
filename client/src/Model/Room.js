@@ -3,6 +3,7 @@ const settingsConstants = {
   CREATE_TABS: 'participantsCanCreateTabs',
   ALIASED_USERNAMES: 'displayAliasedUsernames',
   TAB_BASED_CONTROL: 'independentTabControl',
+  PARTICIPANTS_CAN_CHANGE_PERSPECTIVE: 'participantsCanChangePerspective',
 };
 
 const settings = {
@@ -21,6 +22,19 @@ const settings = {
     onLabel: 'Yes',
     offLabel: 'No',
   },
+  [settingsConstants.PARTICIPANTS_CAN_CHANGE_PERSPECTIVE]: {
+    label: 'Participants can change the perspective (GeoGebra)',
+    onLabel: 'Yes',
+    offLabel: 'No',
+  },
+};
+
+const ROOM_TYPES = {
+  GEOGEBRA: 'geogebra',
+  DESMOS: 'desmos',
+  DESMOS_ACTIVITY: 'desmosActivity',
+  PYRET: 'pyret',
+  WEBSKETCHPAD: 'webSketchpad',
 };
 
 /**
@@ -36,5 +50,35 @@ const getRoomSetting = (room, settingName) => {
   return room && room.settings && room.settings[settingName];
 };
 
-const Room = { settings, ...settingsConstants, getRoomSetting };
+const getRoomSettings = (room) => {
+  return room && room.settings ? room.settings : getDefaultRoomSettings();
+};
+
+const getDefaultRoomSettings = (includeGGBSetting = false) => {
+  const defaultRoomSettings = {};
+  if (!includeGGBSetting) {
+    // add all settings except GGB setting
+    Object.keys(settings).forEach((setting) => {
+      if (setting !== settingsConstants.PARTICIPANTS_CAN_CHANGE_PERSPECTIVE) {
+        defaultRoomSettings[setting] = false;
+      }
+    });
+  } else {
+    // add all settings including GGB setting
+    Object.keys(settings).forEach((setting) => {
+      defaultRoomSettings[setting] = false;
+    });
+  }
+
+  return defaultRoomSettings;
+};
+
+const Room = {
+  ...settingsConstants,
+  ROOM_TYPES,
+  settings,
+  getRoomSetting,
+  getRoomSettings,
+  getDefaultRoomSettings,
+};
 export default Room;

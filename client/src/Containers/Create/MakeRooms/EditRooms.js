@@ -2,6 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import isEqual from 'lodash/isEqual';
 import { updateRoom } from 'store/actions';
 import {
   inviteToRoom,
@@ -10,8 +11,8 @@ import {
 } from 'store/actions/rooms';
 import { Button } from 'Components';
 import { addColors, dateAndTime, useAppModal } from 'utils';
-import AssignmentMatrix from './AssignmentMatrix';
-import AssignRooms from './AssignRooms';
+import { AssignmentMatrix, AssignRooms } from '.';
+import classes from './makeRooms.css';
 
 const EditRooms = (props) => {
   const {
@@ -21,6 +22,8 @@ const EditRooms = (props) => {
     selectedAssignment,
     userId,
     close,
+    roomSettings,
+    roomSettingsComponent,
   } = props;
   const dispatch = useDispatch();
   const history = useHistory();
@@ -121,12 +124,7 @@ const EditRooms = (props) => {
     }
   };
 
-  const editPreviousAssignment = ({
-    aliasMode,
-    dueDate,
-    roomName,
-    initialRoomName,
-  }) => {
+  const editPreviousAssignment = ({ dueDate, roomName, initialRoomName }) => {
     /**
      * If there are new room ids in the updatedAssignment that weren't
      * in the previousAssignment w/the same id as updatedAssignmnet,
@@ -165,10 +163,11 @@ const EditRooms = (props) => {
 
       inviteNewRoomMembers(previousMembers, membersToUpdate, oldRoomDraft._id);
 
-      if (aliasMode !== selectedAssignment.aliasMode) {
+      // make an if statement that use lodash to check if the new settings are the same as the selectedAssignment settings
+      if (isEqual(roomSettings, selectedAssignment.settings)) {
         dispatch(
           updateRoom(oldRoomDraft._id, {
-            settings: { displayAliasedUsernames: aliasMode },
+            settings: { ...roomSettings },
           })
         );
       }
@@ -206,6 +205,14 @@ const EditRooms = (props) => {
     return (courses[courseId] && courses[courseId].name) || null;
   };
 
+  const headerComponent = (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    <label htmlFor="room-settings" className={classes.SortText}>
+      Room Settings:
+      <div className={classes.SortSelection}>{roomSettingsComponent}</div>
+    </label>
+  );
+
   const assignmentMatrix = (
     <AssignmentMatrix
       allParticipants={participants}
@@ -221,6 +228,7 @@ const EditRooms = (props) => {
       roomDrafts={roomDrafts}
       canDeleteRooms={false}
       getCourseName={getCourseName}
+      headerComponent={headerComponent}
     />
   );
 
@@ -251,7 +259,6 @@ const EditRooms = (props) => {
 
   return (
     <AssignRooms
-      initialAliasMode={selectedAssignment.aliasMode || false}
       initialDueDate={selectedAssignment.dueDate || ''}
       initialRoomName={
         selectedAssignment.roomName ||
@@ -280,7 +287,7 @@ EditRooms.propTypes = {
   course: PropTypes.shape({ _id: PropTypes.string }),
   selectedAssignment: PropTypes.shape({
     _id: PropTypes.string,
-    aliasMode: PropTypes.bool,
+    settings: PropTypes.shape({}),
     dueDate: PropTypes.string,
     roomName: PropTypes.string,
     value: PropTypes.arrayOf(PropTypes.shape({})),
@@ -289,6 +296,8 @@ EditRooms.propTypes = {
   userId: PropTypes.string.isRequired,
   close: PropTypes.func.isRequired,
   participants: PropTypes.arrayOf(PropTypes.shape({})),
+  roomSettings: PropTypes.shape({}).isRequired,
+  roomSettingsComponent: PropTypes.node.isRequired,
 };
 
 EditRooms.defaultProps = {
