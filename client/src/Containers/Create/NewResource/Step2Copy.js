@@ -44,15 +44,13 @@ const Copy = (props) => {
     displayResults();
   }, [filters]);
 
-  // add filteredSearchResults & setSearchResults in a useEffect
-  // that runs when searchText changes
   const _search = (searchTextInput) => {
     // create a function to search activity list
     // we want to search on activity.name
     const filteredSearchResults = activityList.filter((currentActivity) => {
       return currentActivity.name
         .toLowerCase()
-        .includes(searchText.toLowerCase());
+        .includes(searchTextInput.toLowerCase());
     });
     setSearchResults(filteredSearchResults);
     setSearchText(searchTextInput);
@@ -104,7 +102,7 @@ const Copy = (props) => {
 
   return (
     <React.Fragment>
-      {/* <div className={classes.SearchWrapper}>
+      <div className={classes.SearchWrapper}>
         <Search
           data-testid="step2copysearch"
           _search={_search}
@@ -161,7 +159,7 @@ const Copy = (props) => {
             show Grade 8 templates
           </Checkbox>
         </div>
-      </div> */}
+      </div>
       <div>
         {isLoading ? (
           <Spinner />
