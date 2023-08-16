@@ -21,7 +21,9 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
   };
 
   useEffect(() => {
-    const source = initialSettings || Room.getDefaultRoomSettings();
+    const source =
+      (Object.values(initialSettings).length && initialSettings) ||
+      Room.getDefaultRoomSettings();
     const defaultRoomSettingsOptions = Object.keys(source).map((setting) => {
       return {
         value: source[setting],
