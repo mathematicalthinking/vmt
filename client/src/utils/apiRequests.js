@@ -215,4 +215,17 @@ export default {
       archivedRoomIds,
     });
   },
+
+  getFieldsUnpopulated: async (resource, fields, skip, limit) => {
+    const body = {
+      fields,
+      skip,
+      limit,
+    };
+    const activities = await api.post(
+      `/api/${resource}/getFieldsUnpopulated`,
+      body
+    );
+    return activities.data.result;
+  },
 };

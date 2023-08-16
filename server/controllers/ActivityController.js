@@ -37,6 +37,40 @@ module.exports = {
     });
   },
 
+  // @PARAMS: fields (array of strings to be selected), skip (number), limit (number)
+  // @RETURN: object with activities and totalResults
+  // @DESC: return all activities with only the fields specified
+  // don't populate any fields
+  // don't return any trashed activities
+  // return an object with activities and totalResults
+
+  getFieldsUnpopulated: async (fields, skip = 0, limit = 100) => {
+    const totalResults = await db.Activity.countDocuments({ isTrashed: false });
+    const activities = await db.Activity.find({ isTrashed: false })
+      .select(fields.join(' '))
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(limit);
+    if (!activities) {
+      console.log(`Error in ActivityController.getFieldsUnpopulatedPaginated`);
+      return new Error(
+        'Error in ActivityController.getFieldsUnpopulatedPaginated'
+      );
+    }
+    const currentPage = Math.floor(skip / limit) + 1;
+    const totalPages = Math.ceil(totalResults / limit);
+    const hasNextPage = currentPage < totalPages;
+    const hasPreviousPage = currentPage > 1;
+    return {
+      activities,
+      totalResults,
+      currentPage,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage,
+    };
+  },
+
   searchPaginated: async (criteria, skip, filters) => {
     const initialFilter = { isTrashed: false };
     const allowedPrivacySettings = ['private', 'public'];
