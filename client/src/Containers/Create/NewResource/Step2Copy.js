@@ -102,7 +102,7 @@ const Copy = (props) => {
 
   return (
     <React.Fragment>
-      {/* <div className={classes.SearchWrapper}>
+      <div className={classes.SearchWrapper}>
         <Search
           data-testid="step2copysearch"
           _search={_search}
@@ -159,7 +159,7 @@ const Copy = (props) => {
             show Grade 8 templates
           </Checkbox>
         </div>
-      </div> */}
+      </div>
       <div>
         {isLoading ? (
           <Spinner />

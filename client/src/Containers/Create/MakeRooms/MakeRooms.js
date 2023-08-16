@@ -448,15 +448,13 @@ const MakeRooms = (props) => {
     return (courses[courseId] && courses[courseId].name) || null;
   };
 
-  // const headerComponent = (
-  //   // eslint-disable-next-line jsx-a11y/label-has-associated-control
-  //   <label htmlFor="room-settings" className={classes.SortText}>
-  //     Room Settings:
-  //     <div className={classes.SortSelection}>{roomSettingsComponent}</div>
-  //   </label>
-  // );
-
-  const headerComponent = null;
+  const headerComponent = (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    <label htmlFor="room-settings" className={classes.SortText}>
+      Room Settings:
+      <div className={classes.SortSelection}>{roomSettingsComponent}</div>
+    </label>
+  );
 
   const assignmentMatrix = (
     <AssignmentMatrix
