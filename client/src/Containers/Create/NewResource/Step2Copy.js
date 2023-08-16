@@ -44,15 +44,13 @@ const Copy = (props) => {
     displayResults();
   }, [filters]);
 
-  // add filteredSearchResults & setSearchResults in a useEffect
-  // that runs when searchText changes
   const _search = (searchTextInput) => {
     // create a function to search activity list
     // we want to search on activity.name
     const filteredSearchResults = activityList.filter((currentActivity) => {
       return currentActivity.name
         .toLowerCase()
-        .includes(searchText.toLowerCase());
+        .includes(searchTextInput.toLowerCase());
     });
     setSearchResults(filteredSearchResults);
     setSearchText(searchTextInput);

@@ -448,13 +448,15 @@ const MakeRooms = (props) => {
     return (courses[courseId] && courses[courseId].name) || null;
   };
 
-  const headerComponent = (
-    // eslint-disable-next-line jsx-a11y/label-has-associated-control
-    <label htmlFor="room-settings" className={classes.SortText}>
-      Room Settings:
-      <div className={classes.SortSelection}>{roomSettingsComponent}</div>
-    </label>
-  );
+  // const headerComponent = (
+  //   // eslint-disable-next-line jsx-a11y/label-has-associated-control
+  //   <label htmlFor="room-settings" className={classes.SortText}>
+  //     Room Settings:
+  //     <div className={classes.SortSelection}>{roomSettingsComponent}</div>
+  //   </label>
+  // );
+
+  const headerComponent = null;
 
   const assignmentMatrix = (
     <AssignmentMatrix
@@ -536,13 +538,14 @@ MakeRooms.propTypes = {
   close: PropTypes.func.isRequired,
   participants: PropTypes.arrayOf(PropTypes.shape({})),
   roomSettings: PropTypes.shape({}).isRequired,
-  roomSettingsComponent: PropTypes.node.isRequired,
+  roomSettingsComponent: PropTypes.node,
 };
 
 MakeRooms.defaultProps = {
   selectedAssignment: {},
   course: null,
   participants: [],
+  roomSettingsComponent: null,
 };
 
 export default MakeRooms;

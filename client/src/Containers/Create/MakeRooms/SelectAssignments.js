@@ -26,25 +26,25 @@ const SelectAssignments = ({
     return [member];
   }, [member]);
 
-  useEffect(() => {
-    // if selectedAssignment has settings and settings is not an empty object
-    // then set roomSettings to selectedAssignment.settings
-    // otherwise, set roomSettings to Room.defaultRoomSettings
-    if (
-      selectedAssignment &&
-      selectedAssignment.settings &&
-      Object.keys(selectedAssignment.settings).length
-    ) {
-      setRoomSettings(selectedAssignment.settings);
-    } else {
-      setRoomSettings(
-        Room.getDefaultRoomSettings(
-          // decide whether to include GGB setting based on room type
-          activity.roomType === Room.ROOM_TYPES.GEOGEBRA
-        )
-      );
-    }
-  }, [selectedAssignment]);
+  // useEffect(() => {
+  //   // if selectedAssignment has settings and settings is not an empty object
+  //   // then set roomSettings to selectedAssignment.settings
+  //   // otherwise, set roomSettings to Room.defaultRoomSettings
+  //   if (
+  //     selectedAssignment &&
+  //     selectedAssignment.settings &&
+  //     Object.keys(selectedAssignment.settings).length
+  //   ) {
+  //     setRoomSettings(selectedAssignment.settings);
+  //   } else {
+  //     setRoomSettings(
+  //       Room.getDefaultRoomSettings(
+  //         // decide whether to include GGB setting based on room type
+  //         activity.roomType === Room.ROOM_TYPES.GEOGEBRA
+  //       )
+  //     );
+  //   }
+  // }, [selectedAssignment]);
 
   const close = () => {
     setShowAssignments(false);
@@ -119,12 +119,12 @@ const SelectAssignments = ({
           participants={course ? course.members : initialMember}
           selectedAssignment={selectedAssignment}
           roomSettings={roomSettings}
-          roomSettingsComponent={
-            <RoomSettingsDropdown
-              onChange={handleRoomSettingsChange}
-              initialSettings={roomSettings}
-            />
-          }
+          // roomSettingsComponent={
+          //   <RoomSettingsDropdown
+          //     onChange={handleRoomSettingsChange}
+          //     initialSettings={roomSettings}
+          //   />
+          // }
         />
       )}
     </Fragment>
