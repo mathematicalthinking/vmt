@@ -24,6 +24,11 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
     const source =
       (Object.values(initialSettings).length && initialSettings) ||
       Room.getDefaultRoomSettings();
+    console.groupCollapsed('RoomSettingsDropdown');
+    console.log('initialSettings', initialSettings);
+    console.log('Room.getDefaultRoomSettings()', Room.getDefaultRoomSettings());
+    console.log('source', source);
+    console.groupEnd();
     const defaultRoomSettingsOptions = Object.keys(source).map((setting) => {
       return {
         value: source[setting],
