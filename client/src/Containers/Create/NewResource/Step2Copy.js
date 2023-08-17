@@ -29,8 +29,32 @@ const Copy = (props) => {
       setIsLoading(false);
       return;
     }
-    API.get('activities').then((res) => {
-      const activities = res.data.results;
+    const fields = [
+      '_id',
+      'name',
+      'description',
+      'tags',
+      'creator',
+      'ggbFile',
+      'desmosLink',
+      'updatedAt',
+      'tabs',
+    ];
+    const skip = 0;
+    const limit = 100;
+    // API.get('activities').then((res) => {
+    API.getFieldsUnpopulated('activities', {
+      fields,
+      skip,
+      limit,
+    }).then((res) => {
+      const {
+        activities,
+        currentPage,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage,
+      } = res;
       activities.sort((a, b) => {
         return new Date(b.updatedAt) - new Date(a.updatedAt);
       });
