@@ -21,22 +21,43 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
   };
 
   useEffect(() => {
-    const source =
-      (Object.values(initialSettings).length && initialSettings) ||
-      Room.getDefaultRoomSettings();
-    console.groupCollapsed('RoomSettingsDropdown');
-    console.log('initialSettings', initialSettings);
-    console.log('Room.getDefaultRoomSettings()', Room.getDefaultRoomSettings());
-    console.log('source', source);
-    console.groupEnd();
-    const defaultRoomSettingsOptions = Object.keys(source).map((setting) => {
-      return {
-        value: source[setting],
-        label: Room.settings[setting].label,
-        setting,
-      };
-    });
-    setRoomSettingsOptions(defaultRoomSettingsOptions);
+    if (!initialSettings) {
+      // filter out any unsupported settings from initialSettings
+      // supported settings are those that are in Room.settings
+      const filteredInitialSettings = Object.keys(initialSettings).reduce(
+        (acc, setting) => {
+          if (Room.settings[setting]) {
+            acc[setting] = initialSettings[setting];
+          }
+          return acc;
+        },
+        {}
+      );
+
+      const defaultRoomSettingsOptions = Object.keys(
+        filteredInitialSettings
+      ).map((setting) => {
+        return {
+          value: filteredInitialSettings[setting],
+          label: Room.settings[setting].label,
+          setting,
+        };
+      });
+      setRoomSettingsOptions(defaultRoomSettingsOptions);
+    } else {
+      const source = Room.getDefaultRoomSettings();
+
+      const defaultRoomSettingsOptions = Object.keys(
+        Room.getDefaultRoomSettings()
+      ).map((setting) => {
+        return {
+          value: source[setting],
+          label: Room.settings[setting].label,
+          setting,
+        };
+      });
+      setRoomSettingsOptions(defaultRoomSettingsOptions);
+    }
   }, [initialSettings]);
 
   return (
