@@ -48,6 +48,9 @@ const Copy = (props) => {
       skip,
       limit,
     }).then((res) => {
+      // refactor to use pagination
+      // also, searching should be done on the server
+      // so we search all activities instead of the limited number we get back
       const {
         activities,
         currentPage,
