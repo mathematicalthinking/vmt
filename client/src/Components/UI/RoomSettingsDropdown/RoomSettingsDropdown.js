@@ -21,7 +21,7 @@ const RoomSettingsDropdown = ({ initialSettings, onChange }) => {
   };
 
   useEffect(() => {
-    if (!initialSettings) {
+    if (initialSettings) {
       // filter out any unsupported settings from initialSettings
       // supported settings are those that are in Room.settings
       const filteredInitialSettings = Object.keys(initialSettings).reduce(
