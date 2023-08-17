@@ -216,16 +216,10 @@ export default {
     });
   },
 
-  getFieldsUnpopulated: async (resource, fields, skip, limit) => {
-    const body = {
-      fields,
-      skip,
-      limit,
-    };
-    const activities = await api.post(
-      `/api/${resource}/getFieldsUnpopulated`,
-      body
-    );
-    return activities.data.result;
+  getFieldsUnpopulated: async (resource, params) => {
+    const results = await api.get(`/api/${resource}/getFieldsUnpopulated`, {
+      params,
+    });
+    return results.data.result;
   },
 };

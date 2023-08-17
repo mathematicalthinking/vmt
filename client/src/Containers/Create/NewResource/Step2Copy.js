@@ -38,11 +38,16 @@ const Copy = (props) => {
       'ggbFile',
       'desmosLink',
       'updatedAt',
+      'tabs',
     ];
     const skip = 0;
     const limit = 100;
     // API.get('activities').then((res) => {
-    API.getFieldsUnpopulated('activities', fields, skip, limit).then((res) => {
+    API.getFieldsUnpopulated('activities', {
+      fields,
+      skip,
+      limit,
+    }).then((res) => {
       console.log('res: ', res);
       const {
         activities,

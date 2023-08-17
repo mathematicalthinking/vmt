@@ -48,9 +48,17 @@ module.exports = {
     const totalResults = await db.Activity.countDocuments({ isTrashed: false });
     const activities = await db.Activity.find({ isTrashed: false })
       .select(fields.join(' '))
+      .populate(
+        fields.includes('tabs')
+          ? {
+              path: 'tabs',
+              select: '_id name tabType updatedAt',
+            }
+          : ''
+      )
       .sort({ updatedAt: -1 })
-      .skip(skip)
-      .limit(limit);
+      .skip(Number(skip))
+      .limit(Number(limit));
     if (!activities) {
       console.log(`Error in ActivityController.getFieldsUnpopulatedPaginated`);
       return new Error(
