@@ -56,10 +56,12 @@ module.exports = {
             }
           : ''
       )
-      .sort({ updatedAt: -1 })
-      .skip(Number(skip))
-      .limit(Number(limit));
+      .sort({ updatedAt: -1 });
+    // refactor to use skip and limit
+    // .skip(Number(skip))
+    // .limit(Number(limit));
     if (!activities) {
+      // eslint-disable-next-line no-console
       console.log(`Error in ActivityController.getFieldsUnpopulatedPaginated`);
       return new Error(
         'Error in ActivityController.getFieldsUnpopulatedPaginated'
