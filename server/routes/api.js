@@ -21,6 +21,23 @@ const status = require('../constants/status');
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
 
+router.get(
+  '/:resource/getFieldsUnpopulated',
+  middleware.validateUser,
+  (req, res) => {
+    const resource = getResource(req);
+    const controller = controllers[resource];
+    const { fields, skip, limit } = req.query;
+    controller
+      .getFieldsUnpopulated(fields, skip, limit)
+      .then((result) => res.json({ result }))
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(`Error get ${resource}/getFieldsUnpopulated: ${err}`);
+      });
+  }
+);
+
 router.get('/:resource', middleware.validateUser, (req, res) => {
   const resource = getResource(req);
   const controller = controllers[resource];

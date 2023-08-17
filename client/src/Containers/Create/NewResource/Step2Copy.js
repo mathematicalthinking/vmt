@@ -29,8 +29,35 @@ const Copy = (props) => {
       setIsLoading(false);
       return;
     }
-    API.get('activities').then((res) => {
-      const activities = res.data.results;
+    const fields = [
+      '_id',
+      'name',
+      'description',
+      'tags',
+      'creator',
+      'ggbFile',
+      'desmosLink',
+      'updatedAt',
+      'tabs',
+    ];
+    const skip = 0;
+    const limit = 100;
+    // API.get('activities').then((res) => {
+    API.getFieldsUnpopulated('activities', {
+      fields,
+      skip,
+      limit,
+    }).then((res) => {
+      // refactor to use pagination
+      // also, searching should be done on the server
+      // so we search all activities instead of the limited number we get back
+      const {
+        activities,
+        currentPage,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage,
+      } = res;
       activities.sort((a, b) => {
         return new Date(b.updatedAt) - new Date(a.updatedAt);
       });
@@ -102,7 +129,7 @@ const Copy = (props) => {
 
   return (
     <React.Fragment>
-      {/* <div className={classes.SearchWrapper}>
+      <div className={classes.SearchWrapper}>
         <Search
           data-testid="step2copysearch"
           _search={_search}
@@ -159,7 +186,7 @@ const Copy = (props) => {
             show Grade 8 templates
           </Checkbox>
         </div>
-      </div> */}
+      </div>
       <div>
         {isLoading ? (
           <Spinner />

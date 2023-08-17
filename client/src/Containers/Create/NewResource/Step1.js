@@ -71,7 +71,7 @@ const Step1 = (props) => {
           />
         </div>
       ) : null}
-      {/* {resource === 'activities' && (
+      {resource === 'activities' && (
         <Select
           className={classes.Select}
           inputId="GradeSelect"
@@ -81,7 +81,7 @@ const Step1 = (props) => {
           isSearchable={false}
           placeholder="Choose Grade Level"
         />
-      )} */}
+      )}
     </div>
   );
 };
