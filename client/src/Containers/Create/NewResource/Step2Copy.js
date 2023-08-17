@@ -48,7 +48,6 @@ const Copy = (props) => {
       skip,
       limit,
     }).then((res) => {
-      console.log('res: ', res);
       const {
         activities,
         currentPage,
