@@ -483,7 +483,7 @@ class NewResourceContainer extends Component {
                 style={
                   (step === 1 && copying) ||
                   (step === 0 && resource === 'courses')
-                    ? { overflow: 'scroll' }
+                    ? { overflow: 'auto' }
                     : {}
                 }
               >
