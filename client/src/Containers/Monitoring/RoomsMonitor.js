@@ -85,6 +85,8 @@ function RoomsMonitor({
   const onVisibleDebounce = debounce(onVisible, 500);
 
   React.useEffect(() => {
+    // Cannot convert undefined or null to object!!!!!!!!!!!
+    // this error happened when working with Marina, not sure why
     // Create a new array of refs when component mounts
     const newDivs = Object.keys(populatedRooms).map(() => React.createRef());
     setDivRefs(newDivs);
