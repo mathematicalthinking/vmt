@@ -205,13 +205,17 @@ const EditRooms = (props) => {
     return (courses[courseId] && courses[courseId].name) || null;
   };
 
-  const headerComponent = (
-    // eslint-disable-next-line jsx-a11y/label-has-associated-control
-    <label htmlFor="room-settings" className={classes.SortText}>
-      Room Settings:
-      <div className={classes.SortSelection}>{roomSettingsComponent}</div>
-    </label>
-  );
+  // const headerComponent = (
+  //   // eslint-disable-next-line jsx-a11y/label-has-associated-control
+  //   <label htmlFor="room-settings" className={classes.SortText}>
+  //     Room Settings:
+  //     <div className={classes.SortSelection}>{roomSettingsComponent}</div>
+  //   </label>
+  // );
+
+  // @TODO: hook up room settings for EditAssignment & make it live update rooms
+
+  const headerComponent = null;
 
   const assignmentMatrix = (
     <AssignmentMatrix

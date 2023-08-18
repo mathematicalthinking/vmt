@@ -71,7 +71,7 @@
   padding-bottom: 20px;
   border-bottom: #ddd;
   justify-content: space-evenly;
-  height: 400px;
+  /* height: 400px; */
 }
 
 .Import {
