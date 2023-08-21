@@ -118,7 +118,11 @@ class Community extends Component {
                   </div>
                 </InfoBox>
                 <div className={classes.LoadMore}>
-                  <Button m={20} disabled={!moreAvailable} click={setSkip}>
+                  <Button
+                    m={20}
+                    disabled={!moreAvailable || loading}
+                    click={setSkip}
+                  >
                     load more results
                   </Button>
                 </div>
