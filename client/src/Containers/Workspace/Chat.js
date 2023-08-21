@@ -216,7 +216,7 @@ class Chat extends Component {
     // this.scrollToBottom(); @TODO
     this.setState(
       {
-        newMessage: 'Type here or use the chat tools ➡️',
+        newMessage: '',
         isDictated: false,
       },
       () => {
