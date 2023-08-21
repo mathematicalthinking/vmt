@@ -205,7 +205,7 @@ const Archive = (props) => {
               <div className={classes.LoadMore}>
                 <Button
                   m={20}
-                  disabled={!moreAvailable}
+                  disabled={!moreAvailable || loading}
                   click={() => {
                     onLoadMore(() =>
                       window.scrollTo(0, document.body.scrollHeight)

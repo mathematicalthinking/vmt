@@ -10,7 +10,7 @@ import {
   updateGroupings,
 } from 'store/actions/rooms';
 import { Button } from 'Components';
-import { addColors, dateAndTime, useAppModal } from 'utils';
+import { addColors, dateAndTime, socket, useAppModal } from 'utils';
 import { AssignmentMatrix, AssignRooms } from '.';
 import classes from './makeRooms.css';
 
@@ -164,12 +164,13 @@ const EditRooms = (props) => {
       inviteNewRoomMembers(previousMembers, membersToUpdate, oldRoomDraft._id);
 
       // make an if statement that use lodash to check if the new settings are the same as the selectedAssignment settings
-      if (isEqual(roomSettings, selectedAssignment.settings)) {
+      if (!isEqual(roomSettings, selectedAssignment.settings)) {
         dispatch(
           updateRoom(oldRoomDraft._id, {
             settings: { ...roomSettings },
           })
         );
+        socket.emit('SETTINGS_CHANGE', oldRoomDraft._id, roomSettings);
       }
 
       if (
@@ -205,17 +206,13 @@ const EditRooms = (props) => {
     return (courses[courseId] && courses[courseId].name) || null;
   };
 
-  // const headerComponent = (
-  //   // eslint-disable-next-line jsx-a11y/label-has-associated-control
-  //   <label htmlFor="room-settings" className={classes.SortText}>
-  //     Room Settings:
-  //     <div className={classes.SortSelection}>{roomSettingsComponent}</div>
-  //   </label>
-  // );
-
-  // @TODO: hook up room settings for EditAssignment & make it live update rooms
-
-  const headerComponent = null;
+  const headerComponent = (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    <label htmlFor="room-settings" className={classes.SortText}>
+      Room Settings:
+      <div className={classes.SortSelection}>{roomSettingsComponent}</div>
+    </label>
+  );
 
   const assignmentMatrix = (
     <AssignmentMatrix
