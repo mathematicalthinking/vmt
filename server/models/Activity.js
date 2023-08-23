@@ -44,6 +44,7 @@ const Activity = new mongoose.Schema(
           activityName: { type: String },
           timestamp: { type: Number },
           rooms: [{ type: ObjectId, ref: 'Room' }],
+          settings: { type: Object },
         },
       ],
       default: [],
