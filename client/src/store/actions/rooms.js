@@ -274,7 +274,7 @@ export const createGrouping = (
   };
 };
 
-export const updateGroupings = (course, activity, groupingId, newName) => {
+export const updateGroupings = (course, activity, groupingId, updates) => {
   const timestamp = Date.now();
   const activityGroupingsIndex = activity.groupings.findIndex(
     (grouping) => grouping._id === groupingId
@@ -282,9 +282,10 @@ export const updateGroupings = (course, activity, groupingId, newName) => {
 
   const updatedGrouping = {
     ...activity.groupings[activityGroupingsIndex],
-    activityName: newName,
+    ...updates,
     timestamp,
   };
+
   const newActivityGroupings = [...activity.groupings];
   newActivityGroupings[activityGroupingsIndex] = updatedGrouping;
 
@@ -366,6 +367,8 @@ export const updateRoom = (id, body) => {
         dispatch(removeActivityRoom(room.activity, id));
       }
     } else {
+      console.log('room', room);
+      console.log('body', body);
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
 
       // unarchive? add room to course & activity if they exist
