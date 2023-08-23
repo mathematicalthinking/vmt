@@ -58,7 +58,7 @@ export const createPreviousAssignments = (groupings) => {
   const previousAssignments = assignmentsWithoutArchives.map((grouping) => {
     const { _id, activityName: name } = grouping;
     const dueDate = getDueDate(rooms[grouping.rooms[0]]);
-    const settings = Room.getDefaultRoomSettings();
+    const settings = grouping.settings || Room.getDefaultRoomSettings();
 
     const roomDrafts = grouping.rooms.map((roomId) =>
       getRoomDraft(rooms[roomId])

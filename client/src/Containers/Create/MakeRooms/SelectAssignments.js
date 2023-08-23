@@ -35,7 +35,7 @@ const SelectAssignments = ({
       selectedAssignment.settings &&
       Object.keys(selectedAssignment.settings).length
     ) {
-      setRoomSettings(selectedAssignment.settings);
+      setRoomSettings({ ...selectedAssignment.settings });
     } else {
       setRoomSettings(
         Room.getDefaultRoomSettings(

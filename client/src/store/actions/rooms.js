@@ -225,7 +225,8 @@ export const createGrouping = (
   roomsToCreate,
   activity,
   course = null,
-  groupingName = undefined
+  groupingName = undefined,
+  settings
 ) => {
   return (dispatch, getState) => {
     const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
@@ -252,6 +253,7 @@ export const createGrouping = (
           activityName: groupingName || activity.name,
           timestamp,
           rooms: newRoomIds,
+          settings,
         };
 
         updateActivity(activity._id, {
