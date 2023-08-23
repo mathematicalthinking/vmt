@@ -367,8 +367,6 @@ export const updateRoom = (id, body) => {
         dispatch(removeActivityRoom(room.activity, id));
       }
     } else {
-      console.log('room', room);
-      console.log('body', body);
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
 
       // unarchive? add room to course & activity if they exist
