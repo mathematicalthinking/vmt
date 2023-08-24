@@ -142,7 +142,17 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { populatedRoom: currentRoom, lastMessage, user } = this.props;
+    const {
+      populatedRoom: currentRoom,
+      lastMessage,
+      user,
+      sendControlEvent,
+    } = this.props;
+
+    if (prevProps.user.username !== user.username)
+      sendControlEvent(controlEvents.CHANGE_USERNAME, {
+        username: user.username,
+      });
 
     if (prevProps.lastMessage !== lastMessage) {
       this.addToLog(lastMessage);
@@ -658,7 +668,7 @@ class Workspace extends Component {
   // End of Tab functions
 
   toggleControl = () => {
-    const { controlState, sendControlEvent } = this.props;
+    const { controlState, sendControlEvent, user } = this.props;
     const { myColor, tabs } = this.state;
     const { currentTabId } = controlState;
     if (!socket.connected) {
