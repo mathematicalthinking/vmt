@@ -379,9 +379,9 @@ module.exports = function() {
         await controllers.rooms.put(roomId, { members: room.members });
 
         message.save();
-        socket.broadcast
+        io
           // so that all members get live updates of room settings, whether or not they are in a room
-          .to(users.map((user) => user.socketId))
+          .in(users.map((user) => user.socketId))
           .emit('SETTINGS_CHANGED', { roomId, settings });
         if (callback) callback();
       } catch (err) {
@@ -678,7 +678,9 @@ module.exports = function() {
       if (membersNeedingAliases.length === 0) return members;
 
       membersNeedingAliases.forEach((member) => {
-        member.alias = getUniqueAlias(membersWithAliases);
+        member.alias = getUniqueAlias(
+          membersWithAliases.map((mem) => mem.alias)
+        );
         membersWithAliases.push(member);
       });
 
