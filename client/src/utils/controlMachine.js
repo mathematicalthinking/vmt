@@ -33,6 +33,7 @@ export const controlEvents = {
   SWITCH_TAB: 'SWITCH_TAB',
   TAKE_MORE_TIME: 'TAKE_MORE_TIME',
   SWITCH_STRATEGY: 'SWITCH_STRATEGY',
+  CHANGE_USERNAME: 'CHANGE_USERNAME',
 };
 
 export const buttonConfigs = {
@@ -214,6 +215,11 @@ const mainControlMachineSpec = (context) => {
       id: 'main',
       initial,
       context,
+      on: {
+        [controlEvents.CHANGE_USERNAME]: assign((_, event) => ({
+          username: event.username,
+        })),
+      },
       states: {
         [STRATEGY.DEFAULT]: {
           id: STRATEGY.DEFAULT,
