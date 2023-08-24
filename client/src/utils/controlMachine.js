@@ -216,9 +216,11 @@ const mainControlMachineSpec = (context) => {
       initial,
       context,
       on: {
-        [controlEvents.CHANGE_USERNAME]: assign((_, event) => ({
-          username: event.username,
-        })),
+        [controlEvents.CHANGE_USERNAME]: {
+          actions: assign((_, event) => ({
+            username: event.username,
+          })),
+        },
       },
       states: {
         [STRATEGY.DEFAULT]: {
