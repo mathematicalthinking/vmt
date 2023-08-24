@@ -143,6 +143,8 @@ const EditRooms = (props) => {
      */
 
     selectedAssignment.value.forEach((oldRoomDraft, i) => {
+      const updates = {};
+
       const membersToUpdate = roomDrafts[i].members.map((mem) => ({
         role: mem.role,
         color: mem.color,
@@ -165,11 +167,7 @@ const EditRooms = (props) => {
 
       // make an if statement that use lodash to check if the new settings are the same as the selectedAssignment settings
       if (!isEqual(roomSettings, selectedAssignment.settings)) {
-        dispatch(
-          updateRoom(oldRoomDraft._id, {
-            settings: { ...roomSettings },
-          })
-        );
+        updates.settings = { ...roomSettings };
         socket.emit('SETTINGS_CHANGE', oldRoomDraft._id, roomSettings);
       }
 
@@ -177,22 +175,36 @@ const EditRooms = (props) => {
         dueDate !== selectedAssignment.dueDate && // if new dueDate
         !(!dueDate && !selectedAssignment.dueDate) // and dueDates have value
       ) {
-        dispatch(updateRoom(oldRoomDraft._id, { dueDate }));
+        updates.dueDate = dueDate;
       }
 
       // if roomName has changed,
       // update the room name for each room in selectedAssignment
       if (roomName !== initialRoomName) {
-        dispatch(
-          updateRoom(oldRoomDraft._id, { name: `${roomName}: ${i + 1}` })
-        );
+        updates.name = `${roomName}: ${i + 1}`;
+      }
+      if (Object.keys(updates).length > 0) {
+        dispatch(updateRoom(oldRoomDraft._id, updates));
       }
     });
 
-    // if roomName has changed, update the grouping in the store/db
+    // if roomName, dueDate, or roomSettings has changed, update the grouping in the store/db
+    const updates = {};
     if (roomName !== initialRoomName) {
+      updates.activityName = roomName;
+    }
+    if (dueDate !== selectedAssignment.dueDate) {
+      updates.dueDate = dueDate;
+    }
+    if (!isEqual(roomSettings, selectedAssignment.settings)) {
+      updates.settings = { ...roomSettings };
+    }
+
+    if (Object.keys(updates).length > 0) {
       dispatch(
-        updateGroupings(course, activity, selectedAssignment._id, roomName)
+        updateGroupings(course, activity, selectedAssignment._id, {
+          ...updates,
+        })
       );
     }
     close();
