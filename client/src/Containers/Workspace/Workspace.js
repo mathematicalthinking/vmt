@@ -538,7 +538,7 @@ class Workspace extends Component {
 
   changeTab = (id) => {
     const { populatedRoom, user, sendControlEvent, controlState } = this.props;
-    const { activityOnOtherTabs, myColor, tabs } = this.state;
+    const { myColor, tabs } = this.state;
     const { currentTabId } = controlState;
     this.clearReference();
     const newTabNum = tabs.findIndex((tab) => tab._id === id) + 1;
@@ -617,6 +617,8 @@ class Workspace extends Component {
     }
   };
 
+  // End of Tab functions
+
   // If there's only one tab in a room, render CurrentMembers
   // If there's more than one tab, render DisplayTabsCM
   configureCurrentMembersComponent = () => {
@@ -665,10 +667,8 @@ class Workspace extends Component {
     );
   };
 
-  // End of Tab functions
-
   toggleControl = () => {
-    const { controlState, sendControlEvent, user } = this.props;
+    const { controlState, sendControlEvent } = this.props;
     const { myColor, tabs } = this.state;
     const { currentTabId } = controlState;
     if (!socket.connected) {
