@@ -69,7 +69,7 @@ function CurrentMembers({
   const isActive = (id) => {
     // activeMember might be null, an array, or a string (id)
     if (!activeMember) return false;
-    else if (typeof activeMember === 'string') return activeMember === id;
+    if (typeof activeMember === 'string') return activeMember === id;
     return activeMember.includes(id);
   };
 
@@ -103,9 +103,12 @@ function CurrentMembers({
       >
         {presentMembers.map((presMember) => {
           if (presMember) {
-            const shortName = `${shortenName(presMember.user.username)}: ${
-              presMember.tabNum
-            }`;
+            const shortName =
+              presMember.tabNum > 0
+                ? `${shortenName(presMember.user.username)}: ${
+                    presMember.tabNum
+                  }`
+                : shortenName(presMember.user.username);
             return (
               <div
                 className={[
