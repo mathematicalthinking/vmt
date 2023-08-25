@@ -256,6 +256,11 @@ export function useSnapshots(callback, initialStore = {}) {
     cancelSnapshot.current = true;
   };
 
+  const resetSnapshots = () => {
+    cancelSnapshots();
+    cancelSnapshot.current = false;
+  };
+
   // Keep saving and extraction details inside the hook so that
   // if (when) we change how we store snapshots, we only have to adjust
   // code inside this custom hook.
@@ -281,7 +286,7 @@ export function useSnapshots(callback, initialStore = {}) {
   return {
     elementRef,
     startSnapshots,
-    cancelSnapshots,
+    cancelSnapshots: resetSnapshots,
     getSnapshot,
     getTimestamp,
     takeSnapshot,
