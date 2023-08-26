@@ -670,7 +670,7 @@ class Workspace extends Component {
   toggleControl = () => {
     const { controlState, sendControlEvent } = this.props;
     const { myColor, tabs } = this.state;
-    const { currentTabId } = controlState;
+    const { currentTabId, getInControl } = controlState;
     if (!socket.connected) {
       // i.e. if the user clicked the button manually instead of controll being toggled programatically
       window.alert(
@@ -678,12 +678,12 @@ class Workspace extends Component {
       );
     }
 
-    if (controlState.matches(controlStates.ME)) {
+    if (getInControl(currentTabId) === controlStates.ME) {
       const { takeSnapshot } = this.state;
       takeSnapshot(this._snapshotKey(), this._currentSnapshot());
     }
 
-    if (controlState.matches(controlStates.NONE)) {
+    if (getInControl(currentTabId) === controlStates.NONE) {
       this.setState({ referencing: false });
     }
 
