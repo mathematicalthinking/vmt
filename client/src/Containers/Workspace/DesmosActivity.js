@@ -264,12 +264,12 @@ const DesmosActivity = (props) => {
   };
 
   useEffect(() => {
-    const { onScreenChange } = props;
+    const { onScreenWillChange } = props;
     initializing = true;
     let unsub;
     initPlayer().then((token) => {
       unsub = token;
-      onScreenChange(getCurrentScreen());
+      onScreenWillChange(getCurrentScreen());
     });
     initializing = false;
     return () => {
@@ -283,7 +283,8 @@ const DesmosActivity = (props) => {
   }, []);
 
   function navigateBy(increment) {
-    const { onScreenChange } = props;
+    const { onScreenWillChange, onScreenChange } = props;
+    onScreenWillChange(getCurrentScreen());
     const page = getCurrentScreen() + increment;
     calculatorInst.current.setActiveScreenIndex(page);
     putState();
@@ -422,12 +423,14 @@ DesmosActivity.propTypes = {
   setFirstTabLoaded: PropTypes.func.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,
   addToLog: PropTypes.func.isRequired,
+  onScreenWillChange: PropTypes.func,
   onScreenChange: PropTypes.func,
   temp: PropTypes.bool,
   emitEvent: PropTypes.func.isRequired,
 };
 
 DesmosActivity.defaultProps = {
+  onScreenWillChange: () => {},
   onScreenChange: () => {},
   temp: false,
 };
