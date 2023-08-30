@@ -472,7 +472,9 @@ export const getRooms = (params) => {
         dispatch(loading.success());
       })
       // @TODO do we need to change catch pattern for undef err.{} case / see courses/activities
-      .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
+      .catch((err) =>
+        dispatch(loading.fail(err.message || 'Could not retrieve room data'))
+      );
   };
 };
 
@@ -485,7 +487,11 @@ export const getRoom = (id) => {
         dispatch(loading.success());
       })
       .catch((err) => {
-        dispatch(loading.fail(err.response.data.errorMessage));
+        dispatch(
+          loading.fail(
+            err.message || 'Could not retrieve room data, please check address'
+          )
+        );
       });
   };
 };
@@ -524,7 +530,11 @@ export const populateRoom = (id, opts) => {
       .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
-        dispatch(loading.fail(err.response.data.errorMessage));
+        dispatch(
+          loading.fail(
+            err.message || 'Could not retrieve room data, please check address'
+          )
+        );
       });
   };
 };

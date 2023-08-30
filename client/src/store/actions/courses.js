@@ -74,7 +74,9 @@ export const removeCourseMember = (courseId, userId) => {
         }
         dispatch(loading.success());
       })
-      .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
+      .catch((err) =>
+        dispatch(loading.fail(err.message || 'Error removing course member'))
+      );
   };
 };
 
@@ -98,7 +100,9 @@ export const updateCourseMembers = (courseId, updatedMembers) => {
         dispatch(updatedCourse(courseId, { members: res.data.members }));
         dispatch(loading.success());
       })
-      .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
+      .catch((err) =>
+        dispatch(loading.fail(err.message || 'Error updating course members'))
+      );
   };
 };
 
@@ -165,8 +169,8 @@ export const getCourse = (id) => {
         dispatch(loading.success());
       })
       .catch((err) => {
-        if (err.response) {
-          dispatch(loading.fail(err.response.data.errorMessage));
+        if (err.message) {
+          dispatch(loading.fail(err.message));
         } else
           dispatch(
             loading.fail('Could not retrieve course data, please check address')

@@ -76,7 +76,7 @@ function ClassCode(props) {
           }
         })
         .catch((err) => {
-          setErrorMessage(err.response.data.errorMessage);
+          setErrorMessage(err.message);
           console.log('API err: ', err);
         });
     }

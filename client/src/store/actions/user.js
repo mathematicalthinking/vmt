@@ -130,7 +130,7 @@ export const signup = (body, special = false) => {
         return dispatch(loading.success());
       })
       .catch((err) => {
-        dispatch(loading.fail(err.response.data.errorMessage));
+        dispatch(loading.fail(err.message || 'Could not sign up'));
       });
   };
 };
@@ -206,7 +206,7 @@ export const login = (username, password, special = false) => {
       .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
-        dispatch(loading.fail(err.response.data.errorMessage));
+        dispatch(loading.fail(err.message || 'Could not login'));
       });
   };
 };
@@ -267,11 +267,11 @@ export const getUser = (id) => {
       .catch((err) => {
         console.log('ERROR getting user- ', err);
         // if the session has expired logout
-        if (err.response) {
-          if (err.response.data.errorMessage === 'Not Authorized') {
+        if (err.message) {
+          if (err.message === 'Not Authorized') {
             dispatch(logout());
           }
-          dispatch(loading.fail(err.response.data.errorMessage));
+          dispatch(loading.fail(err.message));
         } else {
           dispatch(loading.fail(`Error getting user - ${err}`));
         }
@@ -328,7 +328,9 @@ export const forgotPassword = (email, username) => {
           }
         })
         .catch((err) => {
-          dispatch(loading.fail(err.response.data.errorMessage));
+          dispatch(
+            loading.fail(err.message || 'Could not send forgot password email')
+          );
         });
     });
   };
@@ -382,7 +384,7 @@ export const resetPassword = (password, confirmPassword, token) => {
             }
           })
           .catch((err) => {
-            dispatch(loading.fail(err.response.data.errorMessage));
+            dispatch(loading.fail(err.message || 'Could not reset password'));
           });
       }
     );

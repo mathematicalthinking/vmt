@@ -149,8 +149,8 @@ export const getCurrentActivity = (id) => {
         dispatch(addActivity(res.data.result));
       })
       .catch((err) => {
-        if (err.response) {
-          dispatch(loading.fail(err.response.data.errorMessage));
+        if (err.message) {
+          dispatch(loading.fail(err.message));
         } else {
           dispatch(loading.fail('Error getting template'));
           console.log(err);
@@ -218,7 +218,9 @@ export const removeActivity = (activityId) => {
         dispatch(activitiesRemoved([activityId]));
         dispatch(loading.success());
       })
-      .catch((err) => dispatch(loading.fail(err.response.data.errorMessage)));
+      .catch((err) =>
+        dispatch(loading.fail(err.message || 'Error removing template'))
+      );
   };
 };
 
