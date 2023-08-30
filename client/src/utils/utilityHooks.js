@@ -231,10 +231,10 @@ export function useSnapshots(callback, initialStore = {}) {
                 ...referenceObject.current,
                 ...newSnap,
               };
-              callback(referenceObject.current);
-            } else {
+              if (!cancelSnapshot.current) callback(referenceObject.current);
+            } else if (!cancelSnapshot.current)
               callback({ ...snapshotObj, ...newSnap });
-            }
+            cancelSnapshot.current = false;
             // eslint-disable-next-line no-console
           } else console.log('snapshot not well formed:', dataURL);
         } else {
@@ -254,6 +254,11 @@ export function useSnapshots(callback, initialStore = {}) {
       timer.current = null;
     }
     cancelSnapshot.current = true;
+  };
+
+  const resetSnapshots = () => {
+    cancelSnapshots();
+    cancelSnapshot.current = false;
   };
 
   // Keep saving and extraction details inside the hook so that
@@ -281,7 +286,7 @@ export function useSnapshots(callback, initialStore = {}) {
   return {
     elementRef,
     startSnapshots,
-    cancelSnapshots,
+    cancelSnapshots: resetSnapshots,
     getSnapshot,
     getTimestamp,
     takeSnapshot,
