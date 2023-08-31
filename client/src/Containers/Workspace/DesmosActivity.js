@@ -81,6 +81,9 @@ const DesmosActivity = (props) => {
     //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
     // let eventDetails = JSON.stringify(updates);
     // return `${username}: ${eventDetails}`;
+    if (updates.type === 'set-active-screen-id') {
+      return `${username} switched to screen ${getCurrentScreen()}`;
+    }
     return `${username} interacted with the Activity`;
   };
 
