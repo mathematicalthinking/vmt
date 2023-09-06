@@ -45,6 +45,7 @@ import {
 } from 'utils';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
+import ActivityChart from './Stats/ActivityChart';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
 import Access from './Access';
 import RoomPreview from './Monitoring/RoomPreview';
@@ -549,7 +550,8 @@ class Room extends Component {
       } else if (resource === 'stats') {
         // const MainContent = withRouter(withPopulatedRoom(Stats));
         // mainContent = <MainContent />;
-        mainContent = <Stats roomId={room._id} />;
+        // mainContent = <Stats roomId={room._id} />;
+        // mainContent = <ActivityChart events={room.events} tabs =  />;
       } else if (resource === 'preview') {
         mainContent = <RoomPreview roomId={room._id} />;
       }
