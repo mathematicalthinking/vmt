@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { socket } from 'utils';
-import { hri } from 'human-readable-ids';
 import { connect } from 'react-redux';
-// import { updateRoom } from 'store/actions';
+import { Room } from 'Model';
 import API from '../../utils/apiRequests';
 import buildLog from '../../utils/buildLog';
 import Loading from '../../Components/Loading/Loading';
@@ -50,55 +49,27 @@ function withPopulatedRoom(WrappedComponent) {
       socket.emit('RESET_ROOM', oldRoom._id, user);
     };
 
-    initializeListeners() {
+    initializeListeners = () => {
       socket.on('RESET_COMPLETE', () => {
         const { populatedRoom } = this.state;
         this.fetchRoom(populatedRoom._id);
       });
 
-      socket.on('USER_JOINED', (data) => {
-        // when a user joins when we are in alias mode, keep a record of the alias. The user has saved this in the DB, but
-        // instead of us reloading the room on each user join, we'll keep the alias informaiton this way.
+      socket.on('SETTINGS_CHANGED', (data) => {
+        const { roomId } = data;
         const { populatedRoom } = this.state;
-
-        const shouldAliasUsernames =
-          populatedRoom.settings &&
-          populatedRoom.settings.displayAliasedUsernames;
-        if (!shouldAliasUsernames) return;
-
-        const { username, userId } = data;
-
-        this.changeMemberAlias(userId, username);
+        if (roomId === populatedRoom._id) this.fetchRoom(populatedRoom._id);
       });
-    }
+    };
 
-    changeMemberAlias(userId, alias) {
-      const { populatedRoom } = this.state;
-
-      if (Object.keys(populatedRoom).length === 0) return;
-      const members = [...populatedRoom.members];
-
-      const memberIndex = members.findIndex((mem) => mem.user._id === userId);
-
-      if (memberIndex < 0) return;
-
-      members[memberIndex].alias = alias;
-
-      this.setState({ populatedRoom: { ...populatedRoom, members } });
-    }
-
-    fetchRoom(roomId) {
+    fetchRoom = (roomId) => {
       API.getPopulatedById('rooms', roomId, false, true)
         .then((res) => {
           const populatedRoom = res.data.result;
           populatedRoom.log = buildLog(populatedRoom.tabs, populatedRoom.chat);
 
           // @TODO: do we need to make sure current User has an alias?
-          const newLog = this.adjustLogUsers(
-            populatedRoom.log,
-            populatedRoom.settings,
-            populatedRoom.members
-          );
+          const newLog = this.adjustLogUsers(populatedRoom);
           populatedRoom.log = newLog;
 
           if (!this.cancelFetch) {
@@ -114,80 +85,50 @@ function withPopulatedRoom(WrappedComponent) {
             'we should probably just go back to the previous page? maybe display the error'
           );
           const { history } = this.props;
-          window.alert('There was error loading the room');
+          window.alert('There was an error loading the room');
           history.goBack();
         });
-    }
+    };
 
-    // hri format: adjective-animal-number
-    // alias format: animal-number
-    // eslint-disable-next-line class-methods-use-this, react/sort-comp
-    getUniqueAlias(aliases) {
-      let newAlias = hri
-        .random()
-        .split('-')
-        .splice(1, 2)
-        .join('-');
-      while (aliases.includes(newAlias)) {
-        newAlias = hri
-          .random()
-          .split('-')
-          .splice(1, 2)
-          .join('-');
-      }
-      return newAlias;
-    }
-
-    adjustUser(user) {
+    adjustUser = (user) => {
       // replaces username with either the alias or stored username depending on the room settings.
 
       const { populatedRoom } = this.state;
       if (Object.keys(populatedRoom).length === 0) return user;
       const { members } = populatedRoom;
-      const shouldAliasUsername =
-        populatedRoom.settings.displayAliasedUsernames;
+      const shouldAliasUsername = Room.getRoomSetting(
+        populatedRoom,
+        Room.ALIASED_USERNAMES
+      );
       const memberIndex = members.findIndex((mem) => mem.user._id === user._id);
       const userToReturn = { ...user };
-      let usernameToReturn = user.username;
+      // let usernameToReturn = user.username;
 
       if (memberIndex < 0) return user;
 
-      if (shouldAliasUsername) {
-        if (
-          members[memberIndex].alias &&
-          members[memberIndex].alias.length > 0
-        ) {
-          usernameToReturn = members[memberIndex].alias;
-        } else {
-          const newAlias = this.getUniqueAlias(members.map((mem) => mem.alias));
-          this.changeMemberAlias(user._id, newAlias);
-          members[memberIndex].alias = newAlias;
-          usernameToReturn = newAlias;
-          socket.emit('UPDATE_MEMBER', {
-            roomId: populatedRoom._id,
-            updatedMember: members[memberIndex],
-          });
-        }
-      }
-
-      userToReturn.username = usernameToReturn;
+      userToReturn.username = shouldAliasUsername
+        ? members[memberIndex].alias || 'ALIAS_ERROR'
+        : userToReturn.username;
       return userToReturn;
-    }
+    };
 
     // used to get aliased or un-aliased members
     // use getCurrentMembers in lieu of populatedRoom.currentMembers
     // every time we get currentMembers in Workspace's, use this function
-    getCurrentMembers(updatedCurrentMembers = []) {
+    getCurrentMembers = (updatedCurrentMembers = []) => {
       const { populatedRoom } = this.state;
       if (Object.keys(populatedRoom).length === 0) return updatedCurrentMembers;
       const { members } = populatedRoom;
-      const shouldAliasUsernames =
-        populatedRoom.settings.displayAliasedUsernames;
+      const shouldAliasUsernames = Room.getRoomSetting(
+        populatedRoom,
+        Room.ALIASED_USERNAMES
+      );
 
       const currentMembers = updatedCurrentMembers.length
         ? updatedCurrentMembers
         : populatedRoom.currentMembers;
 
+      // if there's an alias put it in, else use the username
       return currentMembers.map((currentMember) => {
         const memberIndex = members.findIndex(
           (el) => el.user._id === currentMember._id
@@ -203,13 +144,18 @@ function withPopulatedRoom(WrappedComponent) {
         }
         return currentMember;
       });
-    }
+    };
 
+    // allow for the case where member is not there
+    //
     // eslint-disable-next-line class-methods-use-this
-    adjustLogUsers(log, settings, members) {
+    adjustLogUsers(room) {
+      const { log, members } = room;
       if (!log.length) return log;
-
-      const shouldAliasUsername = settings.displayAliasedUsernames;
+      const shouldAliasUsername = Room.getRoomSetting(
+        room,
+        Room.ALIASED_USERNAMES
+      );
 
       // if there's an alias put it in, else use the username
       if (shouldAliasUsername) {
@@ -219,6 +165,7 @@ function withPopulatedRoom(WrappedComponent) {
           const member = members.find(
             (el) => el.user._id === currentLog.user._id
           );
+          if (!member) return currentLog;
           if (member.alias && member.alias.length > 0)
             currentLog.user.username = member.alias;
           else currentLog.user.username = member.user.username;

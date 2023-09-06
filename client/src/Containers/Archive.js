@@ -3,11 +3,10 @@ import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { ArchiveLayout } from 'Layout';
-import { API, useAppModal } from 'utils';
+import { API, useAppModal, GOOGLE_ICONS, getGoogleIcons } from 'utils';
 import { Button, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
 import { restoreArchivedRoom } from 'store/actions';
-import { STATUS } from 'constants.js';
 import classes from './Archive.css';
 
 const SKIP_VALUE = 20;
@@ -211,13 +210,18 @@ const Archive = () => {
       e.preventDefault();
       handleRestore(id);
     },
-    icon: (
-      <ToolTip text="Unarchive" delay={600}>
-        <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-          output
-        </span>
-      </ToolTip>
-    ),
+    generateIcon: (selectedIds) => {
+      const enableUnarchiveButton = selectedIds.length > 0;
+      const fontWeight = enableUnarchiveButton ? 'normal' : '200';
+      const cursor = enableUnarchiveButton ? 'pointer' : 'default';
+      const style = { fontWeight, cursor };
+
+      return (
+        <ToolTip text="Unarchive" delay={600}>
+          {getGoogleIcons(GOOGLE_ICONS.UNARCHIVE, [classes.CustomIcon], style)}
+        </ToolTip>
+      );
+    },
   };
 
   const handleRestore = (id) => {
@@ -292,9 +296,7 @@ const Archive = () => {
       // icon: <i className="fas fa-external-link-alt" />,
       icon: (
         <ToolTip text="Preview" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            open_in_new
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.PREVIEW, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -306,9 +308,7 @@ const Archive = () => {
       },
       icon: (
         <ToolTip text="Replayer" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            replay
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.REPLAYER, [classes.CustomIcon])}
         </ToolTip>
       ),
     },

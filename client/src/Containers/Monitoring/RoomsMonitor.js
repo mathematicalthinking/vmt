@@ -7,10 +7,13 @@ import {
   SimpleChat,
   CurrentMembers,
   BigModal,
+  Spinner,
 } from 'Components';
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
 import { dateAndTime, useUIState } from 'utils';
+import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 import Thumbnails from './Thumbnails';
 import QuickChat from './QuickChat';
 import classes from './monitoringView.css';
@@ -41,6 +44,8 @@ function RoomsMonitor({
   user,
   onThumbnailSelected,
   context, // used for saving and restoring UI state
+  onVisible, // provides array of ids of rooms that are visible on the screen
+  isLoading, // array of ids that are currently loading
 }) {
   const constants = {
     CHAT: 'Chat',
@@ -68,6 +73,51 @@ function RoomsMonitor({
 
   /**
    *
+   * IMPLEMENT OBSERVER LOGIC
+   *
+   */
+
+  const [divRefs, setDivRefs] = React.useState([]);
+
+  const observerRef = React.useRef();
+  const visibilityRef = React.useRef({});
+
+  const onVisibleDebounce = debounce(onVisible, 500);
+
+  React.useEffect(() => {
+    // Create a new array of refs when component mounts
+    const newDivs = Object.keys(populatedRooms).map(() => React.createRef());
+    setDivRefs(newDivs);
+  }, [Object.keys(populatedRooms).length]);
+
+  // Whenever the visibility of divs change, the callback on InsersectionObserver gets called, but ONLY WITH
+  // THE DIVS THAT CHANGED VISIBILITY. We use the visibilityRef to keep track of tje visibility of all the divs that can
+  // be displayed.
+  React.useEffect(() => {
+    if (observerRef.current) observerRef.current.disconnect();
+    // for some reason, vscode doesn't recognize InterserctionObserver
+    // eslint-disable-next-line no-undef
+    observerRef.current = new IntersectionObserver((entries) => {
+      visibilityRef.current = entries.reduce(
+        (acc, entry) => ({ ...acc, [entry.target.id]: entry.isIntersecting }),
+        visibilityRef.current
+      );
+      const visibleDivIds = Object.keys(visibilityRef.current).filter(
+        (key) => visibilityRef.current[key]
+      );
+      onVisibleDebounce(visibleDivIds);
+    });
+    divRefs.forEach((ref) => {
+      if (ref.current) observerRef.current.observe(ref.current);
+    });
+
+    return () => {
+      observerRef.current.disconnect();
+    };
+  }, [divRefs]);
+
+  /**
+   *
    * FUNCTIONS THAT ARE USED TO SIMPLIFY THE RENDER LOGIC
    *
    */
@@ -75,14 +125,11 @@ function RoomsMonitor({
   const _adminWarning = () => {
     return (
       <div style={{ color: 'red' }}>
-        {/* {!user.isAdmin ? (
-          <span>
-            Warning: You are not an Admin. If you enter a room, you will be
-            seen. To become an admin, please contact your VMT administrator.
-          </span>
-        ) : ( */}
         {user.isAdmin && !user.inAdminMode && (
-          <span>Warning: You are not currently in Admin mode.</span>
+          <span>
+            Warning: You are not currently in Admin mode. If you enter a room,
+            you will be seen.
+          </span>
         )}
       </div>
     );
@@ -118,8 +165,6 @@ function RoomsMonitor({
     ];
   };
 
-  // The isSuccess test is really not needed because we don't render unless it's true. However,
-  // it just seems clearer to keep the test here as we are using queryStates[].data
   const _displayViewType = (id) => {
     switch (viewType) {
       case constants.GRAPH:
@@ -147,13 +192,26 @@ function RoomsMonitor({
         );
       }
       case constants.ATTENDANCE: {
+        const newMembers = populatedRooms[id].members
+          ? populatedRooms[id].members.map((mem) => ({
+              ...mem,
+              user: {
+                ...mem.user,
+                username: `${mem.user.username} ${
+                  mem.alias ? `(${mem.alias})` : ''
+                }`,
+              },
+            }))
+          : [];
+        const currentMembers = populatedRooms[id].currentMembers.map(
+          (usr) => usr._id
+        );
         return (
           <CurrentMembers
-            members={populatedRooms[id].members || []}
-            currentMembers={_selectFirst([
-              ...populatedRooms[id].currentMembers,
-              ...(populatedRooms[id].members || []).map((m) => m.user),
-            ])}
+            members={newMembers}
+            currentMembers={newMembers
+              .map((m) => m.user)
+              .sort((a) => (currentMembers.includes(a._id) ? -1 : 1))}
             activeMember={(populatedRooms[id].currentMembers || []).map(
               (m) => m._id
             )}
@@ -175,7 +233,6 @@ function RoomsMonitor({
     return Object.values(values);
   };
 
-  // @TODO VMT should have a standard way of displaying timestamps, perhaps in utilities. This function should be there.
   const _roomDateStamp = (lastUpdated) => {
     return dateAndTime.toDateTimeString(lastUpdated);
   };
@@ -213,60 +270,69 @@ function RoomsMonitor({
           </Fragment>
         </div>
         {_adminWarning()}
-        {Object.keys(populatedRooms).length === 0 && (
+        {Object.keys(populatedRooms).length === 0 ? (
           <div className={classes.NoSnapshot}>No rooms to display</div>
-        )}
-        <div className={classes.TileGroup}>
-          {Object.values(populatedRooms).map((room) => {
-            // for each of the rooms managed by a user display its title bar (title and menu) and
-            // then the particular view type.
-            return (
-              <div key={room._id} className={classes.Tile}>
-                <div className={classes.TileContainer}>
-                  <div
-                    className={classes.Title}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'flex-start',
-                      alignItems: 'center',
-                      marginBottom: '5px',
-                    }}
-                  >
-                    <DropdownMenu
-                      list={_makeMenu(room._id)}
-                      name={<i className="fas fa-bars" />}
-                    />
-                    {populatedRooms[room._id] ? (
-                      <Fragment>
-                        {populatedRooms[room._id].name}
-                        <span className={classes.Timestamp}>
-                          updated:{' '}
-                          {_roomDateStamp(populatedRooms[room._id].updatedAt)}{' '}
-                        </span>
-                        <i
-                          className="fas fa-external-link-alt"
-                          title="Open a quick view of the room"
-                          onClick={() => {
-                            _openModal(room._id);
-                          }}
-                          onKeyDown={() => {
-                            _openModal(room._id);
-                          }}
-                          tabIndex="-1"
-                          role="button"
-                        />
-                      </Fragment>
-                    ) : (
-                      'Loading...'
+        ) : (
+          <div className={classes.TileGroup}>
+            {Object.values(populatedRooms).map((room, index) => {
+              // for each of the rooms managed by a user display its title bar (title and menu) and
+              // then the particular view type.
+              return (
+                <div
+                  key={room._id}
+                  className={classes.Tile}
+                  ref={divRefs[index]}
+                  id={room._id}
+                >
+                  <div className={classes.TileContainer}>
+                    <div
+                      className={classes.Title}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'flex-start',
+                        alignItems: 'center',
+                        marginBottom: '5px',
+                      }}
+                    >
+                      <DropdownMenu
+                        list={_makeMenu(room._id)}
+                        name={<i className="fas fa-bars" />}
+                      />
+                      {populatedRooms[room._id] && (
+                        <Fragment>
+                          {populatedRooms[room._id].name}
+                          <span className={classes.Timestamp}>
+                            updated:{' '}
+                            {_roomDateStamp(populatedRooms[room._id].updatedAt)}{' '}
+                          </span>
+                          <i
+                            className="fas fa-external-link-alt"
+                            title="Open a quick view of the room"
+                            onClick={() => {
+                              _openModal(room._id);
+                            }}
+                            onKeyDown={() => {
+                              _openModal(room._id);
+                            }}
+                            tabIndex="-1"
+                            role="button"
+                          />
+                        </Fragment>
+                      )}
+                    </div>
+                    {isLoading.includes(room._id) && (
+                      <span>
+                        <Spinner />
+                      </span>
                     )}
+                    {_displayViewType(room._id)}
                   </div>
-                  {_displayViewType(room._id)}
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
       <BigModal show={showModal} closeModal={() => setShowModal(false)}>
         <RoomViewer
@@ -342,12 +408,16 @@ RoomsMonitor.propTypes = {
   }).isRequired,
   onThumbnailSelected: PropTypes.func,
   context: PropTypes.string.isRequired,
+  onVisible: PropTypes.func,
+  isLoading: PropTypes.arrayOf(PropTypes.string),
 };
 
 RoomsMonitor.defaultProps = {
   tabIndex: undefined,
   screenIndex: undefined,
   onThumbnailSelected: () => {},
+  onVisible: () => {},
+  isLoading: [],
 };
 
 ChartUpdater.propTypes = {
@@ -372,4 +442,6 @@ DropdownMenu.defaultProps = {
 
 const mapStateToProps = (state) => ({ user: state.user });
 
-export default connect(mapStateToProps)(RoomsMonitor);
+export default connect(mapStateToProps)(
+  React.memo(RoomsMonitor, (prev, next) => isEqual(prev, next))
+);

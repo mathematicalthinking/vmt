@@ -1,21 +1,24 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { TextInput, RadioBtn, Button } from '../../Components';
+import { TextInput, RadioBtn, Button } from 'Components';
+import { TabTypes } from 'Model';
+import { API, createMongoId } from 'utils';
 // import RoomOpts from './NewResource/RoomOpts';
 import classes from './newTabForm.css';
-import API from '../../utils/apiRequests';
 
-const initialState = {
-  name: '',
-  instructions: '',
-  ggbFile: '',
-  desmosLink: '',
-  ggb: true,
-  appName: 'classic',
-};
-
+const CLONE = 'clone';
 class NewTabForm extends Component {
-  state = { ...initialState };
+  initialState = {
+    name: '',
+    instructions: '',
+    ggbFile: '',
+    desmosLink: '',
+    tabType: CLONE, // changed to include more room types used to be: `ggb: true`
+    appName: 'classic',
+    checkedNum: 0,
+  };
+
+  state = { ...this.initialState };
 
   changeHandler = (event) => {
     this.setState({
@@ -51,34 +54,42 @@ class NewTabForm extends Component {
     return API.uploadGgbFiles(formData);
   };
 
-  submit = () => {
+  submit = async () => {
     const {
       room,
       user,
       activity,
-      // updatedRoom,
       sendEvent,
       closeModal,
       updatedActivity,
       setTabs,
       currentTabs,
+      currentTabId,
     } = this.props;
-    const { name, instructions, ggb, desmosLink, appName } = this.state;
+    const { name, instructions, tabType, appName } = this.state;
     if (name.trim().length < 1) {
       this.setState({
         errorMessage: 'Please provide a name for the tab',
       });
       return;
     }
-    const newTab = {
-      name,
-      desmosLink,
-      appName,
-      instructions,
-      tabType: ggb ? 'geogebra' : 'desmos',
-      room: room ? room._id : null,
-      activity: activity ? activity._id : null,
-    };
+    // const currentTab = room.tabs.find((tab) => tab._id === currentTabId);
+    const tabFromDB = await API.getById('tabs', currentTabId);
+    const currentTab = await tabFromDB.data.result;
+    const newTab =
+      tabType === CLONE
+        ? { ...currentTab, name, events: [], _id: createMongoId() }
+        : {
+            name,
+            desmosLink: currentTab.desmosLink,
+            appName,
+            instructions,
+            tabType,
+            room: room ? room._id : null,
+            activity: activity ? activity._id : null,
+            _id: createMongoId(),
+          };
+    // why are we doing this for all tab types?
     this.uploadGgbFiles()
       .then((results) => {
         if (results && results.data) {
@@ -115,7 +126,7 @@ class NewTabForm extends Component {
           // UPDATE REDUX ACTIVITY
           updatedActivity(activity._id, { tabs });
         }
-        this.setState(initialState);
+        this.setState(this.initialState);
         closeModal();
       })
       .catch(() => {
@@ -133,14 +144,7 @@ class NewTabForm extends Component {
   };
 
   render() {
-    const {
-      name,
-      errorMessage,
-      ggb,
-      // desmosLink,
-      // appName,
-      instructions,
-    } = this.state;
+    const { name, errorMessage, instructions, checkedNum } = this.state;
     return (
       <div className={classes.NewTabModal}>
         <h2>Create A New Tab</h2>
@@ -165,32 +169,33 @@ class NewTabForm extends Component {
           label="Instructions"
         />
         <div className={classes.RadioGroup}>
+          {/* !!!DELETE MEOW!!! checkedNum is used to dynamically set the checked attribute to the selected radio button  */}
           <RadioBtn
-            name="geogebra"
-            checked={ggb}
-            check={() => this.setState({ ggb: true })}
+            name={CLONE}
+            checked={checkedNum === 0}
+            check={() => this.setState({ tabType: CLONE, checkedNum: 0 })}
           >
-            GeoGebra
+            Clone Current Tab
           </RadioBtn>
           <RadioBtn
-            name="desmos"
-            checked={!ggb}
-            check={() => this.setState({ ggb: false })}
+            name={TabTypes.DESMOS}
+            checked={checkedNum === 1}
+            check={() =>
+              this.setState({ tabType: TabTypes.DESMOS, checkedNum: 1 })
+            }
           >
             Desmos
           </RadioBtn>
+          <RadioBtn
+            name={TabTypes.GEOGEBRA}
+            checked={checkedNum === 2}
+            check={() =>
+              this.setState({ tabType: TabTypes.GEOGEBRA, checkedNum: 2 })
+            }
+          >
+            GeoGebra
+          </RadioBtn>
         </div>
-        {/* <RoomOpts
-          tab
-          ggb={ggb}
-          setGgbFile={this.setGgbFile}
-          setGgbApp={(newAppName) => this.setState({ appName: newAppName })}
-          desmosLink={desmosLink}
-          setDesmosLink={(event) =>
-            this.setState({ desmosLink: event.target.value })
-          }
-          appName={appName}
-        /> */}
         <Button m={10} click={this.submit} data-testid="create-tab">
           Create
         </Button>
@@ -200,14 +205,22 @@ class NewTabForm extends Component {
 }
 
 NewTabForm.propTypes = {
-  room: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
-  activity: PropTypes.shape({}),
+  room: PropTypes.shape({
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+    _id: PropTypes.string,
+  }),
+  user: PropTypes.shape({ _id: PropTypes.string, username: PropTypes.string })
+    .isRequired,
+  activity: PropTypes.shape({
+    _id: PropTypes.string,
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+  }),
   updatedActivity: PropTypes.func,
   sendEvent: PropTypes.func,
   closeModal: PropTypes.func.isRequired,
   setTabs: PropTypes.func, // not used for activities
   currentTabs: PropTypes.arrayOf(PropTypes.shape({})), // not used for activities
+  currentTabId: PropTypes.string,
 };
 
 NewTabForm.defaultProps = {
@@ -217,5 +230,6 @@ NewTabForm.defaultProps = {
   activity: null,
   setTabs: null,
   currentTabs: null,
+  currentTabId: null,
 };
 export default NewTabForm;

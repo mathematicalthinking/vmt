@@ -5,7 +5,7 @@ previousAssignments: groups assigned to specific rooms
             name: <grouping name>
             roomsDrafts: [ { activity, course, members, name }, ... ]
             dueDate: <string>,
-            aliasMode: <boolean>,
+            settings: <object>,
             timestamp: <number>
         },
     ]
@@ -25,14 +25,12 @@ rooms:
     }
 */
 
+import { Room } from 'Model';
 import { useSelector } from 'react-redux';
 import { STATUS } from '../constants';
 
 const getDueDate = (room) =>
   room && room.dueDate ? room.dueDate.split('T', 1)[0] : null;
-
-const getAliasMode = (room) =>
-  (room && room.settings && room.settings.displayAliasedUsernames) || false;
 
 const getRoomDraft = (room) => ({
   _id: room._id,
@@ -60,7 +58,7 @@ export const createPreviousAssignments = (groupings) => {
   const previousAssignments = assignmentsWithoutArchives.map((grouping) => {
     const { _id, activityName: name } = grouping;
     const dueDate = getDueDate(rooms[grouping.rooms[0]]);
-    const aliasMode = getAliasMode(rooms[grouping.rooms[0]]);
+    const settings = grouping.settings || Room.getDefaultRoomSettings();
 
     const roomDrafts = grouping.rooms.map((roomId) =>
       getRoomDraft(rooms[roomId])
@@ -71,7 +69,7 @@ export const createPreviousAssignments = (groupings) => {
       name,
       roomDrafts,
       dueDate,
-      aliasMode,
+      settings,
       timestamp: grouping.timestamp,
     };
   });

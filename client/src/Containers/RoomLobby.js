@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 // import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { Room as RoomModel } from 'Model';
 import {
   DashboardLayout,
   SidePanel,
@@ -32,9 +33,16 @@ import {
   clearLoadingInfo,
   // populateRoom,
   updateUser,
+  archiveRooms,
+  updateRoomMembers,
 } from 'store/actions';
-import { getUserNotifications, getResourceTabTypes } from 'utils';
-import { STATUS } from 'constants.js';
+import {
+  getUserNotifications,
+  getResourceTabTypes,
+  GOOGLE_ICONS,
+  getGoogleIcons,
+  getDesmosActivityUrl,
+} from 'utils';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
@@ -46,7 +54,7 @@ class Room extends Component {
   initialTabs = [{ name: 'Details' }, { name: 'Members' }];
   constructor(props) {
     super(props);
-    const { room, user } = this.props;
+    const { room } = this.props;
     this.state = {
       // member: false,
       guestMode: true,
@@ -200,7 +208,11 @@ class Room extends Component {
     // & does not always loaded in without settings
     if (!room || !room.settings) return true;
     const isFacilitator = this.isUserFacilitator();
-    if (!isFacilitator && room.settings.displayAliasedUsernames) return false;
+    if (
+      !isFacilitator &&
+      RoomModel.getRoomSetting(room, RoomModel.ALIASED_USERNAMES)
+    )
+      return false;
     return true;
   };
 
@@ -300,8 +312,8 @@ class Room extends Component {
   };
 
   archiveRoom = () => {
-    const { room, connectUpdateRoom, history } = this.props;
-    connectUpdateRoom(room._id, { ...room, status: STATUS.ARCHIVED });
+    const { room, connectArchiveRooms, history } = this.props;
+    connectArchiveRooms([room._id]);
     history.push(`/myVMT/rooms`);
   };
 
@@ -323,6 +335,18 @@ class Room extends Component {
     // This will cause compnentDidUpdate to fire. There we will check if the user still belongs to this course,
     // if they don;t, we'll redirect to myVMT
     connectRemoveRoomMember(room._id, user._id);
+  };
+
+  changeMemberRole = (updatedMember) => {
+    const { room, connectUpdateRoomMembers } = this.props;
+    const updatedRoomMembers = room.members.map((mem) => {
+      if (mem.user._id === updatedMember.user._id) {
+        return updatedMember;
+      }
+      return mem;
+    });
+
+    connectUpdateRoomMembers(room._id, updatedRoomMembers);
   };
 
   checkAccess() {
@@ -356,6 +380,7 @@ class Room extends Component {
       connectUpdateRoom,
       course,
       connectUpdateUser,
+      // tabs,
     } = this.props;
     const {
       guestMode,
@@ -422,23 +447,43 @@ class Room extends Component {
               {mem.user.username},{' '}
             </span>
           )),
-        // .join(', '),
+        ...(room.myRole === 'facilitator'
+          ? {
+              Code: (
+                <Error
+                  error={updateFail && updateKeys.indexOf('entryCode') > -1}
+                >
+                  <EditText
+                    change={this.updateRoomInfo}
+                    inputType="text"
+                    name="entryCode"
+                    editing={editing}
+                  >
+                    {entryCode || 'Not Set'}
+                  </EditText>
+                </Error>
+              ),
+            }
+          : null),
+        ...(room.tabs[0].desmosLink
+          ? {
+              'Desmos Activity Code': (
+                <a
+                  style={{
+                    color: 'blueviolet',
+                    textDecorationLine: 'underline',
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={getDesmosActivityUrl(room.tabs[0].desmosLink)}
+                  data-testid="desmos-link"
+                >
+                  {room.tabs[0].desmosLink}
+                </a>
+              ),
+            }
+          : null),
       };
-
-      if (room.myRole === 'facilitator') {
-        additionalDetails.code = (
-          <Error error={updateFail && updateKeys.indexOf('entryCode') > -1}>
-            <EditText
-              change={this.updateRoomInfo}
-              inputType="text"
-              name="entryCode"
-              editing={editing}
-            >
-              {entryCode || 'Not Set'}
-            </EditText>
-          </Error>
-        );
-      }
 
       const crumbs = [
         { title: 'My VMT', link: '/myVMT/rooms' },
@@ -488,6 +533,7 @@ class Room extends Component {
                 : notifications.filter((ntf) => ntf.resourceId === room._id) ||
                   []
             }
+            onChangeRole={this.changeMemberRole}
           />
         );
       } else if (resource === 'settings') {
@@ -595,38 +641,43 @@ class Room extends Component {
                       }}
                     >
                       <ToolTip text="Replayer" delay={600}>
-                        <span
-                          // theme={loading.loading ? 'SmallCancel' : 'Small'}
-                          // m={10}
-                          data-testid="Replayer"
-                          onClick={!loading.loading ? this.goToReplayer : null}
-                          onKeyDown={
-                            !loading.loading ? this.goToReplayer : null
+                        {getGoogleIcons(
+                          GOOGLE_ICONS.REPLAYER,
+                          [classes.CustomIcon],
+                          {
+                            paddingRight: '0.5rem',
+                          },
+                          {
+                            'data-testid': 'Replayer',
+                            role: 'button',
+                            tabIndex: -1,
+                            onClick: !loading.loading
+                              ? this.goToReplayer
+                              : null,
+                            onKeyDown: !loading.loading
+                              ? this.goToReplayer
+                              : null,
                           }
-                          role="button"
-                          tabIndex={-1}
-                          className={`material-symbols-outlined ${classes.CustomIcon}`}
-                          style={{ paddingRight: '0.5rem' }}
-                        >
-                          replay
-                        </span>
+                        )}
                       </ToolTip>
                       {room.myRole === 'facilitator' && (
                         <ToolTip text="Archive This Room" delay={600}>
-                          <span
-                            data-testid="archive-room"
-                            onClick={
-                              !loading.loading ? this.showArchiveModal : null
+                          {getGoogleIcons(
+                            GOOGLE_ICONS.ARCHIVE,
+                            [classes.CustomIcon],
+                            null,
+                            {
+                              'data-testid': 'archive-room',
+                              role: 'button',
+                              tabIndex: -1,
+                              onClick: !loading.loading
+                                ? this.showArchiveModal
+                                : null,
+                              onKeyDown: !loading.loading
+                                ? this.showArchiveModal
+                                : null,
                             }
-                            onKeyDown={
-                              !loading.loading ? this.showArchiveModal : null
-                            }
-                            className={`material-symbols-outlined ${classes.CustomIcon}`}
-                            role="button"
-                            tabIndex={-1}
-                          >
-                            input
-                          </span>
+                          )}
                         </ToolTip>
                       )}
                     </div>
@@ -798,7 +849,7 @@ Room.propTypes = {
     entryCode: PropTypes.string,
     image: PropTypes.string,
     instructions: PropTypes.string,
-    settings: PropTypes.shape({ displayAliasedUsernames: PropTypes.bool }),
+    settings: PropTypes.shape({}),
   }),
   user: PropTypes.shape({
     _id: PropTypes.string,
@@ -838,6 +889,8 @@ Room.propTypes = {
   connectClearLoadingInfo: PropTypes.func.isRequired,
   connectPopulateRoom: PropTypes.func.isRequired,
   connectUpdateUser: PropTypes.func.isRequired,
+  connectArchiveRooms: PropTypes.func.isRequired,
+  connectUpdateRoomMembers: PropTypes.func.isRequired,
 };
 
 Room.defaultProps = {
@@ -847,11 +900,20 @@ Room.defaultProps = {
 };
 const mapStateToProps = (state, ownProps) => {
   // eslint-disable-next-line camelcase
-  const { room_id, course_id } = ownProps.match.params;
+  const { room_id } = ownProps.match.params;
   const { room } = ownProps;
+  let course;
+  // sometimes room.course is a string and sometimes it's
+  // an object of the form: { _id, name }
+  // we only really care about the _id right now
+  if (room && room.course) {
+    // eslint-disable-next-line prefer-destructuring
+    if (typeof room.course === 'string') course = room.course;
+    if (typeof room.course === 'object') course = room.course._id;
+  }
   return {
     room: room || state.rooms.byId[room_id],
-    course: state.courses.byId[course_id] || null,
+    course: state.courses.byId[course] || null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE
     user: state.user,
     notifications: getUserNotifications(state.user, null, 'room'), // this seems redundant
@@ -865,9 +927,11 @@ export default connect(mapStateToProps, {
   connectClearError: clearError,
   connectClearNotification: clearNotification,
   connectUpdateRoom: updateRoom,
+  connectArchiveRooms: archiveRooms,
   connectGetRoom: getRoom,
   connectRemoveRoomMember: removeRoomMember,
   connectClearLoadingInfo: clearLoadingInfo,
   connectPopulateRoom: populateRoom,
   connectUpdateUser: updateUser,
+  connectUpdateRoomMembers: updateRoomMembers,
 })(Room);

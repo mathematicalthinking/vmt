@@ -1,7 +1,7 @@
 import React from 'react';
+import { Spinner } from 'Components';
 import PropTypes from 'prop-types';
 import { usePopulatedRoom } from 'utils/utilityHooks';
-import { Loading } from 'Components';
 import RoomViewer from './RoomViewer';
 
 /**
@@ -13,7 +13,18 @@ function RoomPreview({ roomId }) {
     refetchInterval: 10000, // check for new info every 10 seconds
   });
 
-  return isSuccess ? <RoomViewer populatedRoom={data} /> : <Loading />;
+  const minimalRoom = { members: [], currentMembers: [], chat: [], tabs: [] };
+
+  return (
+    <div style={{ position: 'relative', minHeight: '50vh', minWidth: '80vw' }}>
+      <RoomViewer populatedRoom={isSuccess ? data : minimalRoom} />
+      {!isSuccess && <Spinner /> && (
+        <span>
+          <Spinner />
+        </span>
+      )}
+    </div>
+  );
 }
 
 RoomPreview.propTypes = {

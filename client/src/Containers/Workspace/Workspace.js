@@ -1,9 +1,7 @@
-/* eslint-disable react/jsx-indent */
 /* eslint-disable no-alert */
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import each from 'lodash/each';
 import find from 'lodash/find';
 import {
   updateRoom,
@@ -14,7 +12,8 @@ import {
   updateUser,
   updateUserSettings,
 } from 'store/actions';
-import { Modal, CurrentMembers, Loading, TabTypes } from 'Components';
+import { Room, TabTypes } from 'Model';
+import { Modal, CurrentMembers, DisplayTabsCM, Loading } from 'Components';
 import { ROLE } from 'constants.js';
 import {
   socket,
@@ -25,7 +24,8 @@ import {
   createMongoId as mongoIdGenerator,
 } from 'utils';
 import { WorkspaceLayout } from 'Layout';
-import { Chat, Tabs, Tools, RoomInfo } from '.';
+import { Chat, Tools, RoomInfo } from '.';
+import Tabs from './DropdownTabs';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
 
@@ -46,11 +46,9 @@ class Workspace extends Component {
       tabs: populatedRoom.tabs || [],
       log: populatedRoom.log || [],
       myColor: '#f26247', // default; gets reset if needed in componentDidMount
-      controlledBy: populatedRoom.controlledBy,
       currentMembers: temp
         ? tempCurrentMembers
         : populatedRoom.getCurrentMembers(),
-      // : populatedRoom.currentMembers,
       referencing: false,
       showingReference: false,
       isSimplified: true,
@@ -58,7 +56,6 @@ class Workspace extends Component {
       referToCoords: null,
       referFromEl: null,
       referFromCoords: null,
-      currentTabId: populatedRoom.tabs[0]._id,
       role: ROLE.PARTICIPANT,
       creatingNewTab: false,
       activityOnOtherTabs: [],
@@ -122,7 +119,8 @@ class Workspace extends Component {
         cancelSnapshots,
         getSnapshot,
       } = useSnapshots((newSnapshot) => {
-        const { currentTabId } = this.state;
+        const { controlState } = this.props;
+        const { currentTabId } = controlState;
         const updateBody = { snapshot: newSnapshot };
         API.put('tabs', currentTabId, updateBody).then(() => {
           this.updateTab(currentTabId, updateBody);
@@ -144,12 +142,20 @@ class Workspace extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { populatedRoom: currentRoom, temp, lastMessage, user } = this.props;
+    const {
+      populatedRoom: currentRoom,
+      lastMessage,
+      user,
+      sendControlEvent,
+    } = this.props;
 
-    if (temp) {
-      if (prevProps.lastMessage !== lastMessage) {
-        this.addToLog(lastMessage);
-      }
+    if (prevProps.user.username !== user.username)
+      sendControlEvent(controlEvents.CHANGE_USERNAME, {
+        username: user.username,
+      });
+
+    if (prevProps.lastMessage !== lastMessage) {
+      this.addToLog(lastMessage);
     }
 
     if (prevProps.user.inAdminMode !== user.inAdminMode) {
@@ -181,8 +187,14 @@ class Workspace extends Component {
   }
 
   componentWillUnmount() {
-    const { populatedRoom, connectUpdatedRoom, user } = this.props;
+    const {
+      populatedRoom,
+      connectUpdatedRoom,
+      user,
+      controlState,
+    } = this.props;
     const { myColor, cancelSnapshots, currentMembers, log, tabs } = this.state;
+    const { currentTabId } = controlState;
     // Only generate a LEAVE message (and remove the user from the currentMembers list) if:
     // - the user is in admin mode and is leaving via the exit button (i.e., not from switching mode)
     // - the user is leaving because they switched their admin mode on. They were in the room,
@@ -191,7 +203,13 @@ class Workspace extends Component {
       (!this.adminModeSwitched && !user.inAdminMode) ||
       (this.adminModeSwitched && user.inAdminMode)
     ) {
-      socket.emit('LEAVE_ROOM', populatedRoom._id, myColor);
+      socket.emit(
+        'LEAVE_ROOM',
+        populatedRoom._id,
+        currentTabId,
+        myColor,
+        this._handleJoinOrLeave
+      );
       // Below updates the Redux store, removing the current user from the list of people in the room (currentMembers).
       // However, this might not be needed as the socket updates the DB with the current members. The next time this info is needed, in
       // some type of monitor or when this person reenters the room, that info will be pulled from the DB.
@@ -231,12 +249,16 @@ class Workspace extends Component {
    * and previews a more real-time sense.
    */
   _snapshotKey = () => {
-    const { currentTabId, currentScreen } = this.state;
+    const { currentScreen } = this.state;
+    const { controlState } = this.props;
+    const { currentTabId } = controlState;
     return { currentTabId, currentScreen };
   };
 
   _currentSnapshot = () => {
-    const { currentTabId, tabs } = this.state;
+    const { controlState } = this.props;
+    const { currentTabId } = controlState;
+    const { tabs } = this.state;
     const currentTab = tabs.find((tab) => tab._id === currentTabId);
     const result = currentTab ? currentTab.snapshot : null;
     return result;
@@ -254,7 +276,9 @@ class Workspace extends Component {
 
   handleScreenChange = (screenNum) => {
     // Only do something if the currentTab is a DesmosActivity
-    const { currentTabId, tabs } = this.state;
+    const { controlState } = this.props;
+    const { currentTabId } = controlState;
+    const { tabs } = this.state;
     const currentTab = tabs.find((tab) => tab._id === currentTabId);
 
     if (currentTab && currentTab.tabType === TabTypes.DESMOS_ACTIVITY) {
@@ -291,16 +315,18 @@ class Workspace extends Component {
     const {
       temp,
       populatedRoom,
-      connectUpdatedRoom,
       user,
       sendControlEvent,
+      controlState,
     } = this.props;
+    const { currentTabId } = controlState;
     const { myColor } = this.state;
 
     if (!temp) {
       const sendData = {
         _id: mongoIdGenerator(),
         userId: user._id,
+        tab: currentTabId,
         roomId: populatedRoom._id,
         username: user.username,
         roomName: populatedRoom.name,
@@ -322,36 +348,23 @@ class Workspace extends Component {
       if (!user.inAdminMode) {
         socket.emit('JOIN', sendData, (data, err) => {
           if (err) {
+            // eslint-disable-next-line no-console
             console.log('Error joining room');
+            // eslint-disable-next-line no-console
             console.log(err);
             this.goBack();
             return;
           }
-          _handleJoinOrLeave(data);
+          this._handleJoinOrLeave(data);
         });
       }
     }
 
-    const _handleJoinOrLeave = (data) => {
-      const { controlState } = this.props;
-      const { controlledBy: currentControl } = controlState;
-      const { currentMembers, message, releasedControl } = data;
-      const controlledBy = releasedControl ? null : currentControl;
-      const currMems = populatedRoom.getCurrentMembers(currentMembers);
-      const newState = {
-        currentMembers: currMems,
-        ...(releasedControl ? { controlledBy } : null),
-      };
-      this.setState(newState, () =>
-        connectUpdatedRoom(populatedRoom._id, newState)
-      );
-      this.addToLog(message);
-      if (releasedControl) sendControlEvent(controlEvents.MSG_RELEASED_CONTROL);
-    };
+    socket.on('USER_JOINED', (data) => {
+      this._handleJoinOrLeave(data);
+    });
 
-    socket.on('USER_JOINED', _handleJoinOrLeave);
-
-    socket.on('USER_LEFT', _handleJoinOrLeave);
+    socket.on('USER_LEFT', this._handleJoinOrLeave);
 
     socket.on('TOOK_CONTROL', (message) => {
       this.addToLog(message);
@@ -361,6 +374,7 @@ class Workspace extends Component {
       });
       sendControlEvent(controlEvents.MSG_TOOK_CONTROL, {
         id: message.user._id,
+        tab: message.tab,
       });
     });
 
@@ -370,7 +384,23 @@ class Workspace extends Component {
         awarenessDesc: message.text,
         awarenessIcon: 'USER',
       });
-      sendControlEvent(controlEvents.MSG_RELEASED_CONTROL);
+      sendControlEvent(controlEvents.MSG_RELEASED_CONTROL, {
+        tab: message.tab,
+      });
+    });
+
+    socket.on('CONTROL_REQUESTED', (message) => {
+      this.addToLog(message);
+      sendControlEvent(controlEvents.MSG_RECEIVED_REQUEST, {
+        tab: message.tab,
+      });
+    });
+
+    socket.on('REQUEST_CANCELLED', (message) => {
+      this.addToLog(message);
+      sendControlEvent(controlEvents.MSG_REQUEST_CANCELLED, {
+        tab: message.tab,
+      });
     });
 
     socket.on('CREATED_TAB', (data) => {
@@ -383,6 +413,11 @@ class Workspace extends Component {
       this.setState({ tabs });
     });
 
+    socket.on('SWITCHED_TAB', (data) => {
+      const { currentMembers: currentMembersFromDb } = data;
+      this.setState({ currentMembers: currentMembersFromDb });
+    });
+
     socket.on('RECEIVED_UPDATED_REFERENCES', (data) => {
       this.setState({ eventsWithRefs: data });
     });
@@ -392,6 +427,7 @@ class Workspace extends Component {
       const lastEvent = log.findLast((event) => !event.messageType);
       if (lastEvent && lastEvent._id && lastEvent._id !== lastEventId) {
         // log that the state is out of sync
+        // eslint-disable-next-line no-console
         console.log(
           `State is out of sync. lastEventId: ${lastEventId}, last log id: ${
             log[log.length - 1]._id
@@ -432,6 +468,30 @@ class Workspace extends Component {
     // });
   };
 
+  _handleJoinOrLeave = (data) => {
+    const {
+      populatedRoom,
+      connectUpdatedRoom,
+      sendControlEvent,
+      controlState,
+    } = this.props;
+    const { currentTabId } = controlState;
+    const { currentMembers, message, releasedControl } = data;
+    const currMems = populatedRoom.getCurrentMembers(currentMembers);
+    const newState = {
+      currentMembers: currMems,
+    };
+
+    this.setState(newState, () =>
+      connectUpdatedRoom(populatedRoom._id, newState)
+    );
+    this.addToLog(message);
+    if (releasedControl.includes(currentTabId))
+      sendControlEvent(controlEvents.MSG_RELEASED_CONTROL, {
+        tab: currentTabId,
+      });
+  };
+
   setHeartbeatTimer = () => {
     // threshold to determine whether no heartbeat
     const TIMEOUT = 150001;
@@ -445,17 +505,6 @@ class Workspace extends Component {
     if (this.timer) clearTimeout(this.timer);
   };
 
-  createNewTab = () => {
-    const { role } = this.state;
-    const { populatedRoom } = this.props;
-    if (
-      role === ROLE.FACILITATOR ||
-      populatedRoom.settings.participantsCanCreateTabs
-    ) {
-      this.setState({ creatingNewTab: true });
-    }
-  };
-
   closeModal = () => {
     this.setState({ creatingNewTab: false });
   };
@@ -466,60 +515,56 @@ class Workspace extends Component {
     });
   };
 
+  // Tab functions
+
+  createNewTab = () => {
+    const { role } = this.state;
+    const { populatedRoom } = this.props;
+    if (
+      role === ROLE.FACILITATOR ||
+      Room.getRoomSetting(populatedRoom, Room.CREATE_TABS)
+    ) {
+      this.setState({ creatingNewTab: true });
+    }
+  };
+
+  updateTab = (tabId, update) => {
+    const { tabs } = this.state;
+    const tab = tabs.find((t) => t._id === tabId);
+    const updatedTab = { ...tab, ...update };
+    const updatedTabs = tabs.map((t) => (t._id === tabId ? updatedTab : t));
+    this.setState({ tabs: updatedTabs });
+  };
+
   changeTab = (id) => {
-    const { populatedRoom, user } = this.props;
-    const { activityOnOtherTabs, myColor, tabs } = this.state;
+    const { populatedRoom, user, sendControlEvent, controlState } = this.props;
+    const { myColor, tabs } = this.state;
+    const { currentTabId } = controlState;
     this.clearReference();
+    const newTabNum = tabs.findIndex((tab) => tab._id === id) + 1;
+    const tabNum = tabs.findIndex((tab) => tab._id === currentTabId) + 1;
+
     const data = {
       _id: mongoIdGenerator(),
       user: { _id: user._id, username: 'VMTBot' },
-      text: `${user.username} switched to ${
-        tabs.filter((t) => t._id === id)[0].name
-      }`,
+      text: `${user.username} switched to tab #${newTabNum}`,
       autogenerated: true,
       room: populatedRoom._id,
       messageType: 'SWITCH_TAB',
+      tab: currentTabId,
       color: myColor,
       timestamp: Date.now(),
+      newTabId: id,
     };
-    socket.emit('SWITCH_TAB', data, (res, err) => {
+    socket.emit('SWITCH_TAB', data, (currentMembersFromDb, err) => {
       if (err) {
         // eslint-disable-next-line no-console
         console.log('something went wrong on the socket:', err);
       }
+      this.setState({ currentMembers: currentMembersFromDb });
       this.addToLog(data);
     });
-    const updatedTabs = activityOnOtherTabs.filter((tab) => tab !== id);
-    this.setState(
-      { currentTabId: id, activityOnOtherTabs: updatedTabs },
-      () => {
-        this.handleInstructionsModal();
-      }
-    );
-  };
-
-  toggleControl = () => {
-    const { controlState, sendControlEvent } = this.props;
-    const { myColor } = this.state;
-    if (!socket.connected) {
-      // i.e. if the user clicked the button manually instead of controll being toggled programatically
-      window.alert(
-        'You have disconnected from the server. Check your internet connection and try refreshing the page'
-      );
-    }
-
-    if (controlState.matches(controlStates.ME)) {
-      const { takeSnapshot } = this.state;
-      takeSnapshot(this._snapshotKey(), this._currentSnapshot());
-    }
-
-    if (controlState.matches(controlStates.NONE)) {
-      this.setState({ referencing: false });
-    }
-    sendControlEvent(controlEvents.CLICK, {
-      myColor,
-      callback: this.addToLog,
-    });
+    sendControlEvent(controlEvents.SWITCH_TAB, { tab: id, tabNum });
   };
 
   emitNewTab = (tabInfo) => {
@@ -529,6 +574,124 @@ class Workspace extends Component {
     tabInfo.message.user = user; // every event should have a 'user' property!
     socket.emit('NEW_TAB', tabInfo, () => {
       this.addToLog(tabInfo.message);
+    });
+
+    // Switch to the new tab
+    this.changeTab(tabInfo._id);
+  };
+
+  addNtfToTabs = (id) => {
+    this.setState((prevState) => ({
+      activityOnOtherTabs: [...prevState.activityOnOtherTabs, id],
+    }));
+  };
+
+  clearTabNtf = (id) => {
+    this.setState((prevState) => ({
+      activityOnOtherTabs: prevState.activityOnOtherTabs.filter(
+        (tab) => tab !== id
+      ),
+    }));
+  };
+
+  setFirstTabLoaded = () => {
+    this.setState({ isFirstTabLoaded: true }, () => {
+      this.handleInstructionsModal();
+    });
+  };
+
+  setTabs = (tabs) => {
+    this.setState({ tabs });
+  };
+
+  addTabIdToCopy = (event, id) => {
+    const { selectedTabIdsToCopy } = this.state;
+    if (selectedTabIdsToCopy.indexOf(id) === -1) {
+      this.setState({ selectedTabIdsToCopy: [...selectedTabIdsToCopy, id] });
+    } else {
+      this.setState({
+        selectedTabIdsToCopy: selectedTabIdsToCopy.filter(
+          (tabId) => tabId !== id
+        ),
+      });
+    }
+  };
+
+  // End of Tab functions
+
+  // If there's only one tab in a room, render CurrentMembers
+  // If there's more than one tab, render DisplayTabsCM
+  configureCurrentMembersComponent = () => {
+    const { currentMembers, membersExpanded, tabs } = this.state;
+    const {
+      controlState,
+      populatedRoom,
+      temp,
+      tempMembers,
+      tempCurrentMembers,
+    } = this.props;
+    const { getControlledBy } = controlState;
+    if (tabs.length === 1) {
+      return (
+        <CurrentMembers
+          members={temp ? tempMembers : populatedRoom.members}
+          currentMembers={
+            temp
+              ? tempCurrentMembers
+              : populatedRoom.getCurrentMembers(currentMembers)
+          }
+          activeMember={controlState.controlledBy}
+          inControl={controlState.controlledBy}
+          expanded={membersExpanded}
+          toggleExpansion={this.toggleExpansion}
+          tabs={tabs}
+        />
+      );
+    }
+    return (
+      <DisplayTabsCM
+        tabs={tabs}
+        toggleExpansion={this.toggleExpansion}
+        expanded={membersExpanded}
+        activeMember={tabs
+          .map((tab) => getControlledBy(tab._id))
+          .filter(Boolean)}
+        inControl={controlState.controlledBy}
+        currentMembers={
+          temp
+            ? tempCurrentMembers
+            : populatedRoom.getCurrentMembers(currentMembers)
+        }
+        members={temp ? tempMembers : populatedRoom.members}
+      />
+    );
+  };
+
+  toggleControl = () => {
+    const { controlState, sendControlEvent } = this.props;
+    const { myColor, tabs } = this.state;
+    const { currentTabId, getInControl } = controlState;
+    if (!socket.connected) {
+      // i.e. if the user clicked the button manually instead of controll being toggled programatically
+      window.alert(
+        'You have disconnected from the server. Check your internet connection and try refreshing the page'
+      );
+    }
+
+    if (getInControl(currentTabId) === controlStates.ME) {
+      const { takeSnapshot } = this.state;
+      takeSnapshot(this._snapshotKey(), this._currentSnapshot());
+    }
+
+    if (getInControl(currentTabId) === controlStates.NONE) {
+      this.setState({ referencing: false });
+    }
+
+    const tabNum = tabs.findIndex((t) => t._id === currentTabId) + 1;
+
+    sendControlEvent(controlEvents.CLICK, {
+      myColor,
+      tabNum,
     });
   };
 
@@ -554,7 +717,8 @@ class Workspace extends Component {
     referFromCoords,
     tabId
   ) => {
-    const { currentTabId } = this.state;
+    const { controlState } = this.props;
+    const { currentTabId } = controlState;
     if (tabId !== currentTabId && referToEl.elementType !== 'chat_message') {
       window.alert('This reference does not belong to this tab'); // @TODO HOW SHOULD WE HANDLE THIS?
       return;
@@ -632,20 +796,6 @@ class Workspace extends Component {
     }
   };
 
-  addNtfToTabs = (id) => {
-    this.setState((prevState) => ({
-      activityOnOtherTabs: [...prevState.activityOnOtherTabs, id],
-    }));
-  };
-
-  clearTabNtf = (id) => {
-    this.setState((prevState) => ({
-      activityOnOtherTabs: prevState.activityOnOtherTabs.filter(
-        (tab) => tab !== id
-      ),
-    }));
-  };
-
   setStartingPoint = () => {
     const { connectSetRoomStartingPoint, populatedRoom } = this.props;
     connectSetRoomStartingPoint(populatedRoom._id);
@@ -664,31 +814,6 @@ class Workspace extends Component {
 
   setGraphCoords = (graphCoords) => {
     this.setState({ graphCoords });
-  };
-
-  setFirstTabLoaded = () => {
-    this.setState({ isFirstTabLoaded: true }, () => {
-      this.handleInstructionsModal();
-    });
-  };
-
-  setTabs = (tabs) => {
-    this.setState({ tabs });
-  };
-
-  updateTab = (updatedTabId, updateBody) => {
-    const { tabs } = this.state;
-
-    const copiedTabs = [...tabs];
-
-    copiedTabs.forEach((tab) => {
-      if (tab._id === updatedTabId) {
-        each(updateBody, (value, field) => {
-          tab[field] = value;
-        });
-      }
-    });
-    this.setTabs(copiedTabs);
   };
 
   resizeHandler = () => {
@@ -742,8 +867,9 @@ class Workspace extends Component {
   };
 
   handleInstructionsModal = () => {
-    const { currentTabId, tabs } = this.state;
-    const { populatedRoom, user } = this.props;
+    const { tabs } = this.state;
+    const { populatedRoom, user, controlState } = this.props;
+    const { currentTabId } = controlState;
 
     if (!user || !populatedRoom) {
       return;
@@ -805,21 +931,9 @@ class Workspace extends Component {
         this.updateTab(tab._id, updateBody);
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.log('error updating visitors: ', err);
       });
-  };
-
-  addTabIdToCopy = (event, id) => {
-    const { selectedTabIdsToCopy } = this.state;
-    if (selectedTabIdsToCopy.indexOf(id) === -1) {
-      this.setState({ selectedTabIdsToCopy: [...selectedTabIdsToCopy, id] });
-    } else {
-      this.setState({
-        selectedTabIdsToCopy: selectedTabIdsToCopy.filter(
-          (tabId) => tabId !== id
-        ),
-      });
-    }
   };
 
   beginCreatingActivity = () => {
@@ -857,9 +971,11 @@ class Workspace extends Component {
       results.log = newRoom.log;
     }
 
-    // if (oldRoom.controlledBy !== newRoom.controlledBy) {
-    //   results.controlledBy = newRoom.controlledBy;
-    // }
+    if (
+      Room.getRoomSetting(oldRoom, Room.ALIASED_USERNAMES) !==
+      Room.getRoomSetting(newRoom, Room.ALIASED_USERNAMES)
+    )
+      results.log = newRoom.log;
 
     if (
       JSON.stringify(oldRoom.currentMembers) !==
@@ -872,8 +988,9 @@ class Workspace extends Component {
   };
 
   emitEvent = (eventInfo) => {
-    const { currentTabId, currentScreen, myColor, log } = this.state;
-    const { populatedRoom, user, sendControlEvent } = this.props;
+    const { currentScreen, myColor, log } = this.state;
+    const { populatedRoom, user, sendControlEvent, controlState } = this.props;
+    const { currentTabId } = controlState;
     const eventData = {
       ...eventInfo,
       _id: mongoIdGenerator(),
@@ -898,9 +1015,7 @@ class Workspace extends Component {
       connectUpdatedRoom,
       save,
       temp,
-      tempMembers,
       connectUpdateRoomTab,
-      tempCurrentMembers,
       connectUpdateUserSettings,
       resetRoom,
       user,
@@ -908,13 +1023,11 @@ class Workspace extends Component {
     } = this.props;
     const {
       tabs: currentTabs,
-      currentMembers: activeMembers,
       log,
       membersExpanded,
       toolsExpanded,
       instructionsExpanded,
       activityOnOtherTabs,
-      currentTabId,
       role,
       myColor,
       referencing,
@@ -936,26 +1049,13 @@ class Workspace extends Component {
       isCreatingActivity,
       connectionStatus,
     } = this.state;
-    const inControl = controlState.inControl || controlStates.NONE;
+    const { currentTabId, getInControl } = controlState;
 
-    const currentMembers = (
-      <CurrentMembers
-        members={temp ? tempMembers : populatedRoom.members}
-        // currentMembers={temp ? tempCurrentMembers : activeMembers}
-        currentMembers={
-          temp
-            ? tempCurrentMembers
-            : populatedRoom.getCurrentMembers(activeMembers)
-        }
-        activeMember={controlState.controlledBy}
-        expanded={membersExpanded}
-        toggleExpansion={this.toggleExpansion}
-      />
-    );
+    const currentMembers = this.configureCurrentMembersComponent();
     const tabs = (
       <Tabs
         canCreate={
-          populatedRoom.settings.participantsCanCreateTabs ||
+          Room.getRoomSetting(populatedRoom, Room.CREATE_TABS) ||
           role === ROLE.FACILITATOR
         }
         tabs={currentTabs}
@@ -1008,7 +1108,7 @@ class Workspace extends Component {
         currentTabId={currentTabId}
         updateRoomTab={connectUpdateRoomTab}
         tab={tab}
-        inControl={inControl}
+        inControl={getInControl(tab._id)}
         toggleControl={this.toggleControl}
         updatedRoom={connectUpdatedRoom}
         addNtfToTabs={this.addNtfToTabs}
@@ -1109,6 +1209,7 @@ class Workspace extends Component {
             sendEvent={this.emitNewTab}
             setTabs={this.setTabs}
             currentTabs={currentTabs}
+            currentTabId={currentTabId}
           />
         </Modal>
         <Modal
@@ -1156,7 +1257,7 @@ Workspace.propTypes = {
     log: PropTypes.arrayOf(PropTypes.shape({})),
     controlledBy: PropTypes.string,
     currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
-    settings: PropTypes.shape({ participantsCanCreateTabs: PropTypes.bool }),
+    settings: PropTypes.shape({}),
     getCurrentMembers: PropTypes.func.isRequired,
     adjustUser: PropTypes.func.isRequired,
   }).isRequired,
@@ -1181,9 +1282,11 @@ Workspace.propTypes = {
   resetRoom: PropTypes.func,
   controlState: PropTypes.shape({
     buttonConfig: PropTypes.shape({}),
-    inControl: PropTypes.string,
     controlledBy: PropTypes.string,
+    currentTabId: PropTypes.string,
     matches: PropTypes.func,
+    getControlledBy: PropTypes.func,
+    getInControl: PropTypes.func,
   }),
   sendControlEvent: PropTypes.func,
 };
@@ -1195,8 +1298,12 @@ Workspace.defaultProps = {
   save: null,
   temp: false,
   resetRoom: () => {},
-  controlState: { buttonConfig: null, inControl: null, controlledBy: null },
-  sendControlEvent: null,
+  controlState: {
+    buttonConfig: null,
+    controlledBy: null,
+    currentTabId: null,
+  },
+  sendControlEvent: () => {},
 };
 const mapStateToProps = (state) => {
   return {

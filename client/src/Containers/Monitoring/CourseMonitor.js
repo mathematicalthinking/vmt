@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _pick from 'lodash/pick';
 import { usePopulatedRooms } from 'utils';
-import { Loading } from 'Components';
 import RoomsMonitor from './RoomsMonitor';
 
 /**
@@ -14,44 +14,57 @@ import RoomsMonitor from './RoomsMonitor';
 function CourseMonitor({ course }) {
   const orderedRoomIds = React.useRef();
 
-  // Because "useQuery" is the equivalent of useState, do this
-  // initialization of queryStates (an object containing the states
-  // for the API-retrieved data) at the top level rather than inside
-  // of a useEffect.
-  const roomIds = course.rooms
-    .sort(
-      (a, b) =>
-        // Sort the rooms into reverse chronological order (most recently changed first) as of when the course was loaded
-        new Date(b.updatedAt) - new Date(a.updatedAt)
-    )
-    .map((room) => room._id);
-  const populatedRooms = usePopulatedRooms(
-    orderedRoomIds.current || roomIds,
-    false,
-    {
-      refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
-    }
-  );
-
-  React.useEffect(() => {
-    if (populatedRooms.isSuccess && !orderedRoomIds.current)
-      orderedRoomIds.current = Object.values(populatedRooms.data)
+  const roomIds = React.useMemo(
+    () =>
+      course.rooms
         .sort(
           (a, b) =>
             // Sort the rooms into reverse chronological order (most recently changed first) as of when the course was loaded
             new Date(b.updatedAt) - new Date(a.updatedAt)
         )
-        .map((room) => room._id);
-  }, [populatedRooms.isSuccess]);
-  if (populatedRooms.isError) return <div>There was an error</div>;
+        .map((room) => room._id),
+    [course.rooms]
+  );
 
-  return populatedRooms.isSuccess ? (
+  // initially, do a fetch on all rooms
+  const [visibleIds, setVisibleIds] = React.useState(roomIds);
+  const populatedRooms = usePopulatedRooms(visibleIds, false, {
+    initialCache: _pick(
+      course.rooms.map((room) =>
+        _pick(room, [
+          '_id',
+          'name',
+          'createdAt',
+          'updateAt',
+          'currentMembers',
+          'members',
+        ])
+      ),
+      roomIds
+    ),
+    refetchInterval: 10000,
+  });
+
+  // Once data come in for the first time, sort the rooms by updatedAt according to the DB.
+  React.useEffect(() => {
+    if (populatedRooms.data && !orderedRoomIds.current)
+      orderedRoomIds.current = Object.values(populatedRooms.data)
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+        .map((room) => room._id);
+  }, [populatedRooms.isFetched]);
+
+  return !populatedRooms.isError ? (
     <RoomsMonitor
       context={`course-${course._id}`}
-      populatedRooms={populatedRooms.data}
+      populatedRooms={_pick(
+        populatedRooms.data,
+        orderedRoomIds.current || roomIds
+      )}
+      onVisible={setVisibleIds}
+      isLoading={populatedRooms.isFetching ? visibleIds : []}
     />
   ) : (
-    <Loading message="Getting the course rooms" />
+    <div>There was an error</div>
   );
 }
 

@@ -1,6 +1,8 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
+import { Room } from 'Model';
+import { RoomSettingsDropdown } from 'Components';
 import classes from './selectAssignment.css';
 
 const SelectAssignments = ({
@@ -19,6 +21,30 @@ const SelectAssignments = ({
   const [selectedAssignment, setSelectedAssignment] = React.useState(
     defaultOption
   );
+  const [roomSettings, setRoomSettings] = React.useState({});
+  const initialMember = useMemo(() => {
+    return [member];
+  }, [member]);
+
+  useEffect(() => {
+    // if selectedAssignment has settings and settings is not an empty object
+    // then set roomSettings to selectedAssignment.settings
+    // otherwise, set roomSettings to Room.defaultRoomSettings
+    if (
+      selectedAssignment &&
+      selectedAssignment.settings &&
+      Object.keys(selectedAssignment.settings).length
+    ) {
+      setRoomSettings({ ...selectedAssignment.settings });
+    } else {
+      setRoomSettings(
+        Room.getDefaultRoomSettings(
+          // decide whether to include GGB setting based on room type
+          activity.roomType === Room.ROOM_TYPES.GEOGEBRA
+        )
+      );
+    }
+  }, [selectedAssignment]);
 
   const close = () => {
     setShowAssignments(false);
@@ -28,6 +54,14 @@ const SelectAssignments = ({
   const handleSelection = (selectedOption) => {
     setShowAssignments(true);
     setSelectedAssignment(selectedOption);
+  };
+
+  const handleRoomSettingsChange = (option) => {
+    setRoomSettings((prevRoomSettings) => {
+      const newRoomSettings = { ...prevRoomSettings };
+      newRoomSettings[option.setting] = option.value;
+      return newRoomSettings;
+    });
   };
 
   const previousAssignments = () => {
@@ -40,7 +74,7 @@ const SelectAssignments = ({
   const options = () => {
     const assignments = previousAssignments().map((assignment) => ({
       _id: assignment._id,
-      aliasMode: assignment.aliasMode,
+      settings: assignment.settings,
       dueDate: assignment.dueDate,
       label: `${assignment.name}: ${new Date(
         assignment.timestamp
@@ -82,8 +116,15 @@ const SelectAssignments = ({
           course={course}
           userId={userId}
           close={close}
-          participants={course ? course.members : [member]}
+          participants={course ? course.members : initialMember}
           selectedAssignment={selectedAssignment}
+          roomSettings={roomSettings}
+          roomSettingsComponent={
+            <RoomSettingsDropdown
+              onChange={handleRoomSettingsChange}
+              initialSettings={roomSettings}
+            />
+          }
         />
       )}
     </Fragment>
@@ -94,6 +135,7 @@ SelectAssignments.propTypes = {
   activity: PropTypes.shape({
     groupings: PropTypes.arrayOf(PropTypes.shape({})),
     _id: PropTypes.string,
+    roomType: PropTypes.string,
   }).isRequired,
   userId: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,

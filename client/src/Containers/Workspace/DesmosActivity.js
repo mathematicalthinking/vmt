@@ -81,6 +81,9 @@ const DesmosActivity = (props) => {
     //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
     // let eventDetails = JSON.stringify(updates);
     // return `${username}: ${eventDetails}`;
+    if (updates.type === 'set-active-screen-id') {
+      return `${username} switched to screen ${getCurrentScreen()}`;
+    }
     return `${username} interacted with the Activity`;
   };
 
@@ -140,10 +143,10 @@ const DesmosActivity = (props) => {
 
     socket.on('RECEIVE_EVENT', (data) => {
       // console.log('Socket: Received data: ', data);
-      addToLog(data);
       const { room } = props;
       receivingData = true;
       if (data.tab === tab._id) {
+        addToLog(data);
         const updatedTabs = room.tabs.map((t) => {
           if (t._id === data.tab) {
             t.currentState = data.currentState;

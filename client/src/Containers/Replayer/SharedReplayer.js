@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Button, TabTypes, CurrentMembers, Error, Loading } from 'Components';
+import { Button, CurrentMembers, Error, Loading } from 'Components';
+import { TabTypes } from 'Model';
 import { WorkspaceLayout } from 'Layout';
 import { dateAndTime } from 'utils';
 import ReplayerControls from './ReplayerControls';
@@ -558,7 +559,13 @@ class SharedReplayer extends Component {
           graphs={graphs}
           // user={user}
           chat={this.updatedLog.length > 0 ? chat : null}
-          tabs={<Tabs tabs={populatedRoom.tabs} currentTabId={currentTabId} />}
+          tabs={
+            <Tabs
+              tabs={populatedRoom.tabs}
+              currentTabId={currentTabId}
+              onChangeTab={this.changeTab}
+            />
+          }
           currentMembers={
             currentMembers.length > 0 ? (
               <CurrentMembers
@@ -566,6 +573,7 @@ class SharedReplayer extends Component {
                 currentMembers={currentMembers}
                 expanded
                 activeMember={activeMember}
+                inControl={activeMember}
               />
             ) : null
           }

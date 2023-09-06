@@ -13,14 +13,13 @@ import {
   DesmosReplayer,
   WSPReplayer,
 } from 'Containers/Replayer';
+import { RadioBtn, Button } from 'Components';
 import ggbIcon from 'assets/geogebra.png';
 import dsmIcon from 'assets/desmos.png';
 import dsmActIcon from 'assets/desmosActivity.png';
 import pyretIcon from 'assets/pyretlogo.png';
 import wspIcon from 'assets/gsp.png';
 import bothIcon from 'assets/desmosandgeogebra.png';
-import RadioBtn from './Form/RadioBtn/RadioBtn';
-import Button from './UI/Button/Button';
 
 const TAB_TYPES = {
   GEOGEBRA: 'geogebra',
@@ -176,6 +175,7 @@ function MathspaceComponent(property, { type, ...otherProps }) {
     const { [property]: MathSpaceComp } = tabTypeProperties[type];
     return <MathSpaceComp {...otherProps} />;
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
     return null;
   }

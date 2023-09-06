@@ -562,6 +562,7 @@ class Chat extends Component {
                     });
                   }}
                   disabled={user.inAdminMode}
+                  maxLength={250}
                 />
                 {!user.inAdminMode ? (
                   <div className={classes.ChatOptions}>

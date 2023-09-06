@@ -9,6 +9,7 @@ const Activity = new mongoose.Schema(
   {
     name: { type: String, required: true },
     description: { type: String },
+    tags: { type: [{ gradeLevel: { type: Number } }], _id: false },
     course: { type: ObjectId, ref: 'Course' },
     courses: {
       type: [{ type: ObjectId, ref: 'Course' }],
@@ -43,6 +44,7 @@ const Activity = new mongoose.Schema(
           activityName: { type: String },
           timestamp: { type: Number },
           rooms: [{ type: ObjectId, ref: 'Room' }],
+          settings: { type: Object },
         },
       ],
       default: [],

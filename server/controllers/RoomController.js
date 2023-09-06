@@ -27,7 +27,10 @@ module.exports = {
         .sort('-createdAt')
         .populate({ path: 'members.user', select: 'username' })
         .populate({ path: 'currentMembers', select: 'username' })
-        .populate({ path: 'tabs', select: 'name tabType desmosLink' })
+        .populate({
+          path: 'tabs',
+          select: 'name tabType desmosLink controlledBy',
+        })
         .then((rooms) => {
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
@@ -53,9 +56,12 @@ module.exports = {
         //   populate: { path: params.events ? 'events' : '' },
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
-        .populate({ path: 'tabs', select: 'tabType name desmosLink' })
+        .populate({
+          path: 'tabs',
+          select: 'tabType name desmosLink controlledBy',
+        })
         .select(
-          'name creator activity members course graphImage privacySetting _id'
+          'name creator activity members course graphImage privacySetting _id settings'
         )
         .then((room) => {
           resolve(room);
@@ -68,44 +74,64 @@ module.exports = {
     let queryFcn;
     if (Array.isArray(id)) {
       const queryTimes = params.lastQueryTimes || {};
-      queryFcn = () =>
-        db.Room.find({
-          $or: id.map((oneId) => ({
-            _id: oneId,
-            updatedAt: { $gt: new Date(queryTimes[oneId] || 0) },
-          })),
-        });
+      // handle no ids case separately because $or doesn't accept an empty array
+      queryFcn =
+        id.length === 0
+          ? () => db.Room.find({ _id: { $in: [] } })
+          : () =>
+              db.Room.find({
+                $or: id.map((oneId) => ({
+                  $or: [
+                    {
+                      _id: oneId,
+                      dbUpdatedAt: {
+                        $exists: false,
+                      },
+                    },
+                    {
+                      _id: oneId,
+                      dbUpdatedAt: {
+                        $exists: true,
+                        $gt: new Date(queryTimes[oneId] || 0),
+                      },
+                    },
+                  ],
+                })),
+              });
     } else {
       queryFcn = () => db.Room.findById(id);
     }
-    return queryFcn()
-      .populate({ path: 'creator', select: 'username' })
-      .populate({
-        path: 'chat',
-        // options: { limit: 25 }, // Eventually we'll need to paginate this
-        populate: { path: 'user', select: 'username' },
-        // allow messages to have roomIds, like events do
-        // select: '-room',
-      })
-      .populate({ path: 'members.user', select: 'username' })
-      .populate({ path: 'currentMembers', select: 'username' })
-      .populate({ path: 'course', select: 'name' })
-      .populate({ path: 'activity', select: 'name' })
-      .populate(
-        params.events === 'true'
-          ? {
-              path: 'tabs',
-              populate: {
-                path: 'events',
-                populate: { path: 'user', select: 'username color' },
-              },
-            }
-          : {
-              path: 'tabs',
-              select: 'name tabType snapshot desmosLink',
-            }
-      )
-      .lean();
+    return (
+      queryFcn()
+        .populate({ path: 'creator', select: 'username' })
+        .populate({
+          path: 'chat',
+          // options: { limit: 25 }, // Eventually we'll need to paginate this
+          populate: { path: 'user', select: 'username' },
+          // allow messages to have roomIds, like events do
+          // select: '-room',
+        })
+        .populate({ path: 'members.user', select: 'username' })
+        // .populate({ path: 'currentMembers', select: 'username' })
+        // .populate({ path: 'currentMembers' })
+        .populate({ path: 'course', select: 'name' })
+        .populate({ path: 'activity', select: 'name' })
+        .populate(
+          params.events === 'true' || params.events === true
+            ? {
+                path: 'tabs',
+                populate: {
+                  path: 'events',
+                  populate: { path: 'user', select: 'username color' },
+                },
+              }
+            : {
+                path: 'tabs',
+                select: 'name tabType snapshot desmosLink controlledBy',
+              }
+        )
+        .lean()
+    );
     // options: { limit: 25 },
   },
 
@@ -363,7 +389,7 @@ module.exports = {
         room.populate(
           {
             path: 'members.user tabs',
-            select: 'username tabType desmosLink name events',
+            select: 'username tabType desmosLink name events controlledBy',
           },
           (err, populatedRoom) => {
             if (err) reject(err);
@@ -619,16 +645,19 @@ module.exports = {
 
   // SOCKET METHODS
 
-  setCurrentUsers: (roomId, newCurrentUserIds) => {
+  setCurrentMembers: (roomId, currentUsers) => {
     return new Promise(async (resolve, reject) => {
-      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
-      const query = { $set: { currentMembers: newCurrentUserIds } };
-      db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
-        // .populate({ path: 'members.user', select: 'username' })
-        .select('currentMembers members controlledBy')
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
+      const query = { $set: { currentMembers: currentUsers } };
+
+      db.Room.findByIdAndUpdate(roomId, query, {
+        new: true,
+        timestamps: false,
+      })
+        .select('currentMembers members controlledBy settings')
         .then((room) => {
           room.populate(
-            { path: 'currentMembers members.user', select: 'username' },
+            { path: 'members.user', select: 'username' },
             (err, poppedRoom) => {
               if (err) {
                 reject(err);
@@ -641,18 +670,34 @@ module.exports = {
     });
   },
 
-  addCurrentUsers: (roomId, newCurrentUserId, members) => {
+  // when a currentMember switches tabs, update the currentMembers array
+  updateCurrentMemberTab: async (roomId, userId, newTabId) => {
+    const room = await db.Room.findById(roomId);
+    const currentMember = room.currentMembers.find(
+      (member) => String(member._id) === String(userId)
+    );
+    if (!currentMember) {
+      console.log(
+        'no current member found, returning previous currentMembers from db'
+      );
+      return room.currentMembers;
+    }
+    currentMember.tab = newTabId;
+
+    await room.save();
+    return room.currentMembers;
+  },
+
+  addCurrentMember: (roomId, newCurrentMember) => {
     return new Promise(async (resolve, reject) => {
-      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
-      const query = members
-        ? { $addToSet: { currentMembers: newCurrentUserId, members } }
-        : { $addToSet: { currentMembers: newCurrentUserId } };
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
+      const query = { $addToSet: { currentMembers: newCurrentMember } };
       db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members')
         .then((room) => {
           room.populate(
-            { path: 'currentMembers members.user', select: 'username' },
+            { path: 'members.user', select: 'username' },
             (err, poppedRoom) => {
               if (err) {
                 reject(err);
@@ -665,11 +710,11 @@ module.exports = {
     });
   },
 
-  removeCurrentUsers: (roomId, userId) => {
+  removeCurrentMember: (roomId, userId) => {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(
         roomId,
-        { $pull: { currentMembers: userId } },
+        { $pull: { currentMembers: { _id: userId } } },
         { timestamps: false }
       ) // dont return new! we need the original list to filter back in sockets.js
         .populate({ path: 'currentMembers', select: 'username' })
@@ -680,6 +725,7 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
+
   getRecentActivity: async (criteria, skip, filters) => {
     let { since, to } = filters;
     const allowedSincePresets = ['day', 'week', 'month', 'year'];
@@ -975,6 +1021,14 @@ module.exports = {
     });
 
     return updatedRooms;
+  },
+
+  // add a member to the course
+  addMember: (roomId, member) => {
+    return db.Room.findOneAndUpdate(
+      { _id: roomId },
+      { $addToSet: { members: member } }
+    );
   },
 };
 

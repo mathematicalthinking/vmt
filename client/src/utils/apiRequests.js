@@ -207,4 +207,22 @@ export default {
   archiveRooms: (ids) => {
     return api.put(`/api/archiveRooms`, { ids });
   },
+
+  getAllCourseRooms: (id) => {
+    return api.get(`/api/getAllRooms/courses/${id}`);
+  },
+
+  addMemberToArchivedRooms: (member, archivedRoomIds) => {
+    return api.put(`/api/addMemberToArchivedRooms`, {
+      member,
+      archivedRoomIds,
+    });
+  },
+
+  getFieldsUnpopulated: async (resource, params) => {
+    const results = await api.get(`/api/${resource}/getFieldsUnpopulated`, {
+      params,
+    });
+    return results.data.result;
+  },
 };

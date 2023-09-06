@@ -37,6 +37,50 @@ module.exports = {
     });
   },
 
+  // @PARAMS: fields (array of strings to be selected), skip (number), limit (number)
+  // @RETURN: object with activities and totalResults
+  // @DESC: return all activities with only the fields specified
+  // don't populate any fields
+  // don't return any trashed activities
+  // return an object with activities and totalResults
+
+  getFieldsUnpopulated: async (fields, skip = 0, limit = 100) => {
+    const totalResults = await db.Activity.countDocuments({ isTrashed: false });
+    const activities = await db.Activity.find({ isTrashed: false })
+      .select(fields.join(' '))
+      .populate(
+        fields.includes('tabs')
+          ? {
+              path: 'tabs',
+              select: '_id name tabType updatedAt',
+            }
+          : ''
+      )
+      .sort({ updatedAt: -1 });
+    // refactor to use skip and limit
+    // .skip(Number(skip))
+    // .limit(Number(limit));
+    if (!activities) {
+      // eslint-disable-next-line no-console
+      console.log(`Error in ActivityController.getFieldsUnpopulatedPaginated`);
+      return new Error(
+        'Error in ActivityController.getFieldsUnpopulatedPaginated'
+      );
+    }
+    const currentPage = Math.floor(skip / limit) + 1;
+    const totalPages = Math.ceil(totalResults / limit);
+    const hasNextPage = currentPage < totalPages;
+    const hasPreviousPage = currentPage > 1;
+    return {
+      activities,
+      totalResults,
+      currentPage,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage,
+    };
+  },
+
   searchPaginated: async (criteria, skip, filters) => {
     const initialFilter = { isTrashed: false };
     const allowedPrivacySettings = ['private', 'public'];
@@ -138,7 +182,9 @@ module.exports = {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
-    const activities = await db.Activity.aggregate(aggregationPipeline);
+    const activities = await db.Activity.aggregate(
+      aggregationPipeline
+    ).allowDiskUse(true);
     return activities;
   },
 

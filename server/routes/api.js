@@ -21,6 +21,23 @@ const status = require('../constants/status');
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
 
+router.get(
+  '/:resource/getFieldsUnpopulated',
+  middleware.validateUser,
+  (req, res) => {
+    const resource = getResource(req);
+    const controller = controllers[resource];
+    const { fields, skip, limit } = req.query;
+    controller
+      .getFieldsUnpopulated(fields, skip, limit)
+      .then((result) => res.json({ result }))
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(`Error get ${resource}/getFieldsUnpopulated: ${err}`);
+      });
+  }
+);
+
 router.get('/:resource', middleware.validateUser, (req, res) => {
   const resource = getResource(req);
   const controller = controllers[resource];
@@ -237,6 +254,31 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
       return errors.sendError.InternalError(msg, res);
     });
 });
+
+router.get(
+  '/getAllRooms/:resource/:id',
+  middleware.validateUser,
+  (req, res) => {
+    const id = getParamsId(req);
+    const resource = getResource(req);
+    let field = '';
+    if (resource === 'courses') field = 'course';
+    else if (resource === 'activities') field = 'activity';
+    try {
+      return controllers.rooms
+        .get({
+          status: { $ne: status.TRASHED },
+          isTrashed: false,
+          [field]: id,
+        })
+        .then((result) => res.status(200).json({ result }));
+    } catch (err) {
+      console.error(`Error getting ${resource} rooms/${id}: ${err}`);
+
+      return errors.sendError.InternalError(err, res);
+    }
+  }
+);
 
 // returns a record with all of its info populated including sensitive information about record members etc.
 router.get(
@@ -536,6 +578,7 @@ router.put('/archiveRooms', (req, res) => {
 
   const updatedReq = setResource(req, 'rooms');
 
+  // @TODO: Send all ids to mongo on archive / unarchive
   return Promise.all(
     ids.map((id) => {
       const newReq = setParamsId(updatedReq, id);
@@ -559,6 +602,35 @@ router.put('/archiveRooms', (req, res) => {
       });
     })
   ).then(() => res.sendStatus(200));
+});
+
+router.put('/addMemberToArchivedRooms', (req, res) => {
+  const { member, archivedRoomIds } = req.body;
+  const roomController = controllers.rooms;
+  const userController = controllers.user;
+  // add archivedRooms to user's archive
+  // add the user to all archived rooms
+  const promises = archivedRoomIds.map((roomId) =>
+    roomController.addMember(roomId, member)
+  );
+  promises.push(
+    userController.addArchivedRooms(member.user._id, archivedRoomIds)
+  );
+
+  return Promise.all(promises)
+    .then(() => res.sendStatus(200))
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(`Error adding member to archived rooms: ${err}`);
+
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+
+      return errors.sendError.InternalError(msg, res);
+    });
 });
 
 // router.delete("/:resource/:id", middleware.validateUser, (req, res, next) => {

@@ -40,6 +40,7 @@ const initialState = {
   organization: '',
   school: '',
   district: '',
+  gradeLevel: null,
 };
 
 class NewResourceContainer extends Component {
@@ -132,6 +133,7 @@ class NewResourceContainer extends Component {
       organization,
       school,
       district,
+      gradeLevel,
     } = this.state;
     const {
       resource,
@@ -160,8 +162,11 @@ class NewResourceContainer extends Component {
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
     }
-    if (roomType === 'geogebra') {
-      this.setState({ ggb: true });
+    if (gradeLevel) {
+      // newResource.gradeLevel = gradeLevel.value;
+      // add gradeLevel to tags array
+      const tags = [{ gradeLevel: gradeLevel.value }];
+      newResource.tags = tags;
     }
     return this.uploadGgbFiles().then((results) => {
       console.log('Upload files: ', results);
@@ -279,9 +284,21 @@ class NewResourceContainer extends Component {
     });
   };
 
+  gradeHandler = (selectedOption) => {
+    this.setState({ gradeLevel: selectedOption });
+  };
+
+  gradeOptionsGenerator = () => {
+    return [
+      { label: '6', value: 6 },
+      { label: '7', value: 7 },
+      { label: '8', value: 8 },
+    ];
+  };
+
   render() {
     // Intro = true if and only if we've navigated from the "Become a Facilitator" page
-    const { resource } = this.props;
+    const { resource, userId } = this.props;
     const {
       name,
       description,
@@ -297,6 +314,7 @@ class NewResourceContainer extends Component {
       organization,
       school,
       district,
+      gradeLevel,
     } = this.state;
     let displayResource;
     if (resource === 'activities') {
@@ -316,6 +334,13 @@ class NewResourceContainer extends Component {
         school={school}
         resource={resource}
         changeHandler={this.changeHandler}
+        gradeSelectHandler={
+          resource === 'activities' ? this.gradeHandler : null
+        }
+        gradeSelectOptions={
+          resource === 'activities' ? this.gradeOptionsGenerator() : null
+        }
+        gradeSelectValue={resource === 'activities' ? gradeLevel : null}
       />,
       copying ? (
         <Step2Copy
@@ -323,6 +348,7 @@ class NewResourceContainer extends Component {
           displayResource={displayResource}
           addActivity={this.addActivity}
           selectedActivities={activities}
+          userId={userId}
         />
       ) : (
         <Step2New
@@ -440,7 +466,13 @@ class NewResourceContainer extends Component {
     return (
       <Aux>
         {creating ? (
-          <Modal height={470} show={creating} closeModal={this.closeModal}>
+          <Modal
+            height={600}
+            width={650}
+            show={creating}
+            closeModal={this.closeModal}
+            isLoading
+          >
             {step > 0 ? (
               <i
                 onClick={this.prevStep}
@@ -459,7 +491,7 @@ class NewResourceContainer extends Component {
                 style={
                   (step === 1 && copying) ||
                   (step === 0 && resource === 'courses')
-                    ? { overflow: 'scroll' }
+                    ? { overflow: 'auto' }
                     : {}
                 }
               >

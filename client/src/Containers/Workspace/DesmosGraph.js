@@ -446,10 +446,10 @@ class DesmosGraph extends Component {
       this.receivingData = false;
     });
     socket.on('RECEIVE_EVENT', (data) => {
-      addToLog(data);
       const { room } = this.props;
       this.receivingData = true;
       if (data.tab === tab._id) {
+        addToLog(data);
         const updatedTabs = room.tabs.map((t) => {
           if (t._id === data.tab) {
             t.currentState = data.currentState;

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Checkbox, ToolTip, TabTypes } from 'Components';
+import { Checkbox, ToolTip } from 'Components';
+import { TabTypes } from 'Model';
 import Notification from 'Components/Notification/Notification';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import Icons from './Icons/Icons';
@@ -16,16 +17,16 @@ const SelectableContentBox = (props) => {
     roomType,
     listType,
     title,
-    locked,
     details,
     isChecked,
     onSelect,
     customIcons,
-    resource,
+    customStyle,
+    isExpanded,
   } = props;
 
   const history = useHistory();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(isExpanded);
   const [typeKeyword, setTypeKeyword] = useState('Tab Type');
   const [tabTypesText, setTabTypesText] = useState('');
 
@@ -35,6 +36,10 @@ const SelectableContentBox = (props) => {
     setTypeKeyword(tempTypeKeyword);
     setTabTypesText(tabTypes);
   }, []);
+
+  useEffect(() => {
+    setExpanded(isExpanded);
+  }, [isExpanded]);
 
   const notificationElements =
     notifications > 0 ? (
@@ -54,7 +59,11 @@ const SelectableContentBox = (props) => {
       <div
         to={link}
         className={classes.Container}
-        style={{ height: expanded ? 150 : 50, cursor: 'default' }}
+        style={{
+          height: expanded ? 150 : 50,
+          cursor: 'default',
+          ...customStyle,
+        }}
         data-testid={`SelectableContentBox-container-${title}`}
       >
         <div
@@ -106,7 +115,7 @@ const SelectableContentBox = (props) => {
                     style={{ margin: '0 .5rem', cursor: 'pointer' }}
                     data-testid={`${icon.title}-button-${id}`}
                   >
-                    {icon.icon}
+                    {icon.generateIcon ? icon.generateIcon(id) : icon.icon}
                   </div>
                 ))}
             </div>
@@ -140,6 +149,19 @@ const SelectableContentBox = (props) => {
                     ))}
                   </div>
                 ) : null}
+                {details.participants && details.participants.length > 0 ? (
+                  <div className={classes.Facilitators}>
+                    <span className={classes.DetailsTitle}>Participants: </span>
+                    {details.participants.map((participant) => (
+                      <span
+                        key={`${participant}-${id}`}
+                        className={classes.FacilitatorsList}
+                      >
+                        {participant}{' '}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
                 {details.sinceUpdated ? (
                   <div className={classes.ExpandedItemContainer}>
                     <span className={classes.DetailsTitle}>Updated: </span>
@@ -159,12 +181,6 @@ const SelectableContentBox = (props) => {
                   </div>
                 ) : null}
                 {details.creator ? `Creator: ${details.creator}` : null}
-                {details.entryCode ? (
-                  <div className={classes.ExpandedItemContainer}>
-                    <span className={classes.DetailsTitle}>Entry Code: </span>
-                    {details.entryCode}
-                  </div>
-                ) : null}
                 {details.description ? (
                   <div className={classes.ExpandedItemContainer}>
                     <span className={classes.DetailsTitle}>Description: </span>
@@ -172,11 +188,21 @@ const SelectableContentBox = (props) => {
                   </div>
                 ) : null}
                 {tabTypesText && tabTypesText.length ? (
-                  <div className={classes.TabTypes}>
+                  <div
+                    className={`${classes.TabTypes} ${classes.ExpandedItemContainer}`}
+                  >
                     <span className={classes.DetailsTitle}>
                       {typeKeyword}:{' '}
                     </span>
                     {tabTypesText}
+                  </div>
+                ) : null}
+                {details.entryCode ? (
+                  <div className={classes.ExpandedItemContainer}>
+                    <span className={classes.DetailsTitle}>Entry Code: </span>
+                    <span className={classes.EntryCode}>
+                      {details.entryCode}
+                    </span>
                   </div>
                 ) : null}
               </div>
@@ -195,9 +221,9 @@ SelectableContentBox.propTypes = {
   roomType: PropTypes.arrayOf(PropTypes.string),
   listType: PropTypes.string,
   title: PropTypes.string.isRequired,
-  locked: PropTypes.bool.isRequired,
   details: PropTypes.shape({
     facilitators: PropTypes.arrayOf(PropTypes.string),
+    participants: PropTypes.arrayOf(PropTypes.string),
     sinceUpdated: PropTypes.string,
     createdAt: PropTypes.string,
     dueDate: PropTypes.string,
@@ -207,8 +233,16 @@ SelectableContentBox.propTypes = {
   }).isRequired,
   isChecked: PropTypes.bool,
   onSelect: PropTypes.func.isRequired,
-  customIcons: PropTypes.arrayOf(PropTypes.shape({})),
-  resource: PropTypes.string,
+  customIcons: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string,
+      onClick: PropTypes.func,
+      icon: PropTypes.node,
+      generateIcon: PropTypes.func,
+    })
+  ),
+  customStyle: PropTypes.shape({}),
+  isExpanded: PropTypes.bool,
 };
 
 SelectableContentBox.defaultProps = {
@@ -218,7 +252,8 @@ SelectableContentBox.defaultProps = {
   listType: null,
   isChecked: false,
   customIcons: [],
-  resource: null,
+  customStyle: null,
+  isExpanded: false,
 };
 
 export default SelectableContentBox;

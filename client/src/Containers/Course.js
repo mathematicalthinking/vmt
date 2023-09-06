@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import find from 'lodash/find';
 import { API, getUserNotifications } from 'utils';
+import { CourseRooms } from 'Layout';
 import CourseMonitor from './Monitoring/CourseMonitor';
 import { populateResource } from '../store/reducers';
 import Members from './Members/Members';
@@ -17,6 +18,9 @@ import {
   updateUser,
   inviteToActivity,
   removeFromActivity,
+  updateCourseMembers,
+  updateRoomMembers,
+  inviteToRoom,
 } from '../store/actions';
 import {
   DashboardLayout,
@@ -337,7 +341,20 @@ class Course extends Component {
       course,
       connectInviteToActivity,
       connectRemoveFromActivity,
+      connectUpdateCourseMembers,
+      connectUpdateRoomMembers,
+      connectInviteToRoom,
     } = this.props;
+
+    const courseRoomsMembers = course.rooms.reduce(
+      (_acc, room) => ({
+        [room._id]: room.members,
+      }),
+      {}
+    );
+
+    const classList = this.sortParticipants(course.members);
+
     const takeAction =
       updatedMember.role === 'facilitator'
         ? connectInviteToActivity
@@ -346,6 +363,86 @@ class Course extends Component {
       (activity) =>
         updatedMember.user && takeAction(activity._id, updatedMember.user._id)
     );
+
+    // create a new classList containing the updatedMember (with a new role). Because we are
+    // sending this to the db, reduce the user field down to just the _id
+    const updatedClassList = classList.map((member) => {
+      return member.user._id === updatedMember.user._id
+        ? { ...updatedMember, user: updatedMember.user._id }
+        : { ...member, user: member.user._id };
+    });
+
+    // If we are inside of a course, we have to update the course members' roles
+    // If we are upgrading a member into a course facilitator, we must:
+    // - check whether that course member is a member of each room in the course. For each room that they are a member of, change their role.
+    //   For each room that they aren't a member of, invite them to that room (which adds them to the room list and adds the room to
+    //   the user's list of rooms).
+    // - invite that member to each template/activity in the course (which should add them to the activity user list and add
+    //   the activity to the user's list of activities)
+    // If we are downgrading a member into a course participant, we must:
+    // - change that member to be a participant of each room in the course that they are a member of
+    // - disinvite the user from all course template/activities:
+    //   remove that member from the list of users who can access each template/activity and remove all course
+    //   templates/activities from the user's list of templates/activities.
+
+    connectUpdateCourseMembers(course._id, updatedClassList);
+
+    if (courseRoomsMembers && updatedMember.role === 'facilitator') {
+      // if the course has archived rooms
+      // 1. add the user as a member to each archived room
+      // 2. add each archived room to the member's user.archive.room
+      if (
+        course.archive &&
+        course.archive.rooms &&
+        course.archive.rooms.length
+      ) {
+        API.addMemberToArchivedRooms(updatedMember, course.archive.rooms);
+      }
+
+      Object.keys(courseRoomsMembers).forEach((roomId) => {
+        if (
+          courseRoomsMembers[roomId].find(
+            (member) => member.user._id === updatedMember.user._id
+          )
+        ) {
+          const updatedMemberList = courseRoomsMembers[roomId].map((member) => {
+            if (member.user._id === updatedMember.user._id)
+              member.role = 'facilitator';
+            return member;
+          });
+
+          connectUpdateRoomMembers(roomId, updatedMemberList);
+        } else
+          connectInviteToRoom(
+            roomId,
+            updatedMember.user._id,
+            updatedMember.user.username,
+            undefined, // color
+            updatedMember.role
+          );
+      });
+    } else if (courseRoomsMembers && updatedMember.role === 'participant') {
+      Object.keys(courseRoomsMembers).forEach((roomId) => {
+        const updatedMemberList = courseRoomsMembers[roomId].map((member) => {
+          if (member.user._id === updatedMember.user._id)
+            member.role = 'participant';
+          return member;
+        });
+
+        connectUpdateRoomMembers(roomId, updatedMemberList);
+      });
+
+      // change the role in the archived rooms
+      // remove access from archived rooms
+      if (
+        course.archive &&
+        course.archive.rooms &&
+        course.archive.rooms.length
+      ) {
+        // API.removeMemberFromArchivedRooms(updatedMember, course.archive.`rooms);
+      }
+    }
+    // if we are in the member list of a room, just update the room with the updated members array
   };
 
   statRooms = (course) => {
@@ -408,7 +505,12 @@ class Course extends Component {
       // }
 
       let mainContent;
-      if (resource === 'rooms' || resource === 'activities') {
+      if (
+        resource === 'rooms' &&
+        (course.myRole === 'facilitator' || user.inAdminMode)
+      ) {
+        mainContent = <CourseRooms userId={user._id} course={course} />;
+      } else if (resource === 'rooms' || resource === 'activities') {
         mainContent = (
           <DashboardContent
             // userResources={myRooms || course[resource] || []}
@@ -458,6 +560,7 @@ class Course extends Component {
         ).length,
         activities: course.activities.length,
         rooms: course.rooms.length,
+        // ['archived rooms']: course.archive.rooms.length,
         privacy: (
           <Error
             error={updateFail && updateKeys.indexOf('privacySetting') > -1}
@@ -693,6 +796,7 @@ Course.propTypes = {
     privacySetting: PropTypes.string,
     creator: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]),
     image: PropTypes.string,
+    archive: PropTypes.shape({ rooms: PropTypes.arrayOf(PropTypes.string) }),
   }),
   user: PropTypes.shape({
     rooms: PropTypes.arrayOf(
@@ -728,6 +832,9 @@ Course.propTypes = {
   connectUpdateUser: PropTypes.func.isRequired,
   connectInviteToActivity: PropTypes.func.isRequired,
   connectRemoveFromActivity: PropTypes.func.isRequired,
+  connectUpdateCourseMembers: PropTypes.func.isRequired,
+  connectUpdateRoomMembers: PropTypes.func.isRequired,
+  connectInviteToRoom: PropTypes.func.isRequired,
 };
 
 Course.defaultProps = {
@@ -785,5 +892,8 @@ export default connect(mapStateToProps, {
   connectGrantAccess: grantAccess,
   connectUpdateUser: updateUser,
   connectInviteToActivity: inviteToActivity,
+  connectInviteToRoom: inviteToRoom,
+  connectUpdateCourseMembers: updateCourseMembers,
+  connectUpdateRoomMembers: updateRoomMembers,
   connectRemoveFromActivity: removeFromActivity,
 })(Course);

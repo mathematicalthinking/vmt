@@ -44,25 +44,41 @@ const reducer = (state = initialState, action) => {
     // @TODO if we've created a new activity alert the user so we can redirect
     // to the activity --> do this by updating the sto
     case actionTypes.ADD_ACTIVITY_ROOMS: {
-      const updatedActivities = { ...state.byId };
-      updatedActivities[action.activityId].rooms = updatedActivities[
-        action.activityId
-      ].rooms.concat(action.roomIdsArr);
-      return {
-        ...state,
-        byId: updatedActivities,
-      };
+      // We will catch an error if an activity had been trashed
+      try {
+        const updatedActivities = { ...state.byId };
+        updatedActivities[action.activityId].rooms = updatedActivities[
+          action.activityId
+        ].rooms.concat(action.roomIdsArr);
+        return {
+          ...state,
+          byId: updatedActivities,
+        };
+      } catch (error) {
+        console.log('There was an error ADD_ACTIVITY_ROOMS', error);
+        return {
+          ...state,
+        };
+      }
     }
     case actionTypes.REMOVE_ACTIVITY_ROOM: {
-      const updatedById = { ...state.byId };
-      const updatedActivityRooms = updatedById[action.activityId].rooms.filter(
-        (id) => id !== action.roomId
-      );
-      updatedById[action.activityId].rooms = updatedActivityRooms;
-      return {
-        ...state,
-        byId: updatedById,
-      };
+      // We will catch an error if an activity had been trashed
+      try {
+        const updatedById = { ...state.byId };
+        const updatedActivityRooms = updatedById[
+          action.activityId
+        ].rooms.filter((id) => id !== action.roomId);
+        updatedById[action.activityId].rooms = updatedActivityRooms;
+        return {
+          ...state,
+          byId: updatedById,
+        };
+      } catch (error) {
+        console.log('There was an error REMOVE_ACTIVITY_ROOMS', error);
+        return {
+          ...state,
+        };
+      }
     }
     case actionTypes.ADD_ACTIVITY_USER: {
       const updatedActivities = { ...state.byId };
