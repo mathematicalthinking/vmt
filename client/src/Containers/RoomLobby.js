@@ -45,7 +45,7 @@ import {
 } from 'utils';
 import Members from './Members/Members';
 import Stats from './Stats/Stats';
-import ActivityChart from './Stats/ActivityChart';
+// import ActivityChart from './Stats/ActivityChart';
 // import withPopulatedRoom from './Data/withPopulatedRoom';
 import Access from './Access';
 import RoomPreview from './Monitoring/RoomPreview';
