@@ -96,8 +96,8 @@ class Community extends Component {
                 </RadioBtn>
               </div>
             </InfoBox>
-            {resource !== 'courses' ? (
-              <div className={classes.RoomTypeLoadMoreContainer}>
+            <div className={classes.RoomTypeLoadMoreContainer}>
+              {resource !== 'courses' ? (
                 <InfoBox
                   title="Room Type"
                   icon={<i className="fas fa-filter" />}
@@ -117,17 +117,17 @@ class Community extends Component {
                     />
                   </div>
                 </InfoBox>
-                <div className={classes.LoadMore}>
-                  <Button
-                    m={20}
-                    disabled={!moreAvailable || loading}
-                    click={setSkip}
-                  >
-                    load more results
-                  </Button>
-                </div>
+              ) : null}
+              <div className={classes.LoadMore}>
+                <Button
+                  m={20}
+                  disabled={!moreAvailable || loading}
+                  click={setSkip}
+                >
+                  load more results
+                </Button>
               </div>
-            ) : null}
+            </div>
           </div>
         </div>
         <div

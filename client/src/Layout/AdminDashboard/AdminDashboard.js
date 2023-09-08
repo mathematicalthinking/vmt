@@ -155,6 +155,11 @@ class AdminDashboard extends Component {
                 ) : null}
               </Fragment>
             </InfoBox>
+            <div className={classes.LoadMore}>
+              <Button m={20} disabled={!moreAvailable} click={setSkip}>
+                load more results
+              </Button>
+            </div>
           </div>
         </div>
         <div
@@ -175,11 +180,6 @@ class AdminDashboard extends Component {
             manageUser={manageUser}
             ownUserId={ownUserId}
           />
-          <div className={classes.LoadMore}>
-            <Button m={20} disabled={!moreAvailable} click={setSkip}>
-              load more results
-            </Button>
-          </div>
         </div>
       </div>
     );
