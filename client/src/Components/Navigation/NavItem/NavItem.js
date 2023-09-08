@@ -6,9 +6,14 @@ import classes from './navItem.css';
 import Checkbox from '../../Form/Checkbox/Checkbox';
 
 const NavItem = ({ name, link, ntf, sliderDetails }) => {
-  const style = window.location.href.includes(link)
-    ? classes.ActiveLink
-    : classes.Item;
+  // Community wasn't underlined because the link changed when clicking on templates or courses. the or below fixes that
+  // @TODO: fix this for all of the Info links
+  const style =
+    window.location.href.includes(link) ||
+    (typeof name === 'string' &&
+      window.location.href.includes(name.toLowerCase()))
+      ? classes.ActiveLink
+      : classes.Item;
 
   const dataName = typeof name === 'string' ? name : 'profile';
 
