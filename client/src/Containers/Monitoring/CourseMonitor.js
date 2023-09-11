@@ -42,7 +42,8 @@ function CourseMonitor({ course }) {
       ),
       roomIds
     ),
-    refetchInterval: 10000,
+    // refetchInterval: 10000, // every 10 seconds
+    refetchInterval: () => false, // don't refetch
   });
 
   // Once data come in for the first time, sort the rooms by updatedAt according to the DB.
