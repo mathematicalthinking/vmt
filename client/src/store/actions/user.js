@@ -229,6 +229,7 @@ export const getUser = (id) => {
         let activities;
 
         if (currentUser) {
+          console.log('currentUser', currentUser);
           if (currentUser.courses.length > 0) {
             const coursesWithRoles = currentUser.courses.map((course) =>
               addUserRoleToResource(course, currentUser._id)

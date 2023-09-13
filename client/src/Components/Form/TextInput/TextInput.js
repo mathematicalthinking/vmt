@@ -36,9 +36,11 @@ class TextInput extends Component {
       onKeyDown,
       value,
       size,
-      label,
+      leftLabel,
+      rightLabel,
       title,
       hover,
+      customStyles,
     } = this.props;
     const styles = light ? lightClasses : classes;
     let derivedAutoComplete = autoComplete || type;
@@ -66,12 +68,26 @@ class TextInput extends Component {
           resize: 'none',
           height: 'auto',
           minWidth: '8.125rem',
+          ...customStyles.textarea,
         }}
         // eslint-disable-next-line react/destructuring-assignment
         data-testid={this.props['data-testid'] || null}
       />
     ) : (
-      <div className={styles.Container} style={{ width }}>
+      <div
+        className={styles.Container}
+        style={{ width, ...customStyles.container }}
+      >
+        {leftLabel ? (
+          <label
+            className={styles.Label}
+            htmlFor={name}
+            title={title}
+            style={{ ...customStyles.leftLabel }}
+          >
+            {leftLabel}
+          </label>
+        ) : null}
         <input
           ref={this.textInput}
           autoComplete={derivedAutoComplete}
@@ -84,13 +100,13 @@ class TextInput extends Component {
           onKeyDown={onKeyDown}
           value={value}
           title={title}
-          style={{ fontSize: size }}
+          style={{ fontSize: size, ...customStyles.input }}
           // eslint-disable-next-line react/destructuring-assignment
           data-testid={this.props['data-testid'] || null}
         />
-        {label ? (
+        {rightLabel ? (
           <label className={styles.Label} htmlFor={name} title={title}>
-            {label}
+            {rightLabel}
           </label>
         ) : null}
       </div>
@@ -109,9 +125,11 @@ TextInput.propTypes = {
   onKeyDown: PropTypes.func,
   value: PropTypes.string,
   size: PropTypes.string,
-  label: PropTypes.string,
+  leftLabel: PropTypes.string,
+  rightLabel: PropTypes.string,
   title: PropTypes.string,
   hover: PropTypes.bool,
+  customStyles: PropTypes.shape({}),
 };
 
 TextInput.defaultProps = {
@@ -120,12 +138,18 @@ TextInput.defaultProps = {
   width: null,
   placeholder: null,
   onKeyDown: null,
-  label: null,
+  leftLabel: null,
+  rightLabel: null,
   size: null,
   light: false,
   value: undefined,
   title: undefined,
   hover: false,
+  customStyles: {
+    textarea: {},
+    container: {},
+    input: {},
+  },
 };
 
 export default TextInput;

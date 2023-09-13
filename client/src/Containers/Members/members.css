@@ -118,3 +118,8 @@
   flex: 0 0 auto;
   transition: 0.2s;
 }
+
+.EditUsernames {
+  margin: 0 10px;
+  display: flex;
+}

@@ -4,7 +4,7 @@ import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
-import { Member, Search, Modal, Button, InfoBox } from 'Components';
+import { Member, Search, Modal, Button, InfoBox, Checkbox } from 'Components';
 import Slider from 'Components/UI/Button/Slider';
 import COLOR_MAP from 'utils/colorMap';
 import API from 'utils/apiRequests';
@@ -17,6 +17,7 @@ import {
   clearNotification,
   removeCourseMember,
   removeRoomMember,
+  updateCourse,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
 import CourseCodeMemberImport from 'Components/Importer/CourseCodeMemberImport';
@@ -36,6 +37,9 @@ class Members extends PureComponent {
       username: null,
       isCourseOnly: false,
       temporaryExclusion: [], // array of user ids to temporarily exclude from search results
+      editingUsernames: false,
+      usernamesHaveChanged: false,
+      updatedUsers: [],
     };
   }
 
@@ -224,6 +228,102 @@ class Members extends PureComponent {
     );
   };
 
+  // if user is owner or admin, they can edit usernames
+  // return a Checkbox that, when clicked transforms the class list names into inputs and adds a save button after the checkbox
+  // if not, return null
+  generateEditUsernamesCheckbox = () => {
+    const { owner, user } = this.props;
+    const { editingUsernames, usernamesHaveChanged } = this.state;
+    if (owner || user.isAdmin) {
+      return (
+        <div className={classes.EditUsernames}>
+          <Checkbox
+            id="edit-usernames"
+            checked={editingUsernames}
+            change={(e) =>
+              this.setState({ editingUsernames: e.target.checked })
+            }
+            dataId="edit-usernames"
+            style={{ margin: '0 1rem' }}
+          >
+            Edit Usernames
+          </Checkbox>
+          {editingUsernames && (
+            <Button
+              theme={usernamesHaveChanged ? 'Danger' : 'Disabled'}
+              disabled={!usernamesHaveChanged}
+              p={4}
+              click={() => {
+                this.setState({ editingUsernames: false });
+                this.saveUpdatedUsernames();
+              }}
+            >
+              Save
+            </Button>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // function passed to Member component to update the username
+  // called when the user updates the username in the Member component
+  // setState of usernamesHaveChanged to true
+  // if user.username is different than user.newUsername, add the user to the updatedUsers array
+  updateUsername = (user) => {
+    const { updatedUsers } = this.state;
+    const { username, newUsername } = user;
+    console.groupCollapsed('updateUsername');
+    console.log('user: ', user);
+    console.log('updatedUsers: ', updatedUsers);
+    console.log('username: ', username);
+    console.log('newUsername: ', newUsername);
+    console.log('username !== newUsername: ', username !== newUsername);
+    if (username !== newUsername) {
+      console.log('usernames have changed');
+      const updatedUser = { ...user, username: newUsername };
+      delete updatedUser.newUsername;
+      this.setState({
+        usernamesHaveChanged: true,
+        // if the user is already in the updatedUsers array, replace them with the updatedUser
+        // otherwise, add the updatedUser to the array
+        updatedUsers: updatedUsers.some((u) => u._id === user._id)
+          ? updatedUsers.map((u) => {
+              if (u._id === user._id) return updatedUser;
+              return u;
+            })
+          : [...updatedUsers, updatedUser],
+      });
+    }
+    console.groupEnd();
+  };
+
+  saveUpdatedUsernames = async () => {
+    const { classList, course, connectUpdateCourseMembers } = this.props;
+    const { updatedUsers } = this.state;
+    const res = await API.updateUsernames(updatedUsers);
+    if (!res.status === 200) {
+      // eslint-disable-next-line no-console
+      console.log('error updating usernames');
+    }
+    // update the course in the store
+    // by creating a merged list of the classList and updatedUsers
+    // with the updatedUsers taking precedence
+    const updatedClassList = classList.map((member) => {
+      const updatedUser = updatedUsers.find(
+        (user) => user._id === member.user._id
+      );
+      if (updatedUser) {
+        return { ...updatedUser, role: member.role };
+      }
+      return member;
+    });
+    // const res2 = await connectUpdateCourseMembers(course._id, {
+    //   members: updatedClassList,
+    // });
+  };
+
   render() {
     const {
       classList,
@@ -243,6 +343,8 @@ class Members extends PureComponent {
       searchResults,
       searchText,
       isCourseOnly,
+      editingUsernames,
+      usernamesHaveChanged,
     } = this.state;
 
     let joinRequests = <p>There are no new requests to join</p>;
@@ -300,6 +402,8 @@ class Members extends PureComponent {
           resourceName={resourceType}
           notification={notification.length > 0}
           owner
+          canEditUsername={editingUsernames}
+          editUsername={editingUsernames ? this.updateUsername : null}
         />
       ) : (
         <Member
@@ -324,6 +428,7 @@ class Members extends PureComponent {
         <Member info={member} key={member.user._id} />
       );
     });
+
     return (
       <div className={classes.Container}>
         <Modal
@@ -449,7 +554,16 @@ class Members extends PureComponent {
               <div data-testid="join-requests">{joinRequests}</div>
             </InfoBox>
           ) : null}
-          <InfoBox title="Class List" icon={<i className="fas fa-users" />}>
+          <InfoBox
+            title="Class List"
+            icon={<i className="fas fa-users" />}
+            rightIcons={this.generateEditUsernamesCheckbox()}
+            customStyle={
+              editingUsernames
+                ? { right: { color: 'black' } }
+                : { right: { color: 'rgb(94, 94, 94)' } }
+            }
+          >
             <div data-testid="members">{classListComponents}</div>
           </InfoBox>
           <InfoBox title="Guest List" icon={<i className="fas fa-id-badge" />}>
@@ -467,7 +581,8 @@ class Members extends PureComponent {
 
 Members.propTypes = {
   searchedUsers: PropTypes.arrayOf(PropTypes.shape({})),
-  user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
+  user: PropTypes.shape({ _id: PropTypes.string, isAdmin: PropTypes.bool })
+    .isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
@@ -539,4 +654,5 @@ export default connect(mapStateToProps, {
   connectClearNotification: clearNotification,
   connectRemoveRoomMember: removeRoomMember,
   connectRemoveCourseMember: removeCourseMember,
+  connectUpdateCourse: updateCourse,
 })(Members);
