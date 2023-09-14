@@ -36,8 +36,8 @@ class TextInput extends Component {
       onKeyDown,
       value,
       size,
+      label,
       leftLabel,
-      rightLabel,
       title,
       hover,
       customStyles,
@@ -104,9 +104,9 @@ class TextInput extends Component {
           // eslint-disable-next-line react/destructuring-assignment
           data-testid={this.props['data-testid'] || null}
         />
-        {rightLabel ? (
+        {label ? (
           <label className={styles.Label} htmlFor={name} title={title}>
-            {rightLabel}
+            {label}
           </label>
         ) : null}
       </div>
@@ -125,8 +125,8 @@ TextInput.propTypes = {
   onKeyDown: PropTypes.func,
   value: PropTypes.string,
   size: PropTypes.string,
+  label: PropTypes.string,
   leftLabel: PropTypes.string,
-  rightLabel: PropTypes.string,
   title: PropTypes.string,
   hover: PropTypes.bool,
   customStyles: PropTypes.shape({}),
@@ -138,8 +138,8 @@ TextInput.defaultProps = {
   width: null,
   placeholder: null,
   onKeyDown: null,
+  label: null,
   leftLabel: null,
-  rightLabel: null,
   size: null,
   light: false,
   value: undefined,
