@@ -62,26 +62,6 @@ const toTimelineString = (timestamp) => {
   return momentTimestamp.format(format);
 };
 
-const isToday = (timestamp) => {
-  const date = new Date(timestamp);
-  const today = new Date();
-
-  return (
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
-  );
-};
-
-// @TODO: use this function for RoomsMonitor / Replayers per Steve's request
-// to get replayers for rooms updated in the last hour
-const isLastHour = (timestamp) => {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now - date;
-  return diff < 3600000;
-};
-
 export default {
   toDateString,
   toTimeString,
@@ -92,6 +72,4 @@ export default {
   isValid,
   before,
   isWithin,
-  isToday,
-  isLastHour,
 };
