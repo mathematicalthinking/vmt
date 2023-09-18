@@ -55,7 +55,6 @@ class Member extends PureComponent {
   changeUsername = (e) => {
     const { info, canEditUsername, editUsername } = this.props;
     // if info.role === 'facilitator', then we can't edit the username
-    // otherwise, we need to
     if (info.role !== 'facilitator' && canEditUsername) {
       editUsername({
         _id: info.user._id,

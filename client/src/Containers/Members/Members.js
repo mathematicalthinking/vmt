@@ -228,7 +228,7 @@ class Members extends PureComponent {
     );
   };
 
-  // if user is owner or admin, they can edit usernames
+  // if user is an admin, they can edit usernames
   // return a Checkbox that, when clicked transforms the class list names into inputs and adds a save button after the checkbox
   // if not, return null
   generateEditUsernamesCheckbox = () => {
