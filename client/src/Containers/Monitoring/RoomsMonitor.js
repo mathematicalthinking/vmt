@@ -9,7 +9,6 @@ import {
   BigModal,
   Spinner,
 } from 'Components';
-import { STATUS } from 'constants';
 import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
 import { dateAndTime, useUIState } from 'utils';
@@ -20,7 +19,6 @@ import QuickChat from './QuickChat';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
 import RoomViewer from './RoomViewer';
-import Replayers from './Replayers';
 
 /**
  * The RoomsMonitor provides four views into a set of rooms: attendance, thumbnail, chat, and activity graph.
@@ -56,7 +54,6 @@ function RoomsMonitor({
     GRAPH: 'Graph',
     SIMPLE: 'Simple Chat',
     DETAILED: 'Detailed Chat',
-    REPLAYERS: 'Replayers',
   };
   const [uiState, setUIState] = useUIState(context, {});
 
@@ -223,14 +220,6 @@ function RoomsMonitor({
           />
         );
       }
-      case constants.REPLAYERS: {
-        return (
-          <Replayers
-            rooms={roomsUpdatedToday()}
-            allRooms={Object.values(populatedRooms)}
-          />
-        );
-      }
       default:
         return null;
     }
@@ -253,30 +242,18 @@ function RoomsMonitor({
     setShowModal(true);
   };
 
-  const roomsUpdatedToday = () => {
-    return _selectFirst(
-      Object.values(populatedRooms).filter(
-        (room) =>
-          dateAndTime.isToday(room.updatedAt) && room.status === STATUS.DEFAULT
-      )
-    );
-  };
-
   return (
     <Fragment>
       <div className={classes.Container}>
         <div className={classes.TogglesContainer}>
           <Fragment>
             <ToggleGroup
-              buttons={
-                [
-                  // constants.ATTENDANCE,
-                  // constants.CHAT,
-                  // constants.THUMBNAIL,
-                  // constants.REPLAYERS,
-                  // constants.GRAPH,
-                ]
-              }
+              buttons={[
+                constants.ATTENDANCE,
+                constants.CHAT,
+                constants.THUMBNAIL,
+                // constants.GRAPH,
+              ]}
               value={viewType}
               onChange={(type) => {
                 setViewType(type);
@@ -297,7 +274,7 @@ function RoomsMonitor({
           <div className={classes.NoSnapshot}>No rooms to display</div>
         ) : (
           <div className={classes.TileGroup}>
-            {/* {Object.values(populatedRooms).map((room, index) => {
+            {Object.values(populatedRooms).map((room, index) => {
               // for each of the rooms managed by a user display its title bar (title and menu) and
               // then the particular view type.
               return (
@@ -353,8 +330,7 @@ function RoomsMonitor({
                   </div>
                 </div>
               );
-            })} */}
-            <Replayers allRooms={Object.values(populatedRooms)} />
+            })}
           </div>
         )}
       </div>
