@@ -605,6 +605,26 @@ router.put('/addMemberToArchivedRooms', (req, res) => {
     });
 });
 
+router.put('/updateUsernames', (req, res) => {
+  const { users } = req.body;
+  const userController = controllers.user;
+  return userController
+    .updateUsernames(users)
+    .then(() => res.sendStatus(200))
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(`Error updating usernames: ${err}`);
+
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+
+      return errors.sendError.InternalError(msg, res);
+    });
+});
+
 // router.delete("/:resource/:id", middleware.validateUser, (req, res, next) => {
 //   // for now delete not supported
 //   // add isTrashed?

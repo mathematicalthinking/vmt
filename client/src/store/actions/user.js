@@ -265,6 +265,7 @@ export const getUser = (id) => {
         return dispatch(loading.success());
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.log('ERROR getting user- ', err);
         // if the session has expired logout
         if (err.response) {

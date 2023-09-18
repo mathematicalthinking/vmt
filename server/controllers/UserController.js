@@ -275,4 +275,29 @@ module.exports = {
       { $addToSet: { 'archive.rooms': { $each: [...archivedRoomIds] } } }
     );
   },
+
+  // @PARAM: users is an array of objects in the form { _id, username }
+  // @RETURN: a promise that resolves to the result of the bulkWrite operation of updating the usernames
+  updateUsernames: (users) => {
+    // first filter by users that have a username
+    const usersWithUsernames = users.filter((user) => user.username);
+    return new Promise((resolve, reject) => {
+      db.User.bulkWrite(
+        usersWithUsernames.map((user) =>
+          // if user.isAdmin is true, then we don't want to update it
+          // because we don't want to update admin usernames
+          ({
+            updateOne: {
+              filter: { _id: user._id, isAdmin: false },
+              update: { username: user.username },
+            },
+          })
+        )
+      )
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => reject(err));
+    });
+  },
 };

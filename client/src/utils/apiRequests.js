@@ -222,4 +222,8 @@ export default {
     });
     return results.data.result;
   },
+
+  updateUsernames: (users) => {
+    return api.put(`/api/updateUsernames`, { users });
+  },
 };
