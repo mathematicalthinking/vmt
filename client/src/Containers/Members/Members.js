@@ -232,7 +232,7 @@ class Members extends PureComponent {
   // return a Checkbox that, when clicked transforms the class list names into inputs and adds a save button after the checkbox
   // if not, return null
   generateEditUsernamesCheckbox = () => {
-    const { owner, user, classList } = this.props;
+    const { user, classList } = this.props;
     const { editingUsernames, usernamesHaveChanged } = this.state;
 
     // hide the checkbox if all members are facilitators
