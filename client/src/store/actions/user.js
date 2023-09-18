@@ -229,7 +229,6 @@ export const getUser = (id) => {
         let activities;
 
         if (currentUser) {
-          console.log('currentUser', currentUser);
           if (currentUser.courses.length > 0) {
             const coursesWithRoles = currentUser.courses.map((course) =>
               addUserRoleToResource(course, currentUser._id)
@@ -266,6 +265,7 @@ export const getUser = (id) => {
         return dispatch(loading.success());
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.log('ERROR getting user- ', err);
         // if the session has expired logout
         if (err.response) {

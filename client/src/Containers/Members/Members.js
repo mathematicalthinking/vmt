@@ -232,8 +232,16 @@ class Members extends PureComponent {
   // return a Checkbox that, when clicked transforms the class list names into inputs and adds a save button after the checkbox
   // if not, return null
   generateEditUsernamesCheckbox = () => {
-    const { owner, user } = this.props;
+    const { owner, user, classList } = this.props;
     const { editingUsernames, usernamesHaveChanged } = this.state;
+
+    // hide the checkbox if all members are facilitators
+    // because we disallow editing facilitator usernames
+    const allFacilitators = classList.every(
+      (member) => member.role === 'facilitator'
+    );
+    if (allFacilitators) return null;
+
     if (owner || user.isAdmin) {
       return (
         <div className={classes.EditUsernames}>
@@ -274,14 +282,8 @@ class Members extends PureComponent {
   updateUsername = (user) => {
     const { updatedUsers } = this.state;
     const { username, newUsername } = user;
-    console.groupCollapsed('updateUsername');
-    console.log('user: ', user);
-    console.log('updatedUsers: ', updatedUsers);
-    console.log('username: ', username);
-    console.log('newUsername: ', newUsername);
-    console.log('username !== newUsername: ', username !== newUsername);
+
     if (username !== newUsername) {
-      console.log('usernames have changed');
       const updatedUser = { ...user, username: newUsername };
       delete updatedUser.newUsername;
       this.setState({
@@ -296,11 +298,10 @@ class Members extends PureComponent {
           : [...updatedUsers, updatedUser],
       });
     }
-    console.groupEnd();
   };
 
   saveUpdatedUsernames = async () => {
-    const { classList, course, connectUpdateCourseMembers } = this.props;
+    const { classList, course, connectUpdateCourse } = this.props;
     const { updatedUsers } = this.state;
     const res = await API.updateUsernames(updatedUsers);
     if (!res.status === 200) {
@@ -315,11 +316,24 @@ class Members extends PureComponent {
         (user) => user._id === member.user._id
       );
       if (updatedUser) {
-        return { ...updatedUser, role: member.role };
+        return {
+          user: { _id: updatedUser._id, username: updatedUser.username },
+          role: member.role,
+        };
       }
       return member;
     });
-    // const res2 = await connectUpdateCourseMembers(course._id, {
+    connectUpdateCourse(course._id, {
+      members: updatedClassList,
+    });
+
+    // course members is an array of objects in the form:
+    // [{ role, { _id, username }}, ... ]
+    // update course members in redux to update the displayed usernames
+
+    //
+
+    // connectUpdateCourseMembers(course._id, {
     //   members: updatedClassList,
     // });
   };
@@ -344,7 +358,6 @@ class Members extends PureComponent {
       searchText,
       isCourseOnly,
       editingUsernames,
-      usernamesHaveChanged,
     } = this.state;
 
     let joinRequests = <p>There are no new requests to join</p>;
@@ -598,11 +611,13 @@ Members.propTypes = {
   connectClearNotification: PropTypes.func.isRequired,
   connectRemoveRoomMember: PropTypes.func.isRequired,
   connectRemoveCourseMember: PropTypes.func.isRequired,
+  connectUpdateCourse: PropTypes.func,
   // if a course, keys are room ids, values are the array of room members. If a room, this is an empty array
   courseRoomsMembers: PropTypes.shape({}),
   onChangeRole: PropTypes.func,
   course: PropTypes.shape({
     archive: PropTypes.shape({ rooms: PropTypes.arrayOf(PropTypes.string) }),
+    _id: PropTypes.string,
   }),
 };
 
@@ -615,6 +630,7 @@ Members.defaultProps = {
   courseRoomsMembers: null,
   onChangeRole: null,
   course: null,
+  connectUpdateCourse: null,
 };
 
 const mapStateToProps = (state, ownProps) => {

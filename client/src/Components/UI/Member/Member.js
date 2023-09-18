@@ -57,7 +57,6 @@ class Member extends PureComponent {
     // if info.role === 'facilitator', then we can't edit the username
     // otherwise, we need to
     if (info.role !== 'facilitator' && canEditUsername) {
-      console.log('e.target.value', e.target.value);
       editUsername({
         _id: info.user._id,
         username: info.user.username,
@@ -71,9 +70,9 @@ class Member extends PureComponent {
     // if canEditUsername, then we need to render an Input
     // else if canRemove, then we need to render Avatar with the username & a trash icon
     // and if neither, then we need to render Avatar with the username
-    const { info, canEditUsername, canRemove } = this.props;
+    const { info, canEditUsername, canRemove, rejectAccess } = this.props;
     const { editedUsername } = this.state;
-    if (canEditUsername) {
+    if (canEditUsername && info.role !== 'facilitator') {
       return (
         <TextInput
           change={this.changeUsername}
