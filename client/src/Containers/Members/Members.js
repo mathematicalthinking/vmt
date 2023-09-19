@@ -275,6 +275,17 @@ class Members extends PureComponent {
     return null;
   };
 
+  // create a function that returns whether the given user is editable
+  // admins and facilitators are not editable
+  usernameIsEditable = (user) => {
+    const { admins, classList } = this.props;
+    const adminIds = admins.map((admin) => admin.user._id);
+    const facilitatorIds = classList
+      .filter((member) => member.role === 'facilitator')
+      .map((member) => member.user._id);
+    return !adminIds.includes(user._id) && !facilitatorIds.includes(user._id);
+  };
+
   // function passed to Member component to update the username
   // called when the user updates the username in the Member component
   // setState of usernamesHaveChanged to true
@@ -415,7 +426,9 @@ class Members extends PureComponent {
           resourceName={resourceType}
           notification={notification.length > 0}
           owner
-          canEditUsername={editingUsernames}
+          canEditUsername={
+            editingUsernames ? this.usernameIsEditable(member.user) : false
+          }
           editUsername={editingUsernames ? this.updateUsername : null}
         />
       ) : (
@@ -605,6 +618,7 @@ Members.propTypes = {
   // if a course, classList is the course members array, sorted with participants then facilitators.
   // If a room, this is just the members array
   classList: PropTypes.arrayOf(PropTypes.shape({})),
+  admins: PropTypes.arrayOf(PropTypes.shape({})),
   connectGrantAccess: PropTypes.func.isRequired,
   connectInviteToCourse: PropTypes.func.isRequired,
   connectInviteToRoom: PropTypes.func.isRequired,
@@ -631,6 +645,7 @@ Members.defaultProps = {
   onChangeRole: null,
   course: null,
   connectUpdateCourse: null,
+  admins: [],
 };
 
 const mapStateToProps = (state, ownProps) => {
