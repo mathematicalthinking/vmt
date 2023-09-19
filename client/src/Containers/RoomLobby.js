@@ -538,7 +538,6 @@ class Room extends Component {
           <Members
             user={user}
             classList={this.sortParticipants(room.members)}
-            // classList={room.members}
             owner={room.myRole === 'facilitator' || isAdmin}
             resourceType="room"
             resourceId={room._id}
