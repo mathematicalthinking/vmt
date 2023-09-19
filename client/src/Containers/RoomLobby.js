@@ -349,6 +349,21 @@ class Room extends Component {
     connectUpdateRoomMembers(room._id, updatedRoomMembers);
   };
 
+  sortParticipants = (list) => {
+    const facilitators = list
+      .filter((mem) => mem.role === 'facilitator')
+      .sort((a, b) => a.user.username.localeCompare(b.user.username));
+    const prevParticipants = list.filter((mem) => mem.role === 'participant');
+    const otherMembers = list.filter(
+      (mem) => mem.role !== 'participant' && mem.role !== 'facilitator'
+    );
+
+    return prevParticipants
+      .sort((a, b) => a.user.username.localeCompare(b.user.username))
+      .concat(facilitators)
+      .concat(otherMembers);
+  };
+
   checkAccess() {
     const { room, user, connectPopulateRoom } = this.props;
     const { guestMode } = this.state;
@@ -522,7 +537,8 @@ class Room extends Component {
         mainContent = (
           <Members
             user={user}
-            classList={room.members}
+            classList={this.sortParticipants(room.members)}
+            // classList={room.members}
             owner={room.myRole === 'facilitator' || isAdmin}
             resourceType="room"
             resourceId={room._id}
