@@ -109,4 +109,19 @@ router.post('/reinstateUser/:id', async (req, res) => {
   }
 });
 
+// update username in sso
+router.put('/updateUsername/:id/:newUsername', async (req, res) => {
+  // given a user id and a new username, update the username in sso
+  // in sso, access the user by vmtUserId
+  try {
+    const reqUser = getUser(req);
+    const userId = req.params.id;
+    const { newUsername } = req.params;
+    ssoService.updateUsername(userId, newUsername, reqUser);
+  } catch (err) {
+    console.log('err admin update username: ', err.message);
+    return errors.handleError(err, res);
+  }
+});
+
 module.exports = router;
