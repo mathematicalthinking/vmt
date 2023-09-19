@@ -63,6 +63,7 @@ class Course extends Component {
       trashing: false,
       isAdmin: false,
       errorMessage: '',
+      admins: [],
     };
   }
   // SO we can reset the tabs easily
@@ -105,6 +106,20 @@ class Course extends Component {
       );
       if (course.members) {
         this.checkAccess();
+        const fields = ['isAdmin', '_id', 'username'];
+        API.getUsersByResource('courses', course._id, fields).then((res) => {
+          if (res && res.data && res.data.result && res.data.result.length) {
+            const admins = res.data.result.filter((user) => user.isAdmin);
+            const adminIds = admins.map((admin) => admin._id);
+            const classList = course.members;
+            const adminsInCourse = classList.filter((member) =>
+              adminIds.includes(member.user._id)
+            );
+            this.setState({ admins: adminsInCourse });
+          } else {
+            this.setState({ admins: [] });
+          }
+        });
       }
     } else {
       connectGetCourse(match.params.course_id);
@@ -477,6 +492,7 @@ class Course extends Component {
       tabs,
       invited,
       errorMessage,
+      admins,
     } = this.state;
     if (course && !guestMode) {
       const { resource } = match.params;
@@ -532,6 +548,7 @@ class Course extends Component {
             user={user}
             classList={this.sortParticipants(course.members)}
             courseMembers={course.members}
+            admins={admins}
             owner={course.myRole === 'facilitator' || isAdmin}
             resourceType="course"
             resourceId={course._id}

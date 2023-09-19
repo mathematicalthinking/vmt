@@ -223,6 +223,16 @@ export default {
     return results.data.result;
   },
 
+  getUsersByResource: (resource, resourceId, fields = []) => {
+
+    return api.get(
+      `/api/${resource}/${resourceId}/users/${fields.join(', ')}`,
+      {
+        params: { fields },
+      }
+    );
+  },
+
   updateUsernames: (users) => {
     return api.put(`/api/updateUsernames`, { users });
   },

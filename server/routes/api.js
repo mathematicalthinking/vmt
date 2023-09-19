@@ -351,6 +351,33 @@ router.get('/:resource/:id/:tempRoom', (req, res) => {
     });
 });
 
+// route for getUsersByResource
+router.get(
+  '/:resource/:id/users/:fields',
+  middleware.validateUser,
+  (req, res) => {
+    const id = getParamsId(req);
+    const resource = getResource(req);
+    const fields = req.params.fields.split(',');
+    const userController = controllers.user;
+    userController
+      .getUsersByResource(resource, id, fields)
+      .then((result) => {
+        res.json({ result });
+      })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(`Error get ${resource}/${id}/users: ${err}`);
+        let msg = null;
+
+        if (typeof err === 'string') {
+          msg = err;
+        }
+        return errors.sendError.InternalError(msg, res);
+      });
+  }
+);
+
 const ggbUpload = multer({
   storage: multer.memoryStorage(),
   fileFilter: multerMw.ggbFileFilter,
