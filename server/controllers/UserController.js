@@ -300,4 +300,52 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
+
+  // Returns a list of users based on resource type and resource id
+  // @PARAM: resourceType is a string that is either 'activities', 'courses', or 'rooms'
+  // @PARAM: resourceId is a string that is the id of the resource
+  // @PARAM: [fields=[]] is an array of strings that are the fields to populate.
+  // fields? return a list of users populated with the fields specified. If not fields, return a list of users with no fields populated.
+  // RETURNS: a promise that resolves to a list of users.
+  getUsersByResource: async (resourceType, resourceId, fields = []) => {
+    try {
+      // get a list of users for the resource at the given id
+      let users;
+      if (resourceType === 'courses' || resourceType === 'rooms') {
+        // remove the 's' from the resourceType & capitalize the first letter
+        const type =
+          resourceType
+            .slice(0, -1)
+            .charAt(0)
+            .toUpperCase() + resourceType.slice(0, -1).slice(1);
+
+        const dbUsers = await db[type].find({ _id: resourceId }, 'members');
+        users = dbUsers[0].members.map((member) => member.user);
+      } else {
+        // activities has a different schema
+        // it contains a "users" array: facilitators of the activity
+        // and a "rooms" array: rooms that contain the activity
+        // we want to get the users from each of the rooms
+        // to do that we need to get the rooms first
+        const activity = await db[resourceType].findById(resourceId, 'rooms');
+        const { rooms } = activity;
+        // now we can get the users from each room
+        const dbRooms = await db.Room.find({ _id: { $in: rooms } }, 'members');
+        users = dbRooms.map((room) => room.members);
+      }
+      // now we have a list of users
+      // we need to get the user objects from the ids
+      const userIds = users.map((user) => user._id);
+      // get each user from the db
+      const usersFromDb = await db.User.find(
+        { _id: { $in: userIds } },
+        fields.join(' ')
+      );
+      return usersFromDb;
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.log('error in getUsersByResource: ', err);
+      return [];
+    }
+  },
 };
