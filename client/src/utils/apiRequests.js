@@ -233,8 +233,14 @@ export default {
   },
 
   updateUsernames: async (users) => {
-    const updateUsernamesInVMT = api.put(`/api/updateUsernames`, { users });
-    const updateUsernamesInSSO = api.put('/admin/updateUsernames', { users });
+    const updateUsernamesInVMT = await api.put(`/api/updateUsernames`, {
+      users,
+    });
+    console.log('before update usernames in sso');
+    const updateUsernamesInSSO = await api.put('/admin/updateUsernames', {
+      users,
+    });
+    console.log('after update usernames in sso');
     return updateUsernamesInVMT;
   },
 };
