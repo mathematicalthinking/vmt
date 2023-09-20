@@ -110,15 +110,14 @@ router.post('/reinstateUser/:id', async (req, res) => {
 });
 
 // update username in sso
-router.put('/updateUsername/:id/:newUsername', async (req, res) => {
-  // given a user id and a new username, update the username in sso
-  // in sso, access the user by vmtUserId
+router.put('/updateUsernames/:id/', async (req, res) => {
+  // given a list of users, update their username in sso
   try {
     const reqUser = getUser(req);
-    const userId = req.params.id;
-    const { newUsername } = req.params;
-    ssoService.updateUsername(userId, newUsername, reqUser);
+    const { users } = req.body;
+    ssoService.updateUsernames(users, reqUser);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log('err admin update username: ', err.message);
     return errors.handleError(err, res);
   }
