@@ -224,7 +224,6 @@ export default {
   },
 
   getUsersByResource: (resource, resourceId, fields = []) => {
-
     return api.get(
       `/api/${resource}/${resourceId}/users/${fields.join(', ')}`,
       {
@@ -233,7 +232,8 @@ export default {
     );
   },
 
-  updateUsernames: (users) => {
-    return api.put(`/api/updateUsernames`, { users });
+  updateUsernames: async (users) => {
+    const updateUsernamesInVMT = api.put(`/api/updateUsernames`, { users });
+    const updateUsernamesInSSO = api.put('/admin/updateUsernames', { users });
   },
 };

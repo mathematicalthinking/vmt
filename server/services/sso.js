@@ -142,3 +142,7 @@ module.exports.reinstateUser = (userId, reqUser) => {
 module.exports.revokeRefreshToken = (encodedToken, reqUser) => {
   return this.post(`/auth/revokedToken`, { encodedToken }, reqUser);
 };
+
+module.exports.updateUsernames = (users, reqUser) => {
+  return this.put(`/auth/upateUsernames`, { users }, reqUser);
+};
