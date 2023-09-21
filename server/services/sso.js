@@ -145,5 +145,5 @@ module.exports.revokeRefreshToken = (encodedToken, reqUser) => {
 
 module.exports.updateUsernames = (users, reqUser) => {
   console.log('in update usernames in sso service');
-  return this.put(`/auth/upateUsernames`, { users }, reqUser);
+  return this.put(`/auth/user/updateUsernames`, { users }, reqUser);
 };
