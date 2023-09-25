@@ -127,7 +127,8 @@ module.exports = {
               }
             : {
                 path: 'tabs',
-                select: 'name tabType snapshot desmosLink controlledBy',
+                select:
+                  'name tabType snapshot desmosLink controlledBy startingPoint startingPointBase64 currentState currentStateBase64 currentScreen',
               }
         )
         .lean()

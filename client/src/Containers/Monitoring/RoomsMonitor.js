@@ -10,11 +10,12 @@ import {
   Spinner,
 } from 'Components';
 import Chart from 'Containers/Stats/Chart';
+import { SharedMiniReplayer } from 'Containers/Replayer';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
 import { dateAndTime, useUIState } from 'utils';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
-import Thumbnails from './Thumbnails';
+// import Thumbnails from './Thumbnails';
 import QuickChat from './QuickChat';
 import classes from './monitoringView.css';
 import DropdownMenuClasses from './dropdownmenu.css';
@@ -182,15 +183,15 @@ function RoomsMonitor({
             context={`${context}-${id}`}
           />
         );
-      case constants.THUMBNAIL: {
-        return (
-          <Thumbnails
-            populatedRoom={populatedRooms[id] || {}}
-            initialScreen={screenIndex}
-            initialTabIndex={tabIndex}
-          />
-        );
-      }
+      // case constants.THUMBNAIL: {
+      //   return (
+      //     <Thumbnails
+      //       populatedRoom={populatedRooms[id] || {}}
+      //       initialScreen={screenIndex}
+      //       initialTabIndex={tabIndex}
+      //     />
+      //   );
+      // }
       case constants.ATTENDANCE: {
         const newMembers = populatedRooms[id].members
           ? populatedRooms[id].members.map((mem) => ({
@@ -219,6 +220,9 @@ function RoomsMonitor({
             showTitle={false}
           />
         );
+      }
+      case constants.THUMBNAIL: {
+        return <SharedMiniReplayer populatedRoom={populatedRooms[id]} />;
       }
       default:
         return null;
@@ -252,6 +256,7 @@ function RoomsMonitor({
                 constants.ATTENDANCE,
                 constants.CHAT,
                 constants.THUMBNAIL,
+                // constants.REPLAYER,
                 // constants.GRAPH,
               ]}
               value={viewType}
@@ -280,7 +285,12 @@ function RoomsMonitor({
               return (
                 <div
                   key={room._id}
-                  className={classes.Tile}
+                  className={[
+                    classes.Tile,
+                    viewType === constants.THUMBNAIL
+                      ? classes.Larger
+                      : classes.Smaller,
+                  ].join(' ')}
                   ref={divRefs[index]}
                   id={room._id}
                 >

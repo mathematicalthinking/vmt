@@ -56,10 +56,18 @@
   align-self: auto;
   border-radius: 3px;
   /* overflow: auto; */
-  width: 500px;
-  height: 300px;
   margin: 10px;
   min-height: 200px;
+}
+
+.Larger {
+  width: 1000px;
+  height: 760px;
+}
+
+.Smaller {
+  width: 500px;
+  height: 300px;
 }
 
 .TileContainer {
