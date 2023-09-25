@@ -70,7 +70,7 @@ const DesActivityMiniReplayer = ({
     const screen =
       screenSelection.value === -1 ? currentScreen : screenSelection.value;
     calculatorInst.current.setActiveScreenIndex(screen);
-  }, [screenSelection]);
+  }, [screenSelection, currentScreen]);
 
   return (
     <div>
