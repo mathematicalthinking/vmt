@@ -47,6 +47,11 @@ const DesActivityMiniReplayer = ({
   useEffect(async () => {
     if (startingPoint) await initCalc();
     setLoaded(true);
+    return () => {
+      if (calculatorInst.current) {
+        calculatorInst.current.destroy();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -58,11 +63,6 @@ const DesActivityMiniReplayer = ({
     } catch (e) {
       console.log('updating error', e);
     }
-    return () => {
-      if (calculatorInst.current) {
-        calculatorInst.current.destroy();
-      }
-    };
   }, [currentState]);
 
   useEffect(() => {
