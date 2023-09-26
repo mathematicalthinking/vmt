@@ -2,19 +2,17 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
-  const calculatorRef = React.createRef();
   const calculator = React.createRef();
-  const [loading, setLoading] = React.useState(true);
 
-  const _initialize = () => {
+  const _initialize = (el) => {
     if (!calculator.current)
-      calculator.current = window.Desmos.GraphingCalculator(
-        calculatorRef.current
-      );
-    setLoading(false);
+      calculator.current = window.Desmos.GraphingCalculator(el);
+
+    console.log('calc init', calculator.current);
   };
 
   const _update = () => {
+    console.log('calc update', calculator.current);
     if (calculator.current)
       if (currentState) {
         calculator.current.setState(JSON.parse(currentState));
@@ -34,31 +32,19 @@ const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
   }, []);
 
   React.useEffect(() => {
+    console.log('useeffect update', calculator.current);
     _update();
-  }, [startingPoint, currentState]);
-
-  React.useEffect(() => {
-    if (calculatorRef.current && window.Desmos) {
-      _initialize();
-      _update();
-    }
-  }, [calculatorRef.current, window.Desmos]);
+  }, [startingPoint, currentState, calculator.current]);
 
   return (
-    <Fragment>
-      <div
-        style={{
-          height: '100%',
-          width: '100%',
-          display: loading ? 'none' : 'inherit',
-        }}
-        id="calculator"
-        ref={calculatorRef}
-      />
-      <div style={{ margin: '10px', display: loading ? 'inherit' : 'none' }}>
-        Loading the Desmos Graph...
-      </div>
-    </Fragment>
+    <div
+      style={{
+        height: '100%',
+        width: '100%',
+      }}
+      id="calculator"
+      ref={_initialize}
+    />
   );
 };
 
