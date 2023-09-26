@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import Script from 'react-load-script';
 
 const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
   const calculatorRef = React.createRef();
@@ -47,9 +46,6 @@ const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
 
   return (
     <Fragment>
-      {!window.Desmos && (
-        <Script url="https://www.desmos.com/api/v1.5/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6" />
-      )}
       <div
         style={{
           height: '100%',
