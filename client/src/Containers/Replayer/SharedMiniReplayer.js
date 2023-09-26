@@ -11,7 +11,7 @@ const SharedMiniReplayer = ({ populatedRoom }) => {
   React.useEffect(() => {
     if (!populatedRoom || !populatedRoom.tabs) return;
     const latestTab = populatedRoom.tabs.reduce(
-      (maxTab, tab) => (tab.timestamp > maxTab.timestamp ? tab : maxTab),
+      (maxTab, tab) => (tab.updatedAt > maxTab.updatedAt ? tab : maxTab),
       populatedRoom.tabs[0]
     );
     setCurrentTabId(latestTab._id);

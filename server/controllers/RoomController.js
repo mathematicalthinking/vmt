@@ -125,11 +125,7 @@ module.exports = {
                   populate: { path: 'user', select: 'username color' },
                 },
               }
-            : {
-                path: 'tabs',
-                select:
-                  'name tabType snapshot desmosLink controlledBy startingPoint startingPointBase64 currentState currentStateBase64 currentScreen',
-              }
+            : { path: 'tabs', select: '-events' }
         )
         .lean()
     );
