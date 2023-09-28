@@ -53,7 +53,7 @@ function CurrentMembers({
   };
 
   const username = (id) => {
-    const member = presentMembers.find((mem) => mem._id === id);
+    const member = presentMembers.find((mem) => mem.user._id === id);
     return member ? shortenName(member.username) : '';
   };
 
