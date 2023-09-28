@@ -39,6 +39,7 @@ function CurrentMembers({
       return {
         ...mem,
         user: { ...mem.user, username: member.username },
+        username: member.username,
         tabNum: member.tabNum ? member.tabNum : '',
       };
     });
