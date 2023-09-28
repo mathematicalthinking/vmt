@@ -38,7 +38,7 @@ function CurrentMembers({
       }
       return {
         ...mem,
-        user: { ...mem.user, username: member.username },
+        user: { ...mem.user, username: member.alias || mem.user.username },
         tabNum: member.tabNum ? member.tabNum : '',
       };
     });
