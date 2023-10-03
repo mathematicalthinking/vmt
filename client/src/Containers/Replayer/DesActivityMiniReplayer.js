@@ -1,8 +1,7 @@
-import React, { useRef, useEffect, Fragment } from 'react';
+import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import classes from 'Containers/Replayer/DesActivityReplayer.css';
-import { Player } from 'external/js/api.full.es';
 
 const DesActivityMiniReplayer = ({
   startingPoint,
@@ -11,16 +10,16 @@ const DesActivityMiniReplayer = ({
 }) => {
   const defaultOption = { label: 'Screen recently changed', value: -1 };
   const [screenSelection, setScreenSelection] = React.useState(defaultOption);
-  const [loaded, setLoaded] = React.useState(false); // a hack so that we can see screen options once player loads
+  const [_, setLoaded] = React.useState(false); // a hack so that we can see screen options once player loads
 
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
-  const initCalc = () => {
+  const initCalc = async () => {
+    const { Player } = await import('../../external/js/api.full.es');
     const playerOptions = { targetElement: calculatorRef.current };
     try {
-      if (startingPoint)
-        playerOptions.activityConfig = JSON.parse(startingPoint);
+      playerOptions.activityConfig = JSON.parse(startingPoint);
       if (currentState) {
         const newState = JSON.parse(currentState);
         playerOptions.responseData = newState;
@@ -45,15 +44,8 @@ const DesActivityMiniReplayer = ({
     return [defaultOption, ...screens];
   };
 
-  const _isShowable = () => {
-    if (!calculatorInst.current) return false;
-    if (!startingPoint || startingPoint === '{}') return false;
-    if (!currentState || currentState === '{}') return false;
-    return true;
-  };
-
   useEffect(async () => {
-    if (startingPoint) initCalc();
+    if (startingPoint) await initCalc();
     setLoaded(true);
     return () => {
       if (calculatorInst.current) {
@@ -81,33 +73,26 @@ const DesActivityMiniReplayer = ({
   }, [screenSelection, currentScreen]);
 
   return (
-    <Fragment>
-      <div style={{ display: _isShowable() ? 'inherit' : 'none' }}>
-        {calculatorInst.current &&
-          calculatorInst.current.getScreenCount() > 1 && (
-            <Select
-              options={_screenOptions()}
-              value={screenSelection}
-              onChange={setScreenSelection}
-              placeholder="Select a Screen..."
-              isSearchable={false}
-            />
-          )}
-        <div className={classes.Activity} id="calculatorParent">
-          <div
-            className={classes.Graph}
-            style={{ position: 'absolute', pointerEvents: 'none' }}
-            id="calculator"
-            ref={calculatorRef}
+    <div>
+      {calculatorInst.current &&
+        calculatorInst.current.getScreenCount() > 1 && (
+          <Select
+            options={_screenOptions()}
+            value={screenSelection}
+            onChange={setScreenSelection}
+            placeholder="Select a Screen..."
+            isSearchable={false}
           />
-        </div>
+        )}
+      <div className={classes.Activity} id="calculatorParent">
+        <div
+          className={classes.Graph}
+          style={{ position: 'absolute', pointerEvents: 'none' }}
+          id="calculator"
+          ref={calculatorRef}
+        />
       </div>
-      <div
-        style={{ margin: '10px', display: !_isShowable() ? 'inherit' : 'none' }}
-      >
-        {!loaded ? 'Activity loading...' : 'No activity to show'}
-      </div>
-    </Fragment>
+    </div>
   );
 };
 
