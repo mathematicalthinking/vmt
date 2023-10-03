@@ -35,10 +35,6 @@ const activeTabTypes = [
   TAB_TYPES.DESMOS,
 ];
 
-const Blank = () => (
-  <div style={{ margin: '10px' }}>No viewer for this tab type yet</div>
-);
-
 if (
   window.env.REACT_APP_PYRET_MODE &&
   window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes'
@@ -66,14 +62,14 @@ const tabTypeProperties = {
     label: 'GeoGebra',
     component: GgbGraph,
     replayer: GgbReplayer,
-    miniReplayer: Blank,
+    // miniReplayer: GgbMiSniReplayer,
     icon: <img width={28} src={ggbIcon} alt="GeoGebra Icon" />,
   },
   [TAB_TYPES.DESMOS]: {
     label: 'Desmos',
     component: DesmosGraph,
     replayer: DesmosReplayer,
-    miniReplayer: Blank,
+    miniReplayer: DesmosMiniReplayer,
     icon: <img width={25} src={dsmIcon} alt="Desmos Icon" />,
   },
   [TAB_TYPES.DESMOS_ACTIVITY]: {

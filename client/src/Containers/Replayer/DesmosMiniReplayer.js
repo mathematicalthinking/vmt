@@ -1,50 +1,44 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import Script from 'react-load-script';
 
 const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
-  const calculator = React.createRef();
+  const calculatorRef = React.createRef();
+  const [calculator, setCalculator] = React.useState();
 
-  const _initialize = (el) => {
-    if (!calculator.current)
-      calculator.current = window.Desmos.GraphingCalculator(el);
-
-    console.log('calc init', calculator.current);
-  };
-
-  const _update = () => {
-    console.log('calc update', calculator.current);
-    if (calculator.current)
-      if (currentState) {
-        calculator.current.setState(JSON.parse(currentState));
-      } else if (startingPoint) {
-        calculator.current.setState(JSON.parse(startingPoint));
-      } else {
-        calculator.current.setBlank();
-      }
+  const onScriptLoad = () => {
+    if (!window.Desmos && !calculator) return;
+    const newCalc =
+      calculator || window.Desmos.GraphingCalculator(calculatorRef.current);
+    setCalculator(newCalc);
+    if (currentState) newCalc.setState(JSON.parse(currentState));
+    else if (startingPoint) newCalc.setState(JSON.parse(startingPoint));
+    else newCalc.setBlank();
   };
 
   React.useEffect(() => {
+    onScriptLoad();
     return () => {
-      if (calculator.current) {
-        calculator.current.destroy();
+      if (calculator) {
+        calculator.destroy();
       }
     };
-  }, []);
-
-  React.useEffect(() => {
-    console.log('useeffect update', calculator.current);
-    _update();
-  }, [startingPoint, currentState, calculator.current]);
+  }, [startingPoint, currentState]);
 
   return (
-    <div
-      style={{
-        height: '100%',
-        width: '100%',
-      }}
-      id="calculator"
-      ref={_initialize}
-    />
+    <Fragment>
+      {!window.Desmos ? (
+        <Script
+          url="https://www.desmos.com/api/v1.5/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"
+          onLoad={onScriptLoad}
+        />
+      ) : null}
+      <div
+        style={{ height: '100%', width: '100%' }}
+        id="calculator"
+        ref={calculatorRef}
+      />
+    </Fragment>
   );
 };
 
