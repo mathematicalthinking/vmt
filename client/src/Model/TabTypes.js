@@ -12,7 +12,7 @@ import {
   DesmosReplayer,
   // GgbMiniReplayer,
   DesActivityMiniReplayer,
-  DesmosMiniReplayer,
+  // DesmosMiniReplayer,
 } from 'Containers/Replayer';
 import { RadioBtn, Button } from 'Components';
 import ggbIcon from 'assets/geogebra.png';
