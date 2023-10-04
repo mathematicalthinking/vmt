@@ -160,7 +160,7 @@ function RoomsMonitor({
         link: `/myVMT/workspace/${id}/replayer`,
       },
       {
-        name: 'View/ExAport Room Stats',
+        name: 'View/Export Room Stats',
         link: `/myVMT/rooms/${id}/stats`,
       },
     ];
