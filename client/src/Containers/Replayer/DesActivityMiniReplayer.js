@@ -2,7 +2,6 @@ import React, { useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import classes from 'Containers/Replayer/DesActivityReplayer.css';
-import { Player } from 'external/js/api.full.es';
 
 const DesActivityMiniReplayer = ({
   startingPoint,
@@ -16,7 +15,8 @@ const DesActivityMiniReplayer = ({
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
-  const initCalc = () => {
+  const initCalc = async () => {
+    const { Player } = await import('../../external/js/api.full.es');
     const playerOptions = { targetElement: calculatorRef.current };
     try {
       if (startingPoint)
@@ -53,7 +53,7 @@ const DesActivityMiniReplayer = ({
   };
 
   useEffect(async () => {
-    if (startingPoint) initCalc();
+    if (startingPoint) await initCalc();
     setLoaded(true);
     return () => {
       if (calculatorInst.current) {
