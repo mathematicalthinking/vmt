@@ -6,7 +6,6 @@ import MyVmt from './Routes/MyVmt';
 import Home from './Routes/Home';
 import SocketProvider from './Components/HOC/SocketProvider';
 import GeneralModal from './Components/GeneralModal';
-import GeneralResources from './Components/GeneralResources';
 
 import configureStore from './configureStore';
 import './global.css';
@@ -36,7 +35,6 @@ const App = () => (
           <div
             style={{ display: 'flex', flexFlow: 'column', minHeight: '100vh' }}
           >
-            <GeneralResources />
             <GeneralModal>
               <Switch>
                 <Route path="/myVMT" component={MyVmt} />
