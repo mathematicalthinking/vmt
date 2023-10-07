@@ -4,6 +4,7 @@ const settingsConstants = {
   ALIASED_USERNAMES: 'displayAliasedUsernames',
   TAB_BASED_CONTROL: 'independentTabControl',
   PARTICIPANTS_CAN_CHANGE_PERSPECTIVE: 'participantsCanChangePerspective',
+  DISPLAY_QUICK_CHAT_LIST: 'displayQuickChatList',
 };
 
 const settings = {
@@ -24,6 +25,11 @@ const settings = {
   },
   [settingsConstants.PARTICIPANTS_CAN_CHANGE_PERSPECTIVE]: {
     label: 'Participants can change the perspective (GeoGebra)',
+    onLabel: 'Yes',
+    offLabel: 'No',
+  },
+  [settingsConstants.DISPLAY_QUICK_CHAT_LIST]: {
+    label: 'Display chat emojis',
     onLabel: 'Yes',
     offLabel: 'No',
   },
@@ -57,16 +63,24 @@ const getRoomSettings = (room) => {
 const getDefaultRoomSettings = (includeGGBSetting = false) => {
   const defaultRoomSettings = {};
   if (!includeGGBSetting) {
-    // add all settings except GGB setting
     Object.keys(settings).forEach((setting) => {
+      // add all settings except GGB setting
       if (setting !== settingsConstants.PARTICIPANTS_CAN_CHANGE_PERSPECTIVE) {
         defaultRoomSettings[setting] = false;
+      }
+      // default displayQuickChatList to true
+      if (setting === settingsConstants.DISPLAY_QUICK_CHAT_LIST) {
+        defaultRoomSettings[setting] = true;
       }
     });
   } else {
     // add all settings including GGB setting
     Object.keys(settings).forEach((setting) => {
       defaultRoomSettings[setting] = false;
+      // default displayQuickChatList to true
+      if (setting === settingsConstants.DISPLAY_QUICK_CHAT_LIST) {
+        defaultRoomSettings[setting] = true;
+      }
     });
   }
 

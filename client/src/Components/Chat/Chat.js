@@ -320,8 +320,9 @@ class Chat extends Component {
   };
 
   toggleChatPicker = () => {
+    const { displayQuickChatList } = this.props;
     this.setState((prevState) => ({
-      isChatPicker: !prevState.isChatPicker,
+      isChatPicker: !prevState.isChatPicker && displayQuickChatList,
     }));
   };
 
@@ -391,6 +392,7 @@ class Chat extends Component {
       connectionStatus,
       resetRoom,
       showTitle,
+      displayQuickChatList,
     } = this.props;
     const {
       highlightedMessage,
@@ -597,8 +599,17 @@ class Chat extends Component {
                         />
                       </div>
                       <div
-                        className={classes.QuickMenu}
-                        title="Toggle quick-chat drawer"
+                        className={`
+                        // if displayQuickChatList is false, disable quick chat
+                        ${
+                          displayQuickChatList
+                            ? classes.QuickMenu
+                            : classes.QuickMenuDisabled
+                        }
+                        ${classes.QuickMenu}`}
+                        title={`${
+                          displayQuickChatList ? 'Toggle quick-chat drawer' : ''
+                        }`}
                         onClick={this.toggleChatPicker}
                         onKeyPress={this.toggleChatPicker}
                         tabIndex="-2"
@@ -610,7 +621,7 @@ class Chat extends Component {
                   </div>
                 ) : null}
               </div>
-              {isChatPicker ? (
+              {isChatPicker && displayQuickChatList ? (
                 <div className={classes.ChatPicker}>
                   {quickChats.map((chat, i) => {
                     return (
@@ -676,6 +687,7 @@ Chat.propTypes = {
   changingIndex: PropTypes.bool,
   resetRoom: PropTypes.func,
   showTitle: PropTypes.bool,
+  displayQuickChatList: PropTypes.bool,
 };
 
 const dummyFn = () => {};
@@ -708,6 +720,7 @@ Chat.defaultProps = {
   changingIndex: false,
   resetRoom: () => {},
   showTitle: true,
+  displayQuickChatList: true,
 };
 
 export default Chat;

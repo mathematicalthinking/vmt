@@ -1096,6 +1096,7 @@ class Workspace extends Component {
           // don't allow admins to do a force reset
           if (!user.inAdminMode) resetRoom(...args);
         }}
+        displayQuickChatList={populatedRoom.settings.displayQuickChatList}
       />
     );
     const graphs = currentTabs.map((tab) => (
@@ -1257,7 +1258,7 @@ Workspace.propTypes = {
     log: PropTypes.arrayOf(PropTypes.shape({})),
     controlledBy: PropTypes.string,
     currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
-    settings: PropTypes.shape({}),
+    settings: PropTypes.shape({ displayQuickChatList: PropTypes.bool }),
     getCurrentMembers: PropTypes.func.isRequired,
     adjustUser: PropTypes.func.isRequired,
   }).isRequired,

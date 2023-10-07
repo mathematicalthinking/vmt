@@ -229,6 +229,17 @@
   color: white;
 }
 
+.QuickMenuDisabled {
+  cursor: default;
+  opacity: 0.5;
+  background: none;
+}
+
+.QuickMenuDisabled:hover {
+  background: none;
+  color: blue;
+}
+
 .Entry {
   display: flex;
   flex-flow: column;

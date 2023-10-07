@@ -63,6 +63,7 @@ const Room = new mongoose.Schema(
       participantsCanChangePerspective: { type: Boolean, default: false },
       independentTabControl: { type: Boolean, default: false },
       displayAliasedUsernames: { type: Boolean, default: false },
+      displayQuickChatList: { type: Boolean, default: true },
     },
     graphImage: { type: ObjectId, ref: 'Image' },
     controlledBy: { type: ObjectId, ref: 'User', default: null },
