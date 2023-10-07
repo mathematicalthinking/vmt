@@ -82,7 +82,7 @@ const DesmosActivity = (props) => {
     // let eventDetails = JSON.stringify(updates);
     // return `${username}: ${eventDetails}`;
     if (updates.type === 'set-active-screen-id') {
-      return `${username} switched to screen ${getCurrentScreen()+1}`;
+      return `${username} switched to screen ${getCurrentScreen() + 1}`;
     }
     return `${username} interacted with the Activity`;
   };
@@ -184,7 +184,7 @@ const DesmosActivity = (props) => {
     const { tab, setFirstTabLoaded } = props;
     // look for and load prior activity data
     const { config, status } = await fetchConfigData(tab);
-    const { Player } = await import('../../external/js/api.full.es');
+    const { Player } = window;
     configResponse = status;
     const playerOptions = {
       activityConfig: config,

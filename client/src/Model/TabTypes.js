@@ -12,7 +12,7 @@ import {
   DesmosReplayer,
   // GgbMiniReplayer,
   DesActivityMiniReplayer,
-  // DesmosMiniReplayer,
+  DesmosMiniReplayer,
 } from 'Containers/Replayer';
 import { RadioBtn, Button } from 'Components';
 import ggbIcon from 'assets/geogebra.png';
@@ -73,7 +73,7 @@ const tabTypeProperties = {
     label: 'Desmos',
     component: DesmosGraph,
     replayer: DesmosReplayer,
-    miniReplayer: Blank,
+    miniReplayer: DesmosMiniReplayer,
     icon: <img width={25} src={dsmIcon} alt="Desmos Icon" />,
   },
   [TAB_TYPES.DESMOS_ACTIVITY]: {

@@ -15,7 +15,7 @@ const DesActivityReplayer = (props) => {
   const initCalc = async (tab) => {
     const { config, status } = await fetchConfigData(tab);
 
-    const { Player } = await import('../../external/js/api.full.es');
+    const { Player } = window;
     const playerOptions = {
       activityConfig: config,
       targetElement: calculatorRef.current,

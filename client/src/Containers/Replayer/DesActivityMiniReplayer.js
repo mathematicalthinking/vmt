@@ -15,13 +15,13 @@ const DesActivityMiniReplayer = ({
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
-  const initCalc = async () => {
-    const { Player } = await import('../../external/js/api.full.es');
+  const initCalc = () => {
+    const { Player } = window;
     const playerOptions = { targetElement: calculatorRef.current };
     try {
       if (startingPoint)
         playerOptions.activityConfig = JSON.parse(startingPoint);
-      if (currentState) {
+      if (currentState && currentState !== '{}') {
         const newState = JSON.parse(currentState);
         playerOptions.responseData = newState;
       }
@@ -47,13 +47,13 @@ const DesActivityMiniReplayer = ({
 
   const _isShowable = () => {
     if (!calculatorInst.current) return false;
-    if (!startingPoint || startingPoint === '{}') return false;
+    // if (!startingPoint || startingPoint === '{}') return false;
     if (!currentState || currentState === '{}') return false;
     return true;
   };
 
-  useEffect(async () => {
-    if (startingPoint) await initCalc();
+  useEffect(() => {
+    if (startingPoint) initCalc();
     setLoaded(true);
     return () => {
       if (calculatorInst.current) {

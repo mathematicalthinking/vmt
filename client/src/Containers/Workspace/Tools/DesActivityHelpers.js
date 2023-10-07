@@ -70,7 +70,7 @@ export const fetchConfigData = async (tab, shouldLoadCurrent = false) => {
 
 export const initializeNewDesmosActivity = async (roomConfig) => {
   if (!roomConfig || !roomConfig.desmosLink) return roomConfig;
-  const { Player } = await import('external/js/api.full.es');
+  const { Player } = window;
   const configData = await fetchConfigData({
     desmosLink: roomConfig.desmosLink,
   });

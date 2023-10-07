@@ -2,10 +2,11 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from 'react-query';
-import MyVmt from './Routes/MyVmt';
-import Home from './Routes/Home';
-import SocketProvider from './Components/HOC/SocketProvider';
-import GeneralModal from './Components/GeneralModal';
+import MyVmt from 'Routes/MyVmt';
+import Home from 'Routes/Home';
+import SocketProvider from 'Components/HOC/SocketProvider';
+import GeneralModal from 'Components/GeneralModal';
+import GeneralResources from 'Components/GeneralResources';
 
 import configureStore from './configureStore';
 import './global.css';
@@ -35,6 +36,7 @@ const App = () => (
           <div
             style={{ display: 'flex', flexFlow: 'column', minHeight: '100vh' }}
           >
+            <GeneralResources />
             <GeneralModal>
               <Switch>
                 <Route path="/myVMT" component={MyVmt} />

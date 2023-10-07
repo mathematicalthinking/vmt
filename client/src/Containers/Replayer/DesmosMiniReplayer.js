@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
@@ -7,12 +7,9 @@ const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
   const _initialize = (el) => {
     if (!calculator.current)
       calculator.current = window.Desmos.GraphingCalculator(el);
-
-    console.log('calc init', calculator.current);
   };
 
   const _update = () => {
-    console.log('calc update', calculator.current);
     if (calculator.current)
       if (currentState) {
         calculator.current.setState(JSON.parse(currentState));
@@ -32,7 +29,6 @@ const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
   }, []);
 
   React.useEffect(() => {
-    console.log('useeffect update', calculator.current);
     _update();
   }, [startingPoint, currentState, calculator.current]);
 
