@@ -230,9 +230,12 @@
 }
 
 .QuickMenuDisabled {
+  /* show as disabled */
   cursor: default;
   opacity: 0.5;
   background: none;
+  /* don't show it */
+  display: none;
 }
 
 .QuickMenuDisabled:hover {
