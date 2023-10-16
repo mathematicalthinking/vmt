@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Room } from 'Model';
+import { determineLinkPath } from 'utils';
 import ContentBox from '../../Components/UI/ContentBox/ContentBox';
 import DragContentBox from '../../Components/UI/ContentBox/DragContentBox';
 import classes from './boxList.css';
@@ -99,7 +100,9 @@ const boxList = (props) => {
                 title={item.name}
                 link={
                   linkPath !== null
-                    ? `${linkPath}${item._id}${linkSuffix}`
+                    ? `${determineLinkPath(item, resource)}${
+                        item._id
+                      }${linkSuffix}`
                     : null
                 }
                 key={item._id}
