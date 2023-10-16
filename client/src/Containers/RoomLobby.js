@@ -395,6 +395,7 @@ class Room extends Component {
       connectUpdateRoom,
       course,
       connectUpdateUser,
+      activity,
       // tabs,
     } = this.props;
     const {
@@ -505,6 +506,18 @@ class Room extends Component {
         { title: 'My VMT', link: '/myVMT/rooms' },
         { title: room.name, link: `/myVMT/rooms/${room._id}/details` },
       ];
+
+      if (activity || (room && room.activity)) {
+        const title = activity ? activity.name : null;
+        const _id = activity ? activity._id : room.activity;
+        if (title) {
+          crumbs.splice(1, 0, {
+            title,
+            link: `/myVMT/activities/${_id}/rooms`,
+          });
+        }
+      }
+
       // @TODO DONT GET THE COURSE NAME FROM THE ROOM...WE HAVE TO WAIT FOR THAT DATA JUST GRAB IT FROM
       // THE REDUX STORE USING THE COURSE ID IN THE URL
       if (course || (room && room.course && room.course._id)) {
@@ -516,6 +529,7 @@ class Room extends Component {
           link: `/myVMT/courses/${_id}/rooms`,
         });
       }
+
       let mainContent;
       const { resource } = match.params;
       if (resource === 'details') {
@@ -849,6 +863,10 @@ class Room extends Component {
 Room.propTypes = {
   room: PropTypes.shape({
     _id: PropTypes.string,
+    activity: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.shape({})),
+    ]), // activity might be an id or a populated object
     course: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.arrayOf(PropTypes.shape({})),
@@ -885,6 +903,10 @@ Room.propTypes = {
     name: PropTypes.string,
     members: PropTypes.arrayOf(PropTypes.shape({})),
   }),
+  activity: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+  }),
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
@@ -912,6 +934,7 @@ Room.propTypes = {
 Room.defaultProps = {
   room: null,
   course: null,
+  activity: null,
   error: null,
 };
 const mapStateToProps = (state, ownProps) => {
@@ -927,7 +950,17 @@ const mapStateToProps = (state, ownProps) => {
     if (typeof room.course === 'string') course = room.course;
     if (typeof room.course === 'object') course = room.course._id;
   }
+  let activity;
+  // sometimes room.activity is a string and sometimes it's
+  // an object of the form: { _id, name }
+  // we only really care about the _id right now
+  if (room && room.activity) {
+    // eslint-disable-next-line prefer-destructuring
+    if (typeof room.activity === 'string') activity = room.activity;
+    if (typeof room.activity === 'object') activity = room.activity._id;
+  }
   return {
+    activity: state.activities.byId[activity] || null,
     room: room || state.rooms.byId[room_id],
     course: state.courses.byId[course] || null,
     // courseMembers:  store.rooms.byId[room_id].course ? store.courses.byId[store.rooms.byId[room_id].course._id].members : null,// ONLY IF THIS ROOM BELONGS TO A COURSE

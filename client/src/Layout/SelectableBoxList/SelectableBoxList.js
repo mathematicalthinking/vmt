@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox, ToolTip } from 'Components';
 import SelectableContentBox from 'Components/UI/ContentBox/SelectableContentBox';
+import { determineLinkPath } from 'utils';
 import Expand from '../../Components/UI/ContentBox/expand';
 import classes from './SelectableBoxList.css';
 
@@ -230,7 +231,9 @@ const SelectableBoxList = (props) => {
                     // only allow default resources to be links
                     // disallow clicking on archived rooms
                     linkPath !== null && item.status === 'default'
-                      ? `${linkPath}${item._id}${linkSuffix}`
+                      ? `${determineLinkPath(item, resource)}${
+                          item._id
+                        }${linkSuffix}`
                       : null
                   }
                   key={item._id}
