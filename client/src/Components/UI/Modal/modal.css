@@ -27,7 +27,8 @@
   background-color: white;
   padding: 16px;
   z-index: 2000;
-  overflow: scroll;
+  /* overflow: scroll; */
+  overflow: auto;
   transition: all 0.3s ease-out;
 }
 
