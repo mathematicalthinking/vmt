@@ -406,7 +406,7 @@ const CourseRooms = (props) => {
   return (
     <div className={classes.CourseRoomsContainer}>
       <span className={classes.CreateRoom}>
-        <NewResource resource="rooms" courseId={courseId} />
+        <NewResource resource="rooms" parentCourseId={courseId} />
       </span>
       <div className={classes.Filters}>
         <div className={classes.SortUI}>

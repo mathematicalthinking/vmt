@@ -188,6 +188,8 @@ class Activity extends Component {
             resource={resource}
             parentResource={course ? 'courses' : 'activities'}
             parentResourceId={course ? course._id : activity._id}
+            parentActivityId={activity ? activity._id : null}
+            parentCourseId={course ? course._id : null}
             activityOwner={owner || user.isAdmin}
             context="activity"
             selectableBoxList

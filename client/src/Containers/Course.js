@@ -538,6 +538,7 @@ class Course extends Component {
             )}
             parentResource="courses"
             parentResourceId={course._id}
+            parentCourseId={course._id}
             context="course"
             selectableBoxList
           />

@@ -22,6 +22,8 @@ const ResourceList = ({
   resource,
   parentResource,
   parentResourceId,
+  parentActivityId,
+  parentCourseId,
   user,
   userResources,
   notifications,
@@ -144,7 +146,8 @@ const ResourceList = ({
     create = (
       <NewResource
         resource={resource}
-        courseId={parentResource === 'courses' ? parentResourceId : null}
+        parentActivityId={parentActivityId}
+        parentCourseId={parentCourseId}
       />
     );
   }
@@ -486,6 +489,8 @@ ResourceList.propTypes = {
   resource: PropTypes.string.isRequired,
   parentResource: PropTypes.string,
   parentResourceId: PropTypes.string,
+  parentActivityId: PropTypes.string,
+  parentCourseId: PropTypes.string,
   user: PropTypes.shape({
     accountType: PropTypes.string,
     _id: PropTypes.string,
@@ -499,6 +504,8 @@ ResourceList.propTypes = {
 ResourceList.defaultProps = {
   parentResource: null,
   parentResourceId: null,
+  parentActivityId: null,
+  parentCourseId: null,
   selectableBoxList: false,
   context: null,
 };
