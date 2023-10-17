@@ -242,7 +242,8 @@ class Members extends PureComponent {
     );
     if (allFacilitators) return null;
 
-    if (user.isAdmin) {
+    // if (user.isAdmin) {
+    if (false) {
       return (
         <div className={classes.EditUsernames}>
           <Checkbox
