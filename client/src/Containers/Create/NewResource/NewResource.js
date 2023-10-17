@@ -135,7 +135,6 @@ class NewResourceContainer extends Component {
     } = this.state;
     const {
       resource,
-      courseId,
       userId,
       username,
       connectCreateCourse,
@@ -144,6 +143,8 @@ class NewResourceContainer extends Component {
       connectUpdateUser,
       intro,
       history,
+      parentActivityId,
+      parentCourseId,
     } = this.props;
 
     const newResource = {
@@ -153,7 +154,8 @@ class NewResourceContainer extends Component {
       privacySetting,
       creator: userId,
       activities: activities.length > 0 ? activities : null,
-      course: courseId,
+      course: parentCourseId,
+      activity: parentActivityId,
       roomType,
       image: formatImageUrl(name, resource),
     };
@@ -187,7 +189,7 @@ class NewResourceContainer extends Component {
           connectCreateCourse(newResource);
           break;
         case 'activities':
-          if (courseId) newResource.users = this.composeActivityUsers();
+          if (parentCourseId) newResource.users = this.composeActivityUsers();
           connectCreateActivity(newResource);
           break;
         case 'rooms':
@@ -513,7 +515,6 @@ class NewResourceContainer extends Component {
 
 NewResourceContainer.propTypes = {
   resource: PropTypes.string.isRequired,
-  courseId: PropTypes.string,
   userId: PropTypes.string.isRequired,
   username: PropTypes.string.isRequired,
   connectCreateCourse: PropTypes.func.isRequired,
@@ -524,12 +525,15 @@ NewResourceContainer.propTypes = {
   connectUpdateUser: PropTypes.func.isRequired,
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   course: PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) }),
+  parentActivityId: PropTypes.string,
+  parentCourseId: PropTypes.string,
 };
 
 NewResourceContainer.defaultProps = {
-  courseId: null,
   intro: false,
   course: null,
+  parentActivityId: null,
+  parentCourseId: null,
 };
 
 const mapStateToProps = (store, ownProps) => {

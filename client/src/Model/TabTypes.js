@@ -10,6 +10,9 @@ import {
   GgbReplayer,
   DesActivityReplayer,
   DesmosReplayer,
+  // GgbMiniReplayer,
+  DesActivityMiniReplayer,
+  // DesmosMiniReplayer,
 } from 'Containers/Replayer';
 import { RadioBtn, Button } from 'Components';
 import ggbIcon from 'assets/geogebra.png';
@@ -31,6 +34,10 @@ const activeTabTypes = [
   TAB_TYPES.GEOGEBRA,
   TAB_TYPES.DESMOS,
 ];
+
+const Blank = () => (
+  <div style={{ margin: '10px' }}>No viewer for this tab type yet</div>
+);
 
 if (
   window.env.REACT_APP_PYRET_MODE &&
@@ -59,18 +66,21 @@ const tabTypeProperties = {
     label: 'GeoGebra',
     component: GgbGraph,
     replayer: GgbReplayer,
+    miniReplayer: Blank,
     icon: <img width={28} src={ggbIcon} alt="GeoGebra Icon" />,
   },
   [TAB_TYPES.DESMOS]: {
     label: 'Desmos',
     component: DesmosGraph,
     replayer: DesmosReplayer,
+    miniReplayer: Blank,
     icon: <img width={25} src={dsmIcon} alt="Desmos Icon" />,
   },
   [TAB_TYPES.DESMOS_ACTIVITY]: {
     label: 'Desmos Activity',
     component: DesmosActivity,
     replayer: DesActivityReplayer,
+    miniReplayer: DesActivityMiniReplayer,
     icon: <img width={25} src={dsmActIcon} alt="Desmos Activity Icon" />,
   },
   multiple: { icon: <img width={25} src={bothIcon} alt="Multiple Types" /> },
@@ -182,6 +192,10 @@ function MathspaceReplayer(props) {
   return MathspaceComponent('replayer', props);
 }
 
+function MathspaceMiniReplayer(props) {
+  return MathspaceComponent('miniReplayer', props);
+}
+
 const TabTypes = {
   isActive,
   homepageMessages,
@@ -189,6 +203,7 @@ const TabTypes = {
   getIcon,
   Mathspace,
   MathspaceReplayer,
+  MathspaceMiniReplayer,
   RadioButtons,
   Buttons,
   ...TAB_TYPES,

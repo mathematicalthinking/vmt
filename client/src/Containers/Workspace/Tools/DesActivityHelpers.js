@@ -2,7 +2,7 @@
 const baseURL = 'https://teacher.desmos.com/activitybuilder/export/'; // + activity code
 
 // utility for getting Desmos Activity Confguration from tab state
-export const fetchConfigData = async (tab) => {
+export const fetchConfigData = async (tab, shouldLoadCurrent = false) => {
   console.log('Tab data: ', tab);
   // setting our return object
   const configData = {};
@@ -17,6 +17,8 @@ export const fetchConfigData = async (tab) => {
     ) {
       configData.config = JSON.parse(tab.startingPointBase64);
       configData.status = 'Prior content loaded';
+      if (shouldLoadCurrent)
+        configData.responseData = JSON.parse(tab.currentStateBase64);
       return configData;
     }
   }

@@ -109,4 +109,20 @@ router.post('/reinstateUser/:id', async (req, res) => {
   }
 });
 
+// update username in sso
+router.put('/updateUsernames', async (req, res) => {
+  // given a list of users, update their username in sso
+  console.log('in update usernames in admin');
+  try {
+    const { users } = req.body;
+    console.log('users: ', users);
+    const res = await ssoService.updateUsernames(users);
+    return res;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log('err admin update username: ', err.message);
+    return errors.handleError(err, res);
+  }
+});
+
 module.exports = router;

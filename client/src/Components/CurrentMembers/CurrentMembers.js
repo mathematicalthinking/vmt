@@ -39,6 +39,7 @@ function CurrentMembers({
       return {
         ...mem,
         user: { ...mem.user, username: member.username },
+        username: member.username,
         tabNum: member.tabNum ? member.tabNum : '',
       };
     });
@@ -52,8 +53,8 @@ function CurrentMembers({
   };
 
   const username = (id) => {
-    const member = members.find((mem) => mem.user._id === id);
-    return member && member.user ? shortenName(member.user.username) : '';
+    const member = presentMembers.find((mem) => mem.user._id === id);
+    return member ? shortenName(member.username) : '';
   };
 
   const shortenName = (usrnm) => {

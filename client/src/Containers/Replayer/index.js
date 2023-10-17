@@ -6,6 +6,9 @@ export { default as DesmosReplayer } from './DesmosReplayer';
 export { default as DesActivityReplayer } from './DesActivityReplayer';
 export { default as ChatReplayer } from './ChatReplayer';
 export { default as ReplayerControls } from './ReplayerControls';
+export { default as DesActivityMiniReplayer } from './DesActivityMiniReplayer';
+export { default as DesmosMiniReplayer } from './DesmosMiniReplayer';
+export { default as SharedMiniReplayer } from './SharedMiniReplayer';
 // export { default as SharedReplayer } from './SharedReplayer';
 
 export default Replayer;
