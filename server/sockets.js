@@ -1,11 +1,18 @@
 const { ObjectId } = require('mongoose').Types;
 const { hri } = require('human-readable-ids');
+const { createClient } = require('redis');
+const util = require('util');
 // const cookie = require('cookie');
 const socketInit = require('./socketInit');
 const controllers = require('./controllers');
 const Message = require('./models/Message');
 const { socketMetricInc } = require('./services/metrics');
 const { findAllMatching } = require('./middleware/utils/helpers');
+
+const redisClient = createClient({ url: process.env.PUB_CLIENT_URL });
+const setnxAsync = util.promisify(redisClient.setnx).bind(redisClient);
+const expireAsync = util.promisify(redisClient.expire).bind(redisClient);
+const delAsync = util.promisify(redisClient.del).bind(redisClient);
 
 module.exports = function() {
   const { io } = socketInit;
@@ -308,16 +315,31 @@ module.exports = function() {
     socket.on('TAKE_CONTROL', async (data, callback) => {
       socketMetricInc('controltake');
 
+      const lockKey = `room:${data.room}:lock`;
+
       try {
-        await Promise.all([
-          controllers.messages.post(data),
-          controllers.tabs.put(data.tab, { controlledBy: data.user._id }),
-        ]);
-        if (callback) callback(null, 'Success');
+        const result = await setnxAsync(lockKey, 1);
+
+        if (result === 1) {
+          // Lock acquired
+          await expireAsync(lockKey, 5);
+
+          await Promise.all([
+            controllers.messages.post(data),
+            controllers.tabs.put(data.tab, { controlledBy: data.user._id }),
+          ]);
+
+          await delAsync(lockKey); // Release lock
+
+          if (callback) callback(null, 'Success');
+          socket.to(data.room).emit('TOOK_CONTROL', data);
+        } else if (callback) {
+          callback(new Error('Room is already being controlled'), null);
+        }
       } catch (err) {
+        await delAsync(lockKey); // Release lock in case of error
         if (callback) callback(err, null);
       }
-      socket.to(data.room).emit('TOOK_CONTROL', data);
     });
 
     socket.on('RELEASE_CONTROL', (data, callback) => {
