@@ -1,11 +1,17 @@
 const { ObjectId } = require('mongoose').Types;
 const { hri } = require('human-readable-ids');
+const { createClient } = require('redis');
+const util = require('util');
 // const cookie = require('cookie');
 const socketInit = require('./socketInit');
 const controllers = require('./controllers');
 const Message = require('./models/Message');
 const { socketMetricInc } = require('./services/metrics');
 const { findAllMatching } = require('./middleware/utils/helpers');
+
+const redisClient = createClient({ url: process.env.PUB_CLIENT_URL });
+const setAsync = util.promisify(redisClient.set).bind(redisClient);
+const delAsync = util.promisify(redisClient.del).bind(redisClient);
 
 module.exports = function() {
   const { io } = socketInit;
@@ -308,16 +314,33 @@ module.exports = function() {
     socket.on('TAKE_CONTROL', async (data, callback) => {
       socketMetricInc('controltake');
 
+      const lockKey = `room:${data.room}:lock`;
+      let lockAcquired = false; // Add a flag to track lock status
+
       try {
-        await Promise.all([
-          controllers.messages.post(data),
-          controllers.tabs.put(data.tab, { controlledBy: data.user._id }),
-        ]);
-        if (callback) callback(null, 'Success');
+        const result = await setAsync(lockKey, 1, 'NX', 'EX', 5); // Increase the expiry time
+        if (result === 'OK') {
+          lockAcquired = true; // Set the flag to true
+
+          await Promise.all([
+            controllers.messages.post(data),
+            controllers.tabs.put(data.tab, { controlledBy: data.user._id }),
+          ]);
+
+          await delAsync(lockKey); // Release lock
+
+          if (callback) callback(null, 'Success');
+          socket.to(data.room).emit('TOOK_CONTROL', data);
+        } else if (callback) {
+          callback(new Error('Room is already being controlled'), null);
+        }
       } catch (err) {
+        if (lockAcquired) {
+          // Only attempt to release the lock if it was acquired
+          await delAsync(lockKey); // Release lock
+        }
         if (callback) callback(err, null);
       }
-      socket.to(data.room).emit('TOOK_CONTROL', data);
     });
 
     socket.on('RELEASE_CONTROL', (data, callback) => {
