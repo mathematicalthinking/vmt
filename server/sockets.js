@@ -12,6 +12,7 @@ const { findAllMatching } = require('./middleware/utils/helpers');
 const redisClient = createClient({ url: process.env.PUB_CLIENT_URL });
 const setAsync = util.promisify(redisClient.set).bind(redisClient);
 const delAsync = util.promisify(redisClient.del).bind(redisClient);
+const lockKey = (roomId) => `room:${roomId}:lock`;
 
 module.exports = function() {
   const { io } = socketInit;
@@ -314,30 +315,32 @@ module.exports = function() {
     socket.on('TAKE_CONTROL', async (data, callback) => {
       socketMetricInc('controltake');
 
-      const lockKey = `room:${data.room}:lock`;
-      let lockAcquired = false; // Add a flag to track lock status
+      const roomLockKey = lockKey(data.room, data.tab);
+      let lockAcquired = false;
 
       try {
-        const result = await setAsync(lockKey, 1, 'NX', 'EX', 5); // Increase the expiry time
+        const result = await setAsync(roomLockKey, 1, 'NX', 'EX', 1000);
+
         if (result === 'OK') {
-          lockAcquired = true; // Set the flag to true
+          lockAcquired = true;
 
           await Promise.all([
             controllers.messages.post(data),
             controllers.tabs.put(data.tab, { controlledBy: data.user._id }),
           ]);
 
-          await delAsync(lockKey); // Release lock
+          // await delAsync(roomLockKey);
 
-          if (callback) callback(null, 'Success');
           socket.to(data.room).emit('TOOK_CONTROL', data);
-        } else if (callback) {
-          callback(new Error('Room is already being controlled'), null);
+          if (callback) callback(null, 'Success');
+        } else {
+          console.log('room already being controled');
+          if (callback)
+            callback(new Error('Room is already being controlled'), 'Rejected');
         }
       } catch (err) {
         if (lockAcquired) {
-          // Only attempt to release the lock if it was acquired
-          await delAsync(lockKey); // Release lock
+          await delAsync(roomLockKey);
         }
         if (callback) callback(err, null);
       }
@@ -348,6 +351,8 @@ module.exports = function() {
 
       controllers.messages.post(data);
       controllers.tabs.put(data.tab, { controlledBy: null });
+      //  redisClient.del(lockKey(data.room, data.tab));
+
       socket.to(data.room).emit('RELEASED_CONTROL', data);
       if (callback) callback(null, {});
     });
