@@ -305,6 +305,22 @@ module.exports = function() {
       socket.broadcast.to(data.room).emit('PENDING_MESSAGE', { ...data });
     });
 
+    socket.on('QUERY_CONTROLLERS', async (data) => {
+      const room = await controllers.rooms.getById(data.room);
+      if (!room) return; // We should alert the client that there is a problem
+
+      const tabs = await Promise.all(
+        room.tabs.map((tabId) => controllers.tabs.getById(tabId))
+      );
+
+      const tabControllers = tabs.reduce((acc, tab) => {
+        acc[tab._id] = tab.controlledBy;
+        return acc;
+      }, {});
+
+      io.in(data.room).emit('RESET_CONTROLLERS', tabControllers);
+    });
+
     socket.on('TAKE_CONTROL', async (data, callback) => {
       socketMetricInc('controltake');
 
