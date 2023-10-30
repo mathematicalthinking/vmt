@@ -305,20 +305,32 @@ module.exports = function() {
       socket.broadcast.to(data.room).emit('PENDING_MESSAGE', { ...data });
     });
 
-    socket.on('QUERY_CONTROLLERS', async (data) => {
-      const room = await controllers.rooms.getById(data.room);
-      if (!room) return; // We should alert the client that there is a problem
+    // If the server receives this message, it means that one of the clients has detected a
+    // problem with who is in control. In response, the server provides to everyone in the
+    // room all of the users that the DB says are in control in each of the room's tabs.
+    socket.on('QUERY_CONTROLLERS', async (data, callback) => {
+      try {
+        const room = await controllers.rooms.getById(data.room);
+        if (!room) {
+          if (callback)
+            callback(`ERROR: Could not find room ${data.room}`, null);
+          return;
+        }
 
-      const tabs = await Promise.all(
-        room.tabs.map((tabId) => controllers.tabs.getById(tabId))
-      );
+        const tabs = await Promise.all(
+          room.tabs.map((tabId) => controllers.tabs.getById(tabId))
+        );
 
-      const tabControllers = tabs.reduce((acc, tab) => {
-        acc[tab._id] = tab.controlledBy;
-        return acc;
-      }, {});
+        const tabControllers = tabs.reduce((acc, tab) => {
+          acc[tab._id] = tab.controlledBy;
+          return acc;
+        }, {});
 
-      io.in(data.room).emit('RESET_CONTROLLERS', tabControllers);
+        io.in(data.room).emit('RESET_CONTROLLERS', tabControllers);
+        if (callback) callback(null, 'Success');
+      } catch (err) {
+        if (callback) callback(err, null);
+      }
     });
 
     socket.on('TAKE_CONTROL', async (data, callback) => {

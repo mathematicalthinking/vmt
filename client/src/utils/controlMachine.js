@@ -231,6 +231,15 @@ const initialState = (context) => {
   return controlStates.OTHER;
 };
 
+const nullifyUserId = (obj = {}, userId) => {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      value === userId ? null : value,
+    ])
+  );
+};
+
 const mainControlMachineSpec = (context) => {
   const initial = context.strategy;
   const defaultStrategy = defaultControlMachineSpec(context);
@@ -480,7 +489,13 @@ const independentTabControlMachineSpec = (context) => {
       on: {
         [controlEvents.MSG_RELEASED_CONTROL]: [
           {
-            cond: (c, event) => c.currentTabId === event.tab,
+            cond: (c, event) =>
+              c.currentTabId === event.tab && c.inControl === controlStates.ME,
+            actions: 'query_controllers',
+          },
+          {
+            cond: (c, event) =>
+              c.currentTabId === event.tab && c.inControl !== controlStates.ME,
             target: `#${STRATEGY.INDEPENDENT}.${controlStates.NONE}`,
             actions: ['otherReleasesControl', 'storeNull'],
           },
@@ -491,13 +506,38 @@ const independentTabControlMachineSpec = (context) => {
         ],
         [controlEvents.MSG_TOOK_CONTROL]: [
           {
-            cond: (c, event) => c.currentTabId === event.tab,
+            cond: (c, event) =>
+              c.currentTabId === event.tab && c.inControl === controlStates.ME,
+            actions: 'query_controllers',
+          },
+          {
+            cond: (c, event) =>
+              c.currentTabId === event.tab && c.inControl !== controlStates.ME,
             target: `#${STRATEGY.INDEPENDENT}.${controlStates.OTHER}`,
             actions: ['otherTakesControl', 'storeController'],
           },
           {
             cond: (c, event) => c.currentTabId !== event.tab,
             actions: 'storeController',
+          },
+        ],
+        [controlEvents.RESET_CONTROLLERS]: [
+          {
+            cond: (c, event) =>
+              event.controllers && event.controllers[c.currentTabId] === null,
+            target: `#${STRATEGY.INDEPENDENT}.${controlStates.NONE}`,
+            actions: ['resetControllers', 'reset_otherReleasesControl'],
+          },
+          {
+            cond: (c, event) =>
+              event.controllers &&
+              event.controllers[c.currentTabId] === c.userId,
+            target: `#${STRATEGY.INDEPENDENT}.${controlStates.ME}`,
+            actions: ['resetControllers', 'reset_iTakeControl'],
+          },
+          {
+            target: `#${STRATEGY.INDEPENDENT}.${controlStates.OTHER}`,
+            actions: ['resetControllers', 'reset_otherTakesControl'],
           },
         ],
       },
@@ -640,6 +680,7 @@ const independentTabControlMachineSpec = (context) => {
         otherReleasesControl,
         iCancelRequest,
         iTakeMoreTime,
+        query_controllers,
         storeNull: assign({
           controllers: (c, event) => ({
             ...c.controllers,
@@ -661,12 +702,18 @@ const independentTabControlMachineSpec = (context) => {
         switchingTabs: assign({
           currentTabId: (_, event) => event.tab,
         }),
+        resetControllers: assign((c, event) => ({
+          controllers: {
+            ...c.controllers,
+            ...nullifyUserId(event.controllers, c.userId),
+          },
+        })),
         controlledByMe_ind: assign({
           inControl: controlStates.ME,
           controlledBy: (c) => c.userId,
           controllers: (c) => ({
             ...c.controllers,
-            [c.currentTabId]: null,
+            [c.currentTabId]: null, // 'controllers' does not store if I'm in control (bc of switching tab cases)
           }),
           buttonConfig: buttonConfigs[controlStates.ME],
         }),
