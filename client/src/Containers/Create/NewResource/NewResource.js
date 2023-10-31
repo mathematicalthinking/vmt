@@ -544,6 +544,7 @@ NewResourceContainer.propTypes = {
   course: PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) }),
   parentActivityId: PropTypes.string,
   parentCourseId: PropTypes.string,
+  parentDesmosLink: PropTypes.string,
 };
 
 NewResourceContainer.defaultProps = {
@@ -551,6 +552,7 @@ NewResourceContainer.defaultProps = {
   course: null,
   parentActivityId: null,
   parentCourseId: null,
+  parentDesmosLink: null,
 };
 
 const mapStateToProps = (store, ownProps) => {

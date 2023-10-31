@@ -150,6 +150,14 @@ const ResourceList = ({
         parentCourseId={parentCourseId}
       />
     );
+  } else if (context === 'activity-rooms') {
+    create = (
+      <NewResource
+        resource={resource}
+        parentActivityId={parentActivityId}
+        parentCourseId={parentCourseId}
+      />
+    );
   }
   /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
    * I feel like we are checking roles...which requires looping through the resources members each time.
