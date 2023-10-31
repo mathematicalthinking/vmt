@@ -15,7 +15,11 @@ class SelectionList extends Component {
         >
           <Checkbox
             change={(event) => {
-              selectItem(event, activity._id);
+              selectItem(
+                event,
+                activity._id,
+                activity.desmosLink ? activity.desmosLink : null
+              );
             }}
             id={activity._id}
             checked={selected.indexOf(activity._id) > -1}

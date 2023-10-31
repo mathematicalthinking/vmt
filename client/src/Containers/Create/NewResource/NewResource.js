@@ -223,16 +223,33 @@ class NewResourceContainer extends Component {
     history.push('/community/activities/selecting');
   };
 
-  addActivity = (event, id) => {
+  addActivity = (event, id, activityDesmosLink = null) => {
+    const { desmosLink } = this.state;
     const _updatedActivities = (activities) => {
       if (activities.indexOf(id) >= 0) {
         return activities.filter((acId) => acId !== id);
       }
       return [...activities, id]; // becaue we're filtering above we probably don't need to spread activities here we could just push the id
     };
+
+    // currently, we only allow for the inclusion of one desmosLink per
+    // Use Existing Template creation
+    // because of this, we're going to assume that the first activity w/a
+    // desmosLink that is added is the one that should be used for the
+    // desmosLink state
+    // this is the desmosLink that is shown in the Template lobby SidePanel
+    // and is the top-level desmosLink in a Template
+    let dLink = '';
+    if (desmosLink) {
+      dLink = desmosLink;
+    } else if (activityDesmosLink) {
+      dLink = activityDesmosLink;
+    }
+
     // TODO CHECK THIS REFACTOR
     this.setState((previousState) => ({
       activities: _updatedActivities(previousState.activities),
+      desmosLink: dLink,
     }));
   };
 
