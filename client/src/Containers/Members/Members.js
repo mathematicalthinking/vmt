@@ -311,14 +311,23 @@ class Members extends PureComponent {
     }
   };
 
+  // User Beware!
+  // sso is not implemented yet
+  // and this does update the vmt db
   saveUpdatedUsernames = async () => {
     const { classList, course, connectUpdateCourse } = this.props;
     const { updatedUsers } = this.state;
-    const res = await API.updateUsernames(updatedUsers);
-    if (!res.status === 200) {
-      // eslint-disable-next-line no-console
-      console.log('error updating usernames');
-    }
+
+    updatedUsers.forEach(async (user) => {
+      console.log('user', user);
+      await API.updateUsername(user);
+    });
+
+    // const res = await API.updateUsernames(updatedUsers);
+    // if (!res.status === 200) {
+    //   // eslint-disable-next-line no-console
+    //   console.log('error updating usernames');
+    // }
     // update the course in the store
     // by creating a merged list of the classList and updatedUsers
     // with the updatedUsers taking precedence

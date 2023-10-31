@@ -147,3 +147,7 @@ module.exports.updateUsernames = (users, reqUser) => {
   console.log('in update usernames in sso service');
   return this.put(`/auth/user/updateUsernames`, { users }, reqUser);
 };
+
+module.exports.updateUsername = (id, username) => {
+  return this.put(`/auth/user/${id}/name`, { username });
+};

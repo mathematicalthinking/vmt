@@ -45,4 +45,8 @@ export default {
   updateUsernames: (users) => {
     return axios.put('/auth/updateUsernames', users);
   },
+  updateUsername: (user) => {
+    const { _id, username } = user;
+    return axios.put(`/auth/user/${_id}/name`, { username });
+  },
 };

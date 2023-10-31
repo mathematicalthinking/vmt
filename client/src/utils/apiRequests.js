@@ -243,4 +243,18 @@ export default {
     console.log('after update usernames in sso');
     return updateUsernamesInVMT;
   },
+
+  updateUsername: async (user) => {
+    const { _id, username } = user;
+    console.log('in update username in api requests', user);
+    const updateUsernameInVMT = await api.put(`/api/updateUsernames`, {
+      users: [user],
+    });
+    const updateUsernameInSSO = await api.put(`/admin/user/${_id}/name`, {
+      username,
+    });
+    console.log('update username in sso: ', updateUsernameInSSO);
+    console.log('update username in vmt: ', updateUsernameInVMT);
+    return updateUsernameInVMT;
+  },
 };

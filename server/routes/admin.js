@@ -125,4 +125,18 @@ router.put('/updateUsernames', async (req, res) => {
   }
 });
 
+// update single username in sso
+router.put('/user/:id/name', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username } = req.body;
+    const res = await ssoService.updateUsername(id, username);
+    return res;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log('err admin update username: ', err.message);
+    return errors.handleError(err, res);
+  }
+});
+
 module.exports = router;
