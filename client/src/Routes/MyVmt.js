@@ -45,6 +45,11 @@ const pages = [
     redirectPath: '/classcode',
   },
   {
+    path: '/activities/:activity_id/rooms/:room_id/:resource',
+    component: Room,
+    redirectPath: '/signup',
+  },
+  {
     path: '/courses/:course_id/rooms/:room_id/:resource',
     component: Room,
     redirectPath: '/classcode',
