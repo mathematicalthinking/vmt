@@ -25,6 +25,12 @@ class Member extends PureComponent {
     };
   }
 
+  componentDidUpdate = (prevProps) => {
+    const { canEditUsername } = this.props;
+    if (!canEditUsername && prevProps.canEditUsername !== canEditUsername)
+      this.setState({ editedUsername: '' });
+  };
+
   edit = () => {
     this.setState((prevState) => ({
       editing: !prevState.editing,
@@ -77,7 +83,7 @@ class Member extends PureComponent {
           change={this.changeUsername}
           leftLabel={`${info.user.username}:`}
           name="username"
-          value={editedUsername}
+          value={editedUsername || info.user.username}
           customStyles={{
             container: {
               width: '100%',
@@ -85,11 +91,12 @@ class Member extends PureComponent {
               display: 'flex',
               justifyContent: 'flex-start',
               flexDirection: 'row',
-              margin: '0 0 0 0',
-              padding: '1rem 0',
+              margin: '0',
+              padding: '1rem',
             },
             leftLabel: {
-              margin: 0,
+              margin: '.2rem',
+              fontStyle: 'italic',
             },
             input: {
               color: 'black',

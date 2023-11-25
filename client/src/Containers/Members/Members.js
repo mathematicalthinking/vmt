@@ -242,33 +242,41 @@ class Members extends PureComponent {
     );
     if (allFacilitators) return null;
 
-    // if (user.isAdmin) {
-    if (false) {
+    if (user.isAdmin) {
       return (
         <div className={classes.EditUsernames}>
-          <Checkbox
-            id="edit-usernames"
-            checked={editingUsernames}
-            change={(e) =>
-              this.setState({ editingUsernames: e.target.checked })
-            }
-            dataId="edit-usernames"
-            style={{ margin: '0 1rem' }}
-          >
-            Edit Usernames
-          </Checkbox>
-          {editingUsernames && (
+          {!editingUsernames && (
             <Button
-              theme={usernamesHaveChanged ? 'Danger' : 'Disabled'}
-              disabled={!usernamesHaveChanged}
-              p={4}
-              click={() => {
-                this.setState({ editingUsernames: false });
-                this.saveUpdatedUsernames();
-              }}
+              theme="xs"
+              p={3}
+              click={() => this.setState({ editingUsernames: true })}
             >
-              Save
+              Edit Usernames
             </Button>
+          )}
+          {editingUsernames && (
+            <Fragment>
+              <Button
+                theme={usernamesHaveChanged ? 'Danger' : 'Disabled'}
+                disabled={!usernamesHaveChanged}
+                p={4}
+                m={2}
+                click={() => {
+                  this.setState({ editingUsernames: false });
+                  this.saveUpdatedUsernames();
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                theme="Cancel"
+                m={2}
+                p={4}
+                click={() => this.setState({ editingUsernames: false })}
+              >
+                Cancel
+              </Button>
+            </Fragment>
           )}
         </div>
       );
@@ -313,9 +321,10 @@ class Members extends PureComponent {
   };
 
   saveUpdatedUsernames = async () => {
-    const { classList, course, connectUpdateCourse } = this.props;
+    const { classList, course, connectUpdateCourse, user } = this.props;
     const { updatedUsers } = this.state;
-    const res = await API.updateUsernames(updatedUsers);
+    console.log('about to API.updateUsernames', updatedUsers);
+    const res = await API.updateUsernames(updatedUsers, user);
     if (!res.status === 200) {
       // eslint-disable-next-line no-console
       console.log('error updating usernames');
