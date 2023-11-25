@@ -321,13 +321,13 @@ class Members extends PureComponent {
   };
 
   saveUpdatedUsernames = async () => {
-    const { classList, course, connectUpdateCourse, user } = this.props;
+    const { classList, course, connectUpdateCourse } = this.props;
     const { updatedUsers } = this.state;
-    console.log('about to API.updateUsernames', updatedUsers);
-    const res = await API.updateUsernames(updatedUsers, user);
-    if (!res.status === 200) {
+    const res = await API.updateUsernames(updatedUsers);
+    if (res.status !== 200) {
       // eslint-disable-next-line no-console
       console.log('error updating usernames');
+      return;
     }
     // update the course in the store
     // by creating a merged list of the classList and updatedUsers
