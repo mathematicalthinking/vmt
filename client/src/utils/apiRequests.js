@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { removeUserFromActivity } from 'store/actions';
 
 const baseURL = window.env.REACT_APP_SERVER_URL;
 
@@ -235,16 +234,16 @@ export default {
 
   updateUsernames: async (users) => {
     try {
-      // Try to update usernames in VMT
-      const resVMT = await api.put('/api/updateUsernames', { users });
+      // Try to update usernames in SSO
+      const resSSO = await api.put('/admin/updateUsernames', { users });
 
-      if (resVMT.status !== 200) {
-        return resVMT;
+      if (resSSO.status !== 200) {
+        return resSSO;
       }
 
-      // Proceed to update usernames in SSO if VMT update was successful
-      const resSSO = await api.put('/admin/updateUsernames', { users });
-      return resSSO;
+      // Proceed to update usernames in VMT if SSO update was successful
+      const resVMT = await api.put('/api/updateUsernames', { users });
+      return resVMT;
     } catch (error) {
       // Handle any unexpected errors
       console.error('Error in updateUsernames:', error);
