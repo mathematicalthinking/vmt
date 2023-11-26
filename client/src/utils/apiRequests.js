@@ -233,14 +233,21 @@ export default {
   },
 
   updateUsernames: async (users) => {
-    const updateUsernamesInVMT = await api.put(`/api/updateUsernames`, {
-      users,
-    });
-    console.log('before update usernames in sso');
-    const updateUsernamesInSSO = await api.put('/admin/updateUsernames', {
-      users,
-    });
-    console.log('after update usernames in sso');
-    return updateUsernamesInVMT;
+    try {
+      // Try to update usernames in SSO
+      const resSSO = await api.put('/admin/updateUsernames', { users });
+
+      if (resSSO.status !== 200) {
+        return resSSO;
+      }
+
+      // Proceed to update usernames in VMT if SSO update was successful
+      const resVMT = await api.put('/api/updateUsernames', { users });
+      return resVMT;
+    } catch (error) {
+      // Handle any unexpected errors
+      console.error('Error in updateUsernames:', error);
+      return { status: 500, message: 'Error updating usernames' };
+    }
   },
 };

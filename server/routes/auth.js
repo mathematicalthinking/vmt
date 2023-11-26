@@ -385,4 +385,28 @@ router.put('/sso/user/:id', async (req, res) => {
   }
 });
 
+router.put('/sso/usernames', async (req, res) => {
+  try {
+    const authToken = extractBearerToken(req);
+    await jwt.verify(authToken, secret);
+    const { users } = req.body;
+    const usernameMap = new Map(users.map((user) => [user._id, user.username]));
+
+    const updatedUserIds = users.map((user) => user._id);
+    const updatedUsers = await User.find({ ssoId: { $in: updatedUserIds } });
+
+    const bulkOps = updatedUsers.map((user) => ({
+      updateOne: {
+        filter: { _id: user._id },
+        update: { username: usernameMap.get(user.ssoId) },
+      },
+    }));
+
+    await User.bulkWrite(bulkOps);
+    return res.json(users);
+  } catch (err) {
+    return errors.handleError(err, res);
+  }
+});
+
 module.exports = router;

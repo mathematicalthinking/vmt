@@ -632,7 +632,7 @@ router.put('/addMemberToArchivedRooms', (req, res) => {
     });
 });
 
-router.put('/updateUsernames', (req, res) => {
+router.put('/updateUsernames', middleware.validateUser, (req, res) => {
   const { users } = req.body;
   const userController = controllers.user;
   return userController
