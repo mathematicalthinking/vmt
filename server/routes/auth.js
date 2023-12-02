@@ -9,7 +9,9 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { isNil, isEqual } = require('lodash');
-const controllers = require('../controllers');
+const { Types } = require('mongoose');
+
+const { ObjectId } = Types;
 // const Course = require('../models/Course');
 const User = require('../models/User');
 const errors = require('../middleware/errors');
@@ -390,10 +392,37 @@ router.put('/sso/usernames', async (req, res) => {
     const authToken = extractBearerToken(req);
     await jwt.verify(authToken, secret);
     const { users } = req.body;
+    console.log('req.body.users', users);
     const usernameMap = new Map(users.map((user) => [user._id, user.username]));
+    console.log('usernameMap', usernameMap);
 
     const updatedUserIds = users.map((user) => user._id);
+    const updatedUserIds2 = users.map((user) => new ObjectId(user._id));
     const updatedUsers = await User.find({ ssoId: { $in: updatedUserIds } });
+
+    console.log('users based on string ssoIds', updatedUsers);
+
+    const updatedUsers2 = await User.find({ ssoId: { $in: updatedUserIds2 } });
+
+    console.log('users based on objectID ssoIds', updatedUsers2);
+
+    console.log(
+      'first updatedusers usernameMap from as given',
+      usernameMap.get(updatedUsers[0].ssoId)
+    );
+    console.log(
+      'first updatedusers usernameMap from converted to string',
+      usernameMap.get(updatedUsers[0].ssoId.toString())
+    );
+
+    console.log(
+      'first updatedusers2 usernameMap from as given',
+      usernameMap.get(updatedUsers2[0].ssoId)
+    );
+    console.log(
+      'first updatedusers2 usernameMap from converted to string',
+      usernameMap.get(updatedUsers2[0].ssoId.toString())
+    );
 
     const bulkOps = updatedUsers.map((user) => ({
       updateOne: {
@@ -401,6 +430,8 @@ router.put('/sso/usernames', async (req, res) => {
         update: { username: usernameMap.get(user.ssoId) },
       },
     }));
+
+    console.log('bulkOps', bulkOps);
 
     await User.bulkWrite(bulkOps);
     return res.json(users);
