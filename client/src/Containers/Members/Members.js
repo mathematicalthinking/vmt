@@ -325,7 +325,8 @@ class Members extends PureComponent {
     const { updatedUsers } = this.state;
     const res = await API.updateUsernames(updatedUsers);
     if (res.status !== 200) {
-      // eslint-disable-next-line no-console
+      // @TODO If there was a problem updating the usernames, we really should alert the user
+      // rather than just doing nothing.
       console.log('error updating usernames');
       return;
     }
