@@ -34,6 +34,7 @@ export const controlEvents = {
   TAKE_MORE_TIME: 'TAKE_MORE_TIME',
   SWITCH_STRATEGY: 'SWITCH_STRATEGY',
   CHANGE_USERNAME: 'CHANGE_USERNAME',
+  RESET_CONTROLLERS: 'RESET_CONTROLLERS',
 };
 
 export const buttonConfigs = {
@@ -198,6 +199,31 @@ const iTakeMoreTime = assign((context, event) => {
   return { lastMessage: message };
 });
 
+// This action is called if the FSM detects that there's a problem. The request
+// gets sent to the server, which sends out a RESET_CONTROLLERS message with the "truth" to
+// all clients in the room.
+const query_controllers = (context) => {
+  socket.emit('QUERY_CONTROLLERS', { room: context.roomId });
+};
+
+const reset_iTakeControl = () => {
+  console.log('reset_iTakeControl');
+};
+
+const reset_otherReleasesControl = () => {
+  console.log('reset_otherReleasesControl');
+};
+
+const reset_otherTakesControl = assign((context, event) => {
+  console.log('reset_otherTakesControl');
+  console.log('context', context);
+  console.log('event', event);
+  const otherId =
+    event.controllers &&
+    Object.values(event.controllers).find((id) => id && id !== context.userId);
+  return otherId ? { resetControlledBy: otherId } : {};
+});
+
 const initialState = (context) => {
   // Figure out the initial state
   if (!context.controlledBy) return controlStates.NONE;
@@ -273,15 +299,49 @@ const defaultControlMachineSpec = (context) => {
       initial,
       context: { ...context, controllers: null, strategy: STRATEGY.DEFAULT },
       on: {
-        [controlEvents.MSG_RELEASED_CONTROL]: {
-          target: `#${STRATEGY.DEFAULT}.${controlStates.NONE}`,
-          actions: 'otherReleasesControl',
-        },
-        [controlEvents.MSG_TOOK_CONTROL]: {
-          target: `#${STRATEGY.DEFAULT}.${controlStates.OTHER}`,
-          actions: 'otherTakesControl',
-        },
+        [controlEvents.MSG_RELEASED_CONTROL]: [
+          {
+            cond: (c) => c.inControl === controlStates.ME,
+            actions: 'query_controllers',
+          },
+          {
+            cond: (c) => c.inControl !== controlStates.ME,
+            target: `#${STRATEGY.DEFAULT}.${controlStates.NONE}`,
+            actions: 'otherReleasesControl',
+          },
+        ],
+        [controlEvents.MSG_TOOK_CONTROL]: [
+          {
+            cond: (c) => c.inControl === controlStates.ME,
+            actions: 'query_controllers',
+          },
+          {
+            cond: (c) => c.inControl !== controlStates.ME,
+            target: `#${STRATEGY.DEFAULT}.${controlStates.OTHER}`,
+            actions: 'otherTakesControl',
+          },
+        ],
         [controlEvents.SWITCH_TAB]: { actions: 'switchingTabs' },
+        [controlEvents.RESET_CONTROLLERS]: [
+          {
+            cond: (c, event) =>
+              event.controllers &&
+              Object.values(event.controllers).every((val) => val === null),
+            target: `#${STRATEGY.DEFAULT}.${controlStates.NONE}`,
+            actions: 'reset_otherReleasesControl',
+          },
+          {
+            cond: (c, event) =>
+              event.controllers &&
+              Object.values(event.controllers).some((val) => val === c.userId),
+            target: `#${STRATEGY.DEFAULT}.${controlStates.ME}`,
+            actions: 'reset_iTakeControl',
+          },
+          {
+            target: `#${STRATEGY.DEFAULT}.${controlStates.OTHER}`,
+            actions: 'reset_otherTakesControl',
+          },
+        ],
       },
       states: {
         [controlStates.NONE]: {
@@ -373,6 +433,10 @@ const defaultControlMachineSpec = (context) => {
         otherReleasesControl,
         iCancelRequest,
         iTakeMoreTime,
+        query_controllers,
+        reset_iTakeControl,
+        reset_otherTakesControl,
+        reset_otherReleasesControl,
         controlledByMe: assign({
           inControl: controlStates.ME,
           controlledBy: (c) => c.userId,
@@ -380,8 +444,9 @@ const defaultControlMachineSpec = (context) => {
         }),
         controlledByOther: assign({
           inControl: controlStates.OTHER,
-          controlledBy: (_, event) => event.id,
+          controlledBy: (c, event) => c.resetControlledBy || event.id,
           buttonConfig: buttonConfigs[controlStates.OTHER],
+          resetControlledBy: null,
         }),
         controlledByNone: assign({
           inControl: controlStates.NONE,
@@ -721,10 +786,18 @@ export function withControlMachine(Component) {
       }
     };
 
+    const handleResetControllers = (controllers) => {
+      console.log('handle reset controllers', controllers);
+      send(controlEvents.RESET_CONTROLLERS, { controllers });
+    };
+
     React.useEffect(() => {
       socket.on('SETTINGS_CHANGED', handleSettingsChanged);
-      return () =>
+      socket.on('RESET_CONTROLLERS', handleResetControllers);
+      return () => {
         socket.removeListener('SETTINGS_CHANGED', handleSettingsChanged);
+        socket.removeListener('RESET_CONTROLLERS', handleResetControllers);
+      };
     }, []);
 
     React.useEffect(() => {

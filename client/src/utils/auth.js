@@ -42,7 +42,4 @@ export default {
   resendEmailConfirmation: () => {
     return axios.get('/auth/confirmEmail/resend');
   },
-  updateUsernames: (users) => {
-    return axios.put('/auth/updateUsernames', users);
-  },
 };
