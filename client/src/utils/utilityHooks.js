@@ -502,3 +502,36 @@ export function useMergedData(
   });
   return { data: queryClient.getQueryData([key, 'mergedData']), ...others };
 }
+
+/**
+ * A custom hook for keeping track of user activity. If the user is idle (i.e., has not typed, clicked, or scrolled) for
+ * a specified amount of time (default 30 min), the onInactivity function is called.
+ */
+export function useActivityDetector(
+  onInactivity,
+  timeout = 1800000,
+  debounceDelay = 5000
+) {
+  let activityTimer;
+
+  const resetTimer = debounce(() => {
+    clearTimeout(activityTimer);
+    activityTimer = setTimeout(onInactivity, timeout);
+  }, debounceDelay);
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('scroll', resetTimer);
+    window.addEventListener('click', resetTimer);
+
+    // Set the initial timer
+    resetTimer();
+
+    return () => {
+      clearTimeout(activityTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('scroll', resetTimer);
+      window.removeEventListener('click', resetTimer);
+    };
+  }, []);
+}
