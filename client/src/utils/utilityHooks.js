@@ -505,7 +505,9 @@ export function useMergedData(
 
 /**
  * A custom hook for keeping track of user activity. If the user is idle (i.e., has not typed, clicked, or scrolled) for
- * a specified amount of time (default 30 min), the onInactivity function is called.
+ * a specified amount of time (default 30 min), the onInactivity function is called. The function is also called if the
+ * user's screen is hidden for the specified amount of time; once the user returns to that screen, they are logged out.
+ * This latter approach is meant to handle browsers where Javascript timers stop when the tab isn't visible.
  */
 export function useActivityDetector(
   onInactivity,
@@ -513,16 +515,34 @@ export function useActivityDetector(
   debounceDelay = 5000
 ) {
   let activityTimer;
+  let lastActivityTime = Date.now();
 
   const resetTimer = debounce(() => {
     clearTimeout(activityTimer);
     activityTimer = setTimeout(onInactivity, timeout);
+    lastActivityTime = Date.now();
   }, debounceDelay);
+
+  const checkForInactivity = () => {
+    const currentTime = Date.now();
+    const timeElapsed = currentTime - lastActivityTime;
+
+    if (timeElapsed > timeout) {
+      onInactivity();
+    }
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      checkForInactivity(); // Check inactivity upon returning to the tab
+    }
+  };
 
   React.useEffect(() => {
     window.addEventListener('keydown', resetTimer);
     window.addEventListener('scroll', resetTimer);
     window.addEventListener('click', resetTimer);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Set the initial timer
     resetTimer();
@@ -532,6 +552,7 @@ export function useActivityDetector(
       window.removeEventListener('keydown', resetTimer);
       window.removeEventListener('scroll', resetTimer);
       window.removeEventListener('click', resetTimer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 }
