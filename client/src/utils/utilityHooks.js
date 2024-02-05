@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { API, buildLog } from 'utils';
 import { ModalContext } from 'Components';
 import * as actionTypes from 'store/actions/actionTypes';
+import { throttle } from 'lodash';
 
 const timeFrameFcns = {
   all: () => true,
@@ -501,4 +502,68 @@ export function useMergedData(
     ...options,
   });
   return { data: queryClient.getQueryData([key, 'mergedData']), ...others };
+}
+
+/**
+ * A custom hook for keeping track of user activity. If the user is idle (i.e., has not typed, clicked, or scrolled) for
+ * a specified amount of time (default 30 min), the onInactivity function is called. The function is also called if the
+ * user's screen is hidden for the specified amount of time; once the user returns to that screen, they are logged out.
+ * This latter approach is meant to handle browsers where Javascript timers stop when the tab isn't visible.
+ */
+export function useActivityDetector(
+  onInactivity,
+  onActivity,
+  timeout = 1800000,
+  throttleDelay = 5000
+) {
+  let activityTimer;
+  let lastActivityTime = Date.now();
+
+  const resetTimer = throttle(() => {
+    console.log('resetting the timer');
+    clearTimeout(activityTimer);
+    onActivity();
+    activityTimer = setTimeout(onInactivity, timeout);
+    lastActivityTime = Date.now();
+  }, throttleDelay);
+
+  const checkForInactivity = () => {
+    const currentTime = Date.now();
+    const timeElapsed = currentTime - lastActivityTime;
+
+    console.log('checking for inactivity elapsed time', timeElapsed);
+    if (timeElapsed > timeout) {
+      console.log('too much time elapsed');
+      clearTimeout(activityTimer);
+      onInactivity();
+    } else {
+      console.log('not enough time; resetting timer');
+      resetTimer();
+    }
+  };
+
+  const handleVisibilityChange = () => {
+    console.log('checking for visibiliity');
+    if (document.visibilityState === 'visible') {
+      checkForInactivity(); // Check inactivity upon returning to the tab
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('scroll', resetTimer);
+    window.addEventListener('click', resetTimer);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Set the initial timer
+    resetTimer();
+
+    return () => {
+      clearTimeout(activityTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('scroll', resetTimer);
+      window.removeEventListener('click', resetTimer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 }

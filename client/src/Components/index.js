@@ -53,3 +53,6 @@ export { default as GenericSearchResults } from './Search/GenericSearchResults';
 export { default as SortUI } from './SortUI/SortUI';
 export { default as Spinner } from './Spinner/Spinner';
 export { default as RoomSettingsDropdown } from './UI/RoomSettingsDropdown/RoomSettingsDropdown';
+export { default as SocketProvider } from './HOC/SocketProvider';
+export { default as GeneralModal } from './GeneralModal';
+export { default as IdleDetector } from './IdleDetector';
