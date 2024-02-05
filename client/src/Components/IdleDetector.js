@@ -1,18 +1,43 @@
-import React, { Fragment } from 'react';
-import { useHistory } from 'react-router-dom';
-import { useActivityDetector } from 'utils';
+import React, { Fragment, useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { useActivityDetector, socket } from 'utils';
 
-// eslint-disable-next-line react/prop-types
 export default function IdleDetector({ children }) {
-  // Note that IdleDetector must be inside the Router (see App.js) so that there's a history object
-  const history = useHistory();
+  const user = useSelector((store) => store.user);
+  const { _id: userId, loggedIn: isLoggedIn } = user;
+  const isLoggedInRef = useRef(isLoggedIn);
+  const userIdRef = useRef(user);
+
+  useEffect(() => {
+    isLoggedInRef.current = isLoggedIn;
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    userIdRef.current = userId;
+  }, [userId]);
+
   const handleInactivity = () => {
-    if (history) history.push('/logout');
+    if (isLoggedInRef.current) socket.emit('USER_IDLE', userIdRef.current);
+  };
+
+  const handleActivity = () => {
+    if (isLoggedInRef.current) socket.emit('USER_ACTIVITY', userIdRef.current);
   };
 
   // The activity detector hook listens for mouse clicks, keystrokes, or scolling events. If none of those happens
   // within 30 minutes, the user will be logged out.
-  useActivityDetector(handleInactivity, 10000); // 30 minutes = 1800000 milliseconds
 
-  return <Fragment>{children} </Fragment>;
+  // Use a relatively short timeout for demonstration; replace 30000 with 1800000 for 30 minutes
+  useActivityDetector(handleInactivity, handleActivity, 30000);
+
+  return <Fragment>{children}</Fragment>;
 }
+
+IdleDetector.propTypes = {
+  children: PropTypes.node,
+};
+
+IdleDetector.defaultProps = {
+  children: null,
+};

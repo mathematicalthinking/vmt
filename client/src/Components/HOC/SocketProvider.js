@@ -193,7 +193,7 @@ class SocketProvider extends Component {
     });
 
     socket.on('FORCED_LOGOUT', () => {
-      connectLogout();
+      if (user._id) connectLogout(user._id);
     });
 
     socket.on('SETTINGS_CHANGED', (data) => {

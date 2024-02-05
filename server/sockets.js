@@ -6,6 +6,12 @@ const controllers = require('./controllers');
 const Message = require('./models/Message');
 const { socketMetricInc } = require('./services/metrics');
 const { findAllMatching } = require('./middleware/utils/helpers');
+// const { forceUserLogout } = require('./middleware/admin');
+const {
+  redisActivityKey,
+  redisClient,
+  clearStaleSocketEntries,
+} = require('./redis');
 
 module.exports = function() {
   const { io } = socketInit;
@@ -16,22 +22,12 @@ module.exports = function() {
     // const cookies = cookie.parse(cookief);
     // console.log(cookies);
     // @todo middleware after SSO is done
-
+    clearStaleSocketEntries();
     next();
   });
 
   io.sockets.on('connection', (socket) => {
     socketMetricInc('connect');
-    // socketMetricInc('connectionByUser',sock)
-
-    // io.sockets.adapter.on('join-room', (room, id) => {
-    //   console.log('join-room', room, id);
-    //   console.log('people in room', io.sockets.adapter.rooms.get(room));
-    // });
-    // io.sockets.adapter.on('leave-room', (room, id) =>
-    //   console.log('leave-room', room, id)
-    // );
-    // console.log('socket connected: ', socket.id);
 
     socket.on('ping', (cb) => {
       if (typeof cb === 'function') cb();
@@ -224,38 +220,76 @@ module.exports = function() {
       );
 
       if (reason === 'transport close') {
-        const roomNames = Array.from(socket.rooms);
-
-        const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Regular expression for ObjectId
-
-        const roomId = roomNames.find((roomName) =>
-          objectIdPattern.test(roomName)
-        );
-        if (roomId) {
-          socket.leave(roomId);
-          const messageText = `${socket.username} exited unexpectedly from VMT`;
-          leaveRoom(roomId, null, null, messageText);
-        }
+        disconnectFromRoom(socket);
+        if (isLastSocket(socket.user_id)) forceLogout(socket.user_id);
       } else {
         if (socket.timer) clearTimeout(socket.timer);
         socket.timer = setTimeout(() => {
-          const roomNames = Array.from(socket.rooms);
-
-          const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Regular expression for ObjectId
-
-          const roomId = roomNames.find((roomName) =>
-            objectIdPattern.test(roomName)
-          );
-          if (roomId) {
-            socket.leave(roomId);
-            const messageText = `${socket.username} exited unexpectedly from VMT`;
-            leaveRoom(roomId, null, null, messageText);
-          }
+          disconnectFromRoom(socket);
+          if (isLastSocket(socket.user_id)) forceLogout(socket.user_id);
         }, 15000);
-        // set up a timer that will disconnect stuff as above after 30 seconds
-        // clear timer on reconnect event
       }
     });
+
+    const isLastSocket = async (userId) => {
+      const allSockets = await getAllSocketsForUser(userId);
+      return allSockets.length === 1;
+    };
+
+    const forceLogout = async (userId) => {
+      try {
+        const allSockets = await getAllSocketsForUser(userId);
+        io.in(allSockets).emit('FORCED_LOGOUT');
+        // forceUserLogout(userId, userId);
+      } catch (error) {
+        console.error(
+          `Error forcing logout by user ${userId}: ${error.message}`
+        );
+      }
+    };
+
+    const getAllSocketsForUser = async (userId) => {
+      const socketStates = await redisClient.hgetall(redisActivityKey(userId));
+      return Object.keys(socketStates);
+    };
+
+    const areAllSocketsInactive = async (userId) => {
+      const socketStates = await redisClient.hgetall(redisActivityKey(userId));
+      return Object.values(socketStates).every((state) => state === 'inactive');
+    };
+
+    const markSocketAsInactive = (userId, socketId) => {
+      redisClient.hset(redisActivityKey(userId), socketId, 'inactive');
+    };
+
+    const markSocketAsActive = (userId, socketId) => {
+      redisClient.hset(redisActivityKey(userId), socketId, 'active');
+    };
+
+    socket.on('USER_ACTIVITY', (userId) => {
+      markSocketAsActive(userId, socket.id);
+    });
+
+    socket.on('USER_IDLE', async (userId) => {
+      markSocketAsInactive(userId, socket.id);
+      const areAllInactive = await areAllSocketsInactive(userId);
+      if (areAllInactive) forceLogout(userId);
+    });
+
+    const disconnectFromRoom = (socket) => {
+      const roomNames = Array.from(socket.rooms);
+
+      const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Regular expression for ObjectId
+
+      const roomId = roomNames.find((roomName) =>
+        objectIdPattern.test(roomName)
+      );
+      if (roomId) {
+        socket.leave(roomId);
+        const messageText = `${socket.username} exited unexpectedly from VMT`;
+        leaveRoom(roomId, null, null, messageText);
+      }
+    };
 
     socket.on('reconnect', () => {
       if (socket.timer) {
@@ -280,6 +314,13 @@ module.exports = function() {
           cb(`User socketId updated to ${socket.id}`, null);
         })
         .catch((err) => cb('Error found', err));
+
+      markSocketAsActive(socket.user_id, socket.id);
+    });
+
+    socket.on('disconnect', (socket) => {
+      // Remove socket ID from Redis
+      redisClient.hdel(redisActivityKey(socket.user_id), socket.id);
     });
 
     socket.on('SEND_MESSAGE', (data, callback) => {

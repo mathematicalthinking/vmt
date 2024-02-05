@@ -511,23 +511,29 @@ export function useMergedData(
  */
 export function useActivityDetector(
   onInactivity,
-  timeout = 1800000,
-  debounceDelay = 5000
+  onActivity,
+  timeout = 1800000
+  // debounceDelay = 5000
 ) {
   let activityTimer;
   let lastActivityTime = Date.now();
 
-  const resetTimer = debounce(() => {
-    clearTimeout(activityTimer);
-    activityTimer = setTimeout(onInactivity, timeout);
-    lastActivityTime = Date.now();
-  }, debounceDelay);
+  const resetTimer =
+    // debounce(
+    () => {
+      clearTimeout(activityTimer);
+      onActivity();
+      activityTimer = setTimeout(onInactivity, timeout);
+      lastActivityTime = Date.now();
+    };
+  // , debounceDelay);
 
   const checkForInactivity = () => {
     const currentTime = Date.now();
     const timeElapsed = currentTime - lastActivityTime;
 
     if (timeElapsed > timeout) {
+      clearTimeout(activityTimer);
       onInactivity();
     }
   };

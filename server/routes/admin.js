@@ -5,6 +5,7 @@ const ssoService = require('../services/sso');
 const errors = require('../middleware/errors');
 const { getUser } = require('../middleware/utils/request');
 const { validateAdmin, validateId } = require('../middleware/api');
+const { forceUserLogout } = require('../middleware/admin');
 
 const router = express.Router();
 
@@ -14,28 +15,8 @@ router.param('id', validateId);
 router.post('/forceUserLogout/:id', async (req, res) => {
   try {
     const reqUser = getUser(req);
-    const userToBeLoggedOut = await User.findById(req.params.id);
 
-    if (!userToBeLoggedOut) {
-      return errors.sendError.NotFoundError(null, res);
-    }
-
-    const results = await ssoService.forceLogout(
-      userToBeLoggedOut.ssoId,
-      reqUser
-    );
-
-    if (results.isSuccess) {
-      const updatedVmtUser = await User.findByIdAndUpdate(
-        req.params.id,
-        {
-          doForceLogout: true,
-        },
-        { new: true }
-      );
-      results.user = updatedVmtUser;
-    }
-
+    const results = await forceUserLogout(req.params.id, reqUser);
     return res.json(results);
   } catch (err) {
     console.log('err admin force logout: ', err.message);
