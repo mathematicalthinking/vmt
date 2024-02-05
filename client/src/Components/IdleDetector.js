@@ -18,11 +18,13 @@ export default function IdleDetector({ children }) {
   }, [userId]);
 
   const handleInactivity = () => {
-    if (isLoggedInRef.current) socket.emit('USER_IDLE', userIdRef.current);
+    console.log('sending idle event', userIdRef.current);
+    if (isLoggedInRef.current) socket.emit('USER_INACTIVE', userIdRef.current);
   };
 
   const handleActivity = () => {
-    if (isLoggedInRef.current) socket.emit('USER_ACTIVITY', userIdRef.current);
+    console.log('sending active event', userIdRef.current);
+    if (isLoggedInRef.current) socket.emit('USER_ACTIVE', userIdRef.current);
   };
 
   // The activity detector hook listens for mouse clicks, keystrokes, or scolling events. If none of those happens

@@ -31,10 +31,9 @@ const options = {
 sockets.init = async function(server) {
   this.io = new Server(server, options);
 
-  const pubClient = redisClient.duplicate();
   const subClient = redisClient.duplicate();
 
-  this.io.adapter(createAdapter(pubClient, subClient));
+  this.io.adapter(createAdapter(redisClient, subClient));
 };
 
 module.exports = sockets;

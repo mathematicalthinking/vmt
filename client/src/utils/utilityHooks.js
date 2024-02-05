@@ -512,26 +512,29 @@ export function useMergedData(
 export function useActivityDetector(
   onInactivity,
   onActivity,
-  timeout = 1800000
-  // debounceDelay = 5000
+  timeout = 1800000,
+  debounceDelay = 5000
 ) {
   let activityTimer;
   let lastActivityTime = Date.now();
 
-  const resetTimer =
-    // debounce(
+  const resetTimer = debounce(
     () => {
+      console.log('resetting the timer');
       clearTimeout(activityTimer);
       onActivity();
       activityTimer = setTimeout(onInactivity, timeout);
       lastActivityTime = Date.now();
-    };
-  // , debounceDelay);
+    },
+    debounceDelay,
+    { leading: true, trailing: false }
+  );
 
   const checkForInactivity = () => {
     const currentTime = Date.now();
     const timeElapsed = currentTime - lastActivityTime;
 
+    console.log('checking for inactivity elapsed time', timeElapsed);
     if (timeElapsed > timeout) {
       clearTimeout(activityTimer);
       onInactivity();
@@ -539,6 +542,7 @@ export function useActivityDetector(
   };
 
   const handleVisibilityChange = () => {
+    console.log('checking for visibiliity');
     if (document.visibilityState === 'visible') {
       checkForInactivity(); // Check inactivity upon returning to the tab
     }

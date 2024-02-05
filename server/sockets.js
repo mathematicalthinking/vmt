@@ -221,24 +221,23 @@ module.exports = function() {
 
       if (reason === 'transport close') {
         disconnectFromRoom(socket);
-        if (isLastSocket(socket.user_id)) forceLogout(socket.user_id);
+        markSocketAsInactive(socket.user_id, socket.id);
+        if (areAllSocketsInactive(socket.user_id)) forceLogout(socket.user_id);
       } else {
         if (socket.timer) clearTimeout(socket.timer);
         socket.timer = setTimeout(() => {
           disconnectFromRoom(socket);
-          if (isLastSocket(socket.user_id)) forceLogout(socket.user_id);
+          markSocketAsInactive(socket.user_id, socket.id);
+          if (areAllSocketsInactive(socket.user_id))
+            forceLogout(socket.user_id);
         }, 15000);
       }
     });
 
-    const isLastSocket = async (userId) => {
-      const allSockets = await getAllSocketsForUser(userId);
-      return allSockets.length === 1;
-    };
-
     const forceLogout = async (userId) => {
       try {
         const allSockets = await getAllSocketsForUser(userId);
+        console.log('forcing logout', userId, allSockets);
         io.in(allSockets).emit('FORCED_LOGOUT');
         // forceUserLogout(userId, userId);
       } catch (error) {
@@ -250,28 +249,34 @@ module.exports = function() {
 
     const getAllSocketsForUser = async (userId) => {
       const socketStates = await redisClient.hgetall(redisActivityKey(userId));
+      console.log(`All sockets for ${userId} are the keys of ${socketStates}`);
       return Object.keys(socketStates);
     };
 
     const areAllSocketsInactive = async (userId) => {
       const socketStates = await redisClient.hgetall(redisActivityKey(userId));
+      console.log(`Are all sockets for ${userId} inactive? ${socketStates}`);
       return Object.values(socketStates).every((state) => state === 'inactive');
     };
 
     const markSocketAsInactive = (userId, socketId) => {
+      console.log('marking as inactive', userId, socketId);
       redisClient.hset(redisActivityKey(userId), socketId, 'inactive');
     };
 
     const markSocketAsActive = (userId, socketId) => {
+      console.log('marking as active', userId, socketId);
       redisClient.hset(redisActivityKey(userId), socketId, 'active');
     };
 
-    socket.on('USER_ACTIVITY', (userId) => {
+    socket.on('USER_ACTIVE', (userId) => {
+      console.log('received user activity', userId);
       markSocketAsActive(userId, socket.id);
     });
 
-    socket.on('USER_IDLE', async (userId) => {
+    socket.on('USER_INACTIVE', async (userId) => {
       markSocketAsInactive(userId, socket.id);
+      console.log('received user idleness', userId);
       const areAllInactive = await areAllSocketsInactive(userId);
       if (areAllInactive) forceLogout(userId);
     });
@@ -314,12 +319,13 @@ module.exports = function() {
           cb(`User socketId updated to ${socket.id}`, null);
         })
         .catch((err) => cb('Error found', err));
-
+      console.log('syncing socket', _id);
       markSocketAsActive(socket.user_id, socket.id);
     });
 
     socket.on('disconnect', (socket) => {
       // Remove socket ID from Redis
+      console.log('disconnect event', socket.id, socket.user_id);
       redisClient.hdel(redisActivityKey(socket.user_id), socket.id);
     });
 
