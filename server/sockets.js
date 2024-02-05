@@ -249,13 +249,13 @@ module.exports = function() {
 
     const getAllSocketsForUser = async (userId) => {
       const socketStates = await redisClient.hgetall(redisActivityKey(userId));
-      console.log(`All sockets for ${userId} are the keys of ${socketStates}`);
+      console.log(`All sockets for ${userId} are the keys of `, socketStates);
       return Object.keys(socketStates);
     };
 
     const areAllSocketsInactive = async (userId) => {
       const socketStates = await redisClient.hgetall(redisActivityKey(userId));
-      console.log(`Are all sockets for ${userId} inactive? ${socketStates}`);
+      console.log(`Are all sockets for ${userId} inactive?`, socketStates);
       return Object.values(socketStates).every((state) => state === 'inactive');
     };
 

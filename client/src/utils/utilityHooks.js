@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { API, buildLog } from 'utils';
 import { ModalContext } from 'Components';
 import * as actionTypes from 'store/actions/actionTypes';
+import { throttle } from 'lodash';
 
 const timeFrameFcns = {
   all: () => true,
@@ -513,22 +514,18 @@ export function useActivityDetector(
   onInactivity,
   onActivity,
   timeout = 1800000,
-  debounceDelay = 5000
+  throttleDelay = 5000
 ) {
   let activityTimer;
   let lastActivityTime = Date.now();
 
-  const resetTimer = debounce(
-    () => {
-      console.log('resetting the timer');
-      clearTimeout(activityTimer);
-      onActivity();
-      activityTimer = setTimeout(onInactivity, timeout);
-      lastActivityTime = Date.now();
-    },
-    debounceDelay,
-    { leading: true, trailing: false }
-  );
+  const resetTimer = throttle(() => {
+    console.log('resetting the timer');
+    clearTimeout(activityTimer);
+    onActivity();
+    activityTimer = setTimeout(onInactivity, timeout);
+    lastActivityTime = Date.now();
+  }, throttleDelay);
 
   const checkForInactivity = () => {
     const currentTime = Date.now();
@@ -536,8 +533,12 @@ export function useActivityDetector(
 
     console.log('checking for inactivity elapsed time', timeElapsed);
     if (timeElapsed > timeout) {
+      console.log('too much time elapsed');
       clearTimeout(activityTimer);
       onInactivity();
+    } else {
+      console.log('not enough time; resetting timer');
+      resetTimer();
     }
   };
 
