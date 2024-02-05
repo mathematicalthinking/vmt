@@ -30,8 +30,7 @@ export default function IdleDetector({ children }) {
   // The activity detector hook listens for mouse clicks, keystrokes, or scolling events. If none of those happens
   // within 30 minutes, the user will be logged out.
 
-  // Use a relatively short timeout for demonstration; replace 30000 with 1800000 for 30 minutes
-  useActivityDetector(handleInactivity, handleActivity, 30000);
+  useActivityDetector(handleInactivity, handleActivity, 1800000);
 
   return <Fragment>{children}</Fragment>;
 }
