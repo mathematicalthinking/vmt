@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@xstate/react": "^3.0.1",
-    "autoprefixer": "7.1.6",
+    "autoprefixer": "9.8.8",
     "axios": ">=0.21.1",
     "babel-core": "6.26.0",
     "babel-eslint": "^10.0.0",
