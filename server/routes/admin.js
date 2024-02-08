@@ -15,7 +15,6 @@ router.param('id', validateId);
 router.post('/forceUserLogout/:id', async (req, res) => {
   try {
     const reqUser = getUser(req);
-    console.log(`received forcing logoout for ${reqUser}`);
     const results = await forceUserLogout(req.params.id, reqUser);
     return res.json(results);
   } catch (err) {
