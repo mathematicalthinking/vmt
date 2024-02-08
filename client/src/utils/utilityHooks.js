@@ -206,7 +206,6 @@ export function useSnapshots(callback, initialStore = {}) {
 
   const takeSnapshot = debounce(
     (key, snapshotObj) => {
-      // console.log('starting snapshot for', key);
       if (!elementRef.current) {
         // eslint-disable-next-line no-console
         console.log('no elementRef');
@@ -520,7 +519,6 @@ export function useActivityDetector(
   let lastActivityTime = Date.now();
 
   const resetTimer = throttle(() => {
-    console.log('resetting the timer');
     clearTimeout(activityTimer);
     onActivity();
     activityTimer = setTimeout(onInactivity, timeout);
@@ -531,19 +529,15 @@ export function useActivityDetector(
     const currentTime = Date.now();
     const timeElapsed = currentTime - lastActivityTime;
 
-    console.log('checking for inactivity elapsed time', timeElapsed);
     if (timeElapsed > timeout) {
-      console.log('too much time elapsed');
       clearTimeout(activityTimer);
       onInactivity();
     } else {
-      console.log('not enough time; resetting timer');
       resetTimer();
     }
   };
 
   const handleVisibilityChange = () => {
-    console.log('checking for visibiliity');
     if (document.visibilityState === 'visible') {
       checkForInactivity(); // Check inactivity upon returning to the tab
     }

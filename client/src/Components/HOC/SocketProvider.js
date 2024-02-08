@@ -100,10 +100,11 @@ class SocketProvider extends Component {
     if (socketId !== socket.id) {
       socket.emit('SYNC_SOCKET', _id, (res, err) => {
         if (err) {
-          console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
+          console.log(
+            'UNABLE TO SYNC SOCKET; NOTIFICATIONS MAY NOT BE WORKING'
+          );
           return;
         }
-        console.log(res);
         connectUpdateUser({ socketId: socket.id, connected: true });
         this.initializeListeners();
       });
