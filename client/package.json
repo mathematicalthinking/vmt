@@ -82,7 +82,7 @@
     "whatwg-fetch": "2.0.3",
     "workbox-webpack-plugin": "^4.0.0",
     "xml2js": "^0.4.19",
-    "xstate": "^4.33.6",
+    "xstate": "^5.7.1",
     "yup": "^0.32.11"
   },
   "scripts": {
