@@ -68,7 +68,7 @@ const Navbar = ({ user, location, toggleAdmin }) => {
             link="/community/rooms?privacy=all&roomType=all"
             name="Community"
           />
-          {user.accountType === 'facilitator' ? (
+          {user.isAdmin ? (
             <NavItem link="/myVMT/monitor" name="Monitor" />
           ) : null}
           {user.isAdmin ? (
