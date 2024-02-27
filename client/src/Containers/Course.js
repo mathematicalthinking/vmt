@@ -50,7 +50,7 @@ class Course extends Component {
         { name: 'Rooms' },
         { name: 'Members' },
         { name: 'Activities' },
-        { name: 'Preview' },
+        ...(course.myRole === 'facilitator' ? [{ name: 'Preview' }] : []),
         { name: 'Stats' },
       ],
       firstView: false,
