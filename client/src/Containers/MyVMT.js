@@ -91,7 +91,13 @@ class MyVMT extends Component {
     if (user.archive && user.archive.rooms && user.archive.rooms.length)
       additionalDetails['archived rooms'] = user.archive.rooms.length;
 
-    const resourceTypes = ['rooms', 'courses', 'activities', 'templates'];
+    const resourceTypes = [
+      'rooms',
+      'courses',
+      'activities',
+      'templates',
+      'monitor',
+    ];
     let bodyContent = (
       <DashboardContent
         userResources={
@@ -178,10 +184,11 @@ MyVMT.propTypes = {
 // OF CONDITIONAL LOGIC CHECKING THE RESOURCE TYPE AND THEN GRABBING DATA BASED
 // ON ITS VALUE. INSTEAD, WITH THE CURRENT METHOD WE CAN DO LIKE user[resource] or get[resource]
 const mapStateToProps = (store) => ({
-  user: store.user,
+  user: { ...store.user, monitor: store.user.rooms },
   rooms: store.rooms,
   courses: store.courses,
   activities: store.activities,
+  monitor: store.rooms,
   loading: store.loading.loading,
 });
 
