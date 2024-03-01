@@ -17,11 +17,6 @@ module.exports = function() {
   const { io } = socketInit;
 
   io.use((socket, next) => {
-    // const cookief = socket.handshake.headers.cookie;
-    // console.log(cookief);
-    // const cookies = cookie.parse(cookief);
-    // console.log(cookies);
-    // @todo middleware after SSO is done
     clearStaleSocketEntries();
     next();
   });
@@ -32,8 +27,6 @@ module.exports = function() {
     socket.on('ping', (cb) => {
       if (typeof cb === 'function') cb();
     });
-
-    // console.log(socket.getEventNames())
 
     // if the socket has a jwt cookie find the user and update their socket
     // should we try to detect if the socket is already associated with a user...if so we need to update users on socket disconnect and remove their socket id
@@ -237,7 +230,6 @@ module.exports = function() {
     const forceLogout = async (userId) => {
       try {
         const allSockets = await getAllSocketsForUser(userId);
-        console.log('forcing logout', userId, allSockets);
         io.in(allSockets).emit('FORCED_LOGOUT');
         // forceUserLogout(userId, userId);
       } catch (error) {
@@ -249,34 +241,28 @@ module.exports = function() {
 
     const getAllSocketsForUser = async (userId) => {
       const socketStates = await redisClient.hgetall(redisActivityKey(userId));
-      console.log(`All sockets for ${userId} are the keys of `, socketStates);
       return Object.keys(socketStates);
     };
 
     const areAllSocketsInactive = async (userId) => {
       const socketStates = await redisClient.hgetall(redisActivityKey(userId));
-      console.log(`Are all sockets for ${userId} inactive?`, socketStates);
       return Object.values(socketStates).every((state) => state === 'inactive');
     };
 
     const markSocketAsInactive = (userId, socketId) => {
-      console.log('marking as inactive', userId, socketId);
       redisClient.hset(redisActivityKey(userId), socketId, 'inactive');
     };
 
     const markSocketAsActive = (userId, socketId) => {
-      console.log('marking as active', userId, socketId);
       redisClient.hset(redisActivityKey(userId), socketId, 'active');
     };
 
     socket.on('USER_ACTIVE', (userId) => {
-      console.log('received user activity', userId);
       markSocketAsActive(userId, socket.id);
     });
 
     socket.on('USER_INACTIVE', async (userId) => {
       markSocketAsInactive(userId, socket.id);
-      console.log('received user idleness', userId);
       const areAllInactive = await areAllSocketsInactive(userId);
       if (areAllInactive) forceLogout(userId);
     });
@@ -319,13 +305,11 @@ module.exports = function() {
           cb(`User socketId updated to ${socket.id}`, null);
         })
         .catch((err) => cb('Error found', err));
-      console.log('syncing socket', _id);
       markSocketAsActive(socket.user_id, socket.id);
     });
 
     socket.on('disconnect', (socket) => {
       // Remove socket ID from Redis
-      console.log('disconnect event', socket.id, socket.user_id);
       redisClient.hdel(redisActivityKey(socket.user_id), socket.id);
     });
 
@@ -494,7 +478,6 @@ module.exports = function() {
     socket.on('UPDATED_REFERENCES', (data) => {
       socketMetricInc('refupdated');
       const { roomId, updatedEvents } = data;
-      console.log('emitting updating refs', roomId, updatedEvents);
 
       socket.broadcast
         .to(roomId)

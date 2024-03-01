@@ -11,12 +11,7 @@ import {
 
 class MyVMT extends Component {
   state = {
-    tabs: [
-      { name: 'Rooms' },
-      { name: 'Courses' },
-      { name: 'Activities' },
-      { name: 'Monitor' },
-    ],
+    tabs: [{ name: 'Rooms' }, { name: 'Courses' }, { name: 'Activities' }],
     // touring: false,
     // displayResources: [],
     view: 'facilitator',

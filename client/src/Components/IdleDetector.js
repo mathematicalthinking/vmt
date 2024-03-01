@@ -18,12 +18,10 @@ export default function IdleDetector({ children }) {
   }, [userId]);
 
   const handleInactivity = () => {
-    console.log('sending idle event', userIdRef.current);
     if (isLoggedInRef.current) socket.emit('USER_INACTIVE', userIdRef.current);
   };
 
   const handleActivity = () => {
-    console.log('sending active event', userIdRef.current);
     if (isLoggedInRef.current) socket.emit('USER_ACTIVE', userIdRef.current);
   };
 
