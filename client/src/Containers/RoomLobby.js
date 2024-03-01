@@ -51,20 +51,21 @@ import RoomPreview from './Monitoring/RoomPreview';
 import classes from './RoomLobby.css';
 
 class Room extends Component {
-  initialTabs = [{ name: 'Details' }, { name: 'Members' }];
+  restrictedTabs = [{ name: 'Details' }, { name: 'Settings' }];
+  fullTabs = [
+    { name: 'Details' },
+    { name: 'Members' },
+    { name: 'Preview' },
+    { name: 'Stats' },
+    { name: 'Settings' },
+  ];
   constructor(props) {
     super(props);
     const { room } = this.props;
     this.state = {
       // member: false,
       guestMode: true,
-      tabs: [
-        { name: 'Details' },
-        ...(this.shouldShowTab() ? [{ name: 'Members' }] : []),
-        ...(this.shouldShowTab() ? [{ name: 'Preview' }] : []),
-        ...(this.shouldShowTab() ? [{ name: 'Stats' }] : []),
-        { name: 'Settings' },
-      ],
+      tabs: this.fullTabs,
       firstView: false,
       editing: false,
       invited: false,
@@ -91,7 +92,7 @@ class Room extends Component {
     // If its in the store check access
     if (room) {
       // check access
-      let updatedTabs = [...tabs];
+      let updatedTabs = [...this.tabs()];
       let owner = false;
       let firstView = false;
       let invited = false;
@@ -144,6 +145,7 @@ class Room extends Component {
       history,
       loading,
       notifications,
+      isAliasUsernames,
     } = this.props;
     const { tabs, isAdmin } = this.state;
     if (!room) {
@@ -168,9 +170,13 @@ class Room extends Component {
     ) {
       this.checkAccess();
     }
+
+    if (tabs.length !== this.tabs().length)
+      this.setState({ tabs: this.tabs() });
+
     // THESE ARE SUSCEPTIBLE TO ERRORS BECAUSE YOU COULD GAIN AND LOSE TWO DIFFERENT NTFS IN A SINGLE UPDATE POTENTIALLY? ACTUALLY COULD YOU?
     if (prevProps.notifications.length !== notifications.length) {
-      const updatedTabs = this.displayNotifications([...tabs]);
+      const updatedTabs = this.displayNotifications([...this.tabs()]);
       this.setState({ tabs: updatedTabs });
     }
 
@@ -200,26 +206,26 @@ class Room extends Component {
     }
   }
 
+  tabs = () => {
+    return this.shouldShowTab() ? this.fullTabs : this.restrictedTabs;
+  };
+
   // Don't display Members, Preview, or Stats tabs if:
   // aliased usernames are turned on and user is a facilitator
   shouldShowTab = () => {
-    const { room } = this.props;
+    const { room, isAliasUsernames } = this.props;
     // used because room is sometimes not fully loaded from community
     // & does not always loaded in without settings
     if (!room || !room.settings) return true;
     const isFacilitator = this.isUserFacilitator();
-    if (
-      !isFacilitator &&
-      RoomModel.getRoomSetting(room, RoomModel.ALIASED_USERNAMES)
-    )
-      return false;
+    if (!isFacilitator && isAliasUsernames) return false;
     return true;
   };
 
   isUserFacilitator = () => {
     const { room, user } = this.props;
     const mem = room.members.find((member) => member.user._id === user._id);
-    return mem && mem.role ? mem.role === 'facilitator' : false;
+    return mem && mem.role === 'facilitator';
   };
 
   enterWithCode = (entryCode) => {
@@ -967,6 +973,10 @@ const mapStateToProps = (state, ownProps) => {
     user: state.user,
     notifications: getUserNotifications(state.user, null, 'room'), // this seems redundant
     loading: state.loading.loading,
+    isAliasUsernames: RoomModel.getRoomSetting(
+      room,
+      RoomModel.ALIASED_USERNAMES
+    ),
   };
 };
 
