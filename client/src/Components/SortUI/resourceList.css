@@ -63,9 +63,17 @@
 .SortUIContainer {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: stretch;
   z-index: 350; /* Content box has z-index of 300 */
   max-width: 573px;
+}
+
+.ControlsContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  z-index: 350; /* Content box has z-index of 300 */
+  width: 100%;
 }
 
 .SortSelection,

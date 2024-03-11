@@ -5,12 +5,20 @@ import { timeFrames } from 'utils';
 import { Search } from 'Components';
 import classes from './resourceList.css';
 
-const SortUI = ({ keys, sortFn, sortConfig }) => {
+const SortUI = ({
+  keys,
+  sortFn,
+  sortConfig,
+  disableSort,
+  givenTimeFrames,
+  disableSearch,
+}) => {
   const upArrow = <i className="fas fa-solid fa-arrow-up" />;
   const downArrow = <i className="fas fa-solid fa-arrow-down" />;
-  const timeFrameOptions = [
+  const timeFrameOptions = givenTimeFrames || [
     { label: 'All', value: timeFrames.ALL },
     { label: 'Last Day', value: timeFrames.LASTDAY },
+    { label: 'Last 2 Days', value: timeFrames.LAST2DAYS },
     { label: 'Last Week', value: timeFrames.LASTWEEK },
     { label: 'Last Two Weeks', value: timeFrames.LAST2WEEKS },
     { label: 'Last Month', value: timeFrames.LASTMONTH },
@@ -100,75 +108,81 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
 
   return (
     <div className={classes.SortUIContainer}>
-      <div className={classes.SortSelection}>
-        <label htmlFor={`sortUI-${labelSuffix}`} className={classes.Label}>
-          Sort by:
-          <Select
-            className={classes.Select}
-            inputId={`sortUI-${labelSuffix}`}
-            placeholder="Select..."
-            onChange={(selectedOption) => {
-              sortFn({
-                key: selectedOption.value,
-                direction: sortConfig.direction,
-              });
-            }}
-            value={{
-              // eslint-disable-next-line react/prop-types
-              label: keyName(keys[0].name),
-              // eslint-disable-next-line react/prop-types
-              value: sortConfig.key || keys[0].property,
-            }}
-            options={keys.map((key) => ({
-              value: key.property,
-              label: key.name,
-            }))}
-            isSearchable={false}
-          />{' '}
-        </label>
-        <span
-          style={{ padding: '0 5px' }}
-          onClick={() => sortFn({ key: sortConfig.key })}
-          onKeyDown={() => sortFn({ key: sortConfig.key })}
-          role="button"
-          tabIndex={-1}
-        >
-          {sortConfig.direction === 'descending' ? downArrow : upArrow}{' '}
-        </span>
+      <div className={classes.ControlsContainer}>
+        {!disableSort && (
+          <div className={classes.SortSelection}>
+            <label htmlFor={`sortUI-${labelSuffix}`} className={classes.Label}>
+              Sort by:
+              <Select
+                className={classes.Select}
+                inputId={`sortUI-${labelSuffix}`}
+                placeholder="Select..."
+                onChange={(selectedOption) => {
+                  sortFn({
+                    key: selectedOption.value,
+                    direction: sortConfig.direction,
+                  });
+                }}
+                value={{
+                  // eslint-disable-next-line react/prop-types
+                  label: keyName(keys[0].name),
+                  // eslint-disable-next-line react/prop-types
+                  value: sortConfig.key || keys[0].property,
+                }}
+                options={keys.map((key) => ({
+                  value: key.property,
+                  label: key.name,
+                }))}
+                isSearchable={false}
+              />{' '}
+            </label>
+            <span
+              style={{ padding: '0 5px' }}
+              onClick={() => sortFn({ key: sortConfig.key })}
+              onKeyDown={() => sortFn({ key: sortConfig.key })}
+              role="button"
+              tabIndex={-1}
+            >
+              {sortConfig.direction === 'descending' ? downArrow : upArrow}{' '}
+            </span>
+          </div>
+        )}
+        <div className={classes.FilterSelection}>
+          <label
+            htmlFor={`filterUI-${labelSuffix}`}
+            className={classes.Label}
+            data-testid={`filterUI-${labelSuffix}`}
+          >
+            Updated:
+            <Select
+              placeholder="Timeframe"
+              className={classes.Select}
+              inputId={`filterUI-${labelSuffix}`}
+              onChange={(selectedOption) => {
+                sortFn({
+                  filter: {
+                    ...sortConfig.filter,
+                    timeframe: selectedOption.value,
+                  },
+                });
+              }}
+              value={optionForValue(sortConfig.filter.timeframe)}
+              options={timeFrameOptions}
+              isSearchable={false}
+            />
+          </label>
+        </div>
       </div>
-      <div className={classes.FilterSelection}>
-        <label
-          htmlFor={`filterUI-${labelSuffix}`}
-          className={classes.Label}
-          data-testid={`filterUI-${labelSuffix}`}
-        >
-          Updated:
-          <Select
-            placeholder="Timeframe"
-            className={classes.Select}
-            inputId={`filterUI-${labelSuffix}`}
-            onChange={(selectedOption) => {
-              sortFn({
-                filter: {
-                  ...sortConfig.filter,
-                  timeframe: selectedOption.value,
-                },
-              });
-            }}
-            value={optionForValue(sortConfig.filter.timeframe)}
-            options={timeFrameOptions}
-            isSearchable={false}
-          />{' '}
-        </label>
-      </div>
-      <div className={classes.Search}>
-        <Search
-          isControlled
-          value={sortConfig.criteria || ''}
-          _search={search}
-          data-testid="search"
-        />
-      </div>
+      {!disableSearch && (
+        <div className={classes.Search}>
+          <Search
+            isControlled
+            value={sortConfig.criteria || ''}
+            _search={search}
+            data-testid="search"
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -176,7 +190,7 @@ const SortUI = ({ keys, sortFn, sortConfig }) => {
 SortUI.propTypes = {
   keys: PropTypes.arrayOf(
     PropTypes.shape({ name: PropTypes.string, property: PropTypes.string })
-  ).isRequired,
+  ),
   sortFn: PropTypes.func.isRequired,
   sortConfig: PropTypes.shape({
     criteria: PropTypes.string,
@@ -188,9 +202,18 @@ SortUI.propTypes = {
       filterFcn: PropTypes.func,
     }),
   }),
+  disableSort: PropTypes.bool,
+  disableSearch: PropTypes.bool,
+  givenTimeFrames: PropTypes.arrayOf(
+    PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })
+  ),
 };
 SortUI.defaultProps = {
   sortConfig: {},
+  keys: [],
+  givenTimeFrames: null,
+  disableSort: false,
+  disableSearch: false,
 };
 
 export default SortUI;
