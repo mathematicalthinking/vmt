@@ -12,6 +12,7 @@ import { throttle } from 'lodash';
 const timeFrameFcns = {
   all: () => true,
   lastDay: (diff) => diff <= 24 * 60 * 60 * 1000,
+  last2Days: (diff) => diff <= 2 * 24 * 60 * 60 * 1000,
   lastWeek: (diff) => diff <= 7 * 24 * 60 * 60 * 1000,
   last2Weeks: (diff) => diff <= 2 * 7 * 24 * 60 * 60 * 1000,
   lastMonth: (diff) => diff <= 30 * 24 * 60 * 60 * 1000,
@@ -26,6 +27,7 @@ const timeFrameFcns = {
 export const timeFrames = {
   ALL: 'all',
   LASTDAY: 'lastDay',
+  LAST2DAYS: 'last2Days',
   LASTWEEK: 'lastWeek',
   LAST2WEEKS: 'last2Weeks',
   LASTMONTH: 'lastMonth',
