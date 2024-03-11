@@ -51,9 +51,6 @@ function CourseMonitor({ course }) {
   // if the UI state changes, update the UIState variable
   React.useEffect(() => setUIState({ config: sortConfig }), [sortConfig]);
 
-  console.log('populatedRooms', populatedRooms);
-  console.log('rooms', rooms);
-  console.log('roomIds', roomIds);
   return !populatedRooms.isError ? (
     <div>
       <SortUI
@@ -66,7 +63,7 @@ function CourseMonitor({ course }) {
       <br />
       <RoomsMonitor
         context={`course-${course._id}`}
-        populatedRooms={populatedRooms.isSuccess ? populatedRooms.data : {}}
+        populatedRooms={populatedRooms.data || {}}
         isLoading={populatedRooms.isFetching ? roomIds : []}
       />
     </div>
