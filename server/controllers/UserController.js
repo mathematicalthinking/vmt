@@ -148,6 +148,7 @@ module.exports = {
   getRecentActivity: async (criteria, skip, filters) => {
     let { since, to } = filters;
 
+    // Define allowed presets for relative timeframes
     const allowedSincePresets = ['day', 'week', 'month', 'year'];
 
     if (allowedSincePresets.includes(since)) {
@@ -158,34 +159,36 @@ module.exports = {
           .format('x')
       );
     } else {
-      // default to activity in last day
-      let momentObj = moment(since, 'x', true);
-      if (!momentObj.isValid()) {
-        momentObj = moment();
-      }
-      since = Number(momentObj.startOf('day').format('x'));
+      since = Number(
+        moment(since, 'x', true).isValid()
+          ? moment(since, 'x', true)
+              .startOf('day')
+              .format('x')
+          : moment()
+              .startOf('day')
+              .format('x')
+      );
     }
-    let initialFilter = {
-      updatedAt: { $gte: new Date(since) },
+
+    // Handle 'to', ensuring it falls back to the current time if not provided or invalid
+    to = Number(
+      moment(to, 'x', true).isValid()
+        ? moment(to, 'x', true)
+            .endOf('day')
+            .format('x')
+        : moment()
+            .endOf('day')
+            .format('x')
+    );
+    let matchCriteria = {
+      updatedAt: { $gte: new Date(since), $lte: new Date(to) },
       isTrashed: false,
       status: { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] },
     };
 
-    if (to && since && to > since) {
-      let toMomentObj = moment(to, 'x', true);
-      if (!toMomentObj.isValid()) {
-        toMomentObj = moment();
-      }
-
-      to = Number(toMomentObj.endOf('day').format('x'));
-      initialFilter.updatedAt.$lte = new Date(to);
-    }
-
-    const skipInt = skip ? parseInt(skip, 10) : 0;
-
     if (criteria) {
-      initialFilter = {
-        ...initialFilter,
+      matchCriteria = {
+        ...matchCriteria,
         $or: [
           { firstName: criteria },
           { lastName: criteria },
@@ -197,74 +200,141 @@ module.exports = {
       };
     }
 
-    const [users, totalCount] = await Promise.all([
-      db.User.find(initialFilter, {
-        username: 1,
-        latestIpAddress: 1,
-        updatedAt: 1,
-        isSuspended: 1,
-        socketId: 1,
-        doForceLogout: 1,
-        accountType: 1,
-        firstName: 1,
-        lastName: 1,
-        email: 1,
-      })
-        .sort({ updatedAt: -1 })
-        .skip(skipInt)
-        .limit(20)
-        .lean()
-        .exec(),
-      db.User.countDocuments(initialFilter).exec(),
-    ]);
+    const pipeline = [
+      { $match: matchCriteria },
+      { $sort: { updatedAt: -1 } },
+      { $skip: skip ? parseInt(skip, 10) : 0 },
+      { $limit: 20 },
+      {
+        $lookup: {
+          from: 'events',
+          let: { userId: '$_id', since: since, to: to },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$user', '$$userId'] },
+                    { $gte: ['$timestamp', '$$since'] },
+                    { $lte: ['$timestamp', '$$to'] },
+                  ],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: 'rooms',
+                localField: 'room',
+                foreignField: '_id',
+                as: 'roomDetails',
+              },
+            },
+            {
+              $unwind: {
+                path: '$roomDetails',
+                preserveNullAndEmptyArrays: true, // Preserve events without a corresponding room
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                activeRooms: {
+                  $addToSet: {
+                    _id: '$roomDetails._id',
+                    name: '$roomDetails.name',
+                  },
+                },
+                eventsCount: { $sum: 1 },
+              },
+            },
+          ],
+          as: 'eventData',
+        },
+      },
+      {
+        $lookup: {
+          from: 'messages',
+          let: { userId: '$_id', since: since, to: to },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$user', '$$userId'] },
+                    { $gte: ['$timestamp', '$$since'] },
+                    { $lte: ['$timestamp', '$$to'] },
+                  ],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: 'rooms',
+                localField: 'room',
+                foreignField: '_id',
+                as: 'roomDetails',
+              },
+            },
+            {
+              $unwind: {
+                path: '$roomDetails',
+                preserveNullAndEmptyArrays: true, // Preserve messages without a corresponding room
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                activeRooms: {
+                  $addToSet: {
+                    _id: '$roomDetails._id',
+                    name: '$roomDetails.name',
+                  },
+                },
+                messagesCount: { $sum: 1 },
+              },
+            },
+          ],
+          as: 'messageData',
+        },
+      },
+      {
+        $addFields: {
+          eventData: { $arrayElemAt: ['$eventData', 0] },
+          messageData: { $arrayElemAt: ['$messageData', 0] },
+        },
+      },
+      {
+        $addFields: {
+          activeRooms: {
+            $setUnion: ['$eventData.activeRooms', '$messageData.activeRooms'],
+          },
+          eventsCount: '$eventData.eventsCount',
+          messagesCount: '$messageData.messagesCount',
+        },
+      },
+      {
+        $project: {
+          username: 1,
+          latestIpAddress: 1,
+          updatedAt: 1,
+          isSuspended: 1,
+          socketId: 1,
+          doForceLogout: 1,
+          accountType: 1,
+          firstName: 1,
+          lastName: 1,
+          email: 1,
+          activeRooms: 1,
+          eventsCount: 1,
+          messagesCount: 1,
+        },
+      },
+    ];
 
-    const usersWithStats = await Promise.all(
-      users.map(async (user) => {
-        const filter = {
-          user: user._id,
-          timestamp: { $gte: since },
-        };
+    const usersWithStats = await db.User.aggregate(pipeline).exec();
 
-        if (to && since && to > since) {
-          filter.timestamp.$lte = to;
-        }
-        const [events, messages] = await Promise.all([
-          db.Event.find(filter, { room: 1 })
-            .lean()
-            .populate({ path: 'room', select: 'name' })
-            .exec(),
-          db.Message.find(filter, { room: 1 })
-            .lean()
-            .populate({ path: 'room', select: 'name' })
-            .exec(),
-        ]);
-        user.eventsCount = events.length;
-        user.messagesCount = messages.length;
-
-        user.activeRooms = [];
-        events.forEach((event) => {
-          if (
-            event.room &&
-            !user.activeRooms.find((room) => {
-              return areObjectIdsEqual(room._id, event.room._id);
-            })
-          ) {
-            user.activeRooms.push(event.room);
-          }
-        });
-        messages.forEach((message) => {
-          if (
-            message.room &&
-            !user.activeRooms.find((room) => {
-              return areObjectIdsEqual(room._id, message.room._id);
-            })
-          ) {
-            user.activeRooms.push(message.room);
-          }
-        });
-        return user;
-      })
-    );
+    console.log(usersWithStats[0].messagesCount);
+    const totalCount = await db.User.countDocuments(matchCriteria).exec();
 
     return [usersWithStats, { totalCount }];
   },
