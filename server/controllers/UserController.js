@@ -333,7 +333,6 @@ module.exports = {
 
     const usersWithStats = await db.User.aggregate(pipeline).exec();
 
-    console.log(usersWithStats[0].messagesCount);
     const totalCount = await db.User.countDocuments(matchCriteria).exec();
 
     return [usersWithStats, { totalCount }];
