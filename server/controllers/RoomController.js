@@ -792,7 +792,28 @@ module.exports = {
         },
       },
 
-      { $unwind: '$facilitatorObject' },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: 1,
+          tempRoom: 1,
+          chat: 1,
+          facilitatorUsernames: {
+            $map: {
+              input: '$facilitatorObject',
+              as: 'facilitator',
+              in: '$$facilitator.username',
+            },
+          },
+        },
+      },
     ];
     if (criteria) {
       pipeline.push({
@@ -801,12 +822,13 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { 'facilitatorObject.username': criteria },
+            { facilitatorUsernames: criteria },
           ],
         },
       });
     }
     pipeline.push(
+      // Assuming this comes right after your initial $match and potential $project stages
       {
         $lookup: {
           from: 'tabs',
@@ -815,52 +837,49 @@ module.exports = {
           as: 'tabObject',
         },
       },
-      { $unwind: '$tabObject' },
       {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          image: { $first: '$image' },
-          privacySetting: { $first: '$privacySetting' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tempRoom: { $first: '$tempRoom' },
-          chat: { $first: '$chat' },
-          tabs: { $push: '$tabObject' },
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: 1,
+          tempRoom: 1,
+          chat: 1,
+          // Accessing properties of the first tab directly
+          firstTab: { $arrayElemAt: ['$tabObject', 0] },
+        },
+      },
+      // Adjust your facet to include fields from the firstTab as necessary
+      {
+        $facet: {
+          paginatedResults: [
+            { $sort: { updatedAt: -1 } },
+            { $skip: skip ? parseInt(skip, 10) : 0 },
+            { $limit: 20 },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                instructions: 1,
+                description: 1,
+                image: 1,
+                privacySetting: 1,
+                updatedAt: 1,
+                members: 1,
+                tempRoom: 1,
+                messagesCount: { $size: '$chat' },
+                tabType: '$firstTab.tabType',
+              },
+            },
+          ],
+          totalCount: [{ $count: 'count' }],
         },
       }
     );
-    pipeline.push({
-      $facet: {
-        paginatedResults: [
-          { $sort: { updatedAt: -1 } },
-          { $skip: skip ? parseInt(skip, 10) : 0 },
-          { $limit: 20 },
-          {
-            $project: {
-              _id: 1,
-              name: 1,
-              instructions: 1,
-              description: 1,
-              image: 1,
-              privacySetting: 1,
-              updatedAt: 1,
-              members: 1,
-              tempRoom: 1,
-              messagesCount: { $size: '$chat' },
-              'tabs.tabType': 1,
-            },
-          },
-        ],
-        totalCount: [
-          {
-            $count: 'count',
-          },
-        ],
-      },
-    });
 
     const [results] = await Room.aggregate(pipeline);
 
