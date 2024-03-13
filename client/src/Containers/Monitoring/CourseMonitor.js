@@ -8,7 +8,7 @@ import {
   useUIState,
 } from 'utils';
 import RoomsMonitor from './RoomsMonitor';
-import { SortUI } from 'Components';
+import { SortUI, SimpleLoading } from 'Components';
 
 /**
  * The CourseMonitor provides views into all of the rooms assoicated with
@@ -19,12 +19,12 @@ import { SortUI } from 'Components';
 
 function CourseMonitor({ course }) {
   const timeFrameOptions = [
-    { label: 'All', value: timeFrames.ALL },
     { label: 'Last Day', value: timeFrames.LASTDAY },
     { label: 'Last 2 Days', value: timeFrames.LAST2DAYS },
     { label: 'Last Week', value: timeFrames.LASTWEEK },
     { label: 'Last Month', value: timeFrames.LASTMONTH },
     { label: 'Last Year', value: timeFrames.LASTYEAR },
+    { label: 'All', value: timeFrames.ALL },
   ];
 
   const initialConfig = {
@@ -51,7 +51,9 @@ function CourseMonitor({ course }) {
   // if the UI state changes, update the UIState variable
   React.useEffect(() => setUIState({ config: sortConfig }), [sortConfig]);
 
-  return !populatedRooms.isError ? (
+  if (populatedRooms.isError) return <div>There was an error.</div>;
+
+  return (
     <div>
       <SortUI
         sortConfig={sortConfig}
@@ -61,14 +63,16 @@ function CourseMonitor({ course }) {
         givenTimeFrames={timeFrameOptions}
       />
       <br />
-      <RoomsMonitor
-        context={`course-${course._id}`}
-        populatedRooms={populatedRooms.data || {}}
-        isLoading={populatedRooms.isFetching ? roomIds : []}
-      />
+      {populatedRooms.isLoading ? (
+        <SimpleLoading />
+      ) : (
+        <RoomsMonitor
+          context={`course-${course._id}`}
+          populatedRooms={populatedRooms.data || {}}
+          isLoading={populatedRooms.isFetching ? roomIds : []}
+        />
+      )}
     </div>
-  ) : (
-    <div>There was an error</div>
   );
 }
 
