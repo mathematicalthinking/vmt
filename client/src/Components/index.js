@@ -47,6 +47,7 @@ export { default as DemoBrowser } from './DemoBrowser/DemoBrowser';
 export { default as Iframe } from './Iframe/Iframe';
 export { default as ToolTip } from './ToolTip/ToolTip';
 export { default as Loading } from './Loading/Loading';
+export { default as SimpleLoading } from './Loading/SimpleLoading';
 export { default as InfoBox } from './InfoBox/InfoBox';
 export { ModalContext } from './GeneralModal';
 export { default as GenericSearchResults } from './Search/GenericSearchResults';

@@ -22,6 +22,7 @@ import {
   controlStates,
   controlEvents,
   createMongoId as mongoIdGenerator,
+  dateAndTime,
 } from 'utils';
 import { WorkspaceLayout } from 'Layout';
 import { Chat, Tools, RoomInfo } from '.';
@@ -219,6 +220,9 @@ class Workspace extends Component {
         ),
         chat: log.filter((msg) => msg.messageType),
         tabs,
+        // The updatedAt field gets changed only by the DB. However, we update
+        // it in the Redux store so that other parts of the system can detect changes.
+        updatedAt: dateAndTime.toDBTimeString(Date.now()),
       });
     }
     window.removeEventListener('resize', this.resizeHandler);
