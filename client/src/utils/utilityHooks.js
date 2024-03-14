@@ -16,6 +16,9 @@ const timeFrameFcns = {
   lastWeek: (diff) => diff <= 7 * 24 * 60 * 60 * 1000,
   last2Weeks: (diff) => diff <= 2 * 7 * 24 * 60 * 60 * 1000,
   lastMonth: (diff) => diff <= 30 * 24 * 60 * 60 * 1000,
+  last3Months: (diff) => diff <= 3 * 30 * 24 * 60 * 60 * 1000,
+  last6Months: (diff) => diff <= 6 * 30 * 24 * 60 * 60 * 1000,
+  last9Months: (diff) => diff <= 9 * 30 * 24 * 60 * 60 * 1000,
   lastYear: (diff) => diff <= 356 * 24 * 60 * 60 * 1000,
   afterDay: (diff) => diff > 24 * 60 * 60 * 1000,
   afterWeek: (diff) => diff > 7 * 24 * 60 * 60 * 1000,
@@ -30,6 +33,9 @@ export const timeFrames = {
   LAST2DAYS: 'last2Days',
   LASTWEEK: 'lastWeek',
   LAST2WEEKS: 'last2Weeks',
+  LAST3MONTHS: 'last3Months',
+  LAST6MONTHS: 'last6Months',
+  LAST9MONTHS: 'last9Months',
   LASTMONTH: 'lastMonth',
   LASTYEAR: 'lastYear',
   AFTERDAY: 'afterDay',
@@ -562,4 +568,19 @@ export function useActivityDetector(
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+}
+
+/**
+ * A custom hook for executing a callback the first time that some data changes. Note that the callback should be stable
+ * or wrapped in useCallback.
+ */
+export function useExecuteOnFirstUpdate(data, callback) {
+  const hasExecutedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!hasExecutedRef.current && data) {
+      callback(data);
+      hasExecutedRef.current = true;
+    }
+  }, [data, callback]);
 }
