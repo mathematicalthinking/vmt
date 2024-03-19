@@ -37,6 +37,7 @@ const toTimeString = (date) => new Date(date).toLocaleTimeString();
 const toDateTimeString = (date) => new Date(date).toLocaleString();
 const getUnixTime = (date) => new Date(date).getTime() / 1000;
 const getTimestamp = (date) => (date ? new Date(date).getTime() : Date.now()); // do we need this?
+const toDBTimeString = (date) => new Date(date).toISOString();
 const isValid = (date) => !isNaN(Date.parse(date));
 const before = (date, amt, units) =>
   isValid(date) && isNumber(amt) && timeUnits[units]
@@ -72,4 +73,5 @@ export default {
   isValid,
   before,
   isWithin,
+  toDBTimeString,
 };

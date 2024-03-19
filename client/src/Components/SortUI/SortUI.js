@@ -10,7 +10,7 @@ const SortUI = ({
   sortFn,
   sortConfig,
   disableSort,
-  givenTimeFrames,
+  timeFrames: givenTimeFrames,
   disableSearch,
 }) => {
   const upArrow = <i className="fas fa-solid fa-arrow-up" />;
@@ -18,7 +18,6 @@ const SortUI = ({
   const timeFrameOptions = givenTimeFrames || [
     { label: 'All', value: timeFrames.ALL },
     { label: 'Last Day', value: timeFrames.LASTDAY },
-    { label: 'Last 2 Days', value: timeFrames.LAST2DAYS },
     { label: 'Last Week', value: timeFrames.LASTWEEK },
     { label: 'Last Two Weeks', value: timeFrames.LAST2WEEKS },
     { label: 'Last Month', value: timeFrames.LASTMONTH },
@@ -204,14 +203,14 @@ SortUI.propTypes = {
   }),
   disableSort: PropTypes.bool,
   disableSearch: PropTypes.bool,
-  givenTimeFrames: PropTypes.arrayOf(
+  timeFrames: PropTypes.arrayOf(
     PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })
   ),
 };
 SortUI.defaultProps = {
   sortConfig: {},
   keys: [],
-  givenTimeFrames: null,
+  timeFrames: null,
   disableSort: false,
   disableSearch: false,
 };
