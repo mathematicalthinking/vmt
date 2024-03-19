@@ -1,6 +1,7 @@
 /* eslint-disable no-throw-literal */
 const _ = require('lodash');
 const db = require('../models');
+const ROLE = require('../constants/role');
 
 module.exports = {
   get: (params) => {
@@ -94,7 +95,7 @@ module.exports = {
               input: '$members',
               as: 'member',
               cond: {
-                $eq: ['$$member.role', 'facilitator'],
+                $eq: ['$$member.role', ROLE.FACILITATOR],
               },
             },
           },
@@ -109,7 +110,47 @@ module.exports = {
         },
       },
 
-      { $unwind: '$facilitatorObject' },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          facilitatorUsernames: {
+            $map: {
+              input: '$facilitatorObject',
+              as: 'facilitator',
+              in: '$$facilitator.username',
+            },
+          },
+          // map through the members, keeping just the role and the user object
+          members: {
+            $map: {
+              input: '$members',
+              as: 'member',
+              in: {
+                role: '$$member.role',
+                user: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: '$facilitatorObject',
+                        as: 'facilitator',
+                        cond: { $eq: ['$$facilitator._id', '$$member.user'] },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
     ];
 
     if (criteria) {
@@ -119,26 +160,12 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { 'facilitatorObject.username': criteria },
+            { facilitatorUsernames: criteria },
           ],
         },
       });
     }
     aggregationPipeline = aggregationPipeline.concat([
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          members: {
-            $push: { user: '$facilitatorObject', role: 'facilitator' },
-          },
-          updatedAt: { $first: '$updatedAt' },
-        },
-      },
       {
         $project: {
           _id: 1,
@@ -148,9 +175,20 @@ module.exports = {
           privacySetting: 1,
           image: 1,
           updatedAt: 1,
-          'members.user.username': 1,
-          'members.user._id': 1,
-          'members.role': 1,
+          // put each member into the proper form, keeping only the _id and username
+          members: {
+            $map: {
+              input: '$members',
+              as: 'member',
+              in: {
+                role: '$$member.role',
+                user: {
+                  _id: '$$member.user._id',
+                  username: '$$member.user.username',
+                },
+              },
+            },
+          },
         },
       },
     ]);
