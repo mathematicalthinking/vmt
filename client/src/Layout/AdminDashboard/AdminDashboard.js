@@ -10,8 +10,8 @@ import {
   Button,
   RadioBtn,
   InfoBox,
-} from '../../Components';
-// import Button from '../../Components/UI/Button/Button';
+  SimpleLoading,
+} from 'Components';
 import classes from './adminDashboard.css';
 
 class AdminDashboard extends Component {
@@ -45,6 +45,7 @@ class AdminDashboard extends Component {
       setToDate,
       manageUser,
       ownUserId,
+      isLoading,
     } = this.props;
 
     const totalCount = totalCounts ? totalCounts.totalCount || 0 : 0;
@@ -162,6 +163,7 @@ class AdminDashboard extends Component {
             </div>
           </div>
         </div>
+
         <div
           className={classes.List}
           style={{
@@ -170,16 +172,20 @@ class AdminDashboard extends Component {
               : 260,
           }}
         >
-          <DashboardBoxList
-            list={visibleResources}
-            resource={resource}
-            linkPath={linkPath}
-            linkSuffix={linkSuffix}
-            listType="public"
-            resultsMessage={resultsMessage}
-            manageUser={manageUser}
-            ownUserId={ownUserId}
-          />
+          {isLoading ? (
+            <SimpleLoading />
+          ) : (
+            <DashboardBoxList
+              list={visibleResources}
+              resource={resource}
+              linkPath={linkPath}
+              linkSuffix={linkSuffix}
+              listType="public"
+              resultsMessage={resultsMessage}
+              manageUser={manageUser}
+              ownUserId={ownUserId}
+            />
+          )}
         </div>
       </div>
     );

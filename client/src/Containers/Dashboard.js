@@ -25,6 +25,7 @@ class Dashboard extends Component {
       customToDate: null,
       userToManage: null,
       manageUserAction: null,
+      isLoading: false,
     };
     this.debounceFetchData = debounce(() => this.fetchData(), 1000);
     this.debouncedSetCriteria = debounce((criteria) => {
@@ -45,25 +46,8 @@ class Dashboard extends Component {
       history.push('/dashboard/rooms');
       return;
     }
-    // @TODO WHen should we refresh this data. Here we're saying:
-    // if there aren't fift result then we've probably only loaded the users
-    // own courses. This is assuming that the database will have more than 50 courses and rooms
-    // MAYBE conside having and upToDate flag in resoure that tracks whether we've requested this recently
-    // if (Object.keys(this.props[resource]).length < 50 && !this.state.upToDate) {
+
     this.fetchData();
-    // }
-    // else {
-
-    if (resource !== 'users') {
-      // eslint-disable-next-line react/destructuring-assignment
-      const resourceList = this.props[`${resource}Arr`].map(
-        // eslint-disable-next-line react/destructuring-assignment
-        (id) => this.props[resource][id]
-      );
-
-      this.setState({ visibleResources: resourceList });
-      // }
-    }
   }
 
   componentDidUpdate(prevProps) {
@@ -81,6 +65,7 @@ class Dashboard extends Component {
           customSinceDate: null,
           customToDate: null,
           dateRangePreset: 'day',
+          visibleResources: [],
         },
         () => {
           this.fetchData();
@@ -117,31 +102,25 @@ class Dashboard extends Component {
     const filters = this.getQueryParams();
     // if filter = all we're not actually filtering...we want all
     const updatedFilters = { ...filters };
-    // if (updatedFilters.roomType === 'all') {
-    //   delete updatedFilters.roomType;
-    // }
-    // if (updatedFilters.privacySetting === 'all') {
-    //   delete updatedFilters.privacySetting;
-    // }
-    API.getRecentActivity(
-      resource,
-      updatedFilters.search,
-      skip,
-      updatedFilters
-    ).then((res) => {
-      const [items, totalCounts] = res.data.results;
 
-      const moreAvailable = items.length >= SKIP_VALUE;
-      if (this._isOkToLoadResults) {
-        this.setState((prevState) => ({
-          visibleResources: concat
-            ? [...prevState.visibleResources].concat(items)
-            : items,
-          moreAvailable,
-          totalCounts,
-        }));
-      }
-    });
+    this.setState({ isLoading: true });
+    API.getRecentActivity(resource, updatedFilters.search, skip, updatedFilters)
+      .then((res) => {
+        this.setState({ isLoading: false });
+        const [items, totalCounts] = res.data.results;
+
+        const moreAvailable = items.length >= SKIP_VALUE;
+        if (this._isOkToLoadResults) {
+          this.setState((prevState) => ({
+            visibleResources: concat
+              ? [...prevState.visibleResources].concat(items)
+              : items,
+            moreAvailable,
+            totalCounts,
+          }));
+        }
+      })
+      .catch((err) => this.setState({ isLoading: false }));
   };
 
   setSkip = () => {
@@ -315,6 +294,7 @@ class Dashboard extends Component {
       customToDate,
       userToManage,
       manageUserAction,
+      isLoading,
     } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
@@ -359,6 +339,7 @@ class Dashboard extends Component {
           customToDate={customToDate}
           manageUser={this.manageUser}
           ownUserId={user._id}
+          isLoading={isLoading}
         />
         <Modal show={userToManage !== null} closeModal={this.stopManageUser}>
           {manageUserPrompt}
