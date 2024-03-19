@@ -127,27 +127,12 @@ module.exports = {
       });
     }
     aggregationPipeline = aggregationPipeline.concat([
-      { $unwind: '$creatorObject' },
       {
         $lookup: {
           from: 'tabs',
           localField: 'tabs',
           foreignField: '_id',
           as: 'tabObject',
-        },
-      },
-      { $unwind: '$tabObject' },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          updatedAt: { $first: '$updatedAt' },
-          creator: { $first: '$creatorObject' },
-          tabs: { $push: '$tabObject' },
         },
       },
       {
@@ -157,11 +142,28 @@ module.exports = {
           instructions: 1,
           description: 1,
           image: 1,
-          'tabs.tabType': 1,
+          // keep only the tabType of each tab
+          tabs: {
+            $map: {
+              input: '$tabObject',
+              as: 'tab',
+              in: { tabType: '$$tab.tabType' },
+            },
+          },
           privacySetting: 1,
           updatedAt: 1,
-          'creator.username': '$creator.username',
-          'creator._id': '$creator._id',
+          // keep only the username and _id of creator
+          creator: {
+            $let: {
+              vars: {
+                firstCreator: { $arrayElemAt: ['$creatorObject', 0] },
+              },
+              in: {
+                username: '$$firstCreator.username',
+                _id: '$$firstCreator._id',
+              },
+            },
+          },
         },
       },
     ]);

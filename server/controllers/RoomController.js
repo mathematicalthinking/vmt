@@ -196,7 +196,48 @@ module.exports = {
         },
       },
 
-      { $unwind: '$facilitatorObject' },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          // get the facilitator usernames; easier to keep this separate for the test
+          facilitatorUsernames: {
+            $map: {
+              input: '$facilitatorObject',
+              as: 'facilitator',
+              in: '$$facilitator.username',
+            },
+          },
+          // put the full user object into the members array
+          members: {
+            $map: {
+              input: '$members',
+              as: 'member',
+              in: {
+                role: '$$member.role',
+                user: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: '$facilitatorObject',
+                        as: 'facilitator',
+                        cond: { $eq: ['$$facilitator._id', '$$member.user'] },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
     ];
 
     if (criteria) {
@@ -206,47 +247,18 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { 'facilitatorObject.username': criteria },
+            { facilitatorUsernames: criteria },
           ],
         },
       });
     }
     aggregationPipeline = aggregationPipeline.concat([
       {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          tabs: { $first: '$tabs' },
-          updatedAt: { $first: '$updatedAt' },
-          members: {
-            $push: { user: '$facilitatorObject', role: ROLE.FACILITATOR },
-          },
-        },
-      },
-      {
         $lookup: {
           from: 'tabs',
           localField: 'tabs',
           foreignField: '_id',
           as: 'tabObject',
-        },
-      },
-      { $unwind: '$tabObject' },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tabs: { $push: '$tabObject' },
         },
       },
       {
@@ -256,12 +268,30 @@ module.exports = {
           instructions: 1,
           description: 1,
           image: 1,
-          'tabs.tabType': 1,
+          // only keep the tabtype field of tabs
+          tabs: {
+            $map: {
+              input: '$tabObject',
+              as: 'tab',
+              in: { tabType: '$$tab.tabType' },
+            },
+          },
           privacySetting: 1,
           updatedAt: 1,
-          'members.role': 1,
-          'members.user.username': 1,
-          'members.user._id': 1,
+          // put each member into the proper form, keeping only the _id and username
+          members: {
+            $map: {
+              input: '$members',
+              as: 'member',
+              in: {
+                role: '$$member.role',
+                user: {
+                  _id: '$$member.user._id',
+                  username: '$$member.user.username',
+                },
+              },
+            },
+          },
         },
       },
     ]);
@@ -828,7 +858,6 @@ module.exports = {
       });
     }
     pipeline.push(
-      // Assuming this comes right after your initial $match and potential $project stages
       {
         $lookup: {
           from: 'tabs',
@@ -849,11 +878,15 @@ module.exports = {
           members: 1,
           tempRoom: 1,
           chat: 1,
-          // Accessing properties of the first tab directly
-          firstTab: { $arrayElemAt: ['$tabObject', 0] },
+          tabs: {
+            $map: {
+              input: '$tabObject',
+              as: 'tab',
+              in: { tabType: '$$tab.tabType' },
+            },
+          },
         },
       },
-      // Adjust your facet to include fields from the firstTab as necessary
       {
         $facet: {
           paginatedResults: [
@@ -872,7 +905,7 @@ module.exports = {
                 members: 1,
                 tempRoom: 1,
                 messagesCount: { $size: '$chat' },
-                tabType: '$firstTab.tabType',
+                tabs: 1,
               },
             },
           ],
