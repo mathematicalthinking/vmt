@@ -230,9 +230,15 @@ module.exports = {
               },
             },
             {
-              $unwind: {
-                path: '$roomDetails',
-                preserveNullAndEmptyArrays: true, // Preserve events without a corresponding room
+              $project: {
+                roomDetails: { $arrayElemAt: ['$roomDetails', 0] },
+              },
+            },
+            {
+              $group: {
+                _id: '$roomDetails._id',
+                name: { $first: '$roomDetails.name' },
+                eventsCount: { $sum: 1 },
               },
             },
             {
@@ -240,11 +246,11 @@ module.exports = {
                 _id: null,
                 activeRooms: {
                   $addToSet: {
-                    _id: '$roomDetails._id',
-                    name: '$roomDetails.name',
+                    _id: '$_id',
+                    name: '$name',
                   },
                 },
-                eventsCount: { $sum: 1 },
+                eventsCount: { $sum: '$eventsCount' },
               },
             },
           ],
@@ -276,9 +282,15 @@ module.exports = {
               },
             },
             {
-              $unwind: {
-                path: '$roomDetails',
-                preserveNullAndEmptyArrays: true, // Preserve messages without a corresponding room
+              $project: {
+                roomDetails: { $arrayElemAt: ['$roomDetails', 0] },
+              },
+            },
+            {
+              $group: {
+                _id: '$roomDetails._id',
+                name: { $first: '$roomDetails.name' },
+                messagesCount: { $sum: 1 },
               },
             },
             {
@@ -286,11 +298,11 @@ module.exports = {
                 _id: null,
                 activeRooms: {
                   $addToSet: {
-                    _id: '$roomDetails._id',
-                    name: '$roomDetails.name',
+                    _id: '$_id',
+                    name: '$name',
                   },
                 },
-                messagesCount: { $sum: 1 },
+                messagesCount: { $sum: '$messagesCount' },
               },
             },
           ],
