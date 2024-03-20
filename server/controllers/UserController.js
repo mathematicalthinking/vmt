@@ -146,7 +146,6 @@ module.exports = {
     });
   },
   getRecentActivity: async (criteria, skip, filters) => {
-    console.log('here also');
     let { since, to } = filters;
 
     // Define allowed presets for relative timeframes
