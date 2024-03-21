@@ -360,24 +360,15 @@ const AddParticipants = (props) => {
         : [];
 
     setNewParticipants((prevState) => {
-      console.group('setNewParticipants');
       let memsToUpdate = [];
 
       if (rosterCourseMembersIds.length) {
-        console.log('rosterCourseMembersIds');
-        console.log(rosterCourseMembersIds);
         memsToUpdate = prevState.filter(
           (mem) => !rosterCourseMembersIds.includes(mem.user._id)
         );
       }
 
       if (courseCodeMembersIds.length) {
-        console.log('prevState');
-        console.log(prevState);
-        console.log('courseCodeMembersIds');
-        console.log(courseCodeMembersIds);
-        console.log('memsToUpdate');
-        console.log(memsToUpdate);
         memsToUpdate = Array.from(
           new Set([
             ...memsToUpdate,
@@ -387,11 +378,6 @@ const AddParticipants = (props) => {
           ])
         );
       }
-
-      console.log('end');
-      console.log('memsToUpdate');
-      console.log(memsToUpdate);
-      console.groupEnd();
 
       return memsToUpdate;
       // prevState.filter(

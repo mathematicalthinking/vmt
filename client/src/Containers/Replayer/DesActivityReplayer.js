@@ -22,15 +22,7 @@ const DesActivityReplayer = (props) => {
     };
 
     calculatorInst.current = new Player(playerOptions);
-    // eslint-disable-next-line no-console
-    console.log(
-      'Desmos Activity Player initialized Version: ',
-      Player.version(),
-      'Player instance: ',
-      calculatorInst.current,
-      ' Config status: ',
-      status
-    );
+
     props.setTabLoaded(tab._id);
   };
 
@@ -48,8 +40,6 @@ const DesActivityReplayer = (props) => {
     let newData = log[index] ? log[index].currentState : null;
     if (newData) {
       newData = JSON.parse(newData);
-      // eslint-disable-next-line no-console
-      // console.log('log-index, Index: ', index, 'State data: ', newData);
       if (newData.desmosState && !newData.transient) {
         calculatorInst.current.dangerouslySetResponses(newData.desmosState);
       }
