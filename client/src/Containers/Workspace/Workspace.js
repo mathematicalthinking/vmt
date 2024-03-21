@@ -22,7 +22,6 @@ import {
   controlStates,
   controlEvents,
   createMongoId as mongoIdGenerator,
-  dateAndTime,
 } from 'utils';
 import { WorkspaceLayout } from 'Layout';
 import { Chat, Tools, RoomInfo } from '.';
@@ -453,20 +452,12 @@ class Workspace extends Component {
           const latency = Date.now() - start;
           if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
           else this.setState({ connectionStatus: 'Good' });
-          // console.log('Heartbeat<3 latency: ', latency);
         });
       } else {
         // not connected
         this.setState({ connectionStatus: 'Error' });
       }
     }, 5000);
-
-    // socket.on('pong', (latency) => {
-    //   this.setHeartbeatTimer();
-    //   if (latency > THRESHOLD) this.setState({ connectionStatus: 'Bad' });
-    //   else this.setState({ connectionStatus: 'Good' });
-    //   console.log('Heartbeat<3 latency: ', latency);
-    // });
   };
 
   _handleJoinOrLeave = (data) => {

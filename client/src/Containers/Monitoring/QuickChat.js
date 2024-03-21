@@ -11,7 +11,6 @@ const QuickChat = ({ populatedRoom, isSimplified, user }) => {
   };
 
   const leaveRoom = () => {
-    console.log('leaving room', populatedRoom._id);
     socket.emit('LEAVE_ROOM_QUICKCHAT', populatedRoom._id, '#f26247');
   };
 

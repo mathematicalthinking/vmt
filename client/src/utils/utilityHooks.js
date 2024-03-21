@@ -1,13 +1,13 @@
 import React, { useContext } from 'react';
+import { QueryClient, useQuery } from 'react-query';
+import { useDispatch, useSelector } from 'react-redux';
 import html2canvas from 'html2canvas';
 import debounce from 'lodash/debounce';
 import keyBy from 'lodash/keyBy';
-import { QueryClient, useQuery } from 'react-query';
-import { useDispatch, useSelector } from 'react-redux';
+import throttle from 'lodash/throttle';
 import { API, buildLog } from 'utils';
 import { ModalContext } from 'Components';
 import * as actionTypes from 'store/actions/actionTypes';
-import { throttle } from 'lodash';
 
 const timeFrameFcns = {
   all: () => true,
@@ -19,12 +19,12 @@ const timeFrameFcns = {
   last3Months: (diff) => diff <= 3 * 30 * 24 * 60 * 60 * 1000,
   last6Months: (diff) => diff <= 6 * 30 * 24 * 60 * 60 * 1000,
   last9Months: (diff) => diff <= 9 * 30 * 24 * 60 * 60 * 1000,
-  lastYear: (diff) => diff <= 356 * 24 * 60 * 60 * 1000,
+  lastYear: (diff) => diff <= 365 * 24 * 60 * 60 * 1000,
   afterDay: (diff) => diff > 24 * 60 * 60 * 1000,
   afterWeek: (diff) => diff > 7 * 24 * 60 * 60 * 1000,
   after2Weeks: (diff) => diff > 2 * 7 * 24 * 60 * 60 * 1000,
   afterMonth: (diff) => diff > 30 * 24 * 60 * 60 * 1000,
-  afterYear: (diff) => diff > 356 * 24 * 60 * 60 * 1000,
+  afterYear: (diff) => diff > 365 * 24 * 60 * 60 * 1000,
 };
 
 export const timeFrames = {
@@ -432,15 +432,9 @@ export function useUIState(key, initialValue = {}) {
   const stateMonitor = React.useRef(_uiState);
   React.useEffect(() => {
     stateMonitor.current = _uiState;
-    // dispatch({
-    //   type: actionTypes.SAVE_COMPONENT_UI_STATE,
-    //   key,
-    //   // this MUST be a ref or else we won't capture the correct state (i.e., cannot be _uiState because then its initial value will always be returned)
-    //   value: stateMonitor.current,
-    // });
   }, [_uiState]);
 
-  // On unmount, dispatch to the current UI state to the redux store
+  // On unmount, dispatch the current UI state to the redux store
   React.useEffect(() => {
     return () => {
       dispatch({
@@ -456,7 +450,8 @@ export function useUIState(key, initialValue = {}) {
 }
 
 /**
- * A custom hook that assumes the fetchFcn might sometimes not return all documents in a key bc they hadn't been updated since the last query.
+ * A custom hook that fetches data, merging results from previous fetches.  The hook assumes that the fetchFcn might sometimes not return all documents
+ * in a key bc they hadn't been updated since the last query.
  * The hook therefore uses a provided merge function to combine the new data coming in from the fetch with its own cache. The hook also keeps
  * track of the last query times organized by a provided extractIds function.
  *

@@ -99,7 +99,6 @@ class Profile extends Component {
       this.setState({ editError: 'New username cannot be an email' });
     } else {
       const newUsername = await suggestUniqueUsername(username);
-      console.log('New: ', username, ' ... Suggested: ', newUsername);
       if (newUsername !== username) {
         this.setState({
           editError: `Username not available, available suggestion: ${newUsername}`,

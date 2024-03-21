@@ -206,18 +206,11 @@ const query_controllers = (context) => {
   socket.emit('QUERY_CONTROLLERS', { room: context.roomId });
 };
 
-const reset_iTakeControl = () => {
-  console.log('reset_iTakeControl');
-};
+const reset_iTakeControl = () => {};
 
-const reset_otherReleasesControl = () => {
-  console.log('reset_otherReleasesControl');
-};
+const reset_otherReleasesControl = () => {};
 
 const reset_otherTakesControl = assign((context, event) => {
-  console.log('reset_otherTakesControl');
-  console.log('context', context);
-  console.log('event', event);
   const otherId =
     event.controllers &&
     Object.values(event.controllers).find((id) => id && id !== context.userId);
@@ -787,7 +780,6 @@ export function withControlMachine(Component) {
     };
 
     const handleResetControllers = (controllers) => {
-      console.log('handle reset controllers', controllers);
       send(controlEvents.RESET_CONTROLLERS, { controllers });
     };
 

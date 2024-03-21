@@ -3,7 +3,6 @@ const baseURL = 'https://teacher.desmos.com/activitybuilder/export/'; // + activ
 
 // utility for getting Desmos Activity Confguration from tab state
 export const fetchConfigData = async (tab, shouldLoadCurrent = false) => {
-  console.log('Tab data: ', tab);
   // setting our return object
   const configData = {};
   // Room condition
@@ -57,7 +56,6 @@ export const fetchConfigData = async (tab, shouldLoadCurrent = false) => {
     }
     const data = await result.json();
     configData.config = data;
-    console.log('ConfigData: ', configData);
     return configData;
   } catch (err) {
     configData.config = null;

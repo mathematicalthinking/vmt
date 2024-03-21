@@ -358,7 +358,6 @@ class Chat extends Component {
 
   toggleListen() {
     const { isListening } = this.state;
-    console.log('Listener toggle: ', this.recognition);
     if (this.recognition) {
       this.setState(
         {
