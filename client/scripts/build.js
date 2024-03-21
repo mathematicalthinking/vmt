@@ -3,7 +3,7 @@
 
 process.env.BABEL_ENV = 'production';
 process.env.NODE_ENV = 'production';
-process.env.REACT_APP_BUILD_DATE = new Date().toDateString();
+process.env.REACT_APP_BUILD_DATE = new Date();
 
 const pjson = require('../package.json');
 
