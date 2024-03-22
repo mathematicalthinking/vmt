@@ -72,7 +72,6 @@ function ClassCode(props) {
           } else {
             setErrorMessage('');
             setResource(res.data.result[0]);
-            // console.log('Found members: ', res.data.result[0].members);
           }
         })
         .catch((err) => {
@@ -118,7 +117,6 @@ function ClassCode(props) {
         _id: memberToConf.user._id,
       };
 
-      // console.log('signing up user: ', userToConvert);
       signup(userToConvert, true); // 'true' indicates that the user will not be required to login with a password.
     } else if (!memberToConf.user.isGmail) {
       login(

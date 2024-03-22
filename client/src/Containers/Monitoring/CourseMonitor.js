@@ -1,15 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _pick from 'lodash/pick';
+import _keyBy from 'lodash/keyBy';
 import {
   timeFrames,
   usePopulatedRooms,
   useSortableData,
   useUIState,
-  useExecuteOnFirstUpdate,
+  API,
 } from 'utils';
 import RoomsMonitor from './RoomsMonitor';
 import { SortUI, SimpleLoading } from 'Components';
+import { STATUS } from 'constants.js';
 
 /**
  * The CourseMonitor provides views into all of the rooms assoicated with
@@ -41,11 +42,7 @@ function CourseMonitor({ course }) {
     config: initialConfig,
   });
 
-  const roomsToSort = React.useRef(
-    course.rooms.reduce((acc, room) => {
-      return { ...acc, [room._id]: room };
-    }, {})
-  );
+  const roomsToSort = React.useRef(_keyBy(course.rooms, '_id'));
 
   const { items: rooms, sortConfig, resetSort } = useSortableData(
     Object.values(roomsToSort.current),
@@ -58,17 +55,24 @@ function CourseMonitor({ course }) {
     refetchInterval: 10000,
   });
 
-  // Prepare the callback function, making it stable with useCallback
-  const updateRoomsToSort = React.useCallback((data) => {
-    roomsToSort.current = { ...roomsToSort.current, ...data };
-  }, []);
+  const fetchCourseRoomsFromDB = () => {
+    return (
+      API.getAllCourseRooms(course._id)
+        .then((res) => {
+          const courseRooms = res.data.result;
+          const activeCourseRooms = courseRooms.filter(
+            (room) => room.status === STATUS.DEFAULT
+          );
+          return _keyBy(activeCourseRooms, '_id');
+        })
+        // eslint-disable-next-line no-console
+        .catch((err) => console.log(err))
+    );
+  };
 
-  // Use the custom hook to execute updateRoomsToSort on first fetch of populatedRooms
-  useExecuteOnFirstUpdate(populatedRooms.data, updateRoomsToSort);
-
-  // if the UI state changes, update the UIState variable
-  React.useEffect(() => {
-    roomsToSort.current = { ...roomsToSort.current, ...populatedRooms.data };
+  // if the UI state changes, update the UIState variable and pull lean versions of the rooms (to get updatedAt field) from the DB
+  React.useEffect(async () => {
+    roomsToSort.current = await fetchCourseRoomsFromDB();
     setUIState({ config: sortConfig });
   }, [sortConfig]);
 

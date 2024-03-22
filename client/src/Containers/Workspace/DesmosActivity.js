@@ -82,7 +82,7 @@ const DesmosActivity = (props) => {
     // let eventDetails = JSON.stringify(updates);
     // return `${username}: ${eventDetails}`;
     if (updates.type === 'set-active-screen-id') {
-      return `${username} switched to screen ${getCurrentScreen()+1}`;
+      return `${username} switched to screen ${getCurrentScreen() + 1}`;
     }
     return `${username} interacted with the Activity`;
   };
@@ -203,8 +203,6 @@ const DesmosActivity = (props) => {
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
-    console.log('Config status: ', status);
-
     if (tab.currentStateBase64 && tab.currentStateBase64 !== '{}') {
       // existing event data on tab
       const { currentStateBase64, startingPointBase64, desmosLink } = tab;
@@ -250,12 +248,6 @@ const DesmosActivity = (props) => {
     const unsubToken = calculatorInst.current.subscribeToSync((evnt) => {
       setTransientUpdates(evnt);
     });
-    console.log(
-      'Desmos Activity Player initialized Version: ',
-      Player.version(),
-      'Player instance: ',
-      calculatorInst.current
-    );
     setFirstTabLoaded();
     initializeListeners();
     // Go to screen last used

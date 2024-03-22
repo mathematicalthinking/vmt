@@ -48,7 +48,6 @@ const DesmosActivityEditor = (props) => {
     if (config) {
       updateObject.currentStateBase64 = JSON.stringify(config);
     }
-    // console.log('Update object: ', updateObject);
     API.put('tabs', tab._id, updateObject)
       .then(() => updateActivityTab(activity._id, tab._id, updateObject))
       .catch((err) => {
@@ -82,10 +81,8 @@ const DesmosActivityEditor = (props) => {
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
-    console.log('Config status: ', status);
     if (config) {
       // save configuration at load, could implement reset of current edits
-      console.log('Saving this initial session configuration to tab...');
       putState(config);
     }
 
@@ -96,7 +93,6 @@ const DesmosActivityEditor = (props) => {
       // window.location.reload();
       return null;
     }
-    console.log('Initializing: ', initializing);
     console.log(
       'Desmos Activity Editor initialized Version: ',
       ActivityEditor.version(),
@@ -104,8 +100,6 @@ const DesmosActivityEditor = (props) => {
       editorInst.current
     );
     setFirstTabLoaded();
-    // Print current Tab data
-    // console.log('Tab data: ', props.tab);
     // Go to screen last used
     return null;
   };

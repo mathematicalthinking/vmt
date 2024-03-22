@@ -202,7 +202,6 @@ class Course extends Component {
   };
 
   displayNotifications = () => {
-    // console.log(notifications)
     const { tabs } = this.state;
     const updatedTabs = [...tabs];
     const { course, notifications } = this.props;
