@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@socket.io/redis-adapter": "^7.2.0",
-    "axios": ">=0.21.2",
+    "axios": "^1.6.8",
     "bluebird": "^3.5.1",
     "body-parser": "~1.18.2",
     "connect-flash": "^0.1.1",
