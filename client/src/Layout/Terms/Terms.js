@@ -678,8 +678,9 @@ const Terms = () => {
             this Privacy Policy, your personal information, your consent, or
             your opt-in or opt-out choices as follows: {<br />}{' '}
             <div className={classes.Address}>
-              <p>21PSTEM 375 East Elm,</p>
-              <p>Suite 215 Conshohocken, PA 19428 </p>{' '}
+              <p>21PSTEM </p>
+              <p>230 Sugartown Road, Suite 100</p>
+              <p>Wayne, PA 19087</p>{' '}
               <p>
                 Email:{' '}
                 <a href="mailto:support@21pstem.org">support@21pstem.org</a>

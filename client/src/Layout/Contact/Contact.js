@@ -37,8 +37,8 @@ const Contact = () => {
           <h3>2. Mail:</h3>
           <p className={classes.Description}>
             21PSTEM - Mathematical Thinkers Like Me
-            {<br />} 375 East Elm,
-            {<br />} Suite 215 Conshohocken, PA 19428 {<br />}{' '}
+            {<br />} 230 Sugartown Road, Suite 100
+            {<br />} Wayne, PA 19087 {<br />}{' '}
           </p>
         </div>
         <div className={classes.Content}>
