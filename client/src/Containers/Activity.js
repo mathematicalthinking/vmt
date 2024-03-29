@@ -40,7 +40,7 @@ class Activity extends Component {
         { name: 'Assign' },
         { name: 'Edit Assignments' },
         { name: 'Rooms' },
-        { name: 'Preview' },
+        { name: 'Monitor & Review' },
       ],
       editing: false,
       name: activity ? activity.name : null,
@@ -195,7 +195,7 @@ class Activity extends Component {
             selectableBoxList
           />
         );
-      case 'preview':
+      case 'monitor & review':
         return <TemplatePreview activity={activity} />;
       case 'edit assignments':
         return (

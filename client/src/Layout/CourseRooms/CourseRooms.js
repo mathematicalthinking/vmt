@@ -52,7 +52,7 @@ const CourseRooms = (props) => {
   const initialConfig = {
     key: 'updatedAt',
     direction: 'descending',
-    filter: { timeframe: timeFrames.LASTWEEK, key: 'updatedAt' },
+    filter: { timeframe: timeFrames.LASTMONTH, key: 'updatedAt' },
   };
 
   const [uiState, setUIState] = useUIState(`courseRooms-${courseId}`, {

@@ -33,7 +33,7 @@ const ResourceList = ({
   const initialConfig = {
     key: 'updatedAt',
     direction: 'descending',
-    filter: { timeframe: timeFrames.LASTWEEK, key: 'updatedAt' },
+    filter: { timeframe: timeFrames.LASTMONTH, key: 'updatedAt' },
   };
 
   const history = useHistory();
