@@ -5,6 +5,16 @@ const baseURL = window.env.REACT_APP_SERVER_URL;
 // console.log('server url: ', baseURL);
 const api = axios.create({ baseURL });
 
+const _getAllRooms = (
+  resource,
+  id,
+  options = { since: '', isActive: 'false' }
+) => {
+  return api.get(
+    `/api/getAllRooms/${resource}/${id}?since=${options.since}&isActive=${options.isActive}`
+  );
+};
+
 export default {
   get: (resource, params) => {
     return api.get(`/api/${resource}`, params ? { params } : {});
@@ -205,9 +215,9 @@ export default {
     return api.put(`/api/archiveRooms`, { ids });
   },
 
-  getAllCourseRooms: (id) => {
-    return api.get(`/api/getAllRooms/courses/${id}`);
-  },
+  getAllCourseRooms: (id, options) => _getAllRooms('courses', id, options),
+  getAllUserRooms: (id, options) => _getAllRooms('user', id, options),
+  getAllTemplateRooms: (id, options) => _getAllRooms('activities', id, options),
 
   addMemberToArchivedRooms: (member, archivedRoomIds) => {
     return api.put(`/api/addMemberToArchivedRooms`, {

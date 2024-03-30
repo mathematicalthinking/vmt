@@ -7,6 +7,7 @@ const controllers = require('../controllers');
 const middleware = require('../middleware/api');
 const errors = require('../middleware/errors');
 const multerMw = require('../middleware/multer');
+const moment = require('moment');
 
 const {
   getUser,
@@ -258,24 +259,39 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
 router.get(
   '/getAllRooms/:resource/:id',
   middleware.validateUser,
-  (req, res) => {
-    const id = getParamsId(req);
-    const resource = getResource(req);
-    let field = '';
-    if (resource === 'courses') field = 'course';
-    else if (resource === 'activities') field = 'activity';
-    try {
-      return controllers.rooms
-        .get({
-          status: { $ne: status.TRASHED },
-          isTrashed: false,
-          [field]: id,
-        })
-        .then((result) => res.status(200).json({ result }));
-    } catch (err) {
-      console.error(`Error getting ${resource} rooms/${id}: ${err}`);
+  async (req, res) => {
+    const { id, resource } = req.params;
+    const { since, isActive } = req.query;
 
-      return errors.sendError.InternalError(err, res);
+    try {
+      const fieldMap = {
+        courses: 'course',
+        activities: 'activity',
+        user: 'creator',
+      };
+      const field = fieldMap[resource] || 'creator';
+
+      const matchConditions = {
+        status: { $ne: status.TRASHED },
+        isTrashed: false,
+        [field]: id,
+      };
+
+      if (isActive === 'true') {
+        matchConditions.status = { $nin: [status.ARCHIVED, status.TRASHED] };
+      }
+
+      const sinceTimestamp = moment(since, 'x');
+      if (sinceTimestamp.isValid()) {
+        matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
+      }
+      console.log('match', matchConditions);
+
+      const result = await controllers.rooms.get(matchConditions);
+      res.status(200).json({ result });
+    } catch (err) {
+      console.error(`Error getting ${resource} rooms/${id}:`, err);
+      errors.sendError.InternalError(err, res);
     }
   }
 );

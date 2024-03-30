@@ -50,7 +50,7 @@ class Course extends Component {
         { name: 'Rooms' },
         { name: 'Members' },
         { name: 'Activities' },
-        ...(course.myRole === 'facilitator' ? [{ name: 'Preview' }] : []),
+        ...(course.myRole === 'facilitator' ? [{ name: 'Monitor' }] : []),
         { name: 'Stats' },
       ],
       firstView: false,
@@ -559,7 +559,7 @@ class Course extends Component {
             onChangeRole={this.changeMemberRole}
           />
         );
-      } else if (resource === 'preview') {
+      } else if (resource === 'monitor') {
         mainContent = <CourseMonitor course={course} />;
       } else if (resource === 'stats')
         mainContent = (

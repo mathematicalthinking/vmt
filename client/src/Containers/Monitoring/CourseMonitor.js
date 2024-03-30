@@ -1,16 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _keyBy from 'lodash/keyBy';
 import {
   timeFrames,
   usePopulatedRooms,
   useSortableData,
-  useUIState,
   API,
+  dateAndTime,
 } from 'utils';
 import RoomsMonitor from './RoomsMonitor';
-import { SortUI, SimpleLoading } from 'Components';
-import { STATUS } from 'constants.js';
+import { SimpleLoading } from 'Components';
 
 /**
  * The CourseMonitor provides views into all of the rooms assoicated with
@@ -20,34 +18,15 @@ import { STATUS } from 'constants.js';
  */
 
 function CourseMonitor({ course }) {
-  const timeFrameOptions = [
-    { label: 'Last Day', value: timeFrames.LASTDAY },
-    { label: 'Last 2 Days', value: timeFrames.LAST2DAYS },
-    { label: 'Last Week', value: timeFrames.LASTWEEK },
-    { label: 'Last Month', value: timeFrames.LASTMONTH },
-    { label: 'Last 3 Months', value: timeFrames.LAST3MONTHS },
-    { label: 'Last 6 Months', value: timeFrames.LAST6MONTHS },
-    { label: 'Last 9 Months', value: timeFrames.LAST9MONTHS },
-    { label: 'Last Year', value: timeFrames.LASTYEAR },
-    { label: 'All', value: timeFrames.ALL },
-  ];
-
-  const initialConfig = {
+  const config = {
     key: 'updatedAt',
     direction: 'descending',
     filter: { timeframe: timeFrames.LAST2DAYS, key: 'updatedAt' },
   };
 
-  const [uIState, setUIState] = useUIState(`CourseMonitor-${course._id}`, {
-    config: initialConfig,
-  });
+  const roomsToSort = React.useRef(course.rooms);
 
-  const roomsToSort = React.useRef(_keyBy(course.rooms, '_id'));
-
-  const { items: rooms, sortConfig, resetSort } = useSortableData(
-    Object.values(roomsToSort.current),
-    uIState.config
-  );
+  const { items: rooms } = useSortableData(roomsToSort.current, config);
 
   const roomIds = React.useMemo(() => rooms.map((room) => room._id), [rooms]);
 
@@ -55,39 +34,38 @@ function CourseMonitor({ course }) {
     refetchInterval: 10000,
   });
 
-  const fetchCourseRoomsFromDB = () => {
+  const fetchCourseRooms = () => {
+    const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
+    const since = dateAndTime.getTimestamp(twoDaysAgo);
     return (
-      API.getAllCourseRooms(course._id)
-        .then((res) => {
-          const courseRooms = res.data.result;
-          const activeCourseRooms = courseRooms.filter(
-            (room) => room.status === STATUS.DEFAULT
-          );
-          return _keyBy(activeCourseRooms, '_id');
-        })
+      API.getAllCourseRooms(course._id, { since, isActive: true })
+        .then((res) => res.data.result)
         // eslint-disable-next-line no-console
         .catch((err) => console.log(err))
     );
   };
 
   // if the UI state changes, update the UIState variable and pull lean versions of the rooms (to get updatedAt field) from the DB
-  React.useEffect(async () => {
-    roomsToSort.current = await fetchCourseRoomsFromDB();
-    setUIState({ config: sortConfig });
-  }, [sortConfig]);
+  React.useEffect(() => {
+    const fetchAndSetRooms = async () => {
+      roomsToSort.current = await fetchCourseRooms();
+    };
+
+    fetchAndSetRooms();
+
+    const intervalId = setInterval(fetchAndSetRooms, 10000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   if (populatedRooms.isError) return <div>There was an error.</div>;
 
   return (
     <div>
-      <SortUI
-        sortConfig={sortConfig}
-        sortFn={resetSort}
-        disableSort
-        disableSearch
-        timeFrames={timeFrameOptions}
-      />
-      <br />
+      <p style={{ fontSize: '1.5em', marginBottom: '20px' }}>
+        Rooms with activity in the past 48 hours:{' '}
+        {Object.keys(populatedRooms.data || {}).length} of {course.rooms.length}
+      </p>
       {populatedRooms.isLoading ? (
         <SimpleLoading />
       ) : (
