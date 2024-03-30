@@ -4,8 +4,8 @@
 
 /**
  * Files still to change:
- * - AssignRooms use of new Date
- * - stat.utils and statReducer use of moment
+ * - AssignRooms use of new Date -- SIMPLIFIED
+ * - stat.utils and statReducer use of moment -- DONE
  * - Monitoring View -- _wasRecentlyUpdated (in last 24 hours)
  * - GgbGraph -- comparing times in sendEventBuffer
  * - boxlist -- timeDiff
@@ -37,7 +37,34 @@ const toTimeString = (date) => new Date(date).toLocaleTimeString();
 const toDateTimeString = (date) => new Date(date).toLocaleString();
 const getUnixTime = (date) => new Date(date).getTime() / 1000;
 const getTimestamp = (date) => (date ? new Date(date).getTime() : Date.now()); // do we need this?
-const isValid = (date) => !isNaN(Date.parse(date));
+const toDBTimeString = (date) => new Date(date).toISOString();
+const isValid = (date) => {
+  let dateObj;
+
+  if (date instanceof Date) {
+    // It's already a Date object
+    dateObj = date;
+  } else if (typeof date === 'string' || typeof date === 'number') {
+    // It's a string or a number; attempt to parse it
+    const timestamp = Date.parse(date);
+    if (!isNaN(timestamp)) {
+      // Parsing was successful; create a Date object from the timestamp
+      dateObj = new Date(timestamp);
+    } else if (typeof date === 'number') {
+      // The input is a number but couldn't be parsed by Date.parse(); it might be a valid timestamp
+      dateObj = new Date(date);
+    } else {
+      // Parsing failed and it's not a valid timestamp number
+      return false;
+    }
+  } else {
+    // Not a date string, number, or Date object
+    return false;
+  }
+
+  return !isNaN(dateObj.getTime());
+};
+
 const before = (date, amt, units) =>
   isValid(date) && isNumber(amt) && timeUnits[units]
     ? new Date(new Date(date) - amt * timeUnits[units])
@@ -68,6 +95,7 @@ module.exports = {
   toDateTimeString,
   getUnixTime,
   toTimelineString,
+  toDBTimeString,
   getTimestamp,
   isValid,
   before,
