@@ -17,7 +17,7 @@ const {
   setParamsId,
 } = require('../middleware/utils/request');
 const { findAllMatching } = require('../middleware/utils/helpers');
-const status = require('../constants/status');
+const STATUS = require('../constants/status');
 
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
@@ -256,6 +256,58 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
     });
 });
 
+// Two functions just to make the /getAllRooms/:resource/:id 'get' easier to read
+
+async function _getAllRooms(resource, id, since, isActive) {
+  const fieldMap = {
+    courses: 'course',
+    activities: 'activity',
+  };
+
+  const field = fieldMap[resource];
+  if (!field) throw 'Error in requested resource';
+
+  const matchConditions = {
+    status: { $ne: STATUS.TRASHED },
+    isTrashed: false,
+    [field]: id,
+  };
+
+  if (isActive === 'true') {
+    matchConditions.status = { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] };
+  }
+
+  const sinceTimestamp = moment(since, 'x');
+  if (sinceTimestamp.isValid()) {
+    matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
+  }
+
+  return controllers.rooms.get(matchConditions);
+}
+
+async function _getAllUserRooms(id, since, isActive) {
+  const user = await controllers.user.getById(id);
+  if (!user) throw 'User not found';
+
+  const archived = user.archive ? user.archive.rooms : [];
+  const roomIds =
+    isActive === 'true' ? user.rooms : [...user.rooms, ...archived];
+  if (roomIds.length === 0) return [];
+
+  const matchConditions = {
+    status: { $ne: STATUS.TRASHED },
+    isTrashed: false,
+    _id: { $in: roomIds },
+  };
+
+  const sinceTimestamp = moment(since, 'x');
+  if (sinceTimestamp.isValid()) {
+    matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
+  }
+
+  return controllers.rooms.get(matchConditions);
+}
+
 router.get(
   '/getAllRooms/:resource/:id',
   middleware.validateUser,
@@ -264,30 +316,10 @@ router.get(
     const { since, isActive } = req.query;
 
     try {
-      const fieldMap = {
-        courses: 'course',
-        activities: 'activity',
-        user: 'creator',
-      };
-      const field = fieldMap[resource] || 'creator';
-
-      const matchConditions = {
-        status: { $ne: status.TRASHED },
-        isTrashed: false,
-        [field]: id,
-      };
-
-      if (isActive === 'true') {
-        matchConditions.status = { $nin: [status.ARCHIVED, status.TRASHED] };
-      }
-
-      const sinceTimestamp = moment(since, 'x');
-      if (sinceTimestamp.isValid()) {
-        matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
-      }
-      console.log('match', matchConditions);
-
-      const result = await controllers.rooms.get(matchConditions);
+      const result =
+        resource === 'user'
+          ? await _getAllUserRooms(id, since, isActive) // uses the list of rooms and archived rooms as needed
+          : await _getAllRooms(resource, id, since, isActive); // searches all rooms as necessary for appropriate course or template/activity
       res.status(200).json({ result });
     } catch (err) {
       console.error(`Error getting ${resource} rooms/${id}:`, err);
@@ -589,7 +621,7 @@ router.put('/:resource/:id', middleware.validateUser, (req, res) => {
 
 router.put('/archiveRooms', (req, res) => {
   const { ids = [] } = req.body;
-  const body = { status: status.ARCHIVED };
+  const body = { status: STATUS.ARCHIVED };
 
   const updatedReq = setResource(req, 'rooms');
 
