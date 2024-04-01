@@ -1,16 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { timeFrames, API, dateAndTime } from 'utils';
+import { timeFrames, API, dateAndTime, amIAFacilitator } from 'utils';
 import RecentMonitor from './RecentMonitor';
 
 /**
- * The CourseMonitor provides views into all of the rooms assoicated with
- * a course. When the monitor is first entered, the room tiles are sorted
+ * The AllRoomsMonitor provides views into all of the rooms associated with
+ * a user. When the monitor is first entered, the room tiles are sorted
  * with the most recently updated room first (i.e., reverse chronological order
  * by updatedAt field).
  */
 
-function CourseMonitor({ course }) {
+function AllRoomsMonitor({ user, userResources }) {
   const config = {
     key: 'updatedAt',
     direction: 'descending',
@@ -18,13 +18,19 @@ function CourseMonitor({ course }) {
   };
 
   const [roomsShown, setRoomsShown] = React.useState(0);
+  const totalRooms = userResources.filter((room) =>
+    amIAFacilitator(room, user._id)
+  ).length;
 
-  const fetchCourseRooms = () => {
+  const fetchUserRooms = () => {
     const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
     const since = dateAndTime.getTimestamp(twoDaysAgo);
     return (
-      API.getAllCourseRooms(course._id, { since, isActive: true })
-        .then((res) => res.data.result)
+      API.getAllUserRooms(user._id, { since, isActive: true })
+        .then((res) => {
+          const rooms = res.data.result;
+          return rooms.filter((room) => amIAFacilitator(room, user._id));
+        })
         // eslint-disable-next-line no-console
         .catch((err) => console.log(err))
     );
@@ -34,23 +40,23 @@ function CourseMonitor({ course }) {
     <div>
       <p style={{ fontSize: '1.5em', marginBottom: '20px' }}>
         Rooms with activity in the past 48 hours {'('}
-        {roomsShown} active of {course.rooms.length} total{')'}
+        {roomsShown} active of {totalRooms} total{')'}
       </p>
       <RecentMonitor
         config={config}
-        context={`course-${course._id}`}
-        fetchRooms={fetchCourseRooms}
+        context={`userRooms-${user._id}`}
+        fetchRooms={fetchUserRooms}
         setRoomsShown={setRoomsShown}
       />
     </div>
   );
 }
 
-CourseMonitor.propTypes = {
-  course: PropTypes.shape({
+AllRoomsMonitor.propTypes = {
+  user: PropTypes.shape({
     _id: PropTypes.string,
-    rooms: PropTypes.arrayOf(PropTypes.shape({ _id: PropTypes.string })),
+    rooms: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
 };
 
-export default CourseMonitor;
+export default AllRoomsMonitor;

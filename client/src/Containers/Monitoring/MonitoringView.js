@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
-import PropTypes from 'prop-types';
 import _pick from 'lodash/pick';
 import _pickBy from 'lodash/pickBy';
 import _keyBy from 'lodash/keyBy';
+import { useSelector } from 'react-redux';
 import { ToggleGroup } from 'Components';
 import { addUserRoleToResource } from 'store/utils';
 import { usePopulatedRooms, useUIState } from 'utils';
@@ -20,7 +20,13 @@ const MINIMAL_ROOMS = 5;
  * whatever sorting and selection is done by the selection table takes precedence.
  */
 
-function MonitoringView({ userResources, user, notifications }) {
+function MonitoringView() {
+  const { userResources, user, notifications } = useSelector((store) => ({
+    user: store.user,
+    userResources: Object.values(store.rooms.byId),
+    notifications: store.notifications,
+  }));
+
   /* ------- INITIALIZATION FUNCTIONS ------------- */
   const _wasRecentlyUpdated = (room) => {
     // integrated logic to determine default rooms to view
@@ -114,49 +120,47 @@ function MonitoringView({ userResources, user, notifications }) {
     if (viewOrSelect === constants.SELECT) setVisibleIds(allIds);
   }, [viewOrSelect]);
 
-  return !populatedRooms.isError ? (
-    <div className={classes.Container}>
-      <div className={classes.TogglesContainer}>
-        <ToggleGroup
-          buttons={[constants.VIEW, constants.SELECT]}
-          onChange={setViewOrSelect}
-        />
-      </div>
-      {populatedRooms.isLoading && <span>Loading...</span>}
-      {viewOrSelect === constants.SELECT ? (
-        <ResourceTables
-          data={Object.values(populatedRooms.data).map((room) =>
-            addUserRoleToResource(room, user._id)
+  return (
+    <div style={{ marginTop: '100px', width: '90%', alignSelf: 'center' }}>
+      {!populatedRooms.isError ? (
+        <div className={classes.Container}>
+          <div className={classes.TogglesContainer}>
+            <ToggleGroup
+              buttons={[constants.VIEW, constants.SELECT]}
+              onChange={setViewOrSelect}
+            />
+          </div>
+          {populatedRooms.isLoading && <span>Loading...</span>}
+          {viewOrSelect === constants.SELECT ? (
+            <ResourceTables
+              data={Object.values(populatedRooms.data).map((room) =>
+                addUserRoleToResource(room, user._id)
+              )}
+              resource="rooms"
+              selections={selections}
+              onChange={(newSelections) => {
+                setSelections((prev) => {
+                  return { ...prev, ...newSelections };
+                });
+              }}
+            />
+          ) : (
+            <RoomsMonitor
+              context="monitoring-rooms"
+              populatedRooms={_pick(
+                populatedRooms.data,
+                Object.keys(_pickBy(selections))
+              )}
+              onVisible={setVisibleIds}
+              isLoading={populatedRooms.isFetching ? visibleIds : []}
+            />
           )}
-          resource="rooms"
-          selections={selections}
-          onChange={(newSelections) => {
-            setSelections((prev) => {
-              return { ...prev, ...newSelections };
-            });
-          }}
-        />
+        </div>
       ) : (
-        <RoomsMonitor
-          context="monitoring-rooms"
-          populatedRooms={_pick(
-            populatedRooms.data,
-            Object.keys(_pickBy(selections))
-          )}
-          onVisible={setVisibleIds}
-          isLoading={populatedRooms.isFetching ? visibleIds : []}
-        />
+        <div>There was an error</div>
       )}
     </div>
-  ) : (
-    <div>There was an error</div>
   );
 }
-
-MonitoringView.propTypes = {
-  user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
-  userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-};
 
 export default MonitoringView;

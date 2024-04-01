@@ -70,7 +70,7 @@ const Navbar = ({ user, location, toggleAdmin }) => {
             name="Community"
           />
           {user.isAdmin ? (
-            <NavItem link="/myVMT/monitor" name="Monitor" />
+            <NavItem link="/myVMT/adminMonitor" name="Admin Monitor" />
           ) : null}
           {user.isAdmin ? (
             <NavItem
