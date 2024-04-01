@@ -66,16 +66,25 @@ const Navbar = ({ user, location, toggleAdmin }) => {
           <NavItem link="/myVMT/rooms" name="My VMT" ntf={ntf} />
           <NavItem
             link="/community/rooms?privacy=all&roomType=all"
+            pattern="/community"
             name="Community"
           />
           {user.isAdmin ? (
-            <NavItem link="/myVMT/monitor" name="Monitor" />
+            <NavItem link="/myVMT/adminMonitor" name="Admin Monitor" />
           ) : null}
           {user.isAdmin ? (
-            <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
+            <NavItem
+              link="/myVMT/dashboard/rooms"
+              pattern="/myVMT/dashboard"
+              name="Dashboard"
+            />
           ) : null}
           {user.loggedIn ? (
-            <NavItem link="/archive/rooms?roomType=all" name="Archive" />
+            <NavItem
+              link="/archive/rooms?roomType=all"
+              pattern="/archive"
+              name="Archive"
+            />
           ) : null}
           <DropdownNavItem name={<span>Info</span>} list={aboutList} />
 

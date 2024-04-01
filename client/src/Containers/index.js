@@ -38,3 +38,5 @@ export { default as RoomPreview } from './Monitoring/RoomPreview';
 export { default as Archive } from './Archive';
 export { default as SearchResults } from './Members/SearchResults';
 export * from './Create/MakeRooms';
+export { default as AllRoomsMonitor } from './Monitoring/AllRoomsMonitor';
+export { default as RecentMonitor } from './Monitoring/RecentMonitor';

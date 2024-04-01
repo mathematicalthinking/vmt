@@ -178,3 +178,5 @@ Object.keys(comparisons).forEach((c) => {
 // console.log(date.toString());
 // console.log(date.getTime());
 // console.log(typeof date.getTime());
+
+console.log('dateAndTime.isValid(Date.now())', dateAndTime.isValid(Date.now()));

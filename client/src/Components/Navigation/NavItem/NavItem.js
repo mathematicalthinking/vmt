@@ -5,13 +5,12 @@ import Notification from '../../Notification/Notification';
 import classes from './navItem.css';
 import Checkbox from '../../Form/Checkbox/Checkbox';
 
-const NavItem = ({ name, link, ntf, sliderDetails }) => {
-  // Community wasn't underlined because the link changed when clicking on templates or courses. the or below fixes that
-  // @TODO: fix this for all of the Info links
+const NavItem = ({ name, link, ntf, sliderDetails, pattern }) => {
+  const currentLocation = new URL(window.location.href);
+  const linkURL = new URL(link, window.location.href); // in case the link is relative
   const style =
-    window.location.href.includes(link) ||
-    (typeof name === 'string' &&
-      window.location.href.includes(name.toLowerCase()))
+    currentLocation.pathname === linkURL.pathname ||
+    window.location.href.includes(pattern)
       ? classes.ActiveLink
       : classes.Item;
 
