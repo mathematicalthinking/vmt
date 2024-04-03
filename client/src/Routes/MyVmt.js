@@ -15,7 +15,7 @@ import {
   TempWorkspace,
   withPopulatedRoom,
   Dashboard,
-  MonitoringView,
+  AdminMonitor,
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
 import { PrivateRoute, ErrorToast } from '../Components';
@@ -27,7 +27,7 @@ const pages = [
   { path: '/', component: MyVMT },
   { path: '/facilitator', component: FacilitatorIntro },
   { path: '/profile', component: Profile },
-  { path: '/adminMonitor', component: MonitoringView },
+  { path: '/adminMonitor', component: AdminMonitor },
   { path: '/:resource', component: MyVMT },
   {
     path: '/courses/:course_id/:resource',

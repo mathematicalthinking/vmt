@@ -11,7 +11,13 @@ import { SimpleLoading } from 'Components';
  * fetchRooms is a function that returns a set of rooms from the DB
  */
 
-function RecentMonitor({ context, config, fetchRooms, setRoomsShown }) {
+function RecentMonitor({
+  context,
+  config,
+  fetchRooms,
+  setRoomsShown,
+  fetchInterval,
+}) {
   const roomsToSort = React.useRef([]);
   const initialLoad = React.useRef(true);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -36,7 +42,7 @@ function RecentMonitor({ context, config, fetchRooms, setRoomsShown }) {
 
     fetchAndSetRooms();
 
-    const intervalId = setInterval(fetchAndSetRooms, 10000);
+    const intervalId = setInterval(fetchAndSetRooms, fetchInterval);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -67,10 +73,12 @@ RecentMonitor.propTypes = {
   config: PropTypes.shape({}).isRequired,
   fetchRooms: PropTypes.func.isRequired,
   setRoomsShown: PropTypes.func,
+  fetchInterval: PropTypes.number,
 };
 
 RecentMonitor.defaultValues = {
   setRoomsShown: null,
+  fetchInterval: 10000, // 10 second default
 };
 
 export default RecentMonitor;
