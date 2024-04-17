@@ -20,7 +20,6 @@ function AdminMonitor() {
       API.getRecentActivity('rooms', null, 0, { since })
         .then((res) => {
           const [rooms] = res.data.results;
-          console.log(rooms);
           return rooms;
         })
         // eslint-disable-next-line no-console
@@ -30,6 +29,15 @@ function AdminMonitor() {
 
   return (
     <div style={{ marginTop: '100px', width: '90%', alignSelf: 'center' }}>
+      <p
+        style={{
+          marginBottom: '25px',
+          fontSize: '30px',
+          textAlign: 'center',
+        }}
+      >
+        Rooms Updated in the Past 48 Hours
+      </p>
       <RecentMonitor
         config={config}
         context={`adminMonitor`}
