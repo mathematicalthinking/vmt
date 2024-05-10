@@ -120,8 +120,14 @@ app.get('/*', (req, res) => {
 });
 
 // catch 404 and forward to error handler
-app.use((_, __, next) => {
-  const err = new Error('Not Found');
+app.use((req, res, next) => {
+  const err = new Error(`Not Found: ${req.originalUrl}`);
+  console.log('Time of 404 error:', new Date());
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+  console.log('Method:', req.method);
+  console.log('URL:', req.originalUrl);
+  console.log('Query:', req.query);
   err.status = 404;
   next(err);
 });
