@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { usePopulatedRooms, useSortableData } from 'utils';
+import _pickBy from 'lodash/pickBy';
+import { usePopulatedRooms, useSortableData, useUIState } from 'utils';
+import { SimpleLoading, SelectionTable, ToggleGroup } from 'Components';
 import RoomsMonitor from './RoomsMonitor';
-import { SimpleLoading } from 'Components';
+import classes from './monitoringView.css';
 
 /**
  * The RecentMonitor provides views into a set of rooms, keeping them updated and detecting new activity and new rooms.
@@ -17,10 +19,22 @@ function RecentMonitor({
   fetchRooms,
   setRoomsShown,
   fetchInterval,
+  selectionConfig,
 }) {
   const roomsToSort = React.useRef([]);
   const initialLoad = React.useRef(true);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const constants = {
+    SELECT: 'Select',
+    VIEW: 'View',
+  };
+
+  const [uiState, setUIState] = useUIState('monitoring-container', {});
+  const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
+  const [selections, setSelections] = React.useState(
+    uiState.storedSelections || {}
+  );
 
   const { items: rooms } = useSortableData(roomsToSort.current, config);
 
@@ -34,6 +48,11 @@ function RecentMonitor({
     const fetchAndSetRooms = async () => {
       if (initialLoad.current) setIsLoading(true);
       roomsToSort.current = await fetchRooms();
+      const defaultSelections = roomsToSort.current.reduce(
+        (acc, room) => ({ ...acc, [room._id]: true }),
+        {}
+      );
+      setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
       if (initialLoad.current) {
         setIsLoading(false);
         initialLoad.current = false;
@@ -52,16 +71,40 @@ function RecentMonitor({
     if (setRoomsShown) setRoomsShown(roomIds.length);
   }, [roomIds]);
 
+  React.useEffect(() => {
+    setUIState({ storedSelections: selections });
+  }, [selections]);
+
+  const _updateSelections = (newSelections) =>
+    setSelections((prev) => ({ ...prev, ...newSelections }));
+
   if (populatedRooms.isError) return <div>There was an error.</div>;
+  if (populatedRooms.isLoading || isLoading) return <SimpleLoading />;
 
   return (
     <div>
-      {populatedRooms.isLoading || isLoading ? (
-        <SimpleLoading />
+      {selectionConfig && (
+        <div className={classes.TogglesContainer}>
+          <ToggleGroup
+            buttons={[constants.VIEW, constants.SELECT]}
+            onChange={setViewOrSelect}
+          />
+        </div>
+      )}
+      {viewOrSelect === constants.SELECT ? (
+        <SelectionTable
+          data={Object.values(populatedRooms.data || {})}
+          config={selectionConfig}
+          selections={selections}
+          onChange={_updateSelections}
+        />
       ) : (
         <RoomsMonitor
           context={context}
-          populatedRooms={populatedRooms.data || {}}
+          populatedRooms={_pickBy(
+            populatedRooms.data || {},
+            (_, id) => selections[id]
+          )} // provide only the selected rooms
           isLoading={populatedRooms.isFetching ? roomIds : []}
         />
       )}
@@ -75,11 +118,13 @@ RecentMonitor.propTypes = {
   fetchRooms: PropTypes.func.isRequired,
   setRoomsShown: PropTypes.func,
   fetchInterval: PropTypes.number,
+  selectionConfig: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 RecentMonitor.defaultValues = {
   setRoomsShown: null,
   fetchInterval: null,
+  selectionConfig: null,
 };
 
 export default RecentMonitor;
