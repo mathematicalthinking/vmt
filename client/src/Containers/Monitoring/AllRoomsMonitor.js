@@ -18,6 +18,11 @@ function AllRoomsMonitor({ user, userResources }) {
   };
 
   const [roomsShown, setRoomsShown] = React.useState(0);
+
+  // Note: THe total might not be accurate if new rooms are created since logging in.
+  // However, a person might be the facilitator on 1000s of rooms, so I don't want to do a DB
+  // fetch for everything just to get an accourate count.
+
   const totalRooms = userResources.filter((room) =>
     amIAFacilitator(room, user._id)
   ).length;
@@ -38,10 +43,12 @@ function AllRoomsMonitor({ user, userResources }) {
 
   return (
     <div>
-      <p style={{ fontSize: '1.5em', marginBottom: '20px' }}>
+      <p style={{ fontSize: '1.5em' }}>
         Rooms with activity in the past 48 hours {'('}
         {roomsShown} active of {totalRooms} total{')'}
       </p>
+      <p>(Use brower refresh to find newly active rooms)</p>
+      <br />
       <RecentMonitor
         config={config}
         context={`userRooms-${user._id}`}
