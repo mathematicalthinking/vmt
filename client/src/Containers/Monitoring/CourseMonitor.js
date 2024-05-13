@@ -17,14 +17,37 @@ function CourseMonitor({ course }) {
     filter: { timeframe: timeFrames.LAST2DAYS, key: 'updatedAt' },
   };
 
+  const TABLE_CONFIG = [
+    { property: 'name', label: 'Room Name' },
+    {
+      property: 'updatedAt',
+      label: 'Last Updated',
+      formatter: (date) => dateAndTime.toDateTimeString(date),
+    },
+    {
+      property: 'createdAt',
+      label: 'Created',
+      formatter: (date) => dateAndTime.toDateTimeString(date),
+    },
+    // {
+    //   property: 'currentMembers',
+    //   label: 'Currently In Room',
+    //   style: { textAlign: 'center' },
+    //   formatter: (currentMembers) => currentMembers && currentMembers.length,
+    // },
+  ];
+
   const [roomsShown, setRoomsShown] = React.useState(0);
+  const [roomsTotal, setRoomsTotal] = React.useState(0);
 
   const fetchCourseRooms = () => {
-    const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
-    const since = dateAndTime.getTimestamp(twoDaysAgo);
     return (
-      API.getAllCourseRooms(course._id, { since, isActive: true })
-        .then((res) => res.data.result)
+      API.getAllCourseRooms(course._id, { isActive: true })
+        .then((res) => {
+          const rooms = res.data.result || [];
+          setRoomsTotal(rooms.length);
+          return rooms;
+        })
         // eslint-disable-next-line no-console
         .catch((err) => console.log(err))
     );
@@ -32,15 +55,18 @@ function CourseMonitor({ course }) {
 
   return (
     <div>
-      <p style={{ fontSize: '1.5em', marginBottom: '20px' }}>
+      <p style={{ fontSize: '1.5em' }}>
         Rooms with activity in the past 48 hours {'('}
-        {roomsShown} active of {course.rooms.length} total{')'}
+        {roomsShown} active of {roomsTotal} total{')'}
       </p>
+      <p>(Use brower refresh to find newly active rooms)</p>
+      <br />
       <RecentMonitor
         config={config}
         context={`course-${course._id}`}
         fetchRooms={fetchCourseRooms}
         setRoomsShown={setRoomsShown}
+        selectionConfig={TABLE_CONFIG}
       />
     </div>
   );

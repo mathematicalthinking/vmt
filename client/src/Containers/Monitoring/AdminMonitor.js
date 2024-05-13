@@ -31,18 +31,20 @@ function AdminMonitor() {
     <div style={{ marginTop: '100px', width: '90%', alignSelf: 'center' }}>
       <p
         style={{
-          marginBottom: '25px',
           fontSize: '30px',
           textAlign: 'center',
         }}
       >
         Rooms Updated in the Past 48 Hours
       </p>
+      <p style={{ textAlign: 'center' }}>
+        (Use brower refresh to find newly active rooms)
+      </p>
+      <br />
       <RecentMonitor
         config={config}
         context={`adminMonitor`}
         fetchRooms={fetchAllRooms}
-        fetchInterval={1000 * 60 * 30} // 30 minutes
       />
     </div>
   );
