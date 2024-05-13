@@ -42,9 +42,10 @@ function RecentMonitor({
 
     fetchAndSetRooms();
 
-    const intervalId = setInterval(fetchAndSetRooms, fetchInterval);
-
-    return () => clearInterval(intervalId);
+    if (fetchInterval) {
+      const intervalId = setInterval(fetchAndSetRooms, fetchInterval);
+      return () => clearInterval(intervalId);
+    }
   }, []);
 
   React.useEffect(() => {
@@ -78,7 +79,7 @@ RecentMonitor.propTypes = {
 
 RecentMonitor.defaultValues = {
   setRoomsShown: null,
-  fetchInterval: 10000, // 10 second default
+  fetchInterval: null,
 };
 
 export default RecentMonitor;
