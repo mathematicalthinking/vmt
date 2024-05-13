@@ -47,7 +47,7 @@ export const timeFrames = {
 
 /**
  * Custom hook for sorting and filtering table data.  Note that filter must be one of all, lastDay, lastWeek, last2Weeks, lastMonth, or lastYear. Adapted from https://www.smashingmagazine.com/2020/03/sortable-tables-react/.
- * @param {array} items - The data array. Each element represents a row as an object, with the properties (keys) representing the table columns
+ * @param {array} [items = []] - The data array. Each element represents a row as an object, with the properties (keys) representing the table columns
  * @param {object} [config = null] - Optional specification of an initial sorting of the form { key, direction, filter }
  * @returns {array} items - The data sorted by the requested column (key), in the requested direction, filtered by the requested filter.
  * @returns {object} sortConfig - The current sorting: { key, direction, filter }. Note that filter must be one of all, lastDay, lastWeek, last2Weeks, lastMonth, or lastYear.
@@ -55,7 +55,7 @@ export const timeFrames = {
  * @returns {function} resetSort - Takes a sortConfig object. That object is merged with the current sortConfig then the items are sorted and filtered appropriately.
  */
 
-export const useSortableData = (items, config = null) => {
+export const useSortableData = (items = [], config = null) => {
   const [sortConfig, setSortConfig] = React.useState(config);
 
   const withinTimeframe = (item) => {
