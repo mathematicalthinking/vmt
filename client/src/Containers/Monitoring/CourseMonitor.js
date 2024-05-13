@@ -17,6 +17,26 @@ function CourseMonitor({ course }) {
     filter: { timeframe: timeFrames.LAST2DAYS, key: 'updatedAt' },
   };
 
+  const TABLE_CONFIG = [
+    { property: 'name', label: 'Room Name' },
+    {
+      property: 'updatedAt',
+      label: 'Last Updated',
+      formatter: (date) => dateAndTime.toDateTimeString(date),
+    },
+    {
+      property: 'createdAt',
+      label: 'Created',
+      formatter: (date) => dateAndTime.toDateTimeString(date),
+    },
+    // {
+    //   property: 'currentMembers',
+    //   label: 'Currently In Room',
+    //   style: { textAlign: 'center' },
+    //   formatter: (currentMembers) => currentMembers && currentMembers.length,
+    // },
+  ];
+
   const [roomsShown, setRoomsShown] = React.useState(0);
   const [roomsTotal, setRoomsTotal] = React.useState(0);
 
@@ -46,6 +66,7 @@ function CourseMonitor({ course }) {
         context={`course-${course._id}`}
         fetchRooms={fetchCourseRooms}
         setRoomsShown={setRoomsShown}
+        selectionConfig={TABLE_CONFIG}
       />
     </div>
   );

@@ -57,3 +57,4 @@ export { default as RoomSettingsDropdown } from './UI/RoomSettingsDropdown/RoomS
 export { default as SocketProvider } from './HOC/SocketProvider';
 export { default as GeneralModal } from './GeneralModal';
 export { default as IdleDetector } from './IdleDetector';
+export { default as SelectionTable } from './SelectionTable/SelectionTable';
