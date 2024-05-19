@@ -12,6 +12,8 @@ const SortUI = ({
   disableSort,
   timeFrames: givenTimeFrames,
   disableSearch,
+  disableFilter,
+  disableLabels,
 }) => {
   const upArrow = <i className="fas fa-solid fa-arrow-up" />;
   const downArrow = <i className="fas fa-solid fa-arrow-down" />;
@@ -111,7 +113,7 @@ const SortUI = ({
         {!disableSort && (
           <div className={classes.SortSelection}>
             <label htmlFor={`sortUI-${labelSuffix}`} className={classes.Label}>
-              Sort by:
+              {!disableLabels && 'Sort by:'}
               <Select
                 className={classes.Select}
                 inputId={`sortUI-${labelSuffix}`}
@@ -146,31 +148,33 @@ const SortUI = ({
             </span>
           </div>
         )}
-        <div className={classes.FilterSelection}>
-          <label
-            htmlFor={`filterUI-${labelSuffix}`}
-            className={classes.Label}
-            data-testid={`filterUI-${labelSuffix}`}
-          >
-            Updated:
-            <Select
-              placeholder="Timeframe"
-              className={classes.Select}
-              inputId={`filterUI-${labelSuffix}`}
-              onChange={(selectedOption) => {
-                sortFn({
-                  filter: {
-                    ...sortConfig.filter,
-                    timeframe: selectedOption.value,
-                  },
-                });
-              }}
-              value={optionForValue(sortConfig.filter.timeframe)}
-              options={timeFrameOptions}
-              isSearchable={false}
-            />
-          </label>
-        </div>
+        {!disableFilter && (
+          <div className={classes.FilterSelection}>
+            <label
+              htmlFor={`filterUI-${labelSuffix}`}
+              className={classes.Label}
+              data-testid={`filterUI-${labelSuffix}`}
+            >
+              {!disableLabels && 'Updated:'}
+              <Select
+                placeholder="Timeframe"
+                className={classes.Select}
+                inputId={`filterUI-${labelSuffix}`}
+                onChange={(selectedOption) => {
+                  sortFn({
+                    filter: {
+                      ...sortConfig.filter,
+                      timeframe: selectedOption.value,
+                    },
+                  });
+                }}
+                value={optionForValue(sortConfig.filter.timeframe)}
+                options={timeFrameOptions}
+                isSearchable={false}
+              />
+            </label>
+          </div>
+        )}
       </div>
       {!disableSearch && (
         <div className={classes.Search}>
@@ -203,6 +207,8 @@ SortUI.propTypes = {
   }),
   disableSort: PropTypes.bool,
   disableSearch: PropTypes.bool,
+  disableFilter: PropTypes.bool,
+  disableLabels: PropTypes.bool,
   timeFrames: PropTypes.arrayOf(
     PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })
   ),
@@ -213,6 +219,8 @@ SortUI.defaultProps = {
   timeFrames: null,
   disableSort: false,
   disableSearch: false,
+  disableFilter: false,
+  disableLabels: false,
 };
 
 export default SortUI;

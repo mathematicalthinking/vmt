@@ -1,21 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { timeFrames, API, dateAndTime } from 'utils';
+import { API, dateAndTime } from 'utils';
 import RecentMonitor from './RecentMonitor';
 
 /**
  * The CourseMonitor provides views into all of the rooms assoicated with
- * a course. When the monitor is first entered, the room tiles are sorted
- * with the most recently updated room first (i.e., reverse chronological order
- * by updatedAt field).
+ * a course that were updated in the past 48 hours (see fetchCourseRooms).
+ *
  */
 
 function CourseMonitor({ course }) {
   const config = {
     key: 'updatedAt',
     direction: 'descending',
-    filter: { timeframe: timeFrames.LAST2DAYS, key: 'updatedAt' },
   };
+
+  const sortKeys = [
+    { property: 'updatedAt', name: 'Last Updated' },
+    { property: 'name', name: 'Name' },
+  ];
 
   const TABLE_CONFIG = [
     { property: 'name', label: 'Room Name' },
@@ -37,15 +40,13 @@ function CourseMonitor({ course }) {
     // },
   ];
 
-  const [roomsShown, setRoomsShown] = React.useState(0);
-  const [roomsTotal, setRoomsTotal] = React.useState(0);
-
   const fetchCourseRooms = () => {
+    const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
+    const since = dateAndTime.getTimestamp(twoDaysAgo);
     return (
-      API.getAllCourseRooms(course._id, { isActive: true })
+      API.getAllCourseRooms(course._id, { since, isActive: true })
         .then((res) => {
           const rooms = res.data.result || [];
-          setRoomsTotal(rooms.length);
           return rooms;
         })
         // eslint-disable-next-line no-console
@@ -56,16 +57,15 @@ function CourseMonitor({ course }) {
   return (
     <div>
       <p style={{ fontSize: '1.5em' }}>
-        Rooms with activity in the past 48 hours {'('}
-        {roomsShown} active of {roomsTotal} total{')'}
+        Rooms with activity in the past 48 hours
       </p>
-      <p>(Use brower refresh to find newly active rooms)</p>
+      <p>(Navigate away and back to find newly active rooms)</p>
       <br />
       <RecentMonitor
         config={config}
+        sortKeys={sortKeys}
         context={`course-${course._id}`}
         fetchRooms={fetchCourseRooms}
-        setRoomsShown={setRoomsShown}
         selectionConfig={TABLE_CONFIG}
       />
     </div>
