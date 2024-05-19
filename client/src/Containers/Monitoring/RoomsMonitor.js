@@ -13,7 +13,7 @@ import Chart from 'Containers/Stats/Chart';
 import statsReducer, { initialState } from 'Containers/Stats/statsReducer';
 import { dateAndTime, useUIState } from 'utils';
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import _isEqual from 'lodash/isEqual';
 import Thumbnails from './Thumbnails';
 import QuickChat from './QuickChat';
 import classes from './monitoringView.css';
@@ -46,6 +46,7 @@ function RoomsMonitor({
   context, // used for saving and restoring UI state
   onVisible, // provides array of ids of rooms that are visible on the screen
   isLoading, // array of ids that are currently loading
+  customComponent, // a component that gets inserted right next to the admin warning
 }) {
   const constants = {
     CHAT: 'Chat',
@@ -269,7 +270,16 @@ function RoomsMonitor({
             )}
           </Fragment>
         </div>
-        {_adminWarning()}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          {customComponent}
+          {_adminWarning()}
+        </div>
         {Object.keys(populatedRooms).length === 0 ? (
           <div className={classes.NoSnapshot}>No rooms to display</div>
         ) : (
@@ -410,6 +420,7 @@ RoomsMonitor.propTypes = {
   context: PropTypes.string.isRequired,
   onVisible: PropTypes.func,
   isLoading: PropTypes.arrayOf(PropTypes.string),
+  customComponent: PropTypes.node,
 };
 
 RoomsMonitor.defaultProps = {
@@ -443,5 +454,5 @@ DropdownMenu.defaultProps = {
 const mapStateToProps = (state) => ({ user: state.user });
 
 export default connect(mapStateToProps)(
-  React.memo(RoomsMonitor, (prev, next) => isEqual(prev, next))
+  React.memo(RoomsMonitor, (prev, next) => _isEqual(prev, next))
 );

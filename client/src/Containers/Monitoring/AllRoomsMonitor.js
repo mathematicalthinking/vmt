@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { timeFrames, API, dateAndTime, amIAFacilitator } from 'utils';
-import RecentMonitor from './RecentMonitor';
+import { API, dateAndTime, amIAFacilitator } from 'utils';
+import RecentMonitorAlt from './RecentMonitorAlt';
 
 /**
  * The AllRoomsMonitor provides views into all of the rooms associated with
@@ -10,22 +10,16 @@ import RecentMonitor from './RecentMonitor';
  * by updatedAt field).
  */
 
-function AllRoomsMonitor({ user, userResources }) {
+function AllRoomsMonitor({ user }) {
   const config = {
     key: 'updatedAt',
     direction: 'descending',
-    filter: { timeframe: timeFrames.LAST2DAYS, key: 'updatedAt' },
   };
 
-  const [roomsShown, setRoomsShown] = React.useState(0);
-
-  // Note: THe total might not be accurate if new rooms are created since logging in.
-  // However, a person might be the facilitator on 1000s of rooms, so I don't want to do a DB
-  // fetch for everything just to get an accourate count.
-
-  const totalRooms = userResources.filter((room) =>
-    amIAFacilitator(room, user._id)
-  ).length;
+  const sortKeys = [
+    { property: 'updatedAt', name: 'Sort by Last Updated' },
+    { property: 'name', name: 'Sort by Name' },
+  ];
 
   const fetchUserRooms = () => {
     const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
@@ -44,16 +38,15 @@ function AllRoomsMonitor({ user, userResources }) {
   return (
     <div>
       <p style={{ fontSize: '1.5em' }}>
-        Rooms with activity in the past 48 hours {'('}
-        {roomsShown} active of {totalRooms} total{')'}
+        Rooms with activity in the past 48 hours
       </p>
-      <p>(Use brower refresh to find newly active rooms)</p>
+      <p>(Navigate away and back to find newly active rooms)</p>
       <br />
-      <RecentMonitor
+      <RecentMonitorAlt
         config={config}
         context={`userRooms-${user._id}`}
         fetchRooms={fetchUserRooms}
-        setRoomsShown={setRoomsShown}
+        sortKeys={sortKeys}
       />
     </div>
   );

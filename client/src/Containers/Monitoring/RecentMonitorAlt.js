@@ -8,13 +8,13 @@ import RoomsMonitor from './RoomsMonitor';
 import classes from './monitoringView.css';
 
 /**
- * The RecentMonitor provides views into a set of rooms, keeping them updated and detecting new activity and new rooms.
+ * The RecentMonitorAlt provides views into a set of rooms, keeping them updated and detecting new activity and new rooms.
  * context is a unique label used by the UIState
  * config provides the sorting and filtering configuration.
  * fetchRooms is a function that returns a set of rooms from the DB
  */
 
-function RecentMonitor({
+function RecentMonitorAlt({
   context,
   config,
   sortKeys, // array of {property, name}
@@ -111,15 +111,6 @@ function RecentMonitor({
         />
       ) : (
         <div>
-          {sortKeys && (
-            <SortUI
-              keys={sortKeys}
-              sortFn={resetSort}
-              sortConfig={sortConfig}
-              disableFilter
-            />
-          )}
-          <br />
           <RoomsMonitor
             context={context}
             populatedRooms={_pickBy(
@@ -127,6 +118,18 @@ function RecentMonitor({
               (_, id) => selections[id]
             )} // provide only the selected rooms
             isLoading={populatedRooms.isFetching ? roomIds : []}
+            customComponent={
+              sortKeys && (
+                <SortUI
+                  keys={sortKeys}
+                  sortFn={resetSort}
+                  sortConfig={sortConfig}
+                  disableFilter
+                  disableLabels
+                  disableSearch
+                />
+              )
+            }
           />
         </div>
       )}
@@ -134,7 +137,7 @@ function RecentMonitor({
   );
 }
 
-RecentMonitor.propTypes = {
+RecentMonitorAlt.propTypes = {
   context: PropTypes.string.isRequired,
   config: PropTypes.shape({}).isRequired,
   fetchRooms: PropTypes.func.isRequired,
@@ -144,11 +147,11 @@ RecentMonitor.propTypes = {
   selectionConfig: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
-RecentMonitor.defaultValues = {
+RecentMonitorAlt.defaultValues = {
   setRoomsShown: null,
   fetchInterval: null,
   selectionConfig: null,
   sortKeys: null,
 };
 
-export default RecentMonitor;
+export default RecentMonitorAlt;
