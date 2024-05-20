@@ -19,8 +19,6 @@ function RecentMonitorAlt({
   config,
   sortKeys, // array of {property, name}
   fetchRooms,
-  setRoomsShown,
-  fetchInterval,
   selectionConfig,
 }) {
   const roomsToSort = React.useRef([]);
@@ -33,7 +31,7 @@ function RecentMonitorAlt({
   };
 
   const [uiState, setUIState] = useUIState(
-    `monitoring-container-${context}`,
+    `monitoring-container-alt-${context}`,
     {}
   );
   const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
@@ -51,36 +49,13 @@ function RecentMonitorAlt({
   const { items: rooms, resetSort, sortConfig } = useSortableData(
     populatedRooms.isSuccess && populatedRooms.data
       ? Object.values(populatedRooms.data)
-      : roomsToSort.current,
+      : [],
     uiState.sortConfig || config
   );
 
   React.useEffect(() => {
-    const fetchAndSetRooms = async () => {
-      if (initialLoad.current) setIsLoading(true);
-      roomsToSort.current = await fetchRooms();
-      const defaultSelections = roomsToSort.current.reduce(
-        (acc, room) => ({ ...acc, [room._id]: true }),
-        {}
-      );
-      setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
-      if (initialLoad.current) {
-        setIsLoading(false);
-        initialLoad.current = false;
-      }
-    };
-
-    fetchAndSetRooms();
-
-    if (fetchInterval) {
-      const intervalId = setInterval(fetchAndSetRooms, fetchInterval);
-      return () => clearInterval(intervalId);
-    }
+    _fetchAndSetRooms();
   }, []);
-
-  React.useEffect(() => {
-    if (setRoomsShown) setRoomsShown(roomIds.length);
-  }, [roomIds]);
 
   React.useEffect(() => {
     setUIState({ selections, sortConfig });
@@ -88,6 +63,20 @@ function RecentMonitorAlt({
 
   const _updateSelections = (newSelections) =>
     setSelections((prev) => ({ ...prev, ...newSelections }));
+
+  const _fetchAndSetRooms = async () => {
+    if (initialLoad.current) setIsLoading(true);
+    roomsToSort.current = await fetchRooms();
+    const defaultSelections = roomsToSort.current.reduce(
+      (acc, room) => ({ ...acc, [room._id]: true }),
+      {}
+    );
+    setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
+    if (initialLoad.current) {
+      setIsLoading(false);
+      initialLoad.current = false;
+    }
+  };
 
   if (populatedRooms.isError) return <div>There was an error.</div>;
   if (populatedRooms.isLoading || isLoading) return <SimpleLoading />;
@@ -113,10 +102,11 @@ function RecentMonitorAlt({
         <div>
           <RoomsMonitor
             context={context}
+            // provide only the selected rooms
             populatedRooms={_pickBy(
               _keyBy(rooms, '_id'),
               (_, id) => selections[id]
-            )} // provide only the selected rooms
+            )}
             isLoading={populatedRooms.isFetching ? roomIds : []}
             customComponent={
               sortKeys && (
@@ -141,15 +131,15 @@ RecentMonitorAlt.propTypes = {
   context: PropTypes.string.isRequired,
   config: PropTypes.shape({}).isRequired,
   fetchRooms: PropTypes.func.isRequired,
-  sortKeys: PropTypes.arrayOf(PropTypes.shape({})),
+  sortKeys: PropTypes.arrayOf(
+    PropTypes.shape({ property: PropTypes.string, name: PropTypes.string })
+  ),
   setRoomsShown: PropTypes.func,
   fetchInterval: PropTypes.number,
   selectionConfig: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 RecentMonitorAlt.defaultValues = {
-  setRoomsShown: null,
-  fetchInterval: null,
   selectionConfig: null,
   sortKeys: null,
 };
