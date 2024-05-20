@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { capitalize } from 'lodash';
 import socket from '../../utils/sockets';
 import { normalize } from '../../store/utils';
@@ -22,8 +23,6 @@ import {
 import Notification from '../Notification/Notification';
 import classes from './socketProvider.css';
 import createNtfMessage from './socketProvider.utils';
-import { props } from 'bluebird';
-import { withRouter } from 'react-router-dom';
 
 class SocketProvider extends Component {
   state = {
