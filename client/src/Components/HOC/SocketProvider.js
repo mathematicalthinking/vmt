@@ -22,6 +22,8 @@ import {
 import Notification from '../Notification/Notification';
 import classes from './socketProvider.css';
 import createNtfMessage from './socketProvider.utils';
+import { props } from 'bluebird';
+import { withRouter } from 'react-router-dom';
 
 class SocketProvider extends Component {
   state = {
@@ -194,7 +196,10 @@ class SocketProvider extends Component {
     });
 
     socket.on('FORCED_LOGOUT', () => {
-      if (user._id) connectLogout();
+      const { history } = this.props;
+      if (user._id) {
+        history.push('/logout');
+      }
     });
 
     socket.on('SETTINGS_CHANGED', (data) => {
@@ -239,6 +244,7 @@ SocketProvider.propTypes = {
   connectClearError: PropTypes.func.isRequired,
   connectLogout: PropTypes.func.isRequired,
   connectUpdateRoom: PropTypes.func.isRequired,
+  history: PropTypes.shape({}),
 };
 
 const mapStateToProps = (state) => {
@@ -264,4 +270,4 @@ export default connect(mapStateToProps, {
   connectUpdateUser: updateUser,
   connectClearError: clearError,
   connectLogout: logout,
-})(SocketProvider);
+})(withRouter(SocketProvider));
