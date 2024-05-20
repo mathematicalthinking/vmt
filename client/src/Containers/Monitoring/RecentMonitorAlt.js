@@ -18,31 +18,26 @@ function RecentMonitorAlt({
   context,
   config,
   sortKeys, // array of {property, name}
-  fetchRooms,
-  setRoomsShown,
-  fetchInterval,
   selectionConfig,
+  rooms: roomsToSort,
+  isLoading,
 }) {
-  const roomsToSort = React.useRef([]);
-  const initialLoad = React.useRef(true);
-  const [isLoading, setIsLoading] = React.useState(false);
-
   const constants = {
     SELECT: 'Select',
     VIEW: 'View',
   };
 
   const [uiState, setUIState] = useUIState(
-    `monitoring-container-${context}`,
+    `monitoring-container-alt-${context}`,
     {}
   );
   const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
   const [selections, setSelections] = React.useState(uiState.selections || {});
 
-  const roomIds = React.useMemo(
-    () => roomsToSort.current.map((room) => room._id),
-    [roomsToSort.current]
-  );
+  console.log('roomsTOSort', roomsToSort);
+  const roomIds = React.useMemo(() => roomsToSort.map((room) => room._id), [
+    roomsToSort,
+  ]);
 
   const populatedRooms = usePopulatedRooms(roomIds, false, {
     refetchInterval: 10000,
@@ -51,36 +46,17 @@ function RecentMonitorAlt({
   const { items: rooms, resetSort, sortConfig } = useSortableData(
     populatedRooms.isSuccess && populatedRooms.data
       ? Object.values(populatedRooms.data)
-      : roomsToSort.current,
+      : [],
     uiState.sortConfig || config
   );
 
   React.useEffect(() => {
-    const fetchAndSetRooms = async () => {
-      if (initialLoad.current) setIsLoading(true);
-      roomsToSort.current = await fetchRooms();
-      const defaultSelections = roomsToSort.current.reduce(
-        (acc, room) => ({ ...acc, [room._id]: true }),
-        {}
-      );
-      setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
-      if (initialLoad.current) {
-        setIsLoading(false);
-        initialLoad.current = false;
-      }
-    };
-
-    fetchAndSetRooms();
-
-    if (fetchInterval) {
-      const intervalId = setInterval(fetchAndSetRooms, fetchInterval);
-      return () => clearInterval(intervalId);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (setRoomsShown) setRoomsShown(roomIds.length);
-  }, [roomIds]);
+    const defaultSelections = roomsToSort.reduce(
+      (acc, room) => ({ ...acc, [room._id]: true }),
+      {}
+    );
+    setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
+  }, [roomsToSort]);
 
   React.useEffect(() => {
     setUIState({ selections, sortConfig });
@@ -102,7 +78,7 @@ function RecentMonitorAlt({
           />
         </div>
       )}
-      {viewOrSelect === constants.SELECT ? (
+      {selectionConfig && viewOrSelect === constants.SELECT ? (
         <SelectionTable
           data={roomsToSort.current}
           config={selectionConfig}
@@ -113,10 +89,11 @@ function RecentMonitorAlt({
         <div>
           <RoomsMonitor
             context={context}
+            // provide only the selected rooms
             populatedRooms={_pickBy(
               _keyBy(rooms, '_id'),
               (_, id) => selections[id]
-            )} // provide only the selected rooms
+            )}
             isLoading={populatedRooms.isFetching ? roomIds : []}
             customComponent={
               sortKeys && (
@@ -140,18 +117,19 @@ function RecentMonitorAlt({
 RecentMonitorAlt.propTypes = {
   context: PropTypes.string.isRequired,
   config: PropTypes.shape({}).isRequired,
-  fetchRooms: PropTypes.func.isRequired,
-  sortKeys: PropTypes.arrayOf(PropTypes.shape({})),
-  setRoomsShown: PropTypes.func,
-  fetchInterval: PropTypes.number,
+  sortKeys: PropTypes.arrayOf(
+    PropTypes.shape({ property: PropTypes.string, name: PropTypes.string })
+  ),
   selectionConfig: PropTypes.arrayOf(PropTypes.shape({})),
+  rooms: PropTypes.arrayOf(PropTypes.shape({})),
+  isLoading: PropTypes.bool,
 };
 
 RecentMonitorAlt.defaultValues = {
-  setRoomsShown: null,
-  fetchInterval: null,
   selectionConfig: null,
   sortKeys: null,
+  rooms: [],
+  isLoading: false,
 };
 
 export default RecentMonitorAlt;

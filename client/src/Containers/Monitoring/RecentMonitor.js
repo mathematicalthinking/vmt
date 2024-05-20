@@ -3,7 +3,13 @@ import PropTypes from 'prop-types';
 import _pickBy from 'lodash/pickBy';
 import _keyBy from 'lodash/keyBy';
 import { usePopulatedRooms, useSortableData, useUIState } from 'utils';
-import { SimpleLoading, SelectionTable, ToggleGroup, SortUI } from 'Components';
+import {
+  SimpleLoading,
+  SelectionTable,
+  ToggleGroup,
+  SortUI,
+  Button,
+} from 'Components';
 import RoomsMonitor from './RoomsMonitor';
 import classes from './monitoringView.css';
 
@@ -19,12 +25,9 @@ function RecentMonitor({
   config,
   sortKeys, // array of {property, name}
   fetchRooms,
-  setRoomsShown,
-  fetchInterval,
   selectionConfig,
 }) {
   const roomsToSort = React.useRef([]);
-  const initialLoad = React.useRef(true);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const constants = {
@@ -51,36 +54,13 @@ function RecentMonitor({
   const { items: rooms, resetSort, sortConfig } = useSortableData(
     populatedRooms.isSuccess && populatedRooms.data
       ? Object.values(populatedRooms.data)
-      : roomsToSort.current,
+      : [],
     uiState.sortConfig || config
   );
 
   React.useEffect(() => {
-    const fetchAndSetRooms = async () => {
-      if (initialLoad.current) setIsLoading(true);
-      roomsToSort.current = await fetchRooms();
-      const defaultSelections = roomsToSort.current.reduce(
-        (acc, room) => ({ ...acc, [room._id]: true }),
-        {}
-      );
-      setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
-      if (initialLoad.current) {
-        setIsLoading(false);
-        initialLoad.current = false;
-      }
-    };
-
-    fetchAndSetRooms();
-
-    if (fetchInterval) {
-      const intervalId = setInterval(fetchAndSetRooms, fetchInterval);
-      return () => clearInterval(intervalId);
-    }
+    _fetchAndSetRooms();
   }, []);
-
-  React.useEffect(() => {
-    if (setRoomsShown) setRoomsShown(roomIds.length);
-  }, [roomIds]);
 
   React.useEffect(() => {
     setUIState({ selections, sortConfig });
@@ -89,20 +69,41 @@ function RecentMonitor({
   const _updateSelections = (newSelections) =>
     setSelections((prev) => ({ ...prev, ...newSelections }));
 
+  const _fetchAndSetRooms = async () => {
+    setIsLoading(true);
+    roomsToSort.current = await fetchRooms();
+    const defaultSelections = roomsToSort.current.reduce(
+      (acc, room) => ({ ...acc, [room._id]: true }),
+      {}
+    );
+    setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
+    setIsLoading(false);
+  };
+
   if (populatedRooms.isError) return <div>There was an error.</div>;
   if (populatedRooms.isLoading || isLoading) return <SimpleLoading />;
 
   return (
     <div>
-      {selectionConfig && (
-        <div className={classes.TogglesContainer}>
+      <div
+        style={{
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'row',
+        }}
+      >
+        <div style={{ marginRight: '20px' }}>
+          <Button click={async () => await _fetchAndSetRooms()}>Refresh</Button>
+        </div>
+        {selectionConfig && (
           <ToggleGroup
             buttons={[constants.VIEW, constants.SELECT]}
             onChange={setViewOrSelect}
           />
-        </div>
-      )}
-      {viewOrSelect === constants.SELECT ? (
+        )}
+      </div>
+      {selectionConfig && viewOrSelect === constants.SELECT ? (
         <SelectionTable
           data={roomsToSort.current}
           config={selectionConfig}
@@ -122,10 +123,11 @@ function RecentMonitor({
           <br />
           <RoomsMonitor
             context={context}
+            // provide only the selected rooms
             populatedRooms={_pickBy(
               _keyBy(rooms, '_id'),
               (_, id) => selections[id]
-            )} // provide only the selected rooms
+            )}
             isLoading={populatedRooms.isFetching ? roomIds : []}
           />
         </div>
@@ -138,15 +140,13 @@ RecentMonitor.propTypes = {
   context: PropTypes.string.isRequired,
   config: PropTypes.shape({}).isRequired,
   fetchRooms: PropTypes.func.isRequired,
-  sortKeys: PropTypes.arrayOf(PropTypes.shape({})),
-  setRoomsShown: PropTypes.func,
-  fetchInterval: PropTypes.number,
+  sortKeys: PropTypes.arrayOf(
+    PropTypes.shape({ property: PropTypes.string, name: PropTypes.string })
+  ),
   selectionConfig: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 RecentMonitor.defaultValues = {
-  setRoomsShown: null,
-  fetchInterval: null,
   selectionConfig: null,
   sortKeys: null,
 };

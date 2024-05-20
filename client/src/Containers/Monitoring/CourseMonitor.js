@@ -59,7 +59,6 @@ function CourseMonitor({ course }) {
       <p style={{ fontSize: '1.5em' }}>
         Rooms with activity in the past 48 hours
       </p>
-      <p>(Navigate away and back to find newly active rooms)</p>
       <br />
       <RecentMonitor
         config={config}
