@@ -1,7 +1,9 @@
 /* eslint-disable no-throw-literal */
 const _ = require('lodash');
 const db = require('../models');
+const moment = require('moment');
 const ROLE = require('../constants/role');
+const STATUS = require('../constants/status');
 
 module.exports = {
   get: (params) => {
@@ -442,14 +444,33 @@ module.exports = {
     });
   },
 
-  // delete: id => {
-  //   return new Promise((resolve, reject) => {
-  //     db.Course.findById(id)
-  //       .then(course => {
-  //         course.remove();
-  //         resolve(course);
-  //       })
-  //       .catch(err => reject(err));
-  //   });
-  // }
+  getAllRooms: (id, { since, isActive }) => {
+    try {
+      const matchConditions = {
+        status: { $ne: STATUS.TRASHED },
+        isTrashed: false,
+        course: id,
+      };
+
+      if (isActive === 'true') {
+        matchConditions.status = { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] };
+      }
+
+      const sinceTimestamp = moment(since, 'x');
+      if (sinceTimestamp.isValid()) {
+        matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
+      }
+
+      return db.Room.find(matchConditions)
+        .sort('-createdAt')
+        .populate({ path: 'members.user', select: 'username' })
+        .populate({ path: 'currentMembers', select: 'username' })
+        .populate({
+          path: 'tabs',
+          select: 'name tabType desmosLink controlledBy',
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  },
 };

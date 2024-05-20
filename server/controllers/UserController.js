@@ -429,4 +429,29 @@ module.exports = {
       return [];
     }
   },
+  getAllRooms: async (id, { since, isActive }) => {
+    const user = await db.User.findById(id);
+    if (!user) throw 'User not found';
+
+    const archived = user.archive ? user.archive.rooms : [];
+    const roomIds =
+      isActive === 'true' ? user.rooms : [...user.rooms, ...archived];
+    if (roomIds.length === 0) return [];
+
+    const matchConditions = {
+      status: { $ne: STATUS.TRASHED },
+      isTrashed: false,
+      _id: { $in: roomIds },
+    };
+
+    const sinceTimestamp = moment(since, 'x');
+    if (sinceTimestamp.isValid()) {
+      matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
+    }
+
+    return db.Room.find(matchConditions).populate({
+      path: 'members.user',
+      select: 'username',
+    });
+  },
 };
