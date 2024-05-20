@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _throttle from 'lodash/throttle';
 import { API, dateAndTime } from 'utils';
 import RecentMonitor from './RecentMonitor';
 
@@ -40,19 +41,22 @@ function CourseMonitor({ course }) {
     // },
   ];
 
-  const fetchCourseRooms = () => {
-    const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
-    const since = dateAndTime.getTimestamp(twoDaysAgo);
-    return (
-      API.getAllCourseRooms(course._id, { since, isActive: true })
+  const fetchCourseRooms = React.useCallback(
+    _throttle(() => {
+      const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
+      const since = dateAndTime.getTimestamp(twoDaysAgo);
+      return API.getAllCourseRooms(course._id, { since, isActive: true })
         .then((res) => {
           const rooms = res.data.result || [];
           return rooms;
         })
-        // eslint-disable-next-line no-console
-        .catch((err) => console.log(err))
-    );
-  };
+        .catch((err) => {
+          console.log(err);
+          return [];
+        });
+    }, 2000),
+    [course._id]
+  );
 
   return (
     <div>

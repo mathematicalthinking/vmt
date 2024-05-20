@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _throttle from 'lodash/throttle';
 import { API, dateAndTime, amIAFacilitator } from 'utils';
 import RecentMonitorAlt from './RecentMonitorAlt';
 import { Button } from 'Components';
@@ -25,24 +26,27 @@ function AllRoomsMonitor({ user }) {
   const [rooms, setRooms] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const fetchUserRooms = () => {
-    setIsLoading(true);
-    const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
-    const since = dateAndTime.getTimestamp(twoDaysAgo);
-    return (
-      API.getAllUserRooms(user._id, { since, isActive: true })
-        .then((res) => {
-          setIsLoading(false);
-          const rooms = res.data.result;
-          return rooms.filter((room) => amIAFacilitator(room, user._id));
-        })
-        // eslint-disable-next-line no-console
-        .catch((err) => {
-          setIsLoading(false);
-          console.log(err);
-        })
-    );
-  };
+  const fetchUserRooms = React.useCallback(
+    _throttle(() => {
+      setIsLoading(true);
+      const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
+      const since = dateAndTime.getTimestamp(twoDaysAgo);
+      return (
+        API.getAllUserRooms(user._id, { since, isActive: true })
+          .then((res) => {
+            setIsLoading(false);
+            const rooms = res.data.result;
+            return rooms.filter((room) => amIAFacilitator(room, user._id));
+          })
+          // eslint-disable-next-line no-console
+          .catch((err) => {
+            setIsLoading(false);
+            console.log(err);
+          })
+      );
+    }, 2000),
+    [user._id]
+  );
 
   React.useEffect(async () => {
     setRooms(await fetchUserRooms());
