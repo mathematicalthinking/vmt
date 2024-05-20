@@ -7,7 +7,6 @@ const controllers = require('../controllers');
 const middleware = require('../middleware/api');
 const errors = require('../middleware/errors');
 const multerMw = require('../middleware/multer');
-const moment = require('moment');
 
 const {
   getUser,
@@ -256,75 +255,20 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
     });
 });
 
-// Two functions just to make the /getAllRooms/:resource/:id 'get' easier to read
-
-async function _getAllRooms(resource, id, since, isActive) {
-  const fieldMap = {
-    courses: 'course',
-    activities: 'activity',
-  };
-
-  const field = fieldMap[resource];
-  if (!field) throw 'Error in requested resource';
-
-  const matchConditions = {
-    status: { $ne: STATUS.TRASHED },
-    isTrashed: false,
-    [field]: id,
-  };
-
-  if (isActive === 'true') {
-    matchConditions.status = { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] };
-  }
-
-  const sinceTimestamp = moment(since, 'x');
-  if (sinceTimestamp.isValid()) {
-    matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
-  }
-
-  return controllers.rooms.get(matchConditions);
-}
-
-async function _getAllUserRooms(id, since, isActive) {
-  const user = await controllers.user.getById(id);
-  if (!user) throw 'User not found';
-
-  const archived = user.archive ? user.archive.rooms : [];
-  const roomIds =
-    isActive === 'true' ? user.rooms : [...user.rooms, ...archived];
-  if (roomIds.length === 0) return [];
-
-  const matchConditions = {
-    status: { $ne: STATUS.TRASHED },
-    isTrashed: false,
-    _id: { $in: roomIds },
-  };
-
-  const sinceTimestamp = moment(since, 'x');
-  if (sinceTimestamp.isValid()) {
-    matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
-  }
-
-  return controllers.rooms.get(matchConditions);
-}
-
 router.get(
   '/getAllRooms/:resource/:id',
   middleware.validateUser,
-  async (req, res) => {
+  (req, res) => {
     const { id, resource } = req.params;
-    const { since, isActive } = req.query;
+    const controller = controllers[resource];
 
-    try {
-      const result =
-        resource === 'user'
-          ? await _getAllUserRooms(id, since, isActive) // uses the list of rooms and archived rooms as needed
-          : await _getAllRooms(resource, id, since, isActive); // searches all rooms as necessary for appropriate course or template/activity
-      res.status(200).json({ result });
-    } catch (err) {
-      console.error(`Error getting ${resource} rooms/${id}:`, err);
-      errors.sendError.InternalError(err, res);
-    }
+    return controller
+      .getAllRooms(id, req.query)
+      .then((result) => res.json({ result }))
+      .catch((err) => {
+        console.error(`Error getting ${resource} rooms/${id}:`, err);
+        errors.sendError.InternalError(err, res);
+      });
   }
 );
 

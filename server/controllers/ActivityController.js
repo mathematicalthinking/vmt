@@ -1,4 +1,6 @@
 const db = require('../models');
+const STATUS = require('../constants/status');
+const moment = require('moment');
 
 module.exports = {
   get: (params) => {
@@ -425,5 +427,31 @@ module.exports = {
     // currently, we do not send ntfs for activities
 
     return activity.users;
+  },
+
+  getAllRooms: (id, { since, isActive }) => {
+    const matchConditions = {
+      status: { $ne: STATUS.TRASHED },
+      isTrashed: false,
+      activity: id,
+    };
+
+    if (isActive === 'true') {
+      matchConditions.status = { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] };
+    }
+
+    const sinceTimestamp = moment(since, 'x');
+    if (sinceTimestamp.isValid()) {
+      matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
+    }
+
+    return db.Room.find(matchConditions)
+      .sort('-createdAt')
+      .populate({ path: 'members.user', select: 'username' })
+      .populate({ path: 'currentMembers', select: 'username' })
+      .populate({
+        path: 'tabs',
+        select: 'name tabType desmosLink controlledBy',
+      });
   },
 };
