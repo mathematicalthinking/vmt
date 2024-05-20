@@ -28,9 +28,9 @@ function hashLinkScroll() {
 
 const App = () => (
   <Provider store={store}>
-    <SocketProvider>
-      <QueryClientProvider client={queryClient}>
-        <Router onUpdate={hashLinkScroll}>
+    <Router onUpdate={hashLinkScroll}>
+      <SocketProvider>
+        <QueryClientProvider client={queryClient}>
           <div
             style={{
               display: 'flex',
@@ -47,9 +47,9 @@ const App = () => (
               </GeneralModal>
             </IdleDetector>
           </div>
-        </Router>
-      </QueryClientProvider>
-    </SocketProvider>
+        </QueryClientProvider>
+      </SocketProvider>
+    </Router>
   </Provider>
 );
 
