@@ -3,7 +3,13 @@ import PropTypes from 'prop-types';
 import _pickBy from 'lodash/pickBy';
 import _keyBy from 'lodash/keyBy';
 import { usePopulatedRooms, useSortableData, useUIState } from 'utils';
-import { SimpleLoading, SelectionTable, ToggleGroup, SortUI } from 'Components';
+import {
+  SimpleLoading,
+  SelectionTable,
+  ToggleGroup,
+  SortUI,
+  Button,
+} from 'Components';
 import RoomsMonitor from './RoomsMonitor';
 import classes from './monitoringView.css';
 
@@ -22,7 +28,6 @@ function RecentMonitor({
   selectionConfig,
 }) {
   const roomsToSort = React.useRef([]);
-  const initialLoad = React.useRef(true);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const constants = {
@@ -65,17 +70,14 @@ function RecentMonitor({
     setSelections((prev) => ({ ...prev, ...newSelections }));
 
   const _fetchAndSetRooms = async () => {
-    if (initialLoad.current) setIsLoading(true);
+    setIsLoading(true);
     roomsToSort.current = await fetchRooms();
     const defaultSelections = roomsToSort.current.reduce(
       (acc, room) => ({ ...acc, [room._id]: true }),
       {}
     );
     setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
-    if (initialLoad.current) {
-      setIsLoading(false);
-      initialLoad.current = false;
-    }
+    setIsLoading(false);
   };
 
   if (populatedRooms.isError) return <div>There was an error.</div>;
@@ -83,15 +85,25 @@ function RecentMonitor({
 
   return (
     <div>
-      {selectionConfig && (
-        <div className={classes.TogglesContainer}>
+      <div
+        style={{
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'row',
+        }}
+      >
+        <div style={{ marginRight: '20px' }}>
+          <Button click={async () => await _fetchAndSetRooms()}>Refresh</Button>
+        </div>
+        {selectionConfig && (
           <ToggleGroup
             buttons={[constants.VIEW, constants.SELECT]}
             onChange={setViewOrSelect}
           />
-        </div>
-      )}
-      {viewOrSelect === constants.SELECT ? (
+        )}
+      </div>
+      {selectionConfig && viewOrSelect === constants.SELECT ? (
         <SelectionTable
           data={roomsToSort.current}
           config={selectionConfig}

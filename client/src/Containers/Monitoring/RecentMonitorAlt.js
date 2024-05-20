@@ -18,13 +18,10 @@ function RecentMonitorAlt({
   context,
   config,
   sortKeys, // array of {property, name}
-  fetchRooms,
   selectionConfig,
+  rooms: roomsToSort,
+  isLoading,
 }) {
-  const roomsToSort = React.useRef([]);
-  const initialLoad = React.useRef(true);
-  const [isLoading, setIsLoading] = React.useState(false);
-
   const constants = {
     SELECT: 'Select',
     VIEW: 'View',
@@ -37,10 +34,10 @@ function RecentMonitorAlt({
   const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
   const [selections, setSelections] = React.useState(uiState.selections || {});
 
-  const roomIds = React.useMemo(
-    () => roomsToSort.current.map((room) => room._id),
-    [roomsToSort.current]
-  );
+  console.log('roomsTOSort', roomsToSort);
+  const roomIds = React.useMemo(() => roomsToSort.map((room) => room._id), [
+    roomsToSort,
+  ]);
 
   const populatedRooms = usePopulatedRooms(roomIds, false, {
     refetchInterval: 10000,
@@ -54,8 +51,12 @@ function RecentMonitorAlt({
   );
 
   React.useEffect(() => {
-    _fetchAndSetRooms();
-  }, []);
+    const defaultSelections = roomsToSort.reduce(
+      (acc, room) => ({ ...acc, [room._id]: true }),
+      {}
+    );
+    setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
+  }, [roomsToSort]);
 
   React.useEffect(() => {
     setUIState({ selections, sortConfig });
@@ -63,20 +64,6 @@ function RecentMonitorAlt({
 
   const _updateSelections = (newSelections) =>
     setSelections((prev) => ({ ...prev, ...newSelections }));
-
-  const _fetchAndSetRooms = async () => {
-    if (initialLoad.current) setIsLoading(true);
-    roomsToSort.current = await fetchRooms();
-    const defaultSelections = roomsToSort.current.reduce(
-      (acc, room) => ({ ...acc, [room._id]: true }),
-      {}
-    );
-    setSelections((prev) => ({ ...defaultSelections, ...prev })); // show any new rooms
-    if (initialLoad.current) {
-      setIsLoading(false);
-      initialLoad.current = false;
-    }
-  };
 
   if (populatedRooms.isError) return <div>There was an error.</div>;
   if (populatedRooms.isLoading || isLoading) return <SimpleLoading />;
@@ -91,7 +78,7 @@ function RecentMonitorAlt({
           />
         </div>
       )}
-      {viewOrSelect === constants.SELECT ? (
+      {selectionConfig && viewOrSelect === constants.SELECT ? (
         <SelectionTable
           data={roomsToSort.current}
           config={selectionConfig}
@@ -130,18 +117,19 @@ function RecentMonitorAlt({
 RecentMonitorAlt.propTypes = {
   context: PropTypes.string.isRequired,
   config: PropTypes.shape({}).isRequired,
-  fetchRooms: PropTypes.func.isRequired,
   sortKeys: PropTypes.arrayOf(
     PropTypes.shape({ property: PropTypes.string, name: PropTypes.string })
   ),
-  setRoomsShown: PropTypes.func,
-  fetchInterval: PropTypes.number,
   selectionConfig: PropTypes.arrayOf(PropTypes.shape({})),
+  rooms: PropTypes.arrayOf(PropTypes.shape({})),
+  isLoading: PropTypes.bool,
 };
 
 RecentMonitorAlt.defaultValues = {
   selectionConfig: null,
   sortKeys: null,
+  rooms: [],
+  isLoading: false,
 };
 
 export default RecentMonitorAlt;
