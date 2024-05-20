@@ -42,6 +42,7 @@ export const logout = () => {
   // on the backend
   return (dispatch, getState) => {
     const userId = getState().user._id;
+    if (!userId) return; // sometimes the user is already logged out
     AUTH.logout(userId)
       .then(() => {
         dispatch(loggedOut());
