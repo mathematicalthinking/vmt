@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { timeFrames, API, dateAndTime, amIAFacilitator } from 'utils';
-import RecentMonitor from './RecentMonitor';
+import _throttle from 'lodash/throttle';
+import { API, dateAndTime, amIAFacilitator } from 'utils';
+import RecentMonitorAlt from './RecentMonitorAlt';
+import { Button } from 'Components';
 
 /**
  * The AllRoomsMonitor provides views into all of the rooms associated with
@@ -10,50 +12,66 @@ import RecentMonitor from './RecentMonitor';
  * by updatedAt field).
  */
 
-function AllRoomsMonitor({ user, userResources }) {
+function AllRoomsMonitor({ user }) {
   const config = {
     key: 'updatedAt',
     direction: 'descending',
-    filter: { timeframe: timeFrames.LAST2DAYS, key: 'updatedAt' },
   };
 
-  const [roomsShown, setRoomsShown] = React.useState(0);
+  const sortKeys = [
+    { property: 'updatedAt', name: 'Sort by Last Updated' },
+    { property: 'name', name: 'Sort by Name' },
+  ];
 
-  // Note: THe total might not be accurate if new rooms are created since logging in.
-  // However, a person might be the facilitator on 1000s of rooms, so I don't want to do a DB
-  // fetch for everything just to get an accourate count.
+  const [rooms, setRooms] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const totalRooms = userResources.filter((room) =>
-    amIAFacilitator(room, user._id)
-  ).length;
+  const fetchUserRooms = React.useCallback(
+    _throttle(() => {
+      setIsLoading(true);
+      const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
+      const since = dateAndTime.getTimestamp(twoDaysAgo);
+      return (
+        API.getAllUserRooms(user._id, { since, isActive: true })
+          .then((res) => {
+            setIsLoading(false);
+            const rooms = res.data.result;
+            return rooms.filter((room) => amIAFacilitator(room, user._id));
+          })
+          // eslint-disable-next-line no-console
+          .catch((err) => {
+            setIsLoading(false);
+            console.log(err);
+          })
+      );
+    }, 2000),
+    [user._id]
+  );
 
-  const fetchUserRooms = () => {
-    const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
-    const since = dateAndTime.getTimestamp(twoDaysAgo);
-    return (
-      API.getAllUserRooms(user._id, { since, isActive: true })
-        .then((res) => {
-          const rooms = res.data.result;
-          return rooms.filter((room) => amIAFacilitator(room, user._id));
-        })
-        // eslint-disable-next-line no-console
-        .catch((err) => console.log(err))
-    );
-  };
+  React.useEffect(async () => {
+    setRooms(await fetchUserRooms());
+  }, []);
 
   return (
     <div>
       <p style={{ fontSize: '1.5em' }}>
-        Rooms with activity in the past 48 hours {'('}
-        {roomsShown} active of {totalRooms} total{')'}
+        Rooms with activity in the past 48 hours
       </p>
-      <p>(Use brower refresh to find newly active rooms)</p>
+      <p>
+        (
+        <Button click={async () => setRooms(await fetchUserRooms())}>
+          Refresh
+        </Button>{' '}
+        to find newly active rooms)
+      </p>
       <br />
-      <RecentMonitor
+      <RecentMonitorAlt
         config={config}
+        rooms={rooms}
         context={`userRooms-${user._id}`}
         fetchRooms={fetchUserRooms}
-        setRoomsShown={setRoomsShown}
+        sortKeys={sortKeys}
+        isLoading={isLoading}
       />
     </div>
   );
