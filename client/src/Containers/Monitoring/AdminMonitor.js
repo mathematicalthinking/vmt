@@ -1,5 +1,6 @@
 import React from 'react';
-import { timeFrames, API, dateAndTime } from 'utils';
+import { API, dateAndTime } from 'utils';
+import { Button } from 'Components';
 import RecentMonitor from './RecentMonitor';
 
 /**
@@ -8,24 +9,51 @@ import RecentMonitor from './RecentMonitor';
 
 function AdminMonitor() {
   const config = {
-    key: 'updatedAt',
-    direction: 'descending',
-    filter: { timeframe: timeFrames.LAST2DAYS, key: 'updatedAt' },
+    key: 'name',
+    direction: 'ascending',
   };
 
-  const fetchAllRooms = () => {
+  const sortKeys = [
+    { property: 'updatedAt', name: 'Last Updated' },
+    { property: 'name', name: 'Name' },
+  ];
+
+  const TABLE_CONFIG = [
+    { property: 'name', label: 'Room Name' },
+    {
+      property: 'updatedAt',
+      label: 'Last Updated',
+      formatter: (date) => dateAndTime.toDateTimeString(date),
+    },
+    {
+      property: 'createdAt',
+      label: 'Created',
+      formatter: (date) => dateAndTime.toDateTimeString(date),
+    },
+  ];
+
+  const [rooms, setRooms] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const fetchRooms = () => {
+    setIsLoading(true);
     const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
     const since = dateAndTime.getTimestamp(twoDaysAgo);
-    return (
-      API.getRecentActivity('rooms', null, 0, { since })
-        .then((res) => {
-          const [rooms] = res.data.results;
-          return rooms;
-        })
-        // eslint-disable-next-line no-console
-        .catch((err) => console.log(err))
-    );
+    return API.getRecentActivity('rooms', null, 0, { since })
+      .then((res) => {
+        setIsLoading(false);
+        const [rooms] = res.data.results;
+        return rooms;
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        console.log(err);
+      });
   };
+
+  React.useEffect(async () => {
+    setRooms(await fetchRooms());
+  }, []);
 
   return (
     <div style={{ marginTop: '100px', width: '90%', alignSelf: 'center' }}>
@@ -38,13 +66,20 @@ function AdminMonitor() {
         Rooms Updated in the Past 48 Hours
       </p>
       <p style={{ textAlign: 'center' }}>
-        (Use brower refresh to find newly active rooms)
+        (
+        <Button theme="Inline" click={async () => setRooms(await fetchRooms())}>
+          Refresh
+        </Button>
+        to find newly active rooms)
       </p>
       <br />
       <RecentMonitor
         config={config}
+        rooms={rooms}
+        sortKeys={sortKeys}
         context={`adminMonitor`}
-        fetchRooms={fetchAllRooms}
+        isLoading={isLoading}
+        selectionConfig={TABLE_CONFIG}
       />
     </div>
   );
