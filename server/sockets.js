@@ -244,20 +244,24 @@ module.exports = function() {
     };
 
     const getAllSocketsForUser = async (userId) => {
+      if (!userId) return [];
       const socketStates = await redisClient.hgetall(redisActivityKey(userId));
       return Object.keys(socketStates);
     };
 
     const areAllSocketsInactive = async (userId) => {
+      if (!userId) return false;
       const socketStates = await redisClient.hgetall(redisActivityKey(userId));
       return Object.values(socketStates).every((state) => state === 'inactive');
     };
 
     const markSocketAsInactive = (userId, socketId) => {
+      if (!userId || !socketId) return;
       redisClient.hset(redisActivityKey(userId), socketId, 'inactive');
     };
 
     const markSocketAsActive = (userId, socketId) => {
+      if (!userId || !socketId) return;
       redisClient.hset(redisActivityKey(userId), socketId, 'active');
     };
 
