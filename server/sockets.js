@@ -198,7 +198,7 @@ module.exports = function() {
       }
     };
 
-    socket.on('disconnecting', (reason) => {
+    socket.on('disconnecting', async (reason) => {
       socketMetricInc('disconnect');
       socketMetricInc('disconnectionByUser', socket.user_id);
       console.log(
@@ -212,17 +212,21 @@ module.exports = function() {
         socket.rooms
       );
 
+      let areAllInactive = false;
       if (reason === 'transport close') {
         disconnectFromRoom(socket);
         markSocketAsInactive(socket.user_id, socket.id);
-        if (areAllSocketsInactive(socket.user_id)) forceLogout(socket.user_id);
+        areAllInactive = await areAllSocketsInactive(socket.user_id);
+        if (areAllInactive) {
+          forceLogout(socket.user_id);
+        }
       } else {
         if (socket.timer) clearTimeout(socket.timer);
-        socket.timer = setTimeout(() => {
+        socket.timer = setTimeout(async () => {
           disconnectFromRoom(socket);
           markSocketAsInactive(socket.user_id, socket.id);
-          if (areAllSocketsInactive(socket.user_id))
-            forceLogout(socket.user_id);
+          areAllInactive = await areAllSocketsInactive(socket.user_id);
+          if (areAllInactive) forceLogout(socket.user_id);
         }, 15000);
       }
     });
