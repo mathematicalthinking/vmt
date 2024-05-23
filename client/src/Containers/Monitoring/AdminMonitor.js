@@ -1,4 +1,5 @@
 import React from 'react';
+import _throttle from 'lodash/throttle';
 import { API, dateAndTime } from 'utils';
 import { Button } from 'Components';
 import RecentMonitor from './RecentMonitor';
@@ -35,21 +36,24 @@ function AdminMonitor() {
   const [rooms, setRooms] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const fetchRooms = () => {
-    setIsLoading(true);
-    const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
-    const since = dateAndTime.getTimestamp(twoDaysAgo);
-    return API.getRecentActivity('rooms', null, 0, { since })
-      .then((res) => {
-        setIsLoading(false);
-        const [rooms] = res.data.results;
-        return rooms;
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        console.log(err);
-      });
-  };
+  const fetchRooms = React.useCallback(
+    _throttle(() => {
+      setIsLoading(true);
+      const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
+      const since = dateAndTime.getTimestamp(twoDaysAgo);
+      return API.getRecentActivity('rooms', null, 0, { since })
+        .then((res) => {
+          setIsLoading(false);
+          const [rooms] = res.data.results;
+          return rooms;
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          console.log(err);
+        });
+    }, 2000),
+    []
+  );
 
   React.useEffect(async () => {
     setRooms(await fetchRooms());
@@ -69,7 +73,7 @@ function AdminMonitor() {
         (
         <Button theme="Inline" click={async () => setRooms(await fetchRooms())}>
           Refresh
-        </Button>
+        </Button>{' '}
         to find newly active rooms)
       </p>
       <br />

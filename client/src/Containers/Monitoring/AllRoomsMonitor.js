@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _throttle from 'lodash/throttle';
+import { Button } from 'Components';
 import { API, dateAndTime, amIAFacilitator } from 'utils';
 import RecentMonitor from './RecentMonitor';
-import { Button } from 'Components';
 
 /**
  * The AllRoomsMonitor provides views into all of the rooms associated with
@@ -38,7 +38,7 @@ function AllRoomsMonitor({ user }) {
   const [rooms, setRooms] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const fetchUserRooms = React.useCallback(
+  const fetchRooms = React.useCallback(
     _throttle(() => {
       setIsLoading(true);
       const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
@@ -70,7 +70,7 @@ function AllRoomsMonitor({ user }) {
         (
         <Button theme="Inline" click={async () => setRooms(await fetchRooms())}>
           Refresh
-        </Button>
+        </Button>{' '}
         to find newly active rooms)
       </p>
       <br />

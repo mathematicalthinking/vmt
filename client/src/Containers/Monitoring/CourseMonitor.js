@@ -77,7 +77,7 @@ function CourseMonitor({ course }) {
         (
         <Button theme="Inline" click={async () => setRooms(await fetchRooms())}>
           Refresh
-        </Button>
+        </Button>{' '}
         to find newly active rooms)
       </p>
       <br />
