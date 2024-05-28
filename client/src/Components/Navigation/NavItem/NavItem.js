@@ -17,7 +17,8 @@ const NavItem = ({ name, link, ntf, sliderDetails, pattern }) => {
   const dataName = typeof name === 'string' ? name : 'profile';
 
   if (sliderDetails) {
-    const { isOn, onClick } = sliderDetails;
+    const { isOn, onClick, customComponent } = sliderDetails;
+    if (customComponent) return <div className={style}>{customComponent}</div>;
     return (
       <div className={style}>
         <Checkbox checked={isOn} change={onClick} dataId={`nav-${dataName}`}>
@@ -47,6 +48,7 @@ NavItem.propTypes = {
   sliderDetails: PropTypes.shape({
     isOn: PropTypes.bool,
     onClick: PropTypes.func,
+    customComponent: PropTypes.element,
   }),
 };
 
