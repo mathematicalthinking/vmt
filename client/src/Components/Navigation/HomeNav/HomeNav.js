@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { getVideosUrl } from 'utils';
 import NavItem from '../NavItem/NavItem';
 import Avatar from '../../UI/Avatar/Avatar';
 import DropdownNavItem from '../DropdownNavItem';
@@ -33,9 +34,32 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
     });
   }
 
+  const _handleExternalLinkClick = (url) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const _videoButton = () => {
+    return (
+      <button
+        onClick={() => _handleExternalLinkClick(getVideosUrl())}
+        style={{
+          border: 'none',
+          fontSize: 'inherit',
+          fontFamily: 'inherit',
+          background: 'inherit',
+          color: 'inherit',
+          fontWeight: 'inherit',
+        }}
+      >
+        Help Videos
+      </button>
+    );
+  };
+
   const aboutList = [
     { name: 'About', link: '/about' },
-    { name: 'Instructions', link: '/instructions' },
+    // { name: 'Instructions', link: '/instructions' },
+    { name: 'Help Videos', sliderDetails: { customComponent: _videoButton() } },
     { name: 'FAQ', link: '/faq' },
     { name: 'Contact', link: '/contact' },
   ];

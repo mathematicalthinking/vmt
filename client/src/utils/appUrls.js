@@ -15,3 +15,5 @@ export const getGoogleUrl = () => {
 
 export const getDesmosActivityUrl = (code) =>
   `https://teacher.desmos.com/activitybuilder/custom/${code}`;
+
+export const getVideosUrl = () => window.env.REACT_APP_VIDEOS_FOLDER;
