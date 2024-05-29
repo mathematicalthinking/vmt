@@ -48,15 +48,15 @@ const Navbar = ({ user, location, toggleAdmin }) => {
           fontWeight: 'inherit',
         }}
       >
-        Videos
+        Help Videos
       </button>
     );
   };
 
   const aboutList = [
     { name: 'About', link: '/about' },
-    { name: 'Instructions', link: '/instructions' },
-    { name: 'Videos', sliderDetails: { customComponent: _videoButton() } },
+    // { name: 'Instructions', link: '/instructions' },
+    { name: 'Help Videos', sliderDetails: { customComponent: _videoButton() } },
     { name: 'FAQ', link: '/faq' },
     { name: 'Contact', link: '/contact' },
   ];
