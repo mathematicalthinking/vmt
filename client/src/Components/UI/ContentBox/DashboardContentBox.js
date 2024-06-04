@@ -37,47 +37,9 @@ class DashboardContentBox extends PureComponent {
       resource,
       manageUser,
       isSelf,
+      iconActions,
     } = this.props;
     const { expanded } = this.state;
-    let iconActions = null;
-    let suspendReinstateAction = {
-      iconClass: 'fas fa-ban',
-      title: 'Suspend User',
-      testid: 'suspend',
-      color: 'red',
-      onClick: () => {
-        manageUser(details, 'suspendUser');
-      },
-    };
-
-    if (details.isSuspended) {
-      suspendReinstateAction = {
-        iconClass: 'fas fa-undo',
-        title: 'Reinstate User',
-        testid: 'reinstate',
-        color: 'green',
-        onClick: () => {
-          manageUser(details, 'reinstateUser');
-        },
-      };
-    }
-
-    const forceLogoutAction = {
-      iconClass: 'fas fa-power-off',
-      title: 'Force Logout',
-      testid: 'force-logout',
-      onClick: () => {
-        manageUser(details, 'logoutUser');
-      },
-    };
-
-    if (resource === 'users') {
-      iconActions = !isSelf ? [suspendReinstateAction] : [];
-
-      if (details.socketId && !details.doForceLogout) {
-        iconActions.unshift(forceLogoutAction);
-      }
-    }
 
     const { firstName = '', lastName = '' } = details;
     let fullName;
@@ -260,6 +222,13 @@ DashboardContentBox.propTypes = {
   resource: PropTypes.string.isRequired,
   manageUser: PropTypes.func,
   isSelf: PropTypes.bool.isRequired,
+  iconActions: PropTypes.arrayOf(
+    PropTypes.shape({
+      testId: PropTypes.string,
+      onClick: PropTypes.func,
+      title: PropTypes.string,
+    })
+  ),
 };
 
 DashboardContentBox.defaultProps = {
@@ -267,5 +236,6 @@ DashboardContentBox.defaultProps = {
   roomType: null,
   link: null,
   manageUser: null,
+  iconActions: [],
 };
 export default DashboardContentBox;
