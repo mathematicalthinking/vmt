@@ -232,7 +232,7 @@ module.exports = function() {
 
     // implement a tiny bit of authentication: requestor must be an admin
     socket.on('FORCE_LOGOUT', async (userId, requestingId) => {
-      if (!userId) return;
+      if (!userId || userId === requestingId) return;
       const requestor = await controllers.user.getById(requestingId);
       if (requestor && requestor.isAdmin) await forceLogout(userId);
     });
