@@ -338,7 +338,7 @@ class Dashboard extends Component {
         };
 
     const iconActions = [];
-    if (_isOkToForceLogout(details)) iconActions.push(forceLogoutAction);
+    if (this._isOkToForceLogout(details)) iconActions.push(forceLogoutAction);
     if (!isSelf) iconActions.push(suspendReinstateAction, makeRemoveAdmin);
     return iconActions;
   };
