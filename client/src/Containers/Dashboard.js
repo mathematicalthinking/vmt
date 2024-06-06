@@ -241,6 +241,7 @@ class Dashboard extends Component {
 
   removeAsAdmin = (userId) => {
     const { user } = this.props;
+    console.log('about to force logout', userId, user._id);
     socket.emit('FORCE_LOGOUT', userId, user._id);
     this._buttonAction(() => API.removeAsAdmin(userId), userId, {
       isAdmin: false,
@@ -250,6 +251,7 @@ class Dashboard extends Component {
 
   makeAdmin = (userId) => {
     const { user } = this.props;
+    console.log('about to force logout', userId, user._id);
     socket.emit('FORCE_LOGOUT', userId, user._id);
     this._buttonAction(() => API.makeAdmin(userId), userId, {
       isAdmin: true,
