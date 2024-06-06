@@ -239,10 +239,11 @@ class Dashboard extends Component {
       isSuspended: false,
     });
 
-  removeAsAdmin = (userId) => {
-    const { user } = this.props;
-    console.log('about to force logout', userId, user._id);
-    socket.emit('FORCE_LOGOUT', userId, user._id);
+  removeAsAdmin = (userId, details) => {
+    if (this._isOkToForceLogout(details)) {
+      const { user } = this.props;
+      socket.emit('FORCE_LOGOUT', userId, user._id);
+    }
     this._buttonAction(() => API.removeAsAdmin(userId), userId, {
       isAdmin: false,
       socketId: null,
@@ -250,9 +251,10 @@ class Dashboard extends Component {
   };
 
   makeAdmin = (userId) => {
-    const { user } = this.props;
-    console.log('about to force logout', userId, user._id);
-    socket.emit('FORCE_LOGOUT', userId, user._id);
+    if (this._isOkToForceLogout(details)) {
+      const { user } = this.props;
+      socket.emit('FORCE_LOGOUT', userId, user._id);
+    }
     this._buttonAction(() => API.makeAdmin(userId), userId, {
       isAdmin: true,
       socketId: null,
@@ -336,11 +338,12 @@ class Dashboard extends Component {
         };
 
     const iconActions = [];
-    if (details.socketId && !details.doForceLogout)
-      iconActions.push(forceLogoutAction);
+    if (_isOkToForceLogout(details)) iconActions.push(forceLogoutAction);
     if (!isSelf) iconActions.push(suspendReinstateAction, makeRemoveAdmin);
     return iconActions;
   };
+
+  _isOkToForceLogout = (user) => user.socketId && !user.doForceLogout;
 
   render() {
     const { match, user } = this.props;
@@ -410,7 +413,7 @@ class Dashboard extends Component {
             <Button
               data-testid={manageUserAction}
               click={() => {
-                this[manageUserAction](userToManage._id);
+                this[manageUserAction](userToManage._id, userToManage);
               }}
               m={5}
             >
