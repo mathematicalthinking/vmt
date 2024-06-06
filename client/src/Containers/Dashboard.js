@@ -250,7 +250,7 @@ class Dashboard extends Component {
     });
   };
 
-  makeAdmin = (userId) => {
+  makeAdmin = (userId, details) => {
     if (this._isOkToForceLogout(details)) {
       const { user } = this.props;
       socket.emit('FORCE_LOGOUT', userId, user._id);
