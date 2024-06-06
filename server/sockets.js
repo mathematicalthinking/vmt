@@ -241,7 +241,6 @@ module.exports = function() {
       try {
         const allSockets = await getAllSocketsForUser(userId);
         io.in(allSockets).emit('FORCED_LOGOUT');
-        // forceUserLogout(userId, userId);
       } catch (error) {
         console.error(
           `Error forcing logout by user ${userId}: ${error.message}`
