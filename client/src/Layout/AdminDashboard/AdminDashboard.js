@@ -46,6 +46,7 @@ class AdminDashboard extends Component {
       manageUser,
       ownUserId,
       isLoading,
+      getIconActions,
     } = this.props;
 
     const totalCount = totalCounts ? totalCounts.totalCount || 0 : 0;
@@ -184,6 +185,7 @@ class AdminDashboard extends Component {
               resultsMessage={resultsMessage}
               manageUser={manageUser}
               ownUserId={ownUserId}
+              getIconActions={getIconActions}
             />
           )}
         </div>
@@ -222,6 +224,7 @@ AdminDashboard.propTypes = {
   setToDate: PropTypes.func.isRequired,
   manageUser: PropTypes.func.isRequired,
   ownUserId: PropTypes.string.isRequired,
+  getIconActions: PropTypes.func.isRequired,
 };
 
 export default AdminDashboard;

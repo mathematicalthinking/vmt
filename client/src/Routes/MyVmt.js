@@ -32,60 +32,60 @@ const pages = [
   {
     path: '/courses/:course_id/:resource',
     component: Course,
-    redirectPath: '/classcode',
+    redirectPath: '/',
   },
   {
     path: '/courses/:course_id/activities/:activity_id/:resource',
     // component: Activity,
     component: withPopulatedActivity(Activity),
-    redirectPath: '/classcode',
+    redirectPath: '/',
   },
   {
     path:
       '/courses/:course_id/activities/:activity_id/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/classcode',
+    redirectPath: '/',
   },
   {
     path: '/activities/:activity_id/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/courses/:course_id/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/classcode',
+    redirectPath: '/',
   },
   {
     path: '/courses/:course_id/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/classcode',
+    redirectPath: '/',
   },
   {
     path: '/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/activities/:activity_id/:resource',
     // component: Activity,
     component: withPopulatedActivity(Activity),
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/workspace/:room_id/replayer',
     component: withPopulatedRoom(SharedReplayer),
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/workspace/:activity_id/activity',
     component: ActivityWorkspace,
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/workspace/:room_id',
     component: withPopulatedRoom(withControlMachine(Workspace)),
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/confirmation',

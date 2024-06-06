@@ -204,13 +204,15 @@ class Dashboard extends Component {
     this.setQueryParams(filters);
   };
 
-  logoutUser = (userId) => {
-    return API.revokeRefreshToken(userId)
+  _buttonAction = (apiAction, userId, update) => {
+    return apiAction()
       .then((res) => {
-        const { user } = res.data;
+        const { user, username } = res.data;
 
-        if (user) {
-          this.updateVisibleResource(userId, { socketId: null });
+        // API actions return different values if successful,
+        // so allow for a couple of possibilities.
+        if (user || username) {
+          this.updateVisibleResource(userId, update);
         }
         this.stopManageUser();
       })
@@ -221,39 +223,32 @@ class Dashboard extends Component {
       });
   };
 
-  suspendUser = (userId) => {
-    return API.suspendUser(userId)
-      .then((res) => {
-        const { user } = res.data;
+  logoutUser = (userId) =>
+    this._buttonAction(() => API.revokeRefreshToken(userId), userId, {
+      socketId: null,
+    });
 
-        if (user) {
-          this.updateVisibleResource(userId, { isSuspended: true });
-        }
-        this.stopManageUser();
+  suspendUser = (userId) =>
+    this._buttonAction(() => API.suspendUser(userId), userId, {
+      isSuspended: true,
+    });
+
+  reinstateUser = (userId) =>
+    this._buttonAction(() => API.reinstateUser(userId), userId, {
+      isSuspended: false,
+    });
+
+  removeAsAdmin = (userId) =>
+    this.logoutUser(userId).then(() =>
+      this._buttonAction(() => API.removeAsAdmin(userId), userId, {
+        isAdmin: false,
       })
-      .catch((err) => {
-        this.stopManageUser();
-        // eslint-disable-next-line no-console
-        console.log({ err });
-      });
-  };
+    );
 
-  reinstateUser = (userId) => {
-    return API.reinstateUser(userId)
-      .then((res) => {
-        const { user } = res.data;
-
-        if (user) {
-          this.updateVisibleResource(userId, { isSuspended: false });
-        }
-        this.stopManageUser();
-      })
-      .catch((err) => {
-        this.stopManageUser();
-        // eslint-disable-next-line no-console
-        console.log({ err });
-      });
-  };
+  makeAdmin = (userId) =>
+    this.logoutUser(userId).then(() =>
+      this._buttonAction(() => API.makeAdmin(userId), userId, { isAdmin: true })
+    );
 
   updateVisibleResource = (itemId, update) => {
     const { visibleResources } = this.state;
@@ -280,6 +275,62 @@ class Dashboard extends Component {
       userToManage: null,
       manageUserAction: null,
     });
+  };
+
+  _getIconActions = (details, resource, isSelf) => {
+    if (resource !== 'users') return [];
+    const suspendReinstateAction = details.isSuspended
+      ? {
+          iconClass: 'fas fa-undo',
+          title: 'Reinstate User',
+          testid: 'reinstate',
+          color: 'green',
+          onClick: () => {
+            this.manageUser(details, 'reinstateUser');
+          },
+        }
+      : {
+          iconClass: 'fas fa-ban',
+          title: 'Suspend User',
+          testid: 'suspend',
+          color: 'red',
+          onClick: () => {
+            this.manageUser(details, 'suspendUser');
+          },
+        };
+
+    const forceLogoutAction = {
+      iconClass: 'fas fa-power-off',
+      title: 'Force Logout',
+      testid: 'force-logout',
+      onClick: () => {
+        this.manageUser(details, 'logoutUser');
+      },
+    };
+
+    const makeRemoveAdmin = details.isAdmin
+      ? {
+          iconClass: 'fas fa-minus',
+          title: 'Remove as Admin',
+          testid: 'remove-as-admin',
+          onClick: () => {
+            this.manageUser(details, 'removeAsAdmin');
+          },
+        }
+      : {
+          iconClass: 'fas fa-plus',
+          title: 'Make into Admin',
+          testid: 'make-as-admin',
+          onClick: () => {
+            this.manageUser(details, 'makeAdmin');
+          },
+        };
+
+    const iconActions = [];
+    if (details.socketId && !details.doForceLogout)
+      iconActions.push(forceLogoutAction);
+    if (!isSelf) iconActions.push(suspendReinstateAction, makeRemoveAdmin);
+    return iconActions;
   };
 
   render() {
@@ -315,6 +366,8 @@ class Dashboard extends Component {
         logoutUser: `Are you sure you want to manually logout ${username}?`,
         reinstateUser: `Are you sure you want to reinstate ${username}?`,
         suspendUser: `Are you sure you want to suspend ${username}. They will not be able to use VMT until they are reinstated.`,
+        removeAsAdmin: `Are you sure you want to remove ${username} as an Admin?`,
+        makeAdmin: `Are you sure you want to give ${username} Admin privileges?`,
       };
       manageUserPrompt = actionMessageHash[manageUserAction];
     }
@@ -340,6 +393,7 @@ class Dashboard extends Component {
           manageUser={this.manageUser}
           ownUserId={user._id}
           isLoading={isLoading}
+          getIconActions={this._getIconActions}
         />
         <Modal show={userToManage !== null} closeModal={this.stopManageUser}>
           {manageUserPrompt}

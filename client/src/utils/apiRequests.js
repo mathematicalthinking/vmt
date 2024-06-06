@@ -210,6 +210,12 @@ export default {
   reinstateUser: (userId) => {
     return api.post(`/admin/reinstateUser/${userId}`);
   },
+  removeAsAdmin: (userId) => {
+    return api.put(`/api/user/${userId}`, { isAdmin: false });
+  },
+  makeAdmin: (userId) => {
+    return api.put(`/api/user/${userId}`, { isAdmin: true });
+  },
 
   archiveRooms: (ids) => {
     return api.put(`/api/archiveRooms`, { ids });
