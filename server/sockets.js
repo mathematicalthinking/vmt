@@ -230,9 +230,11 @@ module.exports = function() {
       }
     });
 
-    socket.on('FORCE_LOGOUT', async (userId) => {
+    // implement a tiny bit of authentication: requestor must be an admin
+    socket.on('FORCE_LOGOUT', async (userId, requestingId) => {
       if (!userId) return;
-      await forceLogout(userId);
+      const requestor = await controllers.user.getById(requestingId);
+      if (requestor && requestor.isAdmin) await forceLogout(userId);
     });
 
     const forceLogout = async (userId) => {
