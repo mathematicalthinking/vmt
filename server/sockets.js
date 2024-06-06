@@ -230,6 +230,11 @@ module.exports = function() {
       }
     });
 
+    socket.on('FORCE_LOGOUT', async (userId) => {
+      if (!userId) return;
+      await forceLogout(userId);
+    });
+
     const forceLogout = async (userId) => {
       try {
         const allSockets = await getAllSocketsForUser(userId);

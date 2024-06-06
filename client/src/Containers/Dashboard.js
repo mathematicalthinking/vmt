@@ -4,6 +4,7 @@ import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { AdminDashboardLayout } from '../Layout';
+import { socket } from 'utils';
 import API from '../utils/apiRequests';
 import Modal from '../Components/UI/Modal/Modal';
 import Button from '../Components/UI/Button/Button';
@@ -238,17 +239,21 @@ class Dashboard extends Component {
       isSuspended: false,
     });
 
-  removeAsAdmin = (userId) =>
-    this.logoutUser(userId).then(() =>
-      this._buttonAction(() => API.removeAsAdmin(userId), userId, {
-        isAdmin: false,
-      })
-    );
+  removeAsAdmin = (userId) => {
+    socket.emit('FORCE_LOGOUT', userId);
+    this._buttonAction(() => API.removeAsAdmin(userId), userId, {
+      isAdmin: false,
+      socketId: null,
+    });
+  };
 
-  makeAdmin = (userId) =>
-    this.logoutUser(userId).then(() =>
-      this._buttonAction(() => API.makeAdmin(userId), userId, { isAdmin: true })
-    );
+  makeAdmin = (userId) => {
+    socket.emit('FORCE_LOGOUT', userId);
+    this._buttonAction(() => API.makeAdmin(userId), userId, {
+      isAdmin: true,
+      socketId: null,
+    });
+  };
 
   updateVisibleResource = (itemId, update) => {
     const { visibleResources } = this.state;
