@@ -239,12 +239,16 @@ class Dashboard extends Component {
     });
 
   removeAsAdmin = (userId) =>
-    this._buttonAction(() => API.removeAsAdmin(userId), userId, {
-      isAdmin: false,
-    });
+    this.logoutUser(userId).then(() =>
+      this._buttonAction(() => API.removeAsAdmin(userId), userId, {
+        isAdmin: false,
+      })
+    );
 
   makeAdmin = (userId) =>
-    this._buttonAction(() => API.makeAdmin(userId), userId, { isAdmin: true });
+    this.logoutUser(userId).then(() =>
+      this._buttonAction(() => API.makeAdmin(userId), userId, { isAdmin: true })
+    );
 
   updateVisibleResource = (itemId, update) => {
     const { visibleResources } = this.state;
