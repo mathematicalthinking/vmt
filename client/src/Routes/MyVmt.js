@@ -27,8 +27,8 @@ const pages = [
   { path: '/', component: MyVMT },
   { path: '/facilitator', component: FacilitatorIntro },
   { path: '/profile', component: Profile },
-  { path: '/adminMonitor', component: AdminMonitor },
-  { path: '/:resource', component: MyVMT },
+  { path: '/adminMonitor', component: AdminMonitor, redirectPath: '/' },
+  { path: '/:resource', component: MyVMT, redirectPath: '/' },
   {
     path: '/courses/:course_id/:resource',
     component: Course,
@@ -94,6 +94,7 @@ const pages = [
   {
     path: '/dashboard/:resource',
     component: Dashboard,
+    redirectPath: '/',
   },
 ];
 const MyVmt = ({
