@@ -50,6 +50,7 @@ function AdminMonitor() {
         .catch((err) => {
           setIsLoading(false);
           console.log(err);
+          return [];
         });
     }, 2000),
     []
