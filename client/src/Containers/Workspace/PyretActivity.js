@@ -14,7 +14,7 @@ const CodePyretOrg = (props) => {
     // 'http://localhost:5000/editor' or 'https://pyret-horizon.herokuapp.com/editor'
     window.env.REACT_APP_PYRET_URL
   );
-  const { inControl, user } = props;
+  const { inControl, user, isFirstTabLoaded } = props;
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
   let pyret = null;
@@ -101,6 +101,23 @@ const CodePyretOrg = (props) => {
 
     return () => socket.removeAllListeners('RECEIVE_EVENT');
   }, [activityUpdates]);
+
+  // communicating to Pyret Editor about control state
+  useEffect(() => {
+    console.log('In control: ', inControl);
+    console.log('Props-1stTabLoaded: ', isFirstTabLoaded);
+    if (isFirstTabLoaded && pyret) {
+      // states: ['gainControl', 'loseControl']
+      // VMT states: ['ME', 'NONE', 'OTHER']
+      if (inControl === 'ME') {
+        pyret.postMessage({ type: 'gainControl' });
+        console.log('gained Control!');
+      } else {
+        pyret.postMessage({ type: 'loseControl' });
+        console.log('lost Control!');
+      }
+    }
+  }, [inControl]);
 
   const handleResponseData = (updates) => {
     console.log('Response data processing: ', updates);
