@@ -1,64 +1,75 @@
 import React, { useRef, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ControlWarningModal from './ControlWarningModal';
-import socket from '../../utils/sockets';
-import API from '../../utils/apiRequests';
+import { usePyret, socket, API } from 'utils';
 import classes from './graph.css';
 
 const CodePyretOrg = (props) => {
+  const { tab, inControl, user } = props;
+  const { currentStateBase64 } = tab;
+
   const [activityHistory, setActivityHistory] = useState({});
   const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
-  const [iframeSrc, setIframeSrc] = useState(
-    // 'http://localhost:5000/editor'
-    // 'http://localhost:5000/editor' or 'https://pyret-horizon.herokuapp.com/editor'
-    window.env.REACT_APP_PYRET_URL
-  );
-  const { inControl, user, isFirstTabLoaded } = props;
+
   const cpoIframe = useRef();
   const cpoDivWrapper = useRef();
-  let pyret = useRef(null);
+  const receivingData = useRef(false);
 
-  const oldOnMessage = window.onmessage;
-  let receivingData = false;
-  let initializing = false;
+  const onMessage = function(data) {
+    if (
+      data.source === 'react-devtools-bridge' ||
+      data.source === 'react-devtools-content-script'
+    ) {
+      return;
+    }
 
-  // Pyret instance constructor
-  function PyretAPI(iframeReference, onmessageHandler) {
-    const handlers = {
-      onmessage: onmessageHandler,
-      postMessage,
-      setParams,
+    console.log('Got a message VMT side', data);
+    const currentState = {
+      data,
+      timestampEpochMs: Date.now(),
     };
-    function postMessage(data) {
-      if (!iframeReference()) {
-        return;
-      }
-      iframeReference().contentWindow.postMessage(data, '*');
-    }
-    function setParams(params) {
-      console.log(params, iframeReference());
-      // source made stateful forces an iframe refresh
-      // setIframeSrc(`http://localhost:5000/editor${params}`);
-      setIframeSrc(`${window.env.REACT_APP_PYRET_URL}${params}`);
-      // const pyretWindow = iframeReference();
-      // pyretWindow.src += params;
-      // forcing iFrame reload with random param
-      // const rand = Math.floor(Math.random() * 1000000 + 1);
-      // eslint-disable-next-line
-      // pyretWindow.src += '?uid=' + rand + params;
-    }
-    window.onmessage = function(event) {
-      if (event.data.protocol !== 'pyret') {
-        console.log('Not a pyret');
-        if (typeof oldOnMessage === 'function') {
-          return oldOnMessage(event);
-        }
-      }
-      return handlers.onmessage(event.data);
+    // console.log('Responses updated: ', responses);
+    setActivityUpdates(currentState);
+    updateSavedData(data);
+  };
+
+  const { iframeSrc, postMessage, isReady } = usePyret(
+    cpoIframe,
+    onMessage,
+    currentStateBase64
+  );
+
+  useEffect(() => {
+    initPlayer();
+    return () => {
+      socket.removeEventListener('RECEIVE_EVENT', handleReceiveEvent);
+      console.log('CPO activity ending - clean up listeners');
     };
-    return handlers;
-  }
+  }, []);
+
+  // checks for control before applying/communicating changes
+  useEffect(() => {
+    if (_hasControl()) {
+      handleResponseData(activityUpdates);
+    }
+  }, [activityUpdates]);
+
+  // communicating to Pyret Editor about control state
+  useEffect(() => {
+    const { isFirstTabLoaded } = props;
+    if (isFirstTabLoaded) {
+      // states: ['gainControl', 'loseControl']
+      // VMT states: ['ME', 'NONE', 'OTHER']
+      if (inControl === 'ME') {
+        postMessage({ type: 'gainControl' });
+        console.log('gained Control!');
+      } else {
+        postMessage({ type: 'loseControl' });
+        console.log('lost Control!');
+      }
+    }
+  }, [inControl]);
 
   function updateSavedData(updates) {
     setActivityHistory((oldState) => ({ ...oldState, ...updates }));
@@ -93,38 +104,14 @@ const CodePyretOrg = (props) => {
     return `${username} updated the program`;
   };
 
-  // checks for control before applying/communicating changes
-  useEffect(() => {
-    if (_hasControl()) {
-      handleResponseData(activityUpdates);
-    }
-
-    return () => socket.removeAllListeners('RECEIVE_EVENT');
-  }, [activityUpdates]);
-
-  // communicating to Pyret Editor about control state
-  useEffect(() => {
-    if (isFirstTabLoaded && pyret.current) {
-      // states: ['gainControl', 'loseControl']
-      // VMT states: ['ME', 'NONE', 'OTHER']
-      if (inControl === 'ME') {
-        pyret.current.postMessage({ type: 'gainControl' });
-        console.log('gained Control!');
-      } else {
-        pyret.current.postMessage({ type: 'loseControl' });
-        console.log('lost Control!');
-      }
-    }
-  }, [inControl]);
-
   const handleResponseData = (updates) => {
     console.log('Response data processing: ', updates);
-    if (initializing) return;
-    const { emitEvent, user } = props;
+    if (!isReady) return;
+    const { emitEvent } = props;
     const currentState = {
       cpoState: updates,
     };
-    if (!receivingData) {
+    if (!receivingData.current) {
       const description = buildDescription(
         user.username,
         updates
@@ -142,125 +129,64 @@ const CodePyretOrg = (props) => {
       console.log('Sent event... ', newData);
       putState();
     }
-    receivingData = false;
+    receivingData.current = false;
   };
 
   function updateActivityState(stateData) {
     // let newState = JSON.parse(stateData);
     if (stateData) {
       const newState = stateData;
-      pyret.current.postMessage(newState.data);
+      postMessage(newState.data);
     }
   }
+
+  const handleReceiveEvent = (data) => {
+    const { updatedRoom, addNtfToTabs, addToLog } = props;
+    console.log('Socket: Received data: ', data);
+    addToLog(data);
+    const { room } = props;
+    receivingData.current = true;
+    if (data.tab === tab._id) {
+      const updatedTabs = room.tabs.map((t) => {
+        if (t._id === data.tab) {
+          t.currentState = data.currentState;
+        }
+        return tab;
+      });
+      updatedRoom(room._id, { tabs: updatedTabs });
+      // updatedRoom(room._id, { tabs: updatedTabs });
+      const updatesState = JSON.parse(data.currentState);
+      // console.log('Received data: ', updatesState);
+      // set persistent state
+      updateActivityState(updatesState.cpoState);
+    } else {
+      addNtfToTabs(data.tab);
+      receivingData.current = false;
+    }
+  };
 
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
-    const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
 
-    socket.on('RECEIVE_EVENT', (data) => {
-      console.log('Socket: Received data: ', data);
-      addToLog(data);
-      const { room } = props;
-      receivingData = true;
-      if (data.tab === tab._id) {
-        const updatedTabs = room.tabs.map((t) => {
-          if (t._id === data.tab) {
-            t.currentState = data.currentState;
-          }
-          return tab;
-        });
-        updatedRoom(room._id, { tabs: updatedTabs });
-        // updatedRoom(room._id, { tabs: updatedTabs });
-        const updatesState = JSON.parse(data.currentState);
-        // console.log('Received data: ', updatesState);
-        // set persistent state
-        updateActivityState(updatesState.cpoState);
-      } else {
-        addNtfToTabs(data.tab);
-        receivingData = false;
-      }
-    });
-    // const { user: propsUser } = props;
-    // const { settings } = propsUser;
+    socket.on('RECEIVE_EVENT', handleReceiveEvent);
   }
 
-  const initPlayer = async () => {
-    const { tab } = props;
-    // TODO(joe): saved data?
+  const initPlayer = () => {
+    const { setFirstTabLoaded } = props;
     initializeListeners();
-    // Print current Tab data
-    console.log('Tab data: ', props.tab);
-
-    const onMessage = function(data) {
-      if (
-        data.source === 'react-devtools-bridge' ||
-        data.source === 'react-devtools-content-script'
-      ) {
-        return;
-      }
-
-      console.log('Got a message VMT side', data);
-      const currentState = {
-        data,
-        timestampEpochMs: Date.now(),
-      };
-      // console.log('Responses updated: ', responses);
-      setActivityUpdates(currentState);
-      updateSavedData(data);
-    };
-
-    pyret.current = PyretAPI(function() {
-      return cpoIframe.current;
-    }, onMessage);
-
-    if (tab.currentStateBase64) {
-      const { currentStateBase64 } = tab;
-      const savedData = JSON.parse(currentStateBase64);
-      console.log('Prior state data loaded: ');
-      console.log(savedData);
-      const hasSaved = savedData.data && savedData.data.length > 0;
-      // prettier-ignore
-      let contents = hasSaved ? savedData.data[0].currentState.editorContents : '';
-      contents = encodeURIComponent(contents);
-      pyret.current.setParams(
-        `#warnOnExit=false&headerStyle=small&editorContents=${contents}`
-      );
-      // #warnOnExit=false&editorContents=use%20context%20essentials2021%0A%0Ax%20%3D%205%0A%0Ax%0A
-      /*  also add param: &headerStyle=small
-      pyret.postMessage({
-        protocol: 'pyret',
-        data: {
-          type: 'setContents',
-          text: contents
-        },
-      });
-      */
-    }
-    props.setFirstTabLoaded();
-
+    setFirstTabLoaded();
     window.tryItOut = function() {
       const change = {
         from: { line: 0, ch: 0 },
         to: { line: 0, ch: 0 },
         text: ['Startup'],
       };
-      pyret.current.postMessage({ type: 'change', change });
+      postMessage({ type: 'change', change });
     };
   };
 
-  useEffect(() => {
-    initializing = true;
-    initPlayer();
-    initializing = false;
-    return () => {
-      window.onmessage = oldOnMessage;
-      socket.removeAllListeners('RECEIVE_EVENT');
-      console.log('CPO activity ending - clean up listeners');
-    };
-  }, []);
-
   function _hasControl() {
-    return props.inControl === 'ME';
+    return inControl === 'ME';
   }
 
   function _checkForControl(event) {
@@ -329,7 +255,6 @@ CodePyretOrg.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  myColor: PropTypes.string.isRequired,
   updatedRoom: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,

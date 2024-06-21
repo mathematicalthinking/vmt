@@ -579,3 +579,91 @@ export function useExecuteOnFirstUpdate(data, callback) {
     }
   }, [data, callback]);
 }
+
+/**
+ * Custom hook that encapsulates the interaction between VMT and Pyret. Now used by only PyretActivity.
+ *
+ * @param
+ * iframeRef -- the ref to the iframe containing Pyret
+ * onMessage -- the function called when Pyret emits an event
+ * initialState -- the object representing the state of Pyret when it loads
+ *
+ * @returns
+ * iframeSrc -- the src parameter for the iframe (the URI for Pyret)
+ * isReady -- whether the iframe is loaded
+ * postMessage -- the function used by VMT to communicate with the Pyret instance
+ * currentState (not currently used) -- the current state of the Pyret instance, perhaps?
+ */
+
+export function usePyret(iframeRef, onMessage, initialState = {}) {
+  const [iframeSrc, setIframeSrc] = React.useState('');
+  const [isReady, setIsReady] = React.useState(false);
+
+  const oldOnMessageRef = React.useRef(window.onmessage);
+
+  React.useEffect(() => {
+    const oldOnMessage = oldOnMessageRef.current;
+
+    window.onmessage = !isReady
+      ? oldOnMessage // use original windows.onmessage if iframe isn't ready
+      : (event) => {
+          // Use the provided onMessage if the protocol is 'pyret'; use original windows.onmessage otherwise
+          if (
+            event.data.protocol === 'pyret' &&
+            typeof onMessage === 'function'
+          ) {
+            onMessage(event.data);
+          } else {
+            console.log('Not a pyret');
+            if (typeof oldOnMessage === 'function') {
+              oldOnMessage(event);
+            }
+          }
+        };
+
+    return () => {
+      window.onmessage = oldOnMessage; // Restore the old handler when the component unmounts
+    };
+  }, [isReady, onMessage]);
+
+  React.useEffect(() => {
+    if (iframeRef.current) {
+      iframeRef.current.addEventListener('load', handleLoad);
+    }
+    return () => {
+      if (iframeRef.current) {
+        iframeRef.current.removeEventListener('load', handleLoad);
+      }
+    };
+  }, [iframeRef.current]);
+
+  React.useEffect(() => {
+    setIsReady(false);
+    const savedData = JSON.parse(initialState);
+    const hasSaved = savedData.data && savedData.data.length > 0;
+    const contents = hasSaved
+      ? JSON.stringify(savedData.data[0].currentState)
+      : '';
+    setIframeSrc(
+      `${
+        window.env.REACT_APP_PYRET_URL
+      }#warnOnExit=false&headerStyle=small&initialState=${encodeURIComponent(
+        contents
+      )}`
+    );
+  }, [initialState]);
+
+  function postMessage(data) {
+    if (!iframeRef.current || !isReady) {
+      return;
+    }
+    iframeRef.current.contentWindow.postMessage(data, '*');
+  }
+
+  const handleLoad = () => {
+    setIsReady(true);
+  };
+
+  const currentState = {};
+  return { iframeSrc, postMessage, currentState, isReady };
+}
