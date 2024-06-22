@@ -220,10 +220,10 @@ const CodePyretOrg = (props) => {
       console.log(savedData);
       const hasSaved = savedData.data && savedData.data.length > 0;
       // prettier-ignore
-      let contents = hasSaved ? savedData.data[0].currentState.editorContents : '';
+      let contents = hasSaved ? JSON.stringify(savedData.data[0].currentState) : '';
       contents = encodeURIComponent(contents);
       pyret.current.setParams(
-        `#warnOnExit=false&headerStyle=small&editorContents=${contents}`
+        `#warnOnExit=false&headerStyle=small&initialState=${contents}`
       );
       // #warnOnExit=false&editorContents=use%20context%20essentials2021%0A%0Ax%20%3D%205%0A%0Ax%0A
       /*  also add param: &headerStyle=small
@@ -329,7 +329,6 @@ CodePyretOrg.propTypes = {
   room: PropTypes.shape({}).isRequired,
   tab: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  myColor: PropTypes.string.isRequired,
   updatedRoom: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
