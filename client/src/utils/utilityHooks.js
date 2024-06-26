@@ -598,6 +598,7 @@ export function useExecuteOnFirstUpdate(data, callback) {
 export function usePyret(iframeRef, onMessage, initialState = {}) {
   const [iframeSrc, setIframeSrc] = React.useState('');
   const [isReady, setIsReady] = React.useState(false);
+  const currentStateRef = React.useRef({});
 
   const oldOnMessageRef = React.useRef(window.onmessage);
 
@@ -612,6 +613,8 @@ export function usePyret(iframeRef, onMessage, initialState = {}) {
             event.data.protocol === 'pyret' &&
             typeof onMessage === 'function'
           ) {
+            console.log('event', event);
+            currentStateRef.current = event.data.data.currentState;
             onMessage(event.data);
           } else {
             console.log('Not a pyret');
@@ -664,6 +667,10 @@ export function usePyret(iframeRef, onMessage, initialState = {}) {
     setIsReady(true);
   };
 
-  const currentState = {};
-  return { iframeSrc, postMessage, currentState, isReady };
+  return {
+    iframeSrc,
+    postMessage,
+    currentState: currentStateRef.current,
+    isReady,
+  };
 }

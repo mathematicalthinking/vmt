@@ -9,7 +9,6 @@ const CodePyretOrg = (props) => {
   const { currentStateBase64 } = tab;
 
   const [activityHistory, setActivityHistory] = useState({});
-  const [activityUpdates, setActivityUpdates] = useState();
   const [showControlWarning, setShowControlWarning] = useState(false);
 
   const cpoIframe = useRef();
@@ -30,11 +29,13 @@ const CodePyretOrg = (props) => {
       timestampEpochMs: Date.now(),
     };
     // console.log('Responses updated: ', responses);
-    setActivityUpdates(currentState);
+    if (_hasControl()) {
+      handleResponseData(currentState);
+    }
     updateSavedData(data);
   };
 
-  const { iframeSrc, postMessage, isReady } = usePyret(
+  const { iframeSrc, postMessage, currentState, isReady } = usePyret(
     cpoIframe,
     onMessage,
     currentStateBase64
@@ -48,12 +49,9 @@ const CodePyretOrg = (props) => {
     };
   }, []);
 
-  // checks for control before applying/communicating changes
   useEffect(() => {
-    if (_hasControl()) {
-      handleResponseData(activityUpdates);
-    }
-  }, [activityUpdates]);
+    console.log('current state', currentState);
+  }, [currentState]);
 
   // communicating to Pyret Editor about control state
   useEffect(() => {
