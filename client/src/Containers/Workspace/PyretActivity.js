@@ -37,7 +37,6 @@ const CodePyretOrg = (props) => {
       iframeReference().contentWindow.postMessage(data, '*');
     }
     function setParams(params) {
-      console.log(params, iframeReference());
       // source made stateful forces an iframe refresh
       // setIframeSrc(`http://localhost:5000/editor${params}`);
       setIframeSrc(`${window.env.REACT_APP_PYRET_URL}${params}`);
@@ -89,7 +88,6 @@ const CodePyretOrg = (props) => {
 
   // TODO: can we parse activity descriptions from Pyret?
   const buildDescription = (username, updates) => {
-    console.log('Building description of', updates);
     return `${username} updated the program`;
   };
 
@@ -98,8 +96,6 @@ const CodePyretOrg = (props) => {
     if (_hasControl()) {
       handleResponseData(activityUpdates);
     }
-
-    return () => socket.removeAllListeners('RECEIVE_EVENT');
   }, [activityUpdates]);
 
   // communicating to Pyret Editor about control state
@@ -153,33 +149,34 @@ const CodePyretOrg = (props) => {
     }
   }
 
+  function handleReceiveEvent(data) {
+    const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
+    addToLog(data);
+    const { room } = props;
+    receivingData = true;
+    if (data.tab === tab._id) {
+      const updatedTabs = room.tabs.map((t) => {
+        if (t._id === data.tab) {
+          t.currentState = data.currentState;
+        }
+        return tab;
+      });
+      updatedRoom(room._id, { tabs: updatedTabs });
+      // updatedRoom(room._id, { tabs: updatedTabs });
+      const updatesState = JSON.parse(data.currentState);
+      // console.log('Received data: ', updatesState);
+      // set persistent state
+      updateActivityState(updatesState.cpoState);
+    } else {
+      addNtfToTabs(data.tab);
+      receivingData = false;
+    }
+  }
+
   function initializeListeners() {
     // INITIALIZE EVENT LISTENER
-    const { tab, updatedRoom, addNtfToTabs, addToLog } = props;
 
-    socket.on('RECEIVE_EVENT', (data) => {
-      console.log('Socket: Received data: ', data);
-      addToLog(data);
-      const { room } = props;
-      receivingData = true;
-      if (data.tab === tab._id) {
-        const updatedTabs = room.tabs.map((t) => {
-          if (t._id === data.tab) {
-            t.currentState = data.currentState;
-          }
-          return tab;
-        });
-        updatedRoom(room._id, { tabs: updatedTabs });
-        // updatedRoom(room._id, { tabs: updatedTabs });
-        const updatesState = JSON.parse(data.currentState);
-        // console.log('Received data: ', updatesState);
-        // set persistent state
-        updateActivityState(updatesState.cpoState);
-      } else {
-        addNtfToTabs(data.tab);
-        receivingData = false;
-      }
-    });
+    socket.on('RECEIVE_EVENT', handleReceiveEvent);
     // const { user: propsUser } = props;
     // const { settings } = propsUser;
   }
@@ -205,10 +202,9 @@ const CodePyretOrg = (props) => {
         timestampEpochMs: Date.now(),
       };
       // console.log('Responses updated: ', responses);
-      setActivityUpdates(currentState);
       updateSavedData(data);
+      setActivityUpdates(currentState);
     };
-
     pyret.current = PyretAPI(function() {
       return cpoIframe.current;
     }, onMessage);
@@ -254,7 +250,7 @@ const CodePyretOrg = (props) => {
     initializing = false;
     return () => {
       window.onmessage = oldOnMessage;
-      socket.removeAllListeners('RECEIVE_EVENT');
+      socket.removeEventListener('RECEIVE_EVENT', handleReceiveEvent);
       console.log('CPO activity ending - clean up listeners');
     };
   }, []);
