@@ -185,10 +185,10 @@ export function useSnapshots(callback, initialStore = {}) {
 
   // Commented code adapted from https://stackoverflow.com/questions/475074/regex-to-parse-or-validate-base64-data, but it seemed too
   // slow. Current code adapted from: https://hashnode.com/post/how-do-you-validate-a-base64-image-cjcftg4fy03s0p7wtn31oqjx7
-  const _isWellFormedPNG = (dataURL) => {
-    // return /^data:image\/png;base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)/g.test(
-    //   dataURL);
-    return /^data:image\/png;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/g.test(dataURL);
+  const _isWellFormedBase64Image = (dataURL) => {
+    return /^data:image\/(png|webp);base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/g.test(
+      dataURL
+    );
   };
 
   const _hash = (key) => {
@@ -225,8 +225,8 @@ export function useSnapshots(callback, initialStore = {}) {
         windowHeight: elementRef.current.scrollHeight,
       }).then((canvas) => {
         if (!cancelSnapshot.current) {
-          const dataURL = canvas.toDataURL();
-          if (dataURL && _isWellFormedPNG(dataURL)) {
+          const dataURL = canvas.toDataURL('image/webp', 0.1);
+          if (dataURL && _isWellFormedBase64Image(dataURL)) {
             const newSnap = {
               [_hash(key)]: {
                 dataURL,
