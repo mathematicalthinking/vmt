@@ -605,47 +605,36 @@ export function usePyret(iframeRef, onMessage, initialState = '') {
   React.useEffect(() => {
     const oldOnMessage = oldOnMessageRef.current;
 
-    window.onmessage = !isReady
-      ? oldOnMessage // use original windows.onmessage if iframe isn't ready
-      : (event) => {
-          // Use the provided onMessage if the protocol is 'pyret'; use original windows.onmessage otherwise
-          if (
-            event.data.protocol === 'pyret' &&
-            typeof onMessage === 'function'
-          ) {
-            console.log('event.data', event.data);
-            currentStateRef.current = event.data.data.currentState;
-            onMessage(event.data);
-          } else {
-            console.log('Not a pyret');
-            if (typeof oldOnMessage === 'function') {
-              oldOnMessage(event);
-            }
-          }
-        };
+    window.onmessage = (event) => {
+      // Use the provided onMessage if the protocol is 'pyret'; use original windows.onmessage otherwise
+      if (event.data.protocol === 'pyret' && typeof onMessage === 'function') {
+        console.log('event.data', event.data);
+        currentStateRef.current = event.data.data.currentState;
+        onMessage(event.data);
+      } else if (event.data.protocol === 'pyret-init') {
+        setIsReady(true);
+      } else {
+        console.log('Not a pyret');
+        if (typeof oldOnMessage === 'function') {
+          oldOnMessage(event);
+        }
+      }
+    };
 
     return () => {
       window.onmessage = oldOnMessage; // Restore the old handler when the component unmounts
     };
-  }, [isReady, onMessage]);
+  }, [onMessage]);
 
   React.useEffect(() => {
-    if (iframeRef.current) {
-      iframeRef.current.addEventListener('load', handleLoad);
-      setIframeSrc(
-        `${
-          window.env.REACT_APP_PYRET_URL
-        }#warnOnExit=false&headerStyle=small&initialState=${encodeURIComponent(
-          initialState
-        )}`
-      );
-    }
-    return () => {
-      if (iframeRef.current) {
-        iframeRef.current.removeEventListener('load', handleLoad);
-      }
-    };
-  }, [iframeRef.current]);
+    setIframeSrc(
+      `${
+        window.env.REACT_APP_PYRET_URL
+      }#warnOnExit=false&headerStyle=small&initialState=${encodeURIComponent(
+        initialState
+      )}`
+    );
+  }, [initialState]);
 
   function postMessage(data) {
     if (!iframeRef.current) {
@@ -653,10 +642,6 @@ export function usePyret(iframeRef, onMessage, initialState = '') {
     }
     iframeRef.current.contentWindow.postMessage(data, '*');
   }
-
-  const handleLoad = () => {
-    setIsReady(true);
-  };
 
   return {
     iframeSrc,

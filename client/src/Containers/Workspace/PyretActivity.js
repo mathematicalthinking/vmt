@@ -1,4 +1,10 @@
-import React, { useRef, useState, useEffect, Fragment } from 'react';
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  Fragment,
+} from 'react';
 import PropTypes from 'prop-types';
 import ControlWarningModal from './ControlWarningModal';
 import { usePyret, socket, API } from 'utils';
@@ -14,21 +20,26 @@ const CodePyretOrg = (props) => {
   const cpoDivWrapper = useRef();
   const receivingData = useRef(false);
 
-  const onMessage = function(data) {
-    if (
-      data.source === 'react-devtools-bridge' ||
-      data.source === 'react-devtools-content-script'
-    ) {
-      return;
-    }
+  // useCallback prevents closure on _hasControl (specific to how
+  // onMessage is used in usePyret).
 
-    console.log('Got a message VMT side', data);
+  const onMessage = useCallback(
+    (data) => {
+      if (
+        data.source === 'react-devtools-bridge' ||
+        data.source === 'react-devtools-content-script'
+      ) {
+        return;
+      }
 
-    // console.log('Responses updated: ', responses);
-    if (_hasControl()) {
-      handleResponseData(data);
-    }
-  };
+      console.log('Got a message VMT side', data);
+      // console.log('Responses updated: ', responses);
+      if (_hasControl()) {
+        handleResponseData(data);
+      }
+    },
+    [_hasControl()]
+  );
 
   const { iframeSrc, postMessage, currentState, isReady } = usePyret(
     cpoIframe,
@@ -37,16 +48,12 @@ const CodePyretOrg = (props) => {
   );
 
   useEffect(() => {
-    initPlayer();
+    socket.on('RECEIVE_EVENT', handleReceiveEvent);
     return () => {
       socket.removeEventListener('RECEIVE_EVENT', handleReceiveEvent);
       console.log('CPO activity ending - clean up listeners');
     };
   }, []);
-
-  useEffect(() => {
-    console.log('current state', currentState);
-  }, [currentState]);
 
   // communicating to Pyret Editor about control state
   useEffect(() => {
@@ -66,6 +73,8 @@ const CodePyretOrg = (props) => {
 
   useEffect(() => {
     const { setFirstTabLoaded } = props;
+    // @TODO when isReady works, should be:
+    // if (isReady) setFirstTabLoaded();
     setFirstTabLoaded();
   }, [isReady]);
 
@@ -90,7 +99,6 @@ const CodePyretOrg = (props) => {
 
   const handleResponseData = (pyretMessage) => {
     console.log('Response data processing: ', pyretMessage);
-    if (!isReady) return;
     const { emitEvent } = props;
     if (!receivingData.current) {
       const description = buildDescription(user.username, pyretMessage);
@@ -130,14 +138,6 @@ const CodePyretOrg = (props) => {
       addNtfToTabs(data.tab);
       receivingData.current = false;
     }
-  };
-
-  function initializeListeners() {
-    socket.on('RECEIVE_EVENT', handleReceiveEvent);
-  }
-
-  const initPlayer = () => {
-    initializeListeners();
   };
 
   function _hasControl() {
