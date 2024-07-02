@@ -72,13 +72,6 @@ const CodePyretOrg = (props) => {
   }, [inControl]);
 
   useEffect(() => {
-    const { setFirstTabLoaded } = props;
-    if (isReady) setFirstTabLoaded();
-  }, [isReady]);
-
-  // basic function is to build and save and event history
-  const putState = () => {
-    const { tab } = props;
     const { _id } = tab;
     const updateObject = {
       currentStateBase64: JSON.stringify(currentState),
@@ -87,7 +80,12 @@ const CodePyretOrg = (props) => {
       // eslint-disable-next-line no-console
       console.log(err);
     });
-  };
+  }, [currentState]);
+
+  useEffect(() => {
+    const { setFirstTabLoaded } = props;
+    if (isReady) setFirstTabLoaded();
+  }, [isReady]);
 
   // TODO: can we parse activity descriptions from Pyret?
   const buildDescription = (username, updates) => {
@@ -108,7 +106,6 @@ const CodePyretOrg = (props) => {
       };
       emitEvent(newData);
       console.log('Sent event... ', newData);
-      putState();
     }
     receivingData.current = false;
   };
