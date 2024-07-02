@@ -596,9 +596,9 @@ export function useExecuteOnFirstUpdate(data, callback) {
  */
 
 export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
-  const [iframeSrc, setIframeSrc] = React.useState('');
+  const iframeSrc = window.env.REACT_APP_PYRET_URL;
   const [isReady, setIsReady] = React.useState(false);
-  const currentStateRef = React.useRef({});
+  const [currentState, setCurrentState] = React.useState({});
 
   const oldOnMessageRef = React.useRef(window.onmessage);
 
@@ -607,12 +607,15 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
 
     window.onmessage = (event) => {
       // Use the provided onMessage if the protocol is 'pyret'; use original windows.onmessage otherwise
-      if (event.data.protocol === 'pyret' && typeof onMessage === 'function') {
-        console.log('event.data', event.data);
-        currentStateRef.current = event.data.data.currentState;
-        onMessage(event.data);
-      } else if (event.data.protocol === 'pyret-init') {
+      if (
+        event.data.protocol === 'pyret' &&
+        event.data.data.type === 'pyret-init'
+      ) {
         setIsReady(true);
+      } else if (event.data.protocol === 'pyret') {
+        console.log('event.data', event.data);
+        setCurrentState(event.data.data.currentState);
+        onMessage(event.data);
       } else {
         console.log('Not a pyret');
         if (typeof oldOnMessage === 'function') {
@@ -627,14 +630,13 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
   }, [onMessage]);
 
   React.useEffect(() => {
-    setIframeSrc(
-      `${
-        window.env.REACT_APP_PYRET_URL
-      }#warnOnExit=false&headerStyle=small&initialState=${encodeURIComponent(
-        initialState
-      )}`
-    );
-  }, [initialState]);
+    if (isReady) {
+      postMessage({
+        protocol: 'pyret',
+        data: { type: 'reset', state: initialState },
+      });
+    }
+  }, [isReady, initialState]);
 
   function postMessage(data) {
     if (!iframeRef.current) {
@@ -646,7 +648,7 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
   return {
     iframeSrc,
     postMessage,
-    currentState: currentStateRef.current,
+    currentState,
     isReady,
   };
 }
