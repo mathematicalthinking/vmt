@@ -133,7 +133,7 @@ describe('usePyret hook', () => {
     expect(oldOnMessage).toHaveBeenCalled();
   });
 
-  test('handles postMessage before iFrame load', () => {
+  test('ignores postMessage before iFrame load', () => {
     iframeRef.current.contentWindow.postMessage = jest.fn();
     const { result } = renderHook(() =>
       usePyret(iframeRef, onMessage, initialState)

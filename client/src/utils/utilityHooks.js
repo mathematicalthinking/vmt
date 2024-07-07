@@ -586,16 +586,16 @@ export function useExecuteOnFirstUpdate(data, callback) {
  * @param
  * iframeRef -- the ref to the iframe containing Pyret
  * onMessage -- the function called when Pyret emits an event
- * initialState -- the object representing the state of Pyret when it loads
+ * initialState -- the string representing the state of Pyret when it loads
  *
  * @returns
  * iframeSrc -- the src parameter for the iframe (the URI for Pyret)
  * isReady -- whether the iframe is loaded
  * postMessage -- the function used by VMT to communicate with the Pyret instance
- * currentState (not currently used) -- the current state of the Pyret instance, perhaps?
+ * currentState -- the current state of the Pyret instance
  */
 
-export function usePyret(iframeRef, onMessage, initialState = {}) {
+export function usePyret(iframeRef, onMessage, initialState = '') {
   const [iframeSrc, setIframeSrc] = React.useState('');
   const [isReady, setIsReady] = React.useState(false);
   const currentStateRef = React.useRef({});
@@ -613,7 +613,7 @@ export function usePyret(iframeRef, onMessage, initialState = {}) {
             event.data.protocol === 'pyret' &&
             typeof onMessage === 'function'
           ) {
-            console.log('event', event);
+            console.log('event.data', event.data);
             currentStateRef.current = event.data.data.currentState;
             onMessage(event.data);
           } else {
