@@ -73,9 +73,7 @@ const CodePyretOrg = (props) => {
 
   useEffect(() => {
     const { setFirstTabLoaded } = props;
-    // @TODO when isReady works, should be:
-    // if (isReady) setFirstTabLoaded();
-    setFirstTabLoaded();
+    if (isReady) setFirstTabLoaded();
   }, [isReady]);
 
   // basic function is to build and save and event history
