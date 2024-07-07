@@ -63,6 +63,7 @@ const CodePyretOrg = (props) => {
   }, [inControl, isFirstTabLoaded]);
 
   useEffect(() => {
+    if (!currentState) return;
     const { _id } = tab;
     const updateObject = {
       currentStateBase64: JSON.stringify(currentState),

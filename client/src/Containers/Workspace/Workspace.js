@@ -203,13 +203,7 @@ class Workspace extends Component {
       (!this.adminModeSwitched && !user.inAdminMode) ||
       (this.adminModeSwitched && user.inAdminMode)
     ) {
-      socket.emit(
-        'LEAVE_ROOM',
-        populatedRoom._id,
-        currentTabId,
-        myColor,
-        this._handleJoinOrLeave
-      );
+      socket.emit('LEAVE_ROOM', populatedRoom._id, currentTabId, myColor);
       // Below updates the Redux store, removing the current user from the list of people in the room (currentMembers).
       // However, this might not be needed as the socket updates the DB with the current members. The next time this info is needed, in
       // some type of monitor or when this person reenters the room, that info will be pulled from the DB.

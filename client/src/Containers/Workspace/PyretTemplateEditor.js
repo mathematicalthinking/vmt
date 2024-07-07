@@ -20,7 +20,7 @@ const PyretTemplateEditor = (props) => {
   );
 
   useEffect(() => {
-    if (!isReady) return;
+    if (!isReady || !currentState) return;
     console.log('saving state', currentState);
     const { _id } = tab;
     const updateObject = {
@@ -30,7 +30,7 @@ const PyretTemplateEditor = (props) => {
       // eslint-disable-next-line no-console
       console.log(err);
     });
-  }, [currentState]);
+  }, [currentState, isReady]);
 
   // useEffect(() => {
   //   const { setFirstTabLoaded } = props;

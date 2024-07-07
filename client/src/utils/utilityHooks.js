@@ -598,7 +598,7 @@ export function useExecuteOnFirstUpdate(data, callback) {
 export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
   const iframeSrc = window.env.REACT_APP_PYRET_URL;
   const [isReady, setIsReady] = React.useState(false);
-  const [currentState, setCurrentState] = React.useState({});
+  const [currentState, setCurrentState] = React.useState();
 
   const oldOnMessageRef = React.useRef(window.onmessage);
 
