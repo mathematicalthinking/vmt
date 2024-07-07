@@ -590,7 +590,7 @@ export function useExecuteOnFirstUpdate(data, callback) {
  *
  * @returns
  * iframeSrc -- the src parameter for the iframe (the URI for Pyret)
- * isReady -- whether the iframe is loaded
+ * isReady -- whether Pyret is up and running
  * postMessage -- the function used by VMT to communicate with the Pyret instance
  * currentState -- the current state of the Pyret instance
  */
