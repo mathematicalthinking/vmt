@@ -12,7 +12,7 @@ import {
   DesmosReplayer,
   // GgbMiniReplayer,
   DesActivityMiniReplayer,
-  PyretReplayer,
+  PyretActivityReplayer,
   // DesmosMiniReplayer,
 } from 'Containers/Replayer';
 import { RadioBtn, Button } from 'Components';
@@ -56,7 +56,7 @@ const tabTypeProperties = {
   [TAB_TYPES.PYRET]: {
     message: 'Pyret mode is active.',
     label: 'Pyret Activity',
-    replayer: PyretReplayer,
+    replayer: PyretActivityReplayer,
     component: CodePyretOrg,
     icon: <img width={28} src={pyretIcon} alt="Pyret Icon" />,
   },
