@@ -82,10 +82,15 @@ const CodePyretOrg = (props) => {
     });
   }, [currentState]);
 
+  // useEffect(() => {
+  //   const { setFirstTabLoaded } = props;
+  //   if (isReady) setFirstTabLoaded();
+  // }, [isReady]);
+
   useEffect(() => {
     const { setFirstTabLoaded } = props;
-    if (isReady) setFirstTabLoaded();
-  }, [isReady]);
+    if (iframeSrc) setFirstTabLoaded();
+  }, [iframeSrc]);
 
   // TODO: can we parse activity descriptions from Pyret?
   const buildDescription = (username, updates) => {
