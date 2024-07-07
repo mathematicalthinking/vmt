@@ -6,14 +6,8 @@ import classes from './graph.css';
 
 const CodePyretOrg = (props) => {
   const { tab, inControl, user } = props;
-  const { currentStateBase64 } = tab;
-  const savedData = JSON.parse(currentStateBase64);
-  const hasSaved = savedData.data && savedData.data.length > 0;
-  const initialState = hasSaved
-    ? JSON.stringify(savedData.data[0].currentState)
-    : '';
+  const { currentStateBase64: initialState } = tab;
 
-  const [activityHistory, setActivityHistory] = useState({});
   const [showControlWarning, setShowControlWarning] = useState(false);
 
   const cpoIframe = useRef();
@@ -29,15 +23,11 @@ const CodePyretOrg = (props) => {
     }
 
     console.log('Got a message VMT side', data);
-    const currentState = {
-      data,
-      timestampEpochMs: Date.now(),
-    };
+
     // console.log('Responses updated: ', responses);
     if (_hasControl()) {
-      handleResponseData(currentState);
+      handleResponseData(data);
     }
-    updateSavedData(data);
   };
 
   const { iframeSrc, postMessage, currentState, isReady } = usePyret(
@@ -74,26 +64,17 @@ const CodePyretOrg = (props) => {
     }
   }, [inControl]);
 
-  function updateSavedData(updates) {
-    setActivityHistory((oldState) => ({ ...oldState, ...updates }));
-  }
+  useEffect(() => {
+    const { setFirstTabLoaded } = props;
+    setFirstTabLoaded();
+  }, [isReady]);
 
-  // Janky copied code by Joe that needs revisiting
   // basic function is to build and save and event history
   const putState = () => {
     const { tab } = props;
     const { _id } = tab;
-    let responseData = {};
-    if (tab.currentStateBase64) {
-      responseData = JSON.parse(tab.currentStateBase64);
-    }
-    // eslint-disable-next-line array-callback-return
-    Object.entries(activityHistory).map(([key, value]) => {
-      responseData[key] = [value];
-    });
-
     const updateObject = {
-      currentStateBase64: JSON.stringify(responseData),
+      currentStateBase64: JSON.stringify(currentState),
     };
     API.put('tabs', _id, updateObject).catch((err) => {
       // eslint-disable-next-line no-console
@@ -107,41 +88,24 @@ const CodePyretOrg = (props) => {
     return `${username} updated the program`;
   };
 
-  const handleResponseData = (updates) => {
-    console.log('Response data processing: ', updates);
+  const handleResponseData = (pyretMessage) => {
+    console.log('Response data processing: ', pyretMessage);
     if (!isReady) return;
     const { emitEvent } = props;
-    const currentState = {
-      cpoState: updates,
-    };
     if (!receivingData.current) {
-      const description = buildDescription(
-        user.username,
-        updates
-        // stateDifference
-      );
+      const description = buildDescription(user.username, pyretMessage);
 
-      const currentStateString = JSON.stringify(currentState);
-      // console.log(this.calculator.getState());
+      const pyretMessageString = JSON.stringify(pyretMessage);
       const newData = {
-        currentState: currentStateString, // desmos events use the currentState field on Event model
+        currentState: pyretMessageString, // use the currentState field on Event model
         description,
       };
-      // Update the instanvce variables tracking desmos state so they're fresh for the next equality check
       emitEvent(newData);
       console.log('Sent event... ', newData);
       putState();
     }
     receivingData.current = false;
   };
-
-  function updateActivityState(stateData) {
-    // let newState = JSON.parse(stateData);
-    if (stateData) {
-      const newState = stateData;
-      postMessage(newState.data);
-    }
-  }
 
   const handleReceiveEvent = (data) => {
     const { updatedRoom, addNtfToTabs, addToLog } = props;
@@ -157,11 +121,11 @@ const CodePyretOrg = (props) => {
         return tab;
       });
       updatedRoom(room._id, { tabs: updatedTabs });
-      // updatedRoom(room._id, { tabs: updatedTabs });
-      const updatesState = JSON.parse(data.currentState);
-      // console.log('Received data: ', updatesState);
-      // set persistent state
-      updateActivityState(updatesState.cpoState);
+      const pyretMessage = JSON.parse(data.currentState);
+      // Relay the pyretMessage
+      if (pyretMessage) {
+        postMessage(pyretMessage);
+      }
     } else {
       addNtfToTabs(data.tab);
       receivingData.current = false;
@@ -169,23 +133,11 @@ const CodePyretOrg = (props) => {
   };
 
   function initializeListeners() {
-    // INITIALIZE EVENT LISTENER
-
     socket.on('RECEIVE_EVENT', handleReceiveEvent);
   }
 
   const initPlayer = () => {
-    const { setFirstTabLoaded } = props;
     initializeListeners();
-    setFirstTabLoaded();
-    window.tryItOut = function() {
-      const change = {
-        from: { line: 0, ch: 0 },
-        to: { line: 0, ch: 0 },
-        text: ['Startup'],
-      };
-      postMessage({ type: 'change', change });
-    };
   };
 
   function _hasControl() {

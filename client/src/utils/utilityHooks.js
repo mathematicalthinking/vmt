@@ -632,6 +632,13 @@ export function usePyret(iframeRef, onMessage, initialState = '') {
   React.useEffect(() => {
     if (iframeRef.current) {
       iframeRef.current.addEventListener('load', handleLoad);
+      setIframeSrc(
+        `${
+          window.env.REACT_APP_PYRET_URL
+        }#warnOnExit=false&headerStyle=small&initialState=${encodeURIComponent(
+          initialState
+        )}`
+      );
     }
     return () => {
       if (iframeRef.current) {
@@ -640,19 +647,8 @@ export function usePyret(iframeRef, onMessage, initialState = '') {
     };
   }, [iframeRef.current]);
 
-  React.useEffect(() => {
-    setIsReady(false);
-    setIframeSrc(
-      `${
-        window.env.REACT_APP_PYRET_URL
-      }#warnOnExit=false&headerStyle=small&initialState=${encodeURIComponent(
-        initialState
-      )}`
-    );
-  }, [initialState]);
-
   function postMessage(data) {
-    if (!iframeRef.current || !isReady) {
+    if (!iframeRef.current) {
       return;
     }
     iframeRef.current.contentWindow.postMessage(data, '*');
