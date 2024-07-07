@@ -5,30 +5,24 @@ import { usePyret } from 'utils';
 const PyretActivityReplayer = (props) => {
   const { index, log, tab, setTabLoaded } = props;
   const cpoIframe = useRef();
-  const cpoDivWrapper = useRef();
 
-  const { iframeSrc, postMessage } = usePyret(cpoIframe);
+  const { iframeSrc, postMessage, isReady } = usePyret(cpoIframe);
 
   // handles the updates to the player
 
   useEffect(() => {
-    setTabLoaded(tab._id);
-  }, []);
-
-  // useEffect(() => {
-  //  if (isReady) setTabLoaded(tab._id)
-  // }, [isReady])
+    if (isReady) setTabLoaded(tab._id);
+  }, [isReady]);
 
   useEffect(() => {
-    updatePlayer();
+    updatePyret();
   }, [index]);
 
-  function updatePlayer() {
-    // Take updated player data with new Player state to update
-    const currentState =
+  function updatePyret() {
+    const pyretMessageString =
       log[index] && log[index].currentState ? log[index].currentState : null;
 
-    const pyretMessage = JSON.parse(currentState);
+    const pyretMessage = JSON.parse(pyretMessageString);
     if (pyretMessage) {
       postMessage(pyretMessage);
     }
@@ -36,8 +30,6 @@ const PyretActivityReplayer = (props) => {
 
   return (
     <div
-      ref={cpoDivWrapper}
-      // style={{ height: '100%' }}
       id="container"
       style={{
         height: '100%',

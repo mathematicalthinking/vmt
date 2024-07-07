@@ -17,3 +17,5 @@ module.exports.getEncUrl = () => {
 module.exports.getEncIssuerId = () => {
   return process.env.ENC_JWT_ISSUER_ID;
 };
+
+module.exports.getVmtUrl = () => process.env.REACT_APP_SERVER_URL;
