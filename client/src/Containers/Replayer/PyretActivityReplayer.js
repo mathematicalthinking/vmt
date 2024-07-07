@@ -6,13 +6,13 @@ const PyretActivityReplayer = (props) => {
   const { index, log, tab, setTabLoaded } = props;
   const cpoIframe = useRef();
 
-  const { iframeSrc, postMessage, isReady } = usePyret(cpoIframe);
+  const { iframeSrc, postMessage } = usePyret(cpoIframe);
 
   // handles the updates to the player
 
   useEffect(() => {
-    if (isReady) setTabLoaded(tab._id);
-  }, [isReady]);
+    if (iframeSrc) setTabLoaded(tab._id);
+  }, [iframeSrc]);
 
   useEffect(() => {
     updatePyret();

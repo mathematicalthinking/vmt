@@ -5,6 +5,10 @@ import {
   GgbGraph,
   DesmosGraph,
   DesmosActivity,
+  GgbActivityGraph,
+  DesmosActivityEditor,
+  DesmosActivityGraph,
+  PyretTemplateEditor,
 } from 'Containers/Workspace';
 import {
   GgbReplayer,
@@ -36,9 +40,24 @@ const activeTabTypes = [
   TAB_TYPES.DESMOS,
 ];
 
-const Blank = () => (
-  <div style={{ margin: '10px' }}>No viewer for this tab type yet</div>
-);
+const Blank = (type) => (props) => {
+  const { setFirstTabLoaded, isFirstTabLoaded, setTabLoaded } = props;
+  if (setFirstTabLoaded && !isFirstTabLoaded) setFirstTabLoaded();
+  if (setTabLoaded) setTabLoaded();
+  return (
+    <div style={{ margin: '10px' }}>No viewer for {type} tab type yet</div>
+  );
+};
+
+const defaultProperties = (type) => ({
+  message: '',
+  label: type,
+  replayer: Blank(type),
+  component: Blank(type),
+  miniReplayer: Blank(type),
+  editor: Blank(type),
+  icon: <img width={28} src="" alt="No Icon" />,
+});
 
 if (
   window.env.REACT_APP_PYRET_MODE &&
@@ -54,35 +73,42 @@ if (
 
 const tabTypeProperties = {
   [TAB_TYPES.PYRET]: {
+    ...defaultProperties('Pyret Activity'),
     message: 'Pyret mode is active.',
     label: 'Pyret Activity',
     replayer: PyretActivityReplayer,
     component: CodePyretOrg,
+    editor: PyretTemplateEditor,
     icon: <img width={28} src={pyretIcon} alt="Pyret Icon" />,
   },
   [TAB_TYPES.WEBSKETCHPAD]: {
+    ...defaultProperties('WebSketchpad Activity'),
     message: 'WebSketchpad is active.',
     label: 'WebSketchpad Activity',
   },
   [TAB_TYPES.GEOGEBRA]: {
+    ...defaultProperties('GeoGebra'),
     label: 'GeoGebra',
     component: GgbGraph,
     replayer: GgbReplayer,
-    miniReplayer: Blank,
+    editor: GgbActivityGraph,
     icon: <img width={28} src={ggbIcon} alt="GeoGebra Icon" />,
   },
   [TAB_TYPES.DESMOS]: {
+    ...defaultProperties('Desmos'),
     label: 'Desmos',
     component: DesmosGraph,
     replayer: DesmosReplayer,
-    miniReplayer: Blank,
+    editor: DesmosActivityGraph,
     icon: <img width={25} src={dsmIcon} alt="Desmos Icon" />,
   },
   [TAB_TYPES.DESMOS_ACTIVITY]: {
+    ...defaultProperties('Desmos Activity'),
     label: 'Desmos Activity',
     component: DesmosActivity,
     replayer: DesActivityReplayer,
     miniReplayer: DesActivityMiniReplayer,
+    editor: DesmosActivityEditor,
     icon: <img width={25} src={dsmActIcon} alt="Desmos Activity Icon" />,
   },
   multiple: { icon: <img width={25} src={bothIcon} alt="Multiple Types" /> },
@@ -178,8 +204,8 @@ RadioButtons.defaultProps = {
 
 function MathspaceComponent(property, { type, ...otherProps }) {
   try {
-    const { [property]: MathSpaceComp } = tabTypeProperties[type];
-    return <MathSpaceComp {...otherProps} />;
+    const { [property]: MathspaceComp } = tabTypeProperties[type];
+    return <MathspaceComp {...otherProps} />;
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err);
@@ -198,6 +224,10 @@ function MathspaceMiniReplayer(props) {
   return MathspaceComponent('miniReplayer', props);
 }
 
+function MathspaceTemplateEditor(props) {
+  return MathspaceComponent('editor', props);
+}
+
 const TabTypes = {
   isActive,
   homepageMessages,
@@ -206,6 +236,7 @@ const TabTypes = {
   Mathspace,
   MathspaceReplayer,
   MathspaceMiniReplayer,
+  MathspaceTemplateEditor,
   RadioButtons,
   Buttons,
   ...TAB_TYPES,

@@ -606,6 +606,12 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
     const oldOnMessage = oldOnMessageRef.current;
 
     window.onmessage = (event) => {
+      if (
+        typeof event.data.source === 'string' &&
+        event.data.source.includes('react-devtools')
+      )
+        return;
+
       // Use the provided onMessage if the protocol is 'pyret'; use original windows.onmessage otherwise
       if (
         event.data.protocol === 'pyret' &&

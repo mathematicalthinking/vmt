@@ -11,7 +11,7 @@ import { usePyret, socket, API } from 'utils';
 import classes from './graph.css';
 
 const CodePyretOrg = (props) => {
-  const { tab, inControl, user } = props;
+  const { tab, inControl, user, setFirstTabLoaded, isFirstTabLoaded } = props;
   const { currentStateBase64: initialState } = tab;
 
   const [showControlWarning, setShowControlWarning] = useState(false);
@@ -25,15 +25,7 @@ const CodePyretOrg = (props) => {
 
   const onMessage = useCallback(
     (data) => {
-      if (
-        data.source === 'react-devtools-bridge' ||
-        data.source === 'react-devtools-content-script'
-      ) {
-        return;
-      }
-
       console.log('Got a message VMT side', data);
-      // console.log('Responses updated: ', responses);
       if (_hasControl()) {
         handleResponseData(data);
       }
@@ -57,7 +49,6 @@ const CodePyretOrg = (props) => {
 
   // communicating to Pyret Editor about control state
   useEffect(() => {
-    const { isFirstTabLoaded } = props;
     if (isFirstTabLoaded) {
       // states: ['gainControl', 'loseControl']
       // VMT states: ['ME', 'NONE', 'OTHER']
@@ -69,7 +60,7 @@ const CodePyretOrg = (props) => {
         console.log('lost Control!');
       }
     }
-  }, [inControl]);
+  }, [inControl, isFirstTabLoaded]);
 
   useEffect(() => {
     const { _id } = tab;
@@ -88,9 +79,8 @@ const CodePyretOrg = (props) => {
   // }, [isReady]);
 
   useEffect(() => {
-    const { setFirstTabLoaded } = props;
-    if (iframeSrc) setFirstTabLoaded();
-  }, [iframeSrc]);
+    if (iframeSrc && !isFirstTabLoaded) setFirstTabLoaded();
+  }, [iframeSrc, isFirstTabLoaded]);
 
   // TODO: can we parse activity descriptions from Pyret?
   const buildDescription = (username, updates) => {
