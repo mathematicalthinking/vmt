@@ -7,6 +7,11 @@ import classes from './graph.css';
 const CodePyretOrg = (props) => {
   const { tab, inControl, user } = props;
   const { currentStateBase64 } = tab;
+  const savedData = JSON.parse(currentStateBase64);
+  const hasSaved = savedData.data && savedData.data.length > 0;
+  const initialState = hasSaved
+    ? JSON.stringify(savedData.data[0].currentState)
+    : '';
 
   const [activityHistory, setActivityHistory] = useState({});
   const [showControlWarning, setShowControlWarning] = useState(false);
@@ -38,7 +43,7 @@ const CodePyretOrg = (props) => {
   const { iframeSrc, postMessage, currentState, isReady } = usePyret(
     cpoIframe,
     onMessage,
-    currentStateBase64
+    initialState
   );
 
   useEffect(() => {

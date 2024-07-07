@@ -642,16 +642,11 @@ export function usePyret(iframeRef, onMessage, initialState = {}) {
 
   React.useEffect(() => {
     setIsReady(false);
-    const savedData = JSON.parse(initialState);
-    const hasSaved = savedData.data && savedData.data.length > 0;
-    const contents = hasSaved
-      ? JSON.stringify(savedData.data[0].currentState)
-      : '';
     setIframeSrc(
       `${
         window.env.REACT_APP_PYRET_URL
       }#warnOnExit=false&headerStyle=small&initialState=${encodeURIComponent(
-        contents
+        initialState
       )}`
     );
   }, [initialState]);
