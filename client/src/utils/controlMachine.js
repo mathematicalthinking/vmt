@@ -437,7 +437,12 @@ const defaultControlMachineSpec = (context) => {
         }),
         controlledByOther: assign({
           inControl: controlStates.OTHER,
-          controlledBy: (c, event) => c.resetControlledBy || event.id,
+          // Three situations in which we enter the controlledByOther state
+          // 1. We are resetting control because of a problem
+          // 2. Another person took control
+          // 3. We are entering a room where another already has control
+          controlledBy: (c, event) =>
+            c.resetControlledBy || event.id || c.controlledBy,
           buttonConfig: buttonConfigs[controlStates.OTHER],
           resetControlledBy: null,
         }),
