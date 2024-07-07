@@ -614,7 +614,7 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
         setIsReady(true);
       } else if (event.data.protocol === 'pyret') {
         console.log('event.data', event.data);
-        setCurrentState(event.data.data.currentState);
+        setCurrentState(event.data.state);
         onMessage(event.data);
       } else {
         console.log('Not a pyret');
