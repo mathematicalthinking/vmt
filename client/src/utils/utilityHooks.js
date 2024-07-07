@@ -595,7 +595,7 @@ export function useExecuteOnFirstUpdate(data, callback) {
  * currentState -- the current state of the Pyret instance
  */
 
-export function usePyret(iframeRef, onMessage, initialState = '') {
+export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
   const [iframeSrc, setIframeSrc] = React.useState('');
   const [isReady, setIsReady] = React.useState(false);
   const currentStateRef = React.useRef({});
