@@ -418,10 +418,11 @@ class Workspace extends Component {
 
     socket.on('RECEIVE_EVENT', (data, lastEventId) => {
       const { log } = this.state;
-      const lastEvent = log.findLast((event) => !event.messageType);
+      const lastEvent = log.findLast((event) => !event.messageType); // see line 991
       if (lastEvent && lastEvent._id && lastEvent._id !== lastEventId) {
         // log that the state is out of sync
-        // eslint-disable-next-line no-console
+        // EVEN IN THE CONSOLE LOG, WE ARE NOT ACCOUnTING FOR MESSAGES (just taking the last item in the log, which
+        // might be an event or a message)
         console.log(
           `State is out of sync. lastEventId: ${lastEventId}, last log id: ${
             log[log.length - 1]._id
@@ -988,6 +989,7 @@ class Workspace extends Component {
     };
 
     if (currentScreen) eventData.currentScreen = currentScreen;
+    // This might not be an event; couldn't it be a message? See line 421
     const lastEventId = log[log.length - 1]._id;
     this.addToLog(eventData);
     sendControlEvent(controlEvents.RESET);

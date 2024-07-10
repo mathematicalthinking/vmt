@@ -17,8 +17,6 @@ const CodePyretOrg = (props) => {
   const [showControlWarning, setShowControlWarning] = useState(false);
 
   const cpoIframe = useRef();
-  const cpoDivWrapper = useRef();
-  const receivingData = useRef(false);
 
   // useCallback prevents closure on _hasControl (specific to how
   // onMessage is used in usePyret).
@@ -30,7 +28,7 @@ const CodePyretOrg = (props) => {
         handleResponseData(data);
       }
     },
-    [_hasControl()]
+    [inControl]
   );
 
   const { iframeSrc, postMessage, currentState, isReady } = usePyret(
@@ -92,18 +90,16 @@ const CodePyretOrg = (props) => {
   const handleResponseData = (pyretMessage) => {
     console.log('Response data processing: ', pyretMessage);
     const { emitEvent } = props;
-    if (!receivingData.current) {
-      const description = buildDescription(user.username, pyretMessage);
 
-      const pyretMessageString = JSON.stringify(pyretMessage);
-      const newData = {
-        currentState: pyretMessageString, // use the currentState field on Event model
-        description,
-      };
-      emitEvent(newData);
-      console.log('Sent event... ', newData);
-    }
-    receivingData.current = false;
+    const description = buildDescription(user.username, pyretMessage);
+
+    const pyretMessageString = JSON.stringify(pyretMessage);
+    const newData = {
+      currentState: pyretMessageString, // use the currentState field on Event model
+      description,
+    };
+    emitEvent(newData);
+    console.log('Sent event... ', newData);
   };
 
   const handleReceiveEvent = (data) => {
@@ -111,7 +107,6 @@ const CodePyretOrg = (props) => {
     console.log('Socket: Received data: ', data);
     addToLog(data);
     const { room } = props;
-    receivingData.current = true;
     if (data.tab === tab._id) {
       const updatedTabs = room.tabs.map((t) => {
         if (t._id === data.tab) {
@@ -127,7 +122,6 @@ const CodePyretOrg = (props) => {
       }
     } else {
       addNtfToTabs(data.tab);
-      receivingData.current = false;
     }
   };
 
@@ -141,12 +135,6 @@ const CodePyretOrg = (props) => {
       setShowControlWarning(true);
     }
   }
-
-  const style = {
-    width: '100%',
-    height: '100%',
-    pointerEvents: !_hasControl() ? 'none' : 'auto',
-  };
 
   return (
     <Fragment>
@@ -174,24 +162,16 @@ const CodePyretOrg = (props) => {
           height: '890px', // @TODO this needs to be adjusted based on the editor instance.
         }}
       >
-        <div
-          ref={cpoDivWrapper}
-          // style={{ height: '100%' }}
-          id="container"
+        <iframe
+          ref={cpoIframe}
           style={{
-            pointerEvents: !_hasControl() ? 'none' : 'auto',
+            width: '100%',
             height: '100%',
-            overflow: 'auto',
           }}
-        >
-          <iframe
-            ref={cpoIframe}
-            style={style}
-            title="pyret"
-            src={iframeSrc} // "http://localhost:5000/editor"
-          />
-          ;
-        </div>
+          title="pyret"
+          src={iframeSrc} // "http://localhost:5000/editor"
+        />
+        ;
       </div>
     </Fragment>
   );
