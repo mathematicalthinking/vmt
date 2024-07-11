@@ -167,11 +167,11 @@ const CodePyretOrg = (props) => {
           style={{
             width: '100%',
             height: '100%',
+            pointerEvents: !_hasControl() ? 'none' : 'auto',
           }}
           title="pyret"
           src={iframeSrc} // "http://localhost:5000/editor"
         />
-        ;
       </div>
     </Fragment>
   );
