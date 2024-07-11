@@ -12,15 +12,7 @@ import { Modal, Loading } from 'Components';
 import { WorkspaceLayout } from 'Layout';
 import { TabTypes } from 'Model';
 import { ROLE } from 'constants.js';
-import {
-  DesmosActivityGraph,
-  DesmosActivityEditor,
-  GgbActivityGraph,
-  CodePyretOrg,
-  Tabs,
-  RoomInfo,
-  ActivityTools,
-} from './index';
+import { Tabs, RoomInfo, ActivityTools } from './index';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
 
