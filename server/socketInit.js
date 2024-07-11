@@ -2,12 +2,12 @@ const { Server } = require('socket.io');
 const { createAdapter } = require('@socket.io/redis-adapter');
 
 const redisClient = require('./redisClient');
-const { getMtSsoUrl, getEncUrl } = require('./config/app-urls');
+const { getMtSsoUrl, getEncUrl, getVmtUrl } = require('./config/app-urls');
 
 const allowedOrigins = [getMtSsoUrl(), getEncUrl()];
 
 if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-  allowedOrigins.push('http://localhost:3000');
+  allowedOrigins.push(getVmtUrl());
 }
 
 const sockets = {};

@@ -454,16 +454,14 @@ class Room extends Component {
             </EditText>
           </Error>
         ),
-        facilitators: room.members
-          .filter((mem) => mem.role === 'facilitator')
-          .map((mem) => (
-            <span
-              key={`facilitators-${mem.user.username}`}
-              className={classes.FacilitatorsList}
-            >
-              {mem.user.username},{' '}
-            </span>
-          )),
+        facilitators: (
+          <span className={classes.FacilitatorsList}>
+            {room.members
+              .filter((mem) => mem.role === 'facilitator')
+              .map((mem) => mem.user.username)
+              .join(', ')}
+          </span>
+        ),
         ...(room.myRole === 'facilitator'
           ? {
               Code: (
