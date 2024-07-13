@@ -1163,6 +1163,10 @@ class Workspace extends Component {
                     onClickControl: undefined,
                   }
                 : null)}
+              // only show Referencing toggle when the current tab type supports referencing
+              {...(TabTypes.hasReferences(currentTab.tabType)
+                ? null
+                : { onToggleReference: undefined })}
               // TEMP ROOM NEEDS TO KNOW IF ITS BEEN SAVED...pass that along as props
             />
           }

@@ -4,9 +4,14 @@ import { usePyret } from 'utils';
 
 const PyretActivityReplayer = (props) => {
   const { index, log, tab, setTabLoaded } = props;
+  const { startingPointBase64: initialState } = tab;
   const cpoIframe = useRef();
 
-  const { iframeSrc, postMessage } = usePyret(cpoIframe);
+  const { iframeSrc, postMessage } = usePyret(
+    cpoIframe,
+    () => {},
+    initialState
+  );
 
   // handles the updates to the player
 
