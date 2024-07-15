@@ -289,15 +289,21 @@ class Activity extends Component {
         ),
         ...(desmosActivityCode !== ''
           ? {
-              'Desmos Activity Code': (
+              'Activity Code': (
                 <a
                   style={{
                     color: 'blueviolet',
                     textDecorationLine: 'underline',
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-all',
                   }}
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={getDesmosActivityUrl(desmosActivityCode)}
+                  href={
+                    tabs[0].tabType === 'desmos'
+                      ? getDesmosActivityUrl(desmosActivityCode)
+                      : desmosActivityCode
+                  }
                   data-testid="desmos-link"
                 >
                   {desmosActivityCode}

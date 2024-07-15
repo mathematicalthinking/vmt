@@ -38,6 +38,7 @@ const PyretTemplateEditor = (props) => {
     const { _id } = tab;
     const updateObject = {
       currentStateBase64: JSON.stringify(currentState),
+      startingPointBase64: JSON.stringify(currentState),
     };
     savedStateRef.current = updateObject;
     API.put('tabs', _id, updateObject).catch((err) => {

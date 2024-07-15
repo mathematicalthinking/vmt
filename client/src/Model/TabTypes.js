@@ -50,13 +50,14 @@ const Blank = (type) => (props) => {
 };
 
 const defaultProperties = (type) => ({
-  message: '',
-  label: type,
-  replayer: Blank(type),
-  component: Blank(type),
+  message: '', // A message displayed on the home page
+  label: type, // The name of the tab type as shown in radio buttons and elsewhere in the UI
+  replayer: Blank(type), // The component used for replaying a mathspace's data
+  component: Blank(type), // The component used to render the mathspace for collaboration
   miniReplayer: Blank(type),
-  editor: Blank(type),
-  icon: <img width={28} src="" alt="No Icon" />,
+  editor: Blank(type), // The component used for editing templates
+  icon: <img width={28} src="" alt="No Icon" />, // icon shown in resource lists
+  references: false, // whether this tab type supports workspace referencing (arrows between mathspace and chat)
 });
 
 if (
@@ -92,6 +93,7 @@ const tabTypeProperties = {
     component: GgbGraph,
     replayer: GgbReplayer,
     editor: GgbActivityGraph,
+    references: true,
     icon: <img width={28} src={ggbIcon} alt="GeoGebra Icon" />,
   },
   [TAB_TYPES.DESMOS]: {
@@ -140,6 +142,12 @@ function getCombinedIcon(tabTypes) {
 
 function getIcon(tabType) {
   return tabTypeProperties[tabType] ? tabTypeProperties[tabType].icon : null;
+}
+
+function hasReferences(tabType) {
+  return tabTypeProperties[tabType]
+    ? tabTypeProperties[tabType].references
+    : false;
 }
 
 function Buttons({ onClick, disabled }) {
@@ -242,6 +250,7 @@ const TabTypes = {
   ...TAB_TYPES,
   activeTabTypes,
   getDisplayName,
+  hasReferences,
 };
 
 export default TabTypes;

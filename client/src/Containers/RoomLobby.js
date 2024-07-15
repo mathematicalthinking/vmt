@@ -482,15 +482,21 @@ class Room extends Component {
           : null),
         ...(room.tabs[0].desmosLink
           ? {
-              'Desmos Activity Code': (
+              'Activity Code': (
                 <a
                   style={{
                     color: 'blueviolet',
                     textDecorationLine: 'underline',
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-all',
                   }}
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={getDesmosActivityUrl(room.tabs[0].desmosLink)}
+                  href={
+                    room.tabs[0].tabType === 'desmos'
+                      ? getDesmosActivityUrl(room.tabs[0].desmosLink)
+                      : room.tabs[0].desmosLink
+                  }
                   data-testid="desmos-link"
                 >
                   {room.tabs[0].desmosLink}
