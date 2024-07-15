@@ -81,17 +81,12 @@ const CodePyretOrg = (props) => {
     if (iframeSrc && !isFirstTabLoaded) setFirstTabLoaded();
   }, [iframeSrc, isFirstTabLoaded]);
 
-  // TODO: can we parse activity descriptions from Pyret?
-  const buildDescription = (username, updates) => {
-    console.log('Building description of', updates);
-    return `${username} updated the program`;
-  };
-
   const handleResponseData = (pyretMessage) => {
     console.log('Response data processing: ', pyretMessage);
     const { emitEvent } = props;
 
-    const description = buildDescription(user.username, pyretMessage);
+    const description = `${user.username}: ${pyretMessage.description ||
+      'Updated the program'}`;
 
     const pyretMessageString = JSON.stringify(pyretMessage);
     const newData = {
