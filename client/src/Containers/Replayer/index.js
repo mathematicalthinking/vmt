@@ -9,6 +9,7 @@ export { default as ReplayerControls } from './ReplayerControls';
 export { default as DesActivityMiniReplayer } from './DesActivityMiniReplayer';
 export { default as DesmosMiniReplayer } from './DesmosMiniReplayer';
 export { default as SharedMiniReplayer } from './SharedMiniReplayer';
+export { default as PyretActivityReplayer } from './PyretActivityReplayer';
 // export { default as SharedReplayer } from './SharedReplayer';
 
 export default Replayer;

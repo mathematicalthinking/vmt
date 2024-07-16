@@ -10,16 +10,9 @@ import {
 } from 'store/actions';
 import { Modal, Loading } from 'Components';
 import { WorkspaceLayout } from 'Layout';
+import { TabTypes } from 'Model';
 import { ROLE } from 'constants.js';
-import {
-  DesmosActivityGraph,
-  DesmosActivityEditor,
-  GgbActivityGraph,
-  CodePyretOrg,
-  Tabs,
-  RoomInfo,
-  ActivityTools,
-} from './index';
+import { Tabs, RoomInfo, ActivityTools } from './index';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
 
@@ -109,65 +102,22 @@ class ActivityWorkspace extends Component {
       role = 'facilitator';
     }
     if (activity && activity.tabs[0].name) {
-      graphs = activity.tabs.map((tab) => {
-        if (tab.tabType === 'desmos') {
-          return (
-            <DesmosActivityGraph
-              key={tab._id}
-              tab={tab}
-              activity={activity}
-              role={role}
-              currentTab={currentTabId || initialTabId}
-              updateActivityTab={connectUpdateActivityTab}
-              setFirstTabLoaded={this.setFirstTabLoaded}
-              isFirstTabLoaded={isFirstTabLoaded}
-            />
-          );
-        }
-        if (tab.tabType === 'desmosActivity') {
-          return (
-            <DesmosActivityEditor
-              key={tab._id}
-              tab={tab}
-              activity={activity}
-              role={role}
-              currentTab={currentTabId || initialTabId}
-              updateActivityTab={connectUpdateActivityTab}
-              setFirstTabLoaded={this.setFirstTabLoaded}
-              isFirstTabLoaded={isFirstTabLoaded}
-            />
-          );
-        }
-        if (tab.tabType === 'pyret') {
-          return (
-            <CodePyretOrg
-              key={tab._id}
-              tab={tab}
-              activity={activity}
-              role={role}
-              currentTab={currentTabId || initialTabId}
-              updateActivityTab={connectUpdateActivityTab}
-              setFirstTabLoaded={this.setFirstTabLoaded}
-              isFirstTabLoaded={isFirstTabLoaded}
-            />
-          );
-        }
+      graphs = activity.tabs.map((tab) => (
+        <TabTypes.MathspaceTemplateEditor
+          type={tab.tabType}
+          key={tab._id}
+          tab={tab}
+          tabs={activity.tabs}
+          activity={activity}
+          role={role}
+          user={user}
+          currentTab={currentTabId || initialTabId}
+          updateActivityTab={connectUpdateActivityTab}
+          setFirstTabLoaded={this.setFirstTabLoaded}
+          isFirstTabLoaded={isFirstTabLoaded}
+        />
+      ));
 
-        return (
-          <GgbActivityGraph
-            activity={activity}
-            tabs={activity.tabs}
-            currentTab={currentTabId || initialTabId}
-            role={role}
-            user={user}
-            tab={tab}
-            key={tab._id}
-            updateActivityTab={connectUpdateActivityTab}
-            setFirstTabLoaded={this.setFirstTabLoaded}
-            isFirstTabLoaded={isFirstTabLoaded}
-          />
-        );
-      });
       tabs = (
         <Tabs
           tabs={activity.tabs}

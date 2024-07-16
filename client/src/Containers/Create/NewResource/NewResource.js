@@ -81,6 +81,13 @@ class NewResourceContainer extends Component {
     });
   };
 
+  setLink = (event) => {
+    this.setState({
+      desmosLink: event.target.value,
+      [event.target.name]: event.target.value,
+    });
+  };
+
   setCopying = (event) => {
     this.setState({ copying: event.target.name === 'copy' });
   };
@@ -377,6 +384,7 @@ class NewResourceContainer extends Component {
           desmosLink={desmosLink}
           setDesmosLink={this.linkMod}
           setDesmosCalcLink={this.graphLinkMod}
+          setLink={this.setLink}
           appName={appName}
         />
       );

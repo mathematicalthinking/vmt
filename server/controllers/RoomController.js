@@ -366,6 +366,17 @@ module.exports = {
         ggbFiles = [...body.ggbFiles];
         delete body.ggbFiles;
       }
+
+      const getCurrentStateBase64 = (tab) => {
+        switch (tab.roomType || tab.tabType) {
+          case 'desmosActivity':
+            return '{}';
+          case 'pyret':
+            return tab.desmosLink;
+          default:
+            return tab.currentStateBase64;
+        }
+      };
       const room = new Room(body);
       if (existingTabs) {
         tabModels = existingTabs.map((tab) => {
@@ -380,8 +391,7 @@ module.exports = {
               tab.tabType === 'desmosActivity'
                 ? tab.startingPointBase64
                 : tab.currentStateBase64,
-            currentStateBase64:
-              tab.tabType === 'desmosActivity' ? '{}' : tab.currentStateBase64,
+            currentStateBase64: getCurrentStateBase64(tab),
             tabType: tab.tabType,
             appName: tab.appName,
           });
@@ -405,7 +415,7 @@ module.exports = {
             startingPoint: '',
             // startingPointBase64 and currentStateBase64 should be in the body only if we are creating a new desmos activity.
             startingPointBase64: body.startingPointBase64,
-            currentStateBase64: body.currentStateBase64,
+            currentStateBase64: getCurrentStateBase64(body),
             desmosLink: body.desmosLink,
             tabType: body.roomType || 'geogebra',
             appName: body.appName,

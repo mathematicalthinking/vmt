@@ -1,4 +1,10 @@
-import { configure } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+// Import dependencies for React Testing Library
+import '@testing-library/jest-dom/extend-expect';
+global.window = { onmessage: jest.fn() };
+window.env = { REACT_APP_SERVER_URL: 'http://localhost:3000' };
 
-configure({ adapter: new Adapter() });
+if (!Element.prototype.getRootNode) {
+  Element.prototype.getRootNode = function() {
+    return this.parentNode || this.getRootNode();
+  };
+}
