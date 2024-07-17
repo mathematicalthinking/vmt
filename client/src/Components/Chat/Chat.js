@@ -411,7 +411,6 @@ class Chat extends Component {
         if (referToEl) {
           if (
             referToEl.element === message._id ||
-            message.tab ||
             (message.reference &&
               referToEl.element === message.reference.element)
           ) {
