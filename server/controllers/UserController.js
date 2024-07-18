@@ -328,6 +328,7 @@ module.exports = {
         $project: {
           username: 1,
           latestIpAddress: 1,
+          lastLogin: 1,
           isAdmin: 1,
           updatedAt: 1,
           isSuspended: 1,

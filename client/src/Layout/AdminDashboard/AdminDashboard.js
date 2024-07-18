@@ -60,7 +60,7 @@ class AdminDashboard extends Component {
       resultsMessage = `A total of ${totalCount} ${displayResource} ${hasHave} been updated within the selected time period. To be considered updated, either one or more room details, such as name, instructions, members, were updated, or one or more events and/or messages were created.`;
     } else if (resource === 'users') {
       displayResource = totalCount === 1 ? 'user' : 'users';
-      resultsMessage = `A total of ${totalCount} ${displayResource} ${hasHave} been active within the selected time period. "Active" in this case means that the user made a network request while logged in.`;
+      resultsMessage = `A total of ${totalCount} ${displayResource} ${hasHave} been active within the selected time period. "Active" in this case means that the user made a network request while logged in or was added to or removed from a resource.`;
     }
     return (
       <div className={classes.Container}>

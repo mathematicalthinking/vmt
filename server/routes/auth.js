@@ -57,6 +57,12 @@ const login = async (req, res) => {
     }
 
     const verifiedToken = await jwt.verify(accessToken, secret);
+    // Functionally, the notion of "logged in" depends on whether the user is connected to the websockets server (i.e., has an assigned socketId).
+    // However, we'd like to record the date at which the user actually logged in. Rather than doing that within the socket sync'ing code, we chose
+    // to do the lastLogin recording here.
+    await User.findByIdAndUpdate(verifiedToken.vmtUserId, {
+      lastLogin: Date.now(),
+    });
     const vmtUser = await User.findById(verifiedToken.vmtUserId)
       .populate({
         path: 'courses',
