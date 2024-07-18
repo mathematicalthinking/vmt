@@ -252,6 +252,17 @@ module.exports = {
       delete body.tabs;
       delete body.mathState;
 
+      const getCurrentStateBase64 = (tab) => {
+        switch (tab.roomType || tab.tabType) {
+          case 'desmosActivity':
+            return tab.startingPointBase64;
+          case 'pyret':
+            return tab.desmosLink || tab.currentStateBase64;
+          default:
+            return tab.currentStateBase64;
+        }
+      };
+
       db.Activity.create(body)
         .then(async (activity) => {
           createdActivity = activity;
@@ -283,6 +294,7 @@ module.exports = {
               desmosLink: body.desmosLink,
               tabType: body.roomType,
               creator: body.creator,
+              currentStateBase64: getCurrentStateBase64(body),
             });
           }
 
@@ -298,10 +310,7 @@ module.exports = {
                   tab.tabType === 'desmosActivity'
                     ? tab.startingPointBase64
                     : tab.currentStateBase64,
-                currentStateBase64:
-                  tab.tabType === 'desmosActivity'
-                    ? tab.startingPointBase64
-                    : tab.currentStateBase64,
+                currentStateBase64: getCurrentStateBase64(tab),
                 desmosLink: tab.desmosLink,
                 tabType: tab.tabType,
                 creator: body.creator,
