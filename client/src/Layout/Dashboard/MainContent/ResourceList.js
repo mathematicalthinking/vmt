@@ -137,12 +137,7 @@ const ResourceList = ({
   }
 
   let create;
-  if (
-    parentResource !== 'activities' &&
-    context !== 'activity' &&
-    user.accountType === 'facilitator'
-  ) {
-    // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
+  if (!parentActivityId && user.accountType === 'facilitator') {
     create = (
       <NewResource
         resource={resource}
@@ -151,9 +146,6 @@ const ResourceList = ({
       />
     );
   }
-  /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
-   * I feel like we are checking roles...which requires looping through the resources members each time.
-   */
 
   const customIcons = [
     {
@@ -163,7 +155,6 @@ const ResourceList = ({
         setShowRoomPreview(true);
         goToRoomPreview(id);
       },
-      // icon: <i className="fas fa-external-link-alt" />,
       icon: (
         <ToolTip text="Preview" delay={600}>
           {getGoogleIcons(GOOGLE_ICONS.PREVIEW, [classes.CustomIcon])}
@@ -374,7 +365,6 @@ const ResourceList = ({
       {showRoomPreview && roomPreviewComponent}
       {showArchiveComponent && archiveComponent}
       <div>
-        {/* @TODO don't show create options for participants */}
         <div className={classes.Controls}>{create}</div>
         {fList.length > 0 || pList.length > 0 ? (
           <div className={classes.Row}>
