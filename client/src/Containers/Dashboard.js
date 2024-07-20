@@ -140,9 +140,9 @@ class Dashboard extends Component {
         this.abortController = null;
       })
       .catch((err) => {
-        if (err.name === 'AbortError') {
-          console.log('Request canceled', err.message);
-        } else {
+        if (err.message === 'canceled') return;
+        else {
+          console.log('Fetch error: ', err.message);
           this.setState({ isLoading: false });
         }
       });
