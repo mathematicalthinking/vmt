@@ -9,8 +9,8 @@
 }
 
 .RadioGroup {
-  margin: 30px 0 20px 0;
+  /* margin: 30px 0 20px 0; */
   display: flex;
-  justify-content: space-around;
-  font-size: 18px;
+  justify-content: space-between;
+  font-size: 15px;
 }
