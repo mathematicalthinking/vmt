@@ -38,6 +38,7 @@ const dashboardBoxList = (props) => {
           details._id = item._id;
           details.socketId = item.socketId;
           details.isSuspended = item.isSuspended;
+          details.lastLogin = item.lastLogin;
         }
 
         return (

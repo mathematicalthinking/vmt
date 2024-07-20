@@ -139,6 +139,10 @@ class DashboardContentBox extends PureComponent {
                 <span className={classes.DashboardLabel}>Message Count:</span>{' '}
                 {details.messagesCount}
               </div>
+              <div>
+                <span className={classes.DashboardLabel}>Last Login:</span>{' '}
+                {dateAndTime.toDateTimeString(details.lastLogin)}
+              </div>
               {details.latestIpAddress ? (
                 <div>
                   <span className={classes.DashboardLabel}>
