@@ -257,7 +257,7 @@ module.exports = {
           case 'desmosActivity':
             return tab.startingPointBase64;
           case 'pyret':
-            return tab.desmosLink || tab.currentStateBase64;
+            return tab.currentStateBase64 || tab.desmosLink;
           default:
             return tab.currentStateBase64;
         }
