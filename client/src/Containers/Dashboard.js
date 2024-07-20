@@ -12,6 +12,7 @@ import ModalClasses from '../Components/UI/Modal/modal.css';
 const SKIP_VALUE = 20;
 class Dashboard extends Component {
   _isOkToLoadResults = false;
+  abortController = null;
   constructor(props) {
     super(props);
     this.state = {
@@ -89,6 +90,9 @@ class Dashboard extends Component {
     this._isOkToLoadResults = false;
     this.debounceFetchData.cancel();
     this.debouncedSetCriteria.cancel();
+    if (this.abortController) {
+      this.abortController.abort();
+    }
   }
 
   // concat tells us whether we should concat to existing results or overwrite
@@ -100,11 +104,25 @@ class Dashboard extends Component {
       },
     } = this.props;
     const filters = this.getQueryParams();
-    // if filter = all we're not actually filtering...we want all
     const updatedFilters = { ...filters };
 
     this.setState({ isLoading: true });
-    API.getRecentActivity(resource, updatedFilters.search, skip, updatedFilters)
+
+    // Cancel the previous request if there is one
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+
+    this.abortController = new AbortController();
+    const { signal } = this.abortController;
+
+    API.getRecentActivity(
+      resource,
+      updatedFilters.search,
+      skip,
+      updatedFilters,
+      signal
+    )
       .then((res) => {
         this.setState({ isLoading: false });
         const [items, totalCounts] = res.data.results;
@@ -119,8 +137,15 @@ class Dashboard extends Component {
             totalCounts,
           }));
         }
+        this.abortController = null;
       })
-      .catch((err) => this.setState({ isLoading: false }));
+      .catch((err) => {
+        if (err.name === 'AbortError') {
+          console.log('Request canceled', err.message);
+        } else {
+          this.setState({ isLoading: false });
+        }
+      });
   };
 
   setSkip = () => {
