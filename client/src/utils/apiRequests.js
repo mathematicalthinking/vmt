@@ -16,8 +16,12 @@ const _getAllRooms = (
 };
 
 export default {
-  get: (resource, params) => {
-    return api.get(`/api/${resource}`, params ? { params } : {});
+  get: (resource, params, signal) => {
+    const config = { params };
+    if (signal) {
+      config.signal = signal;
+    }
+    return api.get(`/api/${resource}`, config);
   },
 
   // returns resources that contain any of the values in any of the fields
@@ -187,7 +191,7 @@ export default {
   uploadGgbFiles: (formData) => {
     return api.post(`/api/upload/ggb`, formData);
   },
-  getRecentActivity: (resource, criteria, skip, filters) => {
+  getRecentActivity: (resource, criteria, skip, filters, signal) => {
     const { since, to } = filters;
     const params = criteria ? { criteria, skip } : { skip };
     if (since !== null) params.since = since;
@@ -198,7 +202,11 @@ export default {
     if (resource === 'users') {
       resource = 'user';
     }
-    return api.get(`/api/dashBoard/${resource}`, { params });
+    const config = { params };
+    if (signal) {
+      config.signal = signal;
+    }
+    return api.get(`/api/dashBoard/${resource}`, config);
   },
 
   revokeRefreshToken: (userId) => {
