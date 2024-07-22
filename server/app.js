@@ -13,6 +13,7 @@ require('dotenv').config();
 const mtAuth = require('./middleware/mt-auth');
 const api = require('./routes/api');
 const auth = require('./routes/auth');
+const oauth = require('./routes/oauth');
 const desmos = require('./routes/desmos');
 const enc = require('./routes/enc');
 const admin = require('./routes/admin');
@@ -79,6 +80,7 @@ app.use(mtAuth.prepareVmtUser);
 // CONNECT ROUTES
 app.use('/desmos', desmos);
 app.use('/auth', auth);
+app.use('/oauth', oauth);
 app.use('/api', api);
 app.use('/enc', enc);
 app.use('/admin', admin);
