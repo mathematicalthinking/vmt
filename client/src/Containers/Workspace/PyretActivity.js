@@ -31,11 +31,14 @@ const CodePyretOrg = (props) => {
     [inControl]
   );
 
-  const { iframeSrc, postMessage, currentState, isReady } = usePyret(
-    cpoIframe,
-    onMessage,
-    initialState
-  );
+  const {
+    iframeSrc,
+    postMessage,
+    currentState,
+    isReady,
+    hasControlViolation,
+    resetViolation,
+  } = usePyret(cpoIframe, onMessage, initialState);
 
   useEffect(() => {
     socket.on('RECEIVE_EVENT', handleReceiveEvent);
@@ -53,6 +56,7 @@ const CodePyretOrg = (props) => {
       if (inControl === 'ME') {
         postMessage({ type: 'gainControl' });
         console.log('gained Control!');
+        resetViolation();
       } else {
         postMessage({ type: 'loseControl' });
         console.log('lost Control!');
@@ -71,6 +75,10 @@ const CodePyretOrg = (props) => {
       console.log(err);
     });
   }, [currentState]);
+
+  useEffect(() => {
+    if (hasControlViolation) setShowControlWarning(true);
+  }, [hasControlViolation]);
 
   // useEffect(() => {
   //   const { setFirstTabLoaded } = props;

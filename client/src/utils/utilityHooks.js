@@ -599,6 +599,7 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
   const iframeSrc = window.env.REACT_APP_PYRET_URL;
   const [isReady, setIsReady] = React.useState(false);
   const [currentState, setCurrentState] = React.useState();
+  const [hasControlViolation, setHasControlViolation] = React.useState(false);
   const onMessageRef = React.useRef(onMessage); // use a ref in case onMessage changes
 
   React.useEffect(() => {
@@ -608,11 +609,16 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
   React.useEffect(() => {
     const handleOnMessage = (event) => {
       if (
-        event.data.protocol === 'pyret' &&
-        event.data.data.type === 'pyret-init'
-      ) {
+        !iframeRef.current ||
+        event.source !== iframeRef.current.contentWindow ||
+        event.data.protocol !== 'pyret'
+      )
+        return;
+      if (event.data.data.type === 'pyret-init') {
         setIsReady(true);
-      } else if (event.data.protocol === 'pyret') {
+      } else if (event.data.data.type === 'illegal-action') {
+        setHasControlViolation(true);
+      } else {
         console.log('event.data', event.data);
         setCurrentState(event.data.state);
         onMessageRef.current(event.data);
@@ -647,5 +653,7 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
     postMessage,
     currentState,
     isReady,
+    hasControlViolation,
+    resetViolation: () => setHasControlViolation(false),
   };
 }
