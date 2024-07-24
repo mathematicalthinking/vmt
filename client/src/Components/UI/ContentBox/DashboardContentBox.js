@@ -141,7 +141,9 @@ class DashboardContentBox extends PureComponent {
               </div>
               <div>
                 <span className={classes.DashboardLabel}>Last Login:</span>{' '}
-                {dateAndTime.toDateTimeString(details.lastLogin)}
+                {details.lastLogin
+                  ? dateAndTime.toDateTimeString(details.lastLogin)
+                  : ''}
               </div>
               {details.latestIpAddress ? (
                 <div>

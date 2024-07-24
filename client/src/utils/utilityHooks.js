@@ -599,20 +599,14 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
   const iframeSrc = window.env.REACT_APP_PYRET_URL;
   const [isReady, setIsReady] = React.useState(false);
   const [currentState, setCurrentState] = React.useState();
-
-  const oldOnMessageRef = React.useRef(window.onmessage);
+  const onMessageRef = React.useRef(onMessage); // use a ref in case onMessage changes
 
   React.useEffect(() => {
-    const oldOnMessage = oldOnMessageRef.current;
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
 
-    window.onmessage = (event) => {
-      if (
-        typeof event.data.source === 'string' &&
-        event.data.source.includes('react-devtools')
-      )
-        return;
-
-      // Use the provided onMessage if the protocol is 'pyret'; use original windows.onmessage otherwise
+  React.useEffect(() => {
+    const handleOnMessage = (event) => {
       if (
         event.data.protocol === 'pyret' &&
         event.data.data.type === 'pyret-init'
@@ -621,19 +615,16 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
       } else if (event.data.protocol === 'pyret') {
         console.log('event.data', event.data);
         setCurrentState(event.data.state);
-        onMessage(event.data);
-      } else {
-        console.log('Not a pyret');
-        if (typeof oldOnMessage === 'function') {
-          oldOnMessage(event);
-        }
+        onMessageRef.current(event.data);
       }
     };
 
+    window.addEventListener('message', handleOnMessage);
+
     return () => {
-      window.onmessage = oldOnMessage; // Restore the old handler when the component unmounts
+      window.removeEventListener('message', handleOnMessage);
     };
-  }, [onMessage]);
+  }, []);
 
   React.useEffect(() => {
     if (isReady) {
