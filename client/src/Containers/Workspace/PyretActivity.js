@@ -35,7 +35,6 @@ const CodePyretOrg = (props) => {
     iframeSrc,
     postMessage,
     currentState,
-    isReady,
     hasControlViolation,
     resetViolation,
   } = usePyret(cpoIframe, onMessage, initialState);
@@ -79,11 +78,6 @@ const CodePyretOrg = (props) => {
   useEffect(() => {
     if (hasControlViolation) setShowControlWarning(true);
   }, [hasControlViolation]);
-
-  // useEffect(() => {
-  //   const { setFirstTabLoaded } = props;
-  //   if (isReady) setFirstTabLoaded();
-  // }, [isReady]);
 
   useEffect(() => {
     if (iframeSrc && !isFirstTabLoaded) setFirstTabLoaded();
@@ -139,21 +133,22 @@ const CodePyretOrg = (props) => {
     }
   }
 
+  function _resetWarning() {
+    setShowControlWarning(false);
+    resetViolation();
+  }
+
   return (
     <Fragment>
       <ControlWarningModal
         showControlWarning={showControlWarning}
-        toggleControlWarning={() => {
-          setShowControlWarning(false);
-        }}
+        toggleControlWarning={_resetWarning}
         takeControl={() => {
           props.toggleControl();
-          setShowControlWarning(false);
+          _resetWarning();
         }}
         inControl={inControl}
-        cancel={() => {
-          setShowControlWarning(false);
-        }}
+        cancel={_resetWarning}
         inAdminMode={user.inAdminMode}
       />
 
@@ -173,7 +168,7 @@ const CodePyretOrg = (props) => {
             pointerEvents: !_hasControl() ? 'none' : 'auto',
           }}
           title="pyret"
-          src={iframeSrc} // "http://localhost:5000/editor"
+          src={iframeSrc}
         />
       </div>
     </Fragment>

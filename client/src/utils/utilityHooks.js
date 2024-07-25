@@ -593,6 +593,8 @@ export function useExecuteOnFirstUpdate(data, callback) {
  * isReady -- whether Pyret is up and running
  * postMessage -- the function used by VMT to communicate with the Pyret instance
  * currentState -- the current state of the Pyret instance
+ * hasControlViolation -- the user tried to interact with Pyret when they didn't have control
+ * resetViolation - a function to reset the control violation flag
  */
 
 export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
@@ -608,12 +610,17 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
 
   React.useEffect(() => {
     const handleOnMessage = (event) => {
+      // Don't handle the message if:
+      // - our iframe isn't ready
+      // - we received an event from an iframe that isn't ours
+      // - we received an event from something other than Pyret
       if (
         !iframeRef.current ||
         event.source !== iframeRef.current.contentWindow ||
         event.data.protocol !== 'pyret'
       )
         return;
+
       if (event.data.data.type === 'pyret-init') {
         setIsReady(true);
       } else if (event.data.data.type === 'illegal-action') {
