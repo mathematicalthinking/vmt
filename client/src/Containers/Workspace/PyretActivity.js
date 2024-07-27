@@ -55,7 +55,7 @@ const CodePyretOrg = (props) => {
       if (inControl === 'ME') {
         postMessage({ type: 'gainControl' });
         console.log('gained Control!');
-        resetViolation();
+        _resetWarning();
       } else {
         postMessage({ type: 'loseControl' });
         console.log('lost Control!');
