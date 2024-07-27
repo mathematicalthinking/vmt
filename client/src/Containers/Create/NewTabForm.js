@@ -43,6 +43,14 @@ function NewTabForm({
     }
   };
 
+  const clearForm = () => {
+    setName('');
+    setInstructions('');
+    setDesmosLink('');
+    setTabType(CLONE);
+    setErrorMessage(null);
+  };
+
   const submit = async () => {
     if (name.trim().length < 1) {
       setErrorMessage('Please provide a name for the tab');
@@ -98,6 +106,7 @@ function NewTabForm({
         // UPDATE REDUX ACTIVITY
         updatedActivity(activity._id, { tabs });
       }
+      clearForm();
       closeModal();
     });
   };

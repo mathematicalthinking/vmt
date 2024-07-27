@@ -593,47 +593,51 @@ export function useExecuteOnFirstUpdate(data, callback) {
  * isReady -- whether Pyret is up and running
  * postMessage -- the function used by VMT to communicate with the Pyret instance
  * currentState -- the current state of the Pyret instance
+ * hasControlViolation -- the user tried to interact with Pyret when they didn't have control
+ * resetViolation - a function to reset the control violation flag
  */
 
 export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
   const iframeSrc = window.env.REACT_APP_PYRET_URL;
   const [isReady, setIsReady] = React.useState(false);
   const [currentState, setCurrentState] = React.useState();
-
-  const oldOnMessageRef = React.useRef(window.onmessage);
+  const [hasControlViolation, setHasControlViolation] = React.useState(false);
+  const onMessageRef = React.useRef(onMessage); // use a ref in case onMessage changes
 
   React.useEffect(() => {
-    const oldOnMessage = oldOnMessageRef.current;
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
 
-    window.onmessage = (event) => {
+  React.useEffect(() => {
+    const handleOnMessage = (event) => {
+      // Don't handle the message if:
+      // - our iframe isn't ready
+      // - we received an event from an iframe that isn't ours
+      // - we received an event from something other than Pyret
       if (
-        typeof event.data.source === 'string' &&
-        event.data.source.includes('react-devtools')
+        !iframeRef.current ||
+        event.source !== iframeRef.current.contentWindow ||
+        event.data.protocol !== 'pyret'
       )
         return;
 
-      // Use the provided onMessage if the protocol is 'pyret'; use original windows.onmessage otherwise
-      if (
-        event.data.protocol === 'pyret' &&
-        event.data.data.type === 'pyret-init'
-      ) {
+      if (event.data.data.type === 'pyret-init') {
         setIsReady(true);
-      } else if (event.data.protocol === 'pyret') {
+      } else if (event.data.data.type === 'illegal-action') {
+        setHasControlViolation(true);
+      } else {
         console.log('event.data', event.data);
         setCurrentState(event.data.state);
-        onMessage(event.data);
-      } else {
-        console.log('Not a pyret');
-        if (typeof oldOnMessage === 'function') {
-          oldOnMessage(event);
-        }
+        onMessageRef.current(event.data);
       }
     };
 
+    window.addEventListener('message', handleOnMessage);
+
     return () => {
-      window.onmessage = oldOnMessage; // Restore the old handler when the component unmounts
+      window.removeEventListener('message', handleOnMessage);
     };
-  }, [onMessage]);
+  }, []);
 
   React.useEffect(() => {
     if (isReady) {
@@ -656,5 +660,7 @@ export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
     postMessage,
     currentState,
     isReady,
+    hasControlViolation,
+    resetViolation: () => setHasControlViolation(false),
   };
 }

@@ -31,11 +31,13 @@ const CodePyretOrg = (props) => {
     [inControl]
   );
 
-  const { iframeSrc, postMessage, currentState, isReady } = usePyret(
-    cpoIframe,
-    onMessage,
-    initialState
-  );
+  const {
+    iframeSrc,
+    postMessage,
+    currentState,
+    hasControlViolation,
+    resetViolation,
+  } = usePyret(cpoIframe, onMessage, initialState);
 
   useEffect(() => {
     socket.on('RECEIVE_EVENT', handleReceiveEvent);
@@ -53,6 +55,7 @@ const CodePyretOrg = (props) => {
       if (inControl === 'ME') {
         postMessage({ type: 'gainControl' });
         console.log('gained Control!');
+        _resetWarning();
       } else {
         postMessage({ type: 'loseControl' });
         console.log('lost Control!');
@@ -72,10 +75,9 @@ const CodePyretOrg = (props) => {
     });
   }, [currentState]);
 
-  // useEffect(() => {
-  //   const { setFirstTabLoaded } = props;
-  //   if (isReady) setFirstTabLoaded();
-  // }, [isReady]);
+  useEffect(() => {
+    if (hasControlViolation) setShowControlWarning(true);
+  }, [hasControlViolation]);
 
   useEffect(() => {
     if (iframeSrc && !isFirstTabLoaded) setFirstTabLoaded();
@@ -131,21 +133,22 @@ const CodePyretOrg = (props) => {
     }
   }
 
+  function _resetWarning() {
+    setShowControlWarning(false);
+    resetViolation();
+  }
+
   return (
     <Fragment>
       <ControlWarningModal
         showControlWarning={showControlWarning}
-        toggleControlWarning={() => {
-          setShowControlWarning(false);
-        }}
+        toggleControlWarning={_resetWarning}
         takeControl={() => {
           props.toggleControl();
-          setShowControlWarning(false);
+          _resetWarning();
         }}
         inControl={inControl}
-        cancel={() => {
-          setShowControlWarning(false);
-        }}
+        cancel={_resetWarning}
         inAdminMode={user.inAdminMode}
       />
 
@@ -165,7 +168,7 @@ const CodePyretOrg = (props) => {
             pointerEvents: !_hasControl() ? 'none' : 'auto',
           }}
           title="pyret"
-          src={iframeSrc} // "http://localhost:5000/editor"
+          src={iframeSrc}
         />
       </div>
     </Fragment>
