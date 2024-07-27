@@ -19,6 +19,7 @@ import {
 } from 'utils';
 import { SelectAssignments, EditRooms, MakeRooms } from 'Containers';
 import { DashboardLayout, SidePanel, DashboardContent } from 'Layout';
+import { TabTypes } from 'Model';
 import {
   getCourses,
   getRooms,
@@ -300,7 +301,7 @@ class Activity extends Component {
                   target="_blank"
                   rel="noopener noreferrer"
                   href={
-                    tabs[0].tabType === 'desmos'
+                    activity.tabs[0].tabType === TabTypes.DESMOS_ACTIVITY
                       ? getDesmosActivityUrl(desmosActivityCode)
                       : desmosActivityCode
                   }
