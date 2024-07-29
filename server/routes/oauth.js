@@ -3,14 +3,14 @@ const router = express.Router();
 const User = require('../models/User');
 const { getUser } = require('../middleware/utils/request');
 
-router.get('/return', (req, res) => {
-    const currentUser = getUser(req);
+router.get('/return', async (req, res) => {
+  const currentUser = getUser(req);
 
-    await User.findByIdAndUpdate(currentUser._id, {
-      lastLogin: new Date(),
-    });
-
-  res.sendStatus(200);
+  User.findByIdAndUpdate(currentUser._id, {
+    lastLogin: new Date(),
+  })
+    .then(() => res.sendStatus(200))
+    .catch((err) => console.log('Error in timestamping Google login', err));
 });
 
 module.exports = router;
