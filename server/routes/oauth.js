@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const { getUser } = require('../middleware/utils/request');
 
-router.all('/return', async (req, res) => {
+router.get('/return', async (req, res) => {
   console.log('handling redirect correctly');
   const currentUser = getUser(req);
 
