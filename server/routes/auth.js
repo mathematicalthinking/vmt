@@ -47,7 +47,19 @@ router.post('/login', async (req, res) => {
   return login(req, res);
 });
 
-const login = async (req, res) => {
+router.post('/oauthReturn', (req, res) => {
+  const user = getUser(req);
+  if (user) recordLogin(user._id);
+  return res.json({ result: 'success' });
+})
+
+const recordLogin = async (userId) => {
+    await User.findByIdAndUpdate(userId, {
+      lastLogin: new Date(),
+    });
+}
+
+const login = (req, res) => {
   try {
     const { message, accessToken, refreshToken } = await ssoService.login(
       req.body
@@ -57,13 +69,7 @@ const login = async (req, res) => {
     }
 
     const verifiedToken = await jwt.verify(accessToken, secret);
-    // Functionally, the notion of "logged in" depends on whether the user is connected to the websockets server (i.e., has an assigned socketId).
-    // However, we'd like to record the date at which the user actually logged in. Rather than doing that within the socket sync'ing code, we chose
-    // to do the lastLogin recording here. Logging in via Google requires
-    // its own timestamping
-    await User.findByIdAndUpdate(verifiedToken.vmtUserId, {
-      lastLogin: new Date(),
-    });
+    recordLogin(verifiedToken.vmtUserId);
     const vmtUser = await User.findById(verifiedToken.vmtUserId)
       .populate({
         path: 'courses',
