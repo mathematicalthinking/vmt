@@ -154,7 +154,6 @@ const CodePyretOrg = (props) => {
 
       <div
         className={classes.Activity}
-        onClickCapture={_checkForControl}
         id="containerParent"
         style={{
           height: '890px', // @TODO this needs to be adjusted based on the editor instance.
@@ -165,7 +164,6 @@ const CodePyretOrg = (props) => {
           style={{
             width: '100%',
             height: '100%',
-            pointerEvents: !_hasControl() ? 'none' : 'auto',
           }}
           title="pyret"
           src={iframeSrc}
