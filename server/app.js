@@ -72,17 +72,6 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
 app.use(cookieParser());
 app.use(cors);
 
-// Custom logging middleware
-app.use((req, res, next) => {
-  console.log('Incoming Request:', {
-    method: req.method,
-    url: req.url,
-    headers: req.headers,
-    body: req.body,
-  });
-  next(); // Pass control to the next middleware/handler
-});
-
 // Mathematical Thinking Auth middleware
 app.use(mtAuth.prep);
 app.use(mtAuth.prepareMtUser);
@@ -91,7 +80,6 @@ app.use(mtAuth.prepareVmtUser);
 // CONNECT ROUTES
 app.use('/desmos', desmos);
 app.use('/auth', auth);
-app.use('/oauth', oauth);
 app.use('/api', api);
 app.use('/enc', enc);
 app.use('/admin', admin);
