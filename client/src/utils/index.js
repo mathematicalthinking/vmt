@@ -1,6 +1,6 @@
 export { default as API } from './apiRequests';
 export * from './appUrls';
-export { default as AUTH } from './auth';
+export { default as auth } from './auth';
 export { default as buildLog } from './buildLog';
 export { default as COLOR_MAP } from './colorMap';
 export { default as createMongoId } from './createMongoId';
