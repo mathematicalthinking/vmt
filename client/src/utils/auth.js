@@ -19,7 +19,7 @@ export default {
     return axios.get('/auth/googleAuth', { username, password });
   },
   oauthReturn: () => {
-    return axios.post('auth/oauthReturn');
+    return axios.post('/auth/oauthReturn');
   },
   logout: (userId) => {
     return axios.post(`/auth/logout/${userId}`);
