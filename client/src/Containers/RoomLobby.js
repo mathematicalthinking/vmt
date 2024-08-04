@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 // import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Room as RoomModel } from 'Model';
+import { Room as RoomModel, TabTypes } from 'Model';
 import {
   DashboardLayout,
   SidePanel,
@@ -493,7 +493,7 @@ class Room extends Component {
                   target="_blank"
                   rel="noopener noreferrer"
                   href={
-                    room.tabs[0].tabType === 'desmos'
+                    room.tabs[0].tabType === TabTypes.DESMOS_ACTIVITY
                       ? getDesmosActivityUrl(room.tabs[0].desmosLink)
                       : room.tabs[0].desmosLink
                   }

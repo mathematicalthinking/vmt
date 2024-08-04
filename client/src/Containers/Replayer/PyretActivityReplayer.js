@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { usePyret } from 'utils';
 
 const PyretActivityReplayer = (props) => {
-  const { index, log, tab, setTabLoaded } = props;
+  const { index, log, tab, setTabLoaded, inView } = props;
   const { startingPointBase64: initialState } = tab;
   const cpoIframe = useRef();
 
@@ -20,8 +20,8 @@ const PyretActivityReplayer = (props) => {
   }, [iframeSrc]);
 
   useEffect(() => {
-    updatePyret();
-  }, [index]);
+    if (inView) updatePyret();
+  }, [index, inView]);
 
   function updatePyret() {
     const pyretMessageString =
@@ -55,10 +55,15 @@ const PyretActivityReplayer = (props) => {
 };
 
 PyretActivityReplayer.propTypes = {
-  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  log: PropTypes.arrayOf(PropTypes.shape({ currentState: PropTypes.string }))
+    .isRequired,
   index: PropTypes.number.isRequired,
-  tab: PropTypes.shape({}).isRequired,
+  tab: PropTypes.shape({
+    _id: PropTypes.string,
+    startingPointBase64: PropTypes.string,
+  }).isRequired,
   setTabLoaded: PropTypes.func.isRequired,
+  inView: PropTypes.bool.isRequired,
 };
 
 export default PyretActivityReplayer;

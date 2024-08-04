@@ -1,19 +1,15 @@
 import React, { useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classes from './DesActivityReplayer.css';
-// import { Player } from '../../external/js/api.full.es';
 import { fetchConfigData } from '../Workspace/Tools/DesActivityHelpers';
 
 const DesActivityReplayer = (props) => {
-  const { index } = props;
+  const { index, inView, setTabLoaded } = props;
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
-  //   function allowKeypressCheck(event) {
-  //     event.preventDefault();
-  //   }
   const initCalc = async (tab) => {
-    const { config, status } = await fetchConfigData(tab);
+    const { config } = await fetchConfigData(tab);
 
     const { Player } = await import('../../external/js/api.full.es');
     const playerOptions = {
@@ -23,16 +19,16 @@ const DesActivityReplayer = (props) => {
 
     calculatorInst.current = new Player(playerOptions);
 
-    props.setTabLoaded(tab._id);
+    setTabLoaded(tab._id);
   };
 
   // handles the updates to the player
 
   useEffect(() => {
-    if (calculatorInst.current) {
+    if (calculatorInst.current && inView) {
       updatePlayer();
     }
-  }, [index]);
+  }, [index, inView]);
 
   function updatePlayer() {
     const { log } = props;
@@ -70,24 +66,16 @@ const DesActivityReplayer = (props) => {
     const { tab } = props;
     initCalc(tab);
 
-    return function() {
+    return () => {
       if (calculatorInst.current) {
         calculatorInst.current.destroy();
       }
-      //   window.removeEventListener('keydown', allowKeypressCheck());
     };
   }, []);
 
   return (
     <Fragment>
-      <div
-        id="activityNavigation"
-        className={classes.ActivityNav}
-        // onClickCapture={_checkForControl}
-        // style={{
-        //   pointerEvents: !_hasControl() ? 'none' : 'auto',
-        // }}
-      >
+      <div id="activityNavigation" className={classes.ActivityNav}>
         <span
           title="Navigation buttons only seen when in control in an Activity"
           id="show-screen"
@@ -107,10 +95,12 @@ const DesActivityReplayer = (props) => {
 };
 
 DesActivityReplayer.propTypes = {
-  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  log: PropTypes.arrayOf(PropTypes.shape({ currentState: PropTypes.string }))
+    .isRequired,
   index: PropTypes.number.isRequired,
   tab: PropTypes.shape({}).isRequired,
   setTabLoaded: PropTypes.func.isRequired,
+  inView: PropTypes.bool.isRequired,
 };
 
 export default DesActivityReplayer;

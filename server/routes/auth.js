@@ -47,6 +47,18 @@ router.post('/login', async (req, res) => {
   return login(req, res);
 });
 
+router.post('/oauthReturn', (req, res) => {
+  const user = getUser(req);
+  if (user) recordLogin(user._id);
+  return res.json({ result: 'success' });
+});
+
+const recordLogin = async (userId) => {
+  await User.findByIdAndUpdate(userId, {
+    lastLogin: new Date(),
+  });
+};
+
 const login = async (req, res) => {
   try {
     const { message, accessToken, refreshToken } = await ssoService.login(
@@ -57,6 +69,7 @@ const login = async (req, res) => {
     }
 
     const verifiedToken = await jwt.verify(accessToken, secret);
+    recordLogin(verifiedToken.vmtUserId);
     const vmtUser = await User.findById(verifiedToken.vmtUserId)
       .populate({
         path: 'courses',

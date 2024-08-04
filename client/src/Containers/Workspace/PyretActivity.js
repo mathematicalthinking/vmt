@@ -31,11 +31,14 @@ const CodePyretOrg = (props) => {
     [inControl]
   );
 
-  const { iframeSrc, postMessage, currentState, isReady } = usePyret(
-    cpoIframe,
-    onMessage,
-    initialState
-  );
+  const {
+    iframeSrc,
+    postMessage,
+    currentState,
+    hasControlViolation,
+    resetViolation,
+    isReady,
+  } = usePyret(cpoIframe, onMessage, initialState);
 
   useEffect(() => {
     socket.on('RECEIVE_EVENT', handleReceiveEvent);
@@ -47,18 +50,19 @@ const CodePyretOrg = (props) => {
 
   // communicating to Pyret Editor about control state
   useEffect(() => {
-    if (isFirstTabLoaded) {
+    if (isReady) {
       // states: ['gainControl', 'loseControl']
       // VMT states: ['ME', 'NONE', 'OTHER']
       if (inControl === 'ME') {
         postMessage({ type: 'gainControl' });
         console.log('gained Control!');
+        _resetWarning();
       } else {
         postMessage({ type: 'loseControl' });
         console.log('lost Control!');
       }
     }
-  }, [inControl, isFirstTabLoaded]);
+  }, [inControl, isReady]);
 
   useEffect(() => {
     if (!currentState) return;
@@ -72,10 +76,9 @@ const CodePyretOrg = (props) => {
     });
   }, [currentState]);
 
-  // useEffect(() => {
-  //   const { setFirstTabLoaded } = props;
-  //   if (isReady) setFirstTabLoaded();
-  // }, [isReady]);
+  useEffect(() => {
+    if (hasControlViolation) setShowControlWarning(true);
+  }, [hasControlViolation]);
 
   useEffect(() => {
     if (iframeSrc && !isFirstTabLoaded) setFirstTabLoaded();
@@ -131,27 +134,27 @@ const CodePyretOrg = (props) => {
     }
   }
 
+  function _resetWarning() {
+    setShowControlWarning(false);
+    resetViolation();
+  }
+
   return (
     <Fragment>
       <ControlWarningModal
         showControlWarning={showControlWarning}
-        toggleControlWarning={() => {
-          setShowControlWarning(false);
-        }}
+        toggleControlWarning={_resetWarning}
         takeControl={() => {
           props.toggleControl();
-          setShowControlWarning(false);
+          _resetWarning();
         }}
         inControl={inControl}
-        cancel={() => {
-          setShowControlWarning(false);
-        }}
+        cancel={_resetWarning}
         inAdminMode={user.inAdminMode}
       />
 
       <div
         className={classes.Activity}
-        onClickCapture={_checkForControl}
         id="containerParent"
         style={{
           height: '890px', // @TODO this needs to be adjusted based on the editor instance.
@@ -162,10 +165,9 @@ const CodePyretOrg = (props) => {
           style={{
             width: '100%',
             height: '100%',
-            pointerEvents: !_hasControl() ? 'none' : 'auto',
           }}
           title="pyret"
-          src={iframeSrc} // "http://localhost:5000/editor"
+          src={iframeSrc}
         />
       </div>
     </Fragment>

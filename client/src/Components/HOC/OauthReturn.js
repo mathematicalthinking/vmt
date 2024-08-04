@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Modal } from 'Components';
+import { AUTH } from 'utils';
 import GoogleLogin from 'Components/Form/Google/LoginButton';
 import { getUser } from '../../store/actions';
 import SmallLoading from '../Loading/SmallLoading';
@@ -25,7 +26,10 @@ class OauthReturn extends Component {
       // If they want to use the acct that they selected, continue as normal,
       // else redirect back to the Google Oauth page.
       this.setState({ showModal: true });
-    } else connectGetUser();
+    } else {
+      connectGetUser();
+      AUTH.oauthReturn();
+    }
   }
 
   render() {

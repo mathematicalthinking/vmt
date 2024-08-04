@@ -60,9 +60,7 @@ if (process.env.NODE_ENV === 'development') {
   // only log errors on deployment
   app.use(
     logger('dev', {
-      skip: function(req, res) {
-        return res.statusCode < 400;
-      },
+      skip: (req, res) => res.statusCode < 400,
     })
   );
 }

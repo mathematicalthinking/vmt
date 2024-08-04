@@ -97,9 +97,14 @@ class DesmosReplayer extends Component {
 
 DesmosReplayer.propTypes = {
   inView: PropTypes.bool.isRequired,
-  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  log: PropTypes.arrayOf(PropTypes.shape({ currentState: PropTypes.string }))
+    .isRequired,
   index: PropTypes.number.isRequired,
-  tab: PropTypes.shape({}).isRequired,
+  tab: PropTypes.shape({
+    _id: PropTypes.string,
+    desmosLink: PropTypes.string,
+    startingPoint: PropTypes.string,
+  }).isRequired,
   setTabLoaded: PropTypes.func.isRequired,
   setMathState: PropTypes.func.isRequired,
 };
