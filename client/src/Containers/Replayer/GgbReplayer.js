@@ -81,80 +81,6 @@ class GgbReplayer extends Component {
     } else if (ggbEvent) {
       await this.writeGgbEventToGraph(ggbEvent, data._id);
     }
-    // return;
-    // switch (eventType) {
-    //   case 'ADD':
-    //     if (data.undoRemove) {
-    //       if (data.undoXML) {
-    //         this.ggbApplet.evalXML(data.undoXML);
-    //         this.ggbApplet.evalCommand('UpdateConstruction()');
-    //       }
-    //       if (data.undoArray) {
-    //         this.recursiveUpdate(data.undoArray, true);
-    //       }
-    //     } else if (data.definition) {
-    //       this.ggbApplet.evalCommand(`${data.label}:${data.definition}`);
-    //     } else if (data.ggbEvent && data.ggbEvent.commandString) {
-    //       // not sure if this is correct...
-    //       this.ggbApplet.evalCommand(data.ggbEvent.commandString);
-    //     }
-    //     this.ggbApplet.evalXML(getEventXml(data));
-    //     this.ggbApplet.evalCommand('UpdateConstruction()');
-    //     break;
-    //   case 'REMOVE':
-    //     if (data.eventArray && data.eventArray.length > 1) {
-    //       data.eventArray.forEach((labelOrGgbEvent) => {
-    //         if (typeof labelOrGgbEvent === 'string') {
-    //           this.ggbApplet.deleteObject(labelOrGgbEvent);
-    //         } else {
-    //           this.ggbApplet.deleteObject(labelOrGgbEvent.label);
-    //         }
-    //       });
-    //     } else {
-    //       this.ggbApplet.deleteObject(getEventLabel(data));
-    //     }
-    //     break;
-    //   case 'UPDATE':
-    //     this.ggbApplet.evalXML(getEventXml(data));
-    //     this.ggbApplet.evalCommand('UpdateConstruction()');
-    //     break;
-    //   case 'CHANGE_PERSPECTIVE':
-    //     this.ggbApplet.setPerspective(getEventXml(data));
-    //     this.ggbApplet.showAlgebraInput(true);
-    //     // this.ggbApplet.evalXML(data.event);
-    //     // this.ggbApplet.evalCommand("UpdateConstruction()");
-    //     break;
-    //   case 'BATCH_UPDATE':
-    //     // make a copy because we're going to mutate the array so we
-    //     // know when to stop the recursive process
-    //     this.recursiveUpdate([...data.eventArray], false);
-    //     break;
-    //   case 'BATCH_ADD':
-    //     if (data.definition) {
-    //       // this.ggbApplet.evalCommand(data.event);
-    //       this.recursiveUpdate(data.eventArray, true);
-    //     } else if (data.ggbEvent && data.ggbEvent.commandString) {
-    //       this.recursiveUpdate(data.eventArray, true);
-    //     }
-    //     break;
-    //   case 'BATCH_REMOVE':
-    //     data.eventArray.forEach((labelOrGgbEvent) => {
-    //       if (typeof labelOrGgbEvent === 'string') {
-    //         this.ggbApplet.deleteObject(labelOrGgbEvent);
-    //       } else {
-    //         this.ggbApplet.deleteObject(labelOrGgbEvent.label);
-    //       }
-    //     });
-    //     break;
-    //   case 'UPDATE_STYLE': {
-    //     if (data.eventArray) {
-    //       this.recursiveUpdate(data.eventArray);
-    //     }
-    //     break;
-    //   }
-    //   default:
-    //     break;
-    // }
   };
 
   onScriptLoad = () => {
@@ -298,6 +224,7 @@ class GgbReplayer extends Component {
       }
       this.ggbApplet.evalCommand('UpdateConstruction()');
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.log(`Error writing ggb event to graph: `, err);
     }
   };
@@ -572,7 +499,9 @@ class GgbReplayer extends Component {
 }
 
 GgbReplayer.propTypes = {
-  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  log: PropTypes.arrayOf(
+    PropTypes.shape({ eventArray: PropTypes.arrayOf(PropTypes.string) })
+  ).isRequired,
   changingIndex: PropTypes.bool.isRequired,
   inView: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
@@ -583,6 +512,7 @@ GgbReplayer.propTypes = {
     appName: PropTypes.string,
     _id: PropTypes.string.isRequired,
     startingPoint: PropTypes.string,
+    startingPointBase64: PropTypes.string,
     ggbFile: PropTypes.string,
   }).isRequired,
   tabId: PropTypes.number.isRequired,

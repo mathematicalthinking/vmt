@@ -55,10 +55,15 @@ const PyretActivityReplayer = (props) => {
 };
 
 PyretActivityReplayer.propTypes = {
-  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  log: PropTypes.arrayOf(PropTypes.shape({ currentState: PropTypes.string }))
+    .isRequired,
   index: PropTypes.number.isRequired,
-  tab: PropTypes.shape({}).isRequired,
+  tab: PropTypes.shape({
+    _id: PropTypes.string,
+    startingPointBase64: PropTypes.string,
+  }).isRequired,
   setTabLoaded: PropTypes.func.isRequired,
+  inView: PropTypes.bool.isRequired,
 };
 
 export default PyretActivityReplayer;
