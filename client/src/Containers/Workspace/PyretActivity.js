@@ -37,6 +37,7 @@ const CodePyretOrg = (props) => {
     currentState,
     hasControlViolation,
     resetViolation,
+    isReady,
   } = usePyret(cpoIframe, onMessage, initialState);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ const CodePyretOrg = (props) => {
 
   // communicating to Pyret Editor about control state
   useEffect(() => {
-    if (isFirstTabLoaded) {
+    if (isReady) {
       // states: ['gainControl', 'loseControl']
       // VMT states: ['ME', 'NONE', 'OTHER']
       if (inControl === 'ME') {
@@ -61,7 +62,7 @@ const CodePyretOrg = (props) => {
         console.log('lost Control!');
       }
     }
-  }, [inControl, isFirstTabLoaded]);
+  }, [inControl, isReady]);
 
   useEffect(() => {
     if (!currentState) return;
