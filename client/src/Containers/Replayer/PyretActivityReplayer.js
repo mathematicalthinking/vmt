@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { usePyret } from 'utils';
 
 const PyretActivityReplayer = (props) => {
-  const { index, log, tab, setTabLoaded } = props;
+  const { index, log, tab, setTabLoaded, inView } = props;
   const { startingPointBase64: initialState } = tab;
   const cpoIframe = useRef();
 
@@ -20,8 +20,8 @@ const PyretActivityReplayer = (props) => {
   }, [iframeSrc]);
 
   useEffect(() => {
-    updatePyret();
-  }, [index]);
+    if (inView) updatePyret();
+  }, [index, inView]);
 
   function updatePyret() {
     const pyretMessageString =
