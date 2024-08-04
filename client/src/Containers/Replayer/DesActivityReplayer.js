@@ -5,15 +5,12 @@ import classes from './DesActivityReplayer.css';
 import { fetchConfigData } from '../Workspace/Tools/DesActivityHelpers';
 
 const DesActivityReplayer = (props) => {
-  const { index } = props;
+  const { index, inView, setTabLoaded } = props;
   const calculatorRef = useRef();
   const calculatorInst = useRef();
 
-  //   function allowKeypressCheck(event) {
-  //     event.preventDefault();
-  //   }
   const initCalc = async (tab) => {
-    const { config, status } = await fetchConfigData(tab);
+    const { config } = await fetchConfigData(tab);
 
     const { Player } = await import('../../external/js/api.full.es');
     const playerOptions = {
@@ -23,16 +20,16 @@ const DesActivityReplayer = (props) => {
 
     calculatorInst.current = new Player(playerOptions);
 
-    props.setTabLoaded(tab._id);
+    setTabLoaded(tab._id);
   };
 
   // handles the updates to the player
 
   useEffect(() => {
-    if (calculatorInst.current) {
+    if (calculatorInst.current && inView) {
       updatePlayer();
     }
-  }, [index]);
+  }, [index, inView]);
 
   function updatePlayer() {
     const { log } = props;
