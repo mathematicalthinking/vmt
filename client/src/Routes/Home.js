@@ -91,23 +91,14 @@ class Home extends PureComponent {
           />
         )}
         <Modal
-          show={(this.isWeekend() || this.isMobile()) && !errorMsgSeen}
+          show={this.isMobile() && !errorMsgSeen}
           closeModal={this.closeModal}
-          height={400}
           width={300}
         >
           {'Welcome to Virtual Math Teams! '}
           <hr />
           {this.isMobile()
             ? 'This Math experience is best viewed on a larger computer screen.'
-            : null}
-          <br />
-          {this.isWeekend()
-            ? `VMT is in development and may undergo regular weekend maintenance${
-                window.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE
-                  ? ` on ${window.env.REACT_APP_VMT_PROD_MAINT_SCHEDULE}`
-                  : ''
-              }, please contact if uptime is needed.`
             : null}
         </Modal>
         <div
