@@ -61,12 +61,12 @@ class Homepage extends PureComponent {
   determineMaintWindow = (win) => {
     const { pageLocation } = this.state;
     if (pageLocation === 'development') {
-      return `VMT is in development and updated reguarly${
-        win ? `: maintenance window is ${win}` : ''
-      }, please contact if uptime is required.`;
+      return `VMT is in development and updated regularly${
+        win ? `; maintenance window is ${win}` : ''
+      }. Please contact us if uptime is required.`;
     }
     if (pageLocation === 'staging') {
-      return 'Staging deployment may have unplanned maintenance, please notify if an uptime window is required.';
+      return 'Staging deployment may have unplanned maintenance, please notify us if an uptime window is required.';
     }
     return null;
   };
