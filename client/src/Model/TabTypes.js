@@ -58,6 +58,7 @@ const defaultProperties = (type) => ({
   editor: Blank(type), // The component used for editing templates
   icon: <img width={28} src="" alt="No Icon" />, // icon shown in resource lists
   references: false, // whether this tab type supports workspace referencing (arrows between mathspace and chat)
+  templateState: () => {},
 });
 
 if (
@@ -81,6 +82,11 @@ const tabTypeProperties = {
     component: CodePyretOrg,
     editor: PyretTemplateEditor,
     icon: <img width={28} src={pyretIcon} alt="Pyret Icon" />,
+    templateState: (value) => ({
+      desmosLink: value,
+      currentStateBase64: value,
+      startingPointBase64: value,
+    }),
   },
   [TAB_TYPES.WEBSKETCHPAD]: {
     ...defaultProperties('WebSketchpad Activity'),
@@ -112,6 +118,11 @@ const tabTypeProperties = {
     miniReplayer: DesActivityMiniReplayer,
     editor: DesmosActivityEditor,
     icon: <img width={25} src={dsmActIcon} alt="Desmos Activity Icon" />,
+    templateState: (value) => ({
+      desmosLink: value,
+      currentStateBase64: '{}',
+      startingPointBase64: '{}',
+    }),
   },
   multiple: { icon: <img width={25} src={bothIcon} alt="Multiple Types" /> },
 };
@@ -148,6 +159,12 @@ function hasReferences(tabType) {
   return tabTypeProperties[tabType]
     ? tabTypeProperties[tabType].references
     : false;
+}
+
+function getTemplateState(tabType, value) {
+  return tabTypeProperties[tabType]
+    ? tabTypeProperties[tabType].templateState(value)
+    : {};
 }
 
 function Buttons({ onClick, disabled }) {
@@ -251,6 +268,7 @@ const TabTypes = {
   activeTabTypes,
   getDisplayName,
   hasReferences,
+  getTemplateState,
 };
 
 export default TabTypes;

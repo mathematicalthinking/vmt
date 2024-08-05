@@ -6,12 +6,19 @@ import React, {
   Fragment,
 } from 'react';
 import PropTypes from 'prop-types';
-import ControlWarningModal from './ControlWarningModal';
 import { usePyret, socket, API } from 'utils';
+import ControlWarningModal from './ControlWarningModal';
 import classes from './graph.css';
 
 const CodePyretOrg = (props) => {
-  const { tab, inControl, user, setFirstTabLoaded, isFirstTabLoaded } = props;
+  const {
+    tab,
+    inControl,
+    user,
+    setFirstTabLoaded,
+    isFirstTabLoaded,
+    toggleControl,
+  } = props;
   const { currentStateBase64: initialState } = tab;
 
   const [showControlWarning, setShowControlWarning] = useState(false);
@@ -127,17 +134,10 @@ const CodePyretOrg = (props) => {
     return inControl === 'ME';
   }
 
-  function _checkForControl(event) {
-    if (!_hasControl()) {
-      event.preventDefault();
-      setShowControlWarning(true);
-    }
-  }
-
-  function _resetWarning() {
+  const _resetWarning = () => {
     setShowControlWarning(false);
     resetViolation();
-  }
+  };
 
   return (
     <Fragment>
@@ -145,7 +145,7 @@ const CodePyretOrg = (props) => {
         showControlWarning={showControlWarning}
         toggleControlWarning={_resetWarning}
         takeControl={() => {
-          props.toggleControl();
+          toggleControl();
           _resetWarning();
         }}
         inControl={inControl}
@@ -175,15 +175,26 @@ const CodePyretOrg = (props) => {
 };
 
 CodePyretOrg.propTypes = {
-  room: PropTypes.shape({}).isRequired,
-  tab: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
+  room: PropTypes.shape({
+    _id: PropTypes.string,
+    tabs: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
+  tab: PropTypes.shape({
+    _id: PropTypes.string,
+    currentStateBase64: PropTypes.string,
+  }).isRequired,
+  user: PropTypes.shape({
+    username: PropTypes.string,
+    inAdminMode: PropTypes.bool,
+  }).isRequired,
   updatedRoom: PropTypes.func.isRequired,
   toggleControl: PropTypes.func.isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
+  isFirstTabLoaded: PropTypes.bool.isRequired,
   inControl: PropTypes.string.isRequired,
   addNtfToTabs: PropTypes.func.isRequired,
   addToLog: PropTypes.func.isRequired,
+  emitEvent: PropTypes.func.isRequired,
 };
 
 export default CodePyretOrg;

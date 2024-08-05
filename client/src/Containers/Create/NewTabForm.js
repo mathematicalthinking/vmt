@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput, RadioBtn, Button } from 'Components';
 import { TabTypes } from 'Model';
-import { API, createMongoId, getMtSsoUrl } from 'utils';
+import { API, createMongoId } from 'utils';
 import classes from './newTabForm.css';
 
 function NewTabForm({
@@ -67,8 +67,8 @@ function NewTabForm({
             desmosLink,
             ...(tabType === TabTypes.PYRET
               ? {
-                  currentStateBase64: desmosLink,
-                  startingPointBase64: desmosLink,
+                  currentStateBase64: desmosLink, // used by rooms
+                  startingPointBase64: desmosLink, // used by rooms & templates
                 }
               : {}),
             appName,
@@ -156,6 +156,7 @@ function NewTabForm({
       </div>
       {requestURL(tabType) && (
         <TextInput
+          type="textarea"
           light
           value={desmosLink}
           change={(event) => setDesmosLink(event.target.value)}
