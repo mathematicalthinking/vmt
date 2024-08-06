@@ -1,16 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { TextInput, Button } from 'Components';
+import { TabTypes } from 'Model';
 import { getDesmosActivityUrl } from 'utils';
 import classes from './tools.css';
-import { TextInput, Button } from 'Components';
 
 const ActivityTools = (props) => {
   const { owner, copy, goBack, tabs, currentTab, onSave } = props;
   const [link, setLink] = useState(currentTab.desmosLink);
+  const [isChanged, setIsChanged] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const savedLink = useRef(currentTab.desmosLink);
 
   useEffect(() => {
     setLink(currentTab.desmosLink);
+    setIsChanged(false);
+    setIsSaved(false);
+    savedLink.current = currentTab.desmosLink;
   }, [currentTab._id]);
 
   const tabdata = tabs.map((tab) => {
@@ -33,6 +40,30 @@ const ActivityTools = (props) => {
     }
     return null;
   });
+
+  const _handleChange = (event) => {
+    setLink(event.target.value);
+    setIsChanged(true);
+  };
+  const _handleSave = () => {
+    savedLink.current = currentTab.desmosLink;
+    onSave(link);
+    setIsChanged(false);
+    setIsSaved(true);
+  };
+  const _handleCancel = () => {
+    setLink(currentTab.desmosLink);
+    setIsChanged(false);
+    setIsSaved(false);
+  };
+
+  const _handleUndo = () => {
+    onSave(savedLink.current);
+    setLink(savedLink.current);
+    setIsChanged(false);
+    setIsSaved(false);
+  };
+
   return (
     <div className={classes.Container}>
       <h3 className={classes.Title}>Tools</h3>
@@ -110,7 +141,7 @@ const ActivityTools = (props) => {
                 className={classes.SideButton}
                 role="button"
                 tabIndex="-3"
-                onKeyPress={copy}
+                onKeyDown={copy}
                 onClick={copy}
                 data-testid="copy-activity"
               >
@@ -119,14 +150,34 @@ const ActivityTools = (props) => {
             </div>
           </div>
         )}
-        {currentTab.desmosLink && (
+        {TabTypes.hasInitializer(currentTab.tabType) && (
           <div>
             <TextInput
+              type="textarea"
               light
               value={link}
-              change={(event) => setLink(event.target.value)}
-            ></TextInput>
-            <Button click={() => onSave(link)}>Save</Button>
+              change={_handleChange}
+            />
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+              }}
+            >
+              {' '}
+              <Button disabled={!isChanged} click={_handleSave}>
+                Save
+              </Button>
+              <Button
+                disabled={!isChanged}
+                theme="Cancel"
+                click={_handleCancel}
+              >
+                Cancel
+              </Button>
+              {isSaved && <Button click={_handleUndo}>Undo</Button>}
+            </div>
           </div>
         )}
         <div className={classes.Controls}>
@@ -135,7 +186,7 @@ const ActivityTools = (props) => {
             role="button"
             tabIndex="-4"
             onClick={goBack}
-            onKeyPress={goBack}
+            onKeyDown={goBack}
             theme="Small"
             data-testid="exit-room"
           >
@@ -153,6 +204,12 @@ ActivityTools.propTypes = {
   // save: PropTypes.func,
   copy: PropTypes.func.isRequired,
   goBack: PropTypes.func.isRequired,
+  currentTab: PropTypes.shape({
+    tabType: PropTypes.string,
+    _id: PropTypes.string,
+    desmosLink: PropTypes.string,
+  }).isRequired,
+  onSave: PropTypes.func.isRequired,
 };
 
 // ActivityTools.defaultProps = {

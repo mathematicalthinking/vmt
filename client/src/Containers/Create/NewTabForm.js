@@ -156,7 +156,6 @@ function NewTabForm({
       </div>
       {requestURL(tabType) && (
         <TextInput
-          type="textarea"
           light
           value={desmosLink}
           change={(event) => setDesmosLink(event.target.value)}
