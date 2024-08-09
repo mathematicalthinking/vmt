@@ -92,6 +92,13 @@ export const initializeNewDesmosActivity = async (roomConfig) => {
     currentStateBase64: JSON.stringify(responses),
   };
 };
+
+export const extractActivityCode = (url) => {
+  const CODE_LENGTH = 24;
+  const link = url.split('/');
+  const code = link[link.length - 1].slice(0, CODE_LENGTH);
+  return code;
+};
 // Activity Confguration MetaData Schemas
 // Schemas should conform to JSON Schema syntax. See: https://json-schema.org/
 export const activityMetadataSchema = {

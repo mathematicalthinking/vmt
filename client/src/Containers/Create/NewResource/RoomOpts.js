@@ -150,6 +150,7 @@ RoomOpts.propTypes = {
   desmosLink: PropTypes.string.isRequired,
   setDesmosLink: PropTypes.func.isRequired,
   setDesmosCalcLink: PropTypes.func.isRequired,
+  setLink: PropTypes.func.isRequired,
 };
 
 RoomOpts.defaultProps = {

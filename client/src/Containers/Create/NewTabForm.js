@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput, RadioBtn, Button } from 'Components';
 import { TabTypes } from 'Model';
-import { API, createMongoId, getMtSsoUrl } from 'utils';
+import { API, createMongoId } from 'utils';
+import { extractActivityCode } from 'Containers/Workspace/Tools/DesActivityHelpers';
 import classes from './newTabForm.css';
 
 function NewTabForm({
@@ -23,6 +24,7 @@ function NewTabForm({
   const [desmosLink, setDesmosLink] = useState('');
   const [tabType, setTabType] = useState(CLONE);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [displayLink, setDisplayLink] = useState('');
 
   const onKeyDown = (event) => {
     if (event.key === 'Enter') {
@@ -35,7 +37,7 @@ function NewTabForm({
   const requestURL = (type) => {
     switch (type) {
       case TabTypes.DESMOS_ACTIVITY:
-        return 'Desmos Activity Code';
+        return 'Desmos Activity Code or URL';
       case TabTypes.PYRET:
         return 'Published URL';
       default:
@@ -49,6 +51,22 @@ function NewTabForm({
     setDesmosLink('');
     setTabType(CLONE);
     setErrorMessage(null);
+    setDisplayLink('');
+  };
+
+  const handleUpdateLink = (type, value) => {
+    switch (type) {
+      case TabTypes.DESMOS_ACTIVITY: {
+        const code = extractActivityCode(value);
+        setDesmosLink(code);
+        break;
+      }
+      case TabTypes.PYRET:
+        setDesmosLink(value);
+        break;
+      default:
+    }
+    setDisplayLink(value);
   };
 
   const submit = async () => {
@@ -157,8 +175,8 @@ function NewTabForm({
       {requestURL(tabType) && (
         <TextInput
           light
-          value={desmosLink}
-          change={(event) => setDesmosLink(event.target.value)}
+          value={displayLink}
+          change={(event) => handleUpdateLink(tabType, event.target.value)}
           name="desmosLink"
           label={requestURL(tabType)}
         />
