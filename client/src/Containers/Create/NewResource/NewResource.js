@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { hri } from 'human-readable-ids';
+import { extractActivityCode } from 'Containers/Workspace/Tools/DesActivityHelpers';
 import Step1 from './Step1';
 import Step2Copy from './Step2Copy';
 import Step2New from './Step2New';
@@ -72,9 +73,7 @@ class NewResourceContainer extends Component {
   };
 
   linkMod = (event) => {
-    const codeLength = 24;
-    const link = event.target.value.split('/');
-    const code = link[link.length - 1].slice(0, codeLength);
+    const code = extractActivityCode(event.target.value);
     this.setState({
       desmosLink: code,
       [event.target.name]: event.target.value,
@@ -472,12 +471,11 @@ class NewResourceContainer extends Component {
             width={650}
             show={creating}
             closeModal={this.closeModal}
-            isLoading
           >
             {step > 0 ? (
               <i
                 onClick={this.prevStep}
-                onKeyPress={this.prevStep}
+                onKeyDown={this.prevStep}
                 tabIndex="-1"
                 role="button"
                 className={['fas', 'fa-arrow-left', classes.BackIcon].join(' ')}

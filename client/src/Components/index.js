@@ -31,7 +31,6 @@ export { default as Modal } from './UI/Modal/Modal';
 export { default as BigModal } from './UI/Modal/BigModal';
 export { default as PrivateAccess } from './UI/Modal/PrivateAccess';
 export { default as PublicAccess } from './UI/Modal/PublicAccess';
-export { default as FirstView } from './UI/Modal/FirstView';
 export { default as Trash } from './UI/Trash/Trash';
 export { default as MousePointer } from './UI/Icons/MousePointer';
 export { default as ArrowLeft } from './UI/Icons/ArrowLeft';
