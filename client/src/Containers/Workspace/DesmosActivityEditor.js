@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import classes from './graph.css';
-
-import { fetchConfigData } from './Tools/DesActivityHelpers';
 import { API } from 'utils';
+import classes from './graph.css';
+import { fetchConfigData } from './Tools/DesActivityHelpers';
 
 const DesmosActivityEditor = (props) => {
   const [activityHistory, setActivityHistory] = useState({});
@@ -42,7 +41,7 @@ const DesmosActivityEditor = (props) => {
 
   const initEditor = async () => {
     const { tab, setFirstTabLoaded } = props;
-    const { config, status } = await fetchConfigData(tab);
+    const { config } = await fetchConfigData(tab);
     const { ActivityEditor } = await import('../../external/js/editor.es');
     const editorOptions = {
       activityConfig: config,
@@ -111,8 +110,11 @@ const DesmosActivityEditor = (props) => {
 };
 
 DesmosActivityEditor.propTypes = {
-  activity: PropTypes.shape({}).isRequired,
-  tab: PropTypes.shape({}).isRequired,
+  activity: PropTypes.shape({ _id: PropTypes.string }).isRequired,
+  tab: PropTypes.shape({
+    startingPointBase64: PropTypes.string,
+    _id: PropTypes.string,
+  }).isRequired,
   user: PropTypes.shape({}),
   setFirstTabLoaded: PropTypes.func.isRequired,
   updateActivityTab: PropTypes.func.isRequired,
