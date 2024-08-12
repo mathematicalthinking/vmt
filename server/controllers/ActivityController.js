@@ -228,9 +228,10 @@ module.exports = {
         body.selectedTabIds.length > 0
       ) {
         // creating activity from existing room
+        // use .lean() to get regular objects rather than Mongoose docs
         existingTabs = await db.Tab.find({
           _id: { $in: body.selectedTabIds },
-        });
+        }).lean();
       }
       let createdActivity;
       let ggbFiles;
@@ -239,12 +240,17 @@ module.exports = {
       }
       // mathspace only exists when generated from a replayer state
       if (body.mathState) {
-        existingTabs.forEach((tab, i, array) => {
-          if (body.mathState[tab._id] && tab.tabType === 'geogebra') {
-            array[i].currentStateBase64 = body.mathState[tab._id];
-          } else if (body.mathState[tab._id] && tab.tabType === 'desmos') {
-            array[i].currentState = body.mathState[tab._id];
+        existingTabs = existingTabs.map((tab) => {
+          const currentState = body.mathState[tab._id];
+          if (!currentState) return tab;
+
+          if (['geogebra', 'desmosActivity', 'pyret'].includes(tab.tabType)) {
+            tab.currentStateBase64 = currentState;
+          } else if (tab.tabType === 'desmos') {
+            tab.currentState = currentState;
           }
+
+          return tab;
         });
       }
       delete body.ggbFiles;
@@ -255,7 +261,9 @@ module.exports = {
       const getCurrentStateBase64 = (tab) => {
         switch (tab.roomType || tab.tabType) {
           case 'desmosActivity':
-            return tab.startingPointBase64;
+            return tab.currentStateBase64 === '{}'
+              ? tab.startingPointBase64
+              : tab.currentStateBase64;
           case 'pyret':
             return tab.currentStateBase64 || tab.desmosLink;
           default:
@@ -297,7 +305,7 @@ module.exports = {
               currentStateBase64: getCurrentStateBase64(body),
             });
           }
-
+          console.log(existingTabs);
           return Promise.all(
             existingTabs.map((tab) => {
               const newTab = new db.Tab({
