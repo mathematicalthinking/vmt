@@ -1,6 +1,6 @@
+const moment = require('moment');
 const db = require('../models');
 const STATUS = require('../constants/status');
-const moment = require('moment');
 
 module.exports = {
   get: (params) => {
@@ -242,12 +242,16 @@ module.exports = {
       if (body.mathState) {
         existingTabs = existingTabs.map((tab) => {
           const currentState = body.mathState[tab._id];
+
           if (!currentState) return tab;
 
-          if (['geogebra', 'desmosActivity', 'pyret'].includes(tab.tabType)) {
+          if (['geogebra', 'desmosActivity'].includes(tab.tabType)) {
             tab.currentStateBase64 = currentState;
           } else if (tab.tabType === 'desmos') {
             tab.currentState = currentState;
+          } else if (tab.tabType === 'pyret') {
+            tab.startingPointBase64 = currentState;
+            tab.currentStateBase64 = null;
           }
 
           return tab;
@@ -265,7 +269,11 @@ module.exports = {
               ? tab.startingPointBase64
               : tab.currentStateBase64;
           case 'pyret':
-            return tab.currentStateBase64 || tab.desmosLink;
+            return (
+              tab.currentStateBase64 ||
+              tab.startingPointBase64 ||
+              tab.desmosLink
+            );
           default:
             return tab.currentStateBase64;
         }
@@ -305,7 +313,6 @@ module.exports = {
               currentStateBase64: getCurrentStateBase64(body),
             });
           }
-          console.log(existingTabs);
           return Promise.all(
             existingTabs.map((tab) => {
               const newTab = new db.Tab({
@@ -314,10 +321,7 @@ module.exports = {
                 ggbFile: tab.ggbFile,
                 currentState: tab.currentState,
                 startingPoint: tab.currentState,
-                startingPointBase64:
-                  tab.tabType === 'desmosActivity'
-                    ? tab.startingPointBase64
-                    : tab.currentStateBase64,
+                startingPointBase64: tab.startingPointBase64,
                 currentStateBase64: getCurrentStateBase64(tab),
                 desmosLink: tab.desmosLink,
                 tabType: tab.tabType,
