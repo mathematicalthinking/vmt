@@ -1,6 +1,6 @@
+const moment = require('moment');
 const db = require('../models');
 const STATUS = require('../constants/status');
-const moment = require('moment');
 
 module.exports = {
   get: (params) => {
@@ -228,9 +228,10 @@ module.exports = {
         body.selectedTabIds.length > 0
       ) {
         // creating activity from existing room
+        // use .lean() to get regular objects rather than Mongoose docs
         existingTabs = await db.Tab.find({
           _id: { $in: body.selectedTabIds },
-        });
+        }).lean();
       }
       let createdActivity;
       let ggbFiles;
@@ -239,12 +240,21 @@ module.exports = {
       }
       // mathspace only exists when generated from a replayer state
       if (body.mathState) {
-        existingTabs.forEach((tab, i, array) => {
-          if (body.mathState[tab._id] && tab.tabType === 'geogebra') {
-            array[i].currentStateBase64 = body.mathState[tab._id];
-          } else if (body.mathState[tab._id] && tab.tabType === 'desmos') {
-            array[i].currentState = body.mathState[tab._id];
+        existingTabs = existingTabs.map((tab) => {
+          const currentState = body.mathState[tab._id];
+
+          if (!currentState) return tab;
+
+          if (['geogebra', 'desmosActivity'].includes(tab.tabType)) {
+            tab.currentStateBase64 = currentState;
+          } else if (tab.tabType === 'desmos') {
+            tab.currentState = currentState;
+          } else if (tab.tabType === 'pyret') {
+            tab.startingPointBase64 = currentState;
+            tab.currentStateBase64 = null;
           }
+
+          return tab;
         });
       }
       delete body.ggbFiles;
@@ -255,9 +265,15 @@ module.exports = {
       const getCurrentStateBase64 = (tab) => {
         switch (tab.roomType || tab.tabType) {
           case 'desmosActivity':
-            return tab.startingPointBase64;
+            return tab.currentStateBase64 === '{}'
+              ? tab.startingPointBase64
+              : tab.currentStateBase64;
           case 'pyret':
-            return tab.currentStateBase64 || tab.desmosLink;
+            return (
+              tab.currentStateBase64 ||
+              tab.startingPointBase64 ||
+              tab.desmosLink
+            );
           default:
             return tab.currentStateBase64;
         }
@@ -297,7 +313,6 @@ module.exports = {
               currentStateBase64: getCurrentStateBase64(body),
             });
           }
-
           return Promise.all(
             existingTabs.map((tab) => {
               const newTab = new db.Tab({
@@ -306,10 +321,7 @@ module.exports = {
                 ggbFile: tab.ggbFile,
                 currentState: tab.currentState,
                 startingPoint: tab.currentState,
-                startingPointBase64:
-                  tab.tabType === 'desmosActivity'
-                    ? tab.startingPointBase64
-                    : tab.currentStateBase64,
+                startingPointBase64: tab.startingPointBase64,
                 currentStateBase64: getCurrentStateBase64(tab),
                 desmosLink: tab.desmosLink,
                 tabType: tab.tabType,

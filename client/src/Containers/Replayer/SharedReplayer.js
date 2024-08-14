@@ -243,9 +243,9 @@ class SharedReplayer extends Component {
   _setInitialMathState = () => {
     const { populatedRoom } = this.props;
     populatedRoom.tabs.forEach((tab) => {
-      if (tab.tabType === 'geogebra') {
+      if (tab.tabType === 'geogebra' || tab.tabType === 'pyret') {
         this.setState({
-          mathState: { [tab._id]: tab.startingPointBase64 },
+          mathState: { [tab._id]: tab.startingPointBase64 || tab.desmosLink },
         });
       } else if (tab.tabType === 'desmos') {
         this.setState({

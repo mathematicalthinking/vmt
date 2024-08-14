@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { usePyret } from 'utils';
 
 const PyretActivityReplayer = (props) => {
-  const { index, log, tab, setTabLoaded, inView } = props;
+  const { index, log, tab, setTabLoaded, inView, setMathState } = props;
   const { startingPointBase64: initialState } = tab;
   const cpoIframe = useRef();
 
-  const { iframeSrc, postMessage } = usePyret(
+  const { iframeSrc, postMessage, currentState } = usePyret(
     cpoIframe,
     () => {},
     initialState
@@ -23,12 +23,17 @@ const PyretActivityReplayer = (props) => {
     if (inView) updatePyret();
   }, [index, inView]);
 
+  useEffect(() => {
+    setMathState(JSON.stringify(currentState));
+  }, [currentState]);
+
   function updatePyret() {
     const pyretMessageString =
       log[index] && log[index].currentState ? log[index].currentState : null;
 
     const pyretMessage = JSON.parse(pyretMessageString);
     if (pyretMessage) {
+      setMathState(JSON.stringify(pyretMessage.state));
       postMessage(pyretMessage);
     }
   }
@@ -64,6 +69,7 @@ PyretActivityReplayer.propTypes = {
   }).isRequired,
   setTabLoaded: PropTypes.func.isRequired,
   inView: PropTypes.bool.isRequired,
+  setMathState: PropTypes.func.isRequired,
 };
 
 export default PyretActivityReplayer;
