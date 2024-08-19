@@ -1,7 +1,7 @@
 /* eslint-disable no-throw-literal */
 const _ = require('lodash');
-const db = require('../models');
 const moment = require('moment');
+const db = require('../models');
 const ROLE = require('../constants/role');
 const STATUS = require('../constants/status');
 

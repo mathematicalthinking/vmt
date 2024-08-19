@@ -80,6 +80,10 @@ const Room = new mongoose.Schema(
   { timestamps: true }
 );
 
+Room.index({ isTrashed: 1, status: 1 });
+Room.index({ course: 1 });
+Room.index({ activity: 1 });
+
 Room.pre('save', function(next) {
   this.dbUpdatedAt = Date.now();
   if (this.isNew) {
