@@ -918,7 +918,10 @@ module.exports = {
       }
     );
 
+    const beforeRoom = Date.now();
     const [results] = await Room.aggregate(pipeline);
+
+    const roomTime = Date.now() - beforeRoom;
 
     const { paginatedResults: rooms, totalCount } = results;
 
@@ -970,7 +973,10 @@ module.exports = {
       },
     ];
 
+    const beginEvents = Date.now();
     const roomEvents = await Event.aggregate(eventsPipeline);
+
+    const eventTime = Date.now() - beginEvents;
 
     // Map room events to rooms
     const updatedRooms = rooms.map((room) => {
@@ -984,7 +990,7 @@ module.exports = {
       };
     });
 
-    return [updatedRooms, { totalCount }];
+    return [updatedRooms, { totalCount, eventTime, roomTime }];
   },
 
   // criteria will be various filters selected by the user as an object. searchText is the string the user types.
