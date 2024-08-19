@@ -717,6 +717,7 @@ module.exports = {
       (member) => String(member._id) === String(userId)
     );
     if (!currentMember) {
+      // eslint-disable-next-line no-console
       console.log(
         'no current member found, returning previous currentMembers from db'
       );
@@ -820,7 +821,7 @@ module.exports = {
             },
           },
           tempRoom: 1,
-          chat: 1,
+          messagesCount: { $size: '$chat' },
         },
       },
       {
@@ -844,7 +845,7 @@ module.exports = {
           updatedAt: 1,
           members: 1,
           tempRoom: 1,
-          chat: 1,
+          messagesCount: 1,
           facilitatorUsernames: {
             $map: {
               input: '$facilitatorObject',
@@ -887,7 +888,7 @@ module.exports = {
           updatedAt: 1,
           members: 1,
           tempRoom: 1,
-          chat: 1,
+          messagesCount: 1,
           tabs: {
             $map: {
               input: '$tabObject',
@@ -903,23 +904,16 @@ module.exports = {
             { $sort: { updatedAt: -1 } },
             { $skip: skip ? parseInt(skip, 10) : 0 },
             { $limit: 20 },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                instructions: 1,
-                description: 1,
-                image: 1,
-                privacySetting: 1,
-                updatedAt: 1,
-                members: 1,
-                tempRoom: 1,
-                messagesCount: { $size: '$chat' },
-                tabs: 1,
-              },
-            },
           ],
-          totalCount: [{ $count: 'count' }],
+          totalCount: [
+            { $count: 'count' }, // Count total documents matching the criteria
+          ],
+        },
+      },
+      {
+        $project: {
+          paginatedResults: 1,
+          totalCount: { $arrayElemAt: ['$totalCount.count', 0] }, // Extract the total count
         },
       }
     );
@@ -932,40 +926,53 @@ module.exports = {
     const eventsPipeline = [
       { $match: { room: { $in: roomIds } } },
       {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'userDetails',
+        },
+      },
+      {
         $project: {
           _id: 1,
           room: 1,
           user: 1,
+          userDetails: {
+            $map: {
+              input: '$userDetails',
+              as: 'user',
+              in: {
+                _id: '$$user._id',
+                username: '$$user.username',
+              },
+            },
+          },
         },
       },
       {
         $group: {
-          _id: '$room',
-          eventsCount: { $sum: 1 },
-          activeMembers: { $addToSet: '$user' },
+          _id: '$room', // Group by room ID
+          eventsCount: { $sum: 1 }, // Count the number of events for this room
+          activeMembers: {
+            $addToSet: {
+              $arrayElemAt: ['$userDetails', 0], // Add the first (and only) user object from userDetails, ensuring only _id and username
+            },
+          },
         },
       },
       {
-        $facet: {
-          paginatedResults: [
-            { $skip: skip ? parseInt(skip, 10) : 0 },
-            { $limit: 20 },
-            {
-              $project: {
-                _id: 1,
-                eventsCount: 1,
-                activeMembers: 1,
-              },
-            },
-          ],
+        $project: {
+          _id: 1,
+          eventsCount: 1,
+          activeMembers: 1,
         },
       },
     ];
 
-    const [eventResults] = await Event.aggregate(eventsPipeline);
+    const roomEvents = await Event.aggregate(eventsPipeline);
 
-    const { paginatedResults: roomEvents } = eventResults;
-
+    // Map room events to rooms
     const updatedRooms = rooms.map((room) => {
       const roomEvent = roomEvents.find(
         (r) => String(r._id) === String(room._id)
@@ -973,15 +980,11 @@ module.exports = {
       return {
         ...room,
         eventsCount: roomEvent ? roomEvent.eventsCount : 0,
-        'activeMembers.username': [],
-        'activeMembers._id': roomEvent ? roomEvent.activeMembers : [],
+        activeMembers: roomEvent ? roomEvent.activeMembers : [],
       };
     });
 
-    return [
-      updatedRooms,
-      { totalCount: totalCount && totalCount[0] ? totalCount[0].count : 0 },
-    ];
+    return [updatedRooms, { totalCount }];
   },
 
   // criteria will be various filters selected by the user as an object. searchText is the string the user types.

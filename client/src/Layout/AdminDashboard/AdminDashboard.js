@@ -2,8 +2,6 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker-cssmodules.css';
-import DashboardBoxList from '../DashboardBoxList/DashboardBoxList';
 import {
   Search,
   CustomLink,
@@ -12,6 +10,8 @@ import {
   InfoBox,
   SimpleLoading,
 } from 'Components';
+import 'react-datepicker/dist/react-datepicker-cssmodules.css';
+import DashboardBoxList from '../DashboardBoxList/DashboardBoxList';
 import classes from './adminDashboard.css';
 
 class AdminDashboard extends Component {
@@ -225,6 +225,7 @@ AdminDashboard.propTypes = {
   manageUser: PropTypes.func.isRequired,
   ownUserId: PropTypes.string.isRequired,
   getIconActions: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
 };
 
 export default AdminDashboard;
