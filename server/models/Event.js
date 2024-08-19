@@ -49,6 +49,8 @@ const Event = new mongoose.Schema({
   isTrashed: { type: Boolean, default: false },
 });
 
+Event.index({ room: 1 });
+
 Event.pre('save', async function() {
   // tabs[this.tabIndex].events.push(this._id)
   try {
