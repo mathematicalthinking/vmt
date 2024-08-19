@@ -1,7 +1,6 @@
 const { ObjectId } = require('mongoose').Types;
 const moment = require('moment');
 const db = require('../models');
-const { areObjectIdsEqual } = require('../middleware/utils/helpers');
 const STATUS = require('../constants/status');
 
 module.exports = {
@@ -208,7 +207,7 @@ module.exports = {
       {
         $lookup: {
           from: 'events',
-          let: { userId: '$_id', since: since, to: to },
+          let: { userId: '$_id', since, to },
           pipeline: [
             {
               $match: {
@@ -260,7 +259,7 @@ module.exports = {
       {
         $lookup: {
           from: 'messages',
-          let: { userId: '$_id', since: since, to: to },
+          let: { userId: '$_id', since, to },
           pipeline: [
             {
               $match: {
