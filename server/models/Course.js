@@ -58,6 +58,9 @@ const Course = new mongoose.Schema(
   { timestamps: true }
 );
 
+Course.index({ creator: 1 });
+Course.index({ isTrashed: 1, status: 1 });
+
 // Not using arrow function so we can have access to THIS docuemnt
 // DO WE NEED TO CALL NEXT?
 Course.pre('save', async function() {
