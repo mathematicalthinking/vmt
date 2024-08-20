@@ -50,6 +50,8 @@ const Event = new mongoose.Schema({
 });
 
 Event.index({ room: 1 });
+Event.index({ user: 1 });
+Event.index({ tab: 1 });
 
 Event.pre('save', async function() {
   // tabs[this.tabIndex].events.push(this._id)
