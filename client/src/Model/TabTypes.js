@@ -60,7 +60,7 @@ const defaultProperties = (type) => ({
   editor: Blank(type), // The component used for editing templates
   icon: <img width={28} src="" alt="No Icon" />, // icon shown in resource lists
   references: false, // whether this tab type supports workspace referencing (arrows between mathspace and chat)
-  templateState: () => {},
+  templateState: null,
 });
 
 if (
@@ -164,15 +164,17 @@ function hasReferences(tabType) {
 }
 
 function getTemplateState(tabType, value) {
-  return tabTypeProperties[tabType]
-    ? tabTypeProperties[tabType].templateState(value)
+  const templateStateFunc =
+    tabTypeProperties[tabType] && tabTypeProperties[tabType].templateState;
+  return typeof templateStateFunc === 'function'
+    ? templateStateFunc(value)
     : {};
 }
 
 function hasInitializer(tabType) {
-  return (
-    tabTypeProperties[tabType].templateState !== defaultProperties.templateState
-  );
+  const templateStateFunc =
+    tabTypeProperties[tabType] && tabTypeProperties[tabType].templateState;
+  return templateStateFunc !== defaultProperties(tabType).templateState;
 }
 
 function Buttons({ onClick, disabled }) {
