@@ -8,8 +8,7 @@ function withPopulatedCourse(WrappedComponent) {
     const { match, history } = props;
     const { isSuccess, data, error, isError } = useQuery(
       match.params.course_id,
-      () => API.getPopulatedById('courses', match.params.course_id),
-      { refresh: 10000 }
+      () => API.getPopulatedById('courses', match.params.course_id)
     );
 
     if (isError) {
@@ -18,7 +17,7 @@ function withPopulatedCourse(WrappedComponent) {
 
     const populatedCourse = isSuccess
       ? data.data.result
-      : { _id: match.params.course_id, activities: [], rooms: [] };
+      : { _id: match.params.course_id, activities: [], rooms: [], members: [] };
 
     return (
       <WrappedComponent
@@ -30,7 +29,9 @@ function withPopulatedCourse(WrappedComponent) {
   }
 
   PopulatedCourse.propTypes = {
-    match: PropTypes.shape({}).isRequired,
+    match: PropTypes.shape({
+      params: PropTypes.shape({ course_id: PropTypes.string }),
+    }).isRequired,
     history: PropTypes.shape({}).isRequired,
   };
 

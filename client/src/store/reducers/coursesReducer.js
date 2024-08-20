@@ -67,25 +67,39 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.ADD_COURSE_ACTIVITIES: {
       const updatedCourses = { ...state.byId };
-      updatedCourses[action.courseId].activities = updatedCourses[
-        action.courseId
-      ].activities.concat(action.activityIdsArr);
+
+      if (updatedCourses[action.courseId]) {
+        updatedCourses[action.courseId].activities =
+          updatedCourses[action.courseId].activities || [];
+        updatedCourses[action.courseId].activities = [
+          ...updatedCourses[action.courseId].activities,
+          ...action.activityIdsArr,
+        ];
+      }
+
       return {
         ...state,
         byId: updatedCourses,
       };
     }
     case actionTypes.REMOVE_COURSE_ACTIVITIES: {
-      const updatedById = { ...state.byId };
-      const updatedCourseActivities = updatedById[
-        action.courseId
-      ].activities.filter((id) => id !== action.activityId);
-      updatedById[action.courseId].rooms = updatedCourseActivities;
+      const updatedCourses = { ...state.byId };
+
+      if (updatedCourses[action.courseId]) {
+        updatedCourses[action.courseId].activities =
+          updatedCourses[action.courseId].activities || [];
+
+        updatedCourses[action.courseId].activities = updatedCourses[
+          action.courseId
+        ].activities.filter((id) => !action.activityIdsArr.includes(id));
+      }
+
       return {
         ...state,
-        byId: updatedById,
+        byId: updatedCourses,
       };
     }
+
     case actionTypes.ADD_COURSE_ROOMS: {
       const updatedCourses = { ...state.byId };
       // ONly add unique ids, dont add dups
@@ -125,37 +139,43 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.ADD_ROOM_TO_COURSE_ARCHIVE: {
       const courseToUpdate = { ...state.byId[action.courseId] };
-      // create a default structure if one doesn't exist
-      const prevArchivedRooms =
-        courseToUpdate.archive && courseToUpdate.archive.rooms
-          ? [...courseToUpdate.archive.rooms, action.roomId]
-          : [action.roomId];
-      courseToUpdate.archive.rooms = prevArchivedRooms;
+
+      // Ensure that archive and rooms are properly initialized
+      courseToUpdate.archive = courseToUpdate.archive || {};
+      courseToUpdate.archive.rooms = courseToUpdate.archive.rooms || [];
+
+      courseToUpdate.archive.rooms = [
+        ...courseToUpdate.archive.rooms,
+        action.roomId,
+      ];
 
       return {
         ...state,
         byId: {
           ...state.byId,
-          [action.courseId]: { ...courseToUpdate },
+          [action.courseId]: courseToUpdate,
         },
       };
     }
     case actionTypes.REMOVE_ROOM_FROM_COURSE_ARCHIVE: {
       const courseToUpdate = { ...state.byId[action.courseId] };
-      const rooms = courseToUpdate.archive.rooms.filter(
+
+      courseToUpdate.archive = courseToUpdate.archive || {};
+      courseToUpdate.archive.rooms = courseToUpdate.archive.rooms || [];
+
+      courseToUpdate.archive.rooms = courseToUpdate.archive.rooms.filter(
         (roomId) => roomId !== action.roomId
       );
-
-      courseToUpdate.archive.rooms = rooms;
 
       return {
         ...state,
         byId: {
           ...state.byId,
-          [action.courseId]: { ...courseToUpdate },
+          [action.courseId]: courseToUpdate,
         },
       };
     }
+
     default:
       return state;
   }
