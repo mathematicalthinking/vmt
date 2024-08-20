@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { usePyret, API } from 'utils';
 
@@ -10,7 +10,9 @@ const PyretTemplateEditor = (props) => {
     isFirstTabLoaded,
     updateActivityTab,
   } = props;
-  const { currentStateBase64: initialState } = tab;
+  const { currentStateBase64 } = tab;
+
+  const [initialState, setInitialState] = useState(currentStateBase64);
 
   const cpoIframe = useRef();
   const savedStateRef = useRef();
@@ -24,6 +26,10 @@ const PyretTemplateEditor = (props) => {
     onMessage,
     initialState
   );
+
+  useEffect(() => {
+    setInitialState(currentStateBase64);
+  }, [currentStateBase64]);
 
   useEffect(
     () => () => {
@@ -73,9 +79,14 @@ const PyretTemplateEditor = (props) => {
 };
 
 PyretTemplateEditor.propTypes = {
-  activity: PropTypes.shape({}).isRequired,
-  tab: PropTypes.shape({}).isRequired,
+  activity: PropTypes.shape({ _id: PropTypes.string }).isRequired,
+  tab: PropTypes.shape({
+    _id: PropTypes.string,
+    startingPointBase64: PropTypes.string,
+    currentStateBase64: PropTypes.string,
+  }).isRequired,
   setFirstTabLoaded: PropTypes.func.isRequired,
+  isFirstTabLoaded: PropTypes.bool.isRequired,
   updateActivityTab: PropTypes.func.isRequired,
 };
 

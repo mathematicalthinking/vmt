@@ -9,7 +9,24 @@ const DesmosActivityEditor = (props) => {
   const editorRef = useRef();
   const editorInst = useRef();
 
-  // trigger variable for any Desmos server response other than 200
+  useEffect(() => {
+    return () => {
+      if (editorInst.current) {
+        editorInst.current.destroy();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const initializeEditor = async () => {
+      if (editorInst.current) {
+        editorInst.current.destroy();
+      }
+      await initEditor();
+    };
+
+    initializeEditor();
+  }, [props.tab.desmosLink]);
 
   useEffect(() => {
     putState();
@@ -31,12 +48,7 @@ const DesmosActivityEditor = (props) => {
     if (config) {
       updateObject.currentStateBase64 = JSON.stringify(config);
     }
-    API.put('tabs', tab._id, updateObject)
-      .then(() => updateActivityTab(activity._id, tab._id, updateObject))
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.log(err);
-      });
+    updateActivityTab(activity._id, tab._id, updateObject);
   };
 
   const initEditor = async () => {
@@ -77,15 +89,6 @@ const DesmosActivityEditor = (props) => {
     // Go to screen last used
     return null;
   };
-
-  useEffect(() => {
-    initEditor();
-    return () => {
-      if (editorInst.current && !editorInst.current.isDestroyed()) {
-        editorInst.current.destroy();
-      }
-    };
-  }, []);
 
   return (
     <Fragment>

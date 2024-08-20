@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { getDesmosActivityUrl } from 'utils';
 import classes from './tools.css';
+import { TextInput, Button } from 'Components';
 
 const ActivityTools = (props) => {
-  const { owner, copy, goBack, tabs } = props;
+  const { owner, copy, goBack, tabs, currentTab, onSave } = props;
+  const [link, setLink] = useState(currentTab.desmosLink);
+
+  useEffect(() => {
+    setLink(currentTab.desmosLink);
+  }, [currentTab._id]);
+
   const tabdata = tabs.map((tab) => {
     if (tab.tabType === 'desmosActivity' && tab.desmosLink) {
       // Desmos Base URL: https://teacher.desmos.com/activitybuilder/custom/
@@ -110,6 +117,16 @@ const ActivityTools = (props) => {
                 copy this template
               </div>
             </div>
+          </div>
+        )}
+        {currentTab.desmosLink && (
+          <div>
+            <TextInput
+              light
+              value={link}
+              change={(event) => setLink(event.target.value)}
+            ></TextInput>
+            <Button click={() => onSave(link)}>Save</Button>
           </div>
         )}
         <div className={classes.Controls}>
