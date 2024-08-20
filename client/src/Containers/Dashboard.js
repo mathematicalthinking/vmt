@@ -113,6 +113,7 @@ class Dashboard extends Component {
       this.abortController.abort();
     }
 
+    // eslint-disable-next-line no-undef
     this.abortController = new AbortController();
     const { signal } = this.abortController;
 
@@ -140,8 +141,8 @@ class Dashboard extends Component {
         this.abortController = null;
       })
       .catch((err) => {
-        if (err.message === 'canceled') return;
-        else {
+        if (err.message !== 'canceled') {
+          // eslint-disable-next-line no-console
           console.log('Fetch error: ', err.message);
           this.setState({ isLoading: false });
         }

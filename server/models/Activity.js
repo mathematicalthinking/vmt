@@ -58,6 +58,10 @@ const Activity = new mongoose.Schema(
   { timestamps: true }
 );
 
+Activity.index({ course: 1 });
+Activity.index({ creator: 1 });
+Activity.index({ isTrashed: 1, status: 1 });
+
 // STOP CHANGING THIS FUNCTION BELOW TO AN ARROW FUNCTION!!!
 // WE NEED 'THIS' TO REFER TO THE FUNCTIONS CONTEXT
 Activity.pre('save', async function(next) {

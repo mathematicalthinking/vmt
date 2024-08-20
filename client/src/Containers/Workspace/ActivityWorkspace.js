@@ -67,6 +67,16 @@ class ActivityWorkspace extends Component {
     history.goBack();
   };
 
+  handleOnSave = (value) => {
+    const { activity, connectUpdateActivityTab } = this.props;
+    const { currentTabId } = this.state;
+    const currentTab = activity.tabs.find((t) => t._id === currentTabId);
+    if (!currentTab) return;
+
+    const updatedTab = TabTypes.getTemplateState(currentTab.tabType, value);
+    connectUpdateActivityTab(activity._id, currentTabId, updatedTab);
+  };
+
   render() {
     const {
       activity,
@@ -89,6 +99,7 @@ class ActivityWorkspace extends Component {
     let initialTab = null;
 
     if (activity && !currentTabId) {
+      console.log('setting initial tab');
       // activity has been loaded, but currentTab has not been updated
       // in state. Just use the first tab from the fetched activity
       // as the initial tab. If a user changes tabs, the currentTabId will
@@ -147,6 +158,8 @@ class ActivityWorkspace extends Component {
                 goBack={this.goBack}
                 copy={this.addToMyActivities}
                 tabs={activity.tabs}
+                currentTab={activity.tabs.find((t) => t._id == currentTabId)}
+                onSave={this.handleOnSave}
               />
             }
             bottomLeft={

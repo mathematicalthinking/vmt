@@ -85,8 +85,8 @@ function NewTabForm({
             desmosLink,
             ...(tabType === TabTypes.PYRET
               ? {
-                  currentStateBase64: desmosLink,
-                  startingPointBase64: desmosLink,
+                  currentStateBase64: desmosLink, // used by rooms
+                  startingPointBase64: desmosLink, // used by rooms & templates
                 }
               : {}),
             appName,
