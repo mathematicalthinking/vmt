@@ -2,7 +2,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { withControlMachine, withPopulatedActivity } from 'utils';
+import {
+  withControlMachine,
+  withPopulatedActivity,
+  withPopulatedCourse,
+} from 'utils';
 import Navbar from '../Components/Navigation/Navbar';
 import {
   MyVMT,
@@ -31,7 +35,7 @@ const pages = [
   { path: '/:resource', component: MyVMT, redirectPath: '/' },
   {
     path: '/courses/:course_id/:resource',
-    component: Course,
+    component: withPopulatedCourse(Course),
     redirectPath: '/',
   },
   {

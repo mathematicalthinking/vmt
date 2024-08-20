@@ -868,29 +868,15 @@ Course.defaultProps = {
 //   return [...Object.values(obj)];
 // };
 const mapStateToProps = (store, ownProps) => {
-  // eslint-disable-next-line camelcase
   const { course_id } = ownProps.match.params;
   const localCourse = store.courses.byId[course_id]
     ? populateResource(store, 'courses', course_id, ['activities', 'rooms'])
     : null;
-  // Ownprops.course is the course from the db given by withPopulatedCourse. It has all the activities and rooms in the course; the localCourse
-  // only has the resources that the user has access to.
+
+  // Ownprops.course is the course from the db given by withPopulatedCourse. We need this in case an admin tries to access a course they aren't
+  // a member of.
   return {
-    // course:
-    //   localCourse && localCourse.myRole === 'facilitator'
-    //     ? {
-    //         ...localCourse,
-    //         activities: combineResources([
-    //           ...ownProps.course.activities,
-    //           ...localCourse.activities,
-    //         ]),
-    //         rooms: combineResources([
-    //           ...ownProps.course.rooms,
-    //           ...localCourse.rooms,
-    //         ]),
-    //       }
-    //     : localCourse,
-    course: localCourse,
+    course: localCourse || ownProps.course,
     activities: store.activities.allIds, // @TODO: Note that this prop is never used. It is all activities user has access to.
     rooms: store.rooms.allIds,
     user: store.user,
