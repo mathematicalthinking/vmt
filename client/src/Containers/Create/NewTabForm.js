@@ -174,7 +174,6 @@ function NewTabForm({
       </div>
       {requestURL(tabType) && (
         <TextInput
-          type="textarea"
           light
           value={displayLink}
           change={(event) => handleUpdateLink(tabType, event.target.value)}

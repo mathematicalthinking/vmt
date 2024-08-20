@@ -40,7 +40,9 @@ const activeTabTypes = [
   TAB_TYPES.DESMOS,
 ];
 
+// eslint-disable-next-line react/display-name
 const Blank = (type) => (props) => {
+  // eslint-disable-next-line react/prop-types
   const { setFirstTabLoaded, isFirstTabLoaded, setTabLoaded } = props;
   if (setFirstTabLoaded && !isFirstTabLoaded) setFirstTabLoaded();
   if (setTabLoaded) setTabLoaded();
@@ -167,6 +169,12 @@ function getTemplateState(tabType, value) {
     : {};
 }
 
+function hasInitializer(tabType) {
+  return (
+    tabTypeProperties[tabType].templateState !== defaultProperties.templateState
+  );
+}
+
 function Buttons({ onClick, disabled }) {
   return (
     <Fragment>
@@ -269,6 +277,7 @@ const TabTypes = {
   getDisplayName,
   hasReferences,
   getTemplateState,
+  hasInitializer,
 };
 
 export default TabTypes;
