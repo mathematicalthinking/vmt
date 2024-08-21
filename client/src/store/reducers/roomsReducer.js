@@ -41,7 +41,8 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.UPDATED_ROOM_TAB: {
-      const updatedTabs = state.byId[action.roomId].tabs.map((tab) =>
+      const existingTabs = state.byId[action.roomId].tabs || [];
+      const updatedTabs = existingTabs.map((tab) =>
         tab._id === action.tabId ? { ...tab, ...action.body } : tab
       );
       return {
@@ -115,7 +116,8 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.REMOVE_ROOM_MEMBER: {
-      const updatedMembers = state.byId[action.roomId].members.filter(
+      const existingMembers = state.byId[action.roomId].members || [];
+      const updatedMembers = existingMembers.filter(
         (member) => member._id !== action.userId
       );
       return {
