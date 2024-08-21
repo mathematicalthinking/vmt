@@ -77,7 +77,7 @@ const login = async (req, res) => {
       })
       .populate({
         path: 'rooms',
-        select: '-currentState -chat',
+        select: '-currentState',
         populate: {
           path: 'tabs members.user',
           select: 'username tabType desmosLink name instructions',
