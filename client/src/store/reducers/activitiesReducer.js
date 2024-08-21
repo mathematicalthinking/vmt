@@ -44,12 +44,12 @@ const reducer = (state = initialState, action) => {
     // @TODO if we've created a new activity alert the user so we can redirect
     // to the activity --> do this by updating the sto
     case actionTypes.ADD_ACTIVITY_ROOMS: {
-      // We will catch an error if an activity had been trashed
       try {
         const updatedActivities = { ...state.byId };
-        updatedActivities[action.activityId].rooms = updatedActivities[
-          action.activityId
-        ].rooms.concat(action.roomIdsArr);
+        updatedActivities[action.activityId].rooms = [
+          ...(updatedActivities[action.activityId].rooms || []),
+          ...action.roomIdsArr,
+        ];
         return {
           ...state,
           byId: updatedActivities,
@@ -62,12 +62,11 @@ const reducer = (state = initialState, action) => {
       }
     }
     case actionTypes.REMOVE_ACTIVITY_ROOM: {
-      // We will catch an error if an activity had been trashed
       try {
         const updatedById = { ...state.byId };
-        const updatedActivityRooms = updatedById[
-          action.activityId
-        ].rooms.filter((id) => id !== action.roomId);
+        const updatedActivityRooms = (
+          updatedById[action.activityId].rooms || []
+        ).filter((id) => id !== action.roomId);
         updatedById[action.activityId].rooms = updatedActivityRooms;
         return {
           ...state,
@@ -82,16 +81,17 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.ADD_ACTIVITY_USER: {
       const updatedActivities = { ...state.byId };
-      updatedActivities[action.activityId].users = updatedActivities[
-        action.activityId
-      ].users.concat(action.userId);
+      updatedActivities[action.activityId].users = [
+        ...(updatedActivities[action.activityId].users || []),
+        action.userId,
+      ];
       return { ...state, byId: updatedActivities };
     }
     case actionTypes.REMOVE_ACTIVITY_USER: {
       const updatedActivities = { ...state.byId };
-      updatedActivities[action.activityId].users = updatedActivities[
-        action.activityId
-      ].users.filter((userId) => userId !== action.userId);
+      updatedActivities[action.activityId].users = (
+        updatedActivities[action.activityId].users || []
+      ).filter((userId) => userId !== action.userId);
       return { ...state, byId: updatedActivities };
     }
     case actionTypes.CREATED_ACTIVITY: {
@@ -121,16 +121,12 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.UPDATED_ACTIVITY_TAB: {
-      const fields = Object.keys(action.body);
-      const updatedTabs = state.byId[action.activityId].tabs.map((tab) => {
-        if (tab._id === action.tabId) {
-          fields.forEach((field) => {
-            // eslint-disable-next-line no-param-reassign
-            tab[field] = action.body[field];
-          });
-        }
-        return tab;
-      });
+      const updatedTabs = (
+        state.byId[action.activityId].tabs || []
+      ).map((tab) =>
+        tab._id === action.tabId ? { ...tab, ...action.body } : tab
+      );
+
       return {
         ...state,
         byId: {
