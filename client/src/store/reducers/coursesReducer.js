@@ -102,29 +102,44 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.ADD_COURSE_ROOMS: {
       const updatedCourses = { ...state.byId };
-      // ONly add unique ids, dont add dups
-      const roomIds = action.roomIdsArr.filter(
-        (roomId) => updatedCourses[action.courseId].rooms.indexOf(roomId) <= 0
-      );
-      updatedCourses[action.courseId].rooms = updatedCourses[
-        action.courseId
-      ].rooms.concat(roomIds);
+
+      if (updatedCourses[action.courseId]) {
+        updatedCourses[action.courseId].rooms =
+          updatedCourses[action.courseId].rooms || [];
+
+        const roomIds = action.roomIdsArr.filter(
+          (roomId) => !updatedCourses[action.courseId].rooms.includes(roomId)
+        );
+
+        updatedCourses[action.courseId].rooms = updatedCourses[
+          action.courseId
+        ].rooms.concat(roomIds);
+      }
+
       return {
         ...state,
         byId: updatedCourses,
       };
     }
+
     case actionTypes.REMOVE_COURSE_ROOM: {
       const updatedById = { ...state.byId };
-      const updatedCourseRooms = updatedById[action.courseId].rooms.filter(
-        (id) => id !== action.roomId
-      );
-      updatedById[action.courseId].rooms = updatedCourseRooms;
+
+      if (updatedById[action.courseId]) {
+        updatedById[action.courseId].rooms =
+          updatedById[action.courseId].rooms || [];
+
+        updatedById[action.courseId].rooms = updatedById[
+          action.courseId
+        ].rooms.filter((id) => id !== action.roomId);
+      }
+
       return {
         ...state,
         byId: updatedById,
       };
     }
+
     case actionTypes.ADD_COURSE_MEMBER: {
       return {
         ...state,
@@ -132,7 +147,10 @@ const reducer = (state = initialState, action) => {
           ...state.byId,
           [action.courseId]: {
             ...state.byId[action.courseId],
-            members: [...state.byId[action.courseId].members, action.newMember],
+            members: [
+              ...(state.byId[action.courseId].members || []),
+              action.newMember,
+            ],
           },
         },
       };
