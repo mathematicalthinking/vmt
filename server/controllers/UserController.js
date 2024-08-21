@@ -41,7 +41,7 @@ module.exports = {
         })
         .populate({
           path: 'rooms',
-          select: '-currentState',
+          select: '-currentState -chat',
           populate: {
             path: 'tabs members.user',
             select: 'username tabType desmosLink name instructions',
