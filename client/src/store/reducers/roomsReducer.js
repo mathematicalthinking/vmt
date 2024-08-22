@@ -10,7 +10,20 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ROOMS: {
-      const updatedRooms = merge({ ...state.byId }, action.byId);
+      const roomsWithChatCount = Object.keys(action.byId).reduce(
+        (acc, roomId) => {
+          const room = action.byId[roomId];
+          acc[roomId] = {
+            ...room,
+            chatCount: room.chat ? room.chat.length : 0,
+          };
+          delete acc[roomId].chat;
+          return acc;
+        },
+        {}
+      );
+
+      const updatedRooms = merge({ ...state.byId }, roomsWithChatCount);
       let updatedIds;
       if (action.isNewRoom) {
         updatedIds = union([...state.allIds], [...action.allIds]);
