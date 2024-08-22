@@ -10,7 +10,20 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ROOMS: {
-      const updatedRooms = merge({ ...state.byId }, action.byId);
+      const roomsWithChatCount = Object.keys(action.byId).reduce(
+        (acc, roomId) => {
+          const room = action.byId[roomId];
+          acc[roomId] = {
+            ...room,
+            chatCount: room.chat ? room.chat.length : 0,
+          };
+          delete acc[roomId].chat;
+          return acc;
+        },
+        {}
+      );
+
+      const updatedRooms = merge({ ...state.byId }, roomsWithChatCount);
       let updatedIds;
       if (action.isNewRoom) {
         updatedIds = union([...state.allIds], [...action.allIds]);
@@ -41,7 +54,8 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.UPDATED_ROOM_TAB: {
-      const updatedTabs = state.byId[action.roomId].tabs.map((tab) =>
+      const existingTabs = state.byId[action.roomId].tabs || [];
+      const updatedTabs = existingTabs.map((tab) =>
         tab._id === action.tabId ? { ...tab, ...action.body } : tab
       );
       return {
@@ -115,7 +129,8 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.REMOVE_ROOM_MEMBER: {
-      const updatedMembers = state.byId[action.roomId].members.filter(
+      const existingMembers = state.byId[action.roomId].members || [];
+      const updatedMembers = existingMembers.filter(
         (member) => member._id !== action.userId
       );
       return {

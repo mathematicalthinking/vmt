@@ -211,7 +211,7 @@ class Workspace extends Component {
         currentMembers: currentMembers.filter(
           (mem) => mem && user && mem._id !== user._id
         ),
-        chat: log.filter((msg) => msg.messageType),
+        chatCount: log.filter((msg) => msg.messageType).length,
         tabs,
       });
     }
