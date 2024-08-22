@@ -41,8 +41,7 @@ module.exports = {
         })
         .populate({
           path: 'rooms',
-          select:
-            '_id settings currentMembers tabs privacySetting tempRoom controlledBy isTrashed name description entryCode members creator dueDate createdAt updatedAt dbUpdatedAt status',
+          select: '-currentState',
           populate: {
             path: 'tabs members.user',
             select: 'username tabType desmosLink name instructions',
