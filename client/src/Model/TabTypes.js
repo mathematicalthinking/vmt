@@ -19,7 +19,7 @@ import {
   PyretActivityReplayer,
   // DesmosMiniReplayer,
 } from 'Containers/Replayer';
-import { extractActivityCode } from 'Containers/Workspa ce/Tools/DesActivityHelpers';
+import { extractActivityCode } from 'Containers/Workspace/Tools/DesActivityHelpers';
 import { RadioBtn, Button } from 'Components';
 import ggbIcon from 'assets/geogebra.png';
 import dsmIcon from 'assets/desmos.png';
