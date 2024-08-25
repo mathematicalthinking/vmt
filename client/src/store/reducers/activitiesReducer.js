@@ -64,10 +64,12 @@ const reducer = (state = initialState, action) => {
     case actionTypes.REMOVE_ACTIVITY_ROOM: {
       try {
         const updatedById = { ...state.byId };
-        const updatedActivityRooms = (
-          updatedById[action.activityId].rooms || []
-        ).filter((id) => id !== action.roomId);
-        updatedById[action.activityId].rooms = updatedActivityRooms;
+        const activityToUpdate = updatedById[action.activityId];
+        if (!activityToUpdate) return { ...state }; // in case the activity had been deleted
+        const updatedActivityRooms = (activityToUpdate.rooms || []).filter(
+          (id) => id !== action.roomId
+        );
+        activityToUpdate.rooms = updatedActivityRooms;
         return {
           ...state,
           byId: updatedById,
