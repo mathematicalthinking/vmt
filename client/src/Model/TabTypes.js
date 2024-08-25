@@ -19,6 +19,7 @@ import {
   PyretActivityReplayer,
   // DesmosMiniReplayer,
 } from 'Containers/Replayer';
+import { extractActivityCode } from 'Containers/Workspace/Tools/DesActivityHelpers';
 import { RadioBtn, Button } from 'Components';
 import ggbIcon from 'assets/geogebra.png';
 import dsmIcon from 'assets/desmos.png';
@@ -121,7 +122,7 @@ const tabTypeProperties = {
     editor: DesmosActivityEditor,
     icon: <img width={25} src={dsmActIcon} alt="Desmos Activity Icon" />,
     templateState: (value) => ({
-      desmosLink: value,
+      desmosLink: extractActivityCode(value),
       currentStateBase64: '{}',
       startingPointBase64: '{}',
     }),
