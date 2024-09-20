@@ -1,4 +1,3 @@
-import merge from 'lodash/merge';
 import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
@@ -9,7 +8,7 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ACTIVITIES: {
-      const updatedActivities = merge({ ...state.byId }, action.byId);
+      const updatedActivities = { ...state.byId, ...action.byId };
       return {
         ...state,
         byId: updatedActivities,
@@ -42,9 +41,10 @@ const reducer = (state = initialState, action) => {
       };
     }
     // @TODO if we've created a new activity alert the user so we can redirect
-    // to the activity --> do this by updating the sto
+    // to the activity --> do this by updating the store
     case actionTypes.ADD_ACTIVITY_ROOMS: {
       try {
+        if (!state.byId[action.activityId]) return state;
         const updatedActivities = { ...state.byId };
         updatedActivities[action.activityId].rooms = [
           ...(updatedActivities[action.activityId].rooms || []),
@@ -63,13 +63,20 @@ const reducer = (state = initialState, action) => {
     }
     case actionTypes.REMOVE_ACTIVITY_ROOM: {
       try {
-        const updatedById = { ...state.byId };
-        const activityToUpdate = updatedById[action.activityId];
-        if (!activityToUpdate) return { ...state }; // in case the activity had been deleted
-        const updatedActivityRooms = (activityToUpdate.rooms || []).filter(
+        const currentActivity = state.byId[action.activityId];
+        if (!currentActivity || !currentActivity.rooms) return state;
+
+        const updatedRooms = currentActivity.rooms.filter(
           (id) => id !== action.roomId
         );
-        activityToUpdate.rooms = updatedActivityRooms;
+        const updatedActivity = {
+          ...currentActivity,
+          rooms: updatedRooms,
+        };
+        const updatedById = {
+          ...state.byId,
+          [action.activityId]: updatedActivity,
+        };
         return {
           ...state,
           byId: updatedById,
@@ -82,6 +89,7 @@ const reducer = (state = initialState, action) => {
       }
     }
     case actionTypes.ADD_ACTIVITY_USER: {
+      if (!state.byId[action.activityId]) return state;
       const updatedActivities = { ...state.byId };
       updatedActivities[action.activityId].users = [
         ...(updatedActivities[action.activityId].users || []),
@@ -90,6 +98,7 @@ const reducer = (state = initialState, action) => {
       return { ...state, byId: updatedActivities };
     }
     case actionTypes.REMOVE_ACTIVITY_USER: {
+      if (!state.byId[action.activityId]) return state;
       const updatedActivities = { ...state.byId };
       updatedActivities[action.activityId].users = (
         updatedActivities[action.activityId].users || []
@@ -111,18 +120,20 @@ const reducer = (state = initialState, action) => {
         currentActivity: {},
       };
     case actionTypes.UPDATED_ACTIVITY: {
-      const updatedActivity = { ...state.byId[action.id] };
+      if (!state.byId[action.activityId]) return state;
+      const updatedActivity = { ...state.byId[action.activityId] };
       const key = Object.keys(action.body)[0];
       updatedActivity[key] = action.body[key];
       return {
         ...state,
         byId: {
           ...state.byId,
-          [action.id]: updatedActivity,
+          [action.activityId]: updatedActivity,
         },
       };
     }
     case actionTypes.UPDATED_ACTIVITY_TAB: {
+      if (!state.byId[action.activityId]) return state;
       const updatedTabs = (
         state.byId[action.activityId].tabs || []
       ).map((tab) =>

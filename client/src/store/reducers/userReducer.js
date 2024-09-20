@@ -130,7 +130,7 @@ const reducer = (state = initialState, action) => {
         loginError: '',
       };
     }
-    case 'STORE_PRESUMPTIVE_GMAIL': {
+    case actionTypes.STORE_PRESUMPTIVE_GMAIL: {
       const { presumptiveEmailAddress } = action.payload;
       return {
         ...state,

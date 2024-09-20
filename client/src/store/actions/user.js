@@ -29,6 +29,15 @@ export const updateUser = (body) => {
   };
 };
 
+export const storeGmail = (email) => {
+  return {
+    type: actionTypes.STORE_PRESUMPTIVE_GMAIL,
+    payload: {
+      presumptiveEmailAddress: email,
+    },
+  };
+};
+
 export const loggedOut = () => {
   return { type: actionTypes.LOGOUT };
 };

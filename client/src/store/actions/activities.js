@@ -15,10 +15,10 @@ export const addActivity = (activity) => ({
   activity,
 });
 
-export const updatedActivity = (id, body) => {
+export const updatedActivity = (activityId, body) => {
   return {
     type: actionTypes.UPDATED_ACTIVITY,
-    id,
+    activityId,
     body,
   };
 };
@@ -236,7 +236,7 @@ export const updateActivity = (id, body) => {
       .then(() => {
         // dispatch(loading.success())
       })
-      .catch((e) => {
+      .catch(() => {
         // Undo changes
         const keys = Object.keys(body);
         if (body.isTrashed) {
