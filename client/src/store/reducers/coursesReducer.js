@@ -1,5 +1,3 @@
-import merge from 'lodash/merge';
-import union from 'lodash/union';
 import * as actionTypes from '../actions/actionTypes';
 
 const initialState = {
@@ -10,9 +8,9 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_COURSES: {
-      // @TODO WHAT ARE YOU DOING? WE DONT NEED MERGE
-      const updatedCourses = merge({ ...state.byId }, action.byId);
-      const updatedIds = union([...state.allIds], [...action.allIds]);
+      const updatedCourses = { ...state.byId, ...action.byId };
+      // avoid duplicates
+      const updatedIds = [...new Set([...state.allIds, ...action.allIds])];
       return {
         ...state,
         byId: updatedCourses,
@@ -20,7 +18,6 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.ADD_COURSE: {
-      // We should probably check to make sure thid id exsits?
       const updatedCourses = { ...state.byId };
       updatedCourses[action.course._id] = action.course;
       return {
@@ -42,6 +39,7 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.REMOVE_COURSE: {
+      if (!state.byId[action.courseId]) return state;
       const updatedIds = state.allIds.filter((id) => id !== action.courseId);
       const updatedById = { ...state.byId };
       delete updatedById[action.courseId];
@@ -52,6 +50,7 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.UPDATED_COURSE: {
+      if (!state.byId[action.courseId]) return state;
       const updatedCourse = { ...state.byId[action.courseId] };
       const fields = Object.keys(action.body);
       fields.forEach((field) => {
@@ -66,16 +65,12 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.ADD_COURSE_ACTIVITIES: {
+      if (!state.byId[action.courseId]) return state;
       const updatedCourses = { ...state.byId };
-
-      if (updatedCourses[action.courseId]) {
-        updatedCourses[action.courseId].activities =
-          updatedCourses[action.courseId].activities || [];
-        updatedCourses[action.courseId].activities = [
-          ...updatedCourses[action.courseId].activities,
-          ...action.activityIdsArr,
-        ];
-      }
+      updatedCourses[action.courseId].activities = [
+        ...(updatedCourses[action.courseId].activities || []),
+        ...action.activityIdsArr,
+      ];
 
       return {
         ...state,
@@ -83,16 +78,15 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.REMOVE_COURSE_ACTIVITIES: {
+      if (!state.byId[action.courseId]) return state;
       const updatedCourses = { ...state.byId };
 
-      if (updatedCourses[action.courseId]) {
-        updatedCourses[action.courseId].activities =
-          updatedCourses[action.courseId].activities || [];
+      updatedCourses[action.courseId].activities =
+        updatedCourses[action.courseId].activities || [];
 
-        updatedCourses[action.courseId].activities = updatedCourses[
-          action.courseId
-        ].activities.filter((id) => !action.activityIdsArr.includes(id));
-      }
+      updatedCourses[action.courseId].activities = updatedCourses[
+        action.courseId
+      ].activities.filter((id) => !action.activityIdsArr.includes(id));
 
       return {
         ...state,
@@ -101,20 +95,19 @@ const reducer = (state = initialState, action) => {
     }
 
     case actionTypes.ADD_COURSE_ROOMS: {
+      if (!state.byId[action.courseId]) return state;
       const updatedCourses = { ...state.byId };
 
-      if (updatedCourses[action.courseId]) {
-        updatedCourses[action.courseId].rooms =
-          updatedCourses[action.courseId].rooms || [];
+      updatedCourses[action.courseId].rooms =
+        updatedCourses[action.courseId].rooms || [];
 
-        const roomIds = action.roomIdsArr.filter(
-          (roomId) => !updatedCourses[action.courseId].rooms.includes(roomId)
-        );
+      const roomIds = action.roomIdsArr.filter(
+        (roomId) => !updatedCourses[action.courseId].rooms.includes(roomId)
+      );
 
-        updatedCourses[action.courseId].rooms = updatedCourses[
-          action.courseId
-        ].rooms.concat(roomIds);
-      }
+      updatedCourses[action.courseId].rooms = updatedCourses[
+        action.courseId
+      ].rooms.concat(roomIds);
 
       return {
         ...state,
@@ -123,16 +116,15 @@ const reducer = (state = initialState, action) => {
     }
 
     case actionTypes.REMOVE_COURSE_ROOM: {
+      if (!state.byId[action.courseId]) return state;
       const updatedById = { ...state.byId };
 
-      if (updatedById[action.courseId]) {
-        updatedById[action.courseId].rooms =
-          updatedById[action.courseId].rooms || [];
+      updatedById[action.courseId].rooms =
+        updatedById[action.courseId].rooms || [];
 
-        updatedById[action.courseId].rooms = updatedById[
-          action.courseId
-        ].rooms.filter((id) => id !== action.roomId);
-      }
+      updatedById[action.courseId].rooms = updatedById[
+        action.courseId
+      ].rooms.filter((id) => id !== action.roomId);
 
       return {
         ...state,
@@ -141,6 +133,7 @@ const reducer = (state = initialState, action) => {
     }
 
     case actionTypes.ADD_COURSE_MEMBER: {
+      if (!state.byId[action.courseId]) return state;
       return {
         ...state,
         byId: {
@@ -156,6 +149,7 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.ADD_ROOM_TO_COURSE_ARCHIVE: {
+      if (!state.byId[action.courseId]) return state;
       const courseToUpdate = { ...state.byId[action.courseId] };
 
       // Ensure that archive and rooms are properly initialized
@@ -176,6 +170,7 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actionTypes.REMOVE_ROOM_FROM_COURSE_ARCHIVE: {
+      if (!state.byId[action.courseId]) return state;
       const courseToUpdate = { ...state.byId[action.courseId] };
 
       courseToUpdate.archive = courseToUpdate.archive || {};
