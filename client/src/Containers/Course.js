@@ -724,7 +724,7 @@ class Course extends Component {
         resourceId={match.params.course_id}
         userId={user._id}
         username={user.username}
-        privacySetting={course ? course.privacySetting : 'private'}
+        privacySetting={(course && course.privacySetting) || 'private'}
         owners={
           course
             ? course.members

@@ -843,7 +843,7 @@ class Room extends Component {
         resourceId={match.params.room_id}
         userId={user._id}
         username={user.username}
-        privacySetting={room ? room.privacySetting : 'private'}
+        privacySetting={(room && room.privacySetting) || 'private'}
         owners={
           room && room.members
             ? room.members
