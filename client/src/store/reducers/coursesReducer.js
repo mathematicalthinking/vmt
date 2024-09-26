@@ -17,14 +17,6 @@ const reducer = (state = initialState, action) => {
         allIds: updatedIds,
       };
     }
-    case actionTypes.ADD_COURSE: {
-      const updatedCourses = { ...state.byId };
-      updatedCourses[action.course._id] = action.course;
-      return {
-        ...state,
-        byId: updatedCourses,
-      };
-    }
     case actionTypes.LOGOUT: {
       return initialState;
     }
@@ -35,7 +27,7 @@ const reducer = (state = initialState, action) => {
           ...state.byId,
           [action.course._id]: action.course,
         },
-        allIds: [action.course._id, ...state.allIds],
+        allIds: [...new Set([action.course._id, ...state.allIds])],
       };
     }
     case actionTypes.REMOVE_COURSE: {

@@ -30,21 +30,6 @@ describe('course reducer', () => {
     expect(reducer(initialState, action)).toEqual(expectedState);
   });
 
-  it('should handle ADD_COURSE', () => {
-    const action = {
-      type: actionTypes.ADD_COURSE,
-      course: { _id: '3', name: 'New Course' },
-    };
-    const expectedState = {
-      byId: {
-        ...initialState.byId,
-        3: { _id: '3', name: 'New Course' },
-      },
-      allIds: initialState.allIds,
-    };
-    expect(reducer(initialState, action)).toEqual(expectedState);
-  });
-
   it('should handle LOGOUT', () => {
     const currentState = {
       byId: {
@@ -290,26 +275,6 @@ describe('course reducer edge cases', () => {
     allIds: [],
   };
 
-  it('should handle ADD_COURSE when the course already exists', () => {
-    const currentState = {
-      byId: {
-        1: { _id: '1', name: 'Existing Course' },
-      },
-      allIds: ['1'],
-    };
-    const action = {
-      type: actionTypes.ADD_COURSE,
-      course: { _id: '1', name: 'Updated Course' },
-    };
-    const expectedState = {
-      byId: {
-        1: { _id: '1', name: 'Updated Course' },
-      },
-      allIds: ['1'],
-    };
-    expect(reducer(currentState, action)).toEqual(expectedState);
-  });
-
   it('should handle ADD_COURSE_ACTIVITIES when the course does not have activities', () => {
     const currentState = {
       byId: {
@@ -532,5 +497,33 @@ describe('course reducer edge cases', () => {
     };
     const expectedState = initialState; // State should remain unchanged
     expect(reducer(initialState, action)).toEqual(expectedState);
+  });
+
+  it('should not mutate the original state when adding a course member', () => {
+    const currentState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1', members: ['member1'] },
+      },
+      allIds: ['1'],
+    };
+    const clonedState = JSON.parse(JSON.stringify(currentState));
+    const action = {
+      type: actionTypes.ADD_COURSE_MEMBER,
+      courseId: '1',
+      newMember: 'member2',
+    };
+    reducer(currentState, action);
+    expect(currentState).toEqual(clonedState); // Ensure original state is unchanged
+  });
+
+  it('should return the current state when action type is unknown', () => {
+    const currentState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1' },
+      },
+      allIds: ['1'],
+    };
+    const action = { type: 'UNKNOWN_ACTION' };
+    expect(reducer(currentState, action)).toEqual(currentState);
   });
 });
