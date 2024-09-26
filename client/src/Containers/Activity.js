@@ -465,8 +465,7 @@ class Activity extends Component {
         resourceId={match.params.activity_id}
         userId={user._id}
         username={user.username}
-        privacySetting={activity ? activity.privacySetting : 'private'}
-        // owners={activity && activity.creator ? [activity.creator] : []}
+        privacySetting={(activity && activity.privacySetting) || 'private'}
         owners={[
           ...(activity && activity.creator ? [activity.creator] : []),
           ...(activity && activity.users ? activity.users : []),
