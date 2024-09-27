@@ -804,6 +804,8 @@ Course.defaultProps = {
   notifications: null,
 };
 
+Course.displayName = 'Course';
+
 const mapStateToProps = (store, ownProps) => {
   const { course_id } = ownProps.match.params;
   const localCourse = store.courses.byId[course_id]

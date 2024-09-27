@@ -46,6 +46,12 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths
     { publicPath: Array(cssFilename.split('/').length).join('../') }
   : {};
 
+console.log(
+  'process.env.DISPLAY_NAMES',
+  process.env.DISPLAY_NAMES,
+  typeof process.env.DISPLAY_NAMES
+);
+
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
@@ -273,13 +279,16 @@ module.exports = {
         warnings: false,
         // parse: {},
         // compress: {},
-        mangle: process.env.DISPLAY_NAMES !== 'true',
+        mangle: {
+          keep_classnames: process.env.DISPLAY_NAMES === 'true',
+          keep_fnames: process.env.DISPLAY_NAMES === 'true',
+        },
         // module: false,
         // output: null,
         // toplevel: false,
         // nameCache: null,
         // ie8: false,
-        // keep_classnames: undefined,
+        keep_classnames: process.env.DISPLAY_NAMES === 'true',
         keep_fnames: process.env.DISPLAY_NAMES === 'true',
         safari10: true,
         output: {
