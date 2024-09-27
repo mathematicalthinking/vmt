@@ -273,7 +273,7 @@ module.exports = {
         warnings: false,
         // parse: {},
         // compress: {},
-        // mangle: true, // Note `mangle.properties` is `false` by default.
+        mangle: process.env.DISPLAY_NAMES !== 'true',
         // module: false,
         // output: null,
         // toplevel: false,
