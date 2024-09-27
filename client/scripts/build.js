@@ -1,9 +1,9 @@
 'use strict';
 // Do this as the first thing so that any code reading it knows the right env.
-require('dotenv').config({ path: '../server/.env' });
 process.env.BABEL_ENV = 'production';
 process.env.NODE_ENV = 'production';
 process.env.REACT_APP_BUILD_DATE = new Date();
+process.env.DISPLAY_NAMES = 'true'; // just for testing
 
 const pjson = require('../package.json');
 
@@ -19,6 +19,7 @@ if (process.argv[2] === 'staging') {
   process.env.REACT_APP_TEST = true;
 } else if (process.argv[2] === 'dev') {
   process.env.REACT_APP_DEV = true;
+  process.env.DISPLAY_NAMES = 'true';
 }
 let ENCOMPASS = false;
 if (process.argv[3] === 'encompass') {
