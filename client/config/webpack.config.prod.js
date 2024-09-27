@@ -280,7 +280,7 @@ module.exports = {
         // nameCache: null,
         // ie8: false,
         // keep_classnames: undefined,
-        // keep_fnames: false,
+        keep_fnames: process.env.DISPLAY_NAMES === 'true',
         safari10: true,
         output: {
           comments: false,
