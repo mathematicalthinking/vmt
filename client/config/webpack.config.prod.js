@@ -46,8 +46,6 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths
     { publicPath: Array(cssFilename.split('/').length).join('../') }
   : {};
 
-console.log('process.env.REACT_APP_DEV', process.env.REACT_APP_DEV);
-
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
@@ -275,12 +273,16 @@ module.exports = {
         warnings: false,
         // parse: {},
         // compress: {},
-        // mangle: true, // Note `mangle.properties` is `false` by default.
+        mangle: {
+          keep_classnames: process.env.REACT_APP_DEV || false,
+          keep_fnames: process.env.REACT_APP_DEV || false,
+        },
         // module: false,
         // output: null,
         // toplevel: false,
         // nameCache: null,
         // ie8: false,
+        // I know it seems redundant, but we do need these options here as well as the same under the mangle property.
         keep_classnames: process.env.REACT_APP_DEV || false,
         keep_fnames: process.env.REACT_APP_DEV || false,
         safari10: true,
