@@ -8,27 +8,15 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.GOT_ROOMS: {
-      // Note: We do not need the action.isNewRoom flag because we are handling duplicates via the Set in step 3
-      // Step 1: Process rooms to add chatCount and remove chat
-      const roomsWithChatCount = Object.keys(action.byId).reduce(
-        (acc, roomId) => {
-          const { chat, ...restOfRoom } = action.byId[roomId];
-          acc[roomId] = {
-            ...restOfRoom,
-            chatCount: chat ? chat.length : 0,
-          };
-          return acc;
-        },
-        {}
-      );
+      // Note: We do not need the action.isNewRoom flag because we are handling duplicates via the Set in step 2
 
-      // Step 2: Shallow merge state.byId and roomsWithChatCount
-      const updatedRooms = { ...state.byId, ...roomsWithChatCount };
+      // Step 1: Shallow merge state.byId and roomsWithChatCount
+      const updatedRooms = { ...state.byId, ...action.byId };
 
-      // Step 3: Combine and deduplicate IDs using a Set
+      // Step 2: Combine and deduplicate IDs using a Set
       const updatedIds = [...new Set([...state.allIds, ...action.allIds])];
 
-      // Step 4: Return the updated state
+      // Step 3: Return the updated state
       return {
         ...state,
         byId: updatedRooms,

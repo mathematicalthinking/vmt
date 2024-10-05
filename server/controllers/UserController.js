@@ -32,33 +32,42 @@ module.exports = {
     });
   },
 
-  getById: (id) => {
-    return new Promise((resolve, reject) => {
-      db.User.findById(id)
-        .populate({
-          path: 'courses',
-          populate: { path: 'members.user', select: 'username' },
-        })
-        .populate({
-          path: 'rooms',
-          select: '-currentState',
-          populate: {
-            path: 'tabs members.user',
-            select: 'username tabType desmosLink name instructions',
-          },
-        })
-        .populate({
-          path: 'activities',
-          populate: { path: 'tabs', select: 'name tabType desmosLink' },
-        })
-        .populate({
-          path: 'notifications',
-          populate: { path: 'fromUser', select: '_id username' },
-        })
-        .then((user) => resolve(user))
-        .catch((err) => reject(err));
-    });
-  },
+  getById: (id) =>
+    db.User.findById(id)
+      .populate({
+        path: 'courses',
+        populate: { path: 'members.user', select: 'username' },
+      })
+      .populate({
+        path: 'rooms',
+        select: '-currentState',
+        populate: {
+          path: 'tabs members.user',
+          select: 'username tabType desmosLink name instructions',
+        },
+      })
+      .populate({
+        path: 'activities',
+        populate: { path: 'tabs', select: 'name tabType desmosLink' },
+      })
+      .populate({
+        path: 'notifications',
+        populate: { path: 'fromUser', select: '_id username' },
+      })
+      // remove chat field from each room; only need chatCount
+      .then((userMongoDoc) => {
+        if (!userMongoDoc || !userMongoDoc.rooms) return null;
+        const user = userMongoDoc.toObject();
+        user.rooms = user.rooms.map((room) => {
+          delete room.chat;
+          return room;
+        });
+        return user;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      }),
   /**
    * @param  {String} username
    * @param {String} resourceName

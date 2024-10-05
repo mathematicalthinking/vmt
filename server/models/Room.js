@@ -68,7 +68,6 @@ const Room = new mongoose.Schema(
     controlledBy: { type: ObjectId, ref: 'User', default: null },
     // wasNew: {type: Boolean},
     isTrashed: { type: Boolean, default: false },
-    snapshot: {},
     groupId: { type: String },
     status: {
       type: String,
@@ -83,6 +82,16 @@ const Room = new mongoose.Schema(
 Room.index({ isTrashed: 1, status: 1 });
 Room.index({ course: 1 });
 Room.index({ activity: 1 });
+
+// The chatCount field is used when users log in. Rather than storing the entire chat history in the redux store,
+// we only store the number of chat messages. When the user enters a room, we fetch the chat messages from the server.
+// (along with the entire populated room object).
+Room.virtual('chatCount').get(function() {
+  // console.log(this.name, this.chat);
+  return this.chat ? this.chat.length : 0;
+});
+Room.set('toJSON', { getters: true, virtuals: true });
+Room.set('toObject', { getters: true, virtuals: true });
 
 Room.pre('save', function(next) {
   this.dbUpdatedAt = Date.now();
