@@ -19,7 +19,7 @@ COPY ./client /web/client/
 
 # build VMT React client for production
 # RUN cd ./server && npm run build-production
-RUN cd ./client && node --max-old-space-size=3072 scripts/build.js dev
+RUN cd ./client && node --max-old-space-size=3072 scripts/build.js production
 
 # copy code to the server dir
 COPY ./server /web/server/
