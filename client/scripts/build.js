@@ -4,7 +4,6 @@
 process.env.BABEL_ENV = 'production';
 process.env.NODE_ENV = 'production';
 process.env.REACT_APP_BUILD_DATE = new Date();
-process.env.REACT_APP_DEV = true; // just for testing
 
 const pjson = require('../package.json');
 
