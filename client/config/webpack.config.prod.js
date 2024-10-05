@@ -282,13 +282,13 @@ module.exports = {
         // toplevel: false,
         // nameCache: null,
         // ie8: false,
-        // I know it seems redundant, but we do need these options here as well as the same under the mangle property.
         keep_classnames: process.env.REACT_APP_DEV === 'true',
         keep_fnames: process.env.REACT_APP_DEV === 'true',
         safari10: true,
         output: {
           comments: false,
         },
+        parallel: true,
       },
     }),
     // new webpack.optimize.UglifyJsPlugin({
