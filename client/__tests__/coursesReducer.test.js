@@ -192,18 +192,29 @@ describe('course reducer', () => {
   it('should handle ADD_COURSE_MEMBER', () => {
     const currentState = {
       byId: {
-        1: { _id: '1', name: 'Course 1', members: ['member1'] },
+        1: {
+          _id: '1',
+          name: 'Course 1',
+          members: [{ user: { username: 'member1', _id: 1 } }],
+        },
       },
       allIds: ['1'],
     };
     const action = {
       type: actionTypes.ADD_COURSE_MEMBER,
       courseId: '1',
-      newMember: 'member2',
+      newMember: { user: { username: 'member2', _id: 2 } },
     };
     const expectedState = {
       byId: {
-        1: { _id: '1', name: 'Course 1', members: ['member1', 'member2'] },
+        1: {
+          _id: '1',
+          name: 'Course 1',
+          members: [
+            { user: { username: 'member1', _id: 1 } },
+            { user: { username: 'member2', _id: 2 } },
+          ],
+        },
       },
       allIds: ['1'],
     };
@@ -502,7 +513,11 @@ describe('course reducer edge cases', () => {
   it('should not mutate the original state when adding a course member', () => {
     const currentState = {
       byId: {
-        1: { _id: '1', name: 'Course 1', members: ['member1'] },
+        1: {
+          _id: '1',
+          name: 'Course 1',
+          members: [{ user: { username: 'member1', _id: 1 } }],
+        },
       },
       allIds: ['1'],
     };
@@ -510,7 +525,7 @@ describe('course reducer edge cases', () => {
     const action = {
       type: actionTypes.ADD_COURSE_MEMBER,
       courseId: '1',
-      newMember: 'member2',
+      newMember: { user: { username: 'member2', _id: 2 } },
     };
     reducer(currentState, action);
     expect(currentState).toEqual(clonedState); // Ensure original state is unchanged
@@ -525,5 +540,159 @@ describe('course reducer edge cases', () => {
     };
     const action = { type: 'UNKNOWN_ACTION' };
     expect(reducer(currentState, action)).toEqual(currentState);
+  });
+});
+
+describe('course reducer additional edge cases', () => {
+  it('should handle ADD_COURSE with a missing _id field', () => {
+    const action = {
+      type: actionTypes.ADD_COURSE,
+      course: { name: 'Course without ID' }, // Missing _id
+    };
+    const currentState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1' },
+      },
+      allIds: ['1'],
+    };
+    const expectedState = currentState; // No change should happen due to missing _id
+    expect(reducer(currentState, action)).toEqual(expectedState);
+  });
+
+  it('should handle ADD_COURSE with a duplicate _id', () => {
+    const action = {
+      type: actionTypes.ADD_COURSE,
+      course: { _id: '1', name: 'Duplicate Course' }, // Duplicate _id
+    };
+    const currentState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1' },
+      },
+      allIds: ['1'],
+    };
+    const expectedState = currentState; // No change should happen due to duplicate _id
+    expect(reducer(currentState, action)).toEqual(expectedState);
+  });
+
+  it('should handle GOT_COURSES with duplicate course IDs in allIds array', () => {
+    const action = {
+      type: actionTypes.GOT_COURSES,
+      byId: {
+        1: { _id: '1', name: 'Course 1' },
+        2: { _id: '2', name: 'Course 2' },
+      },
+      allIds: ['1', '2', '1'], // Duplicate ID '1'
+    };
+    const currentState = {
+      byId: {},
+      allIds: [],
+    };
+    const expectedState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1' },
+        2: { _id: '2', name: 'Course 2' },
+      },
+      allIds: ['1', '2'], // Duplicate '1' should be removed
+    };
+    expect(reducer(currentState, action)).toEqual(expectedState);
+  });
+
+  it('should handle REMOVE_COURSE with a non-existing course ID', () => {
+    const action = {
+      type: actionTypes.REMOVE_COURSE,
+      courseId: '999', // Non-existent course ID
+    };
+    const currentState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1' },
+      },
+      allIds: ['1'],
+    };
+    const expectedState = currentState; // No change since course ID does not exist
+    expect(reducer(currentState, action)).toEqual(expectedState);
+  });
+
+  it('should handle UPDATED_COURSE with missing fields in body', () => {
+    const action = {
+      type: actionTypes.UPDATED_COURSE,
+      courseId: '1',
+      body: {}, // No fields provided in the update body
+    };
+    const currentState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1', description: 'Old description' },
+      },
+      allIds: ['1'],
+    };
+    const expectedState = currentState; // No changes should happen
+    expect(reducer(currentState, action)).toEqual(expectedState);
+  });
+
+  it('should handle ADD_COURSE_MEMBER with duplicate member', () => {
+    const action = {
+      type: actionTypes.ADD_COURSE_MEMBER,
+      courseId: '1',
+      newMember: { user: { _id: 1, username: 'member1' } }, // member1 already exists
+    };
+    const currentState = {
+      byId: {
+        1: {
+          _id: '1',
+          name: 'Course 1',
+          members: [{ user: { _id: 1, username: 'member1' } }],
+        },
+      },
+      allIds: ['1'],
+    };
+    const expectedState = currentState; // No change should happen due to duplicate member
+    expect(reducer(currentState, action)).toEqual(expectedState);
+  });
+
+  it('should handle REMOVE_COURSE_ROOM when the room does not exist', () => {
+    const action = {
+      type: actionTypes.REMOVE_COURSE_ROOM,
+      courseId: '1',
+      roomId: 'room999', // Non-existent room ID
+    };
+    const currentState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1', rooms: ['room1', 'room2'] },
+      },
+      allIds: ['1'],
+    };
+    const expectedState = currentState; // No change should happen since room does not exist
+    expect(reducer(currentState, action)).toEqual(expectedState);
+  });
+
+  it('should handle ADD_COURSE_ROOMS when the room is already in the list', () => {
+    const action = {
+      type: actionTypes.ADD_COURSE_ROOMS,
+      courseId: '1',
+      roomIdsArr: ['room1'], // room1 is already in the rooms list
+    };
+    const currentState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1', rooms: ['room1'] },
+      },
+      allIds: ['1'],
+    };
+    const expectedState = currentState; // No change should happen due to duplicate room
+    expect(reducer(currentState, action)).toEqual(expectedState);
+  });
+
+  it('should handle ADD_COURSE_ACTIVITIES when activities array contains duplicates', () => {
+    const action = {
+      type: actionTypes.ADD_COURSE_ACTIVITIES,
+      courseId: '1',
+      activityIdsArr: ['a', 'a'], // Duplicate activity 'a'
+    };
+    const currentState = {
+      byId: {
+        1: { _id: '1', name: 'Course 1', activities: ['a'] },
+      },
+      allIds: ['1'],
+    };
+    const expectedState = currentState; // No change since 'a' already exists
+    expect(reducer(currentState, action)).toEqual(expectedState);
   });
 });
