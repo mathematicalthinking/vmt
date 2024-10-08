@@ -4,13 +4,11 @@ import { useQuery } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import API from 'utils/apiRequests';
 import { createdCourse } from 'store/actions';
-import { addUserRoleToResource } from 'store/utils';
 
 function withPopulatedCourse(WrappedComponent) {
   function PopulatedCourse(props) {
     const { match, history } = props;
     const dispatch = useDispatch();
-    const userId = useSelector((state) => state.user._id);
     const course = useSelector(
       (state) => state.courses.byId[match.params.course_id]
     );
