@@ -126,16 +126,21 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.ADD_COURSE_MEMBER: {
       if (!state.byId[action.courseId]) return state;
+
+      const members = state.byId[action.courseId].members || [];
+      const memberExists = members.some(
+        (member) => member.user._id === action.newMember.user._id
+      );
+
+      if (memberExists) return state;
+
       return {
         ...state,
         byId: {
           ...state.byId,
           [action.courseId]: {
             ...state.byId[action.courseId],
-            members: [
-              ...(state.byId[action.courseId].members || []),
-              action.newMember,
-            ],
+            members: [...members, action.newMember],
           },
         },
       };

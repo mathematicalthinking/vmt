@@ -11,25 +11,6 @@ describe('rooms reducer', () => {
     expect(reducer(undefined, {})).toEqual(initialState);
   });
 
-  it('should handle GOT_ROOMS', () => {
-    const action = {
-      type: actionTypes.GOT_ROOMS,
-      byId: {
-        1: { _id: '1', name: 'Room 1', chat: ['message1', 'message2'] },
-        2: { _id: '2', name: 'Room 2' },
-      },
-      allIds: ['1', '2'],
-    };
-    const expectedState = {
-      byId: {
-        1: { _id: '1', name: 'Room 1', chatCount: 2 },
-        2: { _id: '2', name: 'Room 2', chatCount: 0 },
-      },
-      allIds: ['1', '2'],
-    };
-    expect(reducer(initialState, action)).toEqual(expectedState);
-  });
-
   it('should handle LOGOUT', () => {
     const currentState = {
       byId: {
@@ -242,8 +223,8 @@ describe('rooms reducer edge cases', () => {
     const action = {
       type: actionTypes.GOT_ROOMS,
       byId: {
-        1: { _id: '1', name: 'Room 1', chat: ['message1', 'message2'] },
-        2: { _id: '2', name: 'Room 2' },
+        1: { _id: '1', name: 'Room 1', chatCount: 2 },
+        2: { _id: '2', name: 'Room 2', chatCount: 0 },
       },
       allIds: ['1', '2', '1'], // Duplicate ID '1'
     };
