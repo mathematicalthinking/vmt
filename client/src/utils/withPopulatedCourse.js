@@ -29,7 +29,6 @@ function withPopulatedCourse(WrappedComponent) {
     React.useEffect(() => {
       if (isSuccess && data) {
         const populatedCourse = data.data.result;
-        addUserRoleToResource(populatedCourse, userId);
         dispatch(createdCourse(populatedCourse));
       }
     }, [isSuccess, data, dispatch]);
