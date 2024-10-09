@@ -25,11 +25,11 @@ function withPopulatedCourse(WrappedComponent) {
     }
 
     React.useEffect(() => {
-      if (isSuccess && data && data.data && data.data.result) {
+      if (isSuccess && data && data.data && data.data.result && !course) {
         const populatedCourse = data.data.result;
         dispatch(createdCourse(populatedCourse));
       }
-    }, [isSuccess, data]);
+    }, [isSuccess, data, course, dispatch]);
 
     return <WrappedComponent history={history} match={match} />;
   }
