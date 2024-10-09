@@ -17,7 +17,7 @@ function withPopulatedCourse(WrappedComponent) {
       match.params.course_id,
       () => API.getPopulatedById('courses', match.params.course_id),
       // if this user already has access to a course in the Redux store, use it.
-      { disable: course }
+      { enabled: !course }
     );
 
     if (isError) {
