@@ -77,8 +77,6 @@ class Course extends Component {
       connectGetCourse,
     } = this.props;
     if (course) {
-      // this.props.getCourse(course._id); // What information are we getting here
-      // this.props.getUser(user._id);
       let firstView = false;
       let invited = false;
       if (notifications.length > 0) {
@@ -176,12 +174,6 @@ class Course extends Component {
       // this would happen if admin toggled admin mode using the top bar
       this.checkAccess();
     }
-    // if ((this.state.member || this.state.owner) && !this.props.loading) {
-    //   this.checkForFetch();
-    // }
-    // if (prevProps.match.params.resource !== this.props.match.params.resource) {
-    //   this.props.getUser(this.props.user._id)
-    // }
   }
 
   requestAccess = () => {
@@ -225,23 +217,8 @@ class Course extends Component {
     );
     updatedTabs[1].notifications =
       newRoomNtfs.length > 0 ? newRoomNtfs.length : '';
-    // }
-    // if (notifications.llength > 0){
-    //   tabs[1].notifications = notifications.llength;
-    // }
     this.setState({ tabs: updatedTabs });
   };
-
-  // checkForFetch = () => {
-  //   const { course, user, match } = this.props;
-  //   const resource = match.params.resource;
-  //   const needToFetch = _difference(user[resource], this.props[resource]).length !== 0;
-  //   if (needToFetch) {
-  //     // @IDEA We could avoid this formatting if we dont use camel case like in the myVMT container
-  //     let re = resource[0].toUpperCase() + resource.substr(1)
-  //     this.props[`get${re}`](course[resource])
-  //   }
-  // }
 
   checkAccess = () => {
     const { course, user } = this.props;
@@ -495,30 +472,6 @@ class Course extends Component {
     } = this.state;
     if (course && !guestMode) {
       const { resource } = match.params;
-      // let myRooms;
-      // if (resource === 'rooms') {
-      //   // allow course facilitators to see all rooms
-      //   if (course.myRole !== 'facilitator') {
-      //     myRooms = course.rooms.filter((room) => {
-      //       let included = false;
-      //       room.members.forEach((member) => {
-      //         if (member.user._id === user._id) included = true;
-      //       });
-      //       return included;
-      //     });
-      //   }
-      // }
-      // let contentData = {
-      //   resource,
-      //   parentResource: "courses",
-      //   parentResourceId: course._id,
-      //   userResources: ,
-      //   notifications:  notifications.filter(ntf => ntf.resourceId === course._id) || [],
-      //   userId: user._id, // @TODO <-- get rid of this user user object below
-      //   user: user,
-      //   owner: this.state.owner,
-      // }
-
       let mainContent;
       if (
         resource === 'rooms' &&
@@ -528,7 +481,6 @@ class Course extends Component {
       } else if (resource === 'rooms' || resource === 'activities') {
         mainContent = (
           <DashboardContent
-            // userResources={myRooms || course[resource] || []}
             userResources={course[resource] || []}
             user={user}
             resource={resource}
@@ -748,13 +700,6 @@ class Course extends Component {
               >
                 Join the Team
               </Button>
-              {/* <Button
-                data-testid="leave"
-                theme="Small"
-                click={this.removeMeFromCourse}
-              >
-                Leave
-              </Button> */}
             </div>
           </Modal>
           {trashing ? (
@@ -779,7 +724,7 @@ class Course extends Component {
         resourceId={match.params.course_id}
         userId={user._id}
         username={user.username}
-        privacySetting={course ? course.privacySetting : 'private'}
+        privacySetting={(course && course.privacySetting) || 'private'}
         owners={
           course
             ? course.members
@@ -859,24 +804,21 @@ Course.defaultProps = {
   notifications: null,
 };
 
-// const combineResources = (resources) => {
-//   // ensure no repeated resources
-//   const obj = resources.reduce((acc, res) => {
-//     acc[res._id] = res;
-//     return acc;
-//   }, {});
-//   return [...Object.values(obj)];
-// };
 const mapStateToProps = (store, ownProps) => {
   const { course_id } = ownProps.match.params;
   const localCourse = store.courses.byId[course_id]
     ? populateResource(store, 'courses', course_id, ['activities', 'rooms'])
     : null;
 
-  // Ownprops.course is the course from the db given by withPopulatedCourse. We need this in case an admin tries to access a course they aren't
-  // a member of.
+  // If the user is an admin, withPopulatedCourse will have placed the course in the redux store from the db.
   return {
-    course: localCourse || ownProps.course,
+    course: localCourse ||
+      localCourse || {
+        _id: course_id,
+        rooms: [],
+        activities: [],
+        members: [],
+      },
     activities: store.activities.allIds, // @TODO: Note that this prop is never used. It is all activities user has access to.
     rooms: store.rooms.allIds,
     user: store.user,

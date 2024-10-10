@@ -843,7 +843,7 @@ class Room extends Component {
         resourceId={match.params.room_id}
         userId={user._id}
         username={user.username}
-        privacySetting={room ? room.privacySetting : 'private'}
+        privacySetting={(room && room.privacySetting) || 'private'}
         owners={
           room && room.members
             ? room.members
@@ -867,14 +867,8 @@ class Room extends Component {
 Room.propTypes = {
   room: PropTypes.shape({
     _id: PropTypes.string,
-    activity: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.arrayOf(PropTypes.shape({})),
-    ]), // activity might be an id or a populated object
-    course: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.arrayOf(PropTypes.shape({})),
-    ]), // course might be an id or a populated object
+    activity: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]), // activity might be an id or a populated object
+    course: PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})]), // course might be an id or a populated object
     tabs: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.shape({})])
     ),

@@ -14,7 +14,8 @@ import {
   Aux,
   Modal,
   ClassList,
-} from '../../Components';
+} from 'Components';
+import { storeGmail } from 'store/actions/user';
 import classes from './classcode.css';
 import GoogleLogin from '../../Components/Form/Google/LoginButton';
 
@@ -262,21 +263,11 @@ function ClassCode(props) {
                       role="button"
                       onKeyDown={() => {
                         // send user email to redux store so that oauthreturn can check if it is the same email that was clicked on in google oauth
-                        dispatch({
-                          type: 'STORE_PRESUMPTIVE_GMAIL',
-                          payload: {
-                            presumptiveEmailAddress: memberToConf.user.email,
-                          },
-                        });
+                        dispatch(storeGmail(memberToConf.user.email));
                       }}
                       onClick={() => {
                         // send user email to redux store so that oauthreturn can check if it is the same email that was clicked on in google oauth
-                        dispatch({
-                          type: 'STORE_PRESUMPTIVE_GMAIL',
-                          payload: {
-                            presumptiveEmailAddress: memberToConf.user.email,
-                          },
-                        });
+                        dispatch(storeGmail(memberToConf.user.email));
                       }}
                     >
                       Yes, log in with Google <GoogleLogin />{' '}

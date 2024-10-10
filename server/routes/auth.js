@@ -70,29 +70,7 @@ const login = async (req, res) => {
 
     const verifiedToken = await jwt.verify(accessToken, secret);
     recordLogin(verifiedToken.vmtUserId);
-    const vmtUser = await User.findById(verifiedToken.vmtUserId)
-      .populate({
-        path: 'courses',
-        populate: { path: 'members.user', select: 'username' },
-      })
-      .populate({
-        path: 'rooms',
-        select: '-currentState',
-        populate: {
-          path: 'tabs members.user',
-          select: 'username tabType desmosLink name instructions',
-        },
-      })
-      .populate({
-        path: 'activities',
-        populate: { path: 'tabs' },
-      })
-      .populate({
-        path: 'notifications',
-        populate: { path: 'fromUser', select: '_id username' },
-      })
-      .lean()
-      .exec();
+    const vmtUser = await userController.getById(verifiedToken.vmtUserId);
 
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken);
@@ -100,6 +78,7 @@ const login = async (req, res) => {
     const data = vmtUser;
     return res.json(data);
   } catch (err) {
+    console.log('err login', err);
     return errors.sendError.InternalError(null, res);
   }
 };
@@ -271,31 +250,8 @@ router.post('/resetPassword/:token', async (req, res) => {
       res.json({ message });
       return;
     }
-    // await jwt.verify(accessToken, process.env.MT_USER_JWT_SECRET);
 
-    const vmtUser = await User.findById(user.vmtUserId)
-      .populate({
-        path: 'courses',
-        populate: { path: 'members.user', select: 'username' },
-      })
-      .populate({
-        path: 'rooms',
-        select: '-currentState',
-        populate: {
-          path: 'tabs members.user',
-          select: 'username name tabType desmosLink',
-        },
-      })
-      .populate({
-        path: 'activities',
-        populate: { path: 'tabs', select: 'name tabType desmosLink' },
-      })
-      .populate({
-        path: 'notifications',
-        populate: { path: 'fromUser', select: '_id username' },
-      })
-      .lean()
-      .exec();
+    const vmtUser = await userController.getById(user.vmtUserId);
 
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken);
