@@ -9,6 +9,7 @@ function withPopulatedCourse(WrappedComponent) {
   function PopulatedCourse(props) {
     const { match, history } = props;
     const dispatch = useDispatch();
+    const user = useSelector((state) => state.user);
     const course = useSelector(
       (state) => state.courses.byId[match.params.course_id]
     );
@@ -19,8 +20,8 @@ function withPopulatedCourse(WrappedComponent) {
         API.getPopulatedById('courses', match.params.course_id).then(
           (res) => res.data.result
         ),
-      // if this user already has access to a course in the Redux store, use it.
-      { enabled: !course }
+      // if this admin already has access to a course in the Redux store, use it.
+      { enabled: !course && user.inAdminMode }
     );
 
     if (isError) {
