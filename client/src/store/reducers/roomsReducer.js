@@ -27,8 +27,8 @@ const reducer = (state = initialState, action) => {
     case actionTypes.LOGOUT:
       return initialState;
 
+    // Will add the room if it doesn't already exist
     case actionTypes.UPDATED_ROOM: {
-      if (!state.byId[action.roomId]) return state;
       const updatedRoom = { ...state.byId[action.roomId] };
       const fields = Object.keys(action.body);
       fields.forEach((field) => {
