@@ -13,9 +13,12 @@ function withPopulatedCourse(WrappedComponent) {
       (state) => state.courses.byId[match.params.course_id]
     );
 
-    const { isSuccess, data, error, isError } = useQuery(
+    const { isSuccess, data: populatedCourse, error, isError } = useQuery(
       match.params.course_id,
-      () => API.getPopulatedById('courses', match.params.course_id),
+      () =>
+        API.getPopulatedById('courses', match.params.course_id).then(
+          (res) => res.data.result
+        ),
       // if this user already has access to a course in the Redux store, use it.
       { enabled: !course }
     );
@@ -25,11 +28,10 @@ function withPopulatedCourse(WrappedComponent) {
     }
 
     React.useEffect(() => {
-      if (isSuccess && data && data.data && data.data.result) {
-        const populatedCourse = data.data.result;
+      if (isSuccess && populatedCourse && !course) {
         dispatch(createdCourse(populatedCourse));
       }
-    }, [isSuccess, data]);
+    }, [isSuccess, populatedCourse, course, dispatch]);
 
     return <WrappedComponent history={history} match={match} />;
   }
