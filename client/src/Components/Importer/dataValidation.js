@@ -287,6 +287,7 @@ export default function useDataValidation(importedData) {
    * 4. If a new user, first and last names must be there.
    * 5. If a sponsor is given, it must be an existing user.
    * 6. If an email is blank, this cannot be a gmail account.
+   * 7. If a new email is given, it must be properly formed.
    */
 
   const validateDataRow = (dataRow, rowIndex) => {
@@ -355,6 +356,16 @@ export default function useDataValidation(importedData) {
         { rowIndex, property: 'email' },
         { rowIndex, property: 'isGmail' }
       );
+    }
+
+    // 7. handle validating that a new, given email (i.e., does not corresond to an existing user) must be properly formed as per the regex
+    if (
+      d.email &&
+      !userFromEmail &&
+      !d.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    ) {
+      d.comment += '* Email is not properly formed.\n';
+      newValidationErrors.push({ rowIndex, property: 'email' });
     }
 
     return [d, newValidationErrors];
