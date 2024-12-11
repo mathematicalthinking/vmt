@@ -215,7 +215,9 @@ export const login = (username, password, special = false) => {
       .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
-        dispatch(loading.fail(err.response.data.errorMessage));
+        if (err.response)
+          dispatch(loading.fail(err.response.data.errorMessage));
+        else dispatch(loading.fail(err.toString()));
       });
   };
 };

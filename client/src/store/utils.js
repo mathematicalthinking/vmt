@@ -16,7 +16,7 @@ export const addUserRoleToResource = (resource, userId) => {
     const matchingMember = resource.members.find((member) => {
       if (!member.user) {
         throw new Error(
-          `Resource ${resource.name}(${resource._id}) has a member without a valid user`
+          `Resource "${resource.name}" (id: ${resource._id}) refers to an invalid user`
         );
       }
       return member.user._id === userId;
@@ -26,12 +26,12 @@ export const addUserRoleToResource = (resource, userId) => {
       updatedResource.myRole = matchingMember.role;
     } else {
       throw new Error(
-        `User ${userId} is not a member of resource ${resource.name}(${resource._id})`
+        `User ${userId} is not a member of resource "${resource.name}" (id: ${resource._id})`
       );
     }
   } else {
     throw new Error(
-      `Resource ${resource.name}(${resource._id}) does not have a members array, so does not include user ${userId}`
+      `Resource "${resource.name}" (id: ${resource._id}) does not have a members array, so does not include user ${userId}`
     );
   }
 
