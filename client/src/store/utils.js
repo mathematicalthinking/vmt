@@ -10,12 +10,15 @@ export const normalize = (resources) => {
 
 export const addUserRoleToResource = (resource, userId) => {
   const updatedResource = { ...resource }; // Creating a shallow copy of the resource to avoid mutating the original.
+  updatedResource.members = (resource.members || []).filter(
+    (member) => member.user
+  );
 
   if (resource.members) {
     // Find the member while also checking for malformed user objects
     const matchingMember = resource.members.find((member) => {
       if (!member.user) {
-        throw new Error(
+        console.warn(
           `Resource "${resource.name}" (id: ${resource._id}) refers to an invalid user`
         );
       }
@@ -25,12 +28,12 @@ export const addUserRoleToResource = (resource, userId) => {
     if (matchingMember) {
       updatedResource.myRole = matchingMember.role;
     } else {
-      throw new Error(
+      console.warn(
         `User ${userId} is not a member of resource "${resource.name}" (id: ${resource._id})`
       );
     }
   } else {
-    throw new Error(
+    console.warn(
       `Resource "${resource.name}" (id: ${resource._id}) does not have a members array, so does not include user ${userId}`
     );
   }
