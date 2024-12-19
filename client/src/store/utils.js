@@ -21,6 +21,7 @@ export const addUserRoleToResource = (resource, userId) => {
         console.warn(
           `Resource "${resource.name}" (id: ${resource._id}) refers to an invalid user`
         );
+        return false;
       }
       return member.user._id === userId;
     });

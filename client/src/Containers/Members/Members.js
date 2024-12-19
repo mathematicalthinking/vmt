@@ -195,18 +195,28 @@ class Members extends PureComponent {
   /* Handler for the Import component */
   handleImport = (userObjects) => {
     Promise.all(
-      userObjects.map(async (user) =>
+      userObjects.map((user) =>
         user._id
-          ? API.put('user', user._id, user).then(() => {
-              return user;
-            })
-          : API.post('user', user).then((res) => {
-              return res.data.result;
-            })
+          ? API.put('user', user._id, user)
+              .then(() => user)
+              .catch((err) => {
+                console.error('Error updating user:', user, err);
+                throw err;
+              })
+          : API.post('user', user)
+              .then((res) => res.data.result)
+              .catch((err) => {
+                console.error('Error creating user:', user, err);
+                throw err;
+              })
       )
-    ).then((newUsers) =>
-      newUsers.forEach((user) => this.inviteMember(user._id, user.username))
-    );
+    )
+      .then((newUsers) =>
+        newUsers.forEach((user) => this.inviteMember(user._id, user.username))
+      )
+      .catch((err) => {
+        console.error('Failed to import some or all users:', err);
+      });
   };
 
   /* Handler for the CourseCodeMemberImport component */
