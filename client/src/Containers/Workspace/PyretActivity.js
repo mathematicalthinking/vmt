@@ -108,11 +108,10 @@ const CodePyretOrg = (props) => {
   };
 
   const handleReceiveEvent = (data) => {
-    const { updatedRoom, addNtfToTabs, addToLog } = props;
-    console.log('Socket: Received data: ', data);
-    addToLog(data);
-    const { room } = props;
+    const { updatedRoom, addNtfToTabs, addToLog, room } = props;
     if (data.tab === tab._id) {
+      console.log('Socket: Received data: ', data);
+      addToLog(data);
       const updatedTabs = room.tabs.map((t) => {
         if (t._id === data.tab) {
           t.currentState = data.currentState;
