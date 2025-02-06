@@ -88,7 +88,6 @@ class GgbGraph extends Component {
    */
 
   componentDidMount() {
-    // const { currentTabId } = this.props;
     // We need access to a throttled version of sendEvent because of a geogebra bug that causes clientListener to fire twice when setMode is invoked
     this.throttledSendEvent = throttle(this.sendEvent, 500, {
       leading: true,
@@ -110,14 +109,9 @@ class GgbGraph extends Component {
         this.unlockWindowScroll
       );
     }
-    // console.log('Mounted - Tab Id: ', currentTabId);
     socket.on('RECEIVE_EVENT', (data) => {
       this.handleUpdate(data);
     });
-
-    //   socket.on('FORCE_SYNC', (data) => {
-    //     this.forceGgbSync(data);
-    //   });
   }
 
   /**
@@ -131,7 +125,6 @@ class GgbGraph extends Component {
     const {
       currentTabId,
       tab,
-      // room,
       referencing,
       inControl,
       showingReference,
@@ -155,7 +148,6 @@ class GgbGraph extends Component {
 
     const isNewEvent = prevProps.log.length < log.length;
     const didStartReferencing = !prevProps.referencing && referencing;
-    const didStopReferencing = prevProps.referencing && !referencing;
 
     const didStartDisplayingReference =
       !prevProps.showingReference && showingReference;
@@ -171,13 +163,6 @@ class GgbGraph extends Component {
       // prompt if they want reference to automatically turn on when chat is in focus?
       this.setDefaultGgbMode();
       // Set tool to pointer so the user can select elements @question shpuld they have to be in control to reference
-    } else if (didStopReferencing) {
-      // if they are in control, can keep mode set to move tool
-      if (!isInControl) {
-        // force resync in case they moved anything while referencing
-        // this.resyncGgbState();
-        // this.ggbApplet.setMode(40);
-      }
     }
     // Control
     if (didGainControl) {
@@ -208,15 +193,9 @@ class GgbGraph extends Component {
     if (prevProps.currentTabId !== currentTabId) {
       this.updateDimensions();
     }
-
-    // releasing control
-    if (prevProps.inControl !== inControl && inControl === 'NONE') {
-      // this.updateConstructionState();
-    }
   }
 
   componentWillUnmount() {
-    // this.updateConstructionState();
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
@@ -229,7 +208,6 @@ class GgbGraph extends Component {
     if (this.ggbApplet) {
       this.ggbApplet.unregisterAddListener(this.addListener);
       this.ggbApplet.unregisterUpdateListener(this.updateListener);
-      // this.ggbApplet.unregisterClickListener(this.clickListener);
       this.ggbApplet.unregisterRemoveListener(this.removeListener);
       this.ggbApplet.unregisterClearListener(this.clearListener);
       this.ggbApplet.unregisterClientListener(this.clientListener);
@@ -327,9 +305,6 @@ class GgbGraph extends Component {
       event.eventType !== 'DRAG'
     ) {
       this.ggbApplet.evalCommand(event.commandString);
-      // if (event.valueString) {
-      //   this.ggbApplet.evalCommand(event.valueString);
-      // }
     } else if (event.xml) {
       this.ggbApplet.evalXML(event.xml);
     } else if (event.eventType === 'REMOVE') {
@@ -401,7 +376,6 @@ class GgbGraph extends Component {
       this.clearSocketQueue();
     }
   };
-  // @todo socketQueue should be renamed incomingEventQueue and eventQeue should be renamed outgoingEventQueue
   clearSocketQueue = () => {
     if (this.incomingEventQueue.length > 0) {
       const nextEvent = this.incomingEventQueue.shift();
@@ -465,7 +439,6 @@ class GgbGraph extends Component {
     const { tab, currentTabId } = this.props;
     const parameters = {
       id: `ggbApplet${tab._id}A`,
-      // scaleContainerClass: "graph",
       showToolBar: true,
       showMenuBar: true,
       showAlgebraInput: tab.appName === 'geometry',
@@ -549,31 +522,17 @@ class GgbGraph extends Component {
    * @description
    */
 
-  waitForGraphElement = () => {
-    return new Promise((resolve) => {
-      const checkElement = () => {
-        if (this.getInnerGraphCoords()) {
-          resolve();
-        } else {
-          // Check again in 100ms
-          setTimeout(checkElement, 100);
-        }
-      };
-      checkElement();
-    });
-  };
-
   initializeGgb = async () => {
     this.isInitializingGgb = true;
+    // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
     const { tab, setFirstTabLoaded, currentTabId } = this.props;
 
+    this.ggbApplet = window[`ggbApplet${tab._id}A`];
+    await this.setDefaultGgbMode();
+
+    // put the current construction on the graph, disable everything until the user takes control
+    // if (perspective) this.ggbApplet.setPerspective(perspective);
     try {
-      // Wait for the graph element to be fully loaded
-      await this.waitForGraphElement();
-
-      this.ggbApplet = window[`ggbApplet${tab._id}A`];
-      await this.setDefaultGgbMode();
-
       if (!this.didResync) {
         await this.resyncGgbState();
       } else {
@@ -583,18 +542,9 @@ class GgbGraph extends Component {
       if (tab._id === currentTabId) {
         setFirstTabLoaded();
       }
-
-      await this.setDefaultGgbMode();
-      this.isInitializingGgb = false;
-
-      // Add resize observer to update coordinates when window is resized
-      const graphEl = document.querySelector('.gwt-SplitLayoutPanel');
-      if (graphEl && typeof ResizeObserver !== 'undefined') {
-        this.resizeObserver = new ResizeObserver(() => {
-          this.getInnerGraphCoords();
-        });
-        this.resizeObserver.observe(graphEl);
-      }
+      this.setDefaultGgbMode().then(() => {
+        this.isInitializingGgb = false;
+      });
     } catch (err) {
       console.log(`Error initializingGgb: `, err);
       this.isInitializingGgb = false;
@@ -652,13 +602,15 @@ class GgbGraph extends Component {
     if (this.receivingData) {
       return;
     }
-
     switch (event[0]) {
+      case 'viewChange2d':
+      case 'viewChange3d':
+        this.getInnerGraphCoords();
+        break;
       case 'setMode':
-        // eslint-disable-next-line prefer-destructuring
+        this.getInnerGraphCoords(); // setMode occurs on initialization
         if (
           event[2] === '40' ||
-          // (referencing && event[2] === '0') ||
           (this.previousEvent &&
             this.previousEvent.eventType === 'mode' &&
             this.previousEvent.label === event[2])
@@ -682,7 +634,6 @@ class GgbGraph extends Component {
           }
           if (event[2] !== mode.toString()) {
             if (!this.isResyncing && !this.isInitializingGgb) {
-              // this.intendedMode = parseInt(event[2], 10);
               this.setState({ showControlWarning: true });
             } else {
               this.setDefaultGgbMode().then(() => {
@@ -770,12 +721,7 @@ class GgbGraph extends Component {
         }
         break;
       case 'perspectiveChange':
-        // console.log(
-        //   'Perspective change... Can edit?: ',
-        //   this.userCanEdit(),
-        //   ' can change: ',
-        //   canChangePerspective
-        // );
+        this.getInnerGraphCoords();
         if (this.userCanEdit()) {
           this.parseVisibleViews()
             .then((visibleViews) => {
@@ -862,7 +808,6 @@ class GgbGraph extends Component {
         break;
       }
       case 'editorStart':
-        // this.ggbApplet.evalCommand("editorStop()");
         // save the state of what's being edited BEFORE they edit it. This way,
         // if they're not in control and cannot edit, we can reset to this state
         this.editorState = this.ggbApplet.getEditorState();
@@ -1014,6 +959,7 @@ class GgbGraph extends Component {
    */
 
   updateListener = (label) => {
+    this.getInnerGraphCoords();
     if (this.batchUpdating || this.movingGeos || this.renamedDetails) {
       return;
     }
@@ -1160,7 +1106,7 @@ class GgbGraph extends Component {
 
   /**
    * @method registerListeners
-   *  rs - register the even listeners with geogebra
+   *  rs - register the event listeners with geogebra
    */
 
   registerListeners = () => {
@@ -1168,7 +1114,7 @@ class GgbGraph extends Component {
     this.ggbApplet.unregisterAddListener(this.addListener);
     // this.ggbApplet.unregisterClickListener(this.clickListener);
     this.ggbApplet.unregisterUpdateListener(this.updateListener);
-    this.ggbApplet.unregisterRemoveListener(this.RemoveListener);
+    this.ggbApplet.unregisterRemoveListener(this.removeListener);
     this.ggbApplet.unregisterClearListener(this.clearListener);
     this.ggbApplet.unregisterRenameListener(this.renameListener);
 
@@ -1197,7 +1143,6 @@ class GgbGraph extends Component {
 
     this.ggbApplet.registerClientListener(this.clientListener);
     this.ggbApplet.registerAddListener(this.addListener);
-    // this.ggbApplet.registerClickListener(this.clickListener);
     this.ggbApplet.registerUpdateListener(this.updateListener);
     this.ggbApplet.registerRemoveListener(this.removeListener);
     this.ggbApplet.registerClearListener(this.clearListener);
@@ -1231,7 +1176,6 @@ class GgbGraph extends Component {
     }
 
     if (!this.userCanEdit()) {
-      // this.setState({ showControlWarning: true });
       return;
     }
     if (referencing || showingReference) {
@@ -1299,7 +1243,6 @@ class GgbGraph extends Component {
     }
 
     eventData.description = this.buildDescription(event);
-    // addToLog(eventData); // emitEvent already adds to the log
 
     if (this.updatingTab) {
       clearTimeout(this.updatingTab);
@@ -1401,7 +1344,6 @@ class GgbGraph extends Component {
   updateConstructionState = () => {
     const { tab } = this.props;
     if (this.ggbApplet) {
-      // const currentState = this.ggbApplet.getXML();
       this.getBase64Async()
         .then((base64) => {
           const { _id } = tab;
