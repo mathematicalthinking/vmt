@@ -217,6 +217,9 @@ class GgbGraph extends Component {
 
   componentWillUnmount() {
     // this.updateConstructionState();
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
     if (this.timer) {
       clearInterval(this.timer);
     }
@@ -546,18 +549,31 @@ class GgbGraph extends Component {
    * @description
    */
 
+  waitForGraphElement = () => {
+    return new Promise((resolve) => {
+      const checkElement = () => {
+        if (this.getInnerGraphCoords()) {
+          resolve();
+        } else {
+          // Check again in 100ms
+          setTimeout(checkElement, 100);
+        }
+      };
+      checkElement();
+    });
+  };
+
   initializeGgb = async () => {
     this.isInitializingGgb = true;
-    // Save the coords of the graph element so we know how to restrict reference lines (i.e. prevent from overflowing graph)
     const { tab, setFirstTabLoaded, currentTabId } = this.props;
 
-    this.getInnerGraphCoords();
-    this.ggbApplet = window[`ggbApplet${tab._id}A`];
-    await this.setDefaultGgbMode();
-
-    // put the current construction on the graph, disable everything until the user takes control
-    // if (perspective) this.ggbApplet.setPerspective(perspective);
     try {
+      // Wait for the graph element to be fully loaded
+      await this.waitForGraphElement();
+
+      this.ggbApplet = window[`ggbApplet${tab._id}A`];
+      await this.setDefaultGgbMode();
+
       if (!this.didResync) {
         await this.resyncGgbState();
       } else {
@@ -567,9 +583,18 @@ class GgbGraph extends Component {
       if (tab._id === currentTabId) {
         setFirstTabLoaded();
       }
-      this.setDefaultGgbMode().then(() => {
-        this.isInitializingGgb = false;
-      });
+
+      await this.setDefaultGgbMode();
+      this.isInitializingGgb = false;
+
+      // Add resize observer to update coordinates when window is resized
+      const graphEl = document.querySelector('.gwt-SplitLayoutPanel');
+      if (graphEl && typeof ResizeObserver !== 'undefined') {
+        this.resizeObserver = new ResizeObserver(() => {
+          this.getInnerGraphCoords();
+        });
+        this.resizeObserver.observe(graphEl);
+      }
     } catch (err) {
       console.log(`Error initializingGgb: `, err);
       this.isInitializingGgb = false;
@@ -1536,25 +1561,41 @@ class GgbGraph extends Component {
   getInnerGraphCoords = () => {
     const { setGraphCoords } = this.props;
     const graphSelector = '.gwt-SplitLayoutPanel';
-
     const graphEl = document.querySelector(graphSelector);
 
-    // will not always neccessarily be a graph
+    // will not always necessarily be a graph
     // for example if the probability calculator is on
-    if (graphEl) {
-      const topBar = document.getElementsByClassName('ggbtoolbarpanel')[0];
-      let topBarHeight = 0;
-      if (topBar) {
-        topBarHeight = topBar.getBoundingClientRect().height;
-      }
-      const innerGraphCoords = graphEl.getBoundingClientRect();
-      setGraphCoords({
-        left: innerGraphCoords.left - 17,
-        right: innerGraphCoords.right - 17,
-        height: innerGraphCoords.height + topBarHeight,
-        top: topBarHeight,
-      });
+    if (!graphEl) {
+      console.warn('Graph element not found');
+      return false;
     }
+
+    // Ensure the element has been rendered and has dimensions
+    const innerGraphCoords = graphEl.getBoundingClientRect();
+    if (innerGraphCoords.width === 0 || innerGraphCoords.height === 0) {
+      console.warn('Graph element has zero dimensions');
+      return false;
+    }
+
+    const topBar = document.getElementsByClassName('ggbtoolbarpanel')[0];
+    let topBarHeight = 0;
+    if (topBar) {
+      const topBarRect = topBar.getBoundingClientRect();
+      if (topBarRect.height === 0) {
+        console.warn('Toolbar has zero height');
+        return false;
+      }
+      topBarHeight = topBarRect.height;
+    }
+
+    setGraphCoords({
+      left: innerGraphCoords.left - 17,
+      right: innerGraphCoords.right - 17,
+      height: innerGraphCoords.height + topBarHeight,
+      top: topBarHeight,
+    });
+
+    return true;
   };
 
   parseXML = (xml) => {
