@@ -799,13 +799,8 @@ class Workspace extends Component {
     history.goBack();
   };
 
-  setGraphCoords = (newGraphCoords) => {
-    const { graphCoords } = this.state;
-
-    // update only if the coordinates have changed
-    if (JSON.stringify(graphCoords) !== JSON.stringify(newGraphCoords)) {
-      this.setState({ graphCoords: newGraphCoords });
-    }
+  setGraphCoords = (graphCoords) => {
+    this.setState({ graphCoords });
   };
 
   resizeHandler = () => {
