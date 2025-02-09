@@ -86,6 +86,7 @@ export default function Importer(props) {
           : {
               accountType: 'pending',
               ...rest,
+              isGmail,
               metadata: { organization, identifier },
               sponsor: sponsors[user.username] || creator._id,
             };
