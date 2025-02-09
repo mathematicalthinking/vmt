@@ -196,9 +196,6 @@ class GgbGraph extends Component {
   }
 
   componentWillUnmount() {
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
     if (this.timer) {
       clearInterval(this.timer);
     }
@@ -1472,6 +1469,11 @@ class GgbGraph extends Component {
         .getBoundingClientRect().height;
     }
     const ggbCoords = this.graph.current.getBoundingClientRect();
+    // When switching to a GGB tab from another tab, the GGB element may not be
+    // focused yet, so the height may be 0. If so, use scrollHeight
+    if (ggbCoords.height === 0) {
+      ggbCoords.height = this.graph.current.scrollHeight;
+    }
     const ggbViewProps = JSON.parse(
       this.ggbApplet.getViewProperties(viewNum || 1)
     );
