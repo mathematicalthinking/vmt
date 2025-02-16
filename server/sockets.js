@@ -649,11 +649,13 @@ module.exports = function() {
     // Returns the users that are in roomId (across all nodes if necessary)
     const usersInRoom = async (roomId) => {
       const socketsInRoom = Array.from(await io.in(roomId).allSockets());
+      console.log('socketsInRoom', socketsInRoom);
       const answer = await findAllMatching(
         controllers.user,
         ['socketId'],
         socketsInRoom
       );
+      console.log('answer', answer);
       if (answer.length !== socketsInRoom.length)
         console.log(
           `There are ${socketsInRoom.length -
