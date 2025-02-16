@@ -122,6 +122,7 @@ module.exports = function() {
     socket.on('JOIN', async (data, cb) => {
       socketMetricInc('roomjoin');
       const text = `USERNAME joined ${data.roomName}`;
+      console.log('JOINING', text);
       joinHelper(data, joinText(text), cb);
     });
 
@@ -154,12 +155,15 @@ module.exports = function() {
 
       try {
         const { room, releasedControl } = await killZombies(data.roomId);
+        console.log(`killing zombies in ${data.roomId}`, room, releasedControl);
         const showAliases = room.settings.displayAliasedUsernames || false;
         if (showAliases) {
           const newMembers = createAliases(room.members);
+          console.log('newMembers', newMembers);
           if (newMembers !== room.members) {
             // if some of the members were assigned new aliases, update the database and
             // alert users already in a room
+            console.log('putting in new members');
             room.members = newMembers;
             await controllers.rooms.put(room._id, { members: room.members });
             io.in(data.roomId).emit('RESET_COMPLETE');
@@ -179,6 +183,7 @@ module.exports = function() {
           color: data.color,
           timestamp: Date.now(),
         });
+        console.log('message', message);
         await message.save();
 
         const dataToReturn = {
@@ -188,6 +193,7 @@ module.exports = function() {
           username: data.username,
           userId: data.userId,
         };
+        console.log('dataToReturn', dataToReturn);
         socket.to(data.roomId).emit('USER_JOINED', dataToReturn);
 
         return cb(dataToReturn, null);
@@ -530,7 +536,9 @@ module.exports = function() {
         events: false,
       });
       const currMemsInDb = roomInDb.currentMembers;
+      console.log('currMemsInDb', currMemsInDb);
       const usersInSockets = await usersInRoom(roomId); // socket users
+      console.log('usersInSockets', usersInSockets);
 
       // used to update the currentMembers array in the db
       // const currentUsers = [];
@@ -538,6 +546,7 @@ module.exports = function() {
       const usersInDb = await controllers.user.get({
         _id: { $in: usersInSockets },
       });
+      console.log('usersInDb', usersInDb);
 
       // get usernames for usersInSockets from the database
       // get Room Tab id for usersInSockets from the database
@@ -559,10 +568,12 @@ module.exports = function() {
       // const resolved = await Promise.all(promises);
       // currentUsers.push(...resolved);
 
+      console.log('currentUsers', currentUsers);
       const room = await controllers.rooms.setCurrentMembers(
         roomId,
         currentUsers
       );
+      console.log('room after', room);
 
       // filter any users that are in db but not in sockets into differenceInUsers
       const differenceInUsers = currMemsInDb.filter(
@@ -570,6 +581,8 @@ module.exports = function() {
           // currMemsInDb ids are Objects, usersInSockets ids are strings
           user && user._id && !usersInSockets.includes(user._id.toString())
       );
+
+      console.log('differenceInUsers', differenceInUsers);
 
       if (differenceInUsers.length) {
         differenceInUsers.forEach((prevUser) => {
@@ -597,6 +610,7 @@ module.exports = function() {
           tab.controlledBy &&
           !usersInSockets.includes(tab.controlledBy.toString())
       );
+      console.log('releasedControl', releasedControl);
 
       await releasedControl.forEach(async (tab) => {
         const prevUser = await controllers.user.getById(tab.controlledBy);
