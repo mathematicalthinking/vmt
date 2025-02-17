@@ -155,15 +155,15 @@ module.exports = function() {
 
       try {
         const { room, releasedControl } = await killZombies(data.roomId);
-        console.log(`killing zombies in ${data.roomId}`, room, releasedControl);
+        console.log(`killing zombies in ${data.roomId}`, room);
         const showAliases = room.settings.displayAliasedUsernames || false;
         if (showAliases) {
           const newMembers = createAliases(room.members);
-          console.log('newMembers', newMembers);
+          // console.log('newMembers', newMembers);
           if (newMembers !== room.members) {
             // if some of the members were assigned new aliases, update the database and
             // alert users already in a room
-            console.log('putting in new members');
+            // console.log('putting in new members');
             room.members = newMembers;
             await controllers.rooms.put(room._id, { members: room.members });
             io.in(data.roomId).emit('RESET_COMPLETE');
@@ -183,7 +183,7 @@ module.exports = function() {
           color: data.color,
           timestamp: Date.now(),
         });
-        console.log('message', message);
+        // console.log('message', message);
         await message.save();
 
         const dataToReturn = {
@@ -314,10 +314,12 @@ module.exports = function() {
       socket.user_id = _id;
       controllers.user
         .put(_id, { socketId: socket.id })
-        .then(() => {
-          cb(`User socketId updated to ${socket.id}`, null);
+        .then((user) => {
+          console.log(`User ${user.username} socketId updated to ${socket.id}`);
+          cb(`User ${user.username} socketId updated to ${socket.id}`, null);
         })
         .catch((err) => cb('Error found', err));
+
       markSocketAsActive(socket.user_id, socket.id);
     });
 
@@ -536,9 +538,9 @@ module.exports = function() {
         events: false,
       });
       const currMemsInDb = roomInDb.currentMembers;
-      console.log('currMemsInDb', currMemsInDb);
+      console.log('currMemsInDb', currMemsInDb.length);
       const usersInSockets = await usersInRoom(roomId); // socket users
-      console.log('usersInSockets', usersInSockets);
+      console.log('usersInSockets', usersInSockets.length);
 
       // used to update the currentMembers array in the db
       // const currentUsers = [];
@@ -546,7 +548,7 @@ module.exports = function() {
       const usersInDb = await controllers.user.get({
         _id: { $in: usersInSockets },
       });
-      console.log('usersInDb', usersInDb);
+      console.log('usersInDb', usersInDb.map((user) => user.username));
 
       // get usernames for usersInSockets from the database
       // get Room Tab id for usersInSockets from the database
@@ -568,12 +570,12 @@ module.exports = function() {
       // const resolved = await Promise.all(promises);
       // currentUsers.push(...resolved);
 
-      console.log('currentUsers', currentUsers);
+      // console.log('currentUsers', currentUsers);
       const room = await controllers.rooms.setCurrentMembers(
         roomId,
         currentUsers
       );
-      console.log('room after', room);
+      // console.log('room after', room);
 
       // filter any users that are in db but not in sockets into differenceInUsers
       const differenceInUsers = currMemsInDb.filter(
@@ -582,7 +584,7 @@ module.exports = function() {
           user && user._id && !usersInSockets.includes(user._id.toString())
       );
 
-      console.log('differenceInUsers', differenceInUsers);
+      // console.log('differenceInUsers', differenceInUsers);
 
       if (differenceInUsers.length) {
         differenceInUsers.forEach((prevUser) => {
@@ -610,7 +612,7 @@ module.exports = function() {
           tab.controlledBy &&
           !usersInSockets.includes(tab.controlledBy.toString())
       );
-      console.log('releasedControl', releasedControl);
+      // console.log('releasedControl', releasedControl);
 
       await releasedControl.forEach(async (tab) => {
         const prevUser = await controllers.user.getById(tab.controlledBy);
@@ -650,12 +652,22 @@ module.exports = function() {
     const usersInRoom = async (roomId) => {
       const socketsInRoom = Array.from(await io.in(roomId).allSockets());
       console.log('socketsInRoom', socketsInRoom);
+      socketsInRoom.forEach((socketId) => {
+        controllers.user.get({ socketId }).then(
+          ([user]) => {
+            console.log('USER SEARCH BY SOCKET', user.username, socketId);
+          },
+          (err) => {
+            console.log('err', err);
+          }
+        );
+      });
       const answer = await findAllMatching(
         controllers.user,
         ['socketId'],
         socketsInRoom
       );
-      console.log('answer', answer);
+      console.log('answer', answer.map((user) => user.username));
       if (answer.length !== socketsInRoom.length)
         console.log(
           `There are ${socketsInRoom.length -
