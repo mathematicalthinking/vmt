@@ -654,8 +654,8 @@ module.exports = function() {
       console.log('socketsInRoom', socketsInRoom);
       socketsInRoom.forEach((socketId) => {
         controllers.user.get({ socketId }).then(
-          (user) => {
-            console.log('user search by socket', user.username, socketId);
+          ([user]) => {
+            console.log('USER SEARCH BY SOCKET', user.username, socketId);
           },
           (err) => {
             console.log('err', err);
