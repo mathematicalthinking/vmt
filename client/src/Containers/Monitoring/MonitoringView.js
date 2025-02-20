@@ -1,15 +1,17 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Loading, ToggleGroup } from 'Components';
-import { updateMonitorSelections } from 'store/actions';
+import _pick from 'lodash/pick';
+import _pickBy from 'lodash/pickBy';
+import _keyBy from 'lodash/keyBy';
+import { useSelector } from 'react-redux';
+import { ToggleGroup } from 'Components';
 import { addUserRoleToResource } from 'store/utils';
-import { usePopulatedRooms } from 'utils';
+import { usePopulatedRooms, useUIState } from 'utils';
 import ResourceTables from './ResourceTables';
 import RoomsMonitor from './RoomsMonitor';
 import classes from './monitoringView.css';
 
+const MINIMAL_ROOMS = 5;
 /**
  * The MonitoringView allows users to select which of their rooms (whether ones
  * they manage or are a member of) to monitor.
@@ -18,18 +20,14 @@ import classes from './monitoringView.css';
  * whatever sorting and selection is done by the selection table takes precedence.
  */
 
-function MonitoringView({
-  userResources,
-  storedSelections,
-  user,
-  connectUpdateMonitorSelections,
-  notifications,
-}) {
-  const constants = {
-    SELECT: 'Select',
-    VIEW: 'View',
-  };
+function MonitoringView() {
+  const { userResources, user, notifications } = useSelector((store) => ({
+    user: store.user,
+    userResources: Object.values(store.rooms.byId),
+    notifications: store.notifications,
+  }));
 
+  /* ------- INITIALIZATION FUNCTIONS ------------- */
   const _wasRecentlyUpdated = (room) => {
     // integrated logic to determine default rooms to view
     // hours is time window to determine recent rooms
@@ -44,7 +42,7 @@ function MonitoringView({
   // with the collection of rooms that were available for selection
   // and so stored in the Redux store.  For example, maybe a new room
   // was added since we last did our monitoring.
-  const _initializeSelections = (rooms) => {
+  const _initializeSelections = (rooms, storedSelections) => {
     const result = {};
     rooms.forEach((room) => {
       if (
@@ -66,104 +64,103 @@ function MonitoringView({
       );
       if (roomsResult.length !== 0)
         roomsResult
-          .slice(0, Math.min(5, roomsResult.length))
+          .slice(0, Math.min(MINIMAL_ROOMS, roomsResult.length))
           // eslint-disable-next-line no-return-assign
           .forEach((room) => (result[room._id] = true));
     }
     return result;
   };
 
-  const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
-  const [roomIds, setRoomIds] = React.useState(
-    userResources.map((room) => room._id)
-  );
-  const [selections, setSelections] = React.useState(
-    _initializeSelections(userResources)
-  );
-  const savedState = React.useRef(selections);
+  const _initialVisibleRooms = (selectedRooms) => {
+    const selectedIds = Object.keys(_pickBy(selectedRooms));
+    return selectedIds.slice(0, MINIMAL_ROOMS);
+  };
 
-  const populatedRooms = usePopulatedRooms(roomIds, false, {
-    refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
+  /* ------------------ */
+
+  const constants = {
+    SELECT: 'Select',
+    VIEW: 'View',
+  };
+
+  const [uiState, setUIState] = useUIState('monitoring-container', {});
+  const [viewOrSelect, setViewOrSelect] = React.useState(constants.VIEW);
+  const [selections, setSelections] = React.useState(
+    _initializeSelections(userResources, uiState.storedSelections)
+  );
+  const [visibleIds, setVisibleIds] = React.useState(
+    _initialVisibleRooms(selections)
+  );
+  const populatedRooms = usePopulatedRooms(visibleIds, false, {
+    initialCache: _keyBy(
+      userResources.map((room) =>
+        _pick(room, [
+          '_id',
+          'name',
+          'createdAt',
+          'updateAt',
+          'currentMembers',
+          'members',
+        ])
+      ),
+      '_id'
+    ),
+    refetchInterval: 10000,
   });
 
-  React.useEffect(() => {
-    const allIds = userResources.map((room) => room._id);
-    if (viewOrSelect === constants.SELECT) setRoomIds(allIds);
-    else setRoomIds(allIds.filter((id) => selections[id]));
-  }, [userResources.length, viewOrSelect]);
-
-  /**
-   * EFFECTS THAT ARE USED TO PERSIST STATE AFTER UNMOUNT
-   *
-   * Whenever the state we want to persist changes, update the savedState ref. When the component unmounts,
-   * save the state in the Redux store. Much preferred to alerting the Redux store of every little local state change.
-   *
-   * Right now, we save only the current selections. In the future, we might save:
-   *  - width and height of each tile
-   *  - the scroll location for each tile
-   *  - whether we are viewing chat, thumbnail, or graph
-   *
-   */
+  const allIds = React.useMemo(() => userResources.map((room) => room._id), [
+    userResources,
+  ]);
 
   React.useEffect(() => {
-    savedState.current = selections;
+    setUIState({ storedSelections: selections });
   }, [selections]);
 
   React.useEffect(() => {
-    return () => {
-      connectUpdateMonitorSelections(savedState.current);
-    };
-  }, []);
-
-  if (populatedRooms.isError) return <div>There was an error</div>;
-  if (!populatedRooms.isSuccess) return <Loading message="Getting the rooms" />;
+    if (viewOrSelect === constants.SELECT) setVisibleIds(allIds);
+  }, [viewOrSelect]);
 
   return (
-    <div className={classes.Container}>
-      <div className={classes.TogglesContainer}>
-        <ToggleGroup
-          buttons={[constants.VIEW, constants.SELECT]}
-          onChange={setViewOrSelect}
-        />
-      </div>
-
-      {viewOrSelect === constants.SELECT ? (
-        <ResourceTables
-          // So that we quickly display the table: use the data in userResources until we have more recent live data
-          data={Object.values(populatedRooms.data).map((room) =>
-            addUserRoleToResource(room, user._id)
+    <div style={{ marginTop: '100px', width: '90%', alignSelf: 'center' }}>
+      {!populatedRooms.isError ? (
+        <div className={classes.Container}>
+          <div className={classes.TogglesContainer}>
+            <ToggleGroup
+              buttons={[constants.VIEW, constants.SELECT]}
+              onChange={setViewOrSelect}
+            />
+          </div>
+          {populatedRooms.isLoading && <span>Loading...</span>}
+          {viewOrSelect === constants.SELECT ? (
+            <ResourceTables
+              data={Object.values(populatedRooms.data).map((room) =>
+                addUserRoleToResource(room, user._id)
+              )}
+              resource="rooms"
+              selections={selections}
+              onChange={(newSelections) => {
+                setSelections((prev) => {
+                  return { ...prev, ...newSelections };
+                });
+              }}
+            />
+          ) : (
+            <RoomsMonitor
+              context="monitoring-rooms"
+              populatedRooms={_pick(
+                populatedRooms.data,
+                Object.keys(_pickBy(selections))
+              )}
+              onVisible={setVisibleIds}
+              isLoading={populatedRooms.isFetching ? visibleIds : []}
+            />
           )}
-          resource="rooms"
-          selections={selections}
-          onChange={(newSelections) => {
-            setSelections((prev) => {
-              return { ...prev, ...newSelections };
-            });
-          }}
-        />
+        </div>
       ) : (
-        <RoomsMonitor populatedRooms={populatedRooms.data} />
+        <div>There was an error</div>
       )}
     </div>
   );
 }
 
-MonitoringView.propTypes = {
-  user: PropTypes.shape({ _id: PropTypes.string }).isRequired,
-  userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  storedSelections: PropTypes.shape({}),
-  connectUpdateMonitorSelections: PropTypes.func.isRequired,
-};
-
-MonitoringView.defaultProps = {
-  storedSelections: {},
-};
-
-const mapStateToProps = (state) => ({
-  storedSelections: state.rooms.monitorSelections,
-});
-
-export default connect(mapStateToProps, {
-  connectUpdateMonitorSelections: updateMonitorSelections,
-})(MonitoringView);
+export default MonitoringView;

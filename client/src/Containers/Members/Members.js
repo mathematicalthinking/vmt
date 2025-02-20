@@ -4,7 +4,7 @@ import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
-import { Member, Search, Modal, Button, InfoBox } from 'Components';
+import { Member, Search, Modal, Button, InfoBox, Checkbox } from 'Components';
 import Slider from 'Components/UI/Button/Slider';
 import COLOR_MAP from 'utils/colorMap';
 import API from 'utils/apiRequests';
@@ -17,8 +17,10 @@ import {
   clearNotification,
   removeCourseMember,
   removeRoomMember,
+  updateCourse,
 } from 'store/actions';
 import { getAllUsersInStore } from 'store/reducers';
+import CourseCodeMemberImport from 'Components/Importer/CourseCodeMemberImport';
 import Importer from '../../Components/Importer/Importer';
 import SearchResults from './SearchResults';
 import classes from './members.css';
@@ -35,6 +37,9 @@ class Members extends PureComponent {
       username: null,
       isCourseOnly: false,
       temporaryExclusion: [], // array of user ids to temporarily exclude from search results
+      editingUsernames: false,
+      usernamesHaveChanged: false,
+      updatedUsers: [],
     };
   }
 
@@ -66,7 +71,7 @@ class Members extends PureComponent {
     }
   }
 
-  inviteMember = (id, username) => {
+  inviteMember = (id, username, role = 'participant') => {
     let confirmingInvitation = false;
     const {
       resourceId,
@@ -81,7 +86,8 @@ class Members extends PureComponent {
       // Don't invite someone if they are already in the course
       const alreadyInCourse =
         courseMembers && courseMembers.find((mem) => mem.user._id === id);
-      if (!alreadyInCourse) connectInviteToCourse(resourceId, id, username);
+      if (!alreadyInCourse)
+        connectInviteToCourse(resourceId, id, username, { role });
     } else if (courseMembers) {
       const inCourse = courseMembers.filter(
         (member) => member.user._id === id
@@ -89,10 +95,10 @@ class Members extends PureComponent {
       if (!inCourse) {
         confirmingInvitation = true;
       } else {
-        connectInviteToRoom(resourceId, id, username, color, {}); // @TODO **WHY** do we invite a user if they are already in the course?!?
+        connectInviteToRoom(resourceId, id, username, color, role); // @TODO **WHY** do we invite a user if they are already in the course?!?
       }
     } else {
-      connectInviteToRoom(resourceId, id, username, color);
+      connectInviteToRoom(resourceId, id, username, color, role);
     }
     this.setState((prevState) => ({
       confirmingInvitation,
@@ -116,7 +122,6 @@ class Members extends PureComponent {
     const { userId, username } = this.state;
     connectInviteToCourse(parentResource, userId, username, {
       role: 'guest',
-      // guest: true,
     });
     connectInviteToRoom(resourceId, userId, username, color);
     this.setState({
@@ -156,88 +161,6 @@ class Members extends PureComponent {
     );
   };
 
-  /**
-   * @method changeRole
-   * @param  {Object} updatedMember - member obj { color, _id, role, {_id, username}}
-   */
-
-  changeRole = (updatedMember) => {
-    const {
-      classList,
-      resourceId,
-      resourceType,
-      connectUpdateRoomMembers,
-      connectUpdateCourseMembers,
-      courseRoomsMembers,
-      connectInviteToRoom,
-      onChangeRole,
-    } = this.props;
-
-    if (onChangeRole) onChangeRole(updatedMember);
-
-    // create a new classList containing the updatedMember (with a new role). Because we are
-    // sending this to the db, reduce the user field down to just the _id
-    const updatedClassList = classList.map((member) => {
-      return member.user._id === updatedMember.user._id
-        ? { ...updatedMember, user: updatedMember.user._id }
-        : { ...member, user: member.user._id };
-    });
-
-    // If we are inside of a course, we have to update the course members' roles
-    // If we are upgrading a member into a course facilitator, we must:
-    // - check whether that course member is a member of each room in the course. For each room that they are a member of, change their role.
-    //   For each room that they aren't a member of, invite them to that room (which adds them to the room list and adds the room to
-    //   the user's list of rooms).
-    // - invite that member to each template/activity in the course (which should add them to the activity user list and add
-    //   the activity to the user's list of activities)
-    // If we are downgrading a member into a course participant, we must:
-    // - change that member to be a participant of each room in the course that they are a member of
-    // - disinvite the user from all course template/activities:
-    //   remove that member from the list of users who can access each template/activity and remove all course
-    //   templates/activities from the user's list of templates/activities.
-
-    if (resourceType === 'course') {
-      connectUpdateCourseMembers(resourceId, updatedClassList);
-      if (courseRoomsMembers && updatedMember.role === 'facilitator') {
-        Object.keys(courseRoomsMembers).forEach((roomId) => {
-          if (
-            courseRoomsMembers[roomId].find(
-              (member) => member.user._id === updatedMember.user._id
-            )
-          ) {
-            const updatedMemberList = courseRoomsMembers[roomId].map(
-              (member) => {
-                if (member.user._id === updatedMember.user._id)
-                  member.role = 'facilitator';
-                return member;
-              }
-            );
-
-            connectUpdateRoomMembers(roomId, updatedMemberList);
-          } else
-            connectInviteToRoom(
-              roomId,
-              updatedMember.user._id,
-              updatedMember.user.username,
-              undefined, // color
-              updatedMember.role
-            );
-        });
-      } else if (courseRoomsMembers && updatedMember.role === 'participant') {
-        Object.keys(courseRoomsMembers).forEach((roomId) => {
-          const updatedMemberList = courseRoomsMembers[roomId].map((member) => {
-            if (member.user._id === updatedMember.user._id)
-              member.role = 'participant';
-            return member;
-          });
-
-          connectUpdateRoomMembers(roomId, updatedMemberList);
-        });
-      }
-      // if we are in the member list of a room, just update the room with the updated members array
-    } else connectUpdateRoomMembers(resourceId, updatedClassList);
-  };
-
   // Consider finding a way to NOT duplicate this in MakeRooms and also now in Profile
   search = (text) => {
     const { classList, courseMembers } = this.props;
@@ -246,15 +169,16 @@ class Members extends PureComponent {
       // prettier-ignore
       API.search(
         'user',
-        text,
-        classList.map((member) => member.user._id).concat(temporaryExclusion)
+        text
       )
         .then((res) => {
+          const exclude = classList.map((member) => member.user._id).concat(temporaryExclusion)
           const searchResults = res.data.results.filter((user) => {
             if (user.accountType === 'temp') return false;
             if (isCourseOnly) {
               return courseMembers.some((mem) => mem.user._id === user._id);
             }
+            if (exclude.includes(user._id)) return false;
             return true;
           });
           this.setState({ searchResults, searchText: text });
@@ -271,18 +195,179 @@ class Members extends PureComponent {
   /* Handler for the Import component */
   handleImport = (userObjects) => {
     Promise.all(
-      userObjects.map(async (user) =>
+      userObjects.map((user) =>
         user._id
-          ? API.put('user', user._id, user).then(() => {
-              return user;
+          ? API.put('user', user._id, user)
+              .then(() => user)
+              .catch((err) => {
+                console.error('Error updating user:', user, err);
+                throw err;
+              })
+          : API.post('user', user)
+              .then((res) => res.data.result)
+              .catch((err) => {
+                console.error('Error creating user:', user, err);
+                throw err;
+              })
+      )
+    )
+      .then((newUsers) =>
+        newUsers.forEach((user) => this.inviteMember(user._id, user.username))
+      )
+      .catch((err) => {
+        console.error('Failed to import some or all users:', err);
+      });
+  };
+
+  /* Handler for the CourseCodeMemberImport component */
+  handleCourseCodeMemberImport = (memberObjects) => {
+    Promise.all(
+      memberObjects.map(async (member) =>
+        member.user._id
+          ? API.put('user', member.user._id, member.user).then(() => {
+              return member;
             })
-          : API.post('user', user).then((res) => {
+          : API.post('user', member).then((res) => {
               return res.data.result;
             })
       )
-    ).then((newUsers) =>
-      newUsers.forEach((user) => this.inviteMember(user._id, user.username))
+    ).then((newMembers) =>
+      newMembers.forEach((member) =>
+        this.inviteMember(member.user._id, member.user.username, member.role)
+      )
     );
+  };
+
+  // if user is an admin, they can edit usernames
+  // return a Checkbox that, when clicked transforms the class list names into inputs and adds a save button after the checkbox
+  // if not, return null
+  generateEditUsernamesCheckbox = () => {
+    const { user, classList } = this.props;
+    const { editingUsernames, usernamesHaveChanged } = this.state;
+
+    // hide the checkbox if all members are facilitators
+    // because we disallow editing facilitator usernames
+    const allFacilitators = classList.every(
+      (member) => member.role === 'facilitator'
+    );
+    if (allFacilitators) return null;
+
+    if (user.isAdmin) {
+      return (
+        <div className={classes.EditUsernames}>
+          {!editingUsernames && (
+            <Button
+              theme="xs"
+              p={3}
+              click={() => this.setState({ editingUsernames: true })}
+            >
+              Edit Usernames
+            </Button>
+          )}
+          {editingUsernames && (
+            <Fragment>
+              <Button
+                theme={usernamesHaveChanged ? 'Danger' : 'Disabled'}
+                disabled={!usernamesHaveChanged}
+                p={4}
+                m={2}
+                click={() => {
+                  this.setState({ editingUsernames: false });
+                  this.saveUpdatedUsernames();
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                theme="Cancel"
+                m={2}
+                p={4}
+                click={() => this.setState({ editingUsernames: false })}
+              >
+                Cancel
+              </Button>
+            </Fragment>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // create a function that returns whether the given user is editable
+  // admins and facilitators are not editable
+  usernameIsEditable = (user) => {
+    const { admins, classList } = this.props;
+    const adminIds = admins.map((admin) => admin.user._id);
+    const facilitatorIds = classList
+      .filter((member) => member.role === 'facilitator')
+      .map((member) => member.user._id);
+    return !adminIds.includes(user._id) && !facilitatorIds.includes(user._id);
+  };
+
+  // function passed to Member component to update the username
+  // called when the user updates the username in the Member component
+  // setState of usernamesHaveChanged to true
+  // if user.username is different than user.newUsername, add the user to the updatedUsers array
+  updateUsername = (user) => {
+    const { updatedUsers } = this.state;
+    const { username, newUsername } = user;
+
+    if (username !== newUsername) {
+      const updatedUser = { ...user, username: newUsername };
+      delete updatedUser.newUsername;
+      this.setState({
+        usernamesHaveChanged: true,
+        // if the user is already in the updatedUsers array, replace them with the updatedUser
+        // otherwise, add the updatedUser to the array
+        updatedUsers: updatedUsers.some((u) => u._id === user._id)
+          ? updatedUsers.map((u) => {
+              if (u._id === user._id) return updatedUser;
+              return u;
+            })
+          : [...updatedUsers, updatedUser],
+      });
+    }
+  };
+
+  saveUpdatedUsernames = async () => {
+    const { classList, course, connectUpdateCourse } = this.props;
+    const { updatedUsers } = this.state;
+    const res = await API.updateUsernames(updatedUsers);
+    if (res.status !== 200) {
+      // @TODO If there was a problem updating the usernames, we really should alert the user
+      // rather than just doing nothing.
+      console.log('error updating usernames');
+      return;
+    }
+    // update the course in the store
+    // by creating a merged list of the classList and updatedUsers
+    // with the updatedUsers taking precedence
+    const updatedClassList = classList.map((member) => {
+      const updatedUser = updatedUsers.find(
+        (user) => user._id === member.user._id
+      );
+      if (updatedUser) {
+        return {
+          user: { _id: updatedUser._id, username: updatedUser.username },
+          role: member.role,
+        };
+      }
+      return member;
+    });
+    connectUpdateCourse(course._id, {
+      members: updatedClassList,
+    });
+
+    // course members is an array of objects in the form:
+    // [{ role, { _id, username }}, ... ]
+    // update course members in redux to update the displayed usernames
+
+    //
+
+    // connectUpdateCourseMembers(course._id, {
+    //   members: updatedClassList,
+    // });
   };
 
   render() {
@@ -296,6 +381,7 @@ class Members extends PureComponent {
       courseMembers,
       connectGrantAccess,
       connectClearNotification,
+      onChangeRole,
     } = this.props;
     const {
       confirmingInvitation,
@@ -303,6 +389,7 @@ class Members extends PureComponent {
       searchResults,
       searchText,
       isCourseOnly,
+      editingUsernames,
     } = this.state;
 
     let joinRequests = <p>There are no new requests to join</p>;
@@ -353,13 +440,17 @@ class Members extends PureComponent {
 
       return owner ? (
         <Member
-          changeRole={this.changeRole}
+          changeRole={onChangeRole}
           removeMember={this.removeMember}
           info={member}
           key={member.user._id}
           resourceName={resourceType}
           notification={notification.length > 0}
           owner
+          canEditUsername={
+            editingUsernames ? this.usernameIsEditable(member.user) : false
+          }
+          editUsername={editingUsernames ? this.updateUsername : null}
         />
       ) : (
         <Member
@@ -373,7 +464,7 @@ class Members extends PureComponent {
     const guestListComponents = guestList.map((member) => {
       return owner ? (
         <Member
-          changeRole={this.changeRole}
+          changeRole={onChangeRole}
           removeMember={this.removeMember}
           info={member}
           key={member.user._id}
@@ -384,6 +475,7 @@ class Members extends PureComponent {
         <Member info={member} key={member.user._id} />
       );
     });
+
     return (
       <div className={classes.Container}>
         <Modal
@@ -419,7 +511,7 @@ class Members extends PureComponent {
                   <div
                     style={{
                       display: 'flex',
-                      width: '475px',
+                      // width: '475px',
                       justifyContent: 'space-between',
                     }}
                   >
@@ -445,15 +537,18 @@ class Members extends PureComponent {
                     </div>
                     <Importer
                       user={user}
-                      buttonText="Import New Users"
                       onImport={this.handleImport}
-                    />
-                    <Importer
-                      user={user}
-                      onImport={this.handleImport}
-                      buttonText="Import to Replace"
+                      buttonText="Import New Members"
+                      preImportText="Replace all existing members"
                       preImportAction={this.removeAllMembers}
                     />
+                    <div style={{ margin: '0 1rem' }}>
+                      {/* <Button>Shared Rosters</Button> */}
+                      <CourseCodeMemberImport
+                        onImport={this.handleCourseCodeMemberImport}
+                        userId={user._id}
+                      />
+                    </div>
                   </div>
                 ) : null
               }
@@ -467,7 +562,7 @@ class Members extends PureComponent {
                 {searchResults.length > 0 ? (
                   <SearchResults
                     searchText={searchText}
-                    usersSearched={searchResults}
+                    usersSearched={searchResults.slice(0, 7)}
                     inviteMember={this.inviteMember}
                   />
                 ) : null}
@@ -506,7 +601,16 @@ class Members extends PureComponent {
               <div data-testid="join-requests">{joinRequests}</div>
             </InfoBox>
           ) : null}
-          <InfoBox title="Class List" icon={<i className="fas fa-users" />}>
+          <InfoBox
+            title="Class List"
+            icon={<i className="fas fa-users" />}
+            rightIcons={this.generateEditUsernamesCheckbox()}
+            customStyle={
+              editingUsernames
+                ? { right: { color: 'black' } }
+                : { right: { color: 'rgb(94, 94, 94)' } }
+            }
+          >
             <div data-testid="members">{classListComponents}</div>
           </InfoBox>
           <InfoBox title="Guest List" icon={<i className="fas fa-id-badge" />}>
@@ -524,7 +628,8 @@ class Members extends PureComponent {
 
 Members.propTypes = {
   searchedUsers: PropTypes.arrayOf(PropTypes.shape({})),
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({ _id: PropTypes.string, isAdmin: PropTypes.bool })
+    .isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
@@ -534,17 +639,21 @@ Members.propTypes = {
   // if a course, classList is the course members array, sorted with participants then facilitators.
   // If a room, this is just the members array
   classList: PropTypes.arrayOf(PropTypes.shape({})),
+  admins: PropTypes.arrayOf(PropTypes.shape({})),
   connectGrantAccess: PropTypes.func.isRequired,
-  connectUpdateCourseMembers: PropTypes.func.isRequired,
-  connectUpdateRoomMembers: PropTypes.func.isRequired,
   connectInviteToCourse: PropTypes.func.isRequired,
   connectInviteToRoom: PropTypes.func.isRequired,
   connectClearNotification: PropTypes.func.isRequired,
   connectRemoveRoomMember: PropTypes.func.isRequired,
   connectRemoveCourseMember: PropTypes.func.isRequired,
+  connectUpdateCourse: PropTypes.func,
   // if a course, keys are room ids, values are the array of room members. If a room, this is an empty array
   courseRoomsMembers: PropTypes.shape({}),
   onChangeRole: PropTypes.func,
+  course: PropTypes.shape({
+    archive: PropTypes.shape({ rooms: PropTypes.arrayOf(PropTypes.string) }),
+    _id: PropTypes.string,
+  }),
 };
 
 Members.defaultProps = {
@@ -555,6 +664,9 @@ Members.defaultProps = {
   parentResource: null,
   courseRoomsMembers: null,
   onChangeRole: null,
+  course: null,
+  connectUpdateCourse: null,
+  admins: [],
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -594,4 +706,5 @@ export default connect(mapStateToProps, {
   connectClearNotification: clearNotification,
   connectRemoveRoomMember: removeRoomMember,
   connectRemoveCourseMember: removeCourseMember,
+  connectUpdateCourse: updateCourse,
 })(Members);

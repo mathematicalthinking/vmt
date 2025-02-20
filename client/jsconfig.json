@@ -1,7 +1,16 @@
 {
-    "compilerOptions": {
-      "baseUrl": "src"
-    },
-    "exclude": ["**/external"],
-    "include": ["src"]
-  }
+  "compilerOptions": {
+    "baseUrl": "src",
+    "lib": [
+      "dom",
+      "es2018"
+    ],
+    "checkJs": true
+  },
+  "exclude": [
+    "**/external"
+  ],
+  "include": [
+    "src"
+  ]
+}

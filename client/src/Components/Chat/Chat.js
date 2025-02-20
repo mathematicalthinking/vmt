@@ -358,7 +358,6 @@ class Chat extends Component {
 
   toggleListen() {
     const { isListening } = this.state;
-    console.log('Listener toggle: ', this.recognition);
     if (this.recognition) {
       this.setState(
         {
@@ -412,7 +411,6 @@ class Chat extends Component {
         if (referToEl) {
           if (
             referToEl.element === message._id ||
-            message.tab ||
             (message.reference &&
               referToEl.element === message.reference.element)
           ) {
@@ -562,6 +560,7 @@ class Chat extends Component {
                     });
                   }}
                   disabled={user.inAdminMode}
+                  maxLength={250}
                 />
                 {!user.inAdminMode ? (
                   <div className={classes.ChatOptions}>

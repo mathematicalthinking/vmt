@@ -273,18 +273,22 @@ module.exports = {
         warnings: false,
         // parse: {},
         // compress: {},
-        // mangle: true, // Note `mangle.properties` is `false` by default.
+        mangle: {
+          keep_classnames: process.env.REACT_APP_DEV === 'true',
+          keep_fnames: process.env.REACT_APP_DEV === 'true',
+        },
         // module: false,
         // output: null,
         // toplevel: false,
         // nameCache: null,
         // ie8: false,
-        // keep_classnames: undefined,
-        // keep_fnames: false,
+        keep_classnames: process.env.REACT_APP_DEV === 'true',
+        keep_fnames: process.env.REACT_APP_DEV === 'true',
         safari10: true,
         output: {
           comments: false,
         },
+        parallel: true,
       },
     }),
     // new webpack.optimize.UglifyJsPlugin({

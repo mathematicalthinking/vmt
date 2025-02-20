@@ -1,6 +1,9 @@
 /* eslint-disable no-throw-literal */
 const _ = require('lodash');
+const moment = require('moment');
 const db = require('../models');
+const ROLE = require('../constants/role');
+const STATUS = require('../constants/status');
 
 module.exports = {
   get: (params) => {
@@ -94,7 +97,7 @@ module.exports = {
               input: '$members',
               as: 'member',
               cond: {
-                $eq: ['$$member.role', 'facilitator'],
+                $eq: ['$$member.role', ROLE.FACILITATOR],
               },
             },
           },
@@ -109,7 +112,47 @@ module.exports = {
         },
       },
 
-      { $unwind: '$facilitatorObject' },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          facilitatorUsernames: {
+            $map: {
+              input: '$facilitatorObject',
+              as: 'facilitator',
+              in: '$$facilitator.username',
+            },
+          },
+          // map through the members, keeping just the role and the user object
+          members: {
+            $map: {
+              input: '$members',
+              as: 'member',
+              in: {
+                role: '$$member.role',
+                user: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: '$facilitatorObject',
+                        as: 'facilitator',
+                        cond: { $eq: ['$$facilitator._id', '$$member.user'] },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
     ];
 
     if (criteria) {
@@ -119,26 +162,12 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { 'facilitatorObject.username': criteria },
+            { facilitatorUsernames: criteria },
           ],
         },
       });
     }
     aggregationPipeline = aggregationPipeline.concat([
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          members: {
-            $push: { user: '$facilitatorObject', role: 'facilitator' },
-          },
-          updatedAt: { $first: '$updatedAt' },
-        },
-      },
       {
         $project: {
           _id: 1,
@@ -148,9 +177,20 @@ module.exports = {
           privacySetting: 1,
           image: 1,
           updatedAt: 1,
-          'members.user.username': 1,
-          'members.user._id': 1,
-          'members.role': 1,
+          // put each member into the proper form, keeping only the _id and username
+          members: {
+            $map: {
+              input: '$members',
+              as: 'member',
+              in: {
+                role: '$$member.role',
+                user: {
+                  _id: '$$member.user._id',
+                  username: '$$member.user.username',
+                },
+              },
+            },
+          },
         },
       },
     ]);
@@ -161,7 +201,9 @@ module.exports = {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
-    const courses = await db.Course.aggregate(aggregationPipeline);
+    const courses = await db.Course.aggregate(aggregationPipeline).allowDiskUse(
+      true
+    );
     return courses;
   },
 
@@ -402,14 +444,33 @@ module.exports = {
     });
   },
 
-  // delete: id => {
-  //   return new Promise((resolve, reject) => {
-  //     db.Course.findById(id)
-  //       .then(course => {
-  //         course.remove();
-  //         resolve(course);
-  //       })
-  //       .catch(err => reject(err));
-  //   });
-  // }
+  getAllRooms: (id, { since, isActive }) => {
+    try {
+      const matchConditions = {
+        status: { $ne: STATUS.TRASHED },
+        isTrashed: false,
+        course: id,
+      };
+
+      if (isActive === 'true') {
+        matchConditions.status = { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] };
+      }
+
+      const sinceTimestamp = moment(since, 'x');
+      if (sinceTimestamp.isValid()) {
+        matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
+      }
+
+      return db.Room.find(matchConditions)
+        .sort('-createdAt')
+        .populate({ path: 'members.user', select: 'username' })
+        .populate({ path: 'currentMembers', select: 'username' })
+        .populate({
+          path: 'tabs',
+          select: 'name tabType desmosLink controlledBy',
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  },
 };

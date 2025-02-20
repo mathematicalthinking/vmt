@@ -2,7 +2,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { withControlMachine, withPopulatedActivity } from 'utils';
+import {
+  withControlMachine,
+  withPopulatedActivity,
+  withPopulatedCourse,
+} from 'utils';
 import Navbar from '../Components/Navigation/Navbar';
 import {
   MyVMT,
@@ -15,6 +19,7 @@ import {
   TempWorkspace,
   withPopulatedRoom,
   Dashboard,
+  AdminMonitor,
 } from '../Containers';
 import SharedReplayer from '../Containers/Replayer/SharedReplayer';
 import { PrivateRoute, ErrorToast } from '../Components';
@@ -26,48 +31,65 @@ const pages = [
   { path: '/', component: MyVMT },
   { path: '/facilitator', component: FacilitatorIntro },
   { path: '/profile', component: Profile },
-  { path: '/:resource', component: MyVMT },
+  { path: '/adminMonitor', component: AdminMonitor, redirectPath: '/' },
+  { path: '/:resource', component: MyVMT, redirectPath: '/' },
   {
     path: '/courses/:course_id/:resource',
-    component: Course,
-    redirectPath: '/classcode',
+    component: withPopulatedCourse(Course),
+    redirectPath: '/',
   },
   {
     path: '/courses/:course_id/activities/:activity_id/:resource',
     // component: Activity,
     component: withPopulatedActivity(Activity),
-    redirectPath: '/classcode',
+    redirectPath: '/',
+  },
+  {
+    path:
+      '/courses/:course_id/activities/:activity_id/rooms/:room_id/:resource',
+    component: Room,
+    redirectPath: '/',
+  },
+  {
+    path: '/activities/:activity_id/rooms/:room_id/:resource',
+    component: Room,
+    redirectPath: '/',
   },
   {
     path: '/courses/:course_id/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/classcode',
+    redirectPath: '/',
+  },
+  {
+    path: '/courses/:course_id/rooms/:room_id/:resource',
+    component: Room,
+    redirectPath: '/',
   },
   {
     path: '/rooms/:room_id/:resource',
     component: Room,
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/activities/:activity_id/:resource',
     // component: Activity,
     component: withPopulatedActivity(Activity),
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/workspace/:room_id/replayer',
     component: withPopulatedRoom(SharedReplayer),
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/workspace/:activity_id/activity',
     component: ActivityWorkspace,
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/workspace/:room_id',
     component: withPopulatedRoom(withControlMachine(Workspace)),
-    redirectPath: '/signup',
+    redirectPath: '/',
   },
   {
     path: '/confirmation',
@@ -76,6 +98,7 @@ const pages = [
   {
     path: '/dashboard/:resource',
     component: Dashboard,
+    redirectPath: '/',
   },
 ];
 const MyVmt = ({

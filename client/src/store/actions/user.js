@@ -29,6 +29,15 @@ export const updateUser = (body) => {
   };
 };
 
+export const storeGmail = (email) => {
+  return {
+    type: actionTypes.STORE_PRESUMPTIVE_GMAIL,
+    payload: {
+      presumptiveEmailAddress: email,
+    },
+  };
+};
+
 export const loggedOut = () => {
   return { type: actionTypes.LOGOUT };
 };
@@ -77,13 +86,6 @@ export const toggleJustLoggedIn = () => {
     type: actionTypes.TOGGLE_JUST_LOGGED_IN,
   };
 };
-
-// update the local state from ResourceList (e.g., sort type, filter timeframe)
-export const updateResourceListState = (context, newState) => ({
-  type: actionTypes.UPDATE_RESOURCELIST_STATE,
-  context,
-  newState,
-});
 
 export const updateUserResource = (resource, resourceId, userId) => {
   return (dispatch) => {
@@ -213,7 +215,9 @@ export const login = (username, password, special = false) => {
       .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err);
-        dispatch(loading.fail(err.response.data.errorMessage));
+        if (err.response)
+          dispatch(loading.fail(err.response.data.errorMessage));
+        else dispatch(loading.fail(err.toString()));
       });
   };
 };
@@ -272,6 +276,7 @@ export const getUser = (id) => {
         return dispatch(loading.success());
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.log('ERROR getting user- ', err);
         // if the session has expired logout
         if (err.response) {

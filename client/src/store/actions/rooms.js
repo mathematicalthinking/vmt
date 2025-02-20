@@ -81,6 +81,7 @@ export const removeCourseRoom = (courseId, roomId) => {
     roomId,
   };
 };
+
 export const removeActivityRoom = (activityId, roomId) => {
   return {
     type: actionTypes.REMOVE_ACTIVITY_ROOM,
@@ -106,6 +107,22 @@ export const removeUserRooms = (roomIdsArr) => {
 export const addRoomToArchive = (roomId) => {
   return {
     type: actionTypes.ADD_ROOM_TO_ARCHIVE,
+    roomId,
+  };
+};
+
+export const addRoomToCourseArchive = (courseId, roomId) => {
+  return {
+    type: actionTypes.ADD_ROOM_TO_COURSE_ARCHIVE,
+    courseId,
+    roomId,
+  };
+};
+
+export const removeRoomFromCourseArchive = (courseId, roomId) => {
+  return {
+    type: actionTypes.REMOVE_ROOM_FROM_COURSE_ARCHIVE,
+    courseId,
     roomId,
   };
 };
@@ -208,7 +225,8 @@ export const createGrouping = (
   roomsToCreate,
   activity,
   course = null,
-  groupingName = undefined
+  groupingName = undefined,
+  settings
 ) => {
   return (dispatch, getState) => {
     const randomNum = Math.floor(Math.random() * 100000000); // zero to ten million
@@ -235,6 +253,7 @@ export const createGrouping = (
           activityName: groupingName || activity.name,
           timestamp,
           rooms: newRoomIds,
+          settings,
         };
 
         updateActivity(activity._id, {
@@ -255,7 +274,7 @@ export const createGrouping = (
   };
 };
 
-export const updateGroupings = (course, activity, groupingId, newName) => {
+export const updateGroupings = (course, activity, groupingId, updates) => {
   const timestamp = Date.now();
   const activityGroupingsIndex = activity.groupings.findIndex(
     (grouping) => grouping._id === groupingId
@@ -263,9 +282,10 @@ export const updateGroupings = (course, activity, groupingId, newName) => {
 
   const updatedGrouping = {
     ...activity.groupings[activityGroupingsIndex],
-    activityName: newName,
+    ...updates,
     timestamp,
   };
+
   const newActivityGroupings = [...activity.groupings];
   newActivityGroupings[activityGroupingsIndex] = updatedGrouping;
 
@@ -334,14 +354,7 @@ export const createRoomFromActivity = (
 export const updateRoom = (id, body) => {
   return (dispatch, getState) => {
     const room = { ...getState().rooms.byId[id] };
-    if (body.status === STATUS.ARCHIVED) {
-      dispatch(addRoomToArchive(id));
-    }
-    if (
-      body.isTrashed ||
-      body.status === STATUS.TRASHED ||
-      body.status === STATUS.ARCHIVED
-    ) {
+    if (body.isTrashed || body.status === STATUS.TRASHED) {
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
       dispatch(updatedRoom(id, body)); // Optimistically update the UI
@@ -363,36 +376,30 @@ export const updateRoom = (id, body) => {
         }
         if (body.course) {
           dispatch(addCourseRooms(body.course, [id]));
+          dispatch(removeRoomFromCourseArchive(body.course, id));
         }
       }
     }
-    API.put('rooms', id, body)
-      .then()
-      .catch((e) => {
-        // eslint-disable-next-line no-console
-        console.log(e);
+    return API.put('rooms', id, body).catch((e) => {
+      // eslint-disable-next-line no-console
+      console.log(e);
 
-        if (
-          body.isTrashed ||
-          body.status === STATUS.TRASHED ||
-          body.status === STATUS.ARCHIVED
-        ) {
-          dispatch(addUserRooms([id]));
-          dispatch(createdRoom(room));
-          dispatch(updatedRoom(id, { ...body, status: STATUS.DEFAULT }));
-        }
-        const prevRoom = {};
-        const keys = Object.keys(body);
-        keys.forEach((key) => {
-          prevRoom[key] = room[key];
-        });
-        dispatch(updatedRoom(id, prevRoom));
-        dispatch(loading.updateFail('room', keys));
-        setTimeout(() => {
-          dispatch(loading.clearLoadingInfo());
-        }, 2000);
+      if (body.isTrashed || body.status === STATUS.TRASHED) {
+        dispatch(addUserRooms([id]));
+        dispatch(createdRoom(room));
+        dispatch(updatedRoom(id, { ...body, status: STATUS.DEFAULT }));
+      }
+      const prevRoom = {};
+      const keys = Object.keys(body);
+      keys.forEach((key) => {
+        prevRoom[key] = room[key];
       });
-    // API REQUEST
+      dispatch(updatedRoom(id, prevRoom));
+      dispatch(loading.updateFail('room', keys));
+      setTimeout(() => {
+        dispatch(loading.clearLoadingInfo());
+      }, 2000);
+    });
   };
 };
 
@@ -401,25 +408,31 @@ export const archiveRooms = (ids) => {
     ids.forEach((id) => {
       // remove room from course & activity (template) if needed
       const room = { ...getState().rooms.byId[id] };
+
       if (room.course) {
         dispatch(removeCourseRoom(room.course, id));
+        dispatch(addRoomToCourseArchive(room.course, id));
       }
       if (room.activity) {
         dispatch(removeActivityRoom(room.activity, id));
       }
-
       dispatch(addRoomToArchive(id));
       dispatch(removeUserRooms([id]));
       dispatch(roomsRemoved([id]));
     });
 
+    const promises = [];
     for (let i = 0; i < ids.length; i += 50) {
       const newIds = ids.slice(i, i + 50);
-      API.archiveRooms(newIds).catch((e) => {
-        // eslint-disable-next-line no-console
-        console.log(e);
-      });
+      promises.push(
+        API.archiveRooms(newIds).catch((e) => {
+          // eslint-disable-next-line no-console
+          console.log(e);
+        })
+      );
     }
+
+    return Promise.all(promises);
   };
 };
 
@@ -569,7 +582,7 @@ export const removeRoom = (roomId) => {
       .then((res) => {
         dispatch(removeUserRooms([roomId]));
         if (res.data.result.course) {
-          dispatch(removeCourseRooms(res.data.result.course, [roomId]));
+          dispatch(removeCourseRoom(res.data.result.course, roomId));
         }
         // if (res.data.result.activity) {
         //   dispatch(removeActivityRooms(res.data.result.activity, [roomId]));
@@ -592,15 +605,6 @@ export const createdRoomConfirmed = () => {
   };
 };
 
-export const updateMonitorSelections = (selections) => {
-  return (dispatch) => {
-    dispatch({
-      type: actionTypes.UPDATE_MONITOR_SELECTIONS,
-      monitorSelections: selections,
-    });
-  };
-};
-
 export const restoreArchivedRoom = (id) => {
   return async (dispatch, getState) => {
     const roomData = await API.get('rooms', { _id: id });
@@ -617,13 +621,13 @@ export const restoreArchivedRoom = (id) => {
       userId
     );
     // add room to store
-    dispatch(updateRoom(id, roomToUpdate));
+    return dispatch(updateRoom(id, roomToUpdate));
   };
 };
 
-const removeRoomFromArchive = (id) => {
+const removeRoomFromArchive = (roomId) => {
   return {
-    type: actionTypes.REMOVE_ROOM_FROM_ARCHIVE,
-    id,
+    type: actionTypes.UNARCHIVE_USER_ROOM,
+    roomId,
   };
 };

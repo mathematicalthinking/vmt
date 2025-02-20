@@ -1,59 +1,101 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { usePopulatedRooms } from 'utils';
-import { Loading } from 'Components';
-import RoomsMonitor from './RoomsMonitor';
+import _throttle from 'lodash/throttle';
+import { API, dateAndTime } from 'utils';
+import { Button } from 'Components';
+import RecentMonitor from './RecentMonitor';
 
 /**
  * The CourseMonitor provides views into all of the rooms assoicated with
- * a course. When the monitor is first entered, the room tiles are sorted
- * with the most recently updated room first (i.e., reverse chronological order
- * by updatedAt field).
+ * a course that were updated in the past 48 hours (see fetchRooms).
  */
 
 function CourseMonitor({ course }) {
-  const orderedRoomIds = React.useRef();
+  const config = {
+    key: 'name',
+    direction: 'ascending',
+  };
 
-  // Because "useQuery" is the equivalent of useState, do this
-  // initialization of queryStates (an object containing the states
-  // for the API-retrieved data) at the top level rather than inside
-  // of a useEffect.
-  const roomIds = course.rooms
-    .sort(
-      (a, b) =>
-        // Sort the rooms into reverse chronological order (most recently changed first) as of when the course was loaded
-        new Date(b.updatedAt) - new Date(a.updatedAt)
-    )
-    .map((room) => room._id);
-  const populatedRooms = usePopulatedRooms(
-    orderedRoomIds.current || roomIds,
-    false,
+  const sortKeys = [
+    { property: 'updatedAt', name: 'Last Updated' },
+    { property: 'name', name: 'Name' },
+  ];
+
+  const TABLE_CONFIG = [
+    { property: 'name', label: 'Room Name' },
     {
-      refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
-    }
+      property: 'updatedAt',
+      label: 'Last Updated',
+      formatter: (date) => dateAndTime.toDateTimeString(date),
+    },
+    {
+      property: 'createdAt',
+      label: 'Created',
+      formatter: (date) => dateAndTime.toDateTimeString(date),
+    },
+    // {
+    //   property: 'currentMembers',
+    //   label: 'Currently In Room',
+    //   style: { textAlign: 'center' },
+    //   formatter: (currentMembers) => currentMembers && currentMembers.length,
+    // },
+  ];
+
+  const [rooms, setRooms] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const fetchRooms = React.useCallback(
+    _throttle(() => {
+      setIsLoading(true);
+      const twoDaysAgo = dateAndTime.before(Date.now(), 2, 'days');
+      const since = dateAndTime.getTimestamp(twoDaysAgo);
+      return API.getAllCourseRooms(course._id, { since, isActive: true })
+        .then((res) => {
+          setIsLoading(false);
+          const rooms = res.data.result || [];
+          return rooms;
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          console.log(err);
+          return [];
+        });
+    }, 2000),
+    [course._id]
   );
 
-  React.useEffect(() => {
-    if (populatedRooms.isSuccess && !orderedRoomIds.current)
-      orderedRoomIds.current = Object.values(populatedRooms.data)
-        .sort(
-          (a, b) =>
-            // Sort the rooms into reverse chronological order (most recently changed first) as of when the course was loaded
-            new Date(b.updatedAt) - new Date(a.updatedAt)
-        )
-        .map((room) => room._id);
-  }, [populatedRooms.isSuccess]);
-  if (populatedRooms.isError) return <div>There was an error</div>;
+  React.useEffect(async () => {
+    setRooms(await fetchRooms());
+  }, []);
 
-  return populatedRooms.isSuccess ? (
-    <RoomsMonitor populatedRooms={populatedRooms.data} />
-  ) : (
-    <Loading message="Getting the course rooms" />
+  return (
+    <div>
+      <p style={{ fontSize: '1.5em' }}>
+        Rooms with activity in the past 48 hours
+      </p>
+      <p>
+        (
+        <Button theme="Inline" click={async () => setRooms(await fetchRooms())}>
+          Refresh
+        </Button>{' '}
+        to find newly active rooms)
+      </p>
+      <br />
+      <RecentMonitor
+        config={config}
+        rooms={rooms}
+        sortKeys={sortKeys}
+        context={`course-${course._id}`}
+        isLoading={isLoading}
+        selectionConfig={TABLE_CONFIG}
+      />
+    </div>
   );
 }
 
 CourseMonitor.propTypes = {
   course: PropTypes.shape({
+    _id: PropTypes.string,
     rooms: PropTypes.arrayOf(PropTypes.shape({ _id: PropTypes.string })),
   }).isRequired,
 };

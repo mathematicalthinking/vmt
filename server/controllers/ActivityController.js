@@ -1,4 +1,6 @@
+const moment = require('moment');
 const db = require('../models');
+const STATUS = require('../constants/status');
 
 module.exports = {
   get: (params) => {
@@ -35,6 +37,50 @@ module.exports = {
         .then((activity) => resolve(activity))
         .catch((err) => reject(err));
     });
+  },
+
+  // @PARAMS: fields (array of strings to be selected), skip (number), limit (number)
+  // @RETURN: object with activities and totalResults
+  // @DESC: return all activities with only the fields specified
+  // don't populate any fields
+  // don't return any trashed activities
+  // return an object with activities and totalResults
+
+  getFieldsUnpopulated: async (fields, skip = 0, limit = 100) => {
+    const totalResults = await db.Activity.countDocuments({ isTrashed: false });
+    const activities = await db.Activity.find({ isTrashed: false })
+      .select(fields.join(' '))
+      .populate(
+        fields.includes('tabs')
+          ? {
+              path: 'tabs',
+              select: '_id name tabType updatedAt',
+            }
+          : ''
+      )
+      .sort({ updatedAt: -1 });
+    // refactor to use skip and limit
+    // .skip(Number(skip))
+    // .limit(Number(limit));
+    if (!activities) {
+      // eslint-disable-next-line no-console
+      console.log(`Error in ActivityController.getFieldsUnpopulatedPaginated`);
+      return new Error(
+        'Error in ActivityController.getFieldsUnpopulatedPaginated'
+      );
+    }
+    const currentPage = Math.floor(skip / limit) + 1;
+    const totalPages = Math.ceil(totalResults / limit);
+    const hasNextPage = currentPage < totalPages;
+    const hasPreviousPage = currentPage > 1;
+    return {
+      activities,
+      totalResults,
+      currentPage,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage,
+    };
   },
 
   searchPaginated: async (criteria, skip, filters) => {
@@ -83,27 +129,12 @@ module.exports = {
       });
     }
     aggregationPipeline = aggregationPipeline.concat([
-      { $unwind: '$creatorObject' },
       {
         $lookup: {
           from: 'tabs',
           localField: 'tabs',
           foreignField: '_id',
           as: 'tabObject',
-        },
-      },
-      { $unwind: '$tabObject' },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          updatedAt: { $first: '$updatedAt' },
-          creator: { $first: '$creatorObject' },
-          tabs: { $push: '$tabObject' },
         },
       },
       {
@@ -113,11 +144,28 @@ module.exports = {
           instructions: 1,
           description: 1,
           image: 1,
-          'tabs.tabType': 1,
+          // keep only the tabType of each tab
+          tabs: {
+            $map: {
+              input: '$tabObject',
+              as: 'tab',
+              in: { tabType: '$$tab.tabType' },
+            },
+          },
           privacySetting: 1,
           updatedAt: 1,
-          'creator.username': '$creator.username',
-          'creator._id': '$creator._id',
+          // keep only the username and _id of creator
+          creator: {
+            $let: {
+              vars: {
+                firstCreator: { $arrayElemAt: ['$creatorObject', 0] },
+              },
+              in: {
+                username: '$$firstCreator.username',
+                _id: '$$firstCreator._id',
+              },
+            },
+          },
         },
       },
     ]);
@@ -138,7 +186,9 @@ module.exports = {
       aggregationPipeline.push({ $skip: parseInt(skip, 10) });
     }
     aggregationPipeline.push({ $limit: 20 });
-    const activities = await db.Activity.aggregate(aggregationPipeline);
+    const activities = await db.Activity.aggregate(
+      aggregationPipeline
+    ).allowDiskUse(true);
     return activities;
   },
 
@@ -178,9 +228,10 @@ module.exports = {
         body.selectedTabIds.length > 0
       ) {
         // creating activity from existing room
+        // use .lean() to get regular objects rather than Mongoose docs
         existingTabs = await db.Tab.find({
           _id: { $in: body.selectedTabIds },
-        });
+        }).lean();
       }
       let createdActivity;
       let ggbFiles;
@@ -189,18 +240,44 @@ module.exports = {
       }
       // mathspace only exists when generated from a replayer state
       if (body.mathState) {
-        existingTabs.forEach((tab, i, array) => {
-          if (body.mathState[tab._id] && tab.tabType === 'geogebra') {
-            array[i].currentStateBase64 = body.mathState[tab._id];
-          } else if (body.mathState[tab._id] && tab.tabType === 'desmos') {
-            array[i].currentState = body.mathState[tab._id];
+        existingTabs = existingTabs.map((tab) => {
+          const currentState = body.mathState[tab._id];
+
+          if (!currentState) return tab;
+
+          if (['geogebra', 'desmosActivity'].includes(tab.tabType)) {
+            tab.currentStateBase64 = currentState;
+          } else if (tab.tabType === 'desmos') {
+            tab.currentState = currentState;
+          } else if (tab.tabType === 'pyret') {
+            tab.startingPointBase64 = currentState;
+            tab.currentStateBase64 = null;
           }
+
+          return tab;
         });
       }
       delete body.ggbFiles;
       delete body.activities;
       delete body.tabs;
       delete body.mathState;
+
+      const getCurrentStateBase64 = (tab) => {
+        switch (tab.roomType || tab.tabType) {
+          case 'desmosActivity':
+            return tab.currentStateBase64 === '{}'
+              ? tab.startingPointBase64
+              : tab.currentStateBase64;
+          case 'pyret':
+            return (
+              tab.currentStateBase64 ||
+              tab.startingPointBase64 ||
+              tab.desmosLink
+            );
+          default:
+            return tab.currentStateBase64;
+        }
+      };
 
       db.Activity.create(body)
         .then(async (activity) => {
@@ -222,6 +299,7 @@ module.exports = {
                     activity: activity._id,
                     ggbFile: file,
                     tabType: body.roomType,
+                    creator: body.creator,
                   });
                 })
               );
@@ -231,9 +309,10 @@ module.exports = {
               activity: activity._id,
               desmosLink: body.desmosLink,
               tabType: body.roomType,
+              creator: body.creator,
+              currentStateBase64: getCurrentStateBase64(body),
             });
           }
-
           return Promise.all(
             existingTabs.map((tab) => {
               const newTab = new db.Tab({
@@ -242,16 +321,11 @@ module.exports = {
                 ggbFile: tab.ggbFile,
                 currentState: tab.currentState,
                 startingPoint: tab.currentState,
-                startingPointBase64:
-                  tab.tabType === 'desmosActivity'
-                    ? tab.startingPointBase64
-                    : tab.currentStateBase64,
-                currentStateBase64:
-                  tab.tabType === 'desmosActivity'
-                    ? tab.startingPointBase64
-                    : tab.currentStateBase64,
+                startingPointBase64: tab.startingPointBase64,
+                currentStateBase64: getCurrentStateBase64(tab),
                 desmosLink: tab.desmosLink,
                 tabType: tab.tabType,
+                creator: body.creator,
               });
               return newTab.save();
             })
@@ -374,5 +448,31 @@ module.exports = {
     // currently, we do not send ntfs for activities
 
     return activity.users;
+  },
+
+  getAllRooms: (id, { since, isActive }) => {
+    const matchConditions = {
+      status: { $ne: STATUS.TRASHED },
+      isTrashed: false,
+      activity: id,
+    };
+
+    if (isActive === 'true') {
+      matchConditions.status = { $nin: [STATUS.ARCHIVED, STATUS.TRASHED] };
+    }
+
+    const sinceTimestamp = moment(since, 'x');
+    if (sinceTimestamp.isValid()) {
+      matchConditions.updatedAt = { $gte: sinceTimestamp.toDate() };
+    }
+
+    return db.Room.find(matchConditions)
+      .sort('-createdAt')
+      .populate({ path: 'members.user', select: 'username' })
+      .populate({ path: 'currentMembers', select: 'username' })
+      .populate({
+        path: 'tabs',
+        select: 'name tabType desmosLink controlledBy',
+      });
   },
 };

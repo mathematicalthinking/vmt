@@ -163,7 +163,7 @@ ReplayerControls.propTypes = {
   pausePlay: PropTypes.func.isRequired,
   duration: PropTypes.number.isRequired,
   index: PropTypes.number.isRequired,
-  log: PropTypes.arrayOf(PropTypes.object).isRequired,
+  log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   goToTime: PropTypes.func.isRequired,
   settings: PropTypes.element.isRequired,
   slider: PropTypes.element.isRequired,

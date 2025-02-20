@@ -454,3 +454,7 @@
 .Button:hover:after {
   width: 100%;
 }
+
+.Message {
+  word-wrap: break-word;
+}

@@ -17,6 +17,7 @@ import {
   updateUser,
   clearError,
   logout,
+  updateRoom,
 } from '../../store/actions';
 import Notification from '../Notification/Notification';
 import classes from './socketProvider.css';
@@ -99,10 +100,11 @@ class SocketProvider extends Component {
     if (socketId !== socket.id) {
       socket.emit('SYNC_SOCKET', _id, (res, err) => {
         if (err) {
-          console.log('UNABLE TO SYNC SOCKET NOTIFCATIONS MAY NOT BE WORKING');
+          console.log(
+            'UNABLE TO SYNC SOCKET; NOTIFICATIONS MAY NOT BE WORKING'
+          );
           return;
         }
-        console.log(res);
         connectUpdateUser({ socketId: socket.id, connected: true });
         this.initializeListeners();
       });
@@ -192,7 +194,13 @@ class SocketProvider extends Component {
     });
 
     socket.on('FORCED_LOGOUT', () => {
-      connectLogout();
+      if (user._id) connectLogout(user._id);
+    });
+
+    socket.on('SETTINGS_CHANGED', (data) => {
+      const { connectUpdateRoom } = this.props;
+      const { roomId, settings } = data;
+      connectUpdateRoom(roomId, { settings });
     });
   }
 
@@ -230,6 +238,7 @@ SocketProvider.propTypes = {
   connectUpdateUser: PropTypes.func.isRequired,
   connectClearError: PropTypes.func.isRequired,
   connectLogout: PropTypes.func.isRequired,
+  connectUpdateRoom: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => {
@@ -243,6 +252,7 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {
   connectAddNotification: addNotification,
+  connectUpdateRoom: updateRoom,
   connectAddUserCourses: addUserCourses,
   connectGetUser: getUser,
   connectAddUserRooms: addUserRooms,

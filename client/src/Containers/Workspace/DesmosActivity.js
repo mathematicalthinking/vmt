@@ -81,21 +81,26 @@ const DesmosActivity = (props) => {
     //  let eventDetails = JSON.stringify(updates[updates.keys(updates)[0]]);
     // let eventDetails = JSON.stringify(updates);
     // return `${username}: ${eventDetails}`;
+    if (updates.type === 'set-active-screen-id') {
+      return `${username} switched to screen ${getCurrentScreen() + 1}`;
+    }
     return `${username} interacted with the Activity`;
   };
 
   // listener and event state handlers
   // Persistent Events
   useEffect(() => {
+    const { inControl } = props;
     const type = 'persistent';
-    if (props.inControl === 'ME') {
+    if (inControl === 'ME') {
       handleResponseData(activityUpdates, type);
     }
   }, [activityUpdates]);
   // Transient Events including page changes
   useEffect(() => {
+    const { inControl } = props;
     const type = 'transient';
-    if (props.inControl === 'ME') {
+    if (inControl === 'ME') {
       handleResponseData(transientUpdates, type);
     }
   }, [transientUpdates]);
@@ -136,13 +141,12 @@ const DesmosActivity = (props) => {
     // INITIALIZE EVENT LISTENER
     const { tab, updatedRoom, addNtfToTabs, addToLog, temp } = props;
 
-    socket.removeAllListeners('RECEIVE_EVENT');
     socket.on('RECEIVE_EVENT', (data) => {
       // console.log('Socket: Received data: ', data);
-      addToLog(data);
       const { room } = props;
       receivingData = true;
       if (data.tab === tab._id) {
+        addToLog(data);
         const updatedTabs = room.tabs.map((t) => {
           if (t._id === data.tab) {
             t.currentState = data.currentState;
@@ -199,8 +203,6 @@ const DesmosActivity = (props) => {
         setActivityHistory((oldState) => ({ ...oldState, ...responses }));
       },
     };
-    console.log('Config status: ', status);
-
     if (tab.currentStateBase64 && tab.currentStateBase64 !== '{}') {
       // existing event data on tab
       const { currentStateBase64, startingPointBase64, desmosLink } = tab;
@@ -246,13 +248,7 @@ const DesmosActivity = (props) => {
     const unsubToken = calculatorInst.current.subscribeToSync((evnt) => {
       setTransientUpdates(evnt);
     });
-    console.log(
-      'Desmos Activity Player initialized Version: ',
-      Player.version(),
-      'Player instance: ',
-      calculatorInst.current
-    );
-    props.setFirstTabLoaded();
+    setFirstTabLoaded();
     initializeListeners();
     // Go to screen last used
     if (tab.currentScreen) {
@@ -304,7 +300,8 @@ const DesmosActivity = (props) => {
   }
 
   function _hasControl() {
-    return props.inControl === 'ME';
+    const { inControl } = props;
+    return inControl === 'ME';
   }
 
   // @TODO this could be selectively handled depending what div is clicked
@@ -341,6 +338,7 @@ const DesmosActivity = (props) => {
   const {
     inControl,
     user,
+    toggleControl,
     // @TODO **NONE OF THESE PROPS ARE RECEIVED RIGHT NOW **
     // showRefWarning,
     // refWarningMsg,
@@ -359,7 +357,7 @@ const DesmosActivity = (props) => {
           setShowControlWarning(false);
         }}
         takeControl={() => {
-          props.toggleControl();
+          toggleControl();
           setShowControlWarning(false);
         }}
         inControl={inControl}

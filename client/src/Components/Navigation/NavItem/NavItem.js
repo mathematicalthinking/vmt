@@ -5,15 +5,20 @@ import Notification from '../../Notification/Notification';
 import classes from './navItem.css';
 import Checkbox from '../../Form/Checkbox/Checkbox';
 
-const NavItem = ({ name, link, ntf, sliderDetails }) => {
-  const style = window.location.href.includes(link)
-    ? classes.ActiveLink
-    : classes.Item;
+const NavItem = ({ name, link, ntf, sliderDetails, pattern }) => {
+  const currentLocation = new URL(window.location.href);
+  const linkURL = new URL(link, window.location.href); // in case the link is relative
+  const style =
+    currentLocation.pathname === linkURL.pathname ||
+    window.location.href.includes(pattern)
+      ? classes.ActiveLink
+      : classes.Item;
 
   const dataName = typeof name === 'string' ? name : 'profile';
 
   if (sliderDetails) {
-    const { isOn, onClick } = sliderDetails;
+    const { isOn, onClick, customComponent } = sliderDetails;
+    if (customComponent) return <div className={style}>{customComponent}</div>;
     return (
       <div className={style}>
         <Checkbox checked={isOn} change={onClick} dataId={`nav-${dataName}`}>
@@ -43,6 +48,7 @@ NavItem.propTypes = {
   sliderDetails: PropTypes.shape({
     isOn: PropTypes.bool,
     onClick: PropTypes.func,
+    customComponent: PropTypes.element,
   }),
 };
 

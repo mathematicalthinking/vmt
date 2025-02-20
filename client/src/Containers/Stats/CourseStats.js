@@ -42,7 +42,9 @@ const CourseStats = ({ roomIds, name }) => {
               ...d,
               studentId: studentIds[d.userId],
               roomName:
-                populatedRooms[d.roomId] && populatedRooms[d.roomId].name,
+                populatedRooms.data[d.roomId] &&
+                populatedRooms.data[d.roomId].name,
+              status: populatedRooms.data[d.roomId].status,
             };
           });
         })

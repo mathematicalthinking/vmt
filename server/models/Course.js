@@ -26,6 +26,12 @@ const Course = new mongoose.Schema(
         _id: false,
       },
     ],
+    archive: {
+      type: {
+        rooms: { type: [{ type: ObjectId, ref: 'Room' }] },
+      },
+      default: { rooms: [] },
+    },
     metadata: { type: Object },
     image: { type: String }, // URL
     isTrashed: { type: Boolean, default: false },
@@ -37,6 +43,7 @@ const Course = new mongoose.Schema(
           activityName: { type: String },
           timestamp: { type: Number },
           rooms: [{ type: ObjectId, ref: 'Room' }],
+          settings: { type: Object },
         },
       ],
       default: [],
@@ -50,6 +57,9 @@ const Course = new mongoose.Schema(
 
   { timestamps: true }
 );
+
+Course.index({ creator: 1 });
+Course.index({ isTrashed: 1, status: 1 });
 
 // Not using arrow function so we can have access to THIS docuemnt
 // DO WE NEED TO CALL NEXT?

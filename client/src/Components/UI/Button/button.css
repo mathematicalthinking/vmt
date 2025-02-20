@@ -107,6 +107,11 @@
   box-shadow: lightShadow;
 }
 
+.Inline {
+  composes: Small;
+  padding: 1px 3px;
+}
+
 .xs {
   composes: Small;
   height: auto;

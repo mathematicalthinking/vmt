@@ -26,8 +26,9 @@
     0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
   background-color: white;
   padding: 16px;
-  z-index: 1500;
-  overflow: scroll;
+  z-index: 2000;
+  /* overflow: scroll; */
+  overflow: auto;
   transition: all 0.3s ease-out;
 }
 

@@ -28,56 +28,15 @@ class DashboardContentBox extends PureComponent {
   render() {
     const {
       link,
-      image,
       roomType,
       listType,
       title,
       locked,
       details,
       resource,
-      manageUser,
-      isSelf,
+      iconActions,
     } = this.props;
     const { expanded } = this.state;
-    let iconActions = null;
-    let suspendReinstateAction = {
-      iconClass: 'fas fa-ban',
-      title: 'Suspend User',
-      testid: 'suspend',
-      color: 'red',
-      onClick: () => {
-        manageUser(details, 'suspendUser');
-      },
-    };
-
-    if (details.isSuspended) {
-      suspendReinstateAction = {
-        iconClass: 'fas fa-undo',
-        title: 'Reinstate User',
-        testid: 'reinstate',
-        color: 'green',
-        onClick: () => {
-          manageUser(details, 'reinstateUser');
-        },
-      };
-    }
-
-    const forceLogoutAction = {
-      iconClass: 'fas fa-power-off',
-      title: 'Force Logout',
-      testid: 'force-logout',
-      onClick: () => {
-        manageUser(details, 'logoutUser');
-      },
-    };
-
-    if (resource === 'users') {
-      iconActions = !isSelf ? [suspendReinstateAction] : [];
-
-      if (details.socketId && !details.doForceLogout) {
-        iconActions.unshift(forceLogoutAction);
-      }
-    }
 
     const { firstName = '', lastName = '' } = details;
     let fullName;
@@ -149,42 +108,48 @@ class DashboardContentBox extends PureComponent {
         <div className={classes.Content}>
           {details && expanded ? (
             <div className={classes.Expanded}>
-              {resource === 'users' ? (
+              {resource === 'users' && (
                 <div>
                   <span className={classes.DashboardLabel}>Name:</span>{' '}
                   {fullName || 'N/A'}
                 </div>
-              ) : null}
-              {resource === 'users' ? (
+              )}
+              {resource === 'users' && (
                 <div>
                   <span className={classes.DashboardLabel}>Email:</span>{' '}
                   {details.email || 'N/A'}
                 </div>
-              ) : null}
-              {details.accountType ? (
+              )}
+              {details.accountType && (
                 <div>
                   <span className={classes.DashboardLabel}>Account Type:</span>{' '}
                   {details.accountType}
                 </div>
-              ) : null}
+              )}
 
               <div>
                 <span className={classes.DashboardLabel}>Event Count:</span>{' '}
-                {details.eventsCount}
+                {details.eventsCount || 0}
               </div>
 
               <div>
                 <span className={classes.DashboardLabel}>Message Count:</span>{' '}
-                {details.messagesCount}
+                {details.messagesCount || 0}
               </div>
-              {details.latestIpAddress ? (
+              {details.lastLogin && (
+                <div>
+                  <span className={classes.DashboardLabel}>Last Login:</span>{' '}
+                  {dateAndTime.toDateTimeString(details.lastLogin)}
+                </div>
+              )}
+              {details.latestIpAddress && (
                 <div>
                   <span className={classes.DashboardLabel}>
                     Latest Ip Address:{' '}
                   </span>
                   {details.latestIpAddress}
                 </div>
-              ) : null}
+              )}
 
               {Array.isArray(details.activeMembers) ? (
                 <div>
@@ -248,7 +213,6 @@ class DashboardContentBox extends PureComponent {
 
 DashboardContentBox.propTypes = {
   link: PropTypes.string,
-  image: PropTypes.string,
   roomType: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
@@ -256,16 +220,32 @@ DashboardContentBox.propTypes = {
   listType: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   locked: PropTypes.bool.isRequired,
-  details: PropTypes.shape({}).isRequired,
+  details: PropTypes.shape({
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    email: PropTypes.string,
+    latestIpAddress: PropTypes.string,
+    accountType: PropTypes.string,
+    lastLogin: PropTypes.string,
+    activeRooms: PropTypes.arrayOf(PropTypes.shape({})),
+    activeMembers: PropTypes.arrayOf(PropTypes.shape({})),
+    messagesCount: PropTypes.number,
+    eventsCount: PropTypes.number,
+    updatedAt: PropTypes.string,
+  }).isRequired,
   resource: PropTypes.string.isRequired,
-  manageUser: PropTypes.func,
-  isSelf: PropTypes.bool.isRequired,
+  iconActions: PropTypes.arrayOf(
+    PropTypes.shape({
+      testId: PropTypes.string,
+      onClick: PropTypes.func,
+      title: PropTypes.string,
+    })
+  ),
 };
 
 DashboardContentBox.defaultProps = {
-  image: null,
   roomType: null,
   link: null,
-  manageUser: null,
+  iconActions: [],
 };
 export default DashboardContentBox;

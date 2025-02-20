@@ -5,19 +5,27 @@ import {
   GgbGraph,
   DesmosGraph,
   DesmosActivity,
+  GgbActivityGraph,
+  DesmosActivityEditor,
+  DesmosActivityGraph,
+  PyretTemplateEditor,
 } from 'Containers/Workspace';
 import {
   GgbReplayer,
   DesActivityReplayer,
   DesmosReplayer,
+  // GgbMiniReplayer,
+  DesActivityMiniReplayer,
+  PyretActivityReplayer,
+  // DesmosMiniReplayer,
 } from 'Containers/Replayer';
+import { extractActivityCode } from 'Containers/Workspace/Tools/DesActivityHelpers';
+import { RadioBtn, Button } from 'Components';
 import ggbIcon from 'assets/geogebra.png';
 import dsmIcon from 'assets/desmos.png';
 import dsmActIcon from 'assets/desmosActivity.png';
 import pyretIcon from 'assets/pyretlogo.png';
 import bothIcon from 'assets/desmosandgeogebra.png';
-import RadioBtn from './Form/RadioBtn/RadioBtn';
-import Button from './UI/Button/Button';
 
 const TAB_TYPES = {
   GEOGEBRA: 'geogebra',
@@ -33,6 +41,29 @@ const activeTabTypes = [
   TAB_TYPES.DESMOS,
 ];
 
+// eslint-disable-next-line react/display-name
+const Blank = (type) => (props) => {
+  // eslint-disable-next-line react/prop-types
+  const { setFirstTabLoaded, isFirstTabLoaded, setTabLoaded } = props;
+  if (setFirstTabLoaded && !isFirstTabLoaded) setFirstTabLoaded();
+  if (setTabLoaded) setTabLoaded();
+  return (
+    <div style={{ margin: '10px' }}>No viewer for {type} tab type yet</div>
+  );
+};
+
+const defaultProperties = (type) => ({
+  message: '', // A message displayed on the home page
+  label: type, // The name of the tab type as shown in radio buttons and elsewhere in the UI
+  replayer: Blank(type), // The component used for replaying a mathspace's data
+  component: Blank(type), // The component used to render the mathspace for collaboration
+  miniReplayer: Blank(type),
+  editor: Blank(type), // The component used for editing templates
+  icon: <img width={28} src="" alt="No Icon" />, // icon shown in resource lists
+  references: false, // whether this tab type supports workspace referencing (arrows between mathspace and chat)
+  templateState: null,
+});
+
 if (
   window.env.REACT_APP_PYRET_MODE &&
   window.env.REACT_APP_PYRET_MODE.toLowerCase() === 'yes'
@@ -47,32 +78,54 @@ if (
 
 const tabTypeProperties = {
   [TAB_TYPES.PYRET]: {
+    ...defaultProperties('Pyret Activity'),
     message: 'Pyret mode is active.',
     label: 'Pyret Activity',
+    replayer: PyretActivityReplayer,
     component: CodePyretOrg,
+    editor: PyretTemplateEditor,
     icon: <img width={28} src={pyretIcon} alt="Pyret Icon" />,
+    templateState: (value) => ({
+      desmosLink: value,
+      currentStateBase64: value,
+      startingPointBase64: value,
+    }),
   },
   [TAB_TYPES.WEBSKETCHPAD]: {
+    ...defaultProperties('WebSketchpad Activity'),
     message: 'WebSketchpad is active.',
     label: 'WebSketchpad Activity',
   },
   [TAB_TYPES.GEOGEBRA]: {
+    ...defaultProperties('GeoGebra'),
     label: 'GeoGebra',
     component: GgbGraph,
     replayer: GgbReplayer,
+    editor: GgbActivityGraph,
+    references: true,
     icon: <img width={28} src={ggbIcon} alt="GeoGebra Icon" />,
   },
   [TAB_TYPES.DESMOS]: {
+    ...defaultProperties('Desmos'),
     label: 'Desmos',
     component: DesmosGraph,
     replayer: DesmosReplayer,
+    editor: DesmosActivityGraph,
     icon: <img width={25} src={dsmIcon} alt="Desmos Icon" />,
   },
   [TAB_TYPES.DESMOS_ACTIVITY]: {
+    ...defaultProperties('Desmos Activity'),
     label: 'Desmos Activity',
     component: DesmosActivity,
     replayer: DesActivityReplayer,
+    miniReplayer: DesActivityMiniReplayer,
+    editor: DesmosActivityEditor,
     icon: <img width={25} src={dsmActIcon} alt="Desmos Activity Icon" />,
+    templateState: (value) => ({
+      desmosLink: extractActivityCode(value),
+      currentStateBase64: '{}',
+      startingPointBase64: '{}',
+    }),
   },
   multiple: { icon: <img width={25} src={bothIcon} alt="Multiple Types" /> },
 };
@@ -94,7 +147,7 @@ function homepageMessages() {
 }
 
 function getDisplayName(tabType) {
-  return tabTypeProperties[tabType].label;
+  return tabTypeProperties[tabType] ? tabTypeProperties[tabType].label : '';
 }
 
 function getCombinedIcon(tabTypes) {
@@ -102,7 +155,27 @@ function getCombinedIcon(tabTypes) {
 }
 
 function getIcon(tabType) {
-  return tabTypeProperties[tabType].icon;
+  return tabTypeProperties[tabType] ? tabTypeProperties[tabType].icon : null;
+}
+
+function hasReferences(tabType) {
+  return tabTypeProperties[tabType]
+    ? tabTypeProperties[tabType].references
+    : false;
+}
+
+function getTemplateState(tabType, value) {
+  const templateStateFunc =
+    tabTypeProperties[tabType] && tabTypeProperties[tabType].templateState;
+  return typeof templateStateFunc === 'function'
+    ? templateStateFunc(value)
+    : {};
+}
+
+function hasInitializer(tabType) {
+  const templateStateFunc =
+    tabTypeProperties[tabType] && tabTypeProperties[tabType].templateState;
+  return templateStateFunc !== defaultProperties(tabType).templateState;
 }
 
 function Buttons({ onClick, disabled }) {
@@ -167,9 +240,10 @@ RadioButtons.defaultProps = {
 
 function MathspaceComponent(property, { type, ...otherProps }) {
   try {
-    const { [property]: MathSpaceComp } = tabTypeProperties[type];
-    return <MathSpaceComp {...otherProps} />;
+    const { [property]: MathspaceComp } = tabTypeProperties[type];
+    return <MathspaceComp {...otherProps} />;
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
     return null;
   }
@@ -182,6 +256,14 @@ function MathspaceReplayer(props) {
   return MathspaceComponent('replayer', props);
 }
 
+function MathspaceMiniReplayer(props) {
+  return MathspaceComponent('miniReplayer', props);
+}
+
+function MathspaceTemplateEditor(props) {
+  return MathspaceComponent('editor', props);
+}
+
 const TabTypes = {
   isActive,
   homepageMessages,
@@ -189,11 +271,16 @@ const TabTypes = {
   getIcon,
   Mathspace,
   MathspaceReplayer,
+  MathspaceMiniReplayer,
+  MathspaceTemplateEditor,
   RadioButtons,
   Buttons,
   ...TAB_TYPES,
   activeTabTypes,
   getDisplayName,
+  hasReferences,
+  getTemplateState,
+  hasInitializer,
 };
 
 export default TabTypes;

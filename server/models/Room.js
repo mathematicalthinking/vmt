@@ -36,9 +36,20 @@ const Room = new mongoose.Schema(
         },
         alias: { type: String },
         course: { type: ObjectId, ref: 'Course' },
+        currentTab: { type: ObjectId, ref: 'Tab' },
       },
     ],
-    currentMembers: { type: [{ type: ObjectId, ref: 'User' }], default: [] },
+    currentMembers: {
+      type: [
+        {
+          _id: { type: ObjectId, ref: 'User' },
+          username: String,
+          tab: { type: ObjectId, ref: 'Tab' },
+        },
+      ],
+      default: [],
+    },
+
     tabs: { type: [{ type: ObjectId, ref: 'Tab' }] },
     privacySetting: {
       type: String,
@@ -50,25 +61,40 @@ const Room = new mongoose.Schema(
     settings: {
       participantsCanCreateTabs: { type: Boolean, default: false },
       participantsCanChangePerspective: { type: Boolean, default: false },
-      controlByTab: { type: Boolean, default: false },
+      independentTabControl: { type: Boolean, default: false },
       displayAliasedUsernames: { type: Boolean, default: false },
     },
     graphImage: { type: ObjectId, ref: 'Image' },
     controlledBy: { type: ObjectId, ref: 'User', default: null },
     // wasNew: {type: Boolean},
     isTrashed: { type: Boolean, default: false },
-    snapshot: {},
     groupId: { type: String },
     status: {
       type: String,
       enum: Object.values(STATUS),
       default: STATUS.DEFAULT,
     },
+    dbUpdatedAt: { type: Date },
   },
   { timestamps: true }
 );
 
+Room.index({ isTrashed: 1, status: 1 });
+Room.index({ course: 1 });
+Room.index({ activity: 1 });
+
+// The chatCount field is used when users log in. Rather than storing the entire chat history in the redux store,
+// we only store the number of chat messages. When the user enters a room, we fetch the chat messages from the server.
+// (along with the entire populated room object).
+Room.virtual('chatCount').get(function() {
+  // console.log(this.name, this.chat);
+  return this.chat ? this.chat.length : 0;
+});
+Room.set('toJSON', { getters: true, virtuals: true });
+Room.set('toObject', { getters: true, virtuals: true });
+
 Room.pre('save', function(next) {
+  this.dbUpdatedAt = Date.now();
   if (this.isNew) {
     this.wasNew = this.isNew;
     next();
@@ -88,6 +114,7 @@ Room.pre('save', function(next) {
           .then(() => {
             next();
           })
+          // eslint-disable-next-line no-console
           .catch((err) => console.log(err));
       } else if (field === 'currentMembers') {
         // console.log('current members modified what we can do with tha info...how do we tell WHO was added')
@@ -106,6 +133,7 @@ Room.pre('save', function(next) {
             });
           })
           .catch((err) => {
+            // eslint-disable-next-line no-console
             console.log(err);
             next(err);
           });
@@ -117,6 +145,19 @@ Room.pre('save', function(next) {
     next();
   }
 });
+
+function updateTimestamp(next) {
+  this._update = this._update || {};
+  this._update.$set = this._update.$set || {};
+  this._update.$set.dbUpdatedAt = Date.now();
+  next();
+}
+
+Room.pre('update', updateTimestamp);
+
+Room.pre('findOneAndUpdate', updateTimestamp);
+
+Room.pre('findByIdAndUpdate', updateTimestamp);
 
 Room.post('save', function(doc, next) {
   if (this.wasNew && !this.tempRoom) {
@@ -175,6 +216,7 @@ Room.post('save', function(doc, next) {
         next();
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.error(err);
         next(err);
       }); // @TODO WE NEED ERROR HANDLING HERE
@@ -205,4 +247,5 @@ Room.methods.summary = function() {
   return obj;
   // next();
 };
+
 module.exports = mongoose.model('Room', Room);

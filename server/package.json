@@ -1,6 +1,6 @@
 {
   "name": "vmt",
-  "version": "2.0.0",
+  "version": "2.1.2",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@socket.io/redis-adapter": "^7.2.0",
-    "axios": ">=0.21.2",
+    "axios": "^0.25.0",
     "bluebird": "^3.5.1",
     "body-parser": "~1.18.2",
     "connect-flash": "^0.1.1",
@@ -54,6 +54,8 @@
     "express": "^4.17.3",
     "express-handlebars": "^5.3.1",
     "express-prom-bundle": "^6.4.1",
+    "human-readable-ids": "^1.0.4",
+    "ioredis": "^5.3.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
@@ -61,14 +63,13 @@
     "morgan": "^1.9.1",
     "multer": "^1.4.1",
     "prom-client": "^13.2.0",
-    "redis": "^3.1.2",
     "serve-favicon": "~2.4.5",
     "socket.io": "^4.5.3",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",
-    "cypress": "^7.5.0",
+    "cypress": "^9.6.0",
     "cypress-file-upload": "^5.0.8",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.2.0",

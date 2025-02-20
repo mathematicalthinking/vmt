@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { hri } from 'human-readable-ids';
+import { extractActivityCode } from 'Containers/Workspace/Tools/DesActivityHelpers';
 import Step1 from './Step1';
 import Step2Copy from './Step2Copy';
 import Step2New from './Step2New';
@@ -40,6 +41,7 @@ const initialState = {
   organization: '',
   school: '',
   district: '',
+  gradeLevel: null,
 };
 
 class NewResourceContainer extends Component {
@@ -71,11 +73,16 @@ class NewResourceContainer extends Component {
   };
 
   linkMod = (event) => {
-    const codeLength = 24;
-    const link = event.target.value.split('/');
-    const code = link[link.length - 1].slice(0, codeLength);
+    const code = extractActivityCode(event.target.value);
     this.setState({
       desmosLink: code,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  setLink = (event) => {
+    this.setState({
+      desmosLink: event.target.value,
       [event.target.name]: event.target.value,
     });
   };
@@ -130,10 +137,10 @@ class NewResourceContainer extends Component {
       organization,
       school,
       district,
+      gradeLevel,
     } = this.state;
     const {
       resource,
-      courseId,
       userId,
       username,
       connectCreateCourse,
@@ -142,6 +149,8 @@ class NewResourceContainer extends Component {
       connectUpdateUser,
       intro,
       history,
+      parentActivityId,
+      parentCourseId,
     } = this.props;
 
     const newResource = {
@@ -151,12 +160,19 @@ class NewResourceContainer extends Component {
       privacySetting,
       creator: userId,
       activities: activities.length > 0 ? activities : null,
-      course: courseId,
+      course: parentCourseId,
+      activity: parentActivityId,
       roomType,
       image: formatImageUrl(name, resource),
     };
     if (newResource.privacySetting === 'private') {
       newResource.entryCode = hri.random();
+    }
+    if (gradeLevel) {
+      // newResource.gradeLevel = gradeLevel.value;
+      // add gradeLevel to tags array
+      const tags = [{ gradeLevel: gradeLevel.value }];
+      newResource.tags = tags;
     }
     return this.uploadGgbFiles().then((results) => {
       if (results && results.data) {
@@ -179,7 +195,7 @@ class NewResourceContainer extends Component {
           connectCreateCourse(newResource);
           break;
         case 'activities':
-          if (courseId) newResource.users = this.composeActivityUsers();
+          if (parentCourseId) newResource.users = this.composeActivityUsers();
           connectCreateActivity(newResource);
           break;
         case 'rooms':
@@ -193,7 +209,6 @@ class NewResourceContainer extends Component {
           if (roomType === 'geogebra') {
             newResource.appName = appName;
           }
-          // console.log(`New room created: ${newResource}`);
           connectCreateRoom(newResource);
           connectUpdateUser({ lastRoomType: roomType });
           break;
@@ -268,9 +283,21 @@ class NewResourceContainer extends Component {
     });
   };
 
+  gradeHandler = (selectedOption) => {
+    this.setState({ gradeLevel: selectedOption });
+  };
+
+  gradeOptionsGenerator = () => {
+    return [
+      { label: '6', value: 6 },
+      { label: '7', value: 7 },
+      { label: '8', value: 8 },
+    ];
+  };
+
   render() {
     // Intro = true if and only if we've navigated from the "Become a Facilitator" page
-    const { resource } = this.props;
+    const { resource, userId } = this.props;
     const {
       name,
       description,
@@ -286,6 +313,7 @@ class NewResourceContainer extends Component {
       organization,
       school,
       district,
+      gradeLevel,
     } = this.state;
     let displayResource;
     if (resource === 'activities') {
@@ -305,6 +333,13 @@ class NewResourceContainer extends Component {
         school={school}
         resource={resource}
         changeHandler={this.changeHandler}
+        gradeSelectHandler={
+          resource === 'activities' ? this.gradeHandler : null
+        }
+        gradeSelectOptions={
+          resource === 'activities' ? this.gradeOptionsGenerator() : null
+        }
+        gradeSelectValue={resource === 'activities' ? gradeLevel : null}
       />,
       copying ? (
         <Step2Copy
@@ -312,6 +347,7 @@ class NewResourceContainer extends Component {
           displayResource={displayResource}
           addActivity={this.addActivity}
           selectedActivities={activities}
+          userId={userId}
         />
       ) : (
         <Step2New
@@ -347,6 +383,7 @@ class NewResourceContainer extends Component {
           desmosLink={desmosLink}
           setDesmosLink={this.linkMod}
           setDesmosCalcLink={this.graphLinkMod}
+          setLink={this.setLink}
           appName={appName}
         />
       );
@@ -429,11 +466,16 @@ class NewResourceContainer extends Component {
     return (
       <Aux>
         {creating ? (
-          <Modal height={470} show={creating} closeModal={this.closeModal}>
+          <Modal
+            height={600}
+            width={650}
+            show={creating}
+            closeModal={this.closeModal}
+          >
             {step > 0 ? (
               <i
                 onClick={this.prevStep}
-                onKeyPress={this.prevStep}
+                onKeyDown={this.prevStep}
                 tabIndex="-1"
                 role="button"
                 className={['fas', 'fa-arrow-left', classes.BackIcon].join(' ')}
@@ -448,7 +490,7 @@ class NewResourceContainer extends Component {
                 style={
                   (step === 1 && copying) ||
                   (step === 0 && resource === 'courses')
-                    ? { overflow: 'scroll' }
+                    ? { overflow: 'auto' }
                     : {}
                 }
               >
@@ -478,7 +520,6 @@ class NewResourceContainer extends Component {
 
 NewResourceContainer.propTypes = {
   resource: PropTypes.string.isRequired,
-  courseId: PropTypes.string,
   userId: PropTypes.string.isRequired,
   username: PropTypes.string.isRequired,
   connectCreateCourse: PropTypes.func.isRequired,
@@ -489,12 +530,15 @@ NewResourceContainer.propTypes = {
   connectUpdateUser: PropTypes.func.isRequired,
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   course: PropTypes.shape({ members: PropTypes.arrayOf(PropTypes.shape({})) }),
+  parentActivityId: PropTypes.string,
+  parentCourseId: PropTypes.string,
 };
 
 NewResourceContainer.defaultProps = {
-  courseId: null,
   intro: false,
   course: null,
+  parentActivityId: null,
+  parentCourseId: null,
 };
 
 const mapStateToProps = (store, ownProps) => {

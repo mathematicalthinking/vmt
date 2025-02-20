@@ -27,7 +27,10 @@ module.exports = {
         .sort('-createdAt')
         .populate({ path: 'members.user', select: 'username' })
         .populate({ path: 'currentMembers', select: 'username' })
-        .populate({ path: 'tabs', select: 'name tabType desmosLink' })
+        .populate({
+          path: 'tabs',
+          select: 'name tabType desmosLink controlledBy',
+        })
         .then((rooms) => {
           // rooms = rooms.map(room => room.tempRoom ? room : room.summary())
           resolve(rooms);
@@ -53,9 +56,12 @@ module.exports = {
         //   populate: { path: params.events ? 'events' : '' },
         // })
         .populate({ path: 'graphImage', select: 'imageData' })
-        .populate({ path: 'tabs', select: 'tabType name desmosLink' })
+        .populate({
+          path: 'tabs',
+          select: 'tabType name desmosLink controlledBy',
+        })
         .select(
-          'name creator activity members course graphImage privacySetting _id'
+          'name creator activity members course graphImage privacySetting _id settings'
         )
         .then((room) => {
           resolve(room);
@@ -65,37 +71,67 @@ module.exports = {
   },
 
   getPopulatedById: (id, params) => {
-    return (Array.isArray(id)
-      ? db.Room.find({ _id: { $in: id } })
-      : db.Room.findById(id)
-    )
-      .populate({ path: 'creator', select: 'username' })
-      .populate({
-        path: 'chat',
-        // options: { limit: 25 }, // Eventually we'll need to paginate this
-        populate: { path: 'user', select: 'username' },
-        // allow messages to have roomIds, like events do
-        // select: '-room',
-      })
-      .populate({ path: 'members.user', select: 'username' })
-      .populate({ path: 'currentMembers', select: 'username' })
-      .populate({ path: 'course', select: 'name' })
-      .populate({ path: 'activity', select: 'name' })
-      .populate(
-        params.events === 'true'
-          ? {
-              path: 'tabs',
-              populate: {
-                path: 'events',
-                populate: { path: 'user', select: 'username color' },
-              },
-            }
-          : {
-              path: 'tabs',
-              select: 'name tabType snapshot desmosLink',
-            }
-      )
-      .lean();
+    let queryFcn;
+    if (Array.isArray(id)) {
+      const queryTimes = params.lastQueryTimes || {};
+      // handle no ids case separately because $or doesn't accept an empty array
+      queryFcn =
+        id.length === 0
+          ? () => db.Room.find({ _id: { $in: [] } })
+          : () =>
+              db.Room.find({
+                $or: id.map((oneId) => ({
+                  $or: [
+                    {
+                      _id: oneId,
+                      dbUpdatedAt: {
+                        $exists: false,
+                      },
+                    },
+                    {
+                      _id: oneId,
+                      dbUpdatedAt: {
+                        $exists: true,
+                        $gt: new Date(queryTimes[oneId] || 0),
+                      },
+                    },
+                  ],
+                })),
+              });
+    } else {
+      queryFcn = () => db.Room.findById(id);
+    }
+    return (
+      queryFcn()
+        .populate({ path: 'creator', select: 'username' })
+        .populate({
+          path: 'chat',
+          // options: { limit: 25 }, // Eventually we'll need to paginate this
+          populate: { path: 'user', select: 'username' },
+          // allow messages to have roomIds, like events do
+          // select: '-room',
+        })
+        .populate({ path: 'members.user', select: 'username' })
+        // .populate({ path: 'currentMembers', select: 'username' })
+        // .populate({ path: 'currentMembers' })
+        .populate({ path: 'course', select: 'name' })
+        .populate({ path: 'activity', select: 'name' })
+        .populate(
+          params.events === 'true' || params.events === true
+            ? {
+                path: 'tabs',
+                populate: {
+                  path: 'events',
+                  populate: { path: 'user', select: 'username color' },
+                },
+              }
+            : {
+                path: 'tabs',
+                select: 'name tabType snapshot desmosLink controlledBy',
+              }
+        )
+        .lean()
+    );
     // options: { limit: 25 },
   },
 
@@ -160,7 +196,48 @@ module.exports = {
         },
       },
 
-      { $unwind: '$facilitatorObject' },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          // get the facilitator usernames; easier to keep this separate for the test
+          facilitatorUsernames: {
+            $map: {
+              input: '$facilitatorObject',
+              as: 'facilitator',
+              in: '$$facilitator.username',
+            },
+          },
+          // put the full user object into the members array
+          members: {
+            $map: {
+              input: '$members',
+              as: 'member',
+              in: {
+                role: '$$member.role',
+                user: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: '$facilitatorObject',
+                        as: 'facilitator',
+                        cond: { $eq: ['$$facilitator._id', '$$member.user'] },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
     ];
 
     if (criteria) {
@@ -170,47 +247,18 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { 'facilitatorObject.username': criteria },
+            { facilitatorUsernames: criteria },
           ],
         },
       });
     }
     aggregationPipeline = aggregationPipeline.concat([
       {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          tabs: { $first: '$tabs' },
-          updatedAt: { $first: '$updatedAt' },
-          members: {
-            $push: { user: '$facilitatorObject', role: ROLE.FACILITATOR },
-          },
-        },
-      },
-      {
         $lookup: {
           from: 'tabs',
           localField: 'tabs',
           foreignField: '_id',
           as: 'tabObject',
-        },
-      },
-      { $unwind: '$tabObject' },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          privacySetting: { $first: '$privacySetting' },
-          image: { $first: '$image' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tabs: { $push: '$tabObject' },
         },
       },
       {
@@ -220,12 +268,30 @@ module.exports = {
           instructions: 1,
           description: 1,
           image: 1,
-          'tabs.tabType': 1,
+          // only keep the tabtype field of tabs
+          tabs: {
+            $map: {
+              input: '$tabObject',
+              as: 'tab',
+              in: { tabType: '$$tab.tabType' },
+            },
+          },
           privacySetting: 1,
           updatedAt: 1,
-          'members.role': 1,
-          'members.user.username': 1,
-          'members.user._id': 1,
+          // put each member into the proper form, keeping only the _id and username
+          members: {
+            $map: {
+              input: '$members',
+              as: 'member',
+              in: {
+                role: '$$member.role',
+                user: {
+                  _id: '$$member.user._id',
+                  username: '$$member.user.username',
+                },
+              },
+            },
+          },
         },
       },
     ]);
@@ -300,6 +366,17 @@ module.exports = {
         ggbFiles = [...body.ggbFiles];
         delete body.ggbFiles;
       }
+
+      const getCurrentStateBase64 = (tab) => {
+        switch (tab.roomType || tab.tabType) {
+          case 'desmosActivity':
+            return '{}';
+          case 'pyret':
+            return tab.currentStateBase64 || tab.desmosLink;
+          default:
+            return tab.currentStateBase64;
+        }
+      };
       const room = new Room(body);
       if (existingTabs) {
         tabModels = existingTabs.map((tab) => {
@@ -314,8 +391,7 @@ module.exports = {
               tab.tabType === 'desmosActivity'
                 ? tab.startingPointBase64
                 : tab.currentStateBase64,
-            currentStateBase64:
-              tab.tabType === 'desmosActivity' ? '{}' : tab.currentStateBase64,
+            currentStateBase64: getCurrentStateBase64(tab),
             tabType: tab.tabType,
             appName: tab.appName,
           });
@@ -339,7 +415,7 @@ module.exports = {
             startingPoint: '',
             // startingPointBase64 and currentStateBase64 should be in the body only if we are creating a new desmos activity.
             startingPointBase64: body.startingPointBase64,
-            currentStateBase64: body.currentStateBase64,
+            currentStateBase64: getCurrentStateBase64(body),
             desmosLink: body.desmosLink,
             tabType: body.roomType || 'geogebra',
             appName: body.appName,
@@ -353,7 +429,7 @@ module.exports = {
         room.populate(
           {
             path: 'members.user tabs',
-            select: 'username tabType desmosLink name events',
+            select: 'username tabType desmosLink name events controlledBy',
           },
           (err, populatedRoom) => {
             if (err) reject(err);
@@ -395,7 +471,7 @@ module.exports = {
             };
           } else room.members.push(newMember);
 
-          return room.save();
+          return room.save({ timestamps: false });
         })
         .then((savedRoom) => {
           return savedRoom.populate(
@@ -445,7 +521,11 @@ module.exports = {
           });
         })
         .catch((err) => reject(err)); // @todo there is no real error handling for this
-      db.Room.findByIdAndUpdate(id, { $pull: body }, { new: true })
+      db.Room.findByIdAndUpdate(
+        id,
+        { $pull: body },
+        { new: true, timestamps: false }
+      )
         .populate({ path: 'members.user', select: 'username' })
         .then((res) => {
           resolve(res.members);
@@ -605,16 +685,19 @@ module.exports = {
 
   // SOCKET METHODS
 
-  setCurrentUsers: (roomId, newCurrentUserIds) => {
+  setCurrentMembers: (roomId, currentUsers) => {
     return new Promise(async (resolve, reject) => {
-      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
-      const query = { $set: { currentMembers: newCurrentUserIds } };
-      db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
-        // .populate({ path: 'members.user', select: 'username' })
-        .select('currentMembers members controlledBy')
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
+      const query = { $set: { currentMembers: currentUsers } };
+
+      db.Room.findByIdAndUpdate(roomId, query, {
+        new: true,
+        timestamps: false,
+      })
+        .select('currentMembers members controlledBy settings')
         .then((room) => {
           room.populate(
-            { path: 'currentMembers members.user', select: 'username' },
+            { path: 'members.user', select: 'username' },
             (err, poppedRoom) => {
               if (err) {
                 reject(err);
@@ -627,18 +710,35 @@ module.exports = {
     });
   },
 
-  addCurrentUsers: (roomId, newCurrentUserId, members) => {
+  // when a currentMember switches tabs, update the currentMembers array
+  updateCurrentMemberTab: async (roomId, userId, newTabId) => {
+    const room = await db.Room.findById(roomId);
+    const currentMember = room.currentMembers.find(
+      (member) => String(member._id) === String(userId)
+    );
+    if (!currentMember) {
+      // eslint-disable-next-line no-console
+      console.log(
+        'no current member found, returning previous currentMembers from db'
+      );
+      return room.currentMembers;
+    }
+    currentMember.tab = newTabId;
+
+    await room.save();
+    return room.currentMembers;
+  },
+
+  addCurrentMember: (roomId, newCurrentMember) => {
     return new Promise(async (resolve, reject) => {
-      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALYE
-      const query = members
-        ? { $addToSet: { currentMembers: newCurrentUserId, members } }
-        : { $addToSet: { currentMembers: newCurrentUserId } };
+      // IF THIS IS A TEMP ROOM MEMBERS WILL HAVE A VALUE
+      const query = { $addToSet: { currentMembers: newCurrentMember } };
       db.Room.findByIdAndUpdate(roomId, query, { new: true, timestamps: false })
         // .populate({ path: 'members.user', select: 'username' })
         .select('currentMembers members')
         .then((room) => {
           room.populate(
-            { path: 'currentMembers members.user', select: 'username' },
+            { path: 'members.user', select: 'username' },
             (err, poppedRoom) => {
               if (err) {
                 reject(err);
@@ -651,11 +751,11 @@ module.exports = {
     });
   },
 
-  removeCurrentUsers: (roomId, userId) => {
+  removeCurrentMember: (roomId, userId) => {
     return new Promise((resolve, reject) => {
       db.Room.findByIdAndUpdate(
         roomId,
-        { $pull: { currentMembers: userId } },
+        { $pull: { currentMembers: { _id: userId } } },
         { timestamps: false }
       ) // dont return new! we need the original list to filter back in sockets.js
         .populate({ path: 'currentMembers', select: 'username' })
@@ -666,6 +766,7 @@ module.exports = {
         .catch((err) => reject(err));
     });
   },
+
   getRecentActivity: async (criteria, skip, filters) => {
     let { since, to } = filters;
     const allowedSincePresets = ['day', 'week', 'month', 'year'];
@@ -720,7 +821,7 @@ module.exports = {
             },
           },
           tempRoom: 1,
-          chat: 1,
+          messagesCount: { $size: '$chat' },
         },
       },
       {
@@ -732,7 +833,28 @@ module.exports = {
         },
       },
 
-      { $unwind: '$facilitatorObject' },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          tabs: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: 1,
+          tempRoom: 1,
+          messagesCount: 1,
+          facilitatorUsernames: {
+            $map: {
+              input: '$facilitatorObject',
+              as: 'facilitator',
+              in: '$$facilitator.username',
+            },
+          },
+        },
+      },
     ];
     if (criteria) {
       pipeline.push({
@@ -741,7 +863,7 @@ module.exports = {
             { name: criteria },
             { description: criteria },
             { instructions: criteria },
-            { 'facilitatorObject.username': criteria },
+            { facilitatorUsernames: criteria },
           ],
         },
       });
@@ -755,52 +877,46 @@ module.exports = {
           as: 'tabObject',
         },
       },
-      { $unwind: '$tabObject' },
       {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          instructions: { $first: '$instructions' },
-          description: { $first: '$description' },
-          image: { $first: '$image' },
-          privacySetting: { $first: '$privacySetting' },
-          updatedAt: { $first: '$updatedAt' },
-          members: { $first: '$members' },
-          tempRoom: { $first: '$tempRoom' },
-          chat: { $first: '$chat' },
-          tabs: { $push: '$tabObject' },
+        $project: {
+          _id: 1,
+          name: 1,
+          instructions: 1,
+          description: 1,
+          image: 1,
+          privacySetting: 1,
+          updatedAt: 1,
+          members: 1,
+          tempRoom: 1,
+          messagesCount: 1,
+          tabs: {
+            $map: {
+              input: '$tabObject',
+              as: 'tab',
+              in: { tabType: '$$tab.tabType' },
+            },
+          },
+        },
+      },
+      {
+        $facet: {
+          paginatedResults: [
+            { $sort: { updatedAt: -1 } },
+            { $skip: skip ? parseInt(skip, 10) : 0 },
+            { $limit: 20 },
+          ],
+          totalCount: [
+            { $count: 'count' }, // Count total documents matching the criteria
+          ],
+        },
+      },
+      {
+        $project: {
+          paginatedResults: 1,
+          totalCount: { $arrayElemAt: ['$totalCount.count', 0] }, // Extract the total count
         },
       }
     );
-    pipeline.push({
-      $facet: {
-        paginatedResults: [
-          { $sort: { updatedAt: -1 } },
-          { $skip: skip ? parseInt(skip, 10) : 0 },
-          { $limit: 20 },
-          {
-            $project: {
-              _id: 1,
-              name: 1,
-              instructions: 1,
-              description: 1,
-              image: 1,
-              privacySetting: 1,
-              updatedAt: 1,
-              members: 1,
-              tempRoom: 1,
-              messagesCount: { $size: '$chat' },
-              'tabs.tabType': 1,
-            },
-          },
-        ],
-        totalCount: [
-          {
-            $count: 'count',
-          },
-        ],
-      },
-    });
 
     const [results] = await Room.aggregate(pipeline);
 
@@ -810,40 +926,53 @@ module.exports = {
     const eventsPipeline = [
       { $match: { room: { $in: roomIds } } },
       {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'userDetails',
+        },
+      },
+      {
         $project: {
           _id: 1,
           room: 1,
           user: 1,
+          userDetails: {
+            $map: {
+              input: '$userDetails',
+              as: 'user',
+              in: {
+                _id: '$$user._id',
+                username: '$$user.username',
+              },
+            },
+          },
         },
       },
       {
         $group: {
-          _id: '$room',
-          eventsCount: { $sum: 1 },
-          activeMembers: { $addToSet: '$user' },
+          _id: '$room', // Group by room ID
+          eventsCount: { $sum: 1 }, // Count the number of events for this room
+          activeMembers: {
+            $addToSet: {
+              $arrayElemAt: ['$userDetails', 0], // Add the first (and only) user object from userDetails, ensuring only _id and username
+            },
+          },
         },
       },
       {
-        $facet: {
-          paginatedResults: [
-            { $skip: skip ? parseInt(skip, 10) : 0 },
-            { $limit: 20 },
-            {
-              $project: {
-                _id: 1,
-                eventsCount: 1,
-                activeMembers: 1,
-              },
-            },
-          ],
+        $project: {
+          _id: 1,
+          eventsCount: 1,
+          activeMembers: 1,
         },
       },
     ];
 
-    const [eventResults] = await Event.aggregate(eventsPipeline);
+    const roomEvents = await Event.aggregate(eventsPipeline);
 
-    const { paginatedResults: roomEvents } = eventResults;
-
+    // Map room events to rooms
     const updatedRooms = rooms.map((room) => {
       const roomEvent = roomEvents.find(
         (r) => String(r._id) === String(room._id)
@@ -851,15 +980,11 @@ module.exports = {
       return {
         ...room,
         eventsCount: roomEvent ? roomEvent.eventsCount : 0,
-        'activeMembers.username': [],
-        'activeMembers._id': roomEvent ? roomEvent.activeMembers : [],
+        activeMembers: roomEvent ? roomEvent.activeMembers : [],
       };
     });
 
-    return [
-      updatedRooms,
-      { totalCount: totalCount && totalCount[0] ? totalCount[0].count : 0 },
-    ];
+    return [updatedRooms, { totalCount }];
   },
 
   // criteria will be various filters selected by the user as an object. searchText is the string the user types.
@@ -962,6 +1087,14 @@ module.exports = {
 
     return updatedRooms;
   },
+
+  // add a member to the course
+  addMember: (roomId, member) => {
+    return db.Room.findOneAndUpdate(
+      { _id: roomId },
+      { $addToSet: { members: member } }
+    );
+  },
 };
 
 // When the status is changed to something indicating the hiding of a room (right now, trashed or archived),
@@ -976,6 +1109,14 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
       room.status = status;
       try {
         updatedRoom = await room.save({ timestamps: false });
+        if (room.course && status === STATUS.ARCHIVED) {
+          await db.Course.updateOne(
+            { _id: room.course },
+            {
+              $addToSet: { 'archive.rooms': ObjectId(id) },
+            }
+          );
+        }
       } catch (err) {
         reject(err);
       }
@@ -1004,7 +1145,7 @@ const removeAndChangeStatus = (id, status, reject, resolve) => {
           promises.push(
             db.User.updateMany(
               { _id: { $in: facilitatorIds } },
-              { $addToSet: { 'archive.rooms': id } }
+              { $addToSet: { 'archive.rooms': ObjectId(id) } }
             )
           );
         }
@@ -1078,38 +1219,45 @@ const prefetchTabIds = async (roomIds, tabType) => {
 };
 
 const unarchive = (id) => {
-  db.Room.findById(id).then((room) => {
+  db.Room.findById(id).then(async (room) => {
     const userIds = room.members.map((member) => member.user);
+
     try {
-      // remove the room from the list of archived rooms for members in the room
-      // add the room to the list of rooms for members in the room
-      userIds.forEach((userId) => {
-        db.User.bulkWrite([
+      const promises = [];
+
+      // remove room from each archive.rooms for each room member
+      // note: only facilitators of the room have the room added to their archive.rooms field
+      // add the room to each room member's room list
+      promises.push(
+        db.User.updateMany(
+          { _id: { $in: userIds } },
           {
-            updateOne: {
-              filter: { _id: userId },
-              update: {
-                $pull: { 'archive.rooms': id },
-                $addToSet: { rooms: id },
-              },
-            },
-          },
-        ]);
-      });
+            $pull: { 'archive.rooms': ObjectId(id) },
+            $addToSet: { rooms: id },
+          }
+        )
+      );
 
       // add this room back to course
       if (room.course) {
-        db.Course.findByIdAndUpdate(room.course, {
-          $push: { rooms: id },
-        });
+        promises.push(
+          db.Course.findByIdAndUpdate(room.course, {
+            $push: { rooms: id },
+            $pull: { 'archive.rooms': id },
+          })
+        );
       }
 
       // add this room back to activity
       if (room.activity) {
-        db.Activity.findByIdAndUpdate(room.activity, {
-          $push: { rooms: id },
-        });
+        promises.push(
+          db.Activity.findByIdAndUpdate(room.activity, {
+            $push: { rooms: id },
+          })
+        );
       }
+
+      await Promise.all(promises);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);

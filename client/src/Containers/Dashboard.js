@@ -12,6 +12,7 @@ import ModalClasses from '../Components/UI/Modal/modal.css';
 const SKIP_VALUE = 20;
 class Dashboard extends Component {
   _isOkToLoadResults = false;
+  abortController = null;
   constructor(props) {
     super(props);
     this.state = {
@@ -25,6 +26,7 @@ class Dashboard extends Component {
       customToDate: null,
       userToManage: null,
       manageUserAction: null,
+      isLoading: false,
     };
     this.debounceFetchData = debounce(() => this.fetchData(), 1000);
     this.debouncedSetCriteria = debounce((criteria) => {
@@ -45,25 +47,8 @@ class Dashboard extends Component {
       history.push('/dashboard/rooms');
       return;
     }
-    // @TODO WHen should we refresh this data. Here we're saying:
-    // if there aren't fift result then we've probably only loaded the users
-    // own courses. This is assuming that the database will have more than 50 courses and rooms
-    // MAYBE conside having and upToDate flag in resoure that tracks whether we've requested this recently
-    // if (Object.keys(this.props[resource]).length < 50 && !this.state.upToDate) {
+
     this.fetchData();
-    // }
-    // else {
-
-    if (resource !== 'users') {
-      // eslint-disable-next-line react/destructuring-assignment
-      const resourceList = this.props[`${resource}Arr`].map(
-        // eslint-disable-next-line react/destructuring-assignment
-        (id) => this.props[resource][id]
-      );
-
-      this.setState({ visibleResources: resourceList });
-      // }
-    }
   }
 
   componentDidUpdate(prevProps) {
@@ -81,6 +66,7 @@ class Dashboard extends Component {
           customSinceDate: null,
           customToDate: null,
           dateRangePreset: 'day',
+          visibleResources: [],
         },
         () => {
           this.fetchData();
@@ -104,6 +90,9 @@ class Dashboard extends Component {
     this._isOkToLoadResults = false;
     this.debounceFetchData.cancel();
     this.debouncedSetCriteria.cancel();
+    if (this.abortController) {
+      this.abortController.abort();
+    }
   }
 
   // concat tells us whether we should concat to existing results or overwrite
@@ -115,33 +104,49 @@ class Dashboard extends Component {
       },
     } = this.props;
     const filters = this.getQueryParams();
-    // if filter = all we're not actually filtering...we want all
     const updatedFilters = { ...filters };
-    // if (updatedFilters.roomType === 'all') {
-    //   delete updatedFilters.roomType;
-    // }
-    // if (updatedFilters.privacySetting === 'all') {
-    //   delete updatedFilters.privacySetting;
-    // }
+
+    this.setState({ isLoading: true });
+
+    // Cancel the previous request if there is one
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+
+    // eslint-disable-next-line no-undef
+    this.abortController = new AbortController();
+    const { signal } = this.abortController;
+
     API.getRecentActivity(
       resource,
       updatedFilters.search,
       skip,
-      updatedFilters
-    ).then((res) => {
-      const [items, totalCounts] = res.data.results;
+      updatedFilters,
+      signal
+    )
+      .then((res) => {
+        this.setState({ isLoading: false });
+        const [items, totalCounts] = res.data.results;
 
-      const moreAvailable = items.length >= SKIP_VALUE;
-      if (this._isOkToLoadResults) {
-        this.setState((prevState) => ({
-          visibleResources: concat
-            ? [...prevState.visibleResources].concat(items)
-            : items,
-          moreAvailable,
-          totalCounts,
-        }));
-      }
-    });
+        const moreAvailable = items.length >= SKIP_VALUE;
+        if (this._isOkToLoadResults) {
+          this.setState((prevState) => ({
+            visibleResources: concat
+              ? [...prevState.visibleResources].concat(items)
+              : items,
+            moreAvailable,
+            totalCounts,
+          }));
+        }
+        this.abortController = null;
+      })
+      .catch((err) => {
+        if (err.message !== 'canceled') {
+          // eslint-disable-next-line no-console
+          console.log('Fetch error: ', err.message);
+          this.setState({ isLoading: false });
+        }
+      });
   };
 
   setSkip = () => {
@@ -225,13 +230,15 @@ class Dashboard extends Component {
     this.setQueryParams(filters);
   };
 
-  logoutUser = (userId) => {
-    return API.revokeRefreshToken(userId)
+  _buttonAction = (apiAction, userId, update) => {
+    return apiAction()
       .then((res) => {
-        const { user } = res.data;
+        const { user, username } = res.data;
 
-        if (user) {
-          this.updateVisibleResource(userId, { socketId: null });
+        // API actions return different values if successful,
+        // so allow for a couple of possibilities.
+        if (user || username) {
+          this.updateVisibleResource(userId, update);
         }
         this.stopManageUser();
       })
@@ -242,39 +249,32 @@ class Dashboard extends Component {
       });
   };
 
-  suspendUser = (userId) => {
-    return API.suspendUser(userId)
-      .then((res) => {
-        const { user } = res.data;
+  logoutUser = (userId) =>
+    this._buttonAction(() => API.revokeRefreshToken(userId), userId, {
+      socketId: null,
+    });
 
-        if (user) {
-          this.updateVisibleResource(userId, { isSuspended: true });
-        }
-        this.stopManageUser();
+  suspendUser = (userId) =>
+    this._buttonAction(() => API.suspendUser(userId), userId, {
+      isSuspended: true,
+    });
+
+  reinstateUser = (userId) =>
+    this._buttonAction(() => API.reinstateUser(userId), userId, {
+      isSuspended: false,
+    });
+
+  removeAsAdmin = (userId) =>
+    this.logoutUser(userId).then(() =>
+      this._buttonAction(() => API.removeAsAdmin(userId), userId, {
+        isAdmin: false,
       })
-      .catch((err) => {
-        this.stopManageUser();
-        // eslint-disable-next-line no-console
-        console.log({ err });
-      });
-  };
+    );
 
-  reinstateUser = (userId) => {
-    return API.reinstateUser(userId)
-      .then((res) => {
-        const { user } = res.data;
-
-        if (user) {
-          this.updateVisibleResource(userId, { isSuspended: false });
-        }
-        this.stopManageUser();
-      })
-      .catch((err) => {
-        this.stopManageUser();
-        // eslint-disable-next-line no-console
-        console.log({ err });
-      });
-  };
+  makeAdmin = (userId) =>
+    this.logoutUser(userId).then(() =>
+      this._buttonAction(() => API.makeAdmin(userId), userId, { isAdmin: true })
+    );
 
   updateVisibleResource = (itemId, update) => {
     const { visibleResources } = this.state;
@@ -303,6 +303,62 @@ class Dashboard extends Component {
     });
   };
 
+  _getIconActions = (details, resource, isSelf) => {
+    if (resource !== 'users') return [];
+    const suspendReinstateAction = details.isSuspended
+      ? {
+          iconClass: 'fas fa-undo',
+          title: 'Reinstate User',
+          testid: 'reinstate',
+          color: 'green',
+          onClick: () => {
+            this.manageUser(details, 'reinstateUser');
+          },
+        }
+      : {
+          iconClass: 'fas fa-ban',
+          title: 'Suspend User',
+          testid: 'suspend',
+          color: 'red',
+          onClick: () => {
+            this.manageUser(details, 'suspendUser');
+          },
+        };
+
+    const forceLogoutAction = {
+      iconClass: 'fas fa-power-off',
+      title: 'Force Logout',
+      testid: 'force-logout',
+      onClick: () => {
+        this.manageUser(details, 'logoutUser');
+      },
+    };
+
+    const makeRemoveAdmin = details.isAdmin
+      ? {
+          iconClass: 'fas fa-minus',
+          title: 'Remove as Admin',
+          testid: 'remove-as-admin',
+          onClick: () => {
+            this.manageUser(details, 'removeAsAdmin');
+          },
+        }
+      : {
+          iconClass: 'fas fa-plus',
+          title: 'Make into Admin',
+          testid: 'make-as-admin',
+          onClick: () => {
+            this.manageUser(details, 'makeAdmin');
+          },
+        };
+
+    const iconActions = [];
+    if (details.socketId && !details.doForceLogout)
+      iconActions.push(forceLogoutAction);
+    if (!isSelf) iconActions.push(suspendReinstateAction, makeRemoveAdmin);
+    return iconActions;
+  };
+
   render() {
     const { match, user } = this.props;
     const {
@@ -315,6 +371,7 @@ class Dashboard extends Component {
       customToDate,
       userToManage,
       manageUserAction,
+      isLoading,
     } = this.state;
     const filters = this.getQueryParams();
     let linkPath;
@@ -335,6 +392,8 @@ class Dashboard extends Component {
         logoutUser: `Are you sure you want to manually logout ${username}?`,
         reinstateUser: `Are you sure you want to reinstate ${username}?`,
         suspendUser: `Are you sure you want to suspend ${username}. They will not be able to use VMT until they are reinstated.`,
+        removeAsAdmin: `Are you sure you want to remove ${username} as an Admin?`,
+        makeAdmin: `Are you sure you want to give ${username} Admin privileges?`,
       };
       manageUserPrompt = actionMessageHash[manageUserAction];
     }
@@ -359,6 +418,8 @@ class Dashboard extends Component {
           customToDate={customToDate}
           manageUser={this.manageUser}
           ownUserId={user._id}
+          isLoading={isLoading}
+          getIconActions={this._getIconActions}
         />
         <Modal show={userToManage !== null} closeModal={this.stopManageUser}>
           {manageUserPrompt}

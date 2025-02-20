@@ -1,7 +1,8 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import isEqual from 'lodash/isEqual';
 import { updateRoom } from 'store/actions';
 import {
   inviteToRoom,
@@ -9,9 +10,9 @@ import {
   updateGroupings,
 } from 'store/actions/rooms';
 import { Button } from 'Components';
-import { addColors, dateAndTime, useAppModal } from 'utils';
-import AssignmentMatrix from './AssignmentMatrix';
-import AssignRooms from './AssignRooms';
+import { addColors, dateAndTime, socket, useAppModal } from 'utils';
+import { AssignmentMatrix, AssignRooms } from '.';
+import classes from './makeRooms.css';
 
 const EditRooms = (props) => {
   const {
@@ -21,9 +22,13 @@ const EditRooms = (props) => {
     selectedAssignment,
     userId,
     close,
+    roomSettings,
+    roomSettingsComponent,
   } = props;
   const dispatch = useDispatch();
   const history = useHistory();
+
+  const courses = useSelector((state) => state.courses.byId);
 
   const [roomDrafts, setRoomDrafts] = useState(selectedAssignment.value);
   const [participants, setParticipants] = useState([]);
@@ -41,10 +46,13 @@ const EditRooms = (props) => {
     );
     // ensure no repeats
     const assignmentParticipants = fullMembers.reduce(
-      (acc, mem) => ({
-        ...acc,
-        [mem.user._id]: mem,
-      }),
+      (acc, mem) =>
+        ['facilitator', 'participant'].includes(mem.role)
+          ? {
+              ...acc,
+              [mem.user._id]: mem,
+            }
+          : acc,
       {}
     );
 
@@ -116,12 +124,7 @@ const EditRooms = (props) => {
     }
   };
 
-  const editPreviousAssignment = ({
-    aliasMode,
-    dueDate,
-    roomName,
-    initialRoomName,
-  }) => {
+  const editPreviousAssignment = ({ dueDate, roomName, initialRoomName }) => {
     /**
      * If there are new room ids in the updatedAssignment that weren't
      * in the previousAssignment w/the same id as updatedAssignmnet,
@@ -140,6 +143,8 @@ const EditRooms = (props) => {
      */
 
     selectedAssignment.value.forEach((oldRoomDraft, i) => {
+      const updates = {};
+
       const membersToUpdate = roomDrafts[i].members.map((mem) => ({
         role: mem.role,
         color: mem.color,
@@ -160,34 +165,46 @@ const EditRooms = (props) => {
 
       inviteNewRoomMembers(previousMembers, membersToUpdate, oldRoomDraft._id);
 
-      if (aliasMode !== selectedAssignment.aliasMode) {
-        dispatch(
-          updateRoom(oldRoomDraft._id, {
-            settings: { displayAliasedUsernames: aliasMode },
-          })
-        );
+      // make an if statement that use lodash to check if the new settings are the same as the selectedAssignment settings
+      if (!isEqual(roomSettings, selectedAssignment.settings)) {
+        updates.settings = { ...roomSettings };
+        socket.emit('SETTINGS_CHANGE', oldRoomDraft._id, roomSettings);
       }
 
       if (
         dueDate !== selectedAssignment.dueDate && // if new dueDate
         !(!dueDate && !selectedAssignment.dueDate) // and dueDates have value
       ) {
-        dispatch(updateRoom(oldRoomDraft._id, { dueDate }));
+        updates.dueDate = dueDate;
       }
 
       // if roomName has changed,
       // update the room name for each room in selectedAssignment
       if (roomName !== initialRoomName) {
-        dispatch(
-          updateRoom(oldRoomDraft._id, { name: `${roomName}: ${i + 1}` })
-        );
+        updates.name = `${roomName}: ${i + 1}`;
+      }
+      if (Object.keys(updates).length > 0) {
+        dispatch(updateRoom(oldRoomDraft._id, updates));
       }
     });
 
-    // if roomName has changed, update the grouping in the store/db
+    // if roomName, dueDate, or roomSettings has changed, update the grouping in the store/db
+    const updates = {};
     if (roomName !== initialRoomName) {
+      updates.activityName = roomName;
+    }
+    if (dueDate !== selectedAssignment.dueDate) {
+      updates.dueDate = dueDate;
+    }
+    if (!isEqual(roomSettings, selectedAssignment.settings)) {
+      updates.settings = { ...roomSettings };
+    }
+
+    if (Object.keys(updates).length > 0) {
       dispatch(
-        updateGroupings(course, activity, selectedAssignment._id, roomName)
+        updateGroupings(course, activity, selectedAssignment._id, {
+          ...updates,
+        })
       );
     }
     close();
@@ -196,6 +213,18 @@ const EditRooms = (props) => {
     const indexOfLastSlash = url.lastIndexOf('/');
     history.push(`${url.slice(0, indexOfLastSlash + 1)}rooms`);
   };
+
+  const getCourseName = (courseId) => {
+    return (courses[courseId] && courses[courseId].name) || null;
+  };
+
+  const headerComponent = (
+    // eslint-disable-next-line jsx-a11y/label-has-associated-control
+    <label htmlFor="room-settings" className={classes.SortText}>
+      Room Settings:
+      <div className={classes.SortSelection}>{roomSettingsComponent}</div>
+    </label>
+  );
 
   const assignmentMatrix = (
     <AssignmentMatrix
@@ -211,6 +240,8 @@ const EditRooms = (props) => {
       userId={userId}
       roomDrafts={roomDrafts}
       canDeleteRooms={false}
+      getCourseName={getCourseName}
+      headerComponent={headerComponent}
     />
   );
 
@@ -241,7 +272,6 @@ const EditRooms = (props) => {
 
   return (
     <AssignRooms
-      initialAliasMode={selectedAssignment.aliasMode || false}
       initialDueDate={selectedAssignment.dueDate || ''}
       initialRoomName={
         selectedAssignment.roomName ||
@@ -270,7 +300,7 @@ EditRooms.propTypes = {
   course: PropTypes.shape({ _id: PropTypes.string }),
   selectedAssignment: PropTypes.shape({
     _id: PropTypes.string,
-    aliasMode: PropTypes.bool,
+    settings: PropTypes.shape({}),
     dueDate: PropTypes.string,
     roomName: PropTypes.string,
     value: PropTypes.arrayOf(PropTypes.shape({})),
@@ -279,11 +309,14 @@ EditRooms.propTypes = {
   userId: PropTypes.string.isRequired,
   close: PropTypes.func.isRequired,
   participants: PropTypes.arrayOf(PropTypes.shape({})),
+  roomSettings: PropTypes.shape({}).isRequired,
+  roomSettingsComponent: PropTypes.node,
 };
 
 EditRooms.defaultProps = {
   course: null,
   participants: [],
+  roomSettingsComponent: null,
 };
 
 export default EditRooms;

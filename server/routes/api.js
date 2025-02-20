@@ -16,10 +16,27 @@ const {
   setParamsId,
 } = require('../middleware/utils/request');
 const { findAllMatching } = require('../middleware/utils/helpers');
-const status = require('../constants/status');
+const STATUS = require('../constants/status');
 
 router.param('resource', middleware.validateResource);
 router.param('id', middleware.validateId);
+
+router.get(
+  '/:resource/getFieldsUnpopulated',
+  middleware.validateUser,
+  (req, res) => {
+    const resource = getResource(req);
+    const controller = controllers[resource];
+    const { fields, skip, limit } = req.query;
+    controller
+      .getFieldsUnpopulated(fields, skip, limit)
+      .then((result) => res.json({ result }))
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(`Error get ${resource}/getFieldsUnpopulated: ${err}`);
+      });
+  }
+);
 
 router.get('/:resource', middleware.validateUser, (req, res) => {
   const resource = getResource(req);
@@ -79,8 +96,9 @@ router.get('/search/:resource', (req, res) => {
   text = text.replace(/\s+/g, '');
   const regex = new RegExp(text, 'i');
   // console.log('Search: ', req.params.resource, ' for ', regex);
+  const exclude = req.query.exclude || [];
   controller
-    .search(regex, req.query.exclude)
+    .search(regex, exclude)
     .then((results) => {
       res.json({ results });
     })
@@ -172,16 +190,17 @@ router.get('/findAllMatching/:resource', (req, res) => {
     });
 });
 
-router.get('/findAllMatchingIds/:resource/populated', (req, res) => {
+// using post because we might get a lot of ids
+router.post('/findAllMatchingIds/:resource/populated', (req, res) => {
   const resource = getResource(req);
   const controller = controllers[resource];
-  const { ids = [], events = false } = req.query;
+  const { ids = [], events = false, ...others } = req.body;
 
   try {
     return controller
-      .getPopulatedById(ids, { events })
+      .getPopulatedById(ids, { events, ...others })
       .select(
-        'creator user chat members currentMembers course activity tabs createdAt updatedAt name'
+        'creator user chat members currentMembers course activity tabs createdAt updatedAt name status'
       )
       .then((results) => res.json({ results }));
   } catch (err) {
@@ -235,6 +254,23 @@ router.get('/dashboard/:resource', middleware.validateUser, (req, res) => {
       return errors.sendError.InternalError(msg, res);
     });
 });
+
+router.get(
+  '/getAllRooms/:resource/:id',
+  middleware.validateUser,
+  (req, res) => {
+    const { id, resource } = req.params;
+    const controller = controllers[resource];
+
+    return controller
+      .getAllRooms(id, req.query)
+      .then((result) => res.json({ result }))
+      .catch((err) => {
+        console.error(`Error getting ${resource} rooms/${id}:`, err);
+        errors.sendError.InternalError(err, res);
+      });
+  }
+);
 
 // returns a record with all of its info populated including sensitive information about record members etc.
 router.get(
@@ -306,6 +342,33 @@ router.get('/:resource/:id/:tempRoom', (req, res) => {
       return errors.sendError.InternalError(msg, res);
     });
 });
+
+// route for getUsersByResource
+router.get(
+  '/:resource/:id/users/:fields',
+  middleware.validateUser,
+  (req, res) => {
+    const id = getParamsId(req);
+    const resource = getResource(req);
+    const fields = req.params.fields.split(',');
+    const userController = controllers.user;
+    userController
+      .getUsersByResource(resource, id, fields)
+      .then((result) => {
+        res.json({ result });
+      })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(`Error get ${resource}/${id}/users: ${err}`);
+        let msg = null;
+
+        if (typeof err === 'string') {
+          msg = err;
+        }
+        return errors.sendError.InternalError(msg, res);
+      });
+  }
+);
 
 const ggbUpload = multer({
   storage: multer.memoryStorage(),
@@ -502,10 +565,11 @@ router.put('/:resource/:id', middleware.validateUser, (req, res) => {
 
 router.put('/archiveRooms', (req, res) => {
   const { ids = [] } = req.body;
-  const body = { status: status.ARCHIVED };
+  const body = { status: STATUS.ARCHIVED };
 
   const updatedReq = setResource(req, 'rooms');
 
+  // @TODO: Send all ids to mongo on archive / unarchive
   return Promise.all(
     ids.map((id) => {
       const newReq = setParamsId(updatedReq, id);
@@ -529,6 +593,55 @@ router.put('/archiveRooms', (req, res) => {
       });
     })
   ).then(() => res.sendStatus(200));
+});
+
+router.put('/addMemberToArchivedRooms', (req, res) => {
+  const { member, archivedRoomIds } = req.body;
+  const roomController = controllers.rooms;
+  const userController = controllers.user;
+  // add archivedRooms to user's archive
+  // add the user to all archived rooms
+  const promises = archivedRoomIds.map((roomId) =>
+    roomController.addMember(roomId, member)
+  );
+  promises.push(
+    userController.addArchivedRooms(member.user._id, archivedRoomIds)
+  );
+
+  return Promise.all(promises)
+    .then(() => res.sendStatus(200))
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(`Error adding member to archived rooms: ${err}`);
+
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+
+      return errors.sendError.InternalError(msg, res);
+    });
+});
+
+router.put('/updateUsernames', middleware.validateUser, (req, res) => {
+  const { users } = req.body;
+  const userController = controllers.user;
+  return userController
+    .updateUsernames(users)
+    .then(() => res.sendStatus(200))
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(`Error updating usernames: ${err}`);
+
+      let msg = null;
+
+      if (typeof err === 'string') {
+        msg = err;
+      }
+
+      return errors.sendError.InternalError(msg, res);
+    });
 });
 
 // router.delete("/:resource/:id", middleware.validateUser, (req, res, next) => {

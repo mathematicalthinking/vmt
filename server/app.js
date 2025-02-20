@@ -25,7 +25,11 @@ console.log('NODE_ENV=', process.env.NODE_ENV);
 
 const mongoURI = process.env.MONGO_URI;
 const isSecure = !mongoURI.includes('localhost');
-let mongoOptions = { useNewUrlParser: true, poolSize: 10 };
+let mongoOptions = {
+  useNewUrlParser: true,
+  poolSize: 10,
+  compressors: 'snappy',
+};
 if (isSecure) {
   mongoOptions = {
     ...mongoOptions,
@@ -60,9 +64,7 @@ if (process.env.NODE_ENV === 'development') {
   // only log errors on deployment
   app.use(
     logger('dev', {
-      skip: function(req, res) {
-        return res.statusCode < 400;
-      },
+      skip: (req, res) => res.statusCode < 400,
     })
   );
 }
@@ -120,8 +122,14 @@ app.get('/*', (req, res) => {
 });
 
 // catch 404 and forward to error handler
-app.use((_, __, next) => {
-  const err = new Error('Not Found');
+app.use((req, res, next) => {
+  const err = new Error(`Not Found: ${req.originalUrl}`);
+  console.log('Time of 404 error:', new Date());
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+  console.log('Method:', req.method);
+  console.log('URL:', req.originalUrl);
+  console.log('Query:', req.query);
   err.status = 404;
   next(err);
 });

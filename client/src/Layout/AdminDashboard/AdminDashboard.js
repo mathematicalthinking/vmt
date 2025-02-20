@@ -2,16 +2,16 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker-cssmodules.css';
-import DashboardBoxList from '../DashboardBoxList/DashboardBoxList';
 import {
   Search,
   CustomLink,
   Button,
   RadioBtn,
   InfoBox,
-} from '../../Components';
-// import Button from '../../Components/UI/Button/Button';
+  SimpleLoading,
+} from 'Components';
+import 'react-datepicker/dist/react-datepicker-cssmodules.css';
+import DashboardBoxList from '../DashboardBoxList/DashboardBoxList';
 import classes from './adminDashboard.css';
 
 class AdminDashboard extends Component {
@@ -45,6 +45,8 @@ class AdminDashboard extends Component {
       setToDate,
       manageUser,
       ownUserId,
+      isLoading,
+      getIconActions,
     } = this.props;
 
     const totalCount = totalCounts ? totalCounts.totalCount || 0 : 0;
@@ -58,7 +60,7 @@ class AdminDashboard extends Component {
       resultsMessage = `A total of ${totalCount} ${displayResource} ${hasHave} been updated within the selected time period. To be considered updated, either one or more room details, such as name, instructions, members, were updated, or one or more events and/or messages were created.`;
     } else if (resource === 'users') {
       displayResource = totalCount === 1 ? 'user' : 'users';
-      resultsMessage = `A total of ${totalCount} ${displayResource} ${hasHave} been active within the selected time period. "Active" in this case means that the user made a network request while logged in.`;
+      resultsMessage = `A total of ${totalCount} ${displayResource} ${hasHave} been active within the selected time period. "Active" in this case means that the user made a network request while logged in or was added to or removed from a resource.`;
     }
     return (
       <div className={classes.Container}>
@@ -155,8 +157,14 @@ class AdminDashboard extends Component {
                 ) : null}
               </Fragment>
             </InfoBox>
+            <div className={classes.LoadMore}>
+              <Button m={20} disabled={!moreAvailable} click={setSkip}>
+                load more results
+              </Button>
+            </div>
           </div>
         </div>
+
         <div
           className={classes.List}
           style={{
@@ -165,21 +173,21 @@ class AdminDashboard extends Component {
               : 260,
           }}
         >
-          <DashboardBoxList
-            list={visibleResources}
-            resource={resource}
-            linkPath={linkPath}
-            linkSuffix={linkSuffix}
-            listType="public"
-            resultsMessage={resultsMessage}
-            manageUser={manageUser}
-            ownUserId={ownUserId}
-          />
-          <div className={classes.LoadMore}>
-            <Button m={20} disabled={!moreAvailable} click={setSkip}>
-              load more results
-            </Button>
-          </div>
+          {isLoading ? (
+            <SimpleLoading />
+          ) : (
+            <DashboardBoxList
+              list={visibleResources}
+              resource={resource}
+              linkPath={linkPath}
+              linkSuffix={linkSuffix}
+              listType="public"
+              resultsMessage={resultsMessage}
+              manageUser={manageUser}
+              ownUserId={ownUserId}
+              getIconActions={getIconActions}
+            />
+          )}
         </div>
       </div>
     );
@@ -216,6 +224,8 @@ AdminDashboard.propTypes = {
   setToDate: PropTypes.func.isRequired,
   manageUser: PropTypes.func.isRequired,
   ownUserId: PropTypes.string.isRequired,
+  getIconActions: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
 };
 
 export default AdminDashboard;

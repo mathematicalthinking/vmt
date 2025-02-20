@@ -23,15 +23,6 @@ class MyVMT extends Component {
   };
 
   componentDidMount() {
-    // this.fetchData(this.props.match.params.resource)
-    // if (!this.props.user.justLoggedIn) {
-    // this.props.getUser(this.props.user._id)
-    // }
-    // this.checkMultipleRoles()
-    //   .then(res => this.setDisplayResources())
-    //   .then(res => {
-    //     this.props.toggleJustLoggedIn();
-    //   });
     this.updateTabs();
   }
 
@@ -85,8 +76,6 @@ class MyVMT extends Component {
     const { user, match } = this.props;
     const { bothRoles, view, tabs } = this.state;
     const { resource } = match.params;
-    // eslint-disable-next-line react/destructuring-assignment
-
     const additionalDetails = {
       courses: user.courses.length,
       rooms: user.rooms.length,

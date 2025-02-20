@@ -9,8 +9,6 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { isNil, isEqual } = require('lodash');
-const controllers = require('../controllers');
-// const Course = require('../models/Course');
 const User = require('../models/User');
 const errors = require('../middleware/errors');
 const {
@@ -49,6 +47,18 @@ router.post('/login', async (req, res) => {
   return login(req, res);
 });
 
+router.post('/oauthReturn', (req, res) => {
+  const user = getUser(req);
+  if (user) recordLogin(user._id);
+  return res.json({ result: 'success' });
+});
+
+const recordLogin = async (userId) => {
+  await User.findByIdAndUpdate(userId, {
+    lastLogin: new Date(),
+  });
+};
+
 const login = async (req, res) => {
   try {
     const { message, accessToken, refreshToken } = await ssoService.login(
@@ -59,29 +69,8 @@ const login = async (req, res) => {
     }
 
     const verifiedToken = await jwt.verify(accessToken, secret);
-    const vmtUser = await User.findById(verifiedToken.vmtUserId)
-      .populate({
-        path: 'courses',
-        populate: { path: 'members.user', select: 'username' },
-      })
-      .populate({
-        path: 'rooms',
-        select: '-currentState',
-        populate: {
-          path: 'tabs members.user',
-          select: 'username tabType desmosLink name instructions',
-        },
-      })
-      .populate({
-        path: 'activities',
-        populate: { path: 'tabs' },
-      })
-      .populate({
-        path: 'notifications',
-        populate: { path: 'fromUser', select: '_id username' },
-      })
-      .lean()
-      .exec();
+    recordLogin(verifiedToken.vmtUserId);
+    const vmtUser = await userController.getById(verifiedToken.vmtUserId);
 
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken);
@@ -89,6 +78,7 @@ const login = async (req, res) => {
     const data = vmtUser;
     return res.json(data);
   } catch (err) {
+    console.log('err login', err);
     return errors.sendError.InternalError(null, res);
   }
 };
@@ -260,31 +250,8 @@ router.post('/resetPassword/:token', async (req, res) => {
       res.json({ message });
       return;
     }
-    // await jwt.verify(accessToken, process.env.MT_USER_JWT_SECRET);
 
-    const vmtUser = await User.findById(user.vmtUserId)
-      .populate({
-        path: 'courses',
-        populate: { path: 'members.user', select: 'username' },
-      })
-      .populate({
-        path: 'rooms',
-        select: '-currentState',
-        populate: {
-          path: 'tabs members.user',
-          select: 'username name tabType desmosLink',
-        },
-      })
-      .populate({
-        path: 'activities',
-        populate: { path: 'tabs', select: 'name tabType desmosLink' },
-      })
-      .populate({
-        path: 'notifications',
-        populate: { path: 'fromUser', select: '_id username' },
-      })
-      .lean()
-      .exec();
+    const vmtUser = await userController.getById(user.vmtUserId);
 
     setSsoCookie(res, accessToken);
     setSsoRefreshCookie(res, refreshToken);
@@ -380,6 +347,30 @@ router.put('/sso/user/:id', async (req, res) => {
       { new: true }
     );
     return res.json(vmtUser);
+  } catch (err) {
+    return errors.handleError(err, res);
+  }
+});
+
+router.put('/sso/usernames', async (req, res) => {
+  try {
+    const authToken = extractBearerToken(req);
+    await jwt.verify(authToken, secret);
+    const { users } = req.body;
+    const usernameMap = new Map(users.map((user) => [user._id, user.username]));
+
+    const updatedUserIds = users.map((user) => user._id);
+    const updatedUsers = await User.find({ ssoId: { $in: updatedUserIds } });
+
+    const bulkOps = updatedUsers.map((user) => ({
+      updateOne: {
+        filter: { _id: user._id },
+        update: { username: usernameMap.get(user.ssoId.toString()) },
+      },
+    }));
+
+    await User.bulkWrite(bulkOps);
+    return res.json(users);
   } catch (err) {
     return errors.handleError(err, res);
   }

@@ -19,6 +19,7 @@ import {
 } from 'utils';
 import { SelectAssignments, EditRooms, MakeRooms } from 'Containers';
 import { DashboardLayout, SidePanel, DashboardContent } from 'Layout';
+import { TabTypes } from 'Model';
 import {
   getCourses,
   getRooms,
@@ -40,7 +41,7 @@ class Activity extends Component {
         { name: 'Assign' },
         { name: 'Edit Assignments' },
         { name: 'Rooms' },
-        { name: 'Preview' },
+        { name: 'Monitor & Review' },
       ],
       editing: false,
       name: activity ? activity.name : null,
@@ -188,12 +189,14 @@ class Activity extends Component {
             resource={resource}
             parentResource={course ? 'courses' : 'activities'}
             parentResourceId={course ? course._id : activity._id}
+            parentActivityId={activity ? activity._id : null}
+            parentCourseId={course ? course._id : null}
             activityOwner={owner || user.isAdmin}
             context="activity"
             selectableBoxList
           />
         );
-      case 'preview':
+      case 'monitor & review':
         return <TemplatePreview activity={activity} />;
       case 'edit assignments':
         return (
@@ -287,15 +290,21 @@ class Activity extends Component {
         ),
         ...(desmosActivityCode !== ''
           ? {
-              'Desmos Activity Code': (
+              'Activity Code': (
                 <a
                   style={{
                     color: 'blueviolet',
                     textDecorationLine: 'underline',
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-all',
                   }}
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={getDesmosActivityUrl(desmosActivityCode)}
+                  href={
+                    activity.tabs[0].tabType === TabTypes.DESMOS_ACTIVITY
+                      ? getDesmosActivityUrl(desmosActivityCode)
+                      : desmosActivityCode
+                  }
                   data-testid="desmos-link"
                 >
                   {desmosActivityCode}
@@ -390,6 +399,7 @@ class Activity extends Component {
                             click={this.updateActivity}
                             data-testid="save-template"
                             theme="Small"
+                            p="5px 10px"
                           >
                             Save
                           </Button>
@@ -400,7 +410,11 @@ class Activity extends Component {
                           >
                             <i className="fas fa-trash-alt" />
                           </Button>
-                          <Button click={this.toggleEdit} theme="Cancel">
+                          <Button
+                            click={this.toggleEdit}
+                            theme="Cancel"
+                            p="5px 10px"
+                          >
                             Cancel
                           </Button>
                         </div>
@@ -451,8 +465,7 @@ class Activity extends Component {
         resourceId={match.params.activity_id}
         userId={user._id}
         username={user.username}
-        privacySetting={activity ? activity.privacySetting : 'private'}
-        // owners={activity && activity.creator ? [activity.creator] : []}
+        privacySetting={(activity && activity.privacySetting) || 'private'}
         owners={[
           ...(activity && activity.creator ? [activity.creator] : []),
           ...(activity && activity.users ? activity.users : []),

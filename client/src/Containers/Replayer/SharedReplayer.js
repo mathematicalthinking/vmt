@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Button, TabTypes, CurrentMembers, Error, Loading } from 'Components';
+import { Button, CurrentMembers, Error, Loading } from 'Components';
+import { TabTypes } from 'Model';
 import { WorkspaceLayout } from 'Layout';
 import { dateAndTime } from 'utils';
 import ReplayerControls from './ReplayerControls';
@@ -242,9 +243,9 @@ class SharedReplayer extends Component {
   _setInitialMathState = () => {
     const { populatedRoom } = this.props;
     populatedRoom.tabs.forEach((tab) => {
-      if (tab.tabType === 'geogebra') {
+      if (tab.tabType === 'geogebra' || tab.tabType === 'pyret') {
         this.setState({
-          mathState: { [tab._id]: tab.startingPointBase64 },
+          mathState: { [tab._id]: tab.startingPointBase64 || tab.desmosLink },
         });
       } else if (tab.tabType === 'desmos') {
         this.setState({
@@ -561,11 +562,8 @@ class SharedReplayer extends Component {
           tabs={
             <Tabs
               tabs={populatedRoom.tabs}
-              changeTabs={this.changeTab}
               currentTabId={currentTabId}
-              participantCanCreate={false}
-              replayer
-              memberRole="participant" // this controls the user's ability to make a new tab...we don't want them to make a new a tab in the replayer no matter what their role is
+              onChangeTab={this.changeTab}
             />
           }
           currentMembers={
@@ -575,6 +573,7 @@ class SharedReplayer extends Component {
                 currentMembers={currentMembers}
                 expanded
                 activeMember={activeMember}
+                inControl={activeMember}
               />
             ) : null
           }

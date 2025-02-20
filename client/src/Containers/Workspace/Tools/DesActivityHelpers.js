@@ -2,8 +2,7 @@
 const baseURL = 'https://teacher.desmos.com/activitybuilder/export/'; // + activity code
 
 // utility for getting Desmos Activity Confguration from tab state
-export const fetchConfigData = async (tab) => {
-  console.log('Tab data: ', tab);
+export const fetchConfigData = async (tab, shouldLoadCurrent = false) => {
   // setting our return object
   const configData = {};
   // Room condition
@@ -17,6 +16,8 @@ export const fetchConfigData = async (tab) => {
     ) {
       configData.config = JSON.parse(tab.startingPointBase64);
       configData.status = 'Prior content loaded';
+      if (shouldLoadCurrent)
+        configData.responseData = JSON.parse(tab.currentStateBase64);
       return configData;
     }
   }
@@ -55,7 +56,6 @@ export const fetchConfigData = async (tab) => {
     }
     const data = await result.json();
     configData.config = data;
-    console.log('ConfigData: ', configData);
     return configData;
   } catch (err) {
     configData.config = null;
@@ -91,6 +91,13 @@ export const initializeNewDesmosActivity = async (roomConfig) => {
     startingPointBase64: JSON.stringify(configData.config),
     currentStateBase64: JSON.stringify(responses),
   };
+};
+
+export const extractActivityCode = (url) => {
+  const CODE_LENGTH = 24;
+  const link = url.split('/');
+  const code = link[link.length - 1].slice(0, CODE_LENGTH);
+  return code;
 };
 // Activity Confguration MetaData Schemas
 // Schemas should conform to JSON Schema syntax. See: https://json-schema.org/

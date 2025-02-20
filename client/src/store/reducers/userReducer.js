@@ -84,26 +84,26 @@ const reducer = (state = initialState, action) => {
       return { ...state, rooms };
     }
     case actionTypes.ADD_ROOM_TO_ARCHIVE: {
-      // create a default structure if one doesn't exist
-      const prevArchivedRooms = state.archive && state.archive.rooms ? [...state.archive.rooms] : [];
+      const prevArchivedRooms = (state.archive && state.archive.rooms) || [];
       return {
         ...state,
         archive: {
           ...state.archive,
           rooms: [...prevArchivedRooms, action.roomId],
         },
-        rooms: state.rooms.filter((room) => room !== action.roomId),
+        rooms: (state.rooms || []).filter((room) => room !== action.roomId),
       };
     }
-    case actionTypes.REMOVE_ROOM_FROM_ARCHIVE: {
-      const rooms = state.archive.rooms.filter((id) => id !== action.id);
+    case actionTypes.UNARCHIVE_USER_ROOM: {
+      const rooms = (state.archive && state.archive.rooms) || [];
+      const updatedArchivedRooms = rooms.filter((id) => id !== action.roomId);
       return {
         ...state,
         archive: {
           ...state.archive,
-          rooms,
+          rooms: updatedArchivedRooms,
         },
-        rooms: [...state.rooms, action.id],
+        rooms: [...(state.rooms || []), action.roomId],
       };
     }
     case actionTypes.ADD_NOTIFICATION: {
@@ -130,18 +130,18 @@ const reducer = (state = initialState, action) => {
         loginError: '',
       };
     }
-    case 'STORE_PRESUMPTIVE_GMAIL': {
+    case actionTypes.STORE_PRESUMPTIVE_GMAIL: {
       const { presumptiveEmailAddress } = action.payload;
       return {
         ...state,
         presumptiveEmailAddress,
       };
     }
-    case actionTypes.UPDATE_RESOURCELIST_STATE: {
-      const { context, newState } = action;
+    case actionTypes.SAVE_COMPONENT_UI_STATE: {
+      const { key, value } = action;
       return {
         ...state,
-        resourceListState: { ...state.resourceListState, [context]: newState },
+        uiState: { ...state.uiState, [key]: value },
       };
     }
     default:

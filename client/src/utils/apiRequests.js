@@ -5,9 +5,23 @@ const baseURL = window.env.REACT_APP_SERVER_URL;
 // console.log('server url: ', baseURL);
 const api = axios.create({ baseURL });
 
+const _getAllRooms = (
+  resource,
+  id,
+  options = { since: '', isActive: 'false' }
+) => {
+  return api.get(
+    `/api/getAllRooms/${resource}/${id}?since=${options.since}&isActive=${options.isActive}`
+  );
+};
+
 export default {
-  get: (resource, params) => {
-    return api.get(`/api/${resource}`, params ? { params } : {});
+  get: (resource, params, signal) => {
+    const config = { params };
+    if (signal) {
+      config.signal = signal;
+    }
+    return api.get(`/api/${resource}`, config);
   },
 
   // returns resources that contain any of the values in any of the fields
@@ -17,10 +31,9 @@ export default {
     });
   },
 
-  findAllMatchingIdsPopulated: (resource, ids, events) => {
-    return api.get(`/api/findAllMatchingIds/${resource}/populated`, {
-      params: { ids, events },
-    });
+  findAllMatchingIdsPopulated: (resource, ids, events, lastQueryTimes) => {
+    const body = { ids, events, lastQueryTimes };
+    return api.post(`/api/findAllMatchingIds/${resource}/populated`, body);
   },
 
   search: (resource, text, exclude) => {
@@ -145,6 +158,7 @@ export default {
   grantAccess: (user, resource, resourceId, ntfType, options) => {
     return api.put(`/api/${resource}s/${resourceId}/add`, {
       members: {
+        ...options,
         user,
         role: options && options.role ? options.role : 'participant',
       },
@@ -177,7 +191,7 @@ export default {
   uploadGgbFiles: (formData) => {
     return api.post(`/api/upload/ggb`, formData);
   },
-  getRecentActivity: (resource, criteria, skip, filters) => {
+  getRecentActivity: (resource, criteria, skip, filters, signal) => {
     const { since, to } = filters;
     const params = criteria ? { criteria, skip } : { skip };
     if (since !== null) params.since = since;
@@ -188,7 +202,11 @@ export default {
     if (resource === 'users') {
       resource = 'user';
     }
-    return api.get(`/api/dashBoard/${resource}`, { params });
+    const config = { params };
+    if (signal) {
+      config.signal = signal;
+    }
+    return api.get(`/api/dashBoard/${resource}`, config);
   },
 
   revokeRefreshToken: (userId) => {
@@ -200,8 +218,60 @@ export default {
   reinstateUser: (userId) => {
     return api.post(`/admin/reinstateUser/${userId}`);
   },
+  removeAsAdmin: (userId) => {
+    return api.put(`/api/user/${userId}`, { isAdmin: false });
+  },
+  makeAdmin: (userId) => {
+    return api.put(`/api/user/${userId}`, { isAdmin: true });
+  },
 
   archiveRooms: (ids) => {
     return api.put(`/api/archiveRooms`, { ids });
+  },
+
+  getAllCourseRooms: (id, options) => _getAllRooms('courses', id, options),
+  getAllUserRooms: (id, options) => _getAllRooms('user', id, options),
+  getAllTemplateRooms: (id, options) => _getAllRooms('activities', id, options),
+
+  addMemberToArchivedRooms: (member, archivedRoomIds) => {
+    return api.put(`/api/addMemberToArchivedRooms`, {
+      member,
+      archivedRoomIds,
+    });
+  },
+
+  getFieldsUnpopulated: async (resource, params) => {
+    const results = await api.get(`/api/${resource}/getFieldsUnpopulated`, {
+      params,
+    });
+    return results.data.result;
+  },
+
+  getUsersByResource: (resource, resourceId, fields = []) => {
+    return api.get(
+      `/api/${resource}/${resourceId}/users/${fields.join(', ')}`,
+      {
+        params: { fields },
+      }
+    );
+  },
+
+  updateUsernames: async (users) => {
+    try {
+      // Try to update usernames in SSO
+      const resSSO = await api.put('/admin/updateUsernames', { users });
+
+      if (resSSO.status !== 200) {
+        return resSSO;
+      }
+
+      // Proceed to update usernames in VMT if SSO update was successful
+      const resVMT = await api.put('/api/updateUsernames', { users });
+      return resVMT;
+    } catch (error) {
+      // Handle any unexpected errors
+      console.error('Error in updateUsernames:', error);
+      return { status: 500, message: 'Error updating usernames' };
+    }
   },
 };

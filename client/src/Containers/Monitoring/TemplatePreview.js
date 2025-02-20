@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
-import { usePopulatedRooms } from 'utils';
-import { Loading } from 'Components';
+import _keyBy from 'lodash/keyBy';
+import { SimpleLoading } from 'Components';
+import { usePopulatedRooms, useSortableData } from 'utils';
 import classes from './monitoringView.css';
 import RoomsMonitor from './RoomsMonitor';
 
@@ -14,48 +14,35 @@ import RoomsMonitor from './RoomsMonitor';
  */
 
 function TemplatePreview({ activity }) {
-  const [tabSelection, setTabSelection] = React.useState();
-  const [isThumbnailSelected, setIsThumbnailSelected] = React.useState(false);
+  const config = {
+    key: 'updatedAt',
+    direction: 'descending',
+  };
 
-  // Because "useQuery" is the equivalent of useState, do this
-  // initialization of queryStates (an object containing the states
-  // for the API-retrieved data) at the top level rather than inside
-  // of a useEffect.
-  const roomIds = activity.rooms
-    .sort(
-      (a, b) =>
-        // Sort the rooms into reverse chronological order (most recently changed first) as of when the course was loaded
-        new Date(b.updatedAt) - new Date(a.updatedAt)
-    )
-    .map((room) => room._id);
+  const roomIds = activity.rooms.map((room) => room._id);
+
   const populatedRooms = usePopulatedRooms(roomIds, false, {
     refetchInterval: 10000, // @TODO Should experiment with longer intervals to see what's acceptable to users (and the server)
   });
 
+  const { items: rooms } = useSortableData(
+    Object.values(populatedRooms.data || {}),
+    config
+  );
+
   if (populatedRooms.isError) return <div>There was an error</div>;
-  if (!populatedRooms.isSuccess) return <Loading message="Getting the rooms" />;
 
   return (
     <div className={classes.Container}>
-      {isThumbnailSelected && activity.tabs && activity.tabs.length > 1 && (
-        <div className={classes.MainSelect}>
-          <Select
-            options={activity.tabs.map((tab, index) => {
-              return { value: index, label: tab.name };
-            })}
-            value={tabSelection}
-            onChange={(selectedOption) => {
-              setTabSelection(selectedOption);
-            }}
-            placeholder="Select a Tab..."
-          />
-        </div>
+      {populatedRooms.isLoading ? (
+        <SimpleLoading />
+      ) : (
+        <RoomsMonitor
+          context={`template-${activity._id}`}
+          populatedRooms={_keyBy(rooms, '_id')}
+          isLoading={populatedRooms.isFetching ? roomIds : []}
+        />
       )}
-      <RoomsMonitor
-        populatedRooms={populatedRooms.data}
-        tabIndex={tabSelection && tabSelection.value}
-        onThumbnailSelected={setIsThumbnailSelected}
-      />
     </div>
   );
 }

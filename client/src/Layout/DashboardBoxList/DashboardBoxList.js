@@ -15,6 +15,7 @@ const dashboardBoxList = (props) => {
     resultsMessage,
     manageUser,
     ownUserId,
+    getIconActions,
   } = props;
   let listElems = 'No activity within specified time period';
   if (list.length > 0) {
@@ -37,6 +38,7 @@ const dashboardBoxList = (props) => {
           details._id = item._id;
           details.socketId = item.socketId;
           details.isSuspended = item.isSuspended;
+          details.lastLogin = item.lastLogin;
         }
 
         return (
@@ -56,6 +58,11 @@ const dashboardBoxList = (props) => {
               resource={resource}
               manageUser={manageUser}
               isSelf={item._id === ownUserId}
+              iconActions={getIconActions(
+                item,
+                resource,
+                item._id === ownUserId
+              )}
             />
           </div>
         );
@@ -97,6 +104,7 @@ dashboardBoxList.propTypes = {
   resultsMessage: PropTypes.string,
   manageUser: PropTypes.func.isRequired,
   ownUserId: PropTypes.string.isRequired,
+  getIconActions: PropTypes.func.isRequired,
 };
 
 dashboardBoxList.defaultProps = {

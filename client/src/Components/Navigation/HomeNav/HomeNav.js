@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { getVideosUrl } from 'utils';
 import NavItem from '../NavItem/NavItem';
 import Avatar from '../../UI/Avatar/Avatar';
 import DropdownNavItem from '../DropdownNavItem';
@@ -33,9 +34,32 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
     });
   }
 
+  const _handleExternalLinkClick = (url) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const _videoButton = () => {
+    return (
+      <button
+        onClick={() => _handleExternalLinkClick(getVideosUrl())}
+        style={{
+          border: 'none',
+          fontSize: 'inherit',
+          fontFamily: 'inherit',
+          background: 'inherit',
+          color: 'inherit',
+          fontWeight: 'inherit',
+        }}
+      >
+        Help Videos
+      </button>
+    );
+  };
+
   const aboutList = [
     { name: 'About', link: '/about' },
-    { name: 'Instructions', link: '/instructions' },
+    // { name: 'Instructions', link: '/instructions' },
+    { name: 'Help Videos', sliderDetails: { customComponent: _videoButton() } },
     { name: 'FAQ', link: '/faq' },
     { name: 'Contact', link: '/contact' },
   ];
@@ -63,17 +87,22 @@ const Navbar = ({ page, user, loggedIn, isDark, toggleAdmin }) => {
             )}
             <NavItem
               link="/community/rooms?privacy=all&roomType=all"
+              pattern="/community"
               name="Community"
             />
-            {/* optional monitoring link from home */}
-            {/* {user.accountType === 'facilitator' ? (
-              <NavItem link="/myVMT/monitor" name="Monitor" />
-            ) : null} */}
             {user.isAdmin ? (
-              <NavItem link="/myVMT/dashboard/rooms" name="Dashboard" />
+              <NavItem
+                link="/myVMT/dashboard/rooms"
+                pattern="/myVMT/dashboard"
+                name="Dashboard"
+              />
             ) : null}
             {loggedIn ? (
-              <NavItem link="/archive/rooms?roomType=all" name="Archive" />
+              <NavItem
+                link="/archive/rooms?roomType=all"
+                pattern="/archive"
+                name="Archive"
+              />
             ) : null}
             <DropdownNavItem
               name={<span>Info</span>}

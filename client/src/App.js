@@ -2,10 +2,9 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from 'react-query';
-import MyVmt from './Routes/MyVmt';
-import Home from './Routes/Home';
-import SocketProvider from './Components/HOC/SocketProvider';
-import GeneralModal from './Components/GeneralModal';
+import MyVmt from 'Routes/MyVmt';
+import Home from 'Routes/Home';
+import { SocketProvider, GeneralModal, IdleDetector } from 'Components';
 
 import configureStore from './configureStore';
 import './global.css';
@@ -33,14 +32,20 @@ const App = () => (
       <QueryClientProvider client={queryClient}>
         <Router onUpdate={hashLinkScroll}>
           <div
-            style={{ display: 'flex', flexFlow: 'column', minHeight: '100vh' }}
+            style={{
+              display: 'flex',
+              flexFlow: 'column',
+              minHeight: '100vh',
+            }}
           >
-            <GeneralModal>
-              <Switch>
-                <Route path="/myVMT" component={MyVmt} />
-                <Route path="/" component={Home} />
-              </Switch>
-            </GeneralModal>
+            <IdleDetector>
+              <GeneralModal>
+                <Switch>
+                  <Route path="/myVMT" component={MyVmt} />
+                  <Route path="/" component={Home} />
+                </Switch>
+              </GeneralModal>
+            </IdleDetector>
           </div>
         </Router>
       </QueryClientProvider>

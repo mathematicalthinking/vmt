@@ -1,14 +1,19 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import Select from 'react-select';
 import PropTypes from 'prop-types';
-import { useSortableData, timeFrames, amIAFacilitator } from 'utils';
+import {
+  useSortableData,
+  timeFrames,
+  amIAFacilitator,
+  useUIState,
+  GOOGLE_ICONS,
+  getGoogleIcons,
+} from 'utils';
 import SelectableBoxList from 'Layout/SelectableBoxList/SelectableBoxList';
-import { Button, Modal, BigModal, Search, ToolTip } from 'Components';
+import { Button, BigModal, Modal, SortUI, ToolTip } from 'Components';
 import { RoomPreview } from 'Containers';
-import { updateRoom, archiveRooms } from 'store/actions';
-import { STATUS } from 'constants.js';
+import { archiveRooms } from 'store/actions';
 import BoxList from '../../BoxList/BoxList';
 import NewResource from '../../../Containers/Create/NewResource/NewResource';
 import classes from './resourceList.css';
@@ -17,18 +22,18 @@ const ResourceList = ({
   resource,
   parentResource,
   parentResourceId,
+  parentActivityId,
+  parentCourseId,
   user,
   userResources,
   notifications,
-  resourceState,
-  setResourceState,
   selectableBoxList,
-  context,
+  context, // provides the context in which ResourceList is being used
 }) => {
   const initialConfig = {
     key: 'updatedAt',
     direction: 'descending',
-    filter: { timeframe: timeFrames.LASTWEEK, key: 'updatedAt' },
+    filter: { timeframe: timeFrames.LASTMONTH, key: 'updatedAt' },
   };
 
   const history = useHistory();
@@ -40,18 +45,24 @@ const ResourceList = ({
   const [roomPreviewComponent, setRoomPreviewComponent] = useState(null);
   const [showRoomPreview, setShowRoomPreview] = useState(false);
 
+  // store and restore the state of the sort/filters for when the user navigates away and back
+  const [resourceState, setResourceState] = useUIState(context, {
+    facilitatorConfig: initialConfig,
+    participantConfig: initialConfig,
+  });
+
   // Use useSortableData hook to enable user-controlled sorting
   const {
     items: facilitatorItems,
     resetSort: facilitatorRequestSort,
     sortConfig: facilitatorSortConfig,
-  } = useSortableData(fList, resourceState.facilitatorConfig || initialConfig);
+  } = useSortableData(fList, resourceState.facilitatorConfig);
 
   const {
     items: participantItems,
     resetSort: participantRequestSort,
     sortConfig: participantSortConfig,
-  } = useSortableData(pList, resourceState.participantConfig || initialConfig);
+  } = useSortableData(pList, resourceState.participantConfig);
 
   const keys = [
     { property: 'updatedAt', name: 'Last Updated' },
@@ -59,6 +70,14 @@ const ResourceList = ({
     { property: 'createdAt', name: 'Created Date' },
     { property: 'dueDate', name: 'Due Date' },
   ];
+
+  // if the UI state changes, update the UIState variable
+  useEffect(() => {
+    setResourceState({
+      facilitatorConfig: facilitatorSortConfig,
+      participantConfig: participantSortConfig,
+    });
+  }, [facilitatorSortConfig, participantSortConfig]);
 
   useEffect(() => {
     const { facilitatorList, participantList } = sortUserResources(
@@ -68,17 +87,9 @@ const ResourceList = ({
     setFacilitatorList(facilitatorList);
     setParticipantList(participantList);
 
-    facilitatorRequestSort(resourceState.facilitatorConfig || initialConfig);
-    participantRequestSort(resourceState.participantConfig || initialConfig);
+    facilitatorRequestSort(resourceState.facilitatorConfig);
+    participantRequestSort(resourceState.participantConfig);
   }, [userResources]);
-
-  useEffect(() => {
-    if (setResourceState)
-      setResourceState({
-        facilitatorConfig: facilitatorSortConfig,
-        participantConfig: participantSortConfig,
-      });
-  }, [facilitatorSortConfig, participantSortConfig]);
 
   const sortUserResources = (resources) => {
     const facilitatorList = [];
@@ -126,43 +137,15 @@ const ResourceList = ({
   }
 
   let create;
-  if (
-    parentResource !== 'activities' &&
-    context !== 'activity' &&
-    user.accountType === 'facilitator'
-  ) {
-    // THIS SHOULD ACTUALLY CHANGE DEPENDING ON states CURRENT ROLE ?? MAYBE
+  if (!parentActivityId && user.accountType === 'facilitator') {
     create = (
       <NewResource
         resource={resource}
-        courseId={parentResource === 'courses' ? parentResourceId : null}
+        parentActivityId={parentActivityId}
+        parentCourseId={parentCourseId}
       />
     );
   }
-  /** consider storing a field like myRole on the actual resource in the store...we could compute this when its added to the store and then never again
-   * I feel like we are checking roles...which requires looping through the resources members each time.
-   */
-
-  const archiveButton = {
-    title: 'Archive',
-    onClick: (e, id) => {
-      e.preventDefault();
-      if (!id.length) return;
-      setShowArchiveComponent(true);
-      handleArchive(id);
-    },
-    icon: (
-      <ToolTip text="Archive" delay={600}>
-        <span
-          className={`material-symbols-outlined ${classes.CustomIcon}`}
-          data-testid="Archive"
-          style={{ fontSize: '23px' }}
-        >
-          input
-        </span>
-      </ToolTip>
-    ),
-  };
 
   const customIcons = [
     {
@@ -172,12 +155,9 @@ const ResourceList = ({
         setShowRoomPreview(true);
         goToRoomPreview(id);
       },
-      // icon: <i className="fas fa-external-link-alt" />,
       icon: (
         <ToolTip text="Preview" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            open_in_new
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.PREVIEW, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -189,9 +169,7 @@ const ResourceList = ({
       },
       icon: (
         <ToolTip text="Replayer" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            replay
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.REPLAYER, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -204,9 +182,7 @@ const ResourceList = ({
       },
       icon: (
         <ToolTip text="Archive" delay={600}>
-          <span className={`material-symbols-outlined ${classes.CustomIcon}`}>
-            input
-          </span>
+          {getGoogleIcons(GOOGLE_ICONS.ARCHIVE, [classes.CustomIcon])}
         </ToolTip>
       ),
     },
@@ -215,6 +191,49 @@ const ResourceList = ({
   const customIconsBoxList = [...customIcons].filter(
     (icon) => icon.title !== 'Archive'
   );
+
+  const archiveAllButton = {
+    title: 'Archive',
+    onClick: (e, selectedIds) => {
+      e.preventDefault();
+      const fListObj = fList.reduce((acc, curr) => {
+        return { ...acc, [curr._id]: curr };
+      }, {});
+      const selectedIdsToArchive = selectedIds.filter(
+        (roomId) => fListObj[roomId].status === 'default'
+      );
+      // do nothing onClick if there's nothing to archive
+      if (!selectedIdsToArchive.length) return;
+
+      setShowArchiveComponent(true);
+      handleArchive(selectedIdsToArchive);
+    },
+    generateIcon: (selectedIds) => {
+      // embolden the archive icon style
+      // for default status rooms within seletedIds
+
+      const fListObj = fList.reduce((acc, curr) => {
+        return { ...acc, [curr._id]: curr };
+      }, {});
+
+      const selectedIdsHasRoomsToArchive = selectedIds.some(
+        (id) => fListObj[id] && fListObj[id].status === 'default'
+      );
+      const fontWeight = selectedIdsHasRoomsToArchive ? 'normal' : '200';
+      const cursor = selectedIdsHasRoomsToArchive ? 'pointer' : 'default';
+      const style = { fontWeight, cursor };
+
+      return (
+        <ToolTip text="Archive" delay={600}>
+          {getGoogleIcons(
+            GOOGLE_ICONS.ARCHIVE,
+            [classes.CustomIcon, classes.SelectActionsIcon],
+            style
+          )}
+        </ToolTip>
+      );
+    },
+  };
 
   // create a handle multiple fn that calls this fn
   // get rid of singleResource
@@ -242,10 +261,7 @@ const ResourceList = ({
 
     const dispatchArchive = () => {
       if (singleResource) {
-        const rtnObj = {
-          status: STATUS.ARCHIVED,
-        };
-        dispatch(updateRoom(id, rtnObj));
+        dispatch(archiveRooms([id]));
       } else {
         dispatch(archiveRooms(id));
       }
@@ -318,78 +334,106 @@ const ResourceList = ({
       .map((res) => res.name);
   };
 
-  const selectActions = [archiveButton];
+  const SelectableBoxListCustomStyles = {
+    container: {},
+    header: {
+      maxWidth: '575px',
+      height: '35px',
+    },
+    checkbox: {
+      padding: '10px',
+      marginRight: '2rem',
+      background: 'rgb(239, 243, 246)',
+      border: '1px solid #ddd',
+      fontWeight: '600',
+      fontSize: '1.1em',
+      borderRadius: '3px',
+    },
+    selectactions: {
+      background: 'rgb(239, 243, 246)',
+      border: '1px solid #ddd',
+      display: 'flex',
+      justifyContent: 'space-around',
+    },
+    contentbox: {},
+  };
+
+  const selectActions = [archiveAllButton];
 
   return (
     <React.Fragment>
       {showRoomPreview && roomPreviewComponent}
       {showArchiveComponent && archiveComponent}
       <div>
-        {/* @TODO don't show create options for participants */}
         <div className={classes.Controls}>{create}</div>
         {fList.length > 0 || pList.length > 0 ? (
           <div className={classes.Row}>
-            <div className={classes.Col}>
-              <h2 className={classes.ResourceHeader}>
-                {displayResource} I Manage: {fList.length}
-              </h2>
-              {fList.length >= 1 && setResourceState && (
-                <SortUI
-                  keys={keys}
-                  sortFn={facilitatorRequestSort}
-                  sortConfig={resourceState.facilitatorConfig || initialConfig}
-                />
-              )}
+            {fList.length > 0 ? (
+              <div className={classes.Col}>
+                <h2 className={classes.ResourceHeader}>
+                  {displayResource} I Manage: {fList.length}
+                </h2>
+                {fList.length >= 1 && setResourceState && (
+                  <SortUI
+                    keys={keys}
+                    sortFn={facilitatorRequestSort}
+                    sortConfig={facilitatorSortConfig}
+                  />
+                )}
 
-              {selectableBoxList &&
-              resource !== 'activities' &&
-              resource !== 'courses' ? (
-                <SelectableBoxList
-                  list={facilitatorItems}
-                  resource={resource}
-                  listType="private"
-                  linkPath={linkPath}
-                  linkSuffix={linkSuffix}
-                  notifications={notifications}
-                  parentResourec={parentResource}
-                  icons={customIcons}
-                  selectActions={selectActions}
-                />
-              ) : (
+                {selectableBoxList &&
+                resource !== 'activities' &&
+                resource !== 'courses' ? (
+                  <SelectableBoxList
+                    list={facilitatorItems}
+                    resource={resource}
+                    listType="private"
+                    linkPath={linkPath}
+                    linkSuffix={linkSuffix}
+                    notifications={notifications}
+                    parentResourec={parentResource}
+                    icons={customIcons}
+                    selectActions={selectActions}
+                    customStyle={SelectableBoxListCustomStyles}
+                  />
+                ) : (
+                  <BoxList
+                    list={facilitatorItems}
+                    resource={resource}
+                    listType="private"
+                    linkPath={linkPath}
+                    linkSuffix={linkSuffix}
+                    notifications={notifications}
+                    parentResourec={parentResource}
+                  />
+                )}
+              </div>
+            ) : null}
+            {pList.length > 0 ? (
+              <div className={classes.Col}>
+                <h2 className={classes.ResourceHeader}>
+                  {displayResource} I&#39;m a member of: {pList.length}
+                </h2>
+                {pList.length >= 1 && setResourceState && (
+                  <SortUI
+                    keys={keys}
+                    sortFn={participantRequestSort}
+                    sortConfig={participantSortConfig}
+                  />
+                )}
                 <BoxList
-                  list={facilitatorItems}
-                  resource={resource}
-                  listType="private"
+                  list={participantItems}
                   linkPath={linkPath}
                   linkSuffix={linkSuffix}
                   notifications={notifications}
+                  resource={resource}
+                  listType="private"
                   parentResourec={parentResource}
+                  icons={customIconsBoxList}
+                  // draggable
                 />
-              )}
-            </div>
-            <div className={classes.Col}>
-              <h2 className={classes.ResourceHeader}>
-                {displayResource} I&#39;m a member of: {pList.length}
-              </h2>
-              {pList.length >= 1 && setResourceState && (
-                <SortUI
-                  keys={keys}
-                  sortFn={participantRequestSort}
-                  sortConfig={resourceState.participantConfig || initialConfig}
-                />
-              )}
-              <BoxList
-                list={participantItems}
-                linkPath={linkPath}
-                linkSuffix={linkSuffix}
-                notifications={notifications}
-                resource={resource}
-                listType="private"
-                parentResourec={parentResource}
-                icons={customIconsBoxList}
-                // draggable
-              />
-            </div>
+              </div>
+            ) : null}
           </div>
         ) : (
           <Fragment>
@@ -410,8 +454,8 @@ const ResourceList = ({
                 }
                 sortConfig={
                   fList.length > 0
-                    ? resourceState.facilitatorConfig || initialConfig
-                    : resourceState.participantConfig || initialConfig
+                    ? facilitatorSortConfig
+                    : participantSortConfig
                 }
               />
             )}
@@ -435,17 +479,14 @@ ResourceList.propTypes = {
   resource: PropTypes.string.isRequired,
   parentResource: PropTypes.string,
   parentResourceId: PropTypes.string,
+  parentActivityId: PropTypes.string,
+  parentCourseId: PropTypes.string,
   user: PropTypes.shape({
     accountType: PropTypes.string,
     _id: PropTypes.string,
   }).isRequired,
   userResources: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  resourceState: PropTypes.shape({
-    facilitatorConfig: PropTypes.shape({}),
-    participantConfig: PropTypes.shape({}),
-  }),
-  setResourceState: PropTypes.func,
   selectableBoxList: PropTypes.bool,
   context: PropTypes.string,
 };
@@ -453,197 +494,10 @@ ResourceList.propTypes = {
 ResourceList.defaultProps = {
   parentResource: null,
   parentResourceId: null,
-  resourceState: {},
-  setResourceState: null,
+  parentActivityId: null,
+  parentCourseId: null,
   selectableBoxList: false,
   context: null,
 };
 
 export default ResourceList;
-
-// Currently, SortUI is only used within ResourceList. Hence, why it's here.
-const SortUI = ({ keys, sortFn, sortConfig }) => {
-  const upArrow = <i className="fas fa-solid fa-arrow-up" />;
-  const downArrow = <i className="fas fa-solid fa-arrow-down" />;
-  const timeFrameOptions = [
-    { label: 'All', value: timeFrames.ALL },
-    { label: 'Last Day', value: timeFrames.LASTDAY },
-    { label: 'Last Week', value: timeFrames.LASTWEEK },
-    { label: 'Last Two Weeks', value: timeFrames.LAST2WEEKS },
-    { label: 'Last Month', value: timeFrames.LASTMONTH },
-    { label: 'Last Year', value: timeFrames.LASTYEAR },
-    { label: 'More than a Day', value: timeFrames.AFTERDAY },
-    { label: 'More than a Week', value: timeFrames.AFTERWEEK },
-    { label: 'More than Two Weeks', value: timeFrames.AFTER2WEEKS },
-    { label: 'More than a Month', value: timeFrames.AFTERMONTH },
-    { label: 'More than a Year', value: timeFrames.AFTERYEAR },
-  ];
-
-  const previousSearch = useRef({
-    criteria: sortConfig.criteria || '',
-    filter: {
-      ...sortConfig.filter,
-      filterFcn:
-        sortConfig.criteria && sortConfig.criteria !== ''
-          ? (item) =>
-              item.name &&
-              item.name
-                .toLowerCase()
-                .indexOf(sortConfig.criteria.toLowerCase()) > -1
-          : null,
-    },
-  });
-
-  React.useEffect(() => {
-    if (sortConfig.criteria && sortConfig.criteria !== '') {
-      sortConfig.filter.filterFcn = (item) =>
-        item.name &&
-        item.name.toLowerCase().indexOf(sortConfig.criteria.toLowerCase()) > -1;
-    } else {
-      sortConfig.filter.filterFcn = null;
-    }
-  }, [sortConfig.criteria]);
-
-  React.useEffect(() => {
-    if (
-      previousSearch.current.criteria &&
-      previousSearch.current.criteria !== ''
-    ) {
-      previousSearch.current.filter.filterFcn = (item) =>
-        item.name &&
-        item.name
-          .toLowerCase()
-          .indexOf(previousSearch.current.criteria.toLowerCase()) > -1;
-    } else {
-      previousSearch.current.filter.filterFcn = null;
-    }
-  }, [previousSearch.current.criteria]);
-
-  const optionForValue = (value) => {
-    return timeFrameOptions.find((opt) => opt.value === value);
-  };
-
-  const keyName = (defaultName) => {
-    const matchingKey = keys.find((key) => key.property === sortConfig.key);
-    return matchingKey ? matchingKey.name : defaultName;
-  };
-
-  const labelSuffix = Math.ceil(Math.random() * 1000);
-
-  const search = (criteria) => {
-    if (criteria !== '' && previousSearch.current.criteria === '') {
-      previousSearch.current = {
-        criteria,
-        filter: sortConfig.filter,
-      };
-      sortFn({
-        criteria,
-        filter: {
-          ...sortConfig.filter,
-          timeframe: timeFrames.ALL,
-        },
-      });
-    } else if (criteria !== '' && previousSearch.current.criteria !== '') {
-      sortFn({
-        criteria,
-        filter: sortConfig.filter,
-      });
-    } else if (criteria === '' && previousSearch.current.criteria !== '') {
-      sortFn({
-        criteria,
-        filter: previousSearch.current.filter,
-      });
-      previousSearch.current.criteria = '';
-    }
-  };
-
-  return (
-    <div className={classes.SortUIContainer}>
-      <div className={classes.SortSelection}>
-        <label htmlFor={`sortUI-${labelSuffix}`} className={classes.Label}>
-          Sort by:
-          <Select
-            className={classes.Select}
-            inputId={`sortUI-${labelSuffix}`}
-            placeholder="Select..."
-            onChange={(selectedOption) => {
-              sortFn({
-                key: selectedOption.value,
-                direction: sortConfig.direction,
-              });
-            }}
-            value={{
-              // eslint-disable-next-line react/prop-types
-              label: keyName(keys[0].name),
-              // eslint-disable-next-line react/prop-types
-              value: sortConfig.key || keys[0].property,
-            }}
-            options={keys.map((key) => ({
-              value: key.property,
-              label: key.name,
-            }))}
-            isSearchable={false}
-          />{' '}
-        </label>
-        <span
-          style={{ padding: '0 5px' }}
-          onClick={() => sortFn({ key: sortConfig.key })}
-          onKeyDown={() => sortFn({ key: sortConfig.key })}
-          role="button"
-          tabIndex={-1}
-        >
-          {sortConfig.direction === 'descending' ? downArrow : upArrow}{' '}
-        </span>
-      </div>
-      <div className={classes.FilterSelection}>
-        <label htmlFor={`filterUI-${labelSuffix}`} className={classes.Label}>
-          Updated:
-          <Select
-            placeholder="Timeframe"
-            className={classes.Select}
-            inputId={`filterUI-${labelSuffix}`}
-            onChange={(selectedOption) => {
-              sortFn({
-                filter: {
-                  ...sortConfig.filter,
-                  timeframe: selectedOption.value,
-                },
-              });
-            }}
-            value={optionForValue(sortConfig.filter.timeframe)}
-            options={timeFrameOptions}
-            isSearchable={false}
-          />{' '}
-        </label>
-      </div>
-      <div className={classes.Search}>
-        <Search
-          isControlled
-          value={sortConfig.criteria || ''}
-          _search={search}
-          data-testid="search"
-        />
-      </div>
-    </div>
-  );
-};
-
-SortUI.propTypes = {
-  keys: PropTypes.arrayOf(
-    PropTypes.shape({ name: PropTypes.string, property: PropTypes.string })
-  ).isRequired,
-  sortFn: PropTypes.func.isRequired,
-  sortConfig: PropTypes.shape({
-    criteria: PropTypes.string,
-    key: PropTypes.string,
-    direction: PropTypes.string,
-    filter: PropTypes.shape({
-      key: PropTypes.string,
-      timeframe: PropTypes.string,
-      filterFcn: PropTypes.func,
-    }),
-  }),
-};
-SortUI.defaultProps = {
-  sortConfig: {},
-};

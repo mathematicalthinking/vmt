@@ -2,6 +2,7 @@
 
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import TextInput from 'Components/Form/TextInput/TextInput';
 import classes from './member.css';
 import Avatar from '../Avatar/Avatar';
 import Button from '../Button/Button';
@@ -20,8 +21,15 @@ class Member extends PureComponent {
       role: info.role,
       editing: false,
       trashing: false,
+      editedUsername: '',
     };
   }
+
+  componentDidUpdate = (prevProps) => {
+    const { canEditUsername } = this.props;
+    if (!canEditUsername && prevProps.canEditUsername !== canEditUsername)
+      this.setState({ editedUsername: '' });
+  };
 
   edit = () => {
     this.setState((prevState) => ({
@@ -50,6 +58,93 @@ class Member extends PureComponent {
     this.setState({ editing: false });
   };
 
+  changeUsername = (e) => {
+    const { info, canEditUsername, editUsername } = this.props;
+    // if info.role === 'facilitator', then we can't edit the username
+    if (info.role !== 'facilitator' && canEditUsername) {
+      editUsername({
+        _id: info.user._id,
+        username: info.user.username,
+        newUsername: e.target.value,
+      });
+      this.setState({ editedUsername: e.target.value });
+    }
+  };
+
+  avatar = () => {
+    // if canEditUsername, then we need to render an Input
+    // else if canRemove, then we need to render Avatar with the username & a trash icon
+    // and if neither, then we need to render Avatar with the username
+    const { info, canEditUsername, canRemove, rejectAccess } = this.props;
+    const { editedUsername } = this.state;
+    if (canEditUsername && info.role !== 'facilitator') {
+      return (
+        <TextInput
+          change={this.changeUsername}
+          leftLabel={`${info.user.username}:`}
+          name="username"
+          value={editedUsername || info.user.username}
+          customStyles={{
+            container: {
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              justifyContent: 'flex-start',
+              flexDirection: 'row',
+              margin: '0',
+              padding: '1rem',
+            },
+            leftLabel: {
+              margin: '.2rem',
+              fontStyle: 'italic',
+            },
+            input: {
+              color: 'black',
+              marginLeft: '1rem',
+            },
+          }}
+        />
+      );
+    }
+    const username = info.user ? info.user.username : info.username;
+    if (canRemove) {
+      return (
+        <div className={`${classes.CanRemove}`}>
+          <div className={classes.FlexRow}>
+            <Avatar
+              username={username}
+              color={
+                (info && info.color) ||
+                (info.user &&
+                  info.user.displayColor &&
+                  info.user.displayColor) ||
+                null
+              }
+            />
+            {info.user.email && (
+              <span className={classes.Email}>{info.user.email}</span>
+            )}
+          </div>
+          <Button m={5} click={rejectAccess} theme="Danger">
+            <i className="fas fa-trash-alt" />
+          </Button>
+        </div>
+      );
+    }
+    return (
+      <div className={classes.Avatar}>
+        <Avatar
+          username={username}
+          color={
+            (info && info.color) ||
+            (info.user && info.user.displayColor && info.user.displayColor) ||
+            null
+          }
+        />
+      </div>
+    );
+  };
+
   render() {
     const {
       info,
@@ -59,6 +154,7 @@ class Member extends PureComponent {
       notification,
       resourceName,
       canRemove,
+      canEditUsername,
     } = this.props;
     const { editing, trashing } = this.state;
     const username = info.user ? info.user.username : info.username;
@@ -71,89 +167,78 @@ class Member extends PureComponent {
             canRemove ? classes.CanRemoveContainer : classes.Container
           }`}
         >
-          {canRemove ? (
-            <div className={`${classes.CanRemove}`}>
-              <div className={classes.FlexRow}>
-                <Avatar username={username} color={info.color} />
-                {info.user.email && (
-                  <span className={classes.Email}>{info.user.email}</span>
-                )}
-              </div>
-              <Button m={5} click={rejectAccess} theme="Danger">
-                <i className="fas fa-trash-alt" />
-              </Button>
-            </div>
-          ) : (
-            <div className={classes.Avatar}>
-              <Avatar username={username} color={info.color} />
-            </div>
-          )}
+          {this.avatar()}
           {notification ? (
             <div className={classes.Notification} data-testid="member-ntf">
               new member
             </div>
           ) : null}
-          <div className={classes.Row}>
-            {grantAccess ? (
-              <Fragment>
-                <Button
-                  theme="Small"
-                  m={5}
-                  click={grantAccess}
-                  data-testid={`grant-access-${username}`}
-                >
-                  Grant Access
-                </Button>
-                <Button m={5} click={rejectAccess} theme="Danger">
-                  <i className="fas fa-trash-alt" />
-                </Button>
-              </Fragment>
-            ) : null}
-            {/* don't display role if called from NewStep1 */}
-            {editing && !canRemove ? (
-              <div className={classes.DropDownContainer}>
-                <div className={classes.DropDown}>
-                  <RoleDropdown
-                    selectHandler={this.changeRole}
-                    // not just hardcoding the options because we want the users current role to show up first in the lsit
-                    list={['facilitator', 'participant', 'guest'].sort((a) => {
-                      if (a === info.role) {
-                        return -1;
-                      }
-                      return 1;
-                    })}
-                  />
+          {/* if editing username, turn off changeRole */}
+          {!canEditUsername && (
+            <div className={classes.Row}>
+              {grantAccess ? (
+                <Fragment>
+                  <Button
+                    theme="Small"
+                    m={5}
+                    click={grantAccess}
+                    data-testid={`grant-access-${username}`}
+                  >
+                    Grant Access
+                  </Button>
+                  <Button m={5} click={rejectAccess} theme="Danger">
+                    <i className="fas fa-trash-alt" />
+                  </Button>
+                </Fragment>
+              ) : null}
+              {/* don't display role if called from NewStep1 */}
+              {editing && !canRemove ? (
+                <div className={classes.DropDownContainer}>
+                  <div className={classes.DropDown}>
+                    <RoleDropdown
+                      selectHandler={this.changeRole}
+                      // not just hardcoding the options because we want the users current role to show up first in the lsit
+                      list={['facilitator', 'participant', 'guest'].sort(
+                        (a) => {
+                          if (a === info.role) {
+                            return -1;
+                          }
+                          return 1;
+                        }
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
-            ) : (
-              !canRemove && <div className={classes.Role}>{info.role}</div>
-            )}
-            {editing ? (
-              <div
-                className={classes.Trash}
-                onClick={() => this.setState({ trashing: true })}
-                onKeyPress={() => this.setState({ trashing: true })}
-                role="button"
-                tabIndex="-1"
-                data-testid="trash-member"
-              >
-                <i className="fas fa-trash-alt" />
-              </div>
-            ) : null}
+              ) : (
+                !canRemove && <div className={classes.Role}>{info.role}</div>
+              )}
+              {editing ? (
+                <div
+                  className={classes.Trash}
+                  onClick={() => this.setState({ trashing: true })}
+                  onKeyPress={() => this.setState({ trashing: true })}
+                  role="button"
+                  tabIndex="-1"
+                  data-testid="trash-member"
+                >
+                  <i className="fas fa-trash-alt" />
+                </div>
+              ) : null}
 
-            {owner && !grantAccess ? (
-              <div
-                className={classes.Edit}
-                onClick={this.edit}
-                onKeyPress={this.edit}
-                data-testid="edit-member"
-                role="button"
-                tabIndex="-2"
-              >
-                <i className="fas fa-edit" />
-              </div>
-            ) : null}
-          </div>
+              {owner && !grantAccess ? (
+                <div
+                  className={classes.Edit}
+                  onClick={this.edit}
+                  onKeyPress={this.edit}
+                  data-testid="edit-member"
+                  role="button"
+                  tabIndex="-2"
+                >
+                  <i className="fas fa-edit" />
+                </div>
+              ) : null}
+            </div>
+          )}
         </div>
         <Modal
           show={trashing}
@@ -197,30 +282,33 @@ Member.propTypes = {
       _id: PropTypes.string,
       username: PropTypes.string,
       email: PropTypes.string,
+      displayColor: PropTypes.string,
     }),
     username: PropTypes.string,
     color: PropTypes.string,
   }).isRequired,
-  changeRole: PropTypes.func,
-  removeMember: PropTypes.func,
   owner: PropTypes.bool,
-  grantAccess: PropTypes.func,
-  rejectAccess: PropTypes.func,
   notification: PropTypes.bool,
   resourceName: PropTypes.string.isRequired,
+  grantAccess: PropTypes.func,
+  rejectAccess: PropTypes.func,
+  changeRole: PropTypes.func,
   canRemove: PropTypes.bool,
-  removeFn: PropTypes.func,
+  removeMember: PropTypes.func,
+  canEditUsername: PropTypes.bool,
+  editUsername: PropTypes.func,
 };
 
 Member.defaultProps = {
   notification: false,
   owner: false,
-  changeRole: null,
-  removeMember: null,
   grantAccess: null,
   rejectAccess: null,
+  changeRole: null,
+  removeMember: null,
   canRemove: false,
-  removeFn: null,
+  canEditUsername: false,
+  editUsername: null,
 };
 
 export default Member;

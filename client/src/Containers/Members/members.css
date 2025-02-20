@@ -53,6 +53,7 @@
 .SearchResults {
   margin-top: 10px;
   background: white;
+  overflow-y: auto;
 }
 
 .SearchResItem {
@@ -116,4 +117,9 @@
   align-self: auto;
   flex: 0 0 auto;
   transition: 0.2s;
+}
+
+.EditUsernames {
+  margin: 0 10px;
+  display: flex;
 }

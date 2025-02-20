@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Checkbox, ToolTip, TabTypes } from 'Components';
+import { Checkbox, ToolTip } from 'Components';
+import { TabTypes } from 'Model';
 import getResourceTabTypes from 'utils/getResourceTabTypes';
 import classes from './contentBox.css';
 import Icons from './Icons/Icons';
@@ -115,27 +116,45 @@ class ContentBox extends PureComponent {
             <div className={classes.Expanded}>
               {details.facilitators && details.facilitators.length > 0 ? (
                 <div>
-                  Facilitators:{' '}
+                  <span className={classes.DetailsTitle}>Facilitators: </span>
                   {details.facilitators.map((facilitator) => facilitator)}
                 </div>
               ) : null}
               {details.sinceUpdated ? (
-                <div>Updated: {details.sinceUpdated}</div>
+                <div>
+                  <span className={classes.DetailsTitle}>Updated: </span>
+                  {details.sinceUpdated}
+                </div>
               ) : null}
               {details.createdAt ? (
-                <div>Created: {details.createdAt}</div>
+                <div>
+                  <span className={classes.DetailsTitle}>Created: </span>
+                  {details.createdAt}
+                </div>
               ) : null}
-              {details.dueDate ? <div>Due Date: {details.dueDate}</div> : null}
+              {details.dueDate ? (
+                <div>
+                  <span className={classes.DetailsTitle}>Due Date: </span>
+                  {details.dueDate}
+                </div>
+              ) : null}
               {details.creator ? `Creator: ${details.creator}` : null}
               {details.entryCode ? (
-                <div>Entry Code: {details.entryCode}</div>
+                <div>
+                  <span className={classes.DetailsTitle}>Entry Code: </span>
+                  {details.entryCode}
+                </div>
               ) : null}
               {details.description ? (
-                <div>Description: {details.description}</div>
+                <div>
+                  <span className={classes.DetailsTitle}>Description: </span>
+                  {details.description}
+                </div>
               ) : null}
               {tabTypes && tabTypes.length ? (
                 <div className={classes.TabTypes}>
-                  {typeKeyword}: {tabTypes}
+                  <span className={classes.DetailsTitle}>{typeKeyword}: </span>
+                  {tabTypes}
                 </div>
               ) : null}
             </div>
@@ -163,7 +182,8 @@ class ContentBox extends PureComponent {
     );
 
     return (
-      <div style={{ display: 'flex' }}>
+      // <div style={{ display: 'flex' }}>
+      <React.Fragment>
         {selectable && (
           <Checkbox
             change={onSelect}
@@ -175,7 +195,8 @@ class ContentBox extends PureComponent {
         )}
 
         {parentElement}
-      </div>
+        {/* </div> */}
+      </React.Fragment>
     );
   }
 }

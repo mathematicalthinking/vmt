@@ -142,3 +142,11 @@ module.exports.reinstateUser = (userId, reqUser) => {
 module.exports.revokeRefreshToken = (encodedToken, reqUser) => {
   return this.post(`/auth/revokedToken`, { encodedToken }, reqUser);
 };
+
+module.exports.updateUsernames = (users = [], reqUser) => {
+  return this.put(
+    `/auth/user/updateNames/${reqUser._id}`,
+    { users, app: process.env.REACT_APP_SERVER_URL },
+    reqUser
+  );
+};

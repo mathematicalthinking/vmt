@@ -7,18 +7,12 @@ import {
   updateActivityTab,
   setActivityStartingPoint,
   getCurrentActivity,
-} from '../../store/actions';
-import { Modal, Loading } from '../../Components';
-import {
-  DesmosActivityGraph,
-  DesmosActivityEditor,
-  GgbActivityGraph,
-  CodePyretOrg,
-  Tabs,
-  RoomInfo,
-  ActivityTools,
-} from './index';
-import { WorkspaceLayout } from '../../Layout';
+} from 'store/actions';
+import { Modal, Loading } from 'Components';
+import { WorkspaceLayout } from 'Layout';
+import { TabTypes } from 'Model';
+import { ROLE } from 'constants.js';
+import { Tabs, RoomInfo, ActivityTools } from './index';
 import NewTabForm from '../Create/NewTabForm';
 import CreationModal from './Tools/CreationModal';
 
@@ -73,6 +67,16 @@ class ActivityWorkspace extends Component {
     history.goBack();
   };
 
+  handleOnSave = (value) => {
+    const { activity, connectUpdateActivityTab } = this.props;
+    const { currentTabId } = this.state;
+    const currentTab = activity.tabs.find((t) => t._id === currentTabId);
+    if (!currentTab) return;
+
+    const updatedTab = TabTypes.getTemplateState(currentTab.tabType, value);
+    connectUpdateActivityTab(activity._id, currentTabId, updatedTab);
+  };
+
   render() {
     const {
       activity,
@@ -95,6 +99,7 @@ class ActivityWorkspace extends Component {
     let initialTab = null;
 
     if (activity && !currentTabId) {
+      console.log('setting initial tab');
       // activity has been loaded, but currentTab has not been updated
       // in state. Just use the first tab from the fetched activity
       // as the initial tab. If a user changes tabs, the currentTabId will
@@ -108,74 +113,29 @@ class ActivityWorkspace extends Component {
       role = 'facilitator';
     }
     if (activity && activity.tabs[0].name) {
-      graphs = activity.tabs.map((tab) => {
-        if (tab.tabType === 'desmos') {
-          return (
-            <DesmosActivityGraph
-              key={tab._id}
-              tab={tab}
-              activity={activity}
-              role={role}
-              currentTab={currentTabId || initialTabId}
-              updateActivityTab={connectUpdateActivityTab}
-              setFirstTabLoaded={this.setFirstTabLoaded}
-              isFirstTabLoaded={isFirstTabLoaded}
-            />
-          );
-        }
-        if (tab.tabType === 'desmosActivity') {
-          return (
-            <DesmosActivityEditor
-              key={tab._id}
-              tab={tab}
-              activity={activity}
-              role={role}
-              currentTab={currentTabId || initialTabId}
-              updateActivityTab={connectUpdateActivityTab}
-              setFirstTabLoaded={this.setFirstTabLoaded}
-              isFirstTabLoaded={isFirstTabLoaded}
-            />
-          );
-        }
-        if (tab.tabType === 'pyret') {
-          return (
-            <CodePyretOrg
-              key={tab._id}
-              tab={tab}
-              activity={activity}
-              role={role}
-              currentTab={currentTabId || initialTabId}
-              updateActivityTab={connectUpdateActivityTab}
-              setFirstTabLoaded={this.setFirstTabLoaded}
-              isFirstTabLoaded={isFirstTabLoaded}
-            />
-          );
-        }
-        console.log('Building a geogebra thing');
-        return (
-          <GgbActivityGraph
-            activity={activity}
-            tabs={activity.tabs}
-            currentTab={currentTabId || initialTabId}
-            role={role}
-            user={user}
-            tab={tab}
-            key={tab._id}
-            updateActivityTab={connectUpdateActivityTab}
-            setFirstTabLoaded={this.setFirstTabLoaded}
-            isFirstTabLoaded={isFirstTabLoaded}
-          />
-        );
-      });
+      graphs = activity.tabs.map((tab) => (
+        <TabTypes.MathspaceTemplateEditor
+          type={tab.tabType}
+          key={tab._id}
+          tab={tab}
+          tabs={activity.tabs}
+          activity={activity}
+          role={role}
+          user={user}
+          currentTab={currentTabId || initialTabId}
+          updateActivityTab={connectUpdateActivityTab}
+          setFirstTabLoaded={this.setFirstTabLoaded}
+          isFirstTabLoaded={isFirstTabLoaded}
+        />
+      ));
+
       tabs = (
         <Tabs
-          activity
           tabs={activity.tabs}
           currentTabId={currentTabId || initialTabId}
-          participantCanCreate={false}
-          memberRole={role}
-          changeTab={this.changeTab}
-          createNewTab={this.createNewTab}
+          canCreate={role === ROLE.FACILITATOR}
+          onChangeTab={this.changeTab}
+          onCreateNewTab={this.createNewTab}
         />
       );
     }
@@ -198,6 +158,8 @@ class ActivityWorkspace extends Component {
                 goBack={this.goBack}
                 copy={this.addToMyActivities}
                 tabs={activity.tabs}
+                currentTab={activity.tabs.find((t) => t._id == currentTabId)}
+                onSave={this.handleOnSave}
               />
             }
             bottomLeft={
@@ -228,6 +190,7 @@ class ActivityWorkspace extends Component {
             closeModal={this.closeModal}
             updatedActivity={connectUpdatedActivity}
             user={user}
+            currentTabId={currentTabId}
           />
         </Modal>
         {addingToMyActivities && (
@@ -249,10 +212,19 @@ class ActivityWorkspace extends Component {
 }
 
 ActivityWorkspace.propTypes = {
-  activity: PropTypes.shape({}),
-  match: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
-  history: PropTypes.shape({}).isRequired,
+  activity: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    tabs: PropTypes.arrayOf(
+      PropTypes.shape({ _id: PropTypes.string, name: PropTypes.string })
+    ),
+  }),
+  match: PropTypes.shape({
+    params: PropTypes.shape({ activity_id: PropTypes.string }),
+  }).isRequired,
+  user: PropTypes.shape({ activities: PropTypes.arrayOf(PropTypes.string) })
+    .isRequired,
+  history: PropTypes.shape({ goBack: PropTypes.func }).isRequired,
   temp: PropTypes.bool,
   connectUpdatedActivity: PropTypes.func.isRequired,
   connectSetActivityStartingPoint: PropTypes.func.isRequired,

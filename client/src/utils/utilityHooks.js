@@ -1,31 +1,41 @@
-/* eslint-disable prettier/prettier */
 import React, { useContext } from 'react';
+import { QueryClient, useQuery } from 'react-query';
+import { useDispatch, useSelector } from 'react-redux';
 import html2canvas from 'html2canvas';
-import { chunk, debounce } from 'lodash';
-import { useQuery } from 'react-query';
-import API from 'utils/apiRequests';
-import buildLog from 'utils/buildLog';
+import debounce from 'lodash/debounce';
+import keyBy from 'lodash/keyBy';
+import throttle from 'lodash/throttle';
+import { API, buildLog } from 'utils';
 import { ModalContext } from 'Components';
+import * as actionTypes from 'store/actions/actionTypes';
 
 const timeFrameFcns = {
   all: () => true,
   lastDay: (diff) => diff <= 24 * 60 * 60 * 1000,
+  last2Days: (diff) => diff <= 2 * 24 * 60 * 60 * 1000,
   lastWeek: (diff) => diff <= 7 * 24 * 60 * 60 * 1000,
   last2Weeks: (diff) => diff <= 2 * 7 * 24 * 60 * 60 * 1000,
   lastMonth: (diff) => diff <= 30 * 24 * 60 * 60 * 1000,
-  lastYear: (diff) => diff <= 356 * 24 * 60 * 60 * 1000,
+  last3Months: (diff) => diff <= 3 * 30 * 24 * 60 * 60 * 1000,
+  last6Months: (diff) => diff <= 6 * 30 * 24 * 60 * 60 * 1000,
+  last9Months: (diff) => diff <= 9 * 30 * 24 * 60 * 60 * 1000,
+  lastYear: (diff) => diff <= 365 * 24 * 60 * 60 * 1000,
   afterDay: (diff) => diff > 24 * 60 * 60 * 1000,
   afterWeek: (diff) => diff > 7 * 24 * 60 * 60 * 1000,
   after2Weeks: (diff) => diff > 2 * 7 * 24 * 60 * 60 * 1000,
   afterMonth: (diff) => diff > 30 * 24 * 60 * 60 * 1000,
-  afterYear: (diff) => diff > 356 * 24 * 60 * 60 * 1000,
+  afterYear: (diff) => diff > 365 * 24 * 60 * 60 * 1000,
 };
 
 export const timeFrames = {
   ALL: 'all',
   LASTDAY: 'lastDay',
+  LAST2DAYS: 'last2Days',
   LASTWEEK: 'lastWeek',
   LAST2WEEKS: 'last2Weeks',
+  LAST3MONTHS: 'last3Months',
+  LAST6MONTHS: 'last6Months',
+  LAST9MONTHS: 'last9Months',
   LASTMONTH: 'lastMonth',
   LASTYEAR: 'lastYear',
   AFTERDAY: 'afterDay',
@@ -37,7 +47,7 @@ export const timeFrames = {
 
 /**
  * Custom hook for sorting and filtering table data.  Note that filter must be one of all, lastDay, lastWeek, last2Weeks, lastMonth, or lastYear. Adapted from https://www.smashingmagazine.com/2020/03/sortable-tables-react/.
- * @param {array} items - The data array. Each element represents a row as an object, with the properties (keys) representing the table columns
+ * @param {array} [items = []] - The data array. Each element represents a row as an object, with the properties (keys) representing the table columns
  * @param {object} [config = null] - Optional specification of an initial sorting of the form { key, direction, filter }
  * @returns {array} items - The data sorted by the requested column (key), in the requested direction, filtered by the requested filter.
  * @returns {object} sortConfig - The current sorting: { key, direction, filter }. Note that filter must be one of all, lastDay, lastWeek, last2Weeks, lastMonth, or lastYear.
@@ -45,7 +55,7 @@ export const timeFrames = {
  * @returns {function} resetSort - Takes a sortConfig object. That object is merged with the current sortConfig then the items are sorted and filtered appropriately.
  */
 
-export const useSortableData = (items, config = null) => {
+export const useSortableData = (items = [], config = null) => {
   const [sortConfig, setSortConfig] = React.useState(config);
 
   const withinTimeframe = (item) => {
@@ -175,10 +185,10 @@ export function useSnapshots(callback, initialStore = {}) {
 
   // Commented code adapted from https://stackoverflow.com/questions/475074/regex-to-parse-or-validate-base64-data, but it seemed too
   // slow. Current code adapted from: https://hashnode.com/post/how-do-you-validate-a-base64-image-cjcftg4fy03s0p7wtn31oqjx7
-  const _isWellFormedPNG = (dataURL) => {
-    // return /^data:image\/png;base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)/g.test(
-    //   dataURL);
-    return /^data:image\/png;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/g.test(dataURL);
+  const _isWellFormedBase64Image = (dataURL) => {
+    return /^data:image\/(png|webp);base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/g.test(
+      dataURL
+    );
   };
 
   const _hash = (key) => {
@@ -204,8 +214,8 @@ export function useSnapshots(callback, initialStore = {}) {
 
   const takeSnapshot = debounce(
     (key, snapshotObj) => {
-      // console.log('starting snapshot for', key);
       if (!elementRef.current) {
+        // eslint-disable-next-line no-console
         console.log('no elementRef');
         return;
       }
@@ -215,8 +225,8 @@ export function useSnapshots(callback, initialStore = {}) {
         windowHeight: elementRef.current.scrollHeight,
       }).then((canvas) => {
         if (!cancelSnapshot.current) {
-          const dataURL = canvas.toDataURL();
-          if (dataURL && _isWellFormedPNG(dataURL)) {
+          const dataURL = canvas.toDataURL('image/webp', 0.1);
+          if (dataURL && _isWellFormedBase64Image(dataURL)) {
             const newSnap = {
               [_hash(key)]: {
                 dataURL,
@@ -229,13 +239,15 @@ export function useSnapshots(callback, initialStore = {}) {
                 ...referenceObject.current,
                 ...newSnap,
               };
-              callback(referenceObject.current);
-            } else {
+              if (!cancelSnapshot.current) callback(referenceObject.current);
+            } else if (!cancelSnapshot.current)
               callback({ ...snapshotObj, ...newSnap });
-            }
+            cancelSnapshot.current = false;
+            // eslint-disable-next-line no-console
           } else console.log('snapshot not well formed:', dataURL);
         } else {
           cancelSnapshot.current = false;
+          // eslint-disable-next-line no-console
           console.log('snapshot cancelled');
         }
       });
@@ -250,6 +262,11 @@ export function useSnapshots(callback, initialStore = {}) {
       timer.current = null;
     }
     cancelSnapshot.current = true;
+  };
+
+  const resetSnapshots = () => {
+    cancelSnapshots();
+    cancelSnapshot.current = false;
   };
 
   // Keep saving and extraction details inside the hook so that
@@ -277,7 +294,7 @@ export function useSnapshots(callback, initialStore = {}) {
   return {
     elementRef,
     startSnapshots,
-    cancelSnapshots,
+    cancelSnapshots: resetSnapshots,
     getSnapshot,
     getTimestamp,
     takeSnapshot,
@@ -311,46 +328,53 @@ export function usePopulatedRoom(roomId, shouldBuildLog = false, options = {}) {
 }
 
 /**
- * Hook that takes an array roomIds and returns those rooms in an object key'd by the ids. The object keys are in the same
+ * Hook that takes an array of roomIds and returns those rooms in an object key'd by the ids. The object keys are in the same
  * order as the original roomIds array.
+ *
+ * The hook uses the useMergedData hook so that it builds up a cache of responses and so we only pull from the DB rooms that have changed since the
+ * last request.
+ *
+ * If usePopulatedRoom receives an initialCache in the options, it'll make sure that all data merging includes that initial cache (fourth arg to useMergedData) and
+ * will key the query on the full set of ids (ie., all the ids from the initial cache). Note that this assumes that initialCache's keys are a superset of
+ * roomIds.
  */
 export function usePopulatedRooms(
   roomIds,
   shouldBuildLog = false,
   options = {}
 ) {
-  return useQuery(
-    [roomIds, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
-    async () => {
-      // limit the amount of ids passed through the request header
-      // because we were encountering 414 errors
-      const CALL_LIMIT = 50;
-      const chunkedRoomIds = chunk(roomIds, CALL_LIMIT);
-      const results = chunkedRoomIds.map((ids) => {
-        return API.findAllMatchingIdsPopulated('rooms', ids, shouldBuildLog);
-      });
-
-      const resolvedResults = await Promise.all(results);
-      const fullResults = resolvedResults.map((res) => res.data.results).flat();
-
-      const roomArray = !shouldBuildLog
-        ? [...fullResults]
-        : fullResults.map((room) => {
+  const initialCache = options.initialCache || {};
+  const queryKey = options.initialCache
+    ? Object.keys(options.initialCache)
+    : roomIds;
+  return useMergedData(
+    [queryKey, { shouldBuildLog }], // index the query both by the room id and whether we have all the events & messages
+    async (lastQueryTimes) => {
+      // all of our API calls return the full xhttp object, with the data we want in the data>results field
+      const {
+        data: { results },
+      } = await API.findAllMatchingIdsPopulated(
+        'rooms',
+        roomIds,
+        shouldBuildLog,
+        lastQueryTimes
+      );
+      const roomArray = shouldBuildLog
+        ? results.map((room) => {
             const log = buildLog(room.tabs, room.chat);
             return { ...room, log };
-          });
+          })
+        : results;
 
-      const roomsById = roomArray.reduce(
-        (acc, room) => ({ ...acc, [room._id]: room }),
-        {}
-      );
+      const roomsById = keyBy(roomArray, '_id');
       const orderedRoomsById = roomIds.reduce(
-        (acc, id) => ({ ...acc, [id]: roomsById[id] }),
+        (acc, id) => (roomsById[id] ? { ...acc, [id]: roomsById[id] } : acc),
         {}
       );
-
       return orderedRoomsById;
     },
+    (results) => Object.keys(results),
+    (cache, fetchedData) => ({ ...initialCache, ...cache, ...fetchedData }),
     options
   );
 }
@@ -363,6 +387,9 @@ export function usePopulatedRooms(
  *    showBig - same as show, except renders the component inside of a BigModal
  *    hide - function to hide the modal/bigModal
  * }
+ *
+ * NOTE: If the component given to show or showBig contains state, it is up to that component or its client to clear out the state
+ * on unmount. Otherwise, the next time the component is placed in the modal, the old state might show.
  */
 
 export function useAppModal() {
@@ -372,5 +399,268 @@ export function useAppModal() {
     show: modalContext.show,
     showBig: modalContext.showBig,
     hide: modalContext.hide,
+  };
+}
+
+/**
+ * Hook to store the UI state of a component so that if the user navigates away and back, that state can be restored.
+ * The hook takes a key that must be unique to that component and an optional initial value. Usage is similar to
+ * React.useState:
+ *
+ * const [uiState, setUIState] = useUIState()
+ *
+ * The client component would extract the particular state variables from uiState. If any of those states change, setUIState should
+ * be called.
+ *
+ * This hook has two key implementation pieces to ensure it works as expected:
+ * 1. uiState in the Redux store is updated only when the component unmounts. This prevents an infinite loop with the
+ * component asking uiState to change, but that change triggering further changes to the component, which would then trigger changes to
+ * uiState.
+ * 2. the uiState before unmount is stored in a ref.
+ *
+ */
+
+export function useUIState(key, initialValue = {}) {
+  const dispatch = useDispatch();
+  const [_uiState, setUIState] = React.useState(
+    useSelector((store) => store.user.uiState && store.user.uiState[key]) ||
+      initialValue
+  );
+
+  // This ref mirrors the state so that we can return it on unmount
+  // cf. https://stackoverflow.com/a/65840250/14894260
+  const stateMonitor = React.useRef(_uiState);
+  React.useEffect(() => {
+    stateMonitor.current = _uiState;
+  }, [_uiState]);
+
+  // On unmount, dispatch the current UI state to the redux store
+  React.useEffect(() => {
+    return () => {
+      dispatch({
+        type: actionTypes.SAVE_COMPONENT_UI_STATE,
+        key,
+        // this MUST be a ref or else we won't capture the correct state (i.e., cannot be _uiState because then its initial value will always be returned)
+        value: stateMonitor.current,
+      });
+    };
+  }, []);
+
+  return [_uiState, setUIState];
+}
+
+/**
+ * A custom hook that fetches data, merging results from previous fetches.  The hook assumes that the fetchFcn might sometimes not return all documents
+ * in a key bc they hadn't been updated since the last query.
+ * The hook therefore uses a provided merge function to combine the new data coming in from the fetch with its own cache. The hook also keeps
+ * track of the last query times organized by a provided extractIds function.
+ *
+ * key - The key index of the query. Should be an array of objects, one field of which is the unique identifier extracted by extractIdsFcn
+ * fetchFcn - A function to do the query
+ * extractIdsFcn - A function to extract all the unique identifiers from each object returned from the query
+ * mergeFcn - A function that merges the cached data with the new data.
+ * options - useQuery options
+ *
+ */
+
+export function useMergedData(
+  key,
+  fetchFcn,
+  extractIdsFcn,
+  mergeFcn,
+  options = {}
+) {
+  const queryClientRef = React.useRef(null);
+  if (!queryClientRef.current)
+    queryClientRef.current = new QueryClient({
+      defaultOptions: {
+        queries: {
+          cacheTime: 24 * 60 * 60 * 1000, // one day
+        },
+      },
+    });
+  const queryClient = queryClientRef.current;
+  const lastQueryTimes = queryClient.getQueryData([key, 'lastQueryTimes']);
+
+  const { data, ...others } = useQuery(key, () => fetchFcn(lastQueryTimes), {
+    onSuccess: (newData) => {
+      queryClient.setQueryData([key, 'mergedData'], (cache) =>
+        mergeFcn(cache, newData)
+      );
+
+      const newDataIds = extractIdsFcn(newData);
+      const updatedLastQueryTimes = newDataIds.reduce(
+        (acc, id) => ({
+          ...acc,
+          [id]: Date.now(),
+        }),
+        {}
+      );
+      queryClient.setQueryData([key, 'lastQueryTimes'], {
+        ...lastQueryTimes,
+        ...updatedLastQueryTimes,
+      });
+    },
+    ...options,
+  });
+  return { data: queryClient.getQueryData([key, 'mergedData']), ...others };
+}
+
+/**
+ * A custom hook for keeping track of user activity. If the user is idle (i.e., has not typed, clicked, or scrolled) for
+ * a specified amount of time (default 30 min), the onInactivity function is called. The function is also called if the
+ * user's screen is hidden for the specified amount of time; once the user returns to that screen, they are logged out.
+ * This latter approach is meant to handle browsers where Javascript timers stop when the tab isn't visible.
+ */
+export function useActivityDetector(
+  onInactivity,
+  onActivity,
+  timeout = 1800000,
+  throttleDelay = 5000
+) {
+  let activityTimer;
+  let lastActivityTime = Date.now();
+
+  const resetTimer = throttle(() => {
+    clearTimeout(activityTimer);
+    onActivity();
+    activityTimer = setTimeout(onInactivity, timeout);
+    lastActivityTime = Date.now();
+  }, throttleDelay);
+
+  const checkForInactivity = () => {
+    const currentTime = Date.now();
+    const timeElapsed = currentTime - lastActivityTime;
+
+    if (timeElapsed > timeout) {
+      clearTimeout(activityTimer);
+      onInactivity();
+    } else {
+      resetTimer();
+    }
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      checkForInactivity(); // Check inactivity upon returning to the tab
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('scroll', resetTimer);
+    window.addEventListener('click', resetTimer);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Set the initial timer
+    resetTimer();
+
+    return () => {
+      clearTimeout(activityTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('scroll', resetTimer);
+      window.removeEventListener('click', resetTimer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+}
+
+/**
+ * A custom hook for executing a callback the first time that some data changes. Note that the callback should be stable
+ * or wrapped in useCallback.
+ */
+export function useExecuteOnFirstUpdate(data, callback) {
+  const hasExecutedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!hasExecutedRef.current && data) {
+      callback(data);
+      hasExecutedRef.current = true;
+    }
+  }, [data, callback]);
+}
+
+/**
+ * Custom hook that encapsulates the interaction between VMT and Pyret. Now used by only PyretActivity.
+ *
+ * @param
+ * iframeRef -- the ref to the iframe containing Pyret
+ * onMessage -- the function called when Pyret emits an event
+ * initialState -- the string representing the state of Pyret when it loads
+ *
+ * @returns
+ * iframeSrc -- the src parameter for the iframe (the URI for Pyret)
+ * isReady -- whether Pyret is up and running
+ * postMessage -- the function used by VMT to communicate with the Pyret instance
+ * currentState -- the current state of the Pyret instance
+ * hasControlViolation -- the user tried to interact with Pyret when they didn't have control
+ * resetViolation - a function to reset the control violation flag
+ */
+
+export function usePyret(iframeRef, onMessage = () => {}, initialState = '') {
+  const iframeSrc = window.env.REACT_APP_PYRET_URL;
+  const [isReady, setIsReady] = React.useState(false);
+  const [currentState, setCurrentState] = React.useState();
+  const [hasControlViolation, setHasControlViolation] = React.useState(false);
+  const onMessageRef = React.useRef(onMessage); // use a ref in case onMessage changes
+
+  React.useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
+
+  React.useEffect(() => {
+    const handleOnMessage = (event) => {
+      // Don't handle the message if:
+      // - our iframe isn't ready
+      // - we received an event from an iframe that isn't ours
+      // - we received an event from something other than Pyret
+      if (
+        !iframeRef.current ||
+        event.source !== iframeRef.current.contentWindow ||
+        event.data.protocol !== 'pyret'
+      )
+        return;
+
+      if (event.data.data.type === 'pyret-init') {
+        setIsReady(true);
+      } else if (event.data.data.type === 'illegal-action') {
+        setHasControlViolation(true);
+      } else {
+        console.log('event.data', event.data);
+        setCurrentState(event.data.state);
+        onMessageRef.current(event.data);
+      }
+    };
+
+    window.addEventListener('message', handleOnMessage);
+
+    return () => {
+      window.removeEventListener('message', handleOnMessage);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (isReady) {
+      postMessage({
+        protocol: 'pyret',
+        data: { type: 'reset', state: initialState },
+      });
+    }
+  }, [isReady, initialState]);
+
+  function postMessage(data) {
+    if (!iframeRef.current) {
+      return;
+    }
+    iframeRef.current.contentWindow.postMessage(data, '*');
+  }
+
+  return {
+    iframeSrc,
+    postMessage,
+    currentState,
+    isReady,
+    hasControlViolation,
+    resetViolation: () => setHasControlViolation(false),
   };
 }

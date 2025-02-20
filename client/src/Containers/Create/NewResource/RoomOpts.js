@@ -24,6 +24,7 @@ class RoomOpts extends Component {
       desmosLink,
       setDesmosLink,
       setDesmosCalcLink,
+      setLink,
     } = this.props;
     if (roomType === 'geogebra') {
       return (
@@ -94,7 +95,7 @@ class RoomOpts extends Component {
           <br />
           <p>
             Desmos Activities are in pre-Alpha, please expect and report issues.
-            Only english activities are supported at this time.
+            Only English activities are supported at this time.
           </p>
         </Aux>
       );
@@ -102,8 +103,18 @@ class RoomOpts extends Component {
     if (roomType === 'pyret') {
       return (
         <Aux>
-          <p>Pyret Activity Configuration:</p>
-          <p>Do nothing at all for now</p>
+          <TextInput
+            light
+            name="PyretInput"
+            label="Pyret Activity Configuration"
+            change={setLink}
+            width="100%"
+          />
+          <p>Pyret Activity Code:</p>
+          <div className={classes.Code}>{desmosLink}</div>
+          <br />
+          <p>Paste in the URL of a published Pyret program.</p>
+          <br />
         </Aux>
       );
     }
@@ -139,6 +150,7 @@ RoomOpts.propTypes = {
   desmosLink: PropTypes.string.isRequired,
   setDesmosLink: PropTypes.func.isRequired,
   setDesmosCalcLink: PropTypes.func.isRequired,
+  setLink: PropTypes.func.isRequired,
 };
 
 RoomOpts.defaultProps = {

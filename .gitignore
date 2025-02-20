@@ -25,3 +25,6 @@ staging/
 
 # ignore redis dumps
 dump.rdb 
+
+# ignore notes
+PRIVATE_NOTES.md
