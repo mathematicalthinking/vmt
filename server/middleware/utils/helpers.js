@@ -71,7 +71,7 @@ const areObjectIdsEqual = (a, b) => {
 };
 
 // Returns all records via the controller that have any of the values in any of the fields
-const findAllMatching = async (controller, fields = [], values = []) => {
+const findAllMatching = (controller, fields = [], values = []) => {
   const params = fields.map((field) => ({
     [field]: { $in: values },
   }));

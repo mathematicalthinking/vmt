@@ -307,8 +307,8 @@ module.exports = function() {
       socket.user_id = _id;
       controllers.user
         .put(_id, { socketId: socket.id })
-        .then((user) => {
-          cb(`User ${user.username} socketId updated to ${socket.id}`, null);
+        .then(() => {
+          cb(`User socketId updated to ${socket.id}`, null);
         })
         .catch((err) => cb('Error found', err));
 
