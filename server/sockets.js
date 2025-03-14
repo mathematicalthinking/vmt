@@ -301,7 +301,6 @@ module.exports = function() {
       // check if user is still in room and needs to resubscribe to sockets
       socketMetricInc('sync');
       if (!_id) {
-        // console.log('unknown user connected: ', socket.id);
         cb(null, 'NO USER ID GIVEN TO SYNC_SOCKET');
         return;
       }
@@ -312,6 +311,7 @@ module.exports = function() {
           cb(`User socketId updated to ${socket.id}`, null);
         })
         .catch((err) => cb('Error found', err));
+
       markSocketAsActive(socket.user_id, socket.id);
     });
 
@@ -556,9 +556,6 @@ module.exports = function() {
           tab,
         };
       });
-      // const resolved = await Promise.all(promises);
-      // currentUsers.push(...resolved);
-
       const room = await controllers.rooms.setCurrentMembers(
         roomId,
         currentUsers
