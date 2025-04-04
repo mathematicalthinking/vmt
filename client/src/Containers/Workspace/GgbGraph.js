@@ -604,10 +604,10 @@ class GgbGraph extends Component {
     switch (event[0]) {
       case 'viewChange2d':
       case 'viewChange3d':
-        this.getInnerGraphCoords();
+        this.setInnerGraphCoords();
         break;
       case 'setMode':
-        this.getInnerGraphCoords(); // setMode occurs on initialization
+        this.setInnerGraphCoords(); // setMode occurs on initialization
         if (
           event[2] === '40' ||
           (this.previousEvent &&
@@ -633,10 +633,11 @@ class GgbGraph extends Component {
           }
           if (event[2] !== mode.toString()) {
             if (!this.isResyncing && !this.isInitializingGgb) {
-              // this.handleControlWarning({
-              //   showControlWarning: true,
-              //   debug: 635,
-              // });
+              // FOR SOME REASON, this is firing when the user releases control.
+              this.handleControlWarning({
+                showControlWarning: true,
+                debug: 635,
+              });
             } else {
               this.setDefaultGgbMode().then(() => {
                 this.receivingData = false;
@@ -727,7 +728,7 @@ class GgbGraph extends Component {
         }
         break;
       case 'perspectiveChange':
-        this.getInnerGraphCoords();
+        this.setInnerGraphCoords();
         if (this.userCanEdit()) {
           this.parseVisibleViews()
             .then((visibleViews) => {
@@ -965,7 +966,7 @@ class GgbGraph extends Component {
    */
 
   updateListener = (label) => {
-    this.getInnerGraphCoords();
+    this.setInnerGraphCoords();
     if (this.batchUpdating || this.movingGeos || this.renamedDetails) {
       return;
     }
@@ -1096,7 +1097,7 @@ class GgbGraph extends Component {
   zoomListener = async () => {
     const { referencing, showingReference, referToEl } = this.props;
     if ((referencing && referToEl) || showingReference) {
-      this.getInnerGraphCoords();
+      this.setInnerGraphCoords();
       if (referToEl.elementType !== 'chat_message') {
         this.updateReferToEl(referToEl);
       }
@@ -1511,7 +1512,7 @@ class GgbGraph extends Component {
     return { left: xOffset, top: yOffset };
   };
 
-  getInnerGraphCoords = () => {
+  setInnerGraphCoords = () => {
     const { setGraphCoords } = this.props;
     const graphSelector = '.gwt-SplitLayoutPanel';
     const graphEl = document.querySelector(graphSelector);
