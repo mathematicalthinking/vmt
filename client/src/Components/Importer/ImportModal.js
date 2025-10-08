@@ -1,10 +1,8 @@
 /* eslint-disable prettier/prettier */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import ReactDataSheet from 'react-datasheet';
 import { BigModal as Modal, Button } from 'Components';
-// import 'react-datasheet/lib/react-datasheet.css';
-// import './importModal.css';
+import classes from './importModal.css';
 
 /* 
 
@@ -59,277 +57,286 @@ export default function ImportModal(props) {
     onDeleteRow,
     footer,
   } = props;
-  const [tableData, setTableData] = React.useState([]);
+
   const [allChecked, setAllChecked] = React.useState({});
 
-  // converts data into the format used by ReactDataSheet. Note that we do not
-  // reveal to our clients that format because maybe we will switch away from
-  // ReactDataSheet in the future. Instead, the data prop uses a generic format
-  // for the data (array of objects with properties representing each row) and
-  // we have a columnConfig prop that provides the additional information that
-  // is needed for displaying the table. This separation of concerns -- not
-  // revealing the implementation of a component to its clients -- IS VERY
-  // IMPORTANT for comprehensibity and reusability of code, and simplifies future
-  // enhancements/refactoring (i.e., we can change the way that ImportModal does
-  // its job without having to change the code in any of its clients).
-  React.useEffect(() => {
-    setTableData(
-      data.map((row) =>
-        columnConfig.map((col) => {
-          const { property, ...rest } = col;
-          return { value: row[property], ...rest };
-        })
-      )
-    );
-  }, [data]);
+  // Handle cell value changes (notify parent)
+  const handleCellChange = (rowIndex, property, value) => {
+    const changes = [{ rowIndex, [property]: value }];
+    onChanged(changes);
+  };
 
-  // converts data back from the ReactDataSheet format to the format of the
-  // data prop
-  const _convertTableToData = (grid) => {
-    return grid.map((row) =>
-      row.reduce((acc, col, index) => {
-        return { ...acc, [columnConfig[index].property]: col.value };
-      }, {})
+  // Handle "select all" checkbox for boolean columns
+  const handleAllChecked = (columnIndex) => {
+    const property = columnConfig[columnIndex].property;
+    const newValue = !isAllChecked(columnIndex);
+
+    // Create changes for all rows
+    const changes = data.map((_, rowIndex) => ({
+      rowIndex,
+      [property]: newValue,
+    }));
+
+    setAllChecked((prev) => ({ ...prev, [columnIndex]: newValue }));
+    onChanged(changes);
+  };
+
+  // Check if all items in a boolean column are checked
+  const isAllChecked = (columnIndex) => {
+    const property = columnConfig[columnIndex].property;
+
+    if (data.length === 0) return false;
+
+    // Check if stored state exists first
+    if (typeof allChecked[columnIndex] === 'boolean') {
+      return allChecked[columnIndex];
+    }
+
+    // Calculate from data - handle both boolean and string values
+    const allCheckedInData = data.every(
+      (row) => row[property] === true || row[property] === 'true'
+    );
+    return allCheckedInData;
+  };
+
+  // Check if a cell should be highlighted (error)
+  const isHighlighted = (rowIndex, property) => {
+    return highlights.some(
+      (highlight) =>
+        highlight.rowIndex === rowIndex &&
+        highlight.property === property &&
+        highlight.error
     );
   };
 
-  const _handleOk = () => {
-    const returnedData = _convertTableToData(tableData);
-    onSubmit(returnedData);
+  // Check if a cell should have a warning
+  const hasWarning = (rowIndex, property) => {
+    return highlights.some(
+      (highlight) =>
+        highlight.rowIndex === rowIndex &&
+        highlight.property === property &&
+        highlight.warning
+    );
   };
 
-  const _handleCancel = () => {
+  // Determine the color class for a comment line
+  const getCommentLineClass = (line) => {
+    // Warning messages (expandable list)
+    const warningMessages = [
+      'A username has been generated',
+      'username has been generated', // alternative phrasing
+    ];
+
+    if (warningMessages.some((msg) => line.includes(msg))) {
+      return 'warning';
+    }
+
+    // All other messages starting with * are errors
+    if (line.trim().startsWith('*') && line.trim().length > 1) {
+      return 'error';
+    }
+
+    // Default (no special styling)
+    return '';
+  };
+
+  // Render comment text with appropriate colors for each line
+  const renderCommentText = (text) => {
+    if (!text) return '';
+
+    const lines = text.split('\n').filter((line) => line.trim() !== '');
+
+    return lines.map((line, index) => (
+      <span
+        key={index}
+        className={`${classes.commentLine} ${
+          getCommentLineClass(line) ? classes[getCommentLineClass(line)] : ''
+        }`}
+      >
+        {line}
+        {index < lines.length - 1 && <br />}
+      </span>
+    ));
+  };
+
+  // Get action for a specific row
+  const getRowAction = (rowIndex) => {
+    const rowAction = rowConfig.find((config) => config.rowIndex === rowIndex);
+    return rowAction && rowAction.action ? rowAction.action() : null;
+  };
+
+  // Check if we have any actions to display
+  const hasActions = () => {
+    return canDeleteRow || rowConfig.some((config) => config.action);
+  };
+
+  const handleSubmit = () => {
+    if (highlights.length > 0) {
+      // Re-validate the data by triggering onChanged with current data
+      const changes = data.map((row, rowIndex) => ({ rowIndex, ...row }));
+      onChanged(changes);
+    } else {
+      onSubmit(data);
+    }
+  };
+
+  const handleCancel = () => {
     onCancel();
   };
 
-  const _handleCellsChanged = (changes) => {
-    const grid = tableData.map((row) => [...row]);
-    const reportedChanges = [];
-    changes.forEach(({ row, col, value }) => {
-      grid[row][col] = { ...grid[row][col], value };
-      reportedChanges.push({
-        rowIndex: row,
-        [columnConfig[col].property]: value,
-      });
-    });
-    // setTableData(grid);
-    onChanged(reportedChanges);
-  };
-
-  const _handleDelete = (row) => {
-    const newData = [...tableData];
-    newData.splice(row, 1);
-    // setTableData(newData);
-    onDeleteRow(row);
-  };
-
-  // when the user clicks on a 'select/deselect all' checkbox in column col,
-  // first get the new value, then create a changes object in the form needed
-  // by '_handleCellsChanged' whereby we specify every row for the given column
-  // show be of the new value.  We also changed the state of allChecked.
-  const _handleAllChecked = (col) => {
-    const value = !_isAllChecked(col);
-    const changes = tableData.map((row, index) => ({ row: index, col, value }));
-    for (let row = 0; row++; row < tableData.length) {
-      changes.push({ row, col, value });
-    }
-    setAllChecked((prevState) => ({ ...prevState, [col]: !prevState[col] }));
-    _handleCellsChanged(changes);
-  };
-
-  // checks whether the 'select/deselect all' checkbox on top of column col is
-  // checked. Because we don't initialize these values (we could based on
-  // columnConfig, but why bother?), we initialize it here if needed.
-  // NOTE: _isAllChecked and _handleAllChecked is another example of
-  // separation of concerns. These functions are the only ones that know how
-  // state is represented inside of allChecked. If we have to change this
-  // representation in the future, we need only change these two functions. This
-  // approach is also known as following the policy of accessing state via
-  // getter and setter functions rather than accessing the state directly.
-  // Admittedly, it is typically easier in React to get/set the state directly
-  // via the return values from useState, but sometimes this pattern is helpful
-  // (i.e., the state representation is somewhat complex and might be refactored).
-  const _isAllChecked = (col) => {
-    if (typeof allChecked[col] !== 'boolean')
-      setAllChecked((prevState) => ({ ...prevState, [col]: false }));
-    return !!allChecked[col]; // use !! in case the above setAllChecked hasn't completed
-  };
-
-  const _isBoolean = (col) => {
-    return columnConfig[col].type === 'boolean';
-  };
-
-  const _getHeaders = () => {
-    return columnConfig.map((row) => row.header);
-  };
-
-  const _isHighlighted = (row, col) => {
-    return highlights.find(
-      (elt) =>
-        elt.rowIndex === row && elt.property === columnConfig[col].property
-    );
-  };
-
-  // Do we have at least one action? Used to decide whether to have an Action column
-  const _hasActions = () => {
-    return rowConfig.some((row) => row.action);
-  };
-
-  // Used to place an action (usually a button or set of buttons) in the Action column at the end of indicated row.
-  const _rowAction = (row) => {
-    const rowAction = rowConfig.find((elt) => elt.rowIndex === row);
-    return rowAction ? rowAction.action && rowAction.action() : false;
-  };
-
-  const _sheetRenderer = (givenProps) => {
-    const { children } = givenProps;
-    return (
-      <table style={{ marginBottom: '10px', marginTop: '20px', width: '100%' }}>
-        <thead>
-          <tr>
-            {_getHeaders().map((col, index) => (
-              <th key={col} style={{ padding: '10px', textAlign: 'center' }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                  }}
-                >
-                  {col}
-                  {_isBoolean(index) && (
-                    <input
-                      style={{ margin: '5px auto' }}
-                      type="checkbox"
-                      checked={_isAllChecked(index)}
-                      onChange={() => _handleAllChecked(index)}
-                    />
-                  )}
-                </div>
-              </th>
-            ))}
-            {(canDeleteRow || _hasActions()) && (
-              <th style={{ padding: '10px', textAlign: 'center' }}>Actions</th>
-            )}
-          </tr>
-        </thead>
-        <tbody>{children}</tbody>
-      </table>
-    );
-  };
-
-  const _rowRenderer = (ps) => {
-    const { children, row } = ps;
-    return (
-      <tr>
-        {children}
-        <td className="action-cell">
-          {canDeleteRow && <DeleteButton onClick={() => _handleDelete(row)} />}
-          {_rowAction(row) || null}
-        </td>
-      </tr>
-    );
-  };
-
-  const _cellRenderer = (ps) => {
-    const { cell, row, col, children } = ps;
-    return (
-      <td
-        {...ps}
-        style={
-          _isHighlighted(row, col)
-            ? { ...cell.style, border: '2px solid red' }
-            : { ...cell.style }
-        }
-      >
-        {_isBoolean(col) ? (
-          <input
-            type="checkbox"
-            checked={cell.value}
-            onChange={() =>
-              _handleCellsChanged([{ row, col, value: !cell.value }])
-            }
-          />
-        ) : (
-          children
-        )}
-      </td>
-    );
+  const handleDeleteRow = (rowIndex) => {
+    onDeleteRow(rowIndex);
   };
 
   return (
     <Modal show={show}>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-evenly',
-          alignItems: 'center',
-          width: '90vw',
-        }}
-      >
-        <ReactDataSheet
-          data={tableData}
-          sheetRenderer={_sheetRenderer}
-          valueRenderer={(cell) => {
-            return cell.value;
-          }}
-          rowRenderer={_rowRenderer}
-          cellRenderer={_cellRenderer}
-          onCellsChanged={_handleCellsChanged}
-        />
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            width: '40%',
-            marginTop: '10px',
-          }}
-        >
-          <Button theme="Cancel" click={_handleCancel}>
+      <div className={classes.importModalContainer}>
+        <div className={classes.importTableWrapper}>
+          <table className={classes.importTable}>
+            <thead>
+              <tr>
+                {columnConfig.map((column, columnIndex) => (
+                  <th
+                    key={column.property}
+                    className={classes.importTableHeader}
+                  >
+                    <div className={classes.headerContent}>
+                      <span className={classes.headerText}>
+                        {column.header}
+                      </span>
+                      {column.type === 'boolean' && (
+                        <input
+                          type="checkbox"
+                          className={classes.selectAllCheckbox}
+                          checked={isAllChecked(columnIndex)}
+                          onChange={() => handleAllChecked(columnIndex)}
+                          title={`Select/deselect all ${column.header}`}
+                        />
+                      )}
+                    </div>
+                  </th>
+                ))}
+                {hasActions() && (
+                  <th className={classes.importTableHeader}>Actions</th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((row, rowIndex) => (
+                <tr
+                  key={row.id || row.email || `${row.username}-${rowIndex}`}
+                  className={classes.importTableRow}
+                >
+                  {columnConfig.map((column) => {
+                    const value = row[column.property];
+                    const highlighted = isHighlighted(
+                      rowIndex,
+                      column.property
+                    );
+                    const warning = hasWarning(rowIndex, column.property);
+
+                    return (
+                      <td
+                        key={column.property}
+                        className={`${classes.importTableCell} ${
+                          highlighted ? classes.highlighted : ''
+                        } ${warning ? classes.warning : ''}`}
+                        style={column.style}
+                      >
+                        {column.type === 'boolean' ? (
+                          <input
+                            type="checkbox"
+                            checked={value === true || value === 'true'}
+                            onChange={(e) =>
+                              handleCellChange(
+                                rowIndex,
+                                column.property,
+                                e.target.checked
+                              )
+                            }
+                            disabled={column.readOnly}
+                          />
+                        ) : column.readOnly ? (
+                          <div
+                            className={classes.readonlyText}
+                            style={column.style}
+                          >
+                            {column.property === 'comment'
+                              ? renderCommentText(value)
+                              : value || ''}
+                          </div>
+                        ) : (
+                          <input
+                            type="text"
+                            defaultValue={value || ''}
+                            onBlur={(e) =>
+                              handleCellChange(
+                                rowIndex,
+                                column.property,
+                                e.target.value
+                              )
+                            }
+                            className={classes.textInput}
+                            style={column.style}
+                          />
+                        )}
+                      </td>
+                    );
+                  })}
+                  {hasActions() && (
+                    <td
+                      className={`${classes.importTableCell} ${classes.actionCell}`}
+                    >
+                      {canDeleteRow && (
+                        <DeleteButton
+                          onClick={() => handleDeleteRow(rowIndex)}
+                        />
+                      )}
+                      {getRowAction(rowIndex)}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className={classes.importModalButtons}>
+          <Button theme="Cancel" click={handleCancel}>
             Cancel
           </Button>
-          <Button click={_handleOk}>
+          <Button click={handleSubmit}>
             {highlights.length > 0 ? 'Validate' : 'Submit'}
           </Button>
         </div>
-        {footer}
+
+        {footer && <div className={classes.importModalFooter}>{footer}</div>}
       </div>
     </Modal>
   );
 }
 
-const DeleteButton = (props) => {
-  const { onClick } = props;
+const DeleteButton = ({ onClick }) => {
   const [isConfirm, setIsConfirm] = React.useState(false);
 
-  const _handleConfirm = () => {
+  const handleConfirm = () => {
     onClick();
     setIsConfirm(false);
   };
 
-  const _handleCancel = () => {
+  const handleCancel = () => {
     setIsConfirm(false);
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-        width: '100%',
-      }}
-    >
+    <div className={classes.deleteButtonContainer}>
       {isConfirm ? (
         <Fragment>
           Delete?
           <div
             role="button"
-            onKeyPress={_handleCancel}
-            onClick={_handleCancel}
+            onKeyPress={handleCancel}
+            onClick={handleCancel}
             tabIndex="-2" // @TODO What's a more appropriate value?
             title="Cancel delete"
           >
@@ -340,8 +347,8 @@ const DeleteButton = (props) => {
           </div>
           <div
             role="button"
-            onKeyPress={_handleConfirm}
-            onClick={_handleConfirm}
+            onKeyPress={handleConfirm}
+            onClick={handleConfirm}
             tabIndex="-2" // @TODO What's a more appropriate value?
             title="Confirm delete"
           >
@@ -352,15 +359,21 @@ const DeleteButton = (props) => {
           </div>
         </Fragment>
       ) : (
-        <div
-          role="button"
-          onKeyPress={() => setIsConfirm(true)}
-          onClick={() => setIsConfirm(true)}
-          tabIndex="-2" // @TODO What's a more appropriate value?
-          title="Delete row"
-        >
-          <i className="fa fa-times-circle" />
-        </div>
+        <Fragment>
+          <span style={{ opacity: 0, visibility: 'hidden' }}>Delete?</span>
+          <div
+            role="button"
+            onKeyPress={() => setIsConfirm(true)}
+            onClick={() => setIsConfirm(true)}
+            tabIndex="-2" // @TODO What's a more appropriate value?
+            title="Delete row"
+          >
+            <i className="fa fa-times-circle" />
+          </div>
+          <span style={{ opacity: 0, visibility: 'hidden' }}>
+            <i className="fa fa-check-circle" style={{ margin: '0 5px' }} />
+          </span>
+        </Fragment>
       )}
     </div>
   );
@@ -370,7 +383,13 @@ ImportModal.propTypes = {
   show: PropTypes.bool.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   columnConfig: PropTypes.arrayOf(
-    PropTypes.shape({ property: PropTypes.string, type: PropTypes.string })
+    PropTypes.shape({
+      property: PropTypes.string.isRequired,
+      header: PropTypes.string.isRequired,
+      type: PropTypes.string,
+      style: PropTypes.object,
+      readOnly: PropTypes.bool,
+    })
   ).isRequired,
   rowConfig: PropTypes.arrayOf(
     PropTypes.shape({
@@ -379,7 +398,14 @@ ImportModal.propTypes = {
     })
   ),
   onSubmit: PropTypes.func.isRequired,
-  highlights: PropTypes.arrayOf(PropTypes.shape({})),
+  highlights: PropTypes.arrayOf(
+    PropTypes.shape({
+      rowIndex: PropTypes.number.isRequired,
+      property: PropTypes.string.isRequired,
+      error: PropTypes.bool,
+      warning: PropTypes.bool,
+    })
+  ),
   onChanged: PropTypes.func,
   onCancel: PropTypes.func,
   canDeleteRow: PropTypes.bool,
@@ -398,9 +424,5 @@ ImportModal.defaultProps = {
 };
 
 DeleteButton.propTypes = {
-  onClick: PropTypes.func,
-};
-
-DeleteButton.defaultProps = {
-  onClick: () => {},
+  onClick: PropTypes.func.isRequired,
 };

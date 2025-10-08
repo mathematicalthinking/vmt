@@ -18,7 +18,6 @@
     "prop-types": "^15.6.2",
     "react": "^17.0.2",
     "react-copy-to-clipboard": "^5.0.4",
-    "react-datasheet": "^1.4.9",
     "react-datepicker": "^3.0.0",
     "react-dom": "^17.0.2",
     "react-draggable": "^4.4.5",
@@ -92,9 +91,9 @@
     "terser-webpack-plugin-legacy": "^1.2.5"
   },
   "scripts": {
-    "start": "node --max-old-space-size=3072 scripts/start.js",
-    "build-production": "node scripts/build.js production",
-    "build-staging": "node scripts/build.js staging",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider node --max-old-space-size=3072 scripts/start.js",
+    "build-production": "NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js production",
+    "build-staging": "NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js staging",
     "test": "node scripts/test.js --env=jsdom"
   },
   "proxy": "http://localhost:3001/",

@@ -135,7 +135,6 @@ export default function Importer(props) {
             property: 'comment',
             header: 'Comments (* req)',
             style: {
-              color: 'red',
               textAlign: 'left',
               whiteSpace: 'pre-wrap',
             },
