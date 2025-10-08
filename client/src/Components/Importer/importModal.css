@@ -1,91 +1,292 @@
-span.data-grid-container,
-span.data-grid-container:focus {
-  outline: none;
+/* Import Modal Styles */
+.importModalContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 90vw;
+  max-height: 85vh;
+  padding: 20px;
 }
 
-.data-grid-container .data-grid {
-  table-layout: fixed;
-  border-collapse: collapse;
-}
-
-.cell.updated {
-  background-color: rgba(0, 145, 253, 0.16);
-  transition: background-color 0ms ease;
-}
-.cell {
-  height: 50px;
-  user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  cursor: cell;
-  background-color: unset;
-  transition: background-color 500ms ease;
-  vertical-align: middle;
-  text-align: right;
+.importTableWrapper {
+  max-height: 70vh;
+  overflow: auto;
+  width: 100%;
   border: 1px solid #ddd;
-  padding: 0;
-}
-.cell.selected {
-  border: 1px double rgb(33, 133, 208);
-  transition: none;
-  box-shadow: inset 0 -100px 0 rgba(33, 133, 208, 0.15);
+  border-radius: 12px;
+  margin-bottom: 20px;
 }
 
-.cell.read-only {
-  background: whitesmoke;
-  color: #999;
+.importTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: fixed;
+}
+
+.importTableHeader {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.headerText {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.selectAllCheckbox {
+  margin: 0;
+  cursor: pointer;
+}
+
+.importTableRow {
+  border-bottom: 1px solid #eee;
+}
+
+.importTableRow:hover {
+  background-color: #f9f9f9;
+}
+
+.importTableCell {
+  border: 1px solid #ddd;
+  padding: 4px 6px;
+  vertical-align: middle;
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.importTableCell.highlighted {
+  border: 2px solid #ff4444 !important;
+  background-color: #ffebee;
+}
+
+.importTableCell.warning {
+  border: 2px solid #ffa726 !important;
+  background-color: #fff8e1;
+}
+
+.textInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 2px;
+  font-size: 12px;
+  min-height: 16px;
+}
+
+.textInput:focus {
+  outline: 1px solid #2196f3;
+  background-color: white;
+}
+
+.textInput.readonly {
+  color: #666;
+  background-color: #f9f9f9;
+  cursor: not-allowed;
+}
+
+.readonlyText {
+  padding: 2px;
+  font-size: 12px;
+  line-height: 1.2;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.commentLine {
+  display: block;
+  margin: 0;
+}
+
+.commentLine.error {
+  color: #d32f2f;
+}
+
+.commentLine.warning {
+  color: #f57c00;
+}
+
+.actionCell {
+  text-align: center;
+  width: 15%;
+  min-width: 100px;
+  max-width: 150px;
+}
+
+.importModalButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 30px;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 20px;
+}
+
+.importModalFooter {
+  margin-top: 15px;
   text-align: center;
 }
 
-.cell > .text {
-  padding: 2px 5px;
-  text-overflow: ellipsis;
-  overflow: hidden;
+/* Delete Button Styles */
+.deleteButtonContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
 }
 
-.cell > input {
-  outline: none !important;
-  border: 2px solid rgb(33, 133, 208);
-  text-align: right;
-  width: calc(100% - 6px);
-  height: 11px;
+.deleteActionBtn {
   background: none;
-  display: block;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.cell {
-  vertical-align: bottom;
+.deleteActionBtn.delete {
+  color: #666;
 }
 
-.data-grid-container .data-grid .cell,
-.data-grid-container .data-grid.wrap .cell,
-.data-grid-container .data-grid.wrap .cell.wrap,
-.data-grid-container .data-grid .cell.wrap,
-.data-grid-container .data-grid.nowrap .cell.wrap,
-.data-grid-container .data-grid.clip .cell.wrap {
-  white-space: normal;
+.deleteActionBtn.delete:hover {
+  color: #ff4444;
 }
 
-.data-grid-container .data-grid.nowrap .cell,
-.data-grid-container .data-grid.nowrap .cell.nowrap,
-.data-grid-container .data-grid .cell.nowrap,
-.data-grid-container .data-grid.wrap .cell.nowrap,
-.data-grid-container .data-grid.clip .cell.nowrap {
+.cancel {
+  color: #ff4444;
+}
+
+.cancel:hover {
+  color: #ff6666;
+}
+
+.confirm {
+  color: #4caf50;
+}
+
+.confirm:hover {
+  color: #66bb6a;
+}
+
+.deleteConfirmText {
+  font-size: 12px;
+  margin-right: 5px;
   white-space: nowrap;
-  overflow-x: visible;
 }
 
-.data-grid-container .data-grid.clip .cell,
-.data-grid-container .data-grid.clip .cell.clip,
-.data-grid-container .data-grid .cell.clip,
-.data-grid-container .data-grid.wrap .cell.clip,
-.data-grid-container .data-grid.nowrap .cell.clip {
-  white-space: nowrap;
-  overflow-x: hidden;
+/* Column width adjustments for better alignment */
+.importTableHeader:nth-child(1),
+.importTableCell:nth-child(1) {
+  width: 10%; /* Username */
 }
 
-.data-grid-container .data-grid .cell .value-viewer,
-.data-grid-container .data-grid .cell .data-editor {
-  display: block;
+.importTableHeader:nth-child(2),
+.importTableCell:nth-child(2) {
+  width: 12%; /* Email */
+}
+
+.importTableHeader:nth-child(3),
+.importTableCell:nth-child(3) {
+  width: 6%; /* isGmail */
+  text-align: center;
+}
+
+.importTableHeader:nth-child(4),
+.importTableCell:nth-child(4) {
+  width: 9%; /* First Name */
+}
+
+.importTableHeader:nth-child(5),
+.importTableCell:nth-child(5) {
+  width: 9%; /* Last Name */
+}
+
+.importTableHeader:nth-child(6),
+.importTableCell:nth-child(6) {
+  width: 9%; /* Organization */
+}
+
+.importTableHeader:nth-child(7),
+.importTableCell:nth-child(7) {
+  width: 7%; /* Identifier */
+}
+
+.importTableHeader:nth-child(8),
+.importTableCell:nth-child(8) {
+  width: 7%; /* Sponsor */
+}
+
+.importTableHeader:nth-child(9),
+.importTableCell:nth-child(9) {
+  width: 16%; /* Comments */
+  min-width: 120px;
+}
+
+.importTableHeader:nth-child(10),
+.importTableCell:nth-child(10) {
+  width: 15%; /* Actions */
+  min-width: 100px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .importModalContainer {
+    width: 95vw;
+    padding: 12px;
+  }
+  
+  .importTable {
+    font-size: 12px;
+  }
+  
+  .importTableHeader,
+  .importTableCell {
+    padding: 6px;
+    min-width: 80px;
+  }
+  
+  .importModalButtons {
+    gap: 15px;
+  }
+}
+
+/* Scrollbar styling for webkit browsers */
+.importTableWrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.importTableWrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 12px;
+}
+
+.importTableWrapper::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 12px;
+}
+
+.importTableWrapper::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }

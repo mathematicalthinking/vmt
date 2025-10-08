@@ -165,7 +165,7 @@ export default function useDataValidation(importedData) {
   };
 
   const noOpStrategy = {
-    validationErrors: [],
+    highlights: [],
     comment: '',
     setProperties: [],
   };
@@ -176,7 +176,9 @@ export default function useDataValidation(importedData) {
     // username and email blank
     0: (rowIndex) => ({
       ...noOpStrategy,
-      validationErrors: [{ rowIndex, property: 'username' }],
+      highlights: newUsernames.current[rowIndex]
+        ? [{ rowIndex, property: 'username', warning: true }]
+        : [{ rowIndex, property: 'username', error: true }],
       comment: newUsernames.current[rowIndex]
         ? '* A username has been generated.\n'
         : '* Must specify username for a new user.\n',
@@ -187,14 +189,16 @@ export default function useDataValidation(importedData) {
     // username blank, email of existing user
     1: (rowIndex, userFromUsername, userFromEmail) => ({
       ...noOpStrategy,
-      validationErrors: [{ rowIndex, property: 'username' }],
+      highlights: [{ rowIndex, property: 'username', error: true }],
       comment: '* Username filled in from existing user (based on email).\n',
       setProperties: [{ property: 'username', value: userFromEmail.username }],
     }),
     // username blank, email is new
     2: (rowIndex) => ({
       ...noOpStrategy,
-      validationErrors: [{ rowIndex, property: 'username' }],
+      highlights: newUsernames.current[rowIndex]
+        ? [{ rowIndex, property: 'username', warning: true }]
+        : [{ rowIndex, property: 'username', error: true }],
       comment: newUsernames.current[rowIndex]
         ? '* A username has been generated.\n'
         : '* Must specify username for a new user.\n',
@@ -208,7 +212,7 @@ export default function useDataValidation(importedData) {
         ? { ...noOpStrategy }
         : {
             ...noOpStrategy,
-            validationErrors: [{ rowIndex, property: 'email' }],
+            highlights: [{ rowIndex, property: 'email', error: true }],
             comment:
               '* Email filled in from existing user (based on username).\n',
             setProperties: [
@@ -221,15 +225,15 @@ export default function useDataValidation(importedData) {
         ? { ...noOpStrategy }
         : {
             ...noOpStrategy,
-            validationErrors: [
-              { rowIndex, property: 'email' },
-              { rowIndex, property: 'username' },
+            highlights: [
+              { rowIndex, property: 'email', error: true },
+              { rowIndex, property: 'username', error: true },
             ],
             comment: `* Username-email mismatch. Replace username with ${userFromEmail.username} or email with ${userFromUsername.email}.\n`,
           },
     // username is of existing user, email is new
     5: (rowIndex, userFromUsername) => ({
-      validationErrors: [{ rowIndex, property: 'email' }],
+      highlights: [{ rowIndex, property: 'email', error: true }],
       comment: `* Imported email corrected for existing user ${userFromUsername.username}.\n`,
       setProperties: [{ property: 'email', value: userFromUsername.email }],
     }),
@@ -237,7 +241,7 @@ export default function useDataValidation(importedData) {
     6: () => ({ ...noOpStrategy }),
     // username is new, email is of existing user
     7: (rowIndex, userFromUsername, userFromEmail) => ({
-      validationErrors: [{ rowIndex, property: 'username' }],
+      highlights: [{ rowIndex, property: 'username', error: true }],
       comment:
         '* Imported username corrected for existing user (based on email).\n',
       setProperties: [{ property: 'username', value: userFromEmail.username }],
@@ -292,7 +296,7 @@ export default function useDataValidation(importedData) {
 
   const validateDataRow = (dataRow, rowIndex) => {
     // initialization, including default username if needed
-    const newValidationErrors = [];
+    const newHighlights = [];
     const d = { ...dataRow };
     if (!d.isGmail) d.isGmail = false; // initialize if needed
     d.comment = '';
@@ -314,7 +318,7 @@ export default function useDataValidation(importedData) {
       userFromUsername,
       userFromEmail
     );
-    newValidationErrors.push(...strategy.validationErrors);
+    newHighlights.push(...(strategy.highlights || []));
     d.comment += strategy.comment;
     strategy.setProperties.forEach(
       // eslint-disable-next-line no-return-assign
@@ -326,9 +330,9 @@ export default function useDataValidation(importedData) {
     if (isNewUser && (!d.firstName || !d.lastName)) {
       d.comment += '* First and last names are required for new users.\n ';
       if (!d.firstName)
-        newValidationErrors.push({ rowIndex, property: 'firstName' });
+        newHighlights.push({ rowIndex, property: 'firstName', error: true });
       if (!d.lastName)
-        newValidationErrors.push({ rowIndex, property: 'lastName' });
+        newHighlights.push({ rowIndex, property: 'lastName', error: true });
     }
 
     // 5. handle validating that any specified sponsors must be existing users
@@ -344,7 +348,7 @@ export default function useDataValidation(importedData) {
         }));
       else {
         d.comment += "* Teacher's username does not exist.\n";
-        newValidationErrors.push({ rowIndex, property: 'sponsor' });
+        newHighlights.push({ rowIndex, property: 'sponsor', error: true });
       }
     }
 
@@ -352,9 +356,9 @@ export default function useDataValidation(importedData) {
     if (d.email === '' && d.isGmail) {
       d.comment +=
         '* Google login may only be used if an email is specified.\n';
-      newValidationErrors.push(
-        { rowIndex, property: 'email' },
-        { rowIndex, property: 'isGmail' }
+      newHighlights.push(
+        { rowIndex, property: 'email', error: true },
+        { rowIndex, property: 'isGmail', error: true }
       );
     }
 
@@ -365,10 +369,10 @@ export default function useDataValidation(importedData) {
       !d.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
     ) {
       d.comment += '* Email is not properly formed.\n';
-      newValidationErrors.push({ rowIndex, property: 'email' });
+      newHighlights.push({ rowIndex, property: 'email', error: true });
     }
 
-    return [d, newValidationErrors];
+    return [d, newHighlights];
   };
 
   // THE MAIN FUNCTION FOR THIS CUSTOM HOOK.
@@ -410,18 +414,18 @@ export default function useDataValidation(importedData) {
         : rows.map(async (row) => validateDataRow(data[row], row))
     );
 
-    // Reconfigure the results of the above call so that we accumulate the data rows and errors
-    // gathered above. validatedData will be an array of each row. For validationsErrors, because there can be
-    // more than one error on each row, we have to use a spread operator in accumulation so that we
-    // end up wth a simple array of errors.
-    const [newValidatedData, newErrors] = await validatedInfo.reduce(
-      ([accData, accErrors], [dataRow, rowErrors]) => [
+    // Reconfigure the results of the above call so that we accumulate the data rows and highlights
+    // gathered above. validatedData will be an array of each row. For highlights, because there can be
+    // more than one highlight on each row, we have to use a spread operator in accumulation so that we
+    // end up with a simple array of highlights.
+    const [newValidatedData, newHighlights] = await validatedInfo.reduce(
+      ([accData, accHighlights], [dataRow, rowHighlights]) => [
         [...accData, dataRow],
-        [...accErrors, ...rowErrors],
+        [...accHighlights, ...(rowHighlights || [])],
       ],
       [[], []]
     );
-    return [newValidatedData, newErrors];
+    return [newValidatedData, newHighlights];
   };
 
   // Note: return getUser as an async function because in the future, it might be one.
