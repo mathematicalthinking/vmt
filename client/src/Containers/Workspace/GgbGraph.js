@@ -548,6 +548,14 @@ class GgbGraph extends Component {
     }
   };
 
+  handleControlWarning = (newState = {}) => {
+    console.log('handleControlWarning called with: ', newState);
+    const { inControl } = this.props;
+    if (inControl !== 'ME') {
+      this.setState(newState);
+    }
+  };
+
   /**
    * @method userCanEdit
    * @description - checks if the user is in control and connected to the socket
@@ -570,13 +578,6 @@ class GgbGraph extends Component {
     return false;
   };
 
-  showAlert = () => {
-    // eslint-disable-next-line no-alert
-    window.alert(
-      `You are not in control. Click "Take Control" before making changes`
-    );
-  };
-
   /**
    * @method clientListener
    * @description client listener fires everytime anything in the geogebra construction is touched
@@ -590,6 +591,7 @@ class GgbGraph extends Component {
       // seems to happen if you click a bunch of points really quickly
       return;
     }
+    console.log('client listener event', event);
     // modes (https://wiki.geogebra.org/en/Reference:Toolbar)
     // 40 = TRANSLATEVIEW
     // 0 = MOVE
@@ -602,10 +604,10 @@ class GgbGraph extends Component {
     switch (event[0]) {
       case 'viewChange2d':
       case 'viewChange3d':
-        this.getInnerGraphCoords();
+        this.setInnerGraphCoords();
         break;
       case 'setMode':
-        this.getInnerGraphCoords(); // setMode occurs on initialization
+        this.setInnerGraphCoords(); // setMode occurs on initialization
         if (
           event[2] === '40' ||
           (this.previousEvent &&
@@ -631,7 +633,11 @@ class GgbGraph extends Component {
           }
           if (event[2] !== mode.toString()) {
             if (!this.isResyncing && !this.isInitializingGgb) {
-              this.setState({ showControlWarning: true });
+              // FOR SOME REASON, this is firing when the user releases control.
+              this.handleControlWarning({
+                showControlWarning: true,
+                debug: 635,
+              });
             } else {
               this.setDefaultGgbMode().then(() => {
                 this.receivingData = false;
@@ -653,7 +659,11 @@ class GgbGraph extends Component {
           const base64 = this.ggbApplet.getBase64();
           this.sendEvent({ eventType: 'UNDO', base64 });
         } else {
-          this.setState({ showControlWarning: true, redo: true });
+          this.handleControlWarning({
+            showControlWarning: true,
+            redo: true,
+            debug: 657,
+          });
         }
         break;
       case 'redo':
@@ -664,7 +674,7 @@ class GgbGraph extends Component {
         } else {
           this.resetting = true;
           this.ggbApplet.undo();
-          this.setState({ showControlWarning: true });
+          this.handleControlWarning({ showControlWarning: true, debug: 668 });
         }
         break;
       case 'select':
@@ -714,11 +724,11 @@ class GgbGraph extends Component {
         break;
       case 'openMenu':
         if (!this.userCanEdit()) {
-          this.setState({ showControlWarning: true });
+          this.handleControlWarning({ showControlWarning: true, debug: 718 });
         }
         break;
       case 'perspectiveChange':
-        this.getInnerGraphCoords();
+        this.setInnerGraphCoords();
         if (this.userCanEdit()) {
           this.parseVisibleViews()
             .then((visibleViews) => {
@@ -737,7 +747,7 @@ class GgbGraph extends Component {
               console.log('parse visible views err: ', err);
             });
         } else if (!canChangePerspective) {
-          this.setState({ showControlWarning: true });
+          this.handleControlWarning({ showControlWarning: true, debug: 741 });
         }
 
         break;
@@ -754,7 +764,7 @@ class GgbGraph extends Component {
             eventType: 'UPDATE_STYLE',
           });
         } else {
-          this.setState({ showControlWarning: true });
+          this.handleControlWarning({ showControlWarning: true, debug: 758 });
         }
         break;
       }
@@ -777,7 +787,7 @@ class GgbGraph extends Component {
           }
 
           if (!this.userCanEdit()) {
-            this.setState({ showControlWarning: true });
+            this.handleControlWarning({ showControlWarning: true, debug: 781 });
             return;
           }
           const objType = this.ggbApplet.getObjectType(newLabel);
@@ -815,7 +825,7 @@ class GgbGraph extends Component {
         }
         // If they weren't allowed to type here undo to the previous state
         this.ggbApplet.setEditorState(this.editorState);
-        this.setState({ showControlWarning: true });
+        this.handleControlWarning({ showControlWarning: true, debug: 819 });
         break;
       case 'movingGeos':
         this.movingGeos = true; // turn off updating so the updateListener does not send events
@@ -887,7 +897,7 @@ class GgbGraph extends Component {
       return;
     }
     if (!this.userCanEdit()) {
-      this.setState({ showControlWarning: true });
+      this.handleControlWarning({ showControlWarning: true, debug: 891 });
       return;
     }
 
@@ -931,7 +941,7 @@ class GgbGraph extends Component {
     }
 
     if (!this.userCanEdit()) {
-      this.setState({ showControlWarning: true });
+      this.handleControlWarning({ showControlWarning: true, debug: 935 });
       return;
     }
     if (!this.receivingData) {
@@ -956,7 +966,7 @@ class GgbGraph extends Component {
    */
 
   updateListener = (label) => {
-    this.getInnerGraphCoords();
+    this.setInnerGraphCoords();
     if (this.batchUpdating || this.movingGeos || this.renamedDetails) {
       return;
     }
@@ -1087,7 +1097,7 @@ class GgbGraph extends Component {
   zoomListener = async () => {
     const { referencing, showingReference, referToEl } = this.props;
     if ((referencing && referToEl) || showingReference) {
-      this.getInnerGraphCoords();
+      this.setInnerGraphCoords();
       if (referToEl.elementType !== 'chat_message') {
         this.updateReferToEl(referToEl);
       }
@@ -1502,7 +1512,7 @@ class GgbGraph extends Component {
     return { left: xOffset, top: yOffset };
   };
 
-  getInnerGraphCoords = () => {
+  setInnerGraphCoords = () => {
     const { setGraphCoords } = this.props;
     const graphSelector = '.gwt-SplitLayoutPanel';
     const graphEl = document.querySelector(graphSelector);
