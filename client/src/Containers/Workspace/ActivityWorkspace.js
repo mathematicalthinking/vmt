@@ -99,7 +99,6 @@ class ActivityWorkspace extends Component {
     let initialTab = null;
 
     if (activity && !currentTabId) {
-      console.log('setting initial tab');
       // activity has been loaded, but currentTab has not been updated
       // in state. Just use the first tab from the fetched activity
       // as the initial tab. If a user changes tabs, the currentTabId will
@@ -158,7 +157,7 @@ class ActivityWorkspace extends Component {
                 goBack={this.goBack}
                 copy={this.addToMyActivities}
                 tabs={activity.tabs}
-                currentTab={activity.tabs.find((t) => t._id == currentTabId)}
+                currentTab={activity.tabs.find((t) => t._id === currentTabId)}
                 onSave={this.handleOnSave}
               />
             }

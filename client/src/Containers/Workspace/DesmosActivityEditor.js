@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { API } from 'utils';
 import classes from './graph.css';
 import { fetchConfigData } from './Tools/DesActivityHelpers';
 

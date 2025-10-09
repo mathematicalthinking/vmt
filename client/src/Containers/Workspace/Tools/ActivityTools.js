@@ -11,6 +11,8 @@ const ActivityTools = (props) => {
   const [link, setLink] = useState(currentTab.desmosLink);
   const [isChanged, setIsChanged] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   const savedLink = useRef(currentTab.desmosLink);
 
   useEffect(() => {
@@ -62,6 +64,10 @@ const ActivityTools = (props) => {
     setLink(savedLink.current);
     setIsChanged(false);
     setIsSaved(false);
+  };
+
+  const _toggleOpen = () => {
+    setIsOpen(!isOpen);
   };
 
   return (
@@ -151,33 +157,62 @@ const ActivityTools = (props) => {
           </div>
         )}
         {TabTypes.hasInitializer(currentTab.tabType) && (
-          <div>
-            <TextInput
-              type="textarea"
-              light
-              value={link}
-              change={_handleChange}
-            />
+          <div
+            style={{
+              padding: '10px',
+            }}
+          >
             <div
               style={{
+                cursor: 'pointer',
                 display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-evenly',
+                alignItems: 'center',
               }}
+              role="button"
+              tabIndex={-2}
+              onClick={_toggleOpen}
             >
-              {' '}
-              <Button disabled={!isChanged} click={_handleSave}>
-                Save
-              </Button>
-              <Button
-                disabled={!isChanged}
-                theme="Cancel"
-                click={_handleCancel}
-              >
-                Cancel
-              </Button>
-              {isSaved && <Button click={_handleUndo}>Undo</Button>}
+              <i
+                className={[
+                  'fas',
+                  isOpen ? 'fa-chevron-down' : 'fa-chevron-right',
+                ].join(' ')}
+              />
+              <span>&nbsp;Edit the Initializer</span>
             </div>
+
+            {isOpen && (
+              <div style={{ border: '1px solid lightgray', padding: '10px' }}>
+                <TextInput
+                  type="textarea"
+                  light
+                  value={link}
+                  change={_handleChange}
+                />
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly',
+                    gap: '5px',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <Button disabled={!isChanged} click={_handleSave}>
+                    Save
+                  </Button>
+                  <Button
+                    disabled={!isChanged}
+                    theme="Cancel"
+                    click={_handleCancel}
+                  >
+                    Cancel
+                  </Button>
+                  {isSaved && <Button click={_handleUndo}>Undo</Button>}
+                </div>
+              </div>
+            )}
           </div>
         )}
         <div className={classes.Controls}>
