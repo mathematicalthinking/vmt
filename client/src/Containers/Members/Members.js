@@ -24,6 +24,7 @@ import CourseCodeMemberImport from 'Components/Importer/CourseCodeMemberImport';
 import Importer from '../../Components/Importer/Importer';
 import SearchResults from './SearchResults';
 import classes from './members.css';
+import sampleMemberImportCSV from 'assets/sample_member_import.csv';
 
 class Members extends PureComponent {
   constructor(props) {
@@ -535,15 +536,32 @@ class Members extends PureComponent {
                         </p>
                       </div>
                     </div>
-                    <Importer
-                      user={user}
-                      onImport={this.handleImport}
-                      buttonText="Import New Members"
-                      preImportText="Replace all existing members"
-                      preImportAction={this.removeAllMembers}
-                    />
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Importer
+                        user={user}
+                        onImport={this.handleImport}
+                        buttonText="Import New Members"
+                        preImportText="Replace all existing members"
+                        preImportAction={this.removeAllMembers}
+                      />
+                      <a
+                        href={sampleMemberImportCSV}
+                        download="sample_member_import.csv"
+                        style={{
+                          fontSize: '14px',
+                          textDecoration: 'underline',
+                        }}
+                      >
+                        Download Sample Import Template
+                      </a>
+                    </div>
                     <div style={{ margin: '0 1rem' }}>
-                      {/* <Button>Shared Rosters</Button> */}
                       <CourseCodeMemberImport
                         onImport={this.handleCourseCodeMemberImport}
                         userId={user._id}
