@@ -25,7 +25,9 @@ const CourseCodeMemberImport = (props) => {
     );
   };
 
-  return <Button click={handleCourseCodeImport}>CourseCodeMemberImport</Button>;
+  return (
+    <Button click={handleCourseCodeImport}>Import via Course Codes</Button>
+  );
 };
 
 CourseCodeMemberImport.propTypes = {
