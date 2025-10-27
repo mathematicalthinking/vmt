@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import classes from './currentMembers.css';
 import Avatar from '../UI/Avatar/Avatar';
-import COLOR_MAP from '../../utils/colorMap';
+import { COLOR_MAP } from 'utils';
 
 function CurrentMembers({
   currentMembers,

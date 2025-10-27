@@ -298,7 +298,11 @@ export default function useDataValidation(importedData) {
     // initialization, including default username if needed
     const newHighlights = [];
     const d = { ...dataRow };
-    if (!d.isGmail) d.isGmail = false; // initialize if needed
+    if (d.isGmail === undefined) d.isGmail = false; // initialize if needed
+    if (typeof d.isGmail === 'string') {
+      const lowercaseValue = d.isGmail.toLowerCase().trim();
+      d.isGmail = lowercaseValue == 'true' ? true : false;
+    }
     d.comment = '';
     if (d.username) d.username = d.username.toLowerCase().trim();
     if (d.email) {
