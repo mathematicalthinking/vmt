@@ -19,8 +19,6 @@ export default function Importer(props) {
     getUser,
   } = useDataValidation(importedData);
 
-  console.log('Validated Data: ', validatedData);
-
   const handleOpenDialog = (e) => {
     // Note that the ref is set async, so it might be null at some point
     if (buttonRef.current) {
