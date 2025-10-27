@@ -1,2 +1,2 @@
-username,email,isGmail,firstName,lastName,organization,identifier,sponsor
-first-last29,first@last.com,TRUE,First,Last,FirstLast,123456,teacher-username
+username,email,isGmail,firstName,lastName,organization,identifier,sponsor,NOTES
+first-last29,first@last.com,TRUE,First,Last,FirstLast,123456,teacher-username,Put any notes you would like in this column; they will be ignored during import.
