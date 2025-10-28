@@ -22,7 +22,6 @@ import CourseCodeMemberImport from 'Components/Importer/CourseCodeMemberImport';
 import Importer from '../../Components/Importer/Importer';
 import SearchResults from './SearchResults';
 import classes from './members.css';
-import sampleMemberImportCSV from 'assets/sample_member_import.csv';
 
 class Members extends PureComponent {
   constructor(props) {
@@ -542,7 +541,7 @@ class Members extends PureComponent {
                         preImportAction={this.removeAllMembers}
                       />
                       <a
-                        href={sampleMemberImportCSV}
+                        href="/assets/sample_member_import.csv"
                         download="sample_member_import.csv"
                         style={{
                           fontSize: '14px',
