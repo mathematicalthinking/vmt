@@ -3,11 +3,9 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { NavLink } from 'react-router-dom';
-import { Member, Search, Modal, Button, InfoBox, Checkbox } from 'Components';
+import { Member, Search, Modal, Button, InfoBox } from 'Components';
 import Slider from 'Components/UI/Button/Slider';
-import COLOR_MAP from 'utils/colorMap';
-import API from 'utils/apiRequests';
+import { COLOR_MAP, API, getVideosUrl } from 'utils';
 import {
   grantAccess,
   updateCourseMembers,
@@ -24,7 +22,6 @@ import CourseCodeMemberImport from 'Components/Importer/CourseCodeMemberImport';
 import Importer from '../../Components/Importer/Importer';
 import SearchResults from './SearchResults';
 import classes from './members.css';
-import sampleMemberImportCSV from 'assets/sample_member_import.csv';
 
 class Members extends PureComponent {
   constructor(props) {
@@ -371,6 +368,10 @@ class Members extends PureComponent {
     // });
   };
 
+  _handleVideoOpen = () => {
+    window.open(getVideosUrl(), '_blank');
+  };
+
   render() {
     const {
       classList,
@@ -516,24 +517,13 @@ class Members extends PureComponent {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <div className={classes.Instructions}>
+                    <div
+                      className={classes.Instructions}
+                      onClick={this._handleVideoOpen}
+                    >
                       <i className="far fa-question-circle fa-2x" />
                       <div className={classes.TooltipContent}>
-                        <p>
-                          The search bar allows for the searching and addition
-                          of existing VMT Users. By using the Import feature,
-                          new users can be created for your course. <br /> For
-                          csv formatting and importing guides, please see the
-                          VMT{' '}
-                          <NavLink
-                            exact
-                            to="/instructions"
-                            className={classes.Link}
-                            activeStyle={{ borderBottom: '1px solid #2d91f2' }}
-                          >
-                            Instructions
-                          </NavLink>
-                        </p>
+                        Open Help Videos
                       </div>
                     </div>
                     <div
@@ -551,7 +541,7 @@ class Members extends PureComponent {
                         preImportAction={this.removeAllMembers}
                       />
                       <a
-                        href={sampleMemberImportCSV}
+                        href="/assets/sample_member_import.csv"
                         download="sample_member_import.csv"
                         style={{
                           fontSize: '14px',

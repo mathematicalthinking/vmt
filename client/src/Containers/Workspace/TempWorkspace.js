@@ -10,13 +10,11 @@ import {
   updateRoom,
   addUserRooms,
   addToLog,
-} from '../../store/actions';
-import generateMongoId from '../../utils/createMongoId';
+} from 'store/actions';
 import Workspace from './Workspace';
-import { Aux, TextInput, Modal, Button } from '../../Components';
+import { Aux, TextInput, Modal, Button } from 'Components';
 import Signup from '../Signup';
-import socket from '../../utils/sockets';
-import COLOR_MAP from '../../utils/colorMap';
+import { COLOR_MAP, socket, createMongoId } from 'utils';
 // import Replayer from ''
 class TempWorkspace extends Component {
   state = {
@@ -86,7 +84,7 @@ class TempWorkspace extends Component {
 
     const { _id } = populatedRoom;
     const sendData = {
-      _id: generateMongoId(),
+      _id: createMongoId(),
       userId, // this will be undefined if they're not logged in
       firstEntry,
       username: roomUsername,
