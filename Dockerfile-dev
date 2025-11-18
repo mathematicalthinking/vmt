@@ -1,9 +1,10 @@
-FROM node:14.19.3@sha256:02b43f48cbecaef7402988542d6f1a5377d9c4eae8d77156a6e33b15a37283c4
+FROM node:20
 RUN apt update -y && apt upgrade -y && apt install -y curl wget zip unzip bash iputils-ping net-tools dnsutils
-#RUN npm install -g npm@8.10.0 npm-check-updates@13.0.1
+RUN npm install -g npm@10
 ENV NODE_PATH=src \
     PORT=1340 \
-    NODE_OPTIONS=--max_old_space_size=3072
+    NODE_OPTIONS=--max_old_space_size=3072 \
+    CYPRESS_INSTALL_BINARY=0
 WORKDIR /web
 
 # install client dev dependencies for building app

@@ -130,7 +130,7 @@ export default function Importer(props) {
           },
           { property: 'organization', header: 'Affiliation' },
           { property: 'identifier', header: 'Student or Org ID' },
-          { property: 'sponsor', header: 'Teacher VMT Username' },
+          { property: 'sponsor', header: 'Teacher VMT Username or Email' },
           {
             property: 'comment',
             header: 'Comments (* req)',
