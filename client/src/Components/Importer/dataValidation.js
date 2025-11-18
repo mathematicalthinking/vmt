@@ -339,19 +339,19 @@ export default function useDataValidation(importedData) {
         newHighlights.push({ rowIndex, property: 'lastName', error: true });
     }
 
-    // 5. handle validating that any specified sponsors must be existing users
+    // 5. handle validating that any specified sponsors must be existing users (by username or email)
     if (d.sponsor && d.sponsor !== '') {
-      const { _id: sponsor_id } = validateExistingField(
-        'username',
-        d.sponsor
-      ) || { _id: undefined };
-      if (sponsor_id)
+      const sponsorUser =
+        validateExistingField('username', d.sponsor) ||
+        validateExistingField('email', d.sponsor);
+      const { _id: sponsor_id } = sponsorUser || { _id: undefined };
+      if (sponsor_id) {
         setSponsors((prevState) => ({
           ...prevState.sponsors,
           [d.username]: sponsor_id,
         }));
-      else {
-        d.comment += "* Teacher's username does not exist.\n";
+      } else {
+        d.comment += "* Teacher's username or email does not exist.\n";
         newHighlights.push({ rowIndex, property: 'sponsor', error: true });
       }
     }
