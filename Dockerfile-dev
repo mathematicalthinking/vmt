@@ -3,7 +3,8 @@ RUN apt update -y && apt upgrade -y && apt install -y curl wget zip unzip bash i
 RUN npm install -g npm@10
 ENV NODE_PATH=src \
     PORT=1340 \
-    NODE_OPTIONS=--max_old_space_size=3072
+    NODE_OPTIONS=--max_old_space_size=3072 \
+    CYPRESS_INSTALL_BINARY=0
 WORKDIR /web
 
 # install client dev dependencies for building app
