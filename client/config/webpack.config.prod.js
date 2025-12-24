@@ -66,6 +66,7 @@ module.exports = {
       url: false,
       timers: require.resolve('timers-browserify'),
       stream: require.resolve('stream-browserify'),
+      buffer: require.resolve('buffer/'),
     },
     plugins: [new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson])],
   },
@@ -137,6 +138,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
     // new InterpolateHtmlPlugin(env.raw),
     new HtmlWebpackPlugin({
       inject: true,
