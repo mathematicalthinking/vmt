@@ -32,10 +32,7 @@ module.exports = {
   // These are the "entry points" to our application.
   // This means they will be the "root" imports that are included in JS bundle.
   // The first two entry points enable "hot" CSS and auto-refreshes for JS.
-  entry: [
-    require.resolve('./polyfills'),
-    paths.appIndexJs,
-  ],
+  entry: [require.resolve('./polyfills'), paths.appIndexJs],
   output: {
     // Add /* filename */ comments to generated require()s in the output.
     pathinfo: true,
@@ -58,9 +55,7 @@ module.exports = {
     alias: {
       'react-native': 'react-native-web',
     },
-    plugins: [
-      new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
-    ],
+    plugins: [new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson])],
     fallback: {
       dgram: false,
       fs: false,
@@ -193,7 +188,7 @@ module.exports = {
       inject: true,
       template: paths.appHtml,
       templateParameters: {
-        PUBLIC_URL: publicUrl
+        PUBLIC_URL: publicUrl,
       },
     }),
     // Makes some environment variables available to the JS code, for example:

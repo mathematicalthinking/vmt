@@ -30,7 +30,9 @@ module.exports = {
     chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
     publicPath: publicPath,
     devtoolModuleFilenameTemplate: (info) =>
-      path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/'),
+      path
+        .relative(paths.appSrc, info.absoluteResourcePath)
+        .replace(/\\/g, '/'),
   },
   optimization: {
     minimize: true,
@@ -57,13 +59,11 @@ module.exports = {
       'react-native': 'react-native-web',
     },
     fallback: {
-      "timers": require.resolve('timers-browserify'),
-      "stream": require.resolve('stream-browserify'),
-      "url": false,
+      timers: require.resolve('timers-browserify'),
+      stream: require.resolve('stream-browserify'),
+      url: false,
     },
-    plugins: [
-      new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
-    ],
+    plugins: [new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson])],
   },
   module: {
     strictExportPresence: true,
@@ -138,7 +138,7 @@ module.exports = {
       inject: true,
       template: paths.appHtml,
       templateParameters: {
-        PUBLIC_URL: publicUrl
+        PUBLIC_URL: publicUrl,
       },
       minify: {
         removeComments: true,
