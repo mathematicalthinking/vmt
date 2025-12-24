@@ -68,9 +68,7 @@ module.exports = {
       stream: require.resolve('stream-browserify'),
       buffer: require.resolve('buffer/'),
     },
-    plugins: [
-      new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
-    ],
+    plugins: [new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson])],
   },
   module: {
     strictExportPresence: true,

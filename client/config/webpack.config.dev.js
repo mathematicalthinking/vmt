@@ -53,9 +53,7 @@ module.exports = {
     alias: {
       'react-native': 'react-native-web',
     },
-    plugins: [
-      new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
-    ],
+    plugins: [new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson])],
     fallback: {
       dgram: false,
       fs: false,
