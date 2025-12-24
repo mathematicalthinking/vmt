@@ -53,7 +53,9 @@ module.exports = {
     alias: {
       'react-native': 'react-native-web',
     },
-    plugins: [new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson])],
+    plugins: [
+      new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
+    ],
     fallback: {
       dgram: false,
       fs: false,
@@ -63,6 +65,7 @@ module.exports = {
       url: false,
       timers: require.resolve('timers-browserify'),
       stream: require.resolve('stream-browserify'),
+      buffer: require.resolve('buffer/'),
     },
   },
   module: {
@@ -176,6 +179,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
