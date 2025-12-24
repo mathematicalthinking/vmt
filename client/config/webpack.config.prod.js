@@ -6,7 +6,6 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
@@ -59,9 +58,14 @@ module.exports = {
       'react-native': 'react-native-web',
     },
     fallback: {
+      dgram: false,
+      fs: false,
+      net: false,
+      tls: false,
+      child_process: false,
+      url: false,
       timers: require.resolve('timers-browserify'),
       stream: require.resolve('stream-browserify'),
-      url: false,
     },
     plugins: [new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson])],
   },

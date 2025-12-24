@@ -1,7 +1,5 @@
 'use strict';
 
-const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware');
-const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware');
 const ignoredFiles = require('react-dev-utils/ignoredFiles');
 const paths = require('./paths');
 
@@ -13,7 +11,8 @@ module.exports = function (proxy, allowedHost) {
     compress: true,
     devMiddleware: {
       publicPath: '/',
-      writeToDisk: true,
+      writeToDisk: false,
+      stats: 'errors-only',
     },
     static: {
       directory: paths.appPublic,
@@ -23,6 +22,7 @@ module.exports = function (proxy, allowedHost) {
     },
     client: {
       overlay: false,
+      logging: 'none',
     },
     hot: true,
     https: protocol === 'https',
@@ -39,8 +39,6 @@ module.exports = function (proxy, allowedHost) {
         throw new Error('webpack-dev-server is not defined');
       }
 
-      // devServer.app.use(errorOverlayMiddleware());
-      // devServer.app.use(noopServiceWorkerMiddleware());
       return middlewares;
     },
   };

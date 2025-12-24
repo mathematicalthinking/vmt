@@ -6,7 +6,6 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
@@ -62,12 +61,26 @@ module.exports = {
     // devtoolModuleFilenameTemplate: info =>
     //   path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, "/")
   },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          warnings: false,
+          safari10: true,
+          output: {
+            comments: false,
+          },
+        },
+      }),
+    ],
+  },
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
     // We placed these paths second because we want `node_modules` to "win"
     // if there are any conflicts. This matches Node resolution mechanism.
     // https://github.com/facebookincubator/create-react-app/issues/253
-    modules: ['node_modules', paths.appNodeModules].concat(
+    modules: ['node_modules', paths.appNodeModules, paths.appSrc].concat(
       // It is guaranteed to exist because we tweak it in `env.js`
       process.env.NODE_PATH.split(path.delimiter).filter(Boolean)
     ),
@@ -82,6 +95,16 @@ module.exports = {
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
       'react-native': 'react-native-web',
+    },
+    fallback: {
+      dgram: false,
+      fs: false,
+      net: false,
+      tls: false,
+      child_process: false,
+      url: false,
+      timers: require.resolve('timers-browserify'),
+      stream: require.resolve('stream-browserify'),
     },
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -211,11 +234,13 @@ module.exports = {
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
     // In production, it will be an empty string unless you specify "homepage"
     // in `package.json`, in which case it will be the pathname of that URL.
-    new InterpolateHtmlPlugin(env.raw),
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
       template: paths.appHtml,
+      templateParameters: {
+        PUBLIC_URL: publicUrl,
+      },
       minify: {
         removeComments: true,
         collapseWhitespace: true,
@@ -235,15 +260,6 @@ module.exports = {
     // Otherwise React will be compiled in the very slow development mode.
     new webpack.DefinePlugin(env.stringified),
     // Minify the code.
-    new TerserPlugin({
-      terserOptions: {
-        warnings: false,
-        safari10: true,
-        output: {
-          comments: false,
-        },
-      },
-    }),
     // new webpack.optimize.UglifyJsPlugin({
     //   compress: {
     //     warnings: false,
