@@ -39,8 +39,8 @@ module.exports = function (proxy, allowedHost) {
         throw new Error('webpack-dev-server is not defined');
       }
 
-      devServer.app.use(errorOverlayMiddleware());
-      devServer.app.use(noopServiceWorkerMiddleware());
+      // devServer.app.use(errorOverlayMiddleware());
+      // devServer.app.use(noopServiceWorkerMiddleware());
       return middlewares;
     },
   };
