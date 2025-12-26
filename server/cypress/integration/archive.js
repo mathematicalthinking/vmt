@@ -93,8 +93,6 @@ describe('archive page works as intended', function() {
 
 // @TODO: test that the SelectableBoxList icons work for an archived room
 
-
-
 /** Found Bugs
  * Test 1.
  * Make sure you can archive
