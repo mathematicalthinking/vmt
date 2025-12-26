@@ -13,15 +13,17 @@ export default function useDataValidation(importedData) {
   const cachedData = React.useRef([]);
   const newUsernames = React.useRef({});
 
-  React.useEffect(async () => {
-    if (importedData && importedData.length > 0) {
-      setValidatedData(importedData);
-      const [newValidatedData, newValidationErrors] = await validateData(
-        importedData
-      );
-      setValidatedData(newValidatedData);
-      setValidationErrors(newValidationErrors);
-    }
+  React.useEffect(() => {
+    const validate = async () => {
+      if (importedData && importedData.length > 0) {
+        setValidatedData(importedData);
+        const [newValidatedData, newValidationErrors] =
+          await validateData(importedData);
+        setValidatedData(newValidatedData);
+        setValidationErrors(newValidationErrors);
+      }
+    };
+    validate();
   }, [importedData]);
 
   // ================ FUNCTIONS RELATED TO GENERATING SAMPLE USERNAMES =========================
@@ -311,11 +313,8 @@ export default function useDataValidation(importedData) {
     if (d.sponsor) d.sponsor = d.sponsor.toLowerCase().trim();
 
     // 1. handle validating whether username/email exists, whether they are consistent, and the resolution thereof
-    const [
-      userFromUsername,
-      userFromEmail,
-      usernameEmailCode,
-    ] = getUsernameEmailCode(d.username, d.email);
+    const [userFromUsername, userFromEmail, usernameEmailCode] =
+      getUsernameEmailCode(d.username, d.email);
 
     const strategy = usernameEmailStrategy[usernameEmailCode](
       rowIndex,

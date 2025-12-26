@@ -52,9 +52,12 @@ const DesActivityMiniReplayer = ({
     return true;
   };
 
-  useEffect(async () => {
-    if (startingPoint) await initCalc();
-    setLoaded(true);
+  useEffect(() => {
+    const init = async () => {
+      if (startingPoint) await initCalc();
+      setLoaded(true);
+    };
+    init();
     return () => {
       if (calculatorInst.current) {
         calculatorInst.current.destroy();

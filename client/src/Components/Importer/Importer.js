@@ -6,18 +6,14 @@ import ImportModal from './ImportModal';
 import useDataValidation from './dataValidation';
 
 export default function Importer(props) {
-  const { buttonText, preImportAction, preImportText } = props;
+  const { buttonText, preImportAction = null, preImportText = null } = props;
 
   const [showModal, setShowModal] = React.useState(false);
   const [importedData, setImportedData] = React.useState([]);
   const buttonRef = React.createRef();
   const checkboxRef = React.createRef();
-  const {
-    validatedData,
-    validationErrors,
-    sponsors,
-    getUser,
-  } = useDataValidation(importedData);
+  const { validatedData, validationErrors, sponsors, getUser } =
+    useDataValidation(importedData);
 
   const handleOpenDialog = (e) => {
     // Note that the ref is set async, so it might be null at some point
@@ -188,9 +184,4 @@ Importer.propTypes = {
   buttonText: PropTypes.string.isRequired,
   preImportAction: PropTypes.func,
   preImportText: PropTypes.string,
-};
-
-Importer.defaultProps = {
-  preImportAction: null,
-  preImportText: null,
 };
