@@ -3,7 +3,7 @@ const errors = require('../fixtures/errors').forgotPassword;
 const { clearInputByName, typeInputByName } = require('../helpers');
 
 const submit = () => {
-  cy.get('button').click();
+  cy.get('form').find('button').first().click();
 };
 
 const clearAllFields = () => {

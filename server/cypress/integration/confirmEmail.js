@@ -26,7 +26,7 @@ describe('Confirming Email', function() {
       cy.visit('/login');
       cy.get('input[name=username]').type(user.username);
       cy.get('input[name=password]').type(user.password);
-      cy.get('button').click();
+      cy.contains('button', 'Login').click();
       cy.url().should('include', '/myVMT/rooms');
       cy.wait(1000);
     });
@@ -63,7 +63,7 @@ describe('Confirming Email', function() {
           cy.visit('/login');
           cy.get('input[name=username]').type(userLiveToken.username);
           cy.get('input[name=password]').type(userLiveToken.password);
-          cy.get('button').click();
+          cy.contains('button', 'Login').click();
           cy.url().should('include', '/unconfirmed');
           cy.wait(1000);
         });
@@ -98,7 +98,7 @@ describe('Confirming Email', function() {
           cy.visit('/login');
           cy.get('input[name=username]').type(userLiveToken.username);
           cy.get('input[name=password]').type(userLiveToken.password);
-          cy.get('button').click();
+          cy.contains('button', 'Login').click();
           cy.url().should('include', '/unconfirmed');
           cy.wait(1000);
           cy.visit(url);
@@ -157,7 +157,7 @@ describe('Confirming Email', function() {
         cy.visit('/login');
         cy.get('input[name=username]').type(user.username);
         cy.get('input[name=password]').type(user.password);
-        cy.get('button').click();
+        cy.contains('button', 'Login').click();
         cy.url().should('include', '/unconfirmed');
         // not sure why we have to wait here
         // not recognizing that we are logged in otherwise
@@ -201,7 +201,7 @@ describe('Confirming Email', function() {
         cy.visit('/login');
         cy.get('input[name=username]').type(user.username);
         cy.get('input[name=password]').type(user.password);
-        cy.get('button').click();
+        cy.contains('button', 'Login').click();
         cy.url().should('include', '/unconfirmed');
         cy.visit(url);
         cy.contains(successMsg);
@@ -229,7 +229,7 @@ describe('Confirming Email', function() {
         cy.visit('/login');
         cy.get('input[name=username]').type(user.username);
         cy.get('input[name=password]').type(user.password);
-        cy.get('button').click();
+        cy.contains('button', 'Login').click();
         cy.url().should('include', '/myVMT/');
         cy.logout();
       });
@@ -242,7 +242,7 @@ describe('Confirming Email', function() {
         cy.visit('/login');
         cy.get('input[name=username]').type(user.username);
         cy.get('input[name=password]').type(user.password);
-        cy.get('button').click();
+        cy.contains('button', 'Login').click();
         cy.url().should('include', '/unconfirmed');
       });
 

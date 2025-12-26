@@ -21,7 +21,7 @@ describe('user signup/login', function() {
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=email]').type(user.email);
     cy.get('input[name=password]').type(user.password);
-    cy.get('button').click();
+    cy.contains('button', 'Signup').click();
     cy.url().should('include', '/unconfirmed');
     cy.logout();
   });
@@ -29,7 +29,7 @@ describe('user signup/login', function() {
     cy.contains('Login').click();
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=password]').type(user.password);
-    cy.get('button').click();
+    cy.contains('button', 'Login').click();
     cy.url().should('include', '/unconfirmed');
     cy.logout();
   });
@@ -41,7 +41,7 @@ describe('user signup/login', function() {
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=email]').type(user.email);
     cy.get('input[name=password]').type(user.password);
-    cy.get('button').click();
+    cy.contains('button', 'Signup').click();
     cy.contains(
       'There already exists a user with that username' || 'Unauthorized'
     ).should('exist');
@@ -50,14 +50,14 @@ describe('user signup/login', function() {
     cy.contains('Login').click();
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=password]').type('incorrect password');
-    cy.get('button').click();
+    cy.contains('button', 'Login').click();
     cy.contains('Incorrect password').should('exist');
   });
   it('fails to login with wrong username', function() {
     cy.contains('Login').click();
     cy.get('input[name=username]').type('incorrect username');
     cy.get('input[name=password]').type(user.password);
-    cy.get('button').click();
+    cy.contains('button', 'Login').click();
     cy.contains('Incorrect username').should('exist');
   });
 });

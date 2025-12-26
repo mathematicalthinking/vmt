@@ -16,9 +16,9 @@
 // Import commands.js using ES2015 syntax:
 import './commands';
 
-Cypress.Cookies.defaults({
-  preserve: 'mt_sso_ac',
-});
+// In Cypress 12+, cookies are preserved by default within a single spec
+// If you need to preserve cookies across specs, use cy.session() in your tests
+// For example: cy.session('user-auth', () => { /* login logic */ })
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

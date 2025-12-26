@@ -23,7 +23,7 @@ describe('test admin dashboard ', function() {
     cy.contains('Login').click();
     cy.get('input[name=username]').type(user9.username);
     cy.get('input[name=password]').type(user9.password);
-    cy.get('button').click();
+    cy.contains('button', 'Login').click();
     cy.contains('Your account has been suspended').should('be.visible');
   });
 

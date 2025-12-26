@@ -19,7 +19,7 @@ Cypress.Commands.add('login', (user) => {
     cy.contains('Login').click();
     cy.get('input[name=username]').type(user.username);
     cy.get('input[name=password]').type(user.password);
-    cy.get('button').click();
+    cy.contains('button', 'Login').click();
     cy.url().should('include', '/myVMT/');
   });
   // CANT GET THE CODE BELOW TO WORK -- want to do it programitcally - not through the UI
