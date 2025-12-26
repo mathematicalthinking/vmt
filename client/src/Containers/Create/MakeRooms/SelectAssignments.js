@@ -18,9 +18,8 @@ const SelectAssignments = ({
   firstOption = null,
 }) => {
   const [showAssignments, setShowAssignments] = React.useState(false);
-  const [selectedAssignment, setSelectedAssignment] = React.useState(
-    defaultOption
-  );
+  const [selectedAssignment, setSelectedAssignment] =
+    React.useState(defaultOption);
   const [roomSettings, setRoomSettings] = React.useState({});
   const initialMember = useMemo(() => {
     return [member];

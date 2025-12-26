@@ -18,7 +18,7 @@ const Tabs = ({
   const tabOptions = tabs
     .map((tab, i) => {
       const currentOption =
-      // display: (#1) Tab Name if there are multiple tabs
+        // display: (#1) Tab Name if there are multiple tabs
         tabs.length > 1
           ? {
               label: `${i + 1}: ${tab.name}`,

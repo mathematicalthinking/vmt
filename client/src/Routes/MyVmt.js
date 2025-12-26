@@ -45,8 +45,7 @@ const pages = [
     redirectPath: '/',
   },
   {
-    path:
-      '/courses/:course_id/activities/:activity_id/rooms/:room_id/:resource',
+    path: '/courses/:course_id/activities/:activity_id/rooms/:room_id/:resource',
     component: Room,
     redirectPath: '/',
   },

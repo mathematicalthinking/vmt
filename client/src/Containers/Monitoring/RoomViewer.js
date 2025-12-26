@@ -23,7 +23,9 @@ import classes from './roomViewer.css';
  *    Workspace container, where the snapshots are taken.
  */
 
-function RoomViewer({ populatedRoom = { chat: [], members: [], currentMembers: [] } }) {
+function RoomViewer({
+  populatedRoom = { chat: [], members: [], currentMembers: [] },
+}) {
   const [isSimplified, setIsSimplified] = React.useState(false);
 
   return (

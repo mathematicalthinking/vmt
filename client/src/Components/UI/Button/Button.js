@@ -3,7 +3,18 @@ import PropTypes from 'prop-types';
 import classes from './button.css';
 
 const Button = (props) => {
-  const { theme = 'Small', disabled = false, m = 0, click, type = 'button', children, tabIndex = 0, id = null, p = undefined, 'data-testid': dataTestId = null } = props;
+  const {
+    theme = 'Small',
+    disabled = false,
+    m = 0,
+    click,
+    type = 'button',
+    children,
+    tabIndex = 0,
+    id = null,
+    p = undefined,
+    'data-testid': dataTestId = null,
+  } = props;
   // let styles = [classes.Button]
   let styles = classes[theme];
   if (disabled) {

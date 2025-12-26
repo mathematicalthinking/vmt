@@ -19,28 +19,18 @@ const Chart = ({ data = null, state }) => {
   const [[height, width], setDimensions] = useState([0, 0]);
   const graph = useRef(null);
   const x = useCallback(
-    d3
-      .scaleLinear()
-      .domain([0, durationDisplay])
-      .range([0, width])
-      .nice(),
+    d3.scaleLinear().domain([0, durationDisplay]).range([0, width]).nice(),
     [durationDisplay, width]
   );
   const y = useCallback(
-    d3
-      .scaleLinear()
-      .domain([0, maxY])
-      .range([height, 0])
-      .nice(),
+    d3.scaleLinear().domain([0, maxY]).range([height, 0]).nice(),
     [durationDisplay, height, maxY]
   );
 
   useEffect(() => {
     if (graph.current) {
-      const {
-        width: updatedWidth,
-        height: updatedHeight,
-      } = graph.current.getBoundingClientRect();
+      const { width: updatedWidth, height: updatedHeight } =
+        graph.current.getBoundingClientRect();
       setDimensions([
         updatedHeight - margin.top - margin.bottom,
         updatedWidth - margin.left - margin.right,

@@ -4,7 +4,12 @@ import classes from './dropdownNavItem.css';
 import NavItem from './NavItem/NavItem';
 
 const DropdownNavItem = (props) => {
-  const { name, list, mr = 0, 'data-testid': dataTestId = 'dropdownNavItem' } = props;
+  const {
+    name,
+    list,
+    mr = 0,
+    'data-testid': dataTestId = 'dropdownNavItem',
+  } = props;
   let marginStyle = {};
   if (mr) {
     marginStyle = {

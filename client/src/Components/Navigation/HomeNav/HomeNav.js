@@ -9,7 +9,13 @@ import DropdownNavItem from '../DropdownNavItem';
 import Aux from '../../HOC/Auxil';
 import classes from './homeNav.css';
 
-const Navbar = ({ page, user = null, loggedIn, isDark = false, toggleAdmin }) => {
+const Navbar = ({
+  page,
+  user = null,
+  loggedIn,
+  isDark = false,
+  toggleAdmin,
+}) => {
   let styles = classes.Nav;
   if (page === '/about' || page === '/faq' || page === '/terms') {
     styles = classes.FixedGradientNav;
