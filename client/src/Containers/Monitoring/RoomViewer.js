@@ -23,7 +23,7 @@ import classes from './roomViewer.css';
  *    Workspace container, where the snapshots are taken.
  */
 
-function RoomViewer({ populatedRoom }) {
+function RoomViewer({ populatedRoom = { chat: [], members: [], currentMembers: [] } }) {
   const [isSimplified, setIsSimplified] = React.useState(false);
 
   return (
@@ -101,10 +101,6 @@ RoomViewer.propTypes = {
     currentMembers: PropTypes.arrayOf(PropTypes.shape({})),
     updatedAt: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   }),
-};
-
-RoomViewer.defaultProps = {
-  populatedRoom: { chat: [], members: [], currentMembers: [] },
 };
 
 export default RoomViewer;

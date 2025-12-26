@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import styles from './stats.css';
 
-const Line = ({ data, color, leftMargin, x, y }) => {
+const Line = ({ data, color = 'blue', leftMargin, x, y }) => {
   const line = d3
     .line()
     .curve(d3.curveMonotoneX)
@@ -29,10 +29,6 @@ Line.propTypes = {
   color: PropTypes.string,
   x: PropTypes.func.isRequired,
   y: PropTypes.func.isRequired,
-};
-
-Line.defaultProps = {
-  color: 'blue',
 };
 
 export default Line;

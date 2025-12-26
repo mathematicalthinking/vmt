@@ -5,10 +5,10 @@ import classes from './tabs.css';
 const Tabs = ({
   tabs,
   currentTabId,
-  ntfTabs,
-  onChangeTab,
-  onCreateNewTab,
-  canCreate,
+  ntfTabs = [],
+  onChangeTab = () => {},
+  onCreateNewTab = () => {},
+  canCreate = false,
 }) => {
   const tabEls = tabs.map((tab, i) => (
     <div
@@ -66,13 +66,6 @@ Tabs.propTypes = {
       );
     }
   },
-};
-
-Tabs.defaultProps = {
-  onChangeTab: () => {},
-  onCreateNewTab: () => {},
-  ntfTabs: [],
-  canCreate: false,
 };
 
 export default Tabs;

@@ -5,7 +5,12 @@ import { useSortableData } from 'utils';
 import classes from './makeRooms.css';
 
 const AssignmentMatrix = (props) => {
-  const { allParticipants, roomDrafts, headerComponent, ...otherProps } = props;
+  const {
+    allParticipants,
+    roomDrafts,
+    headerComponent = null,
+    ...otherProps
+  } = props;
 
   const defaultOption = { label: 'Sort...', value: [] };
   const keys = [
@@ -15,9 +20,8 @@ const AssignmentMatrix = (props) => {
     { label: 'By room', value: 'rooms' },
   ];
 
-  const [participantsToDisplay, setParticipantsToDisplay] = useState(
-    allParticipants
-  );
+  const [participantsToDisplay, setParticipantsToDisplay] =
+    useState(allParticipants);
   const [selection, setSelection] = useState(defaultOption);
 
   // put username at top level
@@ -99,20 +103,16 @@ AssignmentMatrix.propTypes = {
   headerComponent: PropTypes.node,
 };
 
-AssignmentMatrix.defaultProps = {
-  headerComponent: null,
-};
-
 const TheMatrix = (props) => {
   const {
     allParticipants,
     requiredParticipants,
     roomDrafts,
     select, // should be 'setRoomDrafts'
-    canDeleteRooms, // should be 'canAddDeleteRooms'
+    canDeleteRooms = true, // should be 'canAddDeleteRooms'
     userId,
-    onAddParticipants,
-    getCourseName,
+    onAddParticipants = null,
+    getCourseName = null,
   } = props;
 
   // =========== SORT FACILITATORS TO THE END OF ALL PARTICIPANTS ==============
@@ -358,12 +358,6 @@ TheMatrix.propTypes = {
   canDeleteRooms: PropTypes.bool,
   onAddParticipants: PropTypes.func,
   getCourseName: PropTypes.func,
-};
-
-TheMatrix.defaultProps = {
-  canDeleteRooms: true,
-  onAddParticipants: null,
-  getCourseName: null,
 };
 
 export default AssignmentMatrix;

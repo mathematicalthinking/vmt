@@ -34,9 +34,4 @@ Background.propTypes = {
   fixed: PropTypes.bool,
 };
 
-Background.defaultProps = {
-  bottomSpace: null,
-  fixed: false,
-};
-
 export default Background;

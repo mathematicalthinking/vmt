@@ -42,11 +42,11 @@ function RoomsMonitor({
   tabIndex,
   screenIndex,
   user,
-  onThumbnailSelected,
+  onThumbnailSelected = () => {},
   context, // used for saving and restoring UI state
-  onVisible, // provides array of ids of rooms that are visible on the screen
-  isLoading, // array of ids that are currently loading
-  customComponent, // a component that gets inserted right next to the admin warning
+  onVisible = () => {}, // provides array of ids of rooms that are visible on the screen
+  isLoading = [], // array of ids that are currently loading
+  customComponent = null, // a component that gets inserted right next to the admin warning
 }) {
   const constants = {
     CHAT: 'Chat',
@@ -314,7 +314,9 @@ function RoomsMonitor({
                           {populatedRooms[room._id].name}
                           <span className={classes.Timestamp}>
                             updated:{' '}
-                            {_roomDateStamp(populatedRooms[room._id].updatedAt)}{' '}
+                            {_roomDateStamp(
+                              populatedRooms[room._id].updatedAt
+                            )}{' '}
                           </span>
                           <i
                             className="fas fa-external-link-alt"
@@ -423,14 +425,6 @@ RoomsMonitor.propTypes = {
   customComponent: PropTypes.node,
 };
 
-RoomsMonitor.defaultProps = {
-  tabIndex: undefined,
-  screenIndex: undefined,
-  onThumbnailSelected: () => {},
-  onVisible: () => {},
-  isLoading: [],
-};
-
 ChartUpdater.propTypes = {
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
@@ -445,10 +439,6 @@ DropdownMenu.propTypes = {
     })
   ).isRequired,
   'data-testid': PropTypes.string,
-};
-
-DropdownMenu.defaultProps = {
-  'data-testid': 'dropdownMenu',
 };
 
 const mapStateToProps = (state) => ({ user: state.user });

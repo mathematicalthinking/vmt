@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './iframe.css';
 
-const Iframe = ({ source, title }) => {
+const Iframe = ({ source, title = 'VMT iFrame' }) => {
   return (
     <iframe
       src={source}
@@ -24,12 +24,6 @@ Iframe.propTypes = {
   title: PropTypes.string,
   // h: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   // w: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-};
-
-Iframe.defaultProps = {
-  title: 'VMT iFrame',
-  // h: '100%',
-  // w: '100%',
 };
 
 export default Iframe;

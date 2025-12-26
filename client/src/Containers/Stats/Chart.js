@@ -7,7 +7,7 @@ import classes from './stats.css';
 
 const margin = { top: 10, right: 10, bottom: 40, left: 50 };
 
-const Chart = ({ state }) => {
+const Chart = ({ data = null, state }) => {
   const {
     lines,
     units,
@@ -111,10 +111,6 @@ const Chart = ({ state }) => {
 Chart.propTypes = {
   data: PropTypes.shape({}),
   state: PropTypes.shape({}).isRequired,
-};
-
-Chart.defaultProps = {
-  data: null,
 };
 
 export default Chart;

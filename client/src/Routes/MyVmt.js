@@ -104,8 +104,8 @@ const pages = [
 const MyVmt = ({
   match,
   loggedIn,
-  user,
-  globalErrorMessage,
+  user = {},
+  globalErrorMessage = null,
   connectUpdateUser,
 }) => {
   const toggleAdmin = () => {
@@ -167,11 +167,6 @@ MyVmt.propTypes = {
   }),
   globalErrorMessage: PropTypes.string,
   connectUpdateUser: PropTypes.func.isRequired,
-};
-
-MyVmt.defaultProps = {
-  user: {},
-  globalErrorMessage: null,
 };
 // Provide login status to all private routes
 const mapStateToProps = (state) => ({

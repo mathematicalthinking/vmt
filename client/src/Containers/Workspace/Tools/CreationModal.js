@@ -16,7 +16,15 @@ import modalClasses from '../../../Components/UI/Modal/modal.css';
 import formatImageUrl from '../../Create/tinyGraphs.utils';
 
 const CreationModal = (props) => {
-  const { populatedRoom, user, history, mathState, currentTabId } = props;
+  const {
+    populatedRoom,
+    user,
+    history,
+    mathState = {},
+    currentTabId,
+    currentTabs = {},
+    closeModal,
+  } = props;
 
   const [newName, setNewName] = useState('');
   const [newResourceType] = useState('activity');
@@ -32,7 +40,7 @@ const CreationModal = (props) => {
     const copy = { ...populatedRoom };
     const { connectCreateActivity, connectCreateRoom } = props;
 
-     _updateError();
+    _updateError();
     if (createActivityError) return;
 
     const { description, privacySetting, instructions } = copy;
@@ -92,8 +100,9 @@ const CreationModal = (props) => {
 
     if (!newName) {
       setCreateActivityError(
-        `Please provide a name for your new ${newResource ||
-          'resource and select type above'}`
+        `Please provide a name for your new ${
+          newResource || 'resource and select type above'
+        }`
       );
     }
   };
@@ -142,7 +151,6 @@ const CreationModal = (props) => {
     }
   };
 
-  const { closeModal, currentTabs } = props;
   return (
     <Modal show={isCreatingActivity} closeModal={closeModal}>
       <p style={{ marginBottom: 10 }}>
@@ -215,11 +223,6 @@ CreationModal.propTypes = {
   currentTabId: PropTypes.string.isRequired,
 };
 
-CreationModal.defaultProps = {
-  currentTabs: {},
-  mathState: {},
-};
-
 const mapStateToProps = (state) => {
   return {
     userId: state.user._id,
@@ -228,11 +231,8 @@ const mapStateToProps = (state) => {
 };
 
 export default withRouter(
-  connect(
-    mapStateToProps,
-    {
-      connectCreateActivity: createActivity,
-      connectCreateRoom: createRoom,
-    }
-  )(CreationModal)
+  connect(mapStateToProps, {
+    connectCreateActivity: createActivity,
+    connectCreateRoom: createRoom,
+  })(CreationModal)
 );

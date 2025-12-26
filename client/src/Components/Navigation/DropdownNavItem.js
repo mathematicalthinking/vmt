@@ -4,7 +4,7 @@ import classes from './dropdownNavItem.css';
 import NavItem from './NavItem/NavItem';
 
 const DropdownNavItem = (props) => {
-  const { name, list, mr } = props;
+  const { name, list, mr = 0, 'data-testid': dataTestId = 'dropdownNavItem' } = props;
   let marginStyle = {};
   if (mr) {
     marginStyle = {
@@ -14,8 +14,7 @@ const DropdownNavItem = (props) => {
   return (
     <li
       className={classes.Container}
-      // eslint-disable-next-line react/destructuring-assignment
-      data-testid={props['data-testid']}
+      data-testid={dataTestId}
       style={marginStyle}
     >
       <NavItem link={list[0].link} name={name} />
@@ -41,11 +40,6 @@ DropdownNavItem.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   'data-testid': PropTypes.string,
   mr: PropTypes.number,
-};
-
-DropdownNavItem.defaultProps = {
-  'data-testid': 'dropdownNavItem',
-  mr: 0,
 };
 
 export default DropdownNavItem;

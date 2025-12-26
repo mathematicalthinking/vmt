@@ -16,11 +16,11 @@ import classes from './modal.css';
 const Modal = ({
   show,
   closeModal,
-  message,
+  message = null,
   children,
-  height,
-  width,
-  testId,
+  height = null,
+  width = null,
+  testId = null,
 }) => (
   <Fragment>
     <Backdrop show={show} clicked={closeModal} />
@@ -68,13 +68,6 @@ Modal.propTypes = {
   height: PropTypes.number,
   width: PropTypes.number,
   testId: PropTypes.string,
-};
-
-Modal.defaultProps = {
-  message: null,
-  height: null,
-  width: null,
-  testId: null,
 };
 
 export default Modal;

@@ -17,13 +17,13 @@ import classes from './makeRooms.css';
 const EditRooms = (props) => {
   const {
     activity,
-    course,
-    participants: courseParticipants,
+    course = null,
+    participants: courseParticipants = [],
     selectedAssignment,
     userId,
     close,
     roomSettings,
-    roomSettingsComponent,
+    roomSettingsComponent = null,
   } = props;
   const dispatch = useDispatch();
   const history = useHistory();
@@ -311,12 +311,6 @@ EditRooms.propTypes = {
   participants: PropTypes.arrayOf(PropTypes.shape({})),
   roomSettings: PropTypes.shape({}).isRequired,
   roomSettingsComponent: PropTypes.node,
-};
-
-EditRooms.defaultProps = {
-  course: null,
-  participants: [],
-  roomSettingsComponent: null,
 };
 
 export default EditRooms;

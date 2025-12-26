@@ -5,7 +5,7 @@ import Notification from '../../Notification/Notification';
 import classes from './navItem.css';
 import Checkbox from '../../Form/Checkbox/Checkbox';
 
-const NavItem = ({ name, link, ntf, sliderDetails, pattern }) => {
+const NavItem = ({ name, link = null, ntf = false, sliderDetails = null, pattern }) => {
   const currentLocation = new URL(window.location.href);
   const linkURL = new URL(link, window.location.href); // in case the link is relative
   const style =
@@ -52,9 +52,4 @@ NavItem.propTypes = {
   }),
 };
 
-NavItem.defaultProps = {
-  ntf: false,
-  sliderDetails: null,
-  link: null,
-};
 export default NavItem;

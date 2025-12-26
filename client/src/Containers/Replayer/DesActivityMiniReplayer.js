@@ -4,9 +4,9 @@ import Select from 'react-select';
 import classes from 'Containers/Replayer/DesActivityReplayer.css';
 
 const DesActivityMiniReplayer = ({
-  startingPoint,
-  currentState,
-  currentScreen,
+  startingPoint = '',
+  currentState = '',
+  currentScreen = 0,
 }) => {
   const defaultOption = { label: 'Screen recently changed', value: -1 };
   const [screenSelection, setScreenSelection] = React.useState(defaultOption);
@@ -115,12 +115,6 @@ DesActivityMiniReplayer.propTypes = {
   currentState: PropTypes.string,
   startingPoint: PropTypes.string,
   currentScreen: PropTypes.number,
-};
-
-DesActivityMiniReplayer.defaultProps = {
-  currentState: '',
-  startingPoint: '',
-  currentScreen: 0,
 };
 
 export default DesActivityMiniReplayer;

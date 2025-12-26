@@ -11,12 +11,12 @@ const Step1 = (props) => {
     description,
     resource,
     name,
-    organization,
-    school,
-    district,
-    gradeSelectHandler,
-    gradeSelectOptions,
-    gradeSelectValue,
+    organization = '',
+    school = '',
+    district = '',
+    gradeSelectHandler = null,
+    gradeSelectOptions = null,
+    gradeSelectValue = null,
   } = props;
   return (
     <div className={classes.FormSection}>
@@ -103,15 +103,6 @@ Step1.propTypes = {
     label: PropTypes.string,
     value: PropTypes.number,
   }),
-};
-
-Step1.defaultProps = {
-  district: '',
-  school: '',
-  organization: '',
-  gradeSelectHandler: null,
-  gradeSelectOptions: null,
-  gradeSelectValue: null,
 };
 
 export default Step1;

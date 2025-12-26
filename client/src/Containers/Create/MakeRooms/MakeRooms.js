@@ -12,13 +12,13 @@ import classes from './makeRooms.css';
 const MakeRooms = (props) => {
   const {
     activity,
-    course,
-    participants: initialParticipants,
-    selectedAssignment,
+    course = null,
+    participants: initialParticipants = [],
+    selectedAssignment = {},
     userId,
     close,
     roomSettings,
-    roomSettingsComponent,
+    roomSettingsComponent = null,
   } = props;
 
   const dispatch = useDispatch(); // Elsewhere we use 'connect()'; this is the modern approach
@@ -545,13 +545,6 @@ MakeRooms.propTypes = {
   participants: PropTypes.arrayOf(PropTypes.shape({})),
   roomSettings: PropTypes.shape({}).isRequired,
   roomSettingsComponent: PropTypes.node,
-};
-
-MakeRooms.defaultProps = {
-  selectedAssignment: {},
-  course: null,
-  participants: [],
-  roomSettingsComponent: null,
 };
 
 export default MakeRooms;

@@ -7,11 +7,11 @@ import { COLOR_MAP } from 'utils';
 function CurrentMembers({
   currentMembers,
   members,
-  activeMember, // either individual user id or an array of user ids.
-  inControl, // the user id of the person who should be displayed in the 'in control' area
+  activeMember = null, // either individual user id or an array of user ids.
+  inControl = null, // the user id of the person who should be displayed in the 'in control' area
   expanded,
-  toggleExpansion,
-  showTitle,
+  toggleExpansion = null,
+  showTitle = true,
 }) {
   const [presentMembers, setPresentMembers] = useState([]);
 
@@ -144,13 +144,6 @@ CurrentMembers.propTypes = {
   showTitle: PropTypes.bool,
   toggleExpansion: PropTypes.func,
   inControl: PropTypes.string,
-};
-
-CurrentMembers.defaultProps = {
-  activeMember: null,
-  toggleExpansion: null,
-  showTitle: true,
-  inControl: null,
 };
 
 export default CurrentMembers;

@@ -7,7 +7,7 @@ import classes from './selectAssignment.css';
 
 const SelectAssignments = ({
   activity,
-  course,
+  course = null,
   userId,
   member,
   label,
@@ -15,7 +15,7 @@ const SelectAssignments = ({
   toolTip,
   AssignmentComponent,
   optionsGenerator,
-  firstOption,
+  firstOption = null,
 }) => {
   const [showAssignments, setShowAssignments] = React.useState(false);
   const [selectedAssignment, setSelectedAssignment] = React.useState(
@@ -152,11 +152,6 @@ SelectAssignments.propTypes = {
   AssignmentComponent: PropTypes.func.isRequired,
   optionsGenerator: PropTypes.func.isRequired,
   firstOption: PropTypes.shape({}),
-};
-
-SelectAssignments.defaultProps = {
-  course: null,
-  firstOption: null,
 };
 
 export default SelectAssignments;

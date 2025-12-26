@@ -7,7 +7,7 @@ import classes from '../create.css';
 
 // import classes from '../create.css';
 const Copy = (props) => {
-  const { addActivity, selectedActivities, userId } = props;
+  const { addActivity, selectedActivities = [], userId = '' } = props;
   // const [loadedTemplates, setLoadedTemplates] = useUIState(
   //   'use-existing-templates',
   //   []
@@ -209,10 +209,5 @@ Copy.propTypes = {
   addActivity: PropTypes.func.isRequired,
   selectedActivities: PropTypes.arrayOf(PropTypes.string),
   userId: PropTypes.string,
-};
-
-Copy.defaultProps = {
-  selectedActivities: [],
-  userId: '',
 };
 export default Copy;
