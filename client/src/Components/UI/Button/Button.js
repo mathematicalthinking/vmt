@@ -12,7 +12,7 @@ const Button = (props) => {
     children,
     tabIndex = 0,
     id = null,
-    p = undefined,
+    p,
     'data-testid': dataTestId = null,
   } = props;
   // let styles = [classes.Button]
