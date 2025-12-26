@@ -9,9 +9,9 @@ console.log('allowedOrigins: ', allowedOrigins);
 module.exports = (req, res, next) => {
   // Website you wish to allow to connect
   const { origin } = req.headers;
-  const originHeader = allowedOrigins.includes(origin) ? origin : null;
-
-  res.setHeader('Access-Control-Allow-Origin', originHeader);
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   // Request methods you wish to allow
   res.setHeader(
     'Access-Control-Allow-Methods',

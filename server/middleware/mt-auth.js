@@ -79,6 +79,7 @@ const prepareMtUser = (req, res, next) => {
     })
     .catch((err) => {
       console.log(`prepareMtUser error: ${err}`);
+      next(err);
     });
 };
 
