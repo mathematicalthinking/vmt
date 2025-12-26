@@ -11,8 +11,10 @@ module.exports = defineConfig({
     chromeWebSecurity: false,
     viewportWidth: 1400,
     viewportHeight: 860,
+    supportFile: 'cypress/support/index.js',
+    specPattern: 'cypress/integration/**/*.js',
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      return require('./cypress/plugins/index.js')(on, config);
     },
   },
 });

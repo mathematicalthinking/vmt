@@ -34,7 +34,7 @@ const validateUser = (req, res, next) => {
     return next();
   }
   const user = utils.getUser(req);
-  if (user) {
+  if (user || resource === 'user') {
     return next();
   }
   // if there is no user check if the resource is the tab of temp room
