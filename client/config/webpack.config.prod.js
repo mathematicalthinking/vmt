@@ -6,6 +6,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+const { GenerateSW } = require('workbox-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
@@ -167,6 +168,13 @@ module.exports = {
     }),
     new WebpackManifestPlugin({
       fileName: 'asset-manifest.json',
+    }),
+    new GenerateSW({
+      clientsClaim: true,
+      skipWaiting: true,
+      exclude: [/\.map$/, /asset-manifest\.json$/],
+      navigateFallback: `${publicUrl}/index.html`,
+      navigateFallbackDenylist: [/^\/__/],
     }),
     new webpack.IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,
