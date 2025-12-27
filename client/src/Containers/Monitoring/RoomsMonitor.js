@@ -379,7 +379,11 @@ function ChartUpdater(props) {
  * component, it should be moved to the ./Components portion of src.
  */
 
-const DropdownMenu = (props) => {
+const DropdownMenu = ({
+  name,
+  list,
+  'data-testid': dataTestId = 'dropdownMenu',
+}) => {
   const { name, list } = props;
   // eslint-disable-next-line react/prop-types
   const firstLink = list[0].link;
@@ -388,7 +392,7 @@ const DropdownMenu = (props) => {
     <li
       className={DropdownMenuClasses.Container}
       // eslint-disable-next-line react/destructuring-assignment
-      data-testid={props['data-testid']}
+      data-testid={dataTestId}
     >
       <NavItem link={firstLink} name={name} sliderDetails={firstDetails} />
       <div className={DropdownMenuClasses.DropdownContent}>
