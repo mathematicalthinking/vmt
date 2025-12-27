@@ -3,7 +3,14 @@ import PropTypes from 'prop-types';
 import { dateAndTime } from 'utils';
 import classes from './editText.css';
 
-const EditText = ({ editing, inputType, change, children, options, name }) => {
+const EditText = ({
+  editing,
+  inputType,
+  change,
+  children = null,
+  options = null,
+  name,
+}) => {
   let input;
   let plainText;
   if (editing) {
@@ -112,8 +119,4 @@ EditText.propTypes = {
   name: PropTypes.string.isRequired,
 };
 
-EditText.defaultProps = {
-  options: null,
-  children: null,
-};
 export default EditText;

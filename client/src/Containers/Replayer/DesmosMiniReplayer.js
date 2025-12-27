@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
-const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
+const DesmosMiniReplayer = ({ startingPoint = '', currentState = '' }) => {
   const calculator = React.createRef();
 
   const _initialize = (el) => {
@@ -47,11 +47,6 @@ const DesmosMiniReplayer = ({ startingPoint, currentState }) => {
 DesmosMiniReplayer.propTypes = {
   startingPoint: PropTypes.string,
   currentState: PropTypes.string,
-};
-
-DesmosMiniReplayer.defaultProps = {
-  startingPoint: '',
-  currentState: '',
 };
 
 export default DesmosMiniReplayer;

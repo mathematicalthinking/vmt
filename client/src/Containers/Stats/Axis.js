@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 
-const Axis = ({ isXAxis, scale, height, width, left }) => {
+const Axis = ({ isXAxis, scale, height = 0, width = 0, left = 0 }) => {
   const axisRef = useRef(null);
   useEffect(() => {
     if (axisRef.current && scale) {
@@ -31,12 +31,6 @@ Axis.propTypes = {
   height: PropTypes.number,
   width: PropTypes.number,
   left: PropTypes.number,
-};
-
-Axis.defaultProps = {
-  height: 0,
-  width: 0,
-  left: 0,
 };
 
 export default Axis;

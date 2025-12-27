@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import classes from './breadCrumbs.css';
 // import glb from "../../../global.css";
-const BreadCrumbs = ({ crumbs, notifications }) => {
+const BreadCrumbs = ({ crumbs, notifications = null }) => {
   let ntf;
   if (crumbs.length > 1 && notifications.length > 0) {
     const { link } = crumbs[crumbs.length - 1];
@@ -48,10 +48,6 @@ const BreadCrumbs = ({ crumbs, notifications }) => {
 BreadCrumbs.propTypes = {
   crumbs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   notifications: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-BreadCrumbs.defaultProps = {
-  notifications: null,
 };
 
 export default BreadCrumbs;

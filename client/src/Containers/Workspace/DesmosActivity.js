@@ -14,6 +14,7 @@ import Modal from '../../Components/UI/Modal/Modal';
 import API from '../../utils/apiRequests';
 
 const DesmosActivity = (props) => {
+  const { onScreenChange = () => {}, temp = false } = props;
   // const [screenPage, setScreenPage] = useState(1);
   // every persistent event since session started (component loaded)
   const [activityHistory, setActivityHistory] = useState({});
@@ -420,11 +421,6 @@ DesmosActivity.propTypes = {
   onScreenChange: PropTypes.func,
   temp: PropTypes.bool,
   emitEvent: PropTypes.func.isRequired,
-};
-
-DesmosActivity.defaultProps = {
-  onScreenChange: () => {},
-  temp: false,
 };
 
 export default withRouter(DesmosActivity);

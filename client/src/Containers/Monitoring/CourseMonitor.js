@@ -64,8 +64,11 @@ function CourseMonitor({ course }) {
     [course._id]
   );
 
-  React.useEffect(async () => {
-    setRooms(await fetchRooms());
+  React.useEffect(() => {
+    const loadRooms = async () => {
+      setRooms(await fetchRooms());
+    };
+    loadRooms();
   }, []);
 
   return (

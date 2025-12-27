@@ -6,8 +6,8 @@ import { fail } from '../../store/actions/loading';
 
 const privateRoute = ({
   component: Component,
-  authed,
-  redirectPath,
+  authed = false,
+  redirectPath = '/',
   connectFail,
   ...rest
 }) => {
@@ -38,11 +38,6 @@ privateRoute.propTypes = {
   authed: PropTypes.bool,
   redirectPath: PropTypes.string,
   connectFail: PropTypes.func.isRequired,
-};
-
-privateRoute.defaultProps = {
-  authed: false,
-  redirectPath: '/',
 };
 
 export default connect(null, { connectFail: fail })(privateRoute);

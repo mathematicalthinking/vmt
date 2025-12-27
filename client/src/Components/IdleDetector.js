@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useActivityDetector, socket } from 'utils';
 
-export default function IdleDetector({ children }) {
+export default function IdleDetector({ children = null }) {
   const user = useSelector((store) => store.user);
   const { _id: userId, loggedIn: isLoggedIn } = user;
   const isLoggedInRef = useRef(isLoggedIn);
@@ -35,8 +35,4 @@ export default function IdleDetector({ children }) {
 
 IdleDetector.propTypes = {
   children: PropTypes.node,
-};
-
-IdleDetector.defaultProps = {
-  children: null,
 };

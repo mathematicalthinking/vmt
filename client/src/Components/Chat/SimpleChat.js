@@ -10,7 +10,7 @@ import ChatClasses from './chat.css';
  * A simplifield version of Chat, which uses some of the original's CSS.
  * Shows an alert if new messages have appeared off screen.
  */
-function SimpleChat({ log, isSimplified, context }) {
+function SimpleChat({ log, isSimplified = true, context }) {
   if (!log) log = [];
   const chatScroll = React.createRef();
   const prevLogLength = React.useRef(0);
@@ -110,10 +110,6 @@ SimpleChat.propTypes = {
   log: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   isSimplified: PropTypes.bool,
   context: PropTypes.string.isRequired,
-};
-
-SimpleChat.defaultProps = {
-  isSimplified: true,
 };
 
 export default SimpleChat;

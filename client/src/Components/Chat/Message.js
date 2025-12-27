@@ -14,11 +14,11 @@ const Message = React.forwardRef((props, ref) => {
     message,
     showReference,
     onClick,
-    highlighted,
+    highlighted = false,
     id,
-    referencing,
+    referencing = false,
     // isSimplified determines the user display options to streamline chat in Room
-    isSimplified,
+    isSimplified = true,
     reference,
   } = props;
   let highlightClass = '';
@@ -125,9 +125,4 @@ Message.propTypes = {
   showReference: PropTypes.func.isRequired,
 };
 
-Message.defaultProps = {
-  highlighted: false,
-  referencing: false,
-  isSimplified: true,
-};
 export default Message;

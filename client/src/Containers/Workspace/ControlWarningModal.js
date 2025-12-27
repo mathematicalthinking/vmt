@@ -8,7 +8,7 @@ const ControlWarningModal = ({
   takeControl,
   cancel,
   showControlWarning,
-  inAdminMode,
+  inAdminMode = false,
 }) => {
   let msg = `You can't make updates when you're not in control.`;
   let cancelText = 'Cancel';
@@ -69,10 +69,6 @@ const ControlWarningModal = ({
       </div>
     </Modal>
   );
-};
-
-ControlWarningModal.defaultProps = {
-  inAdminMode: false,
 };
 
 ControlWarningModal.propTypes = {

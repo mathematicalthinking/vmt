@@ -57,8 +57,11 @@ function AllRoomsMonitor({ user }) {
     [user._id]
   );
 
-  React.useEffect(async () => {
-    setRooms(await fetchRooms());
+  React.useEffect(() => {
+    const loadRooms = async () => {
+      setRooms(await fetchRooms());
+    };
+    loadRooms();
   }, []);
 
   return (

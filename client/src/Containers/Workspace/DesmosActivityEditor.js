@@ -118,13 +118,8 @@ DesmosActivityEditor.propTypes = {
     startingPointBase64: PropTypes.string,
     _id: PropTypes.string,
   }).isRequired,
-  user: PropTypes.shape({}),
   setFirstTabLoaded: PropTypes.func.isRequired,
   updateActivityTab: PropTypes.func.isRequired,
-};
-
-DesmosActivityEditor.defaultProps = {
-  user: undefined,
 };
 
 export default DesmosActivityEditor;

@@ -178,7 +178,7 @@ function hasInitializer(tabType) {
   return templateStateFunc !== defaultProperties(tabType).templateState;
 }
 
-function Buttons({ onClick, disabled }) {
+function Buttons({ onClick, disabled = false }) {
   return (
     <Fragment>
       {activeTabTypes.map((tabType) => (
@@ -201,11 +201,7 @@ Buttons.propTypes = {
   disabled: PropTypes.bool,
 };
 
-Buttons.defaultProps = {
-  disabled: false,
-};
-
-function RadioButtons({ onClick, filters, checked }) {
+function RadioButtons({ onClick = null, filters = null, checked = null }) {
   const allowedTypes = filters
     ? activeTabTypes.filter((type) => filters.includes(type))
     : activeTabTypes;
@@ -230,12 +226,6 @@ RadioButtons.propTypes = {
   onClick: PropTypes.func,
   filters: PropTypes.arrayOf(PropTypes.string),
   checked: PropTypes.string,
-};
-
-RadioButtons.defaultProps = {
-  onClick: null,
-  filters: null,
-  checked: null,
 };
 
 function MathspaceComponent(property, { type, ...otherProps }) {

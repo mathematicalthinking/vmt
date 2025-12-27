@@ -16,16 +16,16 @@ import classes from './tools.css';
  * - uses a ControlButton that accepts the control state from the client and knows what to do with it. This button gets reused within Workspace.
  */
 const Tools = ({
-  controlState,
-  lastEvent,
-  referencing,
-  isSimplified,
+  controlState = null,
+  lastEvent = null,
+  referencing = false,
+  isSimplified = true,
   onClickExit,
-  onClickSave,
-  onClickControl,
-  onToggleSimpleChat,
-  onToggleReference,
-  onClickCreateTemplate,
+  onClickSave = null,
+  onClickControl = null,
+  onToggleSimpleChat = null,
+  onToggleReference = null,
+  onClickCreateTemplate = null,
   exitText,
 }) => {
   return (
@@ -123,18 +123,6 @@ Tools.propTypes = {
   onToggleReference: PropTypes.func,
   onClickCreateTemplate: PropTypes.func,
   exitText: PropTypes.string.isRequired,
-};
-
-Tools.defaultProps = {
-  onClickControl: null,
-  onToggleSimpleChat: null,
-  referencing: false,
-  isSimplified: true,
-  onToggleReference: null,
-  lastEvent: null,
-  controlState: null,
-  onClickSave: null,
-  onClickCreateTemplate: null,
 };
 
 export default Tools;
