@@ -384,7 +384,6 @@ const DropdownMenu = ({
   list,
   'data-testid': dataTestId = 'dropdownMenu',
 }) => {
-  const { name, list } = props;
   // eslint-disable-next-line react/prop-types
   const firstLink = list[0].link;
   const firstDetails = list[0].sliderDetails;
