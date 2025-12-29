@@ -11,7 +11,7 @@ const PublicAccess = ({
   joinWithCode,
   closeModal,
   user,
-  setAdmin,
+  setAdmin = null,
 }) => {
   const displayResource = resource.slice(0, resource.length - 1);
   return (
@@ -55,10 +55,6 @@ PublicAccess.propTypes = {
     isAdmin: PropTypes.bool,
   }).isRequired,
   setAdmin: PropTypes.func, // follows pattern on PrivateAccess
-};
-
-PublicAccess.defaultProps = {
-  setAdmin: null,
 };
 
 export default PublicAccess;

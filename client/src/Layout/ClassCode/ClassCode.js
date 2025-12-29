@@ -19,7 +19,15 @@ import { storeGmail } from 'store/actions/user';
 import classes from './classcode.css';
 import GoogleLogin from '../../Components/Form/Google/LoginButton';
 
-function ClassCode(props) {
+function ClassCode({
+  errorMessage = null,
+  temp = false,
+  clearError,
+  signup,
+  login,
+  loggedIn,
+  history,
+}) {
   const [code, setCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [resource, setResource] = useState({});
@@ -28,8 +36,6 @@ function ClassCode(props) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const { clearError } = props;
-
     return () => {
       if (errorMessage) {
         setErrorMessage('');
@@ -95,16 +101,11 @@ function ClassCode(props) {
   };
 
   const join = (user) => {
-    // const user = members.find(
-    //   (mem) => mem.user.username.toLowerCase() === member.username.toLowerCase()
-    // ).user;
     setMemberToConf(user);
     window.scrollTo(0, 0);
   };
 
   const handleLogin = () => {
-    const { signup, login, history } = props;
-
     if (memberToConf.user.accountType === 'pending') {
       const userToConvert = {
         accountType: 'participant',
@@ -156,7 +157,6 @@ function ClassCode(props) {
     return <div>Welcome back to VMT!</div>;
   };
 
-  const { temp, loggedIn, errorMessage: systemError } = props;
   const isGoogleUser = memberToConf.user ? memberToConf.user.isGmail : false;
 
   return (
@@ -279,8 +279,8 @@ function ClassCode(props) {
                   )}
                 </div>
                 <div className={classes.ErrorMsg}>
-                  {systemError !== '' && (
-                    <div className={classes.Error}>{systemError}</div>
+                  {errorMessage !== '' && (
+                    <div className={classes.Error}>{errorMessage}</div>
                   )}
                 </div>
               </Fragment>
@@ -294,22 +294,12 @@ function ClassCode(props) {
 
 ClassCode.propTypes = {
   temp: PropTypes.bool,
-  room: PropTypes.string,
   signup: PropTypes.func.isRequired,
   login: PropTypes.func.isRequired,
-  user: PropTypes.shape({}),
   errorMessage: PropTypes.string,
   clearError: PropTypes.func.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
-};
-
-ClassCode.defaultProps = {
-  room: null,
-  user: null,
-  errorMessage: null,
-  temp: false,
-  // closeModal: null,
 };
 
 export default ClassCode;

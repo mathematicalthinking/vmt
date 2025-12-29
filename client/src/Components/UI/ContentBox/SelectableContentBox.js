@@ -12,17 +12,17 @@ import classes from './SelectableContentBox.css';
 const SelectableContentBox = (props) => {
   const {
     id,
-    notifications,
-    link,
-    roomType,
-    listType,
+    notifications = null,
+    link = null,
+    roomType = null,
+    listType = null,
     title,
     details,
-    isChecked,
+    isChecked = false,
     onSelect,
-    customIcons,
-    customStyle,
-    isExpanded,
+    customIcons = [],
+    customStyle = null,
+    isExpanded = false,
   } = props;
 
   const history = useHistory();
@@ -243,17 +243,6 @@ SelectableContentBox.propTypes = {
   ),
   customStyle: PropTypes.shape({}),
   isExpanded: PropTypes.bool,
-};
-
-SelectableContentBox.defaultProps = {
-  notifications: null,
-  link: null,
-  roomType: null,
-  listType: null,
-  isChecked: false,
-  customIcons: [],
-  customStyle: null,
-  isExpanded: false,
 };
 
 export default SelectableContentBox;

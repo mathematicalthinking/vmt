@@ -7,7 +7,12 @@ import { Background, Aux, Button } from '../../Components';
 import classes from './confirmation.css';
 
 const Confirmation = (props) => {
-  const { errorMessage, successMessage, success, connectClear } = props;
+  const {
+    errorMessage = null,
+    successMessage = null,
+    success = false,
+    connectClear,
+  } = props;
   return (
     <Aux>
       <Background />
@@ -28,12 +33,6 @@ Confirmation.propTypes = {
   successMessage: PropTypes.string,
   success: PropTypes.bool,
   connectClear: PropTypes.func.isRequired,
-};
-
-Confirmation.defaultProps = {
-  errorMessage: null,
-  successMessage: null,
-  success: false,
 };
 
 const mapStateToProps = (state) => ({

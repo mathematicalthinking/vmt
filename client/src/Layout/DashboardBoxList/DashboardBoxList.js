@@ -8,11 +8,11 @@ const dashboardBoxList = (props) => {
     list,
     listType,
     resource,
-    linkPath,
-    linkSuffix,
-    maxHeight,
-    scrollable,
-    resultsMessage,
+    linkPath = null,
+    linkSuffix = null,
+    maxHeight = null,
+    scrollable = false,
+    resultsMessage = null,
     manageUser,
     ownUserId,
     getIconActions,
@@ -105,14 +105,6 @@ dashboardBoxList.propTypes = {
   manageUser: PropTypes.func.isRequired,
   ownUserId: PropTypes.string.isRequired,
   getIconActions: PropTypes.func.isRequired,
-};
-
-dashboardBoxList.defaultProps = {
-  maxHeight: null,
-  scrollable: false,
-  linkSuffix: null,
-  linkPath: null,
-  resultsMessage: null,
 };
 
 export default dashboardBoxList;

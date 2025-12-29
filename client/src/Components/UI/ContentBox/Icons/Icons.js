@@ -5,7 +5,7 @@ import getResourceTabTypes from 'utils/getResourceTabTypes';
 import ToolTip from '../../../ToolTip/ToolTip';
 import classes from './icons.css';
 
-const Icons = ({ lock, listType, roomType, image }) => {
+const Icons = ({ lock = null, listType, roomType = null, image = null }) => {
   const [lockIcon, setLockIcon] = React.useState();
   const [roomTypeIcon, setRoomTypeIcon] = React.useState();
 
@@ -80,11 +80,5 @@ Icons.propTypes = {
   lock: PropTypes.bool,
   listType: PropTypes.string.isRequired,
   roomType: PropTypes.arrayOf(PropTypes.string), // Testing to see whether roomType is ever a string (if so, we get a warning)
-};
-
-Icons.defaultProps = {
-  image: null,
-  roomType: null,
-  lock: null,
 };
 export default Icons;
