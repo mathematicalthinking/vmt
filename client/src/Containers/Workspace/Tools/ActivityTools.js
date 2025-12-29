@@ -212,8 +212,4 @@ ActivityTools.propTypes = {
   onSave: PropTypes.func.isRequired,
 };
 
-// ActivityTools.defaultProps = {
-//   save: null,
-// };
-
 export default ActivityTools;

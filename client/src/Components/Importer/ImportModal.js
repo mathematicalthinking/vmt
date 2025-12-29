@@ -48,14 +48,14 @@ export default function ImportModal(props) {
     show,
     data,
     columnConfig,
-    rowConfig,
-    highlights,
+    rowConfig = [],
+    highlights = [],
     onSubmit,
-    onChanged,
-    onCancel,
-    canDeleteRow,
-    onDeleteRow,
-    footer,
+    onChanged = () => {},
+    onCancel = () => {},
+    canDeleteRow = true,
+    onDeleteRow = () => {},
+    footer = null,
   } = props;
 
   const [allChecked, setAllChecked] = React.useState({});
@@ -411,16 +411,6 @@ ImportModal.propTypes = {
   canDeleteRow: PropTypes.bool,
   onDeleteRow: PropTypes.func,
   footer: PropTypes.element,
-};
-
-ImportModal.defaultProps = {
-  highlights: [],
-  rowConfig: [],
-  onChanged: () => {},
-  onCancel: () => {},
-  canDeleteRow: true,
-  onDeleteRow: () => {},
-  footer: null,
 };
 
 DeleteButton.propTypes = {

@@ -11,12 +11,12 @@ const SelectableBoxList = (props) => {
     list,
     listType,
     resource,
-    notifications,
-    linkPath,
-    linkSuffix,
-    selectActions, // array of actions (Buttons) i.e. Restore, Delete
-    icons,
-    customStyle,
+    notifications = [],
+    linkPath = null,
+    linkSuffix = null,
+    selectActions = [], // array of actions (Buttons) i.e. Restore, Delete
+    icons = null,
+    customStyle = {},
   } = props;
 
   const [selectedIds, setSelectedIds] = useState([]);
@@ -283,15 +283,6 @@ SelectableBoxList.propTypes = {
     title: PropTypes.shape({}),
     checkbox: PropTypes.shape({}),
   }),
-};
-
-SelectableBoxList.defaultProps = {
-  selectActions: [],
-  notifications: [],
-  icons: null,
-  linkPath: null,
-  linkSuffix: null,
-  customStyle: {},
 };
 
 export default SelectableBoxList;
