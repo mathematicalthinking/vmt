@@ -10,39 +10,42 @@
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
-    // [::1] is the IPv6 localhost address.
-    window.location.hostname === '[::1]' ||
-    // 127.0.0.1/8 is considered localhost for IPv4.
-    window.location.hostname.match(
-      /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
-    )
+  // [::1] is the IPv6 localhost address.
+  window.location.hostname === '[::1]' ||
+  // 127.0.0.1/8 is considered localhost for IPv4.
+  window.location.hostname.match(
+    /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+  )
 );
 
 function registerValidSW(swUrl) {
   window.navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
+      // Track if we've already reloaded to prevent infinite reload loops
+      let refreshing = false;
+
+      // Detect when a new service worker takes control
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        console.log('New service worker activated, reloading page...');
+        window.location.reload();
+      });
+
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
+        if (!installingWorker) return;
+
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
             if (window.navigator.serviceWorker.controller) {
-              // At this point, the old content will have been purged and
-              // the fresh content will have been added to the cache.
-              // It's the perfect time to display a "New content is
-              // available; please refresh." message in your web app.
-              console.log('New content is available refreshing...');
-              window.location.reload(true); // force the user to get our new updates
+              // New service worker is installed, it will skip waiting and take control
+              console.log('New content is available, will refresh shortly...');
             } else {
-              // At this point, everything has been precached.
-              // It's the perfect time to display a
-              // "Content is cached for offline use." message.
+              // First install - no previous service worker
               console.log('Content is cached for offline use.');
             }
-          } else if (installingWorker.state === 'installing') {
-            alert(
-              'There is a new version of VMT available. Your screen will refresh when it is finished installing.'
-            );
           }
         };
       };

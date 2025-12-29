@@ -44,6 +44,9 @@ module.exports = {
             keep_classnames: process.env.REACT_APP_DEV === 'true',
             keep_fnames: process.env.REACT_APP_DEV === 'true',
           },
+          // I know it seems redundant, but we do need these options here as well as the same under the mangle property.
+          keep_classnames: process.env.REACT_APP_DEV === 'true',
+          keep_fnames: process.env.REACT_APP_DEV === 'true',
           safari10: true,
           output: {
             comments: false,
@@ -63,7 +66,7 @@ module.exports = {
       fs: false,
       net: false,
       tls: false,
-      child_process: false,
+      child_process: false, 
       url: false,
       timers: require.resolve('timers-browserify'),
       stream: require.resolve('stream-browserify'),
