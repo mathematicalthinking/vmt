@@ -20,7 +20,7 @@ import classes from './classcode.css';
 import GoogleLogin from '../../Components/Form/Google/LoginButton';
 
 function ClassCode({
-  errorMessage = null,
+  errorMessage: systemError = null,
   temp = false,
   clearError,
   signup,
@@ -279,8 +279,8 @@ function ClassCode({
                   )}
                 </div>
                 <div className={classes.ErrorMsg}>
-                  {errorMessage !== '' && (
-                    <div className={classes.Error}>{errorMessage}</div>
+                  {systemError !== '' && (
+                    <div className={classes.Error}>{systemError}</div>
                   )}
                 </div>
               </Fragment>
