@@ -92,11 +92,7 @@ RoomSettingsDropdown.propTypes = {
 };
 
 const Option = (props) => {
-  const {
-    children,
-    data: { setting },
-    isSelected,
-  } = props;
+  const { children = null, data: { setting } = {}, isSelected = false } = props;
 
   return (
     <components.Option {...props}>
@@ -125,12 +121,6 @@ Option.propTypes = {
     setting: PropTypes.string,
   }),
   isSelected: PropTypes.bool,
-};
-
-Option.defaultProps = {
-  children: null,
-  data: {},
-  isSelected: false,
 };
 
 export default RoomSettingsDropdown;

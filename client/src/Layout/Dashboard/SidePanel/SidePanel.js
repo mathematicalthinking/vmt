@@ -1,30 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import {
-  // Button,
-  Avatar,
-  Aux,
-} from '../../../Components';
+import { Aux } from 'Components';
 import classes from './sidePanel.css';
 
 const SidePanel = ({
-  image,
+  image = null,
   name,
   subTitle,
-  alt,
+  alt = null,
   additionalDetails,
-  editButton,
-  editing,
-  buttons,
-  accountType,
-  bothRoles,
+  editButton = null,
+  editing = false,
+  buttons = null,
+  accountType = null,
+  bothRoles = false,
 }) => {
   const details = Object.keys(additionalDetails).map((key) => {
     return (
       <div key={key} className={classes.KeyContainer}>
         <span className={classes.KeyName}>
-          {key === 'activities' || key === 'Activities' ? 'Templates' : key}{' '}
+          {key === 'activities' || key === 'Activities'
+            ? 'Templates'
+            : key}{' '}
         </span>
         <span className={classes.KeyValue}>{additionalDetails[key]}</span>
       </div>
@@ -85,14 +83,4 @@ SidePanel.propTypes = {
   bothRoles: PropTypes.bool,
 };
 
-SidePanel.defaultProps = {
-  image: null,
-  alt: null,
-  // owner: false,
-  editButton: null,
-  editing: false,
-  accountType: null,
-  buttons: null,
-  bothRoles: false,
-};
 export default SidePanel;

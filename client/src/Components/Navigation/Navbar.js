@@ -7,7 +7,7 @@ import DropdownNavItem from './DropdownNavItem';
 import classes from './navbar.css';
 import Avatar from '../UI/Avatar/Avatar';
 
-const Navbar = ({ user, location, toggleAdmin }) => {
+const Navbar = ({ user = null, location, toggleAdmin }) => {
   let styles = classes.NavContainer;
   let ntf = false;
   if (user && user.notifications && user.notifications.length > 0) {
@@ -147,7 +147,5 @@ Navbar.propTypes = {
   }).isRequired,
   toggleAdmin: PropTypes.func.isRequired,
 };
-Navbar.defaultProps = {
-  user: null,
-};
+
 export default withRouter(Navbar);

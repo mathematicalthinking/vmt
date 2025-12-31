@@ -5,10 +5,10 @@ import classes from './InfoBox.css';
 const InfoBox = ({
   title,
   children,
-  icon,
-  rightIcons,
-  rightTitle,
-  customStyle,
+  icon = null,
+  rightIcons = null,
+  rightTitle = null,
+  customStyle = {},
 }) => {
   const classNames = {
     section: 'Section',
@@ -65,10 +65,4 @@ InfoBox.propTypes = {
   }),
 };
 
-InfoBox.defaultProps = {
-  icon: null,
-  rightIcons: null,
-  rightTitle: null,
-  customStyle: {},
-};
 export default InfoBox;

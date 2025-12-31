@@ -20,15 +20,15 @@ import classes from './resourceList.css';
 
 const ResourceList = ({
   resource,
-  parentResource,
-  parentResourceId,
-  parentActivityId,
-  parentCourseId,
+  parentResource = null,
+  parentResourceId = null,
+  parentActivityId = null,
+  parentCourseId = null,
   user,
   userResources,
   notifications,
-  selectableBoxList,
-  context, // provides the context in which ResourceList is being used
+  selectableBoxList = false,
+  context = null, // provides the context in which ResourceList is being used
 }) => {
   const initialConfig = {
     key: 'updatedAt',
@@ -80,9 +80,8 @@ const ResourceList = ({
   }, [facilitatorSortConfig, participantSortConfig]);
 
   useEffect(() => {
-    const { facilitatorList, participantList } = sortUserResources(
-      userResources
-    );
+    const { facilitatorList, participantList } =
+      sortUserResources(userResources);
 
     setFacilitatorList(facilitatorList);
     setParticipantList(participantList);
@@ -489,15 +488,6 @@ ResourceList.propTypes = {
   notifications: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   selectableBoxList: PropTypes.bool,
   context: PropTypes.string,
-};
-
-ResourceList.defaultProps = {
-  parentResource: null,
-  parentResourceId: null,
-  parentActivityId: null,
-  parentCourseId: null,
-  selectableBoxList: false,
-  context: null,
 };
 
 export default ResourceList;

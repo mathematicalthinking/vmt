@@ -6,7 +6,7 @@ import Classes from './pending.css';
  * A notification to show who is currently typing a message
  */
 
-function Pending({ pendingUsers }) {
+function Pending({ pendingUsers = {} }) {
   const nameGen = (username) => {
     let shortName = username;
     const maxLen = 12;
@@ -34,10 +34,6 @@ function Pending({ pendingUsers }) {
 
 Pending.propTypes = {
   pendingUsers: PropTypes.shape({}),
-};
-
-Pending.defaultProps = {
-  pendingUsers: {},
 };
 
 export default Pending;

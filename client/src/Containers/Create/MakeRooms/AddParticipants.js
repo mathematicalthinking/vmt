@@ -26,7 +26,7 @@ const AddParticipants = (props) => {
     onSubmit,
     onCancel,
     courseCheckbox,
-    originatingCourseId,
+    originatingCourseId = null,
   } = props;
 
   const constants = {
@@ -87,9 +87,9 @@ const AddParticipants = (props) => {
 
   const userCoursesById = useSelector((state) => state.courses.byId);
 
-  const coursesUserDidNotCreate = Object.values(
-    userCoursesById
-  ).filter((course) => amIAFacilitator(course, userId));
+  const coursesUserDidNotCreate = Object.values(userCoursesById).filter(
+    (course) => amIAFacilitator(course, userId)
+  );
 
   const [searchText, setSearchText] = useState('');
   const [rosterSearchText, setRosterSearchText] = useState('');
@@ -102,10 +102,8 @@ const AddParticipants = (props) => {
   const [courseCodeSearchResults, setCourseCodeSearchResults] = useState({});
   const [newParticipants, setNewParticipants] = useState([]);
   const [addedCourse, setAddedCourse] = useState({});
-  const [
-    shouldInviteMembersToCourse,
-    setShouldInviteMembersToCourse,
-  ] = useState(false);
+  const [shouldInviteMembersToCourse, setShouldInviteMembersToCourse] =
+    useState(false);
   const [viewType, setViewType] = useState(constants.INDIVIDUALS);
 
   useEffect(() => {
@@ -185,10 +183,11 @@ const AddParticipants = (props) => {
   const searchCourseCode = async () => {
     if (!courseCodeSearchText.length) return;
 
-    const courseSearched = await CourseCodeMemberImportFunctions.getCourseFromCourseCode(
-      courseCodeSearchText,
-      [userId] // ignore userId
-    );
+    const courseSearched =
+      await CourseCodeMemberImportFunctions.getCourseFromCourseCode(
+        courseCodeSearchText,
+        [userId] // ignore userId
+      );
 
     if (
       !courseSearched ||
@@ -603,9 +602,5 @@ AddParticipants.propTypes = {
   onCancel: PropTypes.func.isRequired,
   courseCheckbox: PropTypes.bool.isRequired,
   originatingCourseId: PropTypes.string,
-};
-
-AddParticipants.defaultProps = {
-  originatingCourseId: null,
 };
 export default AddParticipants;

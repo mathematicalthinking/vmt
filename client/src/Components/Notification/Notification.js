@@ -2,10 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './notification.css';
 
-const Notification = ({ count, size, 'data-testid': dataTestId }) => {
+const Notification = ({
+  count = null,
+  size = null,
+  'data-testid': dataTestId = 'ntf-icon',
+}) => {
   return (
     <span
-      data-testid={dataTestId || 'ntf'}
+      data-testid={dataTestId}
       className={['fa-stack fa-1x', classes.Container].join(' ')}
     >
       <i
@@ -25,9 +29,4 @@ Notification.propTypes = {
   'data-testid': PropTypes.string,
 };
 
-Notification.defaultProps = {
-  count: null,
-  'data-testid': 'ntf-icon',
-  size: null,
-};
 export default Notification;

@@ -6,10 +6,10 @@ import classes from './monitoringView.css';
 
 export default function Thumbnails({
   populatedRoom,
-  defaultLabel,
-  alwaysShowLabel,
-  initialTabIndex,
-  initialScreen,
+  defaultLabel = '',
+  alwaysShowLabel = false,
+  initialTabIndex = -1,
+  initialScreen = -1,
 }) {
   const [tabSelection, setTabSelection] = React.useState();
   const [screenSelection, setScreenSelection] = React.useState();
@@ -198,11 +198,4 @@ Thumbnails.propTypes = {
   initialTabIndex: PropTypes.number,
   initialScreen: PropTypes.number,
   alwaysShowLabel: PropTypes.bool,
-};
-
-Thumbnails.defaultProps = {
-  defaultLabel: '',
-  initialTabIndex: -1,
-  initialScreen: -1,
-  alwaysShowLabel: false,
 };

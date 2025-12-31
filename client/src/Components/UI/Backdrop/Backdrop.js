@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classes from './Backdrop.css';
 
-const Backdrop = ({ show, clicked }) =>
+const Backdrop = ({ show, clicked = null }) =>
   show ? (
     <div
       className={classes.Backdrop}
@@ -18,7 +18,4 @@ Backdrop.propTypes = {
   clicked: PropTypes.func,
 };
 
-Backdrop.defaultProps = {
-  clicked: null,
-};
 export default Backdrop;

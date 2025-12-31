@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import RoomLobby from './RoomLobby';
 
 function Room(props) {
-  const { room } = props;
+  const { room = null } = props;
   // const { room_id } = match.params;
   // const { isSuccess, data } = usePopulatedRoom(room_id, false);
   // const updatedRoom = isSuccess ? { ...room, ...data } : room;
@@ -20,10 +20,6 @@ Room.propTypes = {
   room: PropTypes.shape({}),
   // history: PropTypes.shape({}).isRequired,
   // match: PropTypes.shape({}).isRequired,
-};
-
-Room.defaultProps = {
-  room: null,
 };
 
 const mapStateToProps = (state, ownProps) => {

@@ -5,13 +5,20 @@ import PropTypes from 'prop-types';
 import classes from './radioBtn.css';
 
 const RadioBtn = (props) => {
-  const { children, checked, name, check, isDisabled } = props;
+  const {
+    children,
+    checked,
+    name,
+    check,
+    isDisabled = false,
+    'data-testid': dataTestId = 'radioBtn',
+  } = props;
   return (
     <label className={classes.Container}>
       {children}
       <input
         // eslint-disable-next-line react/destructuring-assignment
-        data-testid={props['data-testid']}
+        data-testid={dataTestId}
         type="radio"
         checked={checked}
         name={name}
@@ -32,8 +39,4 @@ RadioBtn.propTypes = {
   'data-testid': PropTypes.string,
 };
 
-RadioBtn.defaultProps = {
-  'data-testid': 'radioBtn',
-  isDisabled: false,
-};
 export default RadioBtn;

@@ -27,6 +27,8 @@ const mongoURI = process.env.MONGO_URI;
 const isSecure = !mongoURI.includes('localhost');
 let mongoOptions = {
   useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
   poolSize: 10,
   compressors: 'snappy',
 };

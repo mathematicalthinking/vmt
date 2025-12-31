@@ -11,7 +11,14 @@ import gif from './Ripple.gif';
 import Backdrop from '../Backdrop/Backdrop';
 import classes from './bigModal.css';
 
-const BigModal = ({ show, closeModal, message, children, height, testId }) => {
+const BigModal = ({
+  show,
+  closeModal = null,
+  message = null,
+  children,
+  height = null,
+  testId = null,
+}) => {
   const mainDiv = React.createRef();
   React.useEffect(() => show && mainDiv.current && mainDiv.current.focus());
   return (
@@ -67,13 +74,6 @@ BigModal.propTypes = {
   children: PropTypes.node.isRequired,
   height: PropTypes.string,
   testId: PropTypes.string,
-};
-
-BigModal.defaultProps = {
-  closeModal: null,
-  message: null,
-  height: null,
-  testId: null,
 };
 
 export default BigModal;

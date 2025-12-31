@@ -6,13 +6,13 @@ import classes from './makeRooms.css';
 
 const AssignRooms = (props) => {
   const {
-    initialDueDate,
-    initialRoomName,
-    participantsPerRoom,
-    setParticipantsPerRoom,
+    initialDueDate = '',
+    initialRoomName = '',
+    participantsPerRoom = null,
+    setParticipantsPerRoom = null,
     assignmentMatrix,
     onSubmit,
-    onShuffle,
+    onShuffle = null,
     onCancel,
   } = props;
 
@@ -142,14 +142,6 @@ AssignRooms.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onShuffle: PropTypes.func,
   onCancel: PropTypes.func.isRequired,
-};
-
-AssignRooms.defaultProps = {
-  initialDueDate: '',
-  initialRoomName: '',
-  setParticipantsPerRoom: null,
-  onShuffle: null,
-  participantsPerRoom: null,
 };
 
 export default AssignRooms;

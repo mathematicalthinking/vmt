@@ -7,15 +7,15 @@ import { extractActivityCode } from 'Containers/Workspace/Tools/DesActivityHelpe
 import classes from './newTabForm.css';
 
 function NewTabForm({
-  room,
+  room = null,
   user,
-  activity,
-  updatedActivity,
-  sendEvent,
-  setTabs,
+  activity = null,
+  updatedActivity = null,
+  sendEvent = null,
+  setTabs = null,
   closeModal,
-  currentTabs,
-  currentTabId,
+  currentTabs = null,
+  currentTabId = null,
 }) {
   const CLONE = 'clone';
   const appName = 'classic';
@@ -205,15 +205,5 @@ NewTabForm.propTypes = {
   setTabs: PropTypes.func, // not used for activities
   currentTabs: PropTypes.arrayOf(PropTypes.shape({})), // not used for activities
   currentTabId: PropTypes.string,
-};
-
-NewTabForm.defaultProps = {
-  room: null,
-  updatedActivity: null,
-  sendEvent: null,
-  activity: null,
-  setTabs: null,
-  currentTabs: null,
-  currentTabId: null,
 };
 export default NewTabForm;

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import classes from './error.css';
 
 const ErrorComp = (props) => {
-  const { error, children, fullPage } = props;
+  const { error = false, children, fullPage = false } = props;
   let style = null;
   if (error) {
     style = classes.Error;
@@ -20,11 +20,6 @@ ErrorComp.propTypes = {
   error: PropTypes.bool,
   fullPage: PropTypes.bool,
   children: PropTypes.node.isRequired,
-};
-
-ErrorComp.defaultProps = {
-  error: false,
-  fullPage: false,
 };
 
 export default ErrorComp;

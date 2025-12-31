@@ -225,7 +225,7 @@ export const createGrouping = (
   roomsToCreate,
   activity,
   course = null,
-  groupingName = undefined,
+  groupingName,
   settings
 ) => {
   return (dispatch, getState) => {

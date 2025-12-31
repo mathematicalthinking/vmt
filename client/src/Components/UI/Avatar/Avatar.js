@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classes from './avatar.css';
 // import { Link } from 'react-router-dom';
 const Avatar = (props) => {
-  const { size, color, username } = props;
+  const { size = null, color = null, username = null } = props;
   let fontSize = 15;
   let padding = 7;
   let border = '1px solid black';
@@ -41,11 +41,5 @@ Avatar.propTypes = {
   size: PropTypes.string,
   color: PropTypes.string,
   username: PropTypes.string,
-};
-
-Avatar.defaultProps = {
-  size: null,
-  color: null,
-  username: null,
 };
 export default Avatar;

@@ -7,7 +7,7 @@ import classes from './stats.css';
 
 const margin = { top: 10, right: 10, bottom: 40, left: 50 };
 
-const Chart = ({ state }) => {
+const Chart = ({ data = null, state }) => {
   const {
     lines,
     units,
@@ -19,28 +19,18 @@ const Chart = ({ state }) => {
   const [[height, width], setDimensions] = useState([0, 0]);
   const graph = useRef(null);
   const x = useCallback(
-    d3
-      .scaleLinear()
-      .domain([0, durationDisplay])
-      .range([0, width])
-      .nice(),
+    d3.scaleLinear().domain([0, durationDisplay]).range([0, width]).nice(),
     [durationDisplay, width]
   );
   const y = useCallback(
-    d3
-      .scaleLinear()
-      .domain([0, maxY])
-      .range([height, 0])
-      .nice(),
+    d3.scaleLinear().domain([0, maxY]).range([height, 0]).nice(),
     [durationDisplay, height, maxY]
   );
 
   useEffect(() => {
     if (graph.current) {
-      const {
-        width: updatedWidth,
-        height: updatedHeight,
-      } = graph.current.getBoundingClientRect();
+      const { width: updatedWidth, height: updatedHeight } =
+        graph.current.getBoundingClientRect();
       setDimensions([
         updatedHeight - margin.top - margin.bottom,
         updatedWidth - margin.left - margin.right,
@@ -111,10 +101,6 @@ const Chart = ({ state }) => {
 Chart.propTypes = {
   data: PropTypes.shape({}),
   state: PropTypes.shape({}).isRequired,
-};
-
-Chart.defaultProps = {
-  data: null,
 };
 
 export default Chart;

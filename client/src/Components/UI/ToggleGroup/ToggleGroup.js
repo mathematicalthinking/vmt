@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import classes from './toggleGroup.css';
 
 export default function ToggleGroup(props) {
-  const { buttons, onChange, value } = props;
+  const { buttons, onChange, value = null } = props;
   const [selection, setSelection] = React.useState(value || buttons[0]);
   const groupName = Math.random().toString();
 
@@ -39,8 +39,4 @@ ToggleGroup.propTypes = {
   buttons: PropTypes.arrayOf(PropTypes.string).isRequired,
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
-};
-
-ToggleGroup.defaultProps = {
-  value: null,
 };

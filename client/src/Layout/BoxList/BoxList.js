@@ -11,16 +11,16 @@ const boxList = (props) => {
     list,
     listType,
     resource,
-    notifications,
-    linkPath,
-    linkSuffix,
-    draggable,
-    maxHeight,
-    scrollable,
-    selectable,
-    selectedIds,
-    onSelect,
-    icons,
+    notifications = [],
+    linkPath = null,
+    linkSuffix = null,
+    draggable = false,
+    maxHeight = null,
+    scrollable = false,
+    selectable = false,
+    selectedIds = [],
+    onSelect = null,
+    icons = null,
   } = props;
 
   const timeDiff = (ts) => {
@@ -181,19 +181,6 @@ boxList.propTypes = {
   selectedIds: PropTypes.arrayOf(PropTypes.string),
   onSelect: PropTypes.func,
   icons: PropTypes.arrayOf(PropTypes.shape({})),
-};
-
-boxList.defaultProps = {
-  draggable: false,
-  maxHeight: null,
-  scrollable: false,
-  selectable: false,
-  selectedIds: [],
-  onSelect: null,
-  notifications: [],
-  icons: null,
-  linkPath: null,
-  linkSuffix: null,
 };
 
 export default boxList;

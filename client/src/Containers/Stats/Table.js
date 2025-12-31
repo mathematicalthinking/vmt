@@ -5,29 +5,33 @@ import classes from './table.css';
 const Table = ({ data }) => {
   return (
     <div className={classes.Container} data-testid="table">
-      <table>
-        <thead>
-          <tr>
-            {Object.keys(data[0]).map((k) => (
-              <th key={k}>{k}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((d) => (
-            <tr
-              key={d._id}
-              style={{
-                background: `${d.color}80`,
-              }}
-            >
-              {Object.keys(d).map((k) => {
-                return <td key={d._id + k}>{d[k]}</td>;
-              })}
+      {!data || data.length === 0 || !data[0] ? (
+        <p>No data to display</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              {Object.keys(data[0]).map((k) => (
+                <th key={k}>{k}</th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((d) => (
+              <tr
+                key={d._id}
+                style={{
+                  background: `${d.color}80`,
+                }}
+              >
+                {Object.keys(d).map((k) => {
+                  return <td key={d._id + k}>{d[k]}</td>;
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

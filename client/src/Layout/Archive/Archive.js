@@ -8,10 +8,10 @@ import classes from './archive.css';
 
 const Archive = (props) => {
   const {
-    visibleResources,
+    visibleResources = [],
     resource,
-    searchValue,
-    onLoadMore,
+    searchValue = '',
+    onLoadMore = () => {},
     setCriteria,
     moreAvailable,
     filters,
@@ -19,13 +19,13 @@ const Archive = (props) => {
     loading,
     onTabChange,
     dateRangePreset,
-    customFromDate,
-    customToDate,
+    customFromDate = null,
+    customToDate = null,
     setToDate,
     setFromDate,
-    icons,
-    selectActions,
-    actionComponent,
+    icons = [],
+    selectActions = [],
+    actionComponent = null,
     totalNumberOfArchivedRooms,
   } = props;
 
@@ -273,17 +273,6 @@ Archive.propTypes = {
   selectActions: PropTypes.arrayOf(PropTypes.shape({})),
   actionComponent: PropTypes.node,
   totalNumberOfArchivedRooms: PropTypes.number.isRequired,
-};
-
-Archive.defaultProps = {
-  visibleResources: [],
-  searchValue: '',
-  onLoadMore: () => {},
-  customFromDate: null,
-  customToDate: null,
-  actionComponent: null,
-  icons: [],
-  selectActions: [],
 };
 
 export default Archive;

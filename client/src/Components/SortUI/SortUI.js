@@ -6,14 +6,14 @@ import { Search } from 'Components';
 import classes from './resourceList.css';
 
 const SortUI = ({
-  keys,
+  keys = [],
   sortFn,
-  sortConfig,
-  disableSort,
-  timeFrames: givenTimeFrames,
-  disableSearch,
-  disableFilter,
-  disableLabels,
+  sortConfig = {},
+  disableSort = false,
+  timeFrames: givenTimeFrames = null,
+  disableSearch = false,
+  disableFilter = false,
+  disableLabels = false,
 }) => {
   const upArrow = <i className="fas fa-solid fa-arrow-up" />;
   const downArrow = <i className="fas fa-solid fa-arrow-down" />;
@@ -212,15 +212,6 @@ SortUI.propTypes = {
   timeFrames: PropTypes.arrayOf(
     PropTypes.shape({ label: PropTypes.string, value: PropTypes.string })
   ),
-};
-SortUI.defaultProps = {
-  sortConfig: {},
-  keys: [],
-  timeFrames: null,
-  disableSort: false,
-  disableSearch: false,
-  disableFilter: false,
-  disableLabels: false,
 };
 
 export default SortUI;
