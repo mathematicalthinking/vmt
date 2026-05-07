@@ -1,6 +1,3 @@
-// Teacher.Desmos export url
-const baseURL = 'https://teacher.desmos.com/activitybuilder/export/'; // + activity code
-
 // utility for getting Desmos Activity Confguration from tab state
 export const fetchConfigData = async (tab, shouldLoadCurrent = false) => {
   // setting our return object
@@ -38,24 +35,21 @@ export const fetchConfigData = async (tab, shouldLoadCurrent = false) => {
     }
   }
 
-  // calling Desmos to get activity config via link code
+  // calling our server to get activity config via link code (to avoid CORS)
   try {
     // otherwise fetch the config if we have a code, or for a room have a default config
     const code =
       tab.desmosLink ||
       // fallback to turtle time trials, used for demo
       '5da9e2174769ea65a6413c93';
-    const result = await fetch(`${baseURL}${code}`, {
-      headers: { Accept: 'application/json' },
-    });
-    const status = await result.status;
-    configData.status = status;
-    if (status !== 200) {
-      configData.config = null;
+    const result = await fetch(`/desmos/activity/${code}`);
+    const data = await result.json();
+    configData.status = data.status;
+    configData.config = data.config;
+
+    if (data.status !== 200) {
       return configData;
     }
-    const data = await result.json();
-    configData.config = data;
     return configData;
   } catch (err) {
     configData.config = null;

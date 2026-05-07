@@ -233,11 +233,11 @@ const DesmosActivity = (props) => {
           );
         } else if (configResponse) {
           setShowConfigError(
-            'This activity could not be accessed from Teacher.Desmos. Make sure the activity is publicly accessible.'
+            'This activity could not be accessed from Amplify.Classroom. Make sure the activity is publicly accessible.'
           );
         } else {
           setShowConfigError(
-            'This activity could not be accessed from Teacher.Desmos. Please check the configuration code or url.'
+            'This activity could not be accessed from Amplify.Classroom. Please check the configuration code or url.'
           );
         }
       }

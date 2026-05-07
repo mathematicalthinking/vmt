@@ -117,7 +117,7 @@ const Faq = () => {
               <li>
                 <a
                   className={classes.Link}
-                  href="https://teacher.desmos.com/"
+                  href="https://classroom.amplify.com/"
                   rel="noopener noreferrer"
                   target="_blank"
                 >

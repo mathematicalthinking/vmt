@@ -22,7 +22,7 @@ const ActivityTools = (props) => {
 
   const tabdata = tabs.map((tab) => {
     if (tab.tabType === 'desmosActivity' && tab.desmosLink) {
-      // Desmos Base URL: https://teacher.desmos.com/activitybuilder/custom/
+      // Desmos Base URL: https://classroom.amplify.com/activity/ + activity code
       return (
         <div>
           {tab.name}:{' '}
@@ -33,7 +33,7 @@ const ActivityTools = (props) => {
             href={getDesmosActivityUrl(tab.desmosLink)}
             data-testid="desmos-link"
           >
-            Base configuration at Teacher.Desmos
+            Base configuration at Amplify.Classroom
           </a>
         </div>
       );
@@ -107,10 +107,10 @@ const ActivityTools = (props) => {
               className={classes.Link}
               target="_blank"
               rel="noopener noreferrer"
-              href="https://teacher.desmos.com/"
+              href="https://classroom.amplify.com/"
               data-testid="desmos-link"
             >
-              teacher.desmos.com
+              classroom.amplify.com
             </a>
             <div className={classes.Save}>
               <div

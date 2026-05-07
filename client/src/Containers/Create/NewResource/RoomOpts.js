@@ -90,7 +90,7 @@ class RoomOpts extends Component {
           <br />
           <p>
             Paste in an activity builder share url or hash code from
-            teacher.desmos
+            classroom.amplify.com
           </p>
           <br />
           <p>
