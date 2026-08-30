@@ -10,38 +10,38 @@ export const ModalContext = createContext({
 
 // eslint-disable-next-line react/prop-types
 export default function GeneralModal({ children }) {
-  const [show, setShow] = useState(false);
-  const [child, setChild] = useState(<div />); // prevent Proptype warning
-  const [options, setOptions] = useState({});
-  const [isBig, setIsBig] = useState(false);
+  const [modalStack, setModalStack] = useState([]);
 
-  // @TODO Ugh...this function should take a 'type' as parameter, whether Modal or BigModal, and the return/render below should create a component of that type.
-  // Unfortunately, I couldn't get that more extensible approach to work in the short time I tried.
   const _show = (makeBig) => {
-    return (component, newOptions = {}) => {
-      setChild(component);
-      setShow(true);
-      setIsBig(makeBig);
-      setOptions(newOptions);
-    };
+    return (component, newOptions = {}) =>
+      _push(component, makeBig, newOptions);
   };
+
+  const _pop = () => setModalStack((prev) => prev.slice(0, -1));
+  const _push = (component, isBig, options = {}) =>
+    setModalStack((prev) => [
+      ...prev,
+      { component, isBig, options, key: Date.now() },
+    ]);
 
   return (
     <ModalContext.Provider
       value={{
         show: _show(false),
         showBig: _show(true),
-        hide: () => setShow(false),
+        hide: _pop,
       }}
     >
-      {isBig ? (
-        <BigModal show={show} closeModal={() => setShow(false)} {...options}>
-          {child}
-        </BigModal>
-      ) : (
-        <Modal show={show} closeModal={() => setShow(false)} {...options}>
-          {child}
-        </Modal>
+      {modalStack.map((modal) =>
+        modal.isBig ? (
+          <BigModal show closeModal={_pop} {...modal.options} key={modal.key}>
+            {modal.component}
+          </BigModal>
+        ) : (
+          <Modal show closeModal={_pop} {...modal.options} key={modal.key}>
+            {modal.component}
+          </Modal>
+        )
       )}
       {children}
     </ModalContext.Provider>
